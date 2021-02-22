@@ -1,5 +1,4 @@
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +8,7 @@ import { AuthEntity } from './entity/auth.entity';
 import { JwtInterface } from './interface/jwt.interface';
 import { JwtPayloadInterface } from './interface/jwt-payload.interface';
 import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +17,7 @@ export class AuthService {
     private readonly authRepository: Repository<AuthEntity>,
     @Inject(auth.KEY)
     private readonly authConfig: ConfigType<typeof auth>,
+    private jwtService: JwtService,
   ) {}
   public async login(login: LoginDto): Promise<JwtInterface> {
     const { email, password } = login;
@@ -34,17 +35,16 @@ export class AuthService {
     return this.createToken(auth);
   }
   public createToken(auth: AuthEntity): JwtInterface {
-    const { tokenExpiry, secret } = this.authConfig;
+    const { tokenExpiry } = this.authConfig;
 
-    let jwt_data: JwtPayloadInterface = {
+    const jwtUser: JwtPayloadInterface = {
       id: auth.id,
       email: auth.email,
     };
 
-    const token = jwt.sign(jwt_data, secret, { expiresIn: tokenExpiry });
     return {
       token: {
-        access_token: token,
+        access_token: this.jwtService.sign(jwtUser),
         expires_in: tokenExpiry,
       },
     };

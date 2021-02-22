@@ -3,9 +3,9 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Post,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -30,14 +30,14 @@ export class AuthController {
     try {
       return await this.authService.login(login);
     } catch (err) {
-      throw new HttpException(err.toString(), HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException(err.toString());
     }
   }
 
   @Get('restricted')
   @ApiResponse({
     status: 200,
-    description: 'Login successful.',
+    description: 'Success! You are logged in',
   })
   @ApiResponse({
     status: 403,
