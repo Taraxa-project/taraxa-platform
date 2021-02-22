@@ -9,7 +9,10 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@taraxa-claim/config": ["config"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }
