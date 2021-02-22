@@ -6,11 +6,14 @@ import {
   HttpStatus,
   Post,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtInterface } from './interface/jwt.interface';
+import { JwtAuthGuard } from './jwt-auth.guard';
+
 
 @Controller('auth')
 @ApiTags('auth')
@@ -34,7 +37,9 @@ export class AuthController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('restricted')
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'Success! You are logged in',
