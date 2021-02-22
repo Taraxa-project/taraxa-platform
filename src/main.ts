@@ -9,7 +9,6 @@ async function bootstrap() {
     .setTitle('Taraxa Claim Backend')
     .setDescription('Taraxa Claim Backend')
     .setVersion('1.0')
-    .addTag('claim')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

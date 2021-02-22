@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { general, database, ethereum } from '@taraxa-claim/config';
+import { general, database, auth, ethereum } from '@taraxa-claim/config';
+import { AuthModule } from '@taraxa-claim/auth';
+import { UserModule } from '@taraxa-claim/user';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [general, database, ethereum],
+      load: [general, database, auth, ethereum],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -23,6 +25,8 @@ import { general, database, ethereum } from '@taraxa-claim/config';
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
+    UserModule,
   ],
 })
 export class AppModule {}

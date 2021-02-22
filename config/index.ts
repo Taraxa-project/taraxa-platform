@@ -1,5 +1,6 @@
-import database from './database';
-import ethereum from './ethereum';
 import general from './general';
+import database from './database';
+import auth from './auth';
+import ethereum from './ethereum';
 
-export { database, ethereum, general };
+export { general, database, auth, ethereum };
