@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { general, database, auth, ethereum } from '@taraxa-claim/config';
 import { AuthModule } from '@taraxa-claim/auth';
-import { UserModule } from '@taraxa-claim/user';
+import { ClaimModule } from '@taraxa-claim/claim';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { UserModule } from '@taraxa-claim/user';
       inject: [ConfigService],
     }),
     AuthModule,
-    UserModule,
+    ClaimModule,
   ],
 })
 export class AppModule {}

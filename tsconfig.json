@@ -13,7 +13,7 @@
     "paths": {
       "@taraxa-claim/config": ["config"],
       "@taraxa-claim/auth": ["src/modules/auth"],
-      "@taraxa-claim/user": ["src/modules/user"]
+      "@taraxa-claim/claim": ["src/modules/claim"]
     }
   },
   "exclude": ["node_modules", "dist"]

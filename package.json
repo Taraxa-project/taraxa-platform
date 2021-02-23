@@ -25,6 +25,7 @@
     "@nestjs/typeorm": "^7.1.5",
     "bcrypt": "^5.0.0",
     "class-validator": "^0.13.1",
+    "csv-parse": "^4.15.3",
     "mysql2": "^2.2.5",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
@@ -57,6 +58,6 @@
   "moduleNameMapper": {
     "@taraxa-claim/config": "<rootDir>/config",
     "@taraxa-claim/auth": "<rootDir>/src/modules/auth",
-    "@taraxa-claim/user": "<rootDir>/src/modules/user"
+    "@taraxa-claim/claim": "<rootDir>/src/modules/claim"
   }
 }
