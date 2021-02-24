@@ -66,7 +66,6 @@ export class ClaimController {
   @ApiOkResponse()
   @ApiForbiddenResponse()
   @Get(':id')
-  @UseInterceptors(PaginationInterceptor)
   async getClaim(@Param('id') id: number): Promise<ClaimEntity> {
     return await this.claimService.claim(id);
   }
