@@ -26,7 +26,7 @@ export class BatchEntity {
   @OneToMany(
     type => ClaimEntity,
     claim => claim.batch,
-    { cascade: true }
+    { cascade: true },
   )
   claims: ClaimEntity[];
 }

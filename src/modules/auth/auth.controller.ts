@@ -14,7 +14,6 @@ import { LoginDto } from './dto/login.dto';
 import { JwtInterface } from './interface/jwt.interface';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
-
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
