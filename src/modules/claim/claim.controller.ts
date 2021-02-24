@@ -1,7 +1,9 @@
 import { Express } from 'express';
 import {
   Controller,
+  Get,
   InternalServerErrorException,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -10,38 +12,43 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
-  ApiResponse,
   ApiBearerAuth,
   ApiConsumes,
   ApiBody,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
 import { FileUploadDto } from './dto/file-upload.dto';
 import { ClaimEntity } from './entity/claim.entity';
+import {
+  PaginationInterceptor,
+  CollectionResponse,
+} from '@taraxa-claim/common';
 
-@Controller('claims')
+@ApiBearerAuth()
 @ApiTags('claims')
+@UseGuards(JwtAuthGuard)
+@Controller('claims')
 export class ClaimController {
   constructor(private readonly claimService: ClaimService) {}
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiResponse({
-    status: 201,
+
+  @ApiCreatedResponse({
     description: 'Batch created',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden',
-  })
+  @ApiForbiddenResponse()
+  @ApiInternalServerErrorResponse()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
   @ApiBody({
     description: 'List of cats',
     type: FileUploadDto,
   })
   @Post()
-  async create(
+  @UseInterceptors(FileInterceptor('file'))
+  async createBatch(
     @UploadedFile() file: Express.Multer.File,
   ): Promise<ClaimEntity[]> {
     const { mimetype, buffer, size } = file;
@@ -54,5 +61,21 @@ export class ClaimController {
     } catch (err) {
       throw new InternalServerErrorException();
     }
+  }
+
+  @ApiOkResponse()
+  @ApiForbiddenResponse()
+  @Get(':id')
+  @UseInterceptors(PaginationInterceptor)
+  async getClaim(@Param('id') id: number): Promise<ClaimEntity> {
+    return await this.claimService.claim(id);
+  }
+
+  @ApiOkResponse()
+  @ApiForbiddenResponse()
+  @Get()
+  @UseInterceptors(PaginationInterceptor)
+  async getClaims(): Promise<CollectionResponse<ClaimEntity>> {
+    return await this.claimService.claims();
   }
 }

@@ -14,6 +14,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('apidocs', app, document);
 
+  app.enableCors({
+    origin: '*',
+    exposedHeaders: ['Content-Type', 'Content-Range'],
+  });
   await app.listen(process.env.SERVER_PORT);
 }
 bootstrap();

@@ -12,6 +12,7 @@
     "incremental": true,
     "paths": {
       "@taraxa-claim/config": ["config"],
+      "@taraxa-claim/common": ["src/modules/common"],
       "@taraxa-claim/auth": ["src/modules/auth"],
       "@taraxa-claim/claim": ["src/modules/claim"]
     }

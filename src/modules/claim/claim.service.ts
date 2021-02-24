@@ -5,6 +5,7 @@ import { ClaimEntity } from './entity/claim.entity';
 import { FileDto } from './dto/file.dto';
 import { BatchEntity } from './entity/batch.entity';
 import * as parse from 'csv-parse/lib/sync';
+import { CollectionResponse } from '@taraxa-claim/common';
 
 @Injectable()
 export class ClaimService {
@@ -21,6 +22,22 @@ export class ClaimService {
     await this.batchRepository.save(batch);
 
     return batch.claims;
+  }
+  public async batch(id: number): Promise<BatchEntity> {
+    return await this.batchRepository.findOneOrFail({ id });
+  }
+  public async batches(): Promise<CollectionResponse<BatchEntity>> {
+    const batches = new CollectionResponse<BatchEntity>();
+    [ batches.data, batches.count ] = await this.batchRepository.findAndCount();
+    return batches;
+  }
+  public async claim(id: number): Promise<ClaimEntity> {
+    return await this.claimRepository.findOneOrFail({ id });
+  }
+  public async claims(): Promise<CollectionResponse<ClaimEntity>> {
+    const claims = new CollectionResponse<ClaimEntity>();
+    [ claims.data, claims.count ] = await this.claimRepository.findAndCount();
+    return claims;
   }
   private parseCsv(buffer: Buffer) {
     const claims = parse(buffer, {
