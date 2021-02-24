@@ -35,7 +35,6 @@ import {
 @Controller('claims')
 export class ClaimController {
   constructor(private readonly claimService: ClaimService) {}
-
   @ApiCreatedResponse({
     description: 'Batch created',
   })
@@ -62,14 +61,12 @@ export class ClaimController {
       throw new InternalServerErrorException();
     }
   }
-
   @ApiOkResponse()
   @ApiForbiddenResponse()
   @Get(':id')
   async getClaim(@Param('id') id: number): Promise<ClaimEntity> {
     return await this.claimService.claim(id);
   }
-
   @ApiOkResponse()
   @ApiForbiddenResponse()
   @Get()

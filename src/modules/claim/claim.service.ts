@@ -24,19 +24,19 @@ export class ClaimService {
     return batch.claims;
   }
   public async batch(id: number): Promise<BatchEntity> {
-    return await this.batchRepository.findOneOrFail({ id });
+    return this.batchRepository.findOneOrFail({ id });
   }
   public async batches(): Promise<CollectionResponse<BatchEntity>> {
     const batches = new CollectionResponse<BatchEntity>();
-    [ batches.data, batches.count ] = await this.batchRepository.findAndCount();
+    [batches.data, batches.count] = await this.batchRepository.findAndCount();
     return batches;
   }
   public async claim(id: number): Promise<ClaimEntity> {
-    return await this.claimRepository.findOneOrFail({ id });
+    return this.claimRepository.findOneOrFail({ id });
   }
   public async claims(): Promise<CollectionResponse<ClaimEntity>> {
     const claims = new CollectionResponse<ClaimEntity>();
-    [ claims.data, claims.count ] = await this.claimRepository.findAndCount();
+    [claims.data, claims.count] = await this.claimRepository.findAndCount();
     return claims;
   }
   private parseCsv(buffer: Buffer) {
@@ -55,9 +55,5 @@ export class ClaimService {
     });
 
     return claims;
-  }
-  public async getClaim(id: number): Promise<ClaimEntity> {
-    const claim = await this.claimRepository.findOneOrFail({ id });
-    return claim;
   }
 }

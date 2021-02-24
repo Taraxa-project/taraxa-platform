@@ -24,7 +24,7 @@ import { BatchEntity } from './entity/batch.entity';
 @ApiTags('batches')
 @UseGuards(JwtAuthGuard)
 @Controller('batches')
-export class BatchesController {
+export class BatchController {
   constructor(private readonly claimService: ClaimService) {}
   @ApiOkResponse()
   @ApiForbiddenResponse()
