@@ -31,8 +31,8 @@ export class ClaimEntity {
   @Column({ name: 'number_of_tokens' })
   numberOfTokens: number;
 
-  @Column({ name: 'claim_date' })
-  claimDate: Date;
+  @Column({ name: 'unlock_date' })
+  unlockDate: Date;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

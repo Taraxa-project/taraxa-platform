@@ -50,7 +50,7 @@ export class ClaimService {
       const claim = new ClaimEntity();
       claim.address = line[1].toString();
       claim.numberOfTokens = parseInt(line[2], 10);
-      claim.claimDate = new Date(line[3]);
+      claim.unlockDate = new Date(line[3]);
       return claim;
     });
 
