@@ -68,9 +68,10 @@ export class ClaimService {
       'hex',
     );
     claims.data = data.map(c => {
+      const nonce = c.id * 13;
       const encodedPayload = abi.soliditySHA3(
         ['address', 'uint', 'uint'],
-        [c.address, c.numberOfTokens, c.id],
+        [c.address, c.numberOfTokens, nonce],
       );
 
       const { v, r, s } = ethUtil.ecsign(encodedPayload, privateKey);
@@ -78,7 +79,7 @@ export class ClaimService {
 
       return {
         hash,
-        nonce: c.id,
+        nonce,
         numberOfTokens: c.numberOfTokens,
         unlockDate: c.unlockDate,
       };
