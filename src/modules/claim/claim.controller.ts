@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
   UseGuards,
@@ -8,8 +9,9 @@ import {
 import {
   ApiTags,
   ApiBearerAuth,
-  ApiForbiddenResponse,
   ApiOkResponse,
+  ApiNoContentResponse,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -25,18 +27,23 @@ import {
 @Controller('claims')
 export class ClaimController {
   constructor(private readonly claimService: ClaimService) {}
-
-  @ApiOkResponse()
-  @ApiForbiddenResponse()
+  @ApiOkResponse({ description: 'Claim' })
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get(':id')
   async getClaim(@Param('id') id: number): Promise<ClaimEntity> {
-    return await this.claimService.claim(id);
+    return this.claimService.claim(id);
+  }
+  @ApiNoContentResponse()
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
+  @Delete(':id')
+  async deleteClaim(@Param('id') id: number): Promise<ClaimEntity> {
+    return this.claimService.deleteClaim(id);
   }
   @ApiOkResponse()
-  @ApiForbiddenResponse()
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
   async getClaims(): Promise<CollectionResponse<ClaimEntity>> {
-    return await this.claimService.claims();
+    return this.claimService.claims();
   }
 }

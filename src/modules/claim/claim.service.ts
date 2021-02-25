@@ -26,6 +26,10 @@ export class ClaimService {
   public async batch(id: number): Promise<BatchEntity> {
     return this.batchRepository.findOneOrFail({ id });
   }
+  public async deleteBatch(id: number): Promise<BatchEntity> {
+    const batch = await this.batchRepository.findOneOrFail({ id });
+    return this.batchRepository.remove(batch);
+  }
   public async batches(): Promise<CollectionResponse<BatchEntity>> {
     const batches = new CollectionResponse<BatchEntity>();
     [batches.data, batches.count] = await this.batchRepository.findAndCount();
@@ -33,6 +37,10 @@ export class ClaimService {
   }
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
+  }
+  public async deleteClaim(id: number): Promise<ClaimEntity> {
+    const claim = await this.claimRepository.findOneOrFail({ id });
+    return this.claimRepository.remove(claim);
   }
   public async claims(): Promise<CollectionResponse<ClaimEntity>> {
     const claims = new CollectionResponse<ClaimEntity>();

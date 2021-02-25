@@ -1,6 +1,7 @@
 import { Express } from 'express';
 import {
   Controller,
+  Delete,
   Get,
   InternalServerErrorException,
   Param,
@@ -18,6 +19,8 @@ import {
   ApiInternalServerErrorResponse,
   ApiConsumes,
   ApiBody,
+  ApiNoContentResponse,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -63,16 +66,22 @@ export class BatchController {
     }
   }
   @ApiOkResponse()
-  @ApiForbiddenResponse()
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
   async getBatches(): Promise<CollectionResponse<BatchEntity>> {
     return await this.claimService.batches();
   }
   @ApiOkResponse()
-  @ApiForbiddenResponse()
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get(':id')
   async getBatch(@Param('id') id: number): Promise<BatchEntity> {
     return await this.claimService.batch(id);
+  }
+  @ApiNoContentResponse()
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
+  @Delete(':id')
+  async deleteBatch(@Param('id') id: number): Promise<BatchEntity> {
+    return this.claimService.deleteBatch(id);
   }
 }

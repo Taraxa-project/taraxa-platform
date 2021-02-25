@@ -21,6 +21,7 @@ export class ClaimEntity {
   @ManyToOne(
     type => BatchEntity,
     batch => batch.claims,
+    { onDelete: 'CASCADE' },
   )
   batch: BatchEntity;
 
