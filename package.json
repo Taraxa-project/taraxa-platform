@@ -27,6 +27,8 @@
     "class-validator": "^0.13.1",
     "content-range": "^2.0.0",
     "csv-parse": "^4.15.3",
+    "ethereumjs-abi": "^0.6.8",
+    "ethereumjs-util": "^7.0.8",
     "mysql2": "^2.2.5",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
