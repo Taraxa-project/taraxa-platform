@@ -1,6 +1,6 @@
 export class UserClaimEntity {
-  nonce: number;
+  nonce?: number;
   numberOfTokens: number;
   unlockDate: Date;
-  hash: string;
+  hash?: string;
 }

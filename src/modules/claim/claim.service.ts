@@ -14,6 +14,7 @@ import { BatchEntity } from './entity/batch.entity';
 
 @Injectable()
 export class ClaimService {
+  privateKey: Buffer;
   constructor(
     @InjectRepository(BatchEntity)
     private readonly batchRepository: Repository<BatchEntity>,
@@ -21,7 +22,9 @@ export class ClaimService {
     private readonly claimRepository: Repository<ClaimEntity>,
     @Inject(ethereum.KEY)
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
-  ) {}
+  ) {
+    this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
+  }
   public async createBatch(file: FileDto): Promise<ClaimEntity[]> {
     const batch = new BatchEntity();
     const claims = this.parseCsv(file.buffer);
@@ -76,18 +79,21 @@ export class ClaimService {
       where: { address, status: 1 },
     });
 
-    const privateKey = Buffer.from(
-      this.ethereumConfig.privateSigningKey,
-      'hex',
-    );
+    const now = new Date();
     claims.data = data.map(c => {
+      if (c.unlockDate.getTime() > now.getTime()) {
+        return {
+          numberOfTokens: c.numberOfTokens,
+          unlockDate: c.unlockDate,
+        };
+      }
       const nonce = c.id * 13;
       const encodedPayload = abi.soliditySHA3(
         ['address', 'uint', 'uint'],
         [c.address, c.numberOfTokens, nonce],
       );
 
-      const { v, r, s } = ethUtil.ecsign(encodedPayload, privateKey);
+      const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
       const hash = ethUtil.toRpcSig(v, r, s);
 
       return {
