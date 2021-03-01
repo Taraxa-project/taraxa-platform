@@ -49,7 +49,6 @@ export class ClaimService {
     const claim = await this.claimRepository.findOneOrFail({ id });
     return this.claimRepository.remove(claim);
   }
-  e;
   public async claims(): Promise<CollectionResponse<ClaimEntity>> {
     const claims = new CollectionResponse<ClaimEntity>();
     [claims.data, claims.count] = await this.claimRepository.findAndCount();
@@ -88,17 +87,29 @@ export class ClaimService {
     return claims;
   }
   private parseCsv(buffer: Buffer) {
-    const claims = parse(buffer, {
+    let claims = parse(buffer, {
       delimiter: ';',
-      fromLine: 2,
       cast: false,
       castDate: false,
       trim: true,
-    }).map((line: any) => {
+      skipEmptyLines: true,
+      skipLinesWithEmptyValues: true,
+      skipLinesWithError: true,
+    }).map((line: string[]) => {
+      return line.filter((l: string) => {
+        return l !== '';
+      });
+    });
+
+    claims = claims.filter((line: string[]) => line.length === 3);
+    claims = claims.filter((line: string[], index: number) => index !== 0);
+
+    claims = claims.map((line: string[]) => {
       const claim = new ClaimEntity();
-      claim.address = line[1].toString();
-      claim.numberOfTokens = parseInt(line[2], 10);
-      claim.unlockDate = new Date(line[3]);
+      claim.address = line[0].toString();
+      claim.numberOfTokens = parseInt(line[1], 10);
+      claim.unlockDate = new Date(line[2]);
+
       return claim;
     });
 
