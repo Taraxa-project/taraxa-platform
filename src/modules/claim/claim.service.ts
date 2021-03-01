@@ -37,9 +37,16 @@ export class ClaimService {
     const batch = await this.batchRepository.findOneOrFail({ id });
     return this.batchRepository.remove(batch);
   }
-  public async batches(): Promise<CollectionResponse<BatchEntity>> {
+  public async batches(
+    range: number[],
+    sort: string[],
+  ): Promise<CollectionResponse<BatchEntity>> {
     const batches = new CollectionResponse<BatchEntity>();
-    [batches.data, batches.count] = await this.batchRepository.findAndCount();
+    [batches.data, batches.count] = await this.batchRepository.findAndCount({
+      order: { [sort[0]]: sort[1] },
+      skip: range[0],
+      take: range[1] - range[0] + 1,
+    });
     return batches;
   }
   public async claim(id: number): Promise<ClaimEntity> {
@@ -49,9 +56,16 @@ export class ClaimService {
     const claim = await this.claimRepository.findOneOrFail({ id });
     return this.claimRepository.remove(claim);
   }
-  public async claims(): Promise<CollectionResponse<ClaimEntity>> {
+  public async claims(
+    range: number[],
+    sort: string[],
+  ): Promise<CollectionResponse<ClaimEntity>> {
     const claims = new CollectionResponse<ClaimEntity>();
-    [claims.data, claims.count] = await this.claimRepository.findAndCount();
+    [claims.data, claims.count] = await this.claimRepository.findAndCount({
+      order: { [sort[0]]: sort[1] },
+      skip: range[0],
+      take: range[1] - range[0] + 1,
+    });
     return claims;
   }
   public async userClaims(

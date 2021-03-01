@@ -18,6 +18,8 @@ import { ClaimService } from './claim.service';
 import { ClaimEntity } from './entity/claim.entity';
 import { UserClaimEntity } from './entity/userClaim.entity';
 import {
+  Query,
+  QueryDto,
   PaginationInterceptor,
   CollectionResponse,
 } from '@taraxa-claim/common';
@@ -56,7 +58,17 @@ export class ClaimController {
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
-  async getClaims(): Promise<CollectionResponse<ClaimEntity>> {
-    return this.claimService.claims();
+  async getClaims(
+    @Query([
+      'id',
+      'address',
+      'numberOfTokens',
+      'unlockDate',
+      'createdAt',
+      'status',
+    ])
+    query: QueryDto,
+  ): Promise<CollectionResponse<ClaimEntity>> {
+    return this.claimService.claims(query.range, query.sort);
   }
 }

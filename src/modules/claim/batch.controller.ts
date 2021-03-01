@@ -25,6 +25,8 @@ import {
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
 import {
+  Query,
+  QueryDto,
   PaginationInterceptor,
   CollectionResponse,
 } from '@taraxa-claim/common';
@@ -67,13 +69,6 @@ export class BatchController {
   }
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
-  @Get()
-  @UseInterceptors(PaginationInterceptor)
-  async getBatches(): Promise<CollectionResponse<BatchEntity>> {
-    return await this.claimService.batches();
-  }
-  @ApiOkResponse()
-  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get(':id')
   async getBatch(@Param('id') id: number): Promise<BatchEntity> {
     return await this.claimService.batch(id);
@@ -83,5 +78,19 @@ export class BatchController {
   @Delete(':id')
   async deleteBatch(@Param('id') id: number): Promise<BatchEntity> {
     return this.claimService.deleteBatch(id);
+  }
+  @ApiOkResponse()
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
+  @Get()
+  @UseInterceptors(PaginationInterceptor)
+  async getBatches(
+    @Query([
+      'id',
+      'createdAt',
+      'status',
+    ])
+    query: QueryDto,
+  ): Promise<CollectionResponse<BatchEntity>> {
+    return await this.claimService.batches(query.range, query.sort);
   }
 }
