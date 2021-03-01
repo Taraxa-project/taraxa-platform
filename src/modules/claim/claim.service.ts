@@ -81,13 +81,15 @@ export class ClaimService {
 
     const now = new Date();
     claims.data = data.map(c => {
+      const nonce = c.id * 13;
       if (c.unlockDate.getTime() > now.getTime()) {
         return {
+          isUnlocked: false,
+          nonce,
           numberOfTokens: c.numberOfTokens,
           unlockDate: c.unlockDate,
         };
       }
-      const nonce = c.id * 13;
       const encodedPayload = abi.soliditySHA3(
         ['address', 'uint', 'uint'],
         [c.address, c.numberOfTokens, nonce],
@@ -97,6 +99,7 @@ export class ClaimService {
       const hash = ethUtil.toRpcSig(v, r, s);
 
       return {
+        isUnlocked: true,
         hash,
         nonce,
         numberOfTokens: c.numberOfTokens,
