@@ -7,11 +7,6 @@ import {
 } from 'typeorm';
 import { ClaimEntity } from './claim.entity';
 
-export enum BatchStatus {
-  Added,
-  Approved,
-}
-
 @Entity('batch')
 export class BatchEntity {
   @PrimaryGeneratedColumn()
@@ -20,8 +15,8 @@ export class BatchEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @Column({ default: BatchStatus.Added })
-  status: BatchStatus;
+  @Column({ default: false })
+  status: boolean;
 
   @OneToMany(
     type => ClaimEntity,
