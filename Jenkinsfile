@@ -17,11 +17,11 @@ def helmVersion() {
 def helmUpgradeChart(String env, String image_tag) {
     println 'Installing helm chart'
     sh """
-        ./helm upgrade ${env}-taraxa-claim-admin \
+        ./helm upgrade ${env}-taraxa-claim-api \
             --namespace taraxa-community-${env} \
             --set image.tag=${image_tag} \
             -f charts/${env}.values.yaml \
-            charts/claim-admin
+            charts/claim-api
     """
 }
 
@@ -29,7 +29,7 @@ pipeline {
     agent any
     environment {
         GCP_REGISTRY = 'gcr.io/jovial-meridian-249123'
-        IMAGE = 'taraxa-claim-admin'
+        IMAGE = 'taraxa-claim-api'
         SLACK_CHANNEL = 'jenkins'
         SLACK_TEAM_DOMAIN = 'phragmites'
         START_TIME = sh(returnStdout: true, script: 'date +%Y%m%d_%Hh%Mm%Ss').trim()
