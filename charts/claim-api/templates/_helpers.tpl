@@ -31,7 +31,7 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Common labels
+Default Common labels
 */}}
 {{- define "claim-api.labels" -}}
 {{ include "claim-api.selectorLabels" . }}
@@ -43,7 +43,19 @@ helm.sh/chart: {{ include "claim-api.chart" . }}
 {{- end }}
 
 {{/*
-Selector labels
+DB Common labels
+*/}}
+{{- define "claim-api-db.labels" -}}
+{{ include "claim-api-db.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+helm.sh/chart: {{ include "claim-api.chart" . }}
+{{- end }}
+
+{{/*
+Default Selector labels
 */}}
 {{- define "claim-api.selectorLabels" -}}
 app: {{ .Values.app.name }}
@@ -52,6 +64,18 @@ environment: {{ .Values.app.environment }}
 app.kubernetes.io/name: {{ include "claim-api.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+DB Selector labels
+*/}}
+{{- define "claim-api-db.selectorLabels" -}}
+app: {{ .Values.app.name }}
+component: {{ .Values.app.component }}
+environment: {{ .Values.app.environment }}
+app.kubernetes.io/name: {{ include "claim-api.name" . }}-db-proxy
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
 
 {{/*
 Create the name of the service account to use

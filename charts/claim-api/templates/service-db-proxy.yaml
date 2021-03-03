@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "claim-api.fullname" . }}-db-proxy
   labels:
-    {{- include "claim-api.labels" . | nindent 4 }}
+    {{- include "claim-api-db.labels" . | nindent 4 }}
 spec:
   type: ExternalName
   externalName: {{ .Values.app.dbHost }}

@@ -1,0 +1,32 @@
+{{- $fullName := include "claim-api.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-db-proxy
+  labels:
+    {{- include "claim-api-db.labels" . | nindent 4 }}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "claim-api-db.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "claim-api-db.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "claim-api.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-db-proxy
+          image: gcr.io/google_containers/proxy-to-service:v1
+          args: ["tcp", "3306", "{{ $fullName }}-db-proxy.{{ .Release.Namespace }}"]
+          ports:
+          - name: mysql
+            protocol: TCP
+            containerPort: 3306
