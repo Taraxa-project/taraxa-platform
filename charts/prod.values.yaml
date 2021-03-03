@@ -1,0 +1,19 @@
+app:
+  environment: prod
+
+  dbHost: 10.39.113.2
+
+image:
+  repository: gcr.io/jovial-meridian-249123/taraxa-claim-api-main
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-prod
+
+ingress:
+  enabled: true
+  hosts:
+    - host: api.claim.taraxa.io
+  tls:
+    - secretName: wild-claim-taraxa-io-tls
+      hosts:
+        - api.claim.taraxa.io

@@ -1,0 +1,19 @@
+app:
+  environment: qa
+
+  dbHost: 10.39.113.3
+
+image:
+  repository: gcr.io/jovial-meridian-249123/taraxa-claim-api-develop
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-qa
+
+ingress:
+  enabled: true
+  hosts:
+    - host: api.qa.claim.taraxa.io
+  tls:
+    - secretName: wild-qa-claim-taraxa-io-tls
+      hosts:
+        - api.qa.claim.taraxa.io
