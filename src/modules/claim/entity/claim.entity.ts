@@ -33,6 +33,6 @@ export class ClaimEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @Column({ default: false })
+  @Column({ default: true })
   status: boolean;
 }

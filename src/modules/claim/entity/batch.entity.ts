@@ -15,7 +15,7 @@ export class BatchEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @Column({ default: false })
+  @Column({ default: true })
   status: boolean;
 
   @OneToMany(
