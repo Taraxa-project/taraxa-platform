@@ -7,6 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { BatchEntity } from './batch.entity';
+import { SnapshotEntity } from './snapshot.entity';
 
 @Entity('claim')
 export class ClaimEntity {
@@ -19,6 +20,12 @@ export class ClaimEntity {
     { onDelete: 'CASCADE' },
   )
   batch: BatchEntity;
+
+  @ManyToOne(
+    type => SnapshotEntity,
+    snapshot => snapshot.address
+  )
+  snapshot: SnapshotEntity;
 
   @Column()
   @Index()
