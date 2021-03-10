@@ -16,7 +16,7 @@ export const Query = createParamDecorator(
     try {
       query.sort = JSON.parse(q['sort'].toString());
     } catch (e) {
-      query.sort = [];
+      query.sort = ['id', 'ASC'];
     }
 
     if (!allowedFields.includes(query.sort[0])) {

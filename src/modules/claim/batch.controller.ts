@@ -84,11 +84,7 @@ export class BatchController {
   @Get()
   @UseInterceptors(PaginationInterceptor)
   async getBatches(
-    @Query([
-      'id',
-      'createdAt',
-      'status',
-    ])
+    @Query(['id', 'createdAt', 'status'])
     query: QueryDto,
   ): Promise<CollectionResponse<BatchEntity>> {
     return await this.claimService.batches(query.range, query.sort);
