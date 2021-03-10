@@ -1,4 +1,10 @@
-import { Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -15,12 +21,12 @@ import {
 } from '@taraxa-claim/common';
 import { AccountEntity } from './entity/account.entity';
 
-@ApiBearerAuth()
 @ApiTags('accounts')
-@UseGuards(JwtAuthGuard)
 @Controller('accounts')
 export class AccountController {
   constructor(private readonly claimService: ClaimService) {}
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
@@ -35,6 +41,13 @@ export class AccountController {
     ])
     query: QueryDto,
   ): Promise<CollectionResponse<AccountEntity>> {
-    return await this.claimService.accounts(query.range, query.sort);
+    return this.claimService.accounts(query.range, query.sort);
+  }
+  @ApiOkResponse()
+  @Get(':account')
+  async getAccount(
+    @Param('account') account: string,
+  ): Promise<AccountEntity> {
+    return this.claimService.account(account);
   }
 }

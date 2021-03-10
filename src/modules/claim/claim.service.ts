@@ -126,6 +126,9 @@ export class ClaimService {
     );
     return accounts;
   }
+  public async account(address: string): Promise<AccountEntity> {
+    return this.accountRepository.findOneOrFail({ address });
+  }
   private async updateAccounts(claims: ClaimEntity[]): Promise<ClaimEntity[]> {
     const nClaims = [];
 
