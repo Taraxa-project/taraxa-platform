@@ -13,20 +13,19 @@ import {
   PaginationInterceptor,
   CollectionResponse,
 } from '@taraxa-claim/common';
-import { BatchEntity } from './entity/batch.entity';
-import { SnapshotEntity } from './entity/snapshot.entity';
+import { AccountEntity } from './entity/account.entity';
 
 @ApiBearerAuth()
-@ApiTags('snapshots')
+@ApiTags('accounts')
 @UseGuards(JwtAuthGuard)
-@Controller('snapshots')
-export class SnapshotController {
+@Controller('accounts')
+export class AccountController {
   constructor(private readonly claimService: ClaimService) {}
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
-  async getSnapshots(
+  async getAccounts(
     @Query([
       'id',
       'address',
@@ -35,7 +34,7 @@ export class SnapshotController {
       'totalClaimed',
     ])
     query: QueryDto,
-  ): Promise<CollectionResponse<SnapshotEntity>> {
-    return await this.claimService.snapshots(query.range, query.sort);
+  ): Promise<CollectionResponse<AccountEntity>> {
+    return await this.claimService.accounts(query.range, query.sort);
   }
 }

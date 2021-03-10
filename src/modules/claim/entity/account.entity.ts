@@ -7,8 +7,8 @@ import {
 } from 'typeorm';
 import { ClaimEntity } from './claim.entity';
 
-@Entity('snapshot')
-export class SnapshotEntity {
+@Entity('account')
+export class AccountEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

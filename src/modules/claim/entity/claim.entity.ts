@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { BatchEntity } from './batch.entity';
-import { SnapshotEntity } from './snapshot.entity';
+import { AccountEntity } from './account.entity';
 
 @Entity('claim')
 export class ClaimEntity {
@@ -22,10 +22,10 @@ export class ClaimEntity {
   batch: BatchEntity;
 
   @ManyToOne(
-    type => SnapshotEntity,
-    snapshot => snapshot.address
+    type => AccountEntity,
+    account => account.address
   )
-  snapshot: SnapshotEntity;
+  account: AccountEntity;
 
   @Column()
   @Index()

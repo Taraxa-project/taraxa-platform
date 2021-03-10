@@ -11,7 +11,7 @@ import { ClaimEntity } from './entity/claim.entity';
 import { UserClaimEntity } from './entity/userClaim.entity';
 import { FileDto } from './dto/file.dto';
 import { BatchEntity } from './entity/batch.entity';
-import { SnapshotEntity } from './entity/snapshot.entity';
+import { AccountEntity } from './entity/account.entity';
 
 @Injectable()
 export class ClaimService {
@@ -21,8 +21,8 @@ export class ClaimService {
     private readonly batchRepository: Repository<BatchEntity>,
     @InjectRepository(ClaimEntity)
     private readonly claimRepository: Repository<ClaimEntity>,
-    @InjectRepository(SnapshotEntity)
-    private readonly snapshotRepository: Repository<SnapshotEntity>,
+    @InjectRepository(AccountEntity)
+    private readonly accountRepository: Repository<AccountEntity>,
     @Inject(ethereum.KEY)
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
   ) {
@@ -30,7 +30,7 @@ export class ClaimService {
   }
   public async createBatch(file: FileDto): Promise<ClaimEntity[]> {
     const batch = new BatchEntity();
-    const claims = await this.updateSnapshots(this.parseCsv(file.buffer));
+    const claims = await this.updateAccounts(this.parseCsv(file.buffer));
     batch.claims = claims;
     await this.batchRepository.save(batch);
 
@@ -112,45 +112,44 @@ export class ClaimService {
     claims.count = count;
     return claims;
   }
-  public async snapshots(
+  public async accounts(
     range: number[],
     sort: string[],
-  ): Promise<CollectionResponse<SnapshotEntity>> {
-    const snapshots = new CollectionResponse<SnapshotEntity>();
-    [
-      snapshots.data,
-      snapshots.count,
-    ] = await this.snapshotRepository.findAndCount({
-      order: { [sort[0]]: sort[1] },
-      skip: range[0],
-      take: range[1] - range[0] + 1,
-    });
-    return snapshots;
+  ): Promise<CollectionResponse<AccountEntity>> {
+    const accounts = new CollectionResponse<AccountEntity>();
+    [accounts.data, accounts.count] = await this.accountRepository.findAndCount(
+      {
+        order: { [sort[0]]: sort[1] },
+        skip: range[0],
+        take: range[1] - range[0] + 1,
+      },
+    );
+    return accounts;
   }
-  private async updateSnapshots(claims: ClaimEntity[]): Promise<ClaimEntity[]> {
+  private async updateAccounts(claims: ClaimEntity[]): Promise<ClaimEntity[]> {
     const nClaims = [];
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     for (const claim of claims) {
       const { address, unlockDate, numberOfTokens } = claim;
-      let snapshot = await this.snapshotRepository.findOne({
+      let account = await this.accountRepository.findOne({
         address,
       });
       const availableToBeClaimed = unlockDate < now ? numberOfTokens : 0;
       const totalLocked = unlockDate > now ? numberOfTokens : 0;
-      if (snapshot) {
-        snapshot.availableToBeClaimed =
-          snapshot.availableToBeClaimed + availableToBeClaimed;
-        snapshot.totalLocked = snapshot.totalLocked + totalLocked;
+      if (account) {
+        account.availableToBeClaimed =
+          account.availableToBeClaimed + availableToBeClaimed;
+        account.totalLocked = account.totalLocked + totalLocked;
       } else {
-        snapshot = new SnapshotEntity();
-        snapshot.address = address;
-        snapshot.availableToBeClaimed = availableToBeClaimed;
-        snapshot.totalLocked = totalLocked;
+        account = new AccountEntity();
+        account.address = address;
+        account.availableToBeClaimed = availableToBeClaimed;
+        account.totalLocked = totalLocked;
       }
-      await this.snapshotRepository.save(snapshot);
-      claim.snapshot = snapshot;
+      await this.accountRepository.save(account);
+      claim.account = account;
       nClaims.push(claim);
     }
     return nClaims;

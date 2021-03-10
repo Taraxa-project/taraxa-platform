@@ -2,17 +2,17 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BatchEntity } from './entity/batch.entity';
 import { ClaimEntity } from './entity/claim.entity';
-import { SnapshotEntity } from './entity/snapshot.entity';
+import { AccountEntity } from './entity/account.entity';
 import { BatchController } from './batch.controller';
 import { ClaimController } from './claim.controller';
-import { SnapshotController } from './snapshot.controller';
+import { AccountController } from './account.controller';
 import { ClaimService } from './claim.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ClaimEntity, BatchEntity, SnapshotEntity]),
+    TypeOrmModule.forFeature([ClaimEntity, BatchEntity, AccountEntity]),
   ],
-  controllers: [BatchController, ClaimController, SnapshotController],
+  controllers: [BatchController, ClaimController, AccountController],
   providers: [ClaimService],
 })
 export class ClaimModule {}
