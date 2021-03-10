@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Controller,
   Get,
+  NotFoundException,
   Param,
   UseGuards,
   UseInterceptors,
@@ -10,6 +12,8 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -43,11 +47,35 @@ export class AccountController {
   ): Promise<CollectionResponse<AccountEntity>> {
     return this.claimService.accounts(query.range, query.sort);
   }
-  @ApiOkResponse()
+  @ApiOkResponse({ description: 'Account details' })
+  @ApiNotFoundResponse({ description: 'Account not found' })
   @Get(':account')
   async getAccount(
     @Param('account') account: string,
-  ): Promise<AccountEntity> {
-    return this.claimService.account(account);
+  ): Promise<Partial<AccountEntity>> {
+    try {
+      return await this.claimService.account(account);
+    } catch (e) {
+      throw new NotFoundException();
+    }
+  }
+  @ApiOkResponse({ description: 'Claim details' })
+  @ApiNotFoundResponse({ description: 'Account not found' })
+  @ApiBadRequestResponse({ description: 'No tokens to claim' })
+  @Get(':account/claim')
+  async getClaimAccount(
+    @Param('account') account: string,
+  ): Promise<Partial<AccountEntity>> {
+    try {
+      return await this.claimService.accountClaim(account);
+    } catch (e) {
+      const error = (e || {}).name || '';
+      const message = (e || {}).message || '';
+      if (error === 'EntityNotFound') {
+        throw new NotFoundException();
+      } else {
+        throw new BadRequestException(message);
+      }
+    }
   }
 }

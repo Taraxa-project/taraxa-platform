@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum } from '@taraxa-claim/config';
 import { CollectionResponse } from '@taraxa-claim/common';
 import { ClaimEntity } from './entity/claim.entity';
-import { UserClaimEntity } from './entity/userClaim.entity';
+import { AccountClaimEntity } from './entity/account-claim.entity';
 import { FileDto } from './dto/file.dto';
 import { BatchEntity } from './entity/batch.entity';
 import { AccountEntity } from './entity/account.entity';
@@ -74,44 +74,6 @@ export class ClaimService {
     });
     return claims;
   }
-  public async userClaims(
-    address: string,
-  ): Promise<CollectionResponse<UserClaimEntity>> {
-    const claims = new CollectionResponse<UserClaimEntity>();
-    const [data, count] = await this.claimRepository.findAndCount({
-      where: { address, status: 1 },
-    });
-
-    const now = new Date();
-    claims.data = data.map(c => {
-      const nonce = c.id * 13;
-      if (c.unlockDate.getTime() > now.getTime()) {
-        return {
-          isUnlocked: false,
-          nonce,
-          numberOfTokens: c.numberOfTokens,
-          unlockDate: c.unlockDate,
-        };
-      }
-      const encodedPayload = abi.soliditySHA3(
-        ['address', 'uint', 'uint'],
-        [c.address, c.numberOfTokens, nonce],
-      );
-
-      const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
-      const hash = ethUtil.toRpcSig(v, r, s);
-
-      return {
-        isUnlocked: true,
-        hash,
-        nonce,
-        numberOfTokens: c.numberOfTokens,
-        unlockDate: c.unlockDate,
-      };
-    });
-    claims.count = count;
-    return claims;
-  }
   public async accounts(
     range: number[],
     sort: string[],
@@ -126,8 +88,37 @@ export class ClaimService {
     );
     return accounts;
   }
-  public async account(address: string): Promise<AccountEntity> {
-    return this.accountRepository.findOneOrFail({ address });
+  public async account(address: string): Promise<Partial<AccountEntity>> {
+    const account = JSON.parse(
+      JSON.stringify(await this.accountRepository.findOneOrFail({ address })),
+    );
+    delete account.id;
+    return account;
+  }
+  public async accountClaim(address: string): Promise<AccountClaimEntity> {
+    const {
+      id,
+      availableToBeClaimed,
+    } = await this.accountRepository.findOneOrFail({ address });
+
+    if (availableToBeClaimed <= 0) {
+      throw new Error('No tokens to claim');
+    }
+
+    const nonce = id * 13;
+    const encodedPayload = abi.soliditySHA3(
+      ['address', 'uint', 'uint'],
+      [address, availableToBeClaimed, nonce],
+    );
+
+    const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
+    const hash = ethUtil.toRpcSig(v, r, s);
+
+    return {
+      availableToBeClaimed,
+      nonce,
+      hash,
+    };
   }
   private async updateAccounts(claims: ClaimEntity[]): Promise<ClaimEntity[]> {
     const nClaims = [];
