@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { general, database, auth, ethereum } from '@taraxa-claim/config';
 import { AuthModule } from '@taraxa-claim/auth';
 import { ClaimModule } from '@taraxa-claim/claim';
+import { UnlockerModule } from '@taraxa-claim/unlocker';
 
 @Module({
   imports: [
@@ -25,8 +27,10 @@ import { ClaimModule } from '@taraxa-claim/claim';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     ClaimModule,
+    UnlockerModule,
   ],
 })
 export class AppModule {}

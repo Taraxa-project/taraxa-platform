@@ -14,5 +14,6 @@ import { ClaimService } from './claim.service';
   ],
   controllers: [BatchController, ClaimController, AccountController],
   providers: [ClaimService],
+  exports: [ClaimService],
 })
 export class ClaimModule {}

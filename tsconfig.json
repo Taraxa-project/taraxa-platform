@@ -14,7 +14,8 @@
       "@taraxa-claim/config": ["config"],
       "@taraxa-claim/common": ["src/modules/common"],
       "@taraxa-claim/auth": ["src/modules/auth"],
-      "@taraxa-claim/claim": ["src/modules/claim"]
+      "@taraxa-claim/claim": ["src/modules/claim"],
+      "@taraxa-claim/unlocker": ["src/modules/unlocker"]
     }
   },
   "exclude": ["node_modules", "dist"]

@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   Index,
+  UpdateDateColumn,
 } from 'typeorm';
 import { BatchEntity } from './batch.entity';
 import { AccountEntity } from './account.entity';
@@ -16,14 +17,14 @@ export class ClaimEntity {
 
   @ManyToOne(
     type => BatchEntity,
-    batch => batch.claims,
+    (batch: BatchEntity) => batch.claims,
     { onDelete: 'CASCADE' },
   )
   batch: BatchEntity;
 
   @ManyToOne(
     type => AccountEntity,
-    account => account.address,
+    (account: AccountEntity) => account.address
   )
   account: AccountEntity;
 
@@ -34,7 +35,7 @@ export class ClaimEntity {
   @Column({ name: 'number_of_tokens' })
   numberOfTokens: number;
 
-  @Column({ default: true })
+  @Column({ default: false })
   isUnlocked: boolean;
 
   @Column({ name: 'unlock_date' })
@@ -42,4 +43,7 @@ export class ClaimEntity {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }

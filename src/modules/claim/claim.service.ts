@@ -1,7 +1,7 @@
 import * as parse from 'csv-parse/lib/sync';
 import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -119,6 +119,22 @@ export class ClaimService {
       nonce,
       hash,
     };
+  }
+  public async unlockRewards(): Promise<void> {
+    const now = new Date();
+    const claims = await this.claimRepository.find({
+      where: { isUnlocked: false, unlockDate: LessThan(now) },
+      relations: ["account"],
+    });
+
+    for(const claim of claims) {
+      claim.isUnlocked = true;
+      claim.account.availableToBeClaimed += claim.numberOfTokens;
+      claim.account.totalLocked -= claim.numberOfTokens;
+
+      await this.claimRepository.save(claim);
+      await this.accountRepository.save(claim.account);
+    }
   }
   private async updateAccounts(claims: ClaimEntity[]): Promise<ClaimEntity[]> {
     const nClaims = [];
