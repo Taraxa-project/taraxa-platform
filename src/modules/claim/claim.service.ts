@@ -139,6 +139,18 @@ export class ClaimService {
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
   }
+  public async markAsClaimed(id: number): Promise<ClaimEntity> {
+    const claim = await this.claimRepository.findOneOrFail({ id });
+    claim.claimed = true;
+
+    const account = await this.accountRepository.findOneOrFail({ address: claim.address });
+    account.availableToBeClaimed -= claim.numberOfTokens;
+    account.totalClaimed += claim.numberOfTokens;
+
+    await this.accountRepository.save(account);
+
+    return await this.claimRepository.save(claim);
+  } 
   public async deleteClaim(id: number): Promise<ClaimEntity> {
     const claim = await this.claimRepository.findOneOrFail({ id });
     return this.claimRepository.remove(claim);

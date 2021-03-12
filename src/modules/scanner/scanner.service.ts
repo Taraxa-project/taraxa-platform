@@ -1,15 +1,17 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ethereum } from '@taraxa-claim/config'
+import { ethereum } from '@taraxa-claim/config';
 import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
+import { ClaimService } from '@taraxa-claim/claim';
 
 @Injectable()
 export class ScannerService implements OnModuleInit {
   private readonly logger = new Logger(ScannerService.name);
   constructor(
     private readonly blockchainService: BlockchainService,
+    private readonly claimService: ClaimService,
     @Inject(ethereum.KEY)
-    private readonly ethereumConfig: ConfigType<typeof ethereum>
+    private readonly ethereumConfig: ConfigType<typeof ethereum>,
   ) {}
   onModuleInit() {
     this.watchClaims();
@@ -22,10 +24,21 @@ export class ScannerService implements OnModuleInit {
       ContractTypes.CLAIM,
       this.ethereumConfig.claimContractAddress,
     );
-    
+
     const filter = claimContractInstance.filters.Claimed();
-    claimContractInstance.on(filter, async (address: string, nonce: number, value: number) => {
-      this.logger.log(`New claim address: ${address} nonce: ${nonce} value: ${value}`);
-    });
+    claimContractInstance.on(
+      filter,
+      async (address: string, nonce: number, value: number) => {
+        this.logger.log(
+          `New claim address: ${address} nonce: ${nonce} value: ${value}`,
+        );
+
+        try {
+          await this.claimService.markAsClaimed(nonce / 13);
+        } catch (e) {
+          this.logger.error(e);
+        }
+      },
+    );
   }
 }
