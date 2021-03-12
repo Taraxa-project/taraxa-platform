@@ -7,7 +7,7 @@ import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum } from '@taraxa-claim/config';
 import { CollectionResponse } from '@taraxa-claim/common';
-import { ClaimEntity } from './entity/claim.entity';
+import { RewardEntity } from './entity/reward.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
 import { FileDto } from './dto/file.dto';
 import { BatchEntity } from './entity/batch.entity';
@@ -19,8 +19,8 @@ export class ClaimService {
   constructor(
     @InjectRepository(BatchEntity)
     private readonly batchRepository: Repository<BatchEntity>,
-    @InjectRepository(ClaimEntity)
-    private readonly claimRepository: Repository<ClaimEntity>,
+    @InjectRepository(RewardEntity)
+    private readonly rewardRepository: Repository<RewardEntity>,
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
     @Inject(ethereum.KEY)
@@ -28,13 +28,13 @@ export class ClaimService {
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
-  public async createBatch(file: FileDto): Promise<ClaimEntity[]> {
+  public async createBatch(file: FileDto): Promise<RewardEntity[]> {
     const batch = new BatchEntity();
-    const claims = await this.updateAccounts(this.parseCsv(file.buffer));
-    batch.claims = claims;
+    const rewards = await this.updateAccounts(this.parseCsv(file.buffer));
+    batch.rewards = rewards;
     await this.batchRepository.save(batch);
 
-    return batch.claims;
+    return batch.rewards;
   }
   public async batch(id: number): Promise<BatchEntity> {
     return this.batchRepository.findOneOrFail({ id });
@@ -55,24 +55,24 @@ export class ClaimService {
     });
     return batches;
   }
-  public async claim(id: number): Promise<ClaimEntity> {
-    return this.claimRepository.findOneOrFail({ id });
+  public async reward(id: number): Promise<RewardEntity> {
+    return this.rewardRepository.findOneOrFail({ id });
   }
-  public async deleteClaim(id: number): Promise<ClaimEntity> {
-    const claim = await this.claimRepository.findOneOrFail({ id });
-    return this.claimRepository.remove(claim);
+  public async deleteReward(id: number): Promise<RewardEntity> {
+    const reward = await this.rewardRepository.findOneOrFail({ id });
+    return this.rewardRepository.remove(reward);
   }
-  public async claims(
+  public async rewards(
     range: number[],
     sort: string[],
-  ): Promise<CollectionResponse<ClaimEntity>> {
-    const claims = new CollectionResponse<ClaimEntity>();
-    [claims.data, claims.count] = await this.claimRepository.findAndCount({
+  ): Promise<CollectionResponse<RewardEntity>> {
+    const rewards = new CollectionResponse<RewardEntity>();
+    [rewards.data, rewards.count] = await this.rewardRepository.findAndCount({
       order: { [sort[0]]: sort[1] },
       skip: range[0],
       take: range[1] - range[0] + 1,
     });
-    return claims;
+    return rewards;
   }
   public async accounts(
     range: number[],
@@ -122,27 +122,29 @@ export class ClaimService {
   }
   public async unlockRewards(): Promise<void> {
     const now = new Date();
-    const claims = await this.claimRepository.find({
+    const rewards = await this.rewardRepository.find({
       where: { isUnlocked: false, unlockDate: LessThan(now) },
-      relations: ["account"],
+      relations: ['account'],
     });
 
-    for(const claim of claims) {
-      claim.isUnlocked = true;
-      claim.account.availableToBeClaimed += claim.numberOfTokens;
-      claim.account.totalLocked -= claim.numberOfTokens;
+    for (const reward of rewards) {
+      reward.isUnlocked = true;
+      reward.account.availableToBeClaimed += reward.numberOfTokens;
+      reward.account.totalLocked -= reward.numberOfTokens;
 
-      await this.claimRepository.save(claim);
-      await this.accountRepository.save(claim.account);
+      await this.rewardRepository.save(reward);
+      await this.accountRepository.save(reward.account);
     }
   }
-  private async updateAccounts(claims: ClaimEntity[]): Promise<ClaimEntity[]> {
-    const nClaims = [];
+  private async updateAccounts(
+    rewards: RewardEntity[],
+  ): Promise<RewardEntity[]> {
+    const nRewards = [];
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    for (const claim of claims) {
-      const { address, unlockDate, numberOfTokens } = claim;
+    for (const reward of rewards) {
+      const { address, unlockDate, numberOfTokens } = reward;
       let account = await this.accountRepository.findOne({
         address,
       });
@@ -159,13 +161,13 @@ export class ClaimService {
         account.totalLocked = totalLocked;
       }
       await this.accountRepository.save(account);
-      claim.account = account;
-      nClaims.push(claim);
+      reward.account = account;
+      nRewards.push(reward);
     }
-    return nClaims;
+    return nRewards;
   }
   private parseCsv(buffer: Buffer) {
-    let claims = parse(buffer, {
+    let rewards = parse(buffer, {
       delimiter: ';',
       cast: false,
       castDate: false,
@@ -179,18 +181,18 @@ export class ClaimService {
       });
     });
 
-    claims = claims.filter((line: string[]) => line.length === 3);
-    claims = claims.filter((line: string[], index: number) => index !== 0);
+    rewards = rewards.filter((line: string[]) => line.length === 3);
+    rewards = rewards.filter((line: string[], index: number) => index !== 0);
 
-    claims = claims.map((line: string[]) => {
-      const claim = new ClaimEntity();
-      claim.address = line[0].toString();
-      claim.numberOfTokens = parseInt(line[1], 10);
-      claim.unlockDate = new Date(line[2]);
+    rewards = rewards.map((line: string[]) => {
+      const reward = new RewardEntity();
+      reward.address = line[0].toString();
+      reward.numberOfTokens = parseInt(line[1], 10);
+      reward.unlockDate = new Date(line[2]);
 
-      return claim;
+      return reward;
     });
 
-    return claims;
+    return rewards;
   }
 }

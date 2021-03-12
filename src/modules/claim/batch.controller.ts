@@ -32,7 +32,7 @@ import {
 } from '@taraxa-claim/common';
 import { BatchEntity } from './entity/batch.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ClaimEntity } from './entity/claim.entity';
+import { RewardEntity } from './entity/reward.entity';
 import { FileUploadDto } from './dto/file-upload.dto';
 
 @ApiBearerAuth()
@@ -55,7 +55,7 @@ export class BatchController {
   @UseInterceptors(FileInterceptor('file'))
   async createBatch(
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<ClaimEntity[]> {
+  ): Promise<RewardEntity[]> {
     const { mimetype, buffer, size } = file;
     try {
       return await this.claimService.createBatch({

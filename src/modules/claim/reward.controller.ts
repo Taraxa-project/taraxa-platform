@@ -15,7 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
-import { ClaimEntity } from './entity/claim.entity';
+import { RewardEntity } from './entity/reward.entity';
 import {
   Query,
   QueryDto,
@@ -25,36 +25,30 @@ import {
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@ApiTags('claims')
-@Controller('claims')
-export class ClaimController {
+@ApiTags('rewards')
+@Controller('rewards')
+export class RewardController {
   constructor(private readonly claimService: ClaimService) {}
-  @ApiOkResponse({ description: 'Claim' })
+  @ApiOkResponse({ description: 'Reward' })
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get(':id')
-  async getClaim(@Param('id') id: number): Promise<ClaimEntity> {
-    return this.claimService.claim(id);
+  async getReward(@Param('id') id: number): Promise<RewardEntity> {
+    return this.claimService.reward(id);
   }
   @ApiNoContentResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Delete(':id')
-  async deleteClaim(@Param('id') id: number): Promise<ClaimEntity> {
-    return this.claimService.deleteClaim(id);
+  async deleteReward(@Param('id') id: number): Promise<RewardEntity> {
+    return this.claimService.deleteReward(id);
   }
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
-  async getClaims(
-    @Query([
-      'id',
-      'address',
-      'numberOfTokens',
-      'unlockDate',
-      'createdAt',
-    ])
+  async getRewards(
+    @Query(['id', 'address', 'numberOfTokens', 'unlockDate', 'createdAt'])
     query: QueryDto,
-  ): Promise<CollectionResponse<ClaimEntity>> {
-    return this.claimService.claims(query.range, query.sort);
+  ): Promise<CollectionResponse<RewardEntity>> {
+    return this.claimService.rewards(query.range, query.sort);
   }
 }

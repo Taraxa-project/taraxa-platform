@@ -5,7 +5,7 @@ import {
   Index,
   OneToMany,
 } from 'typeorm';
-import { ClaimEntity } from './claim.entity';
+import { RewardEntity } from './reward.entity';
 
 @Entity('account')
 export class AccountEntity {
@@ -26,8 +26,8 @@ export class AccountEntity {
   totalClaimed: number;
 
   @OneToMany(
-    type => ClaimEntity,
-    claim => claim.address,
+    type => RewardEntity,
+    reward => reward.address,
   )
-  claims: ClaimEntity[];
+  rewards: RewardEntity[];
 }

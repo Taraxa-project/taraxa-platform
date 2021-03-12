@@ -10,14 +10,14 @@ import {
 import { BatchEntity } from './batch.entity';
 import { AccountEntity } from './account.entity';
 
-@Entity('claim')
-export class ClaimEntity {
+@Entity('reward')
+export class RewardEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @ManyToOne(
     type => BatchEntity,
-    (batch: BatchEntity) => batch.claims,
+    (batch: BatchEntity) => batch.rewards,
     { onDelete: 'CASCADE' },
   )
   batch: BatchEntity;

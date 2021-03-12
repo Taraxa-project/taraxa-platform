@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
 } from 'typeorm';
-import { ClaimEntity } from './claim.entity';
+import { RewardEntity } from './reward.entity';
 
 @Entity('batch')
 export class BatchEntity {
@@ -19,9 +19,9 @@ export class BatchEntity {
   status: boolean;
 
   @OneToMany(
-    type => ClaimEntity,
-    claim => claim.batch,
+    type => RewardEntity,
+    reward => reward.batch,
     { cascade: true, onDelete: 'CASCADE' },
   )
-  claims: ClaimEntity[];
+  rewards: RewardEntity[];
 }
