@@ -1,6 +1,7 @@
 app:
   environment: prod
   claimContractAddress: "0x42a6fe7E1241f38f13D8A09391a08f3Af060698e"
+  provider: "wss://mainnet.infura.io/ws/v3/27aed32c6f28404897a8773f58f0af77"
 
   dbHost: 10.39.113.2
 
