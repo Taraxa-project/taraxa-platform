@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "claim-api.labels" . | nindent 4 }}
 data:
+  CLAIM_CONTRACT_ADDRESS: {{ .Values.app.claimContractAddress | quote }}
   SERVER_PORT: {{ .Values.app.serverPort | quote }}
   DB_HOST: {{ .Values.app.dbHost | quote }}
   DB_PORT: {{ .Values.app.dbPort | quote }}
