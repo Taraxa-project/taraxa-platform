@@ -6,6 +6,7 @@ import { general, database, auth, ethereum } from '@taraxa-claim/config';
 import { AuthModule } from '@taraxa-claim/auth';
 import { ClaimModule } from '@taraxa-claim/claim';
 import { UnlockerModule } from '@taraxa-claim/unlocker';
+import { ScannerModule } from '@taraxa-claim/scanner';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UnlockerModule } from '@taraxa-claim/unlocker';
     AuthModule,
     ClaimModule,
     UnlockerModule,
+    ScannerModule,
   ],
 })
 export class AppModule {}
