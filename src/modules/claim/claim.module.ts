@@ -7,6 +7,7 @@ import { ClaimEntity } from './entity/claim.entity';
 import { BatchController } from './batch.controller';
 import { RewardController } from './reward.controller';
 import { AccountController } from './account.controller';
+import { ClaimController } from './claim.controller';
 import { ClaimService } from './claim.service';
 
 @Module({
@@ -18,7 +19,12 @@ import { ClaimService } from './claim.service';
       ClaimEntity,
     ]),
   ],
-  controllers: [BatchController, RewardController, AccountController],
+  controllers: [
+    BatchController,
+    RewardController,
+    AccountController,
+    ClaimController,
+  ],
   providers: [ClaimService],
   exports: [ClaimService],
 })

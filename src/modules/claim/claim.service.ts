@@ -136,6 +136,25 @@ export class ClaimService {
       availableToBeClaimed: claim.numberOfTokens,
     };
   }
+  public async claim(id: number): Promise<ClaimEntity> {
+    return this.claimRepository.findOneOrFail({ id });
+  }
+  public async deleteClaim(id: number): Promise<ClaimEntity> {
+    const claim = await this.claimRepository.findOneOrFail({ id });
+    return this.claimRepository.remove(claim);
+  }
+  public async claims(
+    range: number[],
+    sort: string[],
+  ): Promise<CollectionResponse<ClaimEntity>> {
+    const claims = new CollectionResponse<ClaimEntity>();
+    [claims.data, claims.count] = await this.claimRepository.findAndCount({
+      order: { [sort[0]]: sort[1] },
+      skip: range[0],
+      take: range[1] - range[0] + 1,
+    });
+    return claims;
+  }
   public async unlockRewards(): Promise<void> {
     const now = new Date();
     const rewards = await this.rewardRepository.find({
