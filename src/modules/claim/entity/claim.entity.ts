@@ -23,7 +23,7 @@ export class ClaimEntity {
 
   @ManyToOne(
     type => AccountEntity,
-    account => account.address
+    account => account.address,
   )
   account: AccountEntity;
 
@@ -34,12 +34,12 @@ export class ClaimEntity {
   @Column({ name: 'number_of_tokens' })
   numberOfTokens: number;
 
+  @Column({ default: true })
+  isUnlocked: boolean;
+
   @Column({ name: 'unlock_date' })
   unlockDate: Date;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
-
-  @Column({ default: true })
-  status: boolean;
 }

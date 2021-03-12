@@ -52,7 +52,6 @@ export class ClaimController {
       'numberOfTokens',
       'unlockDate',
       'createdAt',
-      'status',
     ])
     query: QueryDto,
   ): Promise<CollectionResponse<ClaimEntity>> {
