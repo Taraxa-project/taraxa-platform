@@ -1,6 +1,6 @@
 interface Token {
-  access_token: string;
-  expires_in: number;
+  accessToken: string;
+  expiresIn: number;
 }
 
 export interface JwtInterface {

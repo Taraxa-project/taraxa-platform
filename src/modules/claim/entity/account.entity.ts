@@ -16,13 +16,13 @@ export class AccountEntity {
   @Index({ unique: true })
   address: string;
 
-  @Column({ name: 'available_to_be_claimed', default: 0 })
+  @Column({ default: 0 })
   availableToBeClaimed: number;
 
-  @Column({ name: 'total_locked', default: 0 })
+  @Column({ default: 0 })
   totalLocked: number;
 
-  @Column({ name: 'total_claimed', default: 0 })
+  @Column({ default: 0 })
   totalClaimed: number;
 
   @OneToMany(

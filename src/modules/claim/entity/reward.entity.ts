@@ -32,18 +32,18 @@ export class RewardEntity {
   @Index()
   address: string;
 
-  @Column({ name: 'number_of_tokens' })
+  @Column()
   numberOfTokens: number;
 
   @Column({ default: false })
   isUnlocked: boolean;
 
-  @Column({ name: 'unlock_date' })
+  @Column()
   unlockDate: Date;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn()
   updatedAt: Date;
 }
