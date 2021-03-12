@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Post,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import {
   ApiUnauthorizedResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
+  ApiCreatedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -59,15 +61,15 @@ export class AccountController {
       throw new NotFoundException();
     }
   }
-  @ApiOkResponse({ description: 'Claim details' })
+  @ApiCreatedResponse({ description: 'Claim details' })
   @ApiNotFoundResponse({ description: 'Account not found' })
   @ApiBadRequestResponse({ description: 'No tokens to claim' })
-  @Get(':account/claim')
-  async getClaimAccount(
+  @Post(':account/claim')
+  async createClaimAccount(
     @Param('account') account: string,
   ): Promise<Partial<AccountEntity>> {
     try {
-      return await this.claimService.accountClaim(account);
+      return await this.claimService.createClaim(account);
     } catch (e) {
       const error = (e || {}).name || '';
       const message = (e || {}).message || '';

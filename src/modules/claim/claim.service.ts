@@ -7,11 +7,12 @@ import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum } from '@taraxa-claim/config';
 import { CollectionResponse } from '@taraxa-claim/common';
-import { RewardEntity } from './entity/reward.entity';
-import { AccountClaimEntity } from './entity/account-claim.entity';
-import { FileDto } from './dto/file.dto';
 import { BatchEntity } from './entity/batch.entity';
+import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
+import { AccountClaimEntity } from './entity/account-claim.entity';
+import { ClaimEntity } from './entity/claim.entity';
+import { FileDto } from './dto/file.dto';
 
 @Injectable()
 export class ClaimService {
@@ -23,6 +24,8 @@ export class ClaimService {
     private readonly rewardRepository: Repository<RewardEntity>,
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
+    @InjectRepository(ClaimEntity)
+    private readonly claimRepository: Repository<ClaimEntity>,
     @Inject(ethereum.KEY)
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
   ) {
@@ -95,29 +98,42 @@ export class ClaimService {
     delete account.id;
     return account;
   }
-  public async accountClaim(address: string): Promise<AccountClaimEntity> {
-    const {
-      id,
-      availableToBeClaimed,
-    } = await this.accountRepository.findOneOrFail({ address });
+  public async createClaim(
+    address: string,
+  ): Promise<Partial<AccountClaimEntity>> {
+    let claim = await this.claimRepository.findOne({
+      where: { address, claimed: false },
+    });
 
-    if (availableToBeClaimed <= 0) {
-      throw new Error('No tokens to claim');
+    if (!claim) {
+      const {
+        availableToBeClaimed,
+      } = await this.accountRepository.findOneOrFail({ address });
+
+      if (availableToBeClaimed <= 0) {
+        throw new Error('No tokens to claim');
+      }
+
+      claim = new ClaimEntity();
+      claim.address = address;
+      claim.numberOfTokens = availableToBeClaimed;
+
+      await this.claimRepository.save(claim);
     }
 
-    const nonce = id * 13;
+    const nonce = claim.id * 13;
     const encodedPayload = abi.soliditySHA3(
       ['address', 'uint', 'uint'],
-      [address, availableToBeClaimed, nonce],
+      [address, claim.numberOfTokens, nonce],
     );
 
     const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
     const hash = ethUtil.toRpcSig(v, r, s);
 
     return {
-      availableToBeClaimed,
       nonce,
       hash,
+      availableToBeClaimed: claim.numberOfTokens,
     };
   }
   public async unlockRewards(): Promise<void> {

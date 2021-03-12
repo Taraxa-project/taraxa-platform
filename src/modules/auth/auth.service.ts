@@ -44,8 +44,8 @@ export class AuthService {
 
     return {
       token: {
-        access_token: this.jwtService.sign(jwtUser),
-        expires_in: tokenExpiry,
+        accessToken: this.jwtService.sign(jwtUser),
+        expiresIn: tokenExpiry,
       },
     };
   }
