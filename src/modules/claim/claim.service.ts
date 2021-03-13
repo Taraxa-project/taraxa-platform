@@ -143,14 +143,16 @@ export class ClaimService {
     const claim = await this.claimRepository.findOneOrFail({ id });
     claim.claimed = true;
 
-    const account = await this.accountRepository.findOneOrFail({ address: claim.address });
+    const account = await this.accountRepository.findOneOrFail({
+      address: claim.address,
+    });
     account.availableToBeClaimed -= claim.numberOfTokens;
     account.totalClaimed += claim.numberOfTokens;
 
     await this.accountRepository.save(account);
 
     return await this.claimRepository.save(claim);
-  } 
+  }
   public async deleteClaim(id: number): Promise<ClaimEntity> {
     const claim = await this.claimRepository.findOneOrFail({ id });
     return this.claimRepository.remove(claim);
@@ -231,12 +233,13 @@ export class ClaimService {
     rewards = rewards.filter((line: string[]) => line.length === 3);
     rewards = rewards.filter((line: string[], index: number) => index !== 0);
 
+    const now = new Date();
     rewards = rewards.map((line: string[]) => {
       const reward = new RewardEntity();
       reward.address = line[0].toString();
       reward.numberOfTokens = parseInt(line[1], 10);
       reward.unlockDate = new Date(line[2]);
-
+      reward.isUnlocked = reward.unlockDate < now;
       return reward;
     });
 
