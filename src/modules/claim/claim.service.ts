@@ -32,7 +32,10 @@ export class ClaimService {
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
-  public async createBatch(file: FileDto, batchDto: CreateBatchDto): Promise<RewardEntity[]> {
+  public async createBatch(
+    file: FileDto,
+    batchDto: CreateBatchDto,
+  ): Promise<RewardEntity[]> {
     const batch = new BatchEntity();
     batch.type = BatchTypes[batchDto.type];
     batch.name = batchDto.name;
@@ -78,6 +81,7 @@ export class ClaimService {
       order: { [sort[0]]: sort[1] },
       skip: range[0],
       take: range[1] - range[0] + 1,
+      relations: ['batch'],
     });
     return rewards;
   }
