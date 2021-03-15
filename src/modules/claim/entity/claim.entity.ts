@@ -21,6 +21,9 @@ export class ClaimEntity {
   @Column({ default: false })
   claimed: boolean;
 
+  @Column({ nullable: true })
+  claimedAt: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 }

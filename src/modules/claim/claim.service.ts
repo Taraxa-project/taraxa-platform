@@ -7,6 +7,7 @@ import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum } from '@taraxa-claim/config';
 import { CollectionResponse } from '@taraxa-claim/common';
+import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
 import { BatchEntity, BatchTypes } from './entity/batch.entity';
 import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
@@ -29,6 +30,7 @@ export class ClaimService {
     private readonly claimRepository: Repository<ClaimEntity>,
     @Inject(ethereum.KEY)
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
+    private readonly blockchainService: BlockchainService,
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
@@ -157,12 +159,41 @@ export class ClaimService {
       availableToBeClaimed: claim.numberOfTokens,
     };
   }
+  public async confirmClaim(address: string): Promise<{ status: boolean }> {
+    const claim = await this.claimRepository.findOne({
+      where: { address, claimed: false },
+    });
+    if (!claim) {
+      return {
+        status: true,
+      };
+    }
+    const nonce = claim.id * 13;
+
+    const claimContractInstance = this.blockchainService.getContractInstance(
+      ContractTypes.CLAIM,
+      this.ethereumConfig.claimContractAddress,
+    );
+
+    const confirmation = await claimContractInstance
+      .getClaimedAmount(address, claim.numberOfTokens, nonce)
+      .then(amount => amount.toNumber());
+
+    if (confirmation > 0 && confirmation === claim.numberOfTokens) {
+      this.markAsClaimed(claim.id);
+    }
+
+    return {
+      status: true,
+    };
+  }
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
   }
   public async markAsClaimed(id: number): Promise<ClaimEntity> {
     const claim = await this.claimRepository.findOneOrFail({ id });
     claim.claimed = true;
+    claim.claimedAt = new Date();
 
     const account = await this.accountRepository.findOneOrFail({
       address: claim.address,
@@ -171,7 +202,6 @@ export class ClaimService {
     account.totalClaimed += claim.numberOfTokens;
 
     await this.accountRepository.save(account);
-
     return await this.claimRepository.save(claim);
   }
   public async deleteClaim(id: number): Promise<ClaimEntity> {

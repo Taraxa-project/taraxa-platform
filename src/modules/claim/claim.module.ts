@@ -9,6 +9,7 @@ import { RewardController } from './reward.controller';
 import { AccountController } from './account.controller';
 import { ClaimController } from './claim.controller';
 import { ClaimService } from './claim.service';
+import { BlockchainModule } from '@taraxa-claim/blockchain';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ClaimService } from './claim.service';
       AccountEntity,
       ClaimEntity,
     ]),
+    BlockchainModule,
   ],
   controllers: [
     BatchController,
