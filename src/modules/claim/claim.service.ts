@@ -104,7 +104,20 @@ export class ClaimService {
       JSON.stringify(await this.accountRepository.findOneOrFail({ address })),
     );
     delete account.id;
-    return account;
+    const claim = await this.claimRepository.findOne({
+      where: { address, claimed: false },
+    });
+    if (!claim) {
+      return account;
+    }
+    const lastClaim = {
+      nonce: claim.id * 13,
+      numberOfTokens: claim.numberOfTokens,
+    };
+    return {
+      ...account,
+      lastClaim,
+    };
   }
   public async createClaim(
     address: string,
