@@ -177,7 +177,7 @@ export class ClaimService {
 
     const confirmation = await claimContractInstance
       .getClaimedAmount(address, claim.numberOfTokens, nonce)
-      .then(amount => amount.toNumber());
+      .then((amount: ethUtil.BN) => amount.toNumber());
 
     if (confirmation > 0 && confirmation === claim.numberOfTokens) {
       this.markAsClaimed(claim.id);
