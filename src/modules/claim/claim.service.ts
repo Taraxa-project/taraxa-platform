@@ -248,7 +248,7 @@ export class ClaimService {
       let account = await this.accountRepository.findOne({
         address,
       });
-      const availableToBeClaimed = unlockDate < now ? numberOfTokens : 0;
+      const availableToBeClaimed = unlockDate <= now ? numberOfTokens : 0;
       const totalLocked = unlockDate > now ? numberOfTokens : 0;
       if (account) {
         account.availableToBeClaimed =
