@@ -1,5 +1,6 @@
 import { Express } from 'express';
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -33,7 +34,7 @@ import {
 import { BatchEntity } from './entity/batch.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RewardEntity } from './entity/reward.entity';
-import { FileUploadDto } from './dto/file-upload.dto';
+import { CreateBatchDto } from './dto/create-batch.dto';
 
 @ApiBearerAuth()
 @ApiTags('batches')
@@ -44,25 +45,29 @@ export class BatchController {
   @ApiCreatedResponse({
     description: 'Batch created',
   })
-  @ApiForbiddenResponse()
-  @ApiInternalServerErrorResponse()
+  @ApiForbiddenResponse({ description: 'You need a valid token' })
+  @ApiInternalServerErrorResponse({ description: 'Invalid CSV file' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'CSV file',
-    type: FileUploadDto,
+    type: CreateBatchDto,
   })
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async createBatch(
     @UploadedFile() file: Express.Multer.File,
+    @Body() batchDto: CreateBatchDto,
   ): Promise<RewardEntity[]> {
     const { mimetype, buffer, size } = file;
     try {
-      return await this.claimService.createBatch({
-        mimetype,
-        buffer,
-        size,
-      });
+      return await this.claimService.createBatch(
+        {
+          mimetype,
+          buffer,
+          size,
+        },
+        batchDto,
+      );
     } catch (err) {
       throw new InternalServerErrorException();
     }

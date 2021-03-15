@@ -7,12 +7,13 @@ import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum } from '@taraxa-claim/config';
 import { CollectionResponse } from '@taraxa-claim/common';
-import { BatchEntity } from './entity/batch.entity';
+import { BatchEntity, BatchTypes } from './entity/batch.entity';
 import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
 import { ClaimEntity } from './entity/claim.entity';
 import { FileDto } from './dto/file.dto';
+import { CreateBatchDto } from './dto/create-batch.dto';
 
 @Injectable()
 export class ClaimService {
@@ -31,8 +32,11 @@ export class ClaimService {
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
-  public async createBatch(file: FileDto): Promise<RewardEntity[]> {
+  public async createBatch(file: FileDto, batchDto: CreateBatchDto): Promise<RewardEntity[]> {
     const batch = new BatchEntity();
+    batch.type = BatchTypes[batchDto.type];
+    batch.name = batchDto.name;
+
     const rewards = await this.updateAccounts(this.parseCsv(file.buffer));
     batch.rewards = rewards;
     await this.batchRepository.save(batch);
