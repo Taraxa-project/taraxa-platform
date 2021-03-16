@@ -1,5 +1,6 @@
 import { Express } from 'express';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -69,8 +70,9 @@ export class BatchController {
         },
         batchDto,
       );
-    } catch (err) {
-      throw new InternalServerErrorException();
+    } catch (e) {
+      const message = (e || {}).message || '';
+      throw new BadRequestException(message);
     }
   }
   @ApiOkResponse()
