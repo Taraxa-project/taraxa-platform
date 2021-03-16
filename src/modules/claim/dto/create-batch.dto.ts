@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsNotEmpty } from 'class-validator';
-import { FileUploadDto } from './file-upload.dto';
 
-export class CreateBatchDto extends FileUploadDto {
+export class CreateBatchDto {
+  @ApiProperty({ type: 'string', format: 'binary' })
+  file: any;
+
   @IsNotEmpty()
   @ApiProperty()
   name: string;

@@ -58,10 +58,11 @@ export class BatchController {
     @UploadedFile() file: Express.Multer.File,
     @Body() batchDto: CreateBatchDto,
   ): Promise<RewardEntity[]> {
-    const { mimetype, buffer, size } = file;
+    const { originalname, mimetype, buffer, size } = file;
     try {
       return await this.claimService.createBatch(
         {
+          originalname,
           mimetype,
           buffer,
           size,

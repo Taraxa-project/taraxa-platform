@@ -44,8 +44,8 @@ export class ClaimService {
 
     const rewards = await this.updateAccounts(this.parseCsv(file.buffer));
     batch.rewards = rewards;
-    await this.batchRepository.save(batch);
 
+    await this.batchRepository.save(batch);
     return batch.rewards;
   }
   public async batch(id: number): Promise<BatchEntity> {
@@ -267,25 +267,34 @@ export class ClaimService {
     return nRewards;
   }
   private parseCsv(buffer: Buffer) {
-    let rewards = parse(buffer, {
-      delimiter: ';',
-      cast: false,
-      castDate: false,
-      trim: true,
-      skipEmptyLines: true,
-      skipLinesWithEmptyValues: true,
-      skipLinesWithError: true,
-    }).map((line: string[]) => {
-      return line.filter((l: string) => {
-        return l !== '';
+    let rewards: string[][];
+    for (const delimiter of [';', ',']) {
+      rewards = parse(buffer, {
+        delimiter,
+        cast: false,
+        castDate: false,
+        trim: true,
+        skipEmptyLines: true,
+        skipLinesWithEmptyValues: true,
+        skipLinesWithError: true,
+      }).map((line: string[]) => {
+        return line.filter((l: string) => {
+          return l !== '';
+        });
       });
-    });
+      rewards = rewards.filter((line: string[]) => line.length === 3);
+      rewards = rewards.filter((line: string[], index: number) => index !== 0);
+      if (rewards.length > 0) {
+        break;
+      }
+    }
 
-    rewards = rewards.filter((line: string[]) => line.length === 3);
-    rewards = rewards.filter((line: string[], index: number) => index !== 0);
+    if (rewards.length === 0) {
+      throw new Error('No valid rewards in the CSV file');
+    }
 
     const now = new Date();
-    rewards = rewards.map((line: string[]) => {
+    return rewards.map((line: string[]) => {
       const reward = new RewardEntity();
       reward.address = line[0].toString();
       reward.numberOfTokens = parseInt(line[1], 10);
@@ -293,7 +302,5 @@ export class ClaimService {
       reward.isUnlocked = reward.unlockDate < now;
       return reward;
     });
-
-    return rewards;
   }
 }
