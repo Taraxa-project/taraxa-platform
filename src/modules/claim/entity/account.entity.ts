@@ -16,14 +16,14 @@ export class AccountEntity {
   @Index({ unique: true })
   address: string;
 
-  @Column({ default: 0 })
-  availableToBeClaimed: number;
+  @Column({ default: '0' })
+  availableToBeClaimed: string;
 
-  @Column({ default: 0 })
-  totalLocked: number;
+  @Column({ default: '0' })
+  totalLocked: string;
 
-  @Column({ default: 0 })
-  totalClaimed: number;
+  @Column({ default: '0' })
+  totalClaimed: string;
 
   @OneToMany(
     type => RewardEntity,

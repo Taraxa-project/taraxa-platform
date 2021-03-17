@@ -16,7 +16,7 @@ export class ClaimEntity {
   address: string;
 
   @Column()
-  numberOfTokens: number;
+  numberOfTokens: string;
 
   @Column({ default: false })
   claimed: boolean;

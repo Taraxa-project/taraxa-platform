@@ -1,6 +1,7 @@
 import * as parse from 'csv-parse/lib/sync';
 import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
+import { ethers } from 'ethers';
 import { LessThan, Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -133,7 +134,11 @@ export class ClaimService {
         availableToBeClaimed,
       } = await this.accountRepository.findOneOrFail({ address });
 
-      if (availableToBeClaimed <= 0) {
+      if (
+        ethers.BigNumber.from(availableToBeClaimed).lte(
+          ethers.BigNumber.from(0),
+        )
+      ) {
         throw new Error('No tokens to claim');
       }
 
@@ -190,16 +195,29 @@ export class ClaimService {
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
   }
-  public async markAsClaimed(id: number): Promise<ClaimEntity> {
-    const claim = await this.claimRepository.findOneOrFail({ id });
+  public async markAsClaimed(id: number): Promise<void | ClaimEntity> {
+    const claim = await this.claimRepository.findOne({
+      where: { id, claimed: false },
+    });
+
+    if (!claim) {
+      return;
+    }
+
     claim.claimed = true;
     claim.claimedAt = new Date();
 
     const account = await this.accountRepository.findOneOrFail({
       address: claim.address,
     });
-    account.availableToBeClaimed -= claim.numberOfTokens;
-    account.totalClaimed += claim.numberOfTokens;
+    account.availableToBeClaimed = ethers.BigNumber.from(
+      account.availableToBeClaimed,
+    )
+      .sub(claim.numberOfTokens)
+      .toString();
+    account.totalClaimed = ethers.BigNumber.from(account.totalClaimed)
+      .add(claim.numberOfTokens)
+      .toString();
 
     await this.accountRepository.save(account);
     return await this.claimRepository.save(claim);
@@ -229,8 +247,16 @@ export class ClaimService {
 
     for (const reward of rewards) {
       reward.isUnlocked = true;
-      reward.account.availableToBeClaimed += reward.numberOfTokens;
-      reward.account.totalLocked -= reward.numberOfTokens;
+      reward.account.availableToBeClaimed = ethers.BigNumber.from(
+        reward.account.availableToBeClaimed,
+      )
+        .add(reward.numberOfTokens)
+        .toString();
+      reward.account.totalLocked = ethers.BigNumber.from(
+        reward.account.totalLocked,
+      )
+        .sub(reward.numberOfTokens)
+        .toString();
 
       await this.rewardRepository.save(reward);
       await this.accountRepository.save(reward.account);
@@ -248,17 +274,24 @@ export class ClaimService {
       let account = await this.accountRepository.findOne({
         address,
       });
-      const availableToBeClaimed = unlockDate <= now ? numberOfTokens : 0;
-      const totalLocked = unlockDate > now ? numberOfTokens : 0;
+      const availableToBeClaimed =
+        unlockDate <= now ? numberOfTokens : ethers.BigNumber.from(0);
+      const totalLocked =
+        unlockDate > now ? numberOfTokens : ethers.BigNumber.from(0);
       if (account) {
-        account.availableToBeClaimed =
-          account.availableToBeClaimed + availableToBeClaimed;
-        account.totalLocked = account.totalLocked + totalLocked;
+        account.availableToBeClaimed = ethers.BigNumber.from(
+          account.availableToBeClaimed,
+        )
+          .add(availableToBeClaimed)
+          .toString();
+        account.totalLocked = ethers.BigNumber.from(account.totalLocked)
+          .add(totalLocked)
+          .toString();
       } else {
         account = new AccountEntity();
         account.address = address;
-        account.availableToBeClaimed = availableToBeClaimed;
-        account.totalLocked = totalLocked;
+        account.availableToBeClaimed = availableToBeClaimed.toString();
+        account.totalLocked = totalLocked.toString();
       }
       await this.accountRepository.save(account);
       reward.account = account;
@@ -294,10 +327,20 @@ export class ClaimService {
     }
 
     const now = new Date();
+    const precision = 3;
     return rewards.map((line: string[]) => {
+      const numberOfTokens = ethers.BigNumber.from(
+        parseFloat(line[1].replace('.', '').replace(',', '.')) *
+          ethers.BigNumber.from(10)
+            .pow(precision)
+            .toNumber(),
+      )
+        .mul(ethers.BigNumber.from(10).pow(18 - precision))
+        .toString();
+
       const reward = new RewardEntity();
       reward.address = line[0].toString();
-      reward.numberOfTokens = parseInt(line[1], 10);
+      reward.numberOfTokens = numberOfTokens;
       reward.unlockDate = new Date(line[2]);
       reward.isUnlocked = reward.unlockDate < now;
       return reward;

@@ -1,5 +1,5 @@
 export class AccountClaimEntity {
-  availableToBeClaimed: number;
+  availableToBeClaimed: string;
   nonce: number;
   hash: string;
 }

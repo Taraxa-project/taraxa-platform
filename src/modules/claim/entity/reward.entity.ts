@@ -24,7 +24,7 @@ export class RewardEntity {
 
   @ManyToOne(
     type => AccountEntity,
-    (account: AccountEntity) => account.address
+    (account: AccountEntity) => account.address,
   )
   account: AccountEntity;
 
@@ -33,7 +33,7 @@ export class RewardEntity {
   address: string;
 
   @Column()
-  numberOfTokens: number;
+  numberOfTokens: string;
 
   @Column({ default: false })
   isUnlocked: boolean;
