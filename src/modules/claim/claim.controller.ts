@@ -87,10 +87,6 @@ export class ClaimController {
   async confirmClaim(
     @Param('account') account: string,
   ): Promise<{ status: boolean }> {
-    try {
-      return await this.claimService.confirmClaim(account);
-    } catch (e) {
-      throw new NotFoundException();
-    }
+    return await this.claimService.confirmClaim(account);
   }
 }
