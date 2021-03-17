@@ -180,11 +180,16 @@ export class ClaimService {
       this.ethereumConfig.claimContractAddress,
     );
 
-    const confirmation = await claimContractInstance
-      .getClaimedAmount(address, claim.numberOfTokens, nonce)
-      .then((amount: ethUtil.BN) => amount.toNumber());
+    const confirmation = await claimContractInstance.getClaimedAmount(
+      address,
+      claim.numberOfTokens,
+      nonce,
+    );
 
-    if (confirmation > 0 && confirmation === claim.numberOfTokens) {
+    if (
+      confirmation.gt(ethers.BigNumber.from('0')) &&
+      confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
+    ) {
       this.markAsClaimed(claim.id);
     }
 
