@@ -59,9 +59,11 @@ export class ClaimService {
   public async batches(
     range: number[],
     sort: string[],
+    filter: {},
   ): Promise<CollectionResponse<BatchEntity>> {
     const batches = new CollectionResponse<BatchEntity>();
     [batches.data, batches.count] = await this.batchRepository.findAndCount({
+      where: filter,
       order: { [sort[0]]: sort[1] },
       skip: range[0],
       take: range[1] - range[0] + 1,
@@ -78,9 +80,11 @@ export class ClaimService {
   public async rewards(
     range: number[],
     sort: string[],
+    filter: {},
   ): Promise<CollectionResponse<RewardEntity>> {
     const rewards = new CollectionResponse<RewardEntity>();
     [rewards.data, rewards.count] = await this.rewardRepository.findAndCount({
+      where: filter,
       order: { [sort[0]]: sort[1] },
       skip: range[0],
       take: range[1] - range[0] + 1,

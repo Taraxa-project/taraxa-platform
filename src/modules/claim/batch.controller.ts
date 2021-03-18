@@ -23,6 +23,7 @@ import {
   ApiBody,
   ApiNoContentResponse,
   ApiUnauthorizedResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -87,14 +88,36 @@ export class BatchController {
   async deleteBatch(@Param('id') id: number): Promise<BatchEntity> {
     return this.claimService.deleteBatch(id);
   }
-  @ApiOkResponse()
+  @ApiOkResponse({ description: 'Batches list' })
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
+  @ApiQuery({
+    name: 'range',
+    description: '[0, 24]',
+    required: false,
+    type: 'string',
+  })
+  @ApiQuery({
+    name: 'sort',
+    description: '["title", "ASC"]',
+    required: false,
+    type: 'String',
+  })
+  @ApiQuery({
+    name: 'filter',
+    description: 'filter={"type": "COMMUNITY_ACTIVITY"}',
+    required: false,
+    type: 'String',
+  })
   async getBatches(
-    @Query(['id', 'createdAt', 'status'])
+    @Query(['id', 'type', 'name', 'createdAt'])
     query: QueryDto,
   ): Promise<CollectionResponse<BatchEntity>> {
-    return await this.claimService.batches(query.range, query.sort);
+    return await this.claimService.batches(
+      query.range,
+      query.sort,
+      query.filter,
+    );
   }
 }

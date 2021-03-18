@@ -20,7 +20,21 @@ export const Query = createParamDecorator(
     }
 
     if (!allowedFields.includes(query.sort[0])) {
-      query.sort = [];
+      query.sort = ['id', 'ASC'];
+    }
+
+    let filter = {};
+
+    try {
+      filter = JSON.parse(q['filter'].toString());
+    } catch (e) {
+      filter = {};
+    }
+
+    for(const name of Object.keys(filter)) {
+      if (allowedFields.includes(name)) {
+        query.filter[name] = filter[name];
+      }
     }
 
     return query;

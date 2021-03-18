@@ -12,6 +12,7 @@ import {
   ApiOkResponse,
   ApiNoContentResponse,
   ApiUnauthorizedResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -45,10 +46,37 @@ export class RewardController {
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
+  @ApiQuery({
+    name: 'range',
+    description: '[0, 24]',
+    required: false,
+    type: 'string',
+  })
+  @ApiQuery({
+    name: 'sort',
+    description: '["title", "ASC"]',
+    required: false,
+    type: 'String',
+  })
+  @ApiQuery({
+    name: 'filter',
+    description: 'filter={"type": "COMMUNITY_ACTIVITY"}',
+    required: false,
+    type: 'String',
+  })
   async getRewards(
-    @Query(['id', 'address', 'numberOfTokens', 'unlockDate', 'createdAt'])
+    @Query([
+      'id',
+      'address',
+      'numberOfTokens',
+      'isUnlocked',
+      'unlockDate',
+      'createdAt',
+      'updatedAt',
+      'batch',
+    ])
     query: QueryDto,
   ): Promise<CollectionResponse<RewardEntity>> {
-    return this.claimService.rewards(query.range, query.sort);
+    return this.claimService.rewards(query.range, query.sort, query.filter);
   }
 }
