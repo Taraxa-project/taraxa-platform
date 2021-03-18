@@ -69,7 +69,6 @@
     "@taraxa-claim/auth": "<rootDir>/src/modules/auth",
     "@taraxa-claim/claim": "<rootDir>/src/modules/claim",
     "@taraxa-claim/unlocker": "<rootDir>/src/modules/unlocker",
-    "@taraxa-claim/blockchain": "<rootDir>/src/modules/blockchain",
-    "@taraxa-claim/scanner": "<rootDir>/src/modules/scanner"
+    "@taraxa-claim/blockchain": "<rootDir>/src/modules/blockchain"
   }
 }

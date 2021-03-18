@@ -103,24 +103,36 @@ export class ClaimService {
     return accounts;
   }
   public async account(address: string): Promise<Partial<AccountEntity>> {
+    const claim = await this.claimRepository.findOne({
+      where: { address, claimed: false },
+    });
+    if (claim) {
+      const nonce = claim.id * 13;
+
+      const claimContractInstance = this.blockchainService.getContractInstance(
+        ContractTypes.CLAIM,
+        this.ethereumConfig.claimContractAddress,
+      );
+
+      const confirmation = await claimContractInstance.getClaimedAmount(
+        address,
+        claim.numberOfTokens,
+        nonce,
+      );
+
+      if (
+        confirmation.gt(ethers.BigNumber.from('0')) &&
+        confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
+      ) {
+        await this.markAsClaimed(claim.id);
+      }
+    }
+
     const account = JSON.parse(
       JSON.stringify(await this.accountRepository.findOneOrFail({ address })),
     );
     delete account.id;
-    const claim = await this.claimRepository.findOne({
-      where: { address, claimed: false },
-    });
-    if (!claim) {
-      return account;
-    }
-    const lastClaim = {
-      nonce: claim.id * 13,
-      numberOfTokens: claim.numberOfTokens,
-    };
-    return {
-      ...account,
-      lastClaim,
-    };
+    return account;
   }
   public async createClaim(
     address: string,
@@ -162,39 +174,6 @@ export class ClaimService {
       nonce,
       hash,
       availableToBeClaimed: claim.numberOfTokens,
-    };
-  }
-  public async confirmClaim(address: string): Promise<{ status: boolean }> {
-    const claim = await this.claimRepository.findOne({
-      where: { address, claimed: false },
-    });
-    if (!claim) {
-      return {
-        status: true,
-      };
-    }
-    const nonce = claim.id * 13;
-
-    const claimContractInstance = this.blockchainService.getContractInstance(
-      ContractTypes.CLAIM,
-      this.ethereumConfig.claimContractAddress,
-    );
-
-    const confirmation = await claimContractInstance.getClaimedAmount(
-      address,
-      claim.numberOfTokens,
-      nonce,
-    );
-
-    if (
-      confirmation.gt(ethers.BigNumber.from('0')) &&
-      confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
-    ) {
-      this.markAsClaimed(claim.id);
-    }
-
-    return {
-      status: true,
     };
   }
   public async claim(id: number): Promise<ClaimEntity> {

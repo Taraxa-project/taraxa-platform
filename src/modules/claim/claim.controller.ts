@@ -81,12 +81,4 @@ export class ClaimController {
       }
     }
   }
-  @ApiCreatedResponse({ description: 'Confirmation' })
-  @ApiNotFoundResponse({ description: 'Claim not found' })
-  @Post(':account/confirm')
-  async confirmClaim(
-    @Param('account') account: string,
-  ): Promise<{ status: boolean }> {
-    return await this.claimService.confirmClaim(account);
-  }
 }

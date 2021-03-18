@@ -3,6 +3,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Post,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -47,7 +48,7 @@ export class AccountController {
   }
   @ApiOkResponse({ description: 'Account details' })
   @ApiNotFoundResponse({ description: 'Account not found' })
-  @Get(':account')
+  @Post(':account')
   async getAccount(
     @Param('account') account: string,
   ): Promise<Partial<AccountEntity>> {

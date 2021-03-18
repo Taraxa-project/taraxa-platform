@@ -17,8 +17,7 @@
       "@taraxa-claim/auth": ["src/modules/auth"],
       "@taraxa-claim/claim": ["src/modules/claim"],
       "@taraxa-claim/unlocker": ["src/modules/unlocker"],
-      "@taraxa-claim/blockchain": ["src/modules/blockchain"],
-      "@taraxa-claim/scanner": ["src/modules/scanner"]
+      "@taraxa-claim/blockchain": ["src/modules/blockchain"]
     }
   },
   "exclude": ["node_modules", "dist"]
