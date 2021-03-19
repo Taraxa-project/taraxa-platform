@@ -111,8 +111,6 @@ export class ClaimService {
       where: { address, claimed: false },
     });
     if (claim) {
-      console.log('not claimed', address);
-      console.log('claim', claim, address);
       const nonce = claim.id * 13;
 
       const claimContractInstance = this.blockchainService.getContractInstance(
@@ -120,30 +118,23 @@ export class ClaimService {
         this.ethereumConfig.claimContractAddress,
       );
 
-      console.log('contract instance', claimContractInstance.address, address);
-
       const confirmation = await claimContractInstance.getClaimedAmount(
         address,
         claim.numberOfTokens,
         nonce,
       );
 
-      console.log('confirmation', confirmation, address);
-
       if (
         confirmation.gt(ethers.BigNumber.from('0')) &&
         confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
       ) {
-        console.log('marking as claimed', claim.id, address);
         await this.markAsClaimed(claim.id);
       }
     }
-    console.log('claimed', address);
 
     const account = JSON.parse(
       JSON.stringify(await this.accountRepository.findOneOrFail({ address })),
     );
-    console.log(account, address);
     delete account.id;
     return account;
   }
