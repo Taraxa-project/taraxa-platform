@@ -1,7 +1,7 @@
 app:
   environment: qa
-  claimContractAddress: "0x780AAd8C6C4973E57cB9399bd167118386E72EcB"
-  provider: "wss://ropsten.infura.io/ws/v3/27aed32c6f28404897a8773f58f0af77"
+  claimContractAddress: '0x780AAd8C6C4973E57cB9399bd167118386E72EcB'
+  provider: 'wss://ropsten.infura.io/ws/v3/27aed32c6f28404897a8773f58f0af77'
 
   dbHost: 10.39.113.3
 
