@@ -55,6 +55,18 @@ helm.sh/chart: {{ include "claim-api.chart" . }}
 {{- end }}
 
 {{/*
+Cron Common labels
+*/}}
+{{- define "claim-api-cron.labels" -}}
+{{ include "claim-api-cron.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+helm.sh/chart: {{ include "claim-api.chart" . }}
+{{- end }}
+
+{{/*
 Default Selector labels
 */}}
 {{- define "claim-api.selectorLabels" -}}
@@ -76,6 +88,16 @@ app.kubernetes.io/name: {{ include "claim-api.name" . }}-db-proxy
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
+{{/*
+Cron Selector labels
+*/}}
+{{- define "claim-api-cron.selectorLabels" -}}
+app: {{ .Values.app.name }}
+component: {{ .Values.app.component }}
+environment: {{ .Values.app.environment }}
+app.kubernetes.io/name: {{ include "claim-api.name" . }}-cron
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
 
 {{/*
 Create the name of the service account to use
