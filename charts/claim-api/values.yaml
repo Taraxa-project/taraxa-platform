@@ -5,10 +5,15 @@
 replicaCount: 1
 
 app:
+  environment: prod
+  claimContractAddress: ''
+  provider: ''
+
   name: claim
   component: api
-  
+
   serverPort: 3001
+  dbHost: ''
   dbPort: 3306
   dbName: claim
 
@@ -16,11 +21,11 @@ image:
   repository: gcr.io/jovial-meridian-249123/taraxa-claim-api-main
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: ''
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -29,14 +34,16 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: ''
 
 podAnnotations: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -52,10 +59,10 @@ ingress:
   enabled: false
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, DELETE"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization,Range,Content-Range,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Access-Control-Allow-Origin"
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/cors-allow-methods: 'PUT, GET, POST, OPTIONS, DELETE'
+    nginx.ingress.kubernetes.io/cors-allow-headers: 'Authorization,Range,Content-Range,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Access-Control-Allow-Origin'
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -84,3 +91,6 @@ autoscaling:
 tolerations: []
 
 affinity: {}
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-prod
