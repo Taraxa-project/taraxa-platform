@@ -6,7 +6,7 @@ import { LessThan, Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ethereum } from '@taraxa-claim/config';
+import { ethereum, general } from '@taraxa-claim/config';
 import { CollectionResponse, QueryDto } from '@taraxa-claim/common';
 import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
 import { BatchEntity, BatchTypes } from './entity/batch.entity';
@@ -29,6 +29,8 @@ export class ClaimService {
     private readonly accountRepository: Repository<AccountEntity>,
     @InjectRepository(ClaimEntity)
     private readonly claimRepository: Repository<ClaimEntity>,
+    @Inject(general.KEY)
+    private readonly generalConfig: ConfigType<typeof general>,
     @Inject(ethereum.KEY)
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
     private readonly blockchainService: BlockchainService,
@@ -88,6 +90,10 @@ export class ClaimService {
       take: range[1] - range[0] + 1,
       relations: ['batch', 'account'],
     });
+    rewards.data = rewards.data.map((reward: RewardEntity) => ({
+      ...reward,
+      numberOfTokens: this.bNStringToString(reward.numberOfTokens),
+    }));
     return rewards;
   }
   public async accounts(
@@ -103,6 +109,12 @@ export class ClaimService {
         take: range[1] - range[0] + 1,
       },
     );
+    accounts.data = accounts.data.map((account: AccountEntity) => ({
+      ...account,
+      availableToBeClaimed: this.bNStringToString(account.availableToBeClaimed),
+      totalLocked: this.bNStringToString(account.totalLocked),
+      totalClaimed: this.bNStringToString(account.totalClaimed),
+    }));
     return accounts;
   }
   public async account(address: string): Promise<Partial<AccountEntity>> {
@@ -224,6 +236,10 @@ export class ClaimService {
       skip: range[0],
       take: range[1] - range[0] + 1,
     });
+    claims.data = claims.data.map((claim: ClaimEntity) => ({
+      ...claim,
+      numberOfTokens: this.bNStringToString(claim.numberOfTokens),
+    }));
     return claims;
   }
   public async unlockRewards(): Promise<void> {
@@ -315,23 +331,40 @@ export class ClaimService {
     }
 
     const now = new Date();
-    const precision = 3;
     return rewards.map((line: string[]) => {
-      const numberOfTokens = ethers.BigNumber.from(
-        parseFloat(line[1].replace('.', '').replace(',', '.')) *
-          ethers.BigNumber.from(10)
-            .pow(precision)
-            .toNumber(),
-      )
-        .mul(ethers.BigNumber.from(10).pow(18 - precision))
-        .toString();
-
       const reward = new RewardEntity();
       reward.address = line[0].toString();
-      reward.numberOfTokens = numberOfTokens;
+      reward.numberOfTokens = this.stringToBNString(line[1]);
       reward.unlockDate = new Date(line[2]);
       reward.isUnlocked = reward.unlockDate < now;
       return reward;
     });
+  }
+
+  private stringToBNString(f: string): string {
+    const precision = this.generalConfig.precision;
+    const numberOfTokens = ethers.BigNumber.from(
+      parseFloat(f.replace('.', '').replace(',', '.')) *
+        ethers.BigNumber.from(10)
+          .pow(precision)
+          .toNumber(),
+    )
+      .mul(ethers.BigNumber.from(10).pow(18 - precision))
+      .toString();
+
+    return numberOfTokens;
+  }
+
+  private bNStringToString(i: string): string {
+    const precision = this.generalConfig.precision;
+    const numberOfTokens =
+      ethers.BigNumber.from(i)
+        .div(ethers.BigNumber.from(10).pow(18 - precision))
+        .toNumber() /
+      ethers.BigNumber.from(10)
+        .pow(precision)
+        .toNumber();
+
+    return numberOfTokens.toString();
   }
 }
