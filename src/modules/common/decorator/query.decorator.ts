@@ -1,5 +1,6 @@
-import { createParamDecorator } from '@nestjs/common';
 import { Request } from 'express';
+import { In } from 'typeorm';
+import { createParamDecorator } from '@nestjs/common';
 import { QueryDto } from '../dto/query.dto';
 
 export const Query = createParamDecorator(
@@ -33,7 +34,11 @@ export const Query = createParamDecorator(
 
     for (const name of Object.keys(filter)) {
       if (allowedFields.includes(name)) {
-        query.filter[name] = filter[name];
+        if (Array.isArray(filter[name])) {
+          query.filter[name] = In(filter[name]);
+        } else {
+          query.filter[name] = filter[name];
+        }
       }
     }
 
