@@ -60,7 +60,7 @@ export class RewardController {
   })
   @ApiQuery({
     name: 'filter',
-    description: 'filter={"type": "COMMUNITY_ACTIVITY"}',
+    description: '{"address": "0x8F1567bB4381f4ED53DBEb3C0DCa5C4F189A1110"}',
     required: false,
     type: 'String',
   })
@@ -74,9 +74,10 @@ export class RewardController {
       'createdAt',
       'updatedAt',
       'batch',
+      'account',
     ])
     query: QueryDto,
   ): Promise<CollectionResponse<RewardEntity>> {
-    return this.claimService.rewards(query.range, query.sort, query.filter);
+    return this.claimService.rewards(query);
   }
 }

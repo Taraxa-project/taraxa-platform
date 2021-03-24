@@ -31,7 +31,7 @@ export const Query = createParamDecorator(
       filter = {};
     }
 
-    for(const name of Object.keys(filter)) {
+    for (const name of Object.keys(filter)) {
       if (allowedFields.includes(name)) {
         query.filter[name] = filter[name];
       }

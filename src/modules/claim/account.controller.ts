@@ -13,6 +13,7 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
   ApiNotFoundResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -34,6 +35,24 @@ export class AccountController {
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @Get()
   @UseInterceptors(PaginationInterceptor)
+  @ApiQuery({
+    name: 'range',
+    description: '[0, 24]',
+    required: false,
+    type: 'string',
+  })
+  @ApiQuery({
+    name: 'sort',
+    description: '["title", "ASC"]',
+    required: false,
+    type: 'String',
+  })
+  @ApiQuery({
+    name: 'filter',
+    description: '{"address": "0x8F1567bB4381f4ED53DBEb3C0DCa5C4F189A1110"}',
+    required: false,
+    type: 'String',
+  })
   async getAccounts(
     @Query([
       'id',
@@ -44,7 +63,7 @@ export class AccountController {
     ])
     query: QueryDto,
   ): Promise<CollectionResponse<AccountEntity>> {
-    return this.claimService.accounts(query.range, query.sort);
+    return this.claimService.accounts(query);
   }
   @ApiOkResponse({ description: 'Account details' })
   @ApiNotFoundResponse({ description: 'Account not found' })

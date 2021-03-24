@@ -7,7 +7,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum } from '@taraxa-claim/config';
-import { CollectionResponse } from '@taraxa-claim/common';
+import { CollectionResponse, QueryDto } from '@taraxa-claim/common';
 import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
 import { BatchEntity, BatchTypes } from './entity/batch.entity';
 import { RewardEntity } from './entity/reward.entity';
@@ -57,10 +57,9 @@ export class ClaimService {
     return this.batchRepository.remove(batch);
   }
   public async batches(
-    range: number[],
-    sort: string[],
-    filter: {},
+    query: QueryDto,
   ): Promise<CollectionResponse<BatchEntity>> {
+    const { range, sort, filter } = query;
     const batches = new CollectionResponse<BatchEntity>();
     [batches.data, batches.count] = await this.batchRepository.findAndCount({
       where: filter,
@@ -78,27 +77,27 @@ export class ClaimService {
     return this.rewardRepository.remove(reward);
   }
   public async rewards(
-    range: number[],
-    sort: string[],
-    filter: {},
+    query: QueryDto,
   ): Promise<CollectionResponse<RewardEntity>> {
+    const { range, sort, filter } = query;
     const rewards = new CollectionResponse<RewardEntity>();
     [rewards.data, rewards.count] = await this.rewardRepository.findAndCount({
       where: filter,
       order: { [sort[0]]: sort[1] },
       skip: range[0],
       take: range[1] - range[0] + 1,
-      relations: ['batch'],
+      relations: ['batch', 'account'],
     });
     return rewards;
   }
   public async accounts(
-    range: number[],
-    sort: string[],
+    query: QueryDto,
   ): Promise<CollectionResponse<AccountEntity>> {
+    const { range, sort, filter } = query;
     const accounts = new CollectionResponse<AccountEntity>();
     [accounts.data, accounts.count] = await this.accountRepository.findAndCount(
       {
+        where: filter,
         order: { [sort[0]]: sort[1] },
         skip: range[0],
         take: range[1] - range[0] + 1,
@@ -215,11 +214,12 @@ export class ClaimService {
     return this.claimRepository.remove(claim);
   }
   public async claims(
-    range: number[],
-    sort: string[],
+    query: QueryDto,
   ): Promise<CollectionResponse<ClaimEntity>> {
+    const { range, sort, filter } = query;
     const claims = new CollectionResponse<ClaimEntity>();
     [claims.data, claims.count] = await this.claimRepository.findAndCount({
+      where: filter,
       order: { [sort[0]]: sort[1] },
       skip: range[0],
       take: range[1] - range[0] + 1,

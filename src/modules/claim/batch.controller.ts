@@ -106,7 +106,7 @@ export class BatchController {
   })
   @ApiQuery({
     name: 'filter',
-    description: 'filter={"type": "COMMUNITY_ACTIVITY"}',
+    description: '{"type": "COMMUNITY_ACTIVITY"}',
     required: false,
     type: 'String',
   })
@@ -114,10 +114,6 @@ export class BatchController {
     @Query(['id', 'type', 'name', 'createdAt'])
     query: QueryDto,
   ): Promise<CollectionResponse<BatchEntity>> {
-    return await this.claimService.batches(
-      query.range,
-      query.sort,
-      query.filter,
-    );
+    return await this.claimService.batches(query);
   }
 }

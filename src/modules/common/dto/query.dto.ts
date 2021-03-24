@@ -23,5 +23,5 @@ export class QueryDto {
       type: 'string',
     },
   })
-  filter: {} = {};
+  filter: { [key: string]: string } = {};
 }

@@ -26,7 +26,7 @@ export class BatchEntity {
 
   @OneToMany(
     type => RewardEntity,
-    reward => reward.batch,
+    (reward: RewardEntity) => reward.batch,
     { cascade: true, onDelete: 'CASCADE' },
   )
   rewards: RewardEntity[];
