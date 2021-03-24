@@ -2,7 +2,7 @@ import * as parse from 'csv-parse/lib/sync';
 import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
-import { LessThan, Repository } from 'typeorm';
+import { In, LessThan, Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -100,10 +100,28 @@ export class ClaimService {
     query: QueryDto,
   ): Promise<CollectionResponse<AccountEntity>> {
     const { range, sort, filter } = query;
+    let filterNoBatch = { ...filter };
+
+    if (filter.batch) {
+      delete filterNoBatch.batch;
+      const addresses = (
+        await this.rewardRepository.find({
+          select: ['address'],
+          where: { batch: { id: filter.batch } },
+        })
+      )
+        .map(reward => reward.address)
+        .filter((value, index, self) => {
+          return self.indexOf(value) === index;
+        });
+
+      filterNoBatch = { ...filterNoBatch, address: In(addresses) };
+    }
+
     const accounts = new CollectionResponse<AccountEntity>();
     [accounts.data, accounts.count] = await this.accountRepository.findAndCount(
       {
-        where: filter,
+        where: filter.batch ? filterNoBatch : filter,
         order: { [sort[0]]: sort[1] },
         skip: range[0],
         take: range[1] - range[0] + 1,

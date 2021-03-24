@@ -60,6 +60,7 @@ export class AccountController {
       'availableToBeClaimed',
       'totalLocked',
       'totalClaimed',
+      'batch',
     ])
     query: QueryDto,
   ): Promise<CollectionResponse<AccountEntity>> {
