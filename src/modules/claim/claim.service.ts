@@ -362,7 +362,7 @@ export class ClaimService {
   private stringToBNString(f: string): string {
     const precision = this.generalConfig.precision;
     const numberOfTokens = ethers.BigNumber.from(
-      parseFloat(f.replace('.', '').replace(',', '.')) *
+      parseFloat(f.replace(',', '')) *
         ethers.BigNumber.from(10)
           .pow(precision)
           .toNumber(),
