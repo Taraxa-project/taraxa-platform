@@ -32,7 +32,7 @@ jobs:
          name: Tag images and push images
          command: |
            docker tag ${IMAGE} ${GCP_IMAGE}-${CIRCLE_BRANCH}:${CIRCLE_SHA1}
-           docker push ${GCP_IMAGE}-${CIRCLE_BRACH}:${CIRCLE_SHA1}
+           docker push ${GCP_IMAGE}-${CIRCLE_BRANCH}:${CIRCLE_SHA1}
 
       - run:
          name: Restart rollout deployment
