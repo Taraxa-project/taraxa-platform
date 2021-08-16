@@ -1,0 +1,77 @@
+version: 2.1
+
+
+jobs: 
+   build-and-push-docker-image:
+    environment:
+      - IMAGE: taraxa-claim-api
+    machine:
+      image: ubuntu-2004:202010-01
+      docker_layer_caching: false
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+         name: Prepare Environment
+         command: |
+           echo "export GCP_IMAGE=gcr.io/${GOOGLE_PROJECT_ID}/${IMAGE}" >> $BASH_ENV         
+           echo "export START_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)" >>$BASH_ENV
+           sudo service apport stop
+
+      - run:
+         name: Login into gcr
+         command: |
+            echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+      
+      - run:
+         name: Build Docker image
+         command: |
+                docker build -t ${IMAGE} -f Dockerfile .
+            
+      - run:
+         name: Tag images and push images
+         command: |
+           docker tag ${IMAGE} ${GCP_REGISTRY}/${IMAGE}-${BRANCH_NAME}:${CIRCLE_SHA1}
+           docker push ${GCP_IMAGE}-${CIRCLE_BRACH}:${CIRCLE_SHA1}
+
+      - run:
+         name: Restart rollout deployment
+         no_output_timeout: 5m
+         command: |
+              mkdir -p $HOME/.kube
+              echo -n "${KUBE_CONFIG}" | base64 --decode > $HOME/.kube/config
+              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              sudo cp kubectl /usr/local/bin
+              sudo chmod +x /usr/local/bin/kubectl
+              curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+              echo ${CIRCLE_BRANCH}
+              if [ "${CIRCLE_BRANCH}" == "main" ];then
+                  helm upgrade qa-taraxa-claim-api \
+                  --namespace taraxa-community-prod \
+                  --set image.tag=${CIRCLE_SHA1} \
+                  -f charts/qa.values.yaml \
+                 charts/claim-api
+              elif [ "${CIRCLE_BRANCH}" == "develop" ];then
+                helm upgrade prod-taraxa-claim-api \
+                 --namespace taraxa-community-qa \
+                 --set image.tag=${CIRCLE_SHA1} \
+                 -f charts/prod.values.yaml \
+                charts/claim-api              
+             fi
+
+workflows:
+  version: 2
+ 
+  build-and-deploy-image:
+    jobs:
+     - build-and-push-docker-image:
+        filters:
+           branches:
+             only:
+              - main
+              - develop
+
+        context:
+         - TARAXA
+         - GCR
+         - K8S
