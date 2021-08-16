@@ -46,13 +46,13 @@ jobs:
               curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
               echo ${CIRCLE_BRANCH}
               if [ "${CIRCLE_BRANCH}" == "main" ];then
-                  helm upgrade qa-taraxa-claim-api \
+                  helm upgrade prod-taraxa-claim-api \
                   --namespace taraxa-community-prod \
                   --set image.tag=${CIRCLE_SHA1} \
                   -f charts/qa.values.yaml \
                   charts/claim-api
               elif [ "${CIRCLE_BRANCH}" == "develop" ];then
-                helm upgrade prod-taraxa-claim-api \
+                helm upgrade qa-taraxa-claim-api \
                  --namespace taraxa-community-qa \
                  --set image.tag=${CIRCLE_SHA1} \
                  -f charts/prod.values.yaml \
