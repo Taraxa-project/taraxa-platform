@@ -55,7 +55,7 @@ jobs:
                 helm upgrade qa-taraxa-claim-api \
                  --namespace taraxa-community-qa \
                  --set image.tag=${CIRCLE_SHA1} \
-                 -f charts/prod.values.yaml \
+                 -f charts/qa.values.yaml \
                  charts/claim-api              
               fi
 
