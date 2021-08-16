@@ -31,7 +31,7 @@ jobs:
       - run:
          name: Tag images and push images
          command: |
-           docker tag ${IMAGE} ${GCP_REGISTRY}/${IMAGE}-${BRANCH_NAME}:${CIRCLE_SHA1}
+           docker tag ${IMAGE} ${GCP_REGISTRY}/${IMAGE}-${CIRCLE_BRANCH}:${CIRCLE_SHA1}
            docker push ${GCP_IMAGE}-${CIRCLE_BRACH}:${CIRCLE_SHA1}
 
       - run:
