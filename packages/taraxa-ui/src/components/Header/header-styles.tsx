@@ -74,8 +74,8 @@ const useStyles = makeStyles((theme: Theme) =>
       textDecoration: 'none',
     },
     profileButton: {
-      marginBottom: '5%'
-    }
+      marginBottom: '5%',
+    },
   }),
 );
 

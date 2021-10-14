@@ -1,12 +1,21 @@
-import React from "react";
+import React from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { createStyles, CssBaseline, Drawer, DrawerProps, List, makeStyles, Theme, ThemeProvider } from '@material-ui/core';
+import {
+  createStyles,
+  CssBaseline,
+  Drawer,
+  DrawerProps,
+  List,
+  makeStyles,
+  Theme,
+  ThemeProvider,
+} from '@material-ui/core';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import Text from '../Text';
 
-import theme from "../theme";
+import theme from '../theme';
 
 import '../app.scss';
 
@@ -29,26 +38,26 @@ const useStyles = makeStyles((theme: Theme) =>
       width: drawerWidth,
       position: 'inherit',
       backgroundColor: '#151823 !important',
-      "& > div:first-child": {
-        flex: 1
+      '& > div:first-child': {
+        flex: 1,
       },
-      "& > div:last-child": {
-        padding: '64px 0'
-      }
+      '& > div:last-child': {
+        padding: '64px 0',
+      },
     },
     drawerPaperMobile: {
-      "& > div:last-child": {
-        display: 'none'
-      }
+      '& > div:last-child': {
+        display: 'none',
+      },
     },
     drawerContainer: {
       overflow: 'auto',
-      backgroundColor: '#151823'
+      backgroundColor: '#151823',
     },
     content: {
       flexGrow: 1,
       padding: theme.spacing(3),
-      backgroundColor: '#151823'
+      backgroundColor: '#151823',
     },
   }),
 );
@@ -59,8 +68,13 @@ export interface SidebarProps extends DrawerProps {
   depthStep?: 0;
   depth?: 0;
   className?: string;
-  items: { label?: string, name?: string; Link?: JSX.Element, items?: { label?: string, name?: string, Link?: JSX.Element }[] }[];
-};
+  items: {
+    label?: string;
+    name?: string;
+    Link?: JSX.Element;
+    items?: { label?: string; name?: string; Link?: JSX.Element }[];
+  }[];
+}
 
 interface SidebarItemProps {
   label?: string;
@@ -68,9 +82,14 @@ interface SidebarItemProps {
   depthStep: number;
   depth: number;
   subItem: boolean;
-  items: { label?: string, name?: string; Link?: JSX.Element, items?: { label?: string, name?: string, Link?: JSX.Element }[] }[];
+  items: {
+    label?: string;
+    name?: string;
+    Link?: JSX.Element;
+    items?: { label?: string; name?: string; Link?: JSX.Element }[];
+  }[];
   Link?: JSX.Element;
-};
+}
 
 const Sidebar = ({
   disablePadding,
@@ -86,21 +105,28 @@ const Sidebar = ({
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   let paperClasses = [classes.drawerPaper];
 
-  if(isMobile) {
-    paperClasses = [
-      ...paperClasses,
-      classes.drawerPaperMobile
-    ];
+  if (isMobile) {
+    paperClasses = [...paperClasses, classes.drawerPaperMobile];
   }
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Drawer className="sidebar"
-        variant={!isMobile ? 'permanent' : "temporary"}
-        classes={{ paper: paperClasses.join(' ') }} anchor={isMobile ? "right" : "left"} elevation={0} {...props}>
+      <Drawer
+        className="sidebar"
+        variant={!isMobile ? 'permanent' : 'temporary'}
+        classes={{ paper: paperClasses.join(' ') }}
+        anchor={isMobile ? 'right' : 'left'}
+        elevation={0}
+        {...props}
+      >
         <div>
-          <List disablePadding={disablePadding} dense={dense} id="sidebarList" className={className ? className : ''}>
+          <List
+            disablePadding={disablePadding}
+            dense={dense}
+            id="sidebarList"
+            className={className ? className : ''}
+          >
             {items.map((sidebarItem, index) => (
               <SidebarItem
                 key={`${sidebarItem.label}${index}`}
@@ -108,7 +134,7 @@ const Sidebar = ({
                 depth={depth ? depth : 0}
                 subItem={false}
                 items={sidebarItem.items ? sidebarItem.items : []}
-                label={sidebarItem.label ? sidebarItem.label : ""}
+                label={sidebarItem.label ? sidebarItem.label : ''}
                 Link={sidebarItem.Link ? sidebarItem.Link : undefined}
                 name={sidebarItem.name ? sidebarItem.name : undefined}
               />
@@ -117,25 +143,58 @@ const Sidebar = ({
           {children}
         </div>
         <div>
-          <Text label={`© Taraxa ${new Date().getFullYear()}`} variant="body1" color="textSecondary" />
+          <Text
+            label={`© Taraxa ${new Date().getFullYear()}`}
+            variant="body1"
+            color="textSecondary"
+          />
         </div>
       </Drawer>
     </ThemeProvider>
   );
-}
+};
 
 const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: SidebarItemProps) => {
-  const pathname = window.location.pathname.length > 1 ? window.location.pathname.substring(1) : window.location.pathname;
+  const pathname =
+    window.location.pathname.length > 1
+      ? window.location.pathname.substring(1)
+      : window.location.pathname;
   return (
     <>
-      <ListItem className={name === pathname && subItem ? 'subItemOpened' : name === pathname && !subItem ? 'itemOpened' : name === 'dashboard' && pathname === '/' && !subItem ? 'itemOpened' : subItem ? 'subItem' : !subItem && items.length < 1 ? 'soloItem' : 'item'} button dense>
-        {Link ?
-          <ListItemText primary={Link} style={{ paddingLeft: subItem ? depth * depthStep : !items ? (depth + 2) * depthStep : 15, marginTop: 0, marginBottom: 0 }}></ListItemText>
-          :
-          <>
-            <ListItemText primary={<div className="label">{label}</div>} style={{ paddingLeft: subItem ? depth * depthStep : 15 }}></ListItemText>
-          </>
+      <ListItem
+        className={
+          name === pathname && subItem
+            ? 'subItemOpened'
+            : name === pathname && !subItem
+            ? 'itemOpened'
+            : name === 'dashboard' && pathname === '/' && !subItem
+            ? 'itemOpened'
+            : subItem
+            ? 'subItem'
+            : !subItem && items.length < 1
+            ? 'soloItem'
+            : 'item'
         }
+        button
+        dense
+      >
+        {Link ? (
+          <ListItemText
+            primary={Link}
+            style={{
+              paddingLeft: subItem ? depth * depthStep : !items ? (depth + 2) * depthStep : 15,
+              marginTop: 0,
+              marginBottom: 0,
+            }}
+          ></ListItemText>
+        ) : (
+          <>
+            <ListItemText
+              primary={<div className="label">{label}</div>}
+              style={{ paddingLeft: subItem ? depth * depthStep : 15 }}
+            ></ListItemText>
+          </>
+        )}
       </ListItem>
       {Array.isArray(items) ? (
         <List disablePadding dense>
@@ -154,7 +213,7 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
         </List>
       ) : null}
     </>
-  )
-}
+  );
+};
 
 export default Sidebar;

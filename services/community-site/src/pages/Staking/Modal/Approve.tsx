@@ -1,8 +1,7 @@
-import { Text, Loading } from "@taraxa_project/taraxa-ui";
-
+import { Text, Loading } from '@taraxa_project/taraxa-ui'
 
 interface ApproveProps {
-  amount: string;
+  amount: string
 }
 
 const Approve = ({ amount }: ApproveProps) => {
@@ -12,9 +11,13 @@ const Approve = ({ amount }: ApproveProps) => {
       <div className="iconContainer">
         <Loading />
       </div>
-      <Text label={`Please authorize the Staking contract to stake ${amount} TARA from your account.`} variant="body2" color="primary" />
+      <Text
+        label={`Please authorize the Staking contract to stake ${amount} TARA from your account.`}
+        variant="body2"
+        color="primary"
+      />
     </div>
   )
 }
 
-export default Approve;
+export default Approve

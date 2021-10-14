@@ -1,1 +1,1 @@
-export { default } from "./ProfileSubmissionsCard";
+export { default } from './ProfileSubmissionsCard';

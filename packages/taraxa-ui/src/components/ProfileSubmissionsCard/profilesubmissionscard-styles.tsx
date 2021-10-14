@@ -4,24 +4,24 @@ const useStyles = makeStyles({
   root: {
     width: 311,
     height: 314,
-    textAlign: "left",
+    textAlign: 'left',
     backgroundColor: '#151823',
     padding: '24px',
-    border: "2px solid #31364B"
+    border: '2px solid #31364B',
   },
   content: {
-    padding: "0 !important"
+    padding: '0 !important',
   },
   title: {
     fontSize: 18,
     margin: 0,
-    textAlign: "center",
-    fontWeight: "normal",
+    textAlign: 'center',
+    fontWeight: 'normal',
     '& span': {
-      display: "inline-block",
+      display: 'inline-block',
       marginLeft: 10,
-      verticalAlign: "middle",
-    }
+      verticalAlign: 'middle',
+    },
   },
   itemsContainer: {
     overflowY: 'scroll',
@@ -33,8 +33,8 @@ const useStyles = makeStyles({
       },
       '& .gridRight': {
         textAlign: 'right',
-      }
-    }
+      },
+    },
   },
 });
 

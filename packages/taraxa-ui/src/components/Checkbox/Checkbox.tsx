@@ -1,6 +1,11 @@
-import React from "react";
-import { Checkbox as MCheckbox, CssBaseline, ThemeProvider, CheckboxProps } from '@material-ui/core';
-import theme from "../theme";
+import React from 'react';
+import {
+  Checkbox as MCheckbox,
+  CssBaseline,
+  ThemeProvider,
+  CheckboxProps,
+} from '@material-ui/core';
+import theme from '../theme';
 
 const Checkbox = ({ ...props }: CheckboxProps) => {
   return (

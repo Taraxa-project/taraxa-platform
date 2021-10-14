@@ -4,16 +4,16 @@ const useStyles = makeStyles({
   root: {
     width: '100%',
     minHeight: 180,
-    textAlign: "center",
+    textAlign: 'center',
     backgroundColor: '#212534',
-    paddingLeft: "2%",
-    paddingRight: "1%",
-    border: "1px solid #737B99",
+    paddingLeft: '2%',
+    paddingRight: '1%',
+    border: '1px solid #737B99',
     marginBottom: '5%',
   },
   content: {
     gridTemplateColumns: '65% 35%',
-    display: 'grid'
+    display: 'grid',
   },
   informationCard: {
     textAlign: 'left',
@@ -32,12 +32,12 @@ const useStyles = makeStyles({
   dataListContainer: {
     width: '100%',
     gridColumn: '1 / span 2',
-    marginTop: '5%'
+    marginTop: '5%',
   },
   label: {
     fontSize: 12,
-    marginTop: "5%",
-    marginBottom: "5%"
+    marginTop: '5%',
+    marginBottom: '5%',
   },
   rewardContent: {
     color: 'white',
@@ -47,15 +47,15 @@ const useStyles = makeStyles({
     margin: '2% 0 2% 20%',
   },
   actions: {
-    display: "grid",
-    marginBottom: "5%"
+    display: 'grid',
+    marginBottom: '5%',
   },
   bottomSpacing: {
-    marginBottom: '5%'
+    marginBottom: '5%',
   },
   icon: {
     marginBottom: '5%',
-    marginTop: '5%'
+    marginTop: '5%',
   },
   button: {
     marginTop: '8%',
@@ -66,7 +66,7 @@ const useStyles = makeStyles({
   iconContent: {
     marginRight: '5%',
     display: 'flex',
-    width: '25%'
+    width: '25%',
   },
   dot: {
     height: '15px',
@@ -75,7 +75,7 @@ const useStyles = makeStyles({
     borderRadius: '50%',
     display: 'inline-block',
     marginLeft: '2%',
-  }
+  },
 });
 
 export default useStyles;

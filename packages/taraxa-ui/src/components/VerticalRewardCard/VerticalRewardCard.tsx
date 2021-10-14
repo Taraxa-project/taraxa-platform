@@ -1,10 +1,16 @@
-import React from "react";
-import { Card as MCard, CardProps, CardContent, CssBaseline, ThemeProvider, Typography } from '@material-ui/core';
-import theme from "../theme";
-import Button from "../Button";
+import React from 'react';
+import {
+  Card as MCard,
+  CardProps,
+  CardContent,
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+} from '@material-ui/core';
+import theme from '../theme';
+import Button from '../Button';
 import useStyles from './verticalrewardcard-styles';
 import { useMediaQuery } from 'react-responsive';
-
 
 export interface VerticalRewardCardProps extends CardProps {
   description: string;
@@ -17,9 +23,7 @@ export interface VerticalRewardCardProps extends CardProps {
   SubmissionIcon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   onClickButton?: React.MouseEventHandler<HTMLButtonElement> | undefined;
   dataList?: JSX.Element;
-};
-
-
+}
 
 const VerticalRewardCard = ({
   title,
@@ -40,16 +44,25 @@ const VerticalRewardCard = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={isMobile ? classes.mobileRoot : classes.root} elevation={0} variant="outlined">
+      <MCard
+        className={isMobile ? classes.mobileRoot : classes.root}
+        elevation={0}
+        variant="outlined"
+      >
         <CardContent className={classes.content}>
           <div className={classes.informationCard}>
-            <div style={{display: 'grid', gridTemplateColumns: '95% 5%'}}>
-              <div style={{gridColumn: 1}}>
-              <Typography variant="h5" color="primary" className={classes.infoData}>
-                {title}
-              </Typography>
+            <div style={{ display: 'grid', gridTemplateColumns: '95% 5%' }}>
+              <div style={{ gridColumn: 1 }}>
+                <Typography variant="h5" color="primary" className={classes.infoData}>
+                  {title}
+                </Typography>
               </div>
-              {active && <span style={{gridColumn: 2}} className={isMobile ? classes.mobileDot : classes.dot}></span>}
+              {active && (
+                <span
+                  style={{ gridColumn: 2 }}
+                  className={isMobile ? classes.mobileDot : classes.dot}
+                ></span>
+              )}
             </div>
 
             <Typography variant="body2" color="primary" className={classes.infoData}>
@@ -72,20 +85,25 @@ const VerticalRewardCard = ({
             </div>
           </div>
           <div className={classes.actionCard}>
-            <Typography color="primary" variant="body1" className={classes.infoData}>Reward:</Typography>
+            <Typography color="primary" variant="body1" className={classes.infoData}>
+              Reward:
+            </Typography>
             <div className={classes.rewardContent}>{reward}</div>
-            <Button disableElevation color="secondary" onClick={onClickButton} variant="contained" label={onClickText} size="medium" className={classes.button}></Button>
-
+            <Button
+              disableElevation
+              color="secondary"
+              onClick={onClickButton}
+              variant="contained"
+              label={onClickText}
+              size="medium"
+              className={classes.button}
+            ></Button>
           </div>
-          {dataList &&
-            <div className={classes.dataListContainer}>
-              {dataList}
-            </div>
-          }
+          {dataList && <div className={classes.dataListContainer}>{dataList}</div>}
         </CardContent>
       </MCard>
     </ThemeProvider>
   );
-}
+};
 
 export default VerticalRewardCard;

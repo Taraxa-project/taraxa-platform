@@ -1,31 +1,27 @@
-import React from "react";
-import { Radio as MRadio, RadioProps as MRadioProps, CssBaseline, ThemeProvider } from '@material-ui/core';
-import theme from "../theme";
+import React from 'react';
+import {
+  Radio as MRadio,
+  RadioProps as MRadioProps,
+  CssBaseline,
+  ThemeProvider,
+} from '@material-ui/core';
+import theme from '../theme';
 
-export interface RadioProps extends MRadioProps  {};
+export interface RadioProps extends MRadioProps {}
 
-const Radio = ({
-  checked,
-  name,
-  color,
-  disabled,
-  onChange,
-  id,
-  className,
-  value,
-}: RadioProps) => {
+const Radio = ({ checked, name, color, disabled, onChange, id, className, value }: RadioProps) => {
   return (
     <ThemeProvider theme={theme}>
-    <CssBaseline />
+      <CssBaseline />
       <MRadio
-      checked={checked}
-      onChange={onChange}
-      name={name}
-      id={id}
-      className={className}
-      disabled={disabled}
-      color={color}
-      value={value}
+        checked={checked}
+        onChange={onChange}
+        name={name}
+        id={id}
+        className={className}
+        disabled={disabled}
+        color={color}
+        value={value}
       />
     </ThemeProvider>
   );

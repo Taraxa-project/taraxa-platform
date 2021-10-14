@@ -3,14 +3,13 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { CssBaseline, AppBarProps, AppBar } from '@material-ui/core';
-import theme from "../theme";
+import theme from '../theme';
 import useStyles from './header-styles';
 import { useMediaQuery } from 'react-responsive';
 
-
 export interface HeaderProps extends AppBarProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-};
+}
 
 function Header({ Icon, children, ...props }: HeaderProps) {
   const classes = useStyles();
@@ -21,11 +20,12 @@ function Header({ Icon, children, ...props }: HeaderProps) {
       <CssBaseline />
       <AppBar {...props}>
         <Toolbar>
-          {Icon && <a className={classes.headerIconContainer} href="/">
-            <Icon />
-            <div style={{ width: '20px' }} />
-          </a>
-          }
+          {Icon && (
+            <a className={classes.headerIconContainer} href="/">
+              <Icon />
+              <div style={{ width: '20px' }} />
+            </a>
+          )}
 
           <a className={classes.titleContainer} href="/">
             <Typography variant="h2" noWrap className={classes.title}>
@@ -45,13 +45,18 @@ function Header({ Icon, children, ...props }: HeaderProps) {
                 inputProps={{ 'aria-label': 'search' }}
               />
             </div> */}
-          <div className={isMobile ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(' ') : classes.sectionDesktop}>
+          <div
+            className={
+              isMobile
+                ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(' ')
+                : classes.sectionDesktop
+            }
+          >
             {children}
           </div>
-
         </Toolbar>
       </AppBar>
-    </ThemeProvider >
+    </ThemeProvider>
   );
 }
 

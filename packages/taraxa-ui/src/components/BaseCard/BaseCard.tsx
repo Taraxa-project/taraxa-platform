@@ -1,6 +1,13 @@
-import React from "react";
-import { Card as MCard, CardProps as MCardProps, CardContent, CssBaseline, ThemeProvider, Typography } from '@material-ui/core';
-import theme from "../theme";
+import React from 'react';
+import {
+  Card as MCard,
+  CardProps as MCardProps,
+  CardContent,
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+} from '@material-ui/core';
+import theme from '../theme';
 import useStyles from './basecard-styles';
 
 export interface BaseCardProps extends MCardProps {
@@ -9,15 +16,9 @@ export interface BaseCardProps extends MCardProps {
   tooltip?: JSX.Element;
   id?: string;
   button?: React.ReactNode;
-};
+}
 
-const BaseCard = ({
-  title,
-  description,
-  tooltip,
-  id,
-  button
-}: BaseCardProps) => {
+const BaseCard = ({ title, description, tooltip, id, button }: BaseCardProps) => {
   const classes = useStyles();
 
   return (
@@ -41,6 +42,6 @@ const BaseCard = ({
       </MCard>
     </ThemeProvider>
   );
-}
+};
 
 export default BaseCard;

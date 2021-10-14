@@ -1,7 +1,7 @@
-import React, { ChangeEventHandler } from "react";
+import React, { ChangeEventHandler } from 'react';
 import { TextField, TextFieldProps, CssBaseline, ThemeProvider } from '@material-ui/core';
-import theme from "../theme";
-import "./inputfield.scss"
+import theme from '../theme';
+import './inputfield.scss';
 
 export type InputFieldProps = {
   label: string;
@@ -31,13 +31,20 @@ const InputField = ({ max, min, ...props }: InputFieldProps) => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <TextField
-        InputProps={max && min ? {
-          inputProps: {
-            max: max, min: min
-          }
-        } : undefined} {...props} />
+        InputProps={
+          max && min
+            ? {
+                inputProps: {
+                  max: max,
+                  min: min,
+                },
+              }
+            : undefined
+        }
+        {...props}
+      />
     </ThemeProvider>
   );
-}
+};
 
 export default InputField;

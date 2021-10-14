@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import theme from "../theme";
-import useStyles from "./tooltip-styles";
+import theme from '../theme';
+import useStyles from './tooltip-styles';
 import { Tooltip as MTooltip } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import Text from "../Text";
+import Text from '../Text';
 
 const HtmlTooltip = withStyles((theme) => ({
   tooltip: {
@@ -20,15 +20,9 @@ export interface TooltipProps {
   Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   className?: string;
   id?: string;
-};
+}
 
-
-const Tooltip = ({
-  title,
-  Icon,
-  className,
-  id,
-}: TooltipProps) => {
+const Tooltip = ({ title, Icon, className, id }: TooltipProps) => {
   const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>
@@ -43,7 +37,9 @@ const Tooltip = ({
         }
         enterTouchDelay={100}
       >
-        <span><Icon /></span>
+        <span>
+          <Icon />
+        </span>
       </HtmlTooltip>
     </ThemeProvider>
   );

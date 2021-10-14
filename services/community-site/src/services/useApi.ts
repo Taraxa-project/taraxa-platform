@@ -4,11 +4,11 @@ export const useApi = () => {
   const getUrl = (url: string) => {
     let parsedUrl
     try {
-      parsedUrl = new URL(url);
-      return parsedUrl.toString();
+      parsedUrl = new URL(url)
+      return parsedUrl.toString()
     } catch (e) {
       parsedUrl = new URL(`${process.env.REACT_APP_API_HOST}${url}`)
-      return parsedUrl.toString();
+      return parsedUrl.toString()
     }
   }
 
@@ -74,7 +74,7 @@ export const useApi = () => {
   }
 
   const del = async (url: string, includeToken: boolean = false) => {
-    const options = getOptions(includeToken);
+    const options = getOptions(includeToken)
     return axios
       .delete(getUrl(url), options)
       .then((response) => {

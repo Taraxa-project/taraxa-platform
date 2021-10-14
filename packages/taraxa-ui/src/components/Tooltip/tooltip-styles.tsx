@@ -6,7 +6,7 @@ const useStyles = makeStyles({
     borderRadius: '4px !important',
     color: 'white !important',
     minWidth: '200',
-    padding: '2%'
+    padding: '2%',
   },
 });
 

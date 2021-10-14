@@ -7,13 +7,13 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     footer: {
       borderTop: '1px solid #40465f',
-      marginTop: "56px",
+      marginTop: '56px',
       width: '100%',
       paddingTop: '32px',
     },
     footerMobile: {
       borderTop: '1px solid #40465f',
-      marginTop: "56px",
+      marginTop: '56px',
       width: '100%',
       padding: '32px',
     },
@@ -41,24 +41,24 @@ const useStyles = makeStyles((theme: Theme) =>
       gridRow: 3,
       backgroundColor: '#151823 !important',
       paddingBottom: '2% !important',
-      marginTop: '2% !important'
+      marginTop: '2% !important',
     },
     bottomNavigationItem: {
       color: '#fff !important',
-      justifyContent: 'flex-end'
+      justifyContent: 'flex-end',
     },
     footerList: {
       gridRow: 4,
       display: 'flex',
       marginBottom: '64px',
-      textAlign: 'left'
+      textAlign: 'left',
     },
     footerParagraph: {
       cursor: 'pointer',
       textDecoration: 'none',
-      "& > p": {
+      '& > p': {
         fontSize: '14px',
-      }
+      },
     },
     mobileIcons: {
       width: '100%',
@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       '&:last-child': {
         marginRight: 0,
-      }
+      },
     },
     footerSVG: {
       textAlign: 'left',
@@ -91,7 +91,7 @@ const useStyles = makeStyles((theme: Theme) =>
       textAlign: 'left',
       gridColumn: 1,
       gridRow: 1,
-    }
+    },
   }),
 );
 

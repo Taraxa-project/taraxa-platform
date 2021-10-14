@@ -1,10 +1,10 @@
-import React from "react";
-import { Meta } from "@storybook/react/types-6-0";
-import { Story } from "@storybook/react";
-import Header, { HeaderProps } from "./Header";
+import React from 'react';
+import { Meta } from '@storybook/react/types-6-0';
+import { Story } from '@storybook/react';
+import Header, { HeaderProps } from './Header';
 
 export default {
-  title: "Components/Header",
+  title: 'Components/Header',
   component: Header,
 } as Meta;
 

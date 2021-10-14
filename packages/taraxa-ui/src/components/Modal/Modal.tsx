@@ -1,30 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import theme from "../theme";
+import theme from '../theme';
 import RModal from 'react-modal';
-import Button from "../Button";
+import Button from '../Button';
 import '../app.scss';
 
-export interface ModalProps  {
+export interface ModalProps {
   title: string;
   children: JSX.Element;
   show: boolean;
   parentElementID: string;
-  onRequestClose: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => void;
+  onRequestClose: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   id?: string;
   closeIcon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-};
+}
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
   return {
     width,
-    height
+    height,
   };
 }
-
 
 function useWindowDimensions() {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
@@ -41,9 +38,17 @@ function useWindowDimensions() {
   return windowDimensions;
 }
 
-const Modal = ({ children, show, title, parentElementID, onRequestClose, id, closeIcon }: ModalProps) => {
+const Modal = ({
+  children,
+  show,
+  title,
+  parentElementID,
+  onRequestClose,
+  id,
+  closeIcon,
+}: ModalProps) => {
   const { height } = useWindowDimensions();
-  
+
   const customStyles = {
     content: {
       top: '50%',
@@ -52,7 +57,7 @@ const Modal = ({ children, show, title, parentElementID, onRequestClose, id, clo
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      backgroundColor: "#282C3E",
+      backgroundColor: '#282C3E',
       overflow: 'auto',
       outline: 'none',
       maxHeight: `${height - 100}px`,
@@ -61,9 +66,9 @@ const Modal = ({ children, show, title, parentElementID, onRequestClose, id, clo
       borderRadius: '6px',
     },
     overlay: {
-      background: "rgba(0, 0, 0, 0.5)",
+      background: 'rgba(0, 0, 0, 0.5)',
       zIndex: 2000,
-    }
+    },
   };
 
   RModal.setAppElement(`#${parentElementID}`);
@@ -83,6 +88,6 @@ const Modal = ({ children, show, title, parentElementID, onRequestClose, id, clo
       </RModal>
     </ThemeProvider>
   );
-}
+};
 
 export default Modal;

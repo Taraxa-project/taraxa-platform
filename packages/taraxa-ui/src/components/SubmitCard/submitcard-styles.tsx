@@ -5,20 +5,20 @@ const useStyles = makeStyles({
     width: '100%',
     maxWidth: 400,
     minHeight: 470,
-    textAlign: "center",
+    textAlign: 'center',
     backgroundColor: '#212534',
-    paddingLeft: "2%",
-    paddingRight: "1%",
-    border: "1px solid #737B99",
+    paddingLeft: '2%',
+    paddingRight: '1%',
+    border: '1px solid #737B99',
     marginBottom: '5%',
   },
   mobileRoot: {
     width: '95%',
-    textAlign: "center",
+    textAlign: 'center',
     backgroundColor: '#212534',
-    paddingLeft: "2%",
-    paddingRight: "1%",
-    border: "1px solid #737B99",
+    paddingLeft: '2%',
+    paddingRight: '1%',
+    border: '1px solid #737B99',
     marginBottom: '5%',
   },
   content: {
@@ -37,12 +37,12 @@ const useStyles = makeStyles({
   },
   actionCard: {
     alignSelf: 'end',
-    marginTop: '10%'
+    marginTop: '10%',
   },
   label: {
     fontSize: 12,
-    marginTop: "5%",
-    marginBottom: "5%"
+    marginTop: '5%',
+    marginBottom: '5%',
   },
   rewardContent: {
     color: 'white',
@@ -51,15 +51,15 @@ const useStyles = makeStyles({
     width: '93%',
   },
   actions: {
-    display: "grid",
-    marginBottom: "5%"
+    display: 'grid',
+    marginBottom: '5%',
   },
   bottomSpacing: {
-    marginBottom: '5%'
+    marginBottom: '5%',
   },
   icon: {
     marginBottom: '5%',
-    marginTop: '5%'
+    marginTop: '5%',
   },
   button: {
     marginTop: '3%',
@@ -68,7 +68,7 @@ const useStyles = makeStyles({
   },
   uploadButton: {
     color: '#878CA4',
-    fontSize: '1rem'
+    fontSize: '1rem',
   },
   iconContent: {
     marginBottom: '5%',
@@ -94,7 +94,7 @@ const useStyles = makeStyles({
   dataListContainer: {
     width: '85%',
     gridColumn: '1 / span 2',
-    marginTop: '5%'
+    marginTop: '5%',
   },
 });
 

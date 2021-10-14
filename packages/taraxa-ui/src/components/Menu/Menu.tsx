@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import { CssBaseline, ThemeProvider, Menu as MMenu, MenuItem as MMenuItem } from '@material-ui/core';
+import React, { useState } from 'react';
+import {
+  CssBaseline,
+  ThemeProvider,
+  Menu as MMenu,
+  MenuItem as MMenuItem,
+} from '@material-ui/core';
 
-import theme from "../theme";
+import theme from '../theme';
 
 import '../app.scss';
 
@@ -32,9 +37,8 @@ const Menu = ({ onClick }: { onClick: (event: React.MouseEvent<HTMLButtonElement
         <MMenuItem onClick={handleClose}>My account</MMenuItem>
         <MMenuItem onClick={handleClose}>Logout</MMenuItem>
       </MMenu>
-
     </ThemeProvider>
   );
-}
+};
 
 export default Menu;

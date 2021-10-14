@@ -1,10 +1,17 @@
-import React from "react";
-import { Card as MCard, CardProps as MCardProps, CardActions, CardContent, CssBaseline, ThemeProvider, Typography } from '@material-ui/core';
-import theme from "../theme";
-import Button from "../Button";
+import React from 'react';
+import {
+  Card as MCard,
+  CardProps as MCardProps,
+  CardActions,
+  CardContent,
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+} from '@material-ui/core';
+import theme from '../theme';
+import Button from '../Button';
 import useStyles from './iconcard-styles';
-import Font from "react-font";
-
+import Font from 'react-font';
 
 export interface IconCardProps extends MCardProps {
   description: string;
@@ -13,9 +20,7 @@ export interface IconCardProps extends MCardProps {
   disabled?: boolean;
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   tooltip?: JSX.Element;
-};
-
-
+}
 
 const IconCard = ({
   title,
@@ -25,7 +30,7 @@ const IconCard = ({
   disabled,
   Icon,
   id,
-  tooltip
+  tooltip,
 }: IconCardProps) => {
   const classes = useStyles();
 
@@ -34,22 +39,42 @@ const IconCard = ({
       <CssBaseline />
       <MCard className={classes.root} id={id} elevation={0} variant="outlined">
         <CardContent className={classes.content}>
-          {tooltip && Icon ? <div className={classes.tooltipIcon}>{tooltip}</div> : <div className={classes.noIconTooltipIcon}>{tooltip}</div>}
-          {Icon && <div className={classes.icon}><Icon /></div>}
+          {tooltip && Icon ? (
+            <div className={classes.tooltipIcon}>{tooltip}</div>
+          ) : (
+            <div className={classes.noIconTooltipIcon}>{tooltip}</div>
+          )}
+          {Icon && (
+            <div className={classes.icon}>
+              <Icon />
+            </div>
+          )}
           <Typography color="primary" variant="h5" component="h5" className={classes.bottomSpacing}>
-            <Font family="Poppins"><>{title}</></Font>
+            <Font family="Poppins">
+              <>{title}</>
+            </Font>
           </Typography>
           <Typography className={classes.label} variant="body1" color="primary">
-            <Font family="Inter"><span>{description}</span></Font>
+            <Font family="Inter">
+              <span>{description}</span>
+            </Font>
           </Typography>
         </CardContent>
-        {onClickButton && onClickText &&
+        {onClickButton && onClickText && (
           <CardActions className={classes.actions}>
-            <Button disableElevation color="secondary" onClick={onClickButton} variant="contained" label={onClickText} disabled={disabled}></Button>
-          </CardActions>}
+            <Button
+              disableElevation
+              color="secondary"
+              onClick={onClickButton}
+              variant="contained"
+              label={onClickText}
+              disabled={disabled}
+            ></Button>
+          </CardActions>
+        )}
       </MCard>
     </ThemeProvider>
   );
-}
+};
 
 export default IconCard;

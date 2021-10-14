@@ -4,16 +4,16 @@ const useStyles = makeStyles({
   root: {
     width: 910,
     maxHeight: 160,
-    textAlign: "left",
+    textAlign: 'left',
     backgroundColor: '#181B27 !important',
-    paddingLeft: "2%",
-    paddingRight: "1%",
-    border: "1px solid #40465F",
+    paddingLeft: '2%',
+    paddingRight: '1%',
+    border: '1px solid #40465F',
     marginBottom: '5% !important',
   },
   cardContent: {
     display: 'grid',
-    gridTemplateColumns: '35% 65%'
+    gridTemplateColumns: '35% 65%',
   },
   iconContainer: {
     gridColumn: '1',
@@ -27,11 +27,11 @@ const useStyles = makeStyles({
   },
   label: {
     fontSize: 12,
-    marginTop: "12%",
+    marginTop: '12%',
   },
   bottomSpacing: {
-    marginBottom: '8%'
-  }
+    marginBottom: '8%',
+  },
 });
 
 export default useStyles;

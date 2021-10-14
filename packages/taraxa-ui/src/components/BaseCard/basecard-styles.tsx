@@ -4,11 +4,11 @@ const useStyles = makeStyles({
   root: {
     width: 320,
     maxHeight: 160,
-    textAlign: "left",
+    textAlign: 'left',
     backgroundColor: '#181B27 !important',
-    paddingLeft: "2%",
-    paddingRight: "1%",
-    border: "1px solid #40465F",
+    paddingLeft: '2%',
+    paddingRight: '1%',
+    border: '1px solid #40465F',
   },
   title: {
     fontWeight: 700,
@@ -20,10 +20,10 @@ const useStyles = makeStyles({
     alignItems: 'flex-start',
   },
   actionContainer: {
-    marginTop: "12%",
+    marginTop: '12%',
     display: 'flex',
-    justifyContent: "space-between",
-    minHeight: "32px",
+    justifyContent: 'space-between',
+    minHeight: '32px',
   },
   icon: {
     marginLeft: 'auto',
@@ -32,7 +32,7 @@ const useStyles = makeStyles({
   label: {
     fontSize: 12,
     flexGrow: 1,
-    alignSelf: "center"
+    alignSelf: 'center',
   },
 });
 

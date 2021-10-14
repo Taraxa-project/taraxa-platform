@@ -1,1 +1,1 @@
-export { default } from "./VerticalRewardCard";
+export { default } from './VerticalRewardCard';

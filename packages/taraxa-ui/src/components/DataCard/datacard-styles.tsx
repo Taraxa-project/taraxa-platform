@@ -2,26 +2,26 @@ import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles({
   root: {
-    width: "320px",
+    width: '320px',
     minHeight: 180,
-    textAlign: "center",
+    textAlign: 'center',
     backgroundColor: '#151823',
-    paddingLeft: "24px",
-    paddingRight: "24px",
-    border: "1px solid #15AC5B",
+    paddingLeft: '24px',
+    paddingRight: '24px',
+    border: '1px solid #15AC5B',
   },
   mobileRoot: {
     width: '85%',
     minHeight: 180,
-    textAlign: "center",
+    textAlign: 'center',
     backgroundColor: '#151823',
-    paddingLeft: "24px",
-    paddingRight: "24px",
-    border: "1px solid #15AC5B",
+    paddingLeft: '24px',
+    paddingRight: '24px',
+    border: '1px solid #15AC5B',
   },
   chips: {
-    marginTop: "13px",
-    marginBottom: "22px"
+    marginTop: '13px',
+    marginBottom: '22px',
   },
   title: {
     marginBottom: '5%',
@@ -39,18 +39,18 @@ const useStyles = makeStyles({
   },
   label: {
     fontSize: 12,
-    marginTop: "5%",
-    marginBottom: "5%"
+    marginTop: '5%',
+    marginBottom: '5%',
   },
   actions: {
-    display: "grid",
-    marginBottom: "44px",
+    display: 'grid',
+    marginBottom: '44px',
     padding: 0,
   },
   icon: {
     marginBottom: '5%',
-    marginTop: '5%'
-  }
+    marginTop: '5%',
+  },
 });
 
 export default useStyles;

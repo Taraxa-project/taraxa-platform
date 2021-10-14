@@ -8,7 +8,7 @@ const useStyles = makeStyles({
     border: '1px solid #54555a  !important',
     margin: '0 10% 0 0',
     width: '150px',
-    height: '32px'
+    height: '32px',
   },
   selected: {
     backgroundColor: '#15AC5B  !important',
@@ -16,8 +16,8 @@ const useStyles = makeStyles({
     color: 'white  !important',
     margin: '0 8% 0 0',
     width: '150px',
-    height: '32px'
-  }
+    height: '32px',
+  },
 });
 
 export default useStyles;
