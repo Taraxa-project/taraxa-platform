@@ -3,3 +3,4 @@ build
 .dockerignore
 Dockerfile
 charts
+.env

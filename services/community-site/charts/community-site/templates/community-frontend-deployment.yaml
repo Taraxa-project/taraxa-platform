@@ -34,13 +34,13 @@ spec:
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           env:
-            - name: REACT_APP_API_HOST
+            - name: API_HOST
               value: {{ .Values.frontend.apiHost | quote }}
-            - name: REACT_APP_TARA_ADDRESS
+            - name: TARA_ADDRESS
               value: {{ .Values.frontend.taraAddress | quote }}
-            - name: REACT_APP_CLAIM_ADDRESS
+            - name: CLAIM_ADDRESS
               value: {{ .Values.frontend.claimAddress | quote }}
-            - name: REACT_APP_STAKING_ADDRESS
+            - name: STAKING_ADDRESS
               value: {{ .Values.frontend.stakingAddress | quote }}
           ports:
             - name: http
