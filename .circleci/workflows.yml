@@ -14,7 +14,7 @@ parameters:
 aliases:
   - &build_config
     docker:
-      - image: alpine:3.10
+      - image: alpine:3.14
   - &step_setup_remote_docker
     setup_remote_docker:
       version: 19.03.14
@@ -34,7 +34,7 @@ jobs:
       - *step_install_deps
       - run:
           name: Build image
-          shell: /bin/bash -eo pipefail
+          shell: /bin/sh -eo pipefail
           command: |
             docker build -t taraxa-community-site:latest -f services/community-site/Dockerfile .
 
