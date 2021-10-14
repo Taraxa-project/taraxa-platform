@@ -1,0 +1,13 @@
+version: 2.1
+setup: true
+orbs:
+  path-filtering: circleci/path-filtering@0.0.2
+workflows:
+  setup:
+    jobs:
+      - path-filtering/filter:
+          base-revision: main
+          mapping: |
+            packages/taraxa-ui/.* ui-package-modified true
+            services/community-site/.* run-community-site-service-workflow true
+          config-path: .circleci/workflows.yml

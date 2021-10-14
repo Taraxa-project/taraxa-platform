@@ -1,0 +1,48 @@
+version: 2.1
+
+parameters:
+  ui-package-modified:
+    type: boolean
+    default: false
+  run-community-site-service-workflow:
+    type: boolean
+    default: false
+
+jobs:
+  build-community-site:
+    steps:
+      - checkout
+      - run:
+          name: build community-site
+          command: echo "building community-site..."
+  push-community-site:
+    steps:
+      - run:
+          name: push community-site
+          command: echo "pushing community-site..."
+  deploy-community-site:
+    steps:
+      - run:
+          name: deploy community-site
+          command: echo "deploying community-site..."
+
+workflows:
+  community-site:
+    when:
+      or:
+        - << pipeline.parameters.run-community-site-service-workflow >>
+        - << pipeline.parameters.ui-package-modified >>
+    jobs:
+      - build-community-site
+      - push-community-site:
+          requires:
+            - build-community-site
+          filters:
+            branches:
+              only: main
+      - deploy-community-site:
+          requires:
+            - push-community-site
+          filters:
+            branches:
+              only: main
