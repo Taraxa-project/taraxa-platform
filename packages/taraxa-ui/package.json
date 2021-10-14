@@ -23,6 +23,30 @@
   ],
   "author": "Taraxa",
   "license": "MIT",
+  "peerDependencies": {
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "dependencies": {
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.60",
+    "rollup": "^2.34.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.0",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "@rollup/plugin-url": "^6.1.0",
+    "@storybook/preset-scss": "^1.0.3",
+    "@types/react-modal": "^3.12.1",
+    "jdenticon": "^3.1.1",
+    "material-ui-icons": "^1.0.0-beta.36",
+    "moment": "^2.29.1",
+    "node-sass": "^6.0.1",
+    "react-font": "^1.2.1",
+    "react-modal": "^3.14.3",
+    "react-responsive": "^9.0.0-beta.4",
+    "sass": "^1.38.0",
+    "sass-loader": "^10"
+  },
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@material-ui/core": "^4.12.2",
@@ -37,30 +61,6 @@
     "babel-loader": "^8.2.2",
     "file-loader": "^6.2.0",
     "postcss": "^8.2.1",
-    "rollup": "^2.34.2",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.0",
-    "rollup-plugin-typescript2": "^0.29.0",
     "typescript": "^4.1.2"
-  },
-  "peerDependencies": {
-    "react": "17.0.2",
-    "react-dom": "17.0.2"
-  },
-  "dependencies": {
-    "@material-ui/icons": "^4.11.2",
-    "@material-ui/lab": "^4.0.0-alpha.60",
-    "@rollup/plugin-url": "^6.1.0",
-    "@storybook/preset-scss": "^1.0.3",
-    "@types/react-modal": "^3.12.1",
-    "jdenticon": "^3.1.1",
-    "material-ui-icons": "^1.0.0-beta.36",
-    "moment": "^2.29.1",
-    "node-sass": "^6.0.1",
-    "react-font": "^1.2.1",
-    "react-modal": "^3.14.3",
-    "react-responsive": "^9.0.0-beta.4",
-    "sass": "^1.38.0",
-    "sass-loader": "^10"
   }
 }
