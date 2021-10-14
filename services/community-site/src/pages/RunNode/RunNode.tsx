@@ -430,6 +430,7 @@ const RunNodeModal = ({
         history.push('/node');
       }}
       content={modalContent}
+      classes={isMobile ? 'mobileModal' : ''}
     />
   )
 }

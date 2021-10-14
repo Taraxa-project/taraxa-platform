@@ -124,3 +124,15 @@
   display: flex !important;
   position: absolute !important;
 }
+
+.mobileModal {
+  width: 380px !important;
+  inset: unset !important;
+  transform: unset !important;
+  margin: 15% auto 0 !important;
+
+  .modalClose {
+    margin-left: 68% !important;
+  }
+
+}

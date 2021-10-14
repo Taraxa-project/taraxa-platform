@@ -8,9 +8,10 @@ type ModalProps = {
     title: string,
     onClose: () => void,
     content?: JSX.Element,
+    classes?: string,
 }
 
-const Modal = ({ title, onClose, content }: ModalProps) => {
+const Modal = ({ title, onClose, content, classes }: ModalProps) => {
     const [isOpen, setIsOpen] = useState(true);
     content = (<>
         <ModalTitle title={title} />
@@ -30,6 +31,7 @@ const Modal = ({ title, onClose, content }: ModalProps) => {
             closeIcon={CloseIcon}
             title={title}
             onRequestClose={closeModal}
+            classes={classes}
             styles={{
                 content: {
                     width: '450px',

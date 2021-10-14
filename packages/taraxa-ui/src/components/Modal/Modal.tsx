@@ -14,6 +14,7 @@ export interface ModalProps {
   id?: string;
   closeIcon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   styles?: object;
+  classes?: string;
 }
 
 function getWindowDimensions() {
@@ -48,6 +49,7 @@ const Modal = ({
   id,
   closeIcon,
   styles,
+  classes,
 }: ModalProps) => {
   const { height } = useWindowDimensions();
 
@@ -88,6 +90,7 @@ const Modal = ({
         style={customStyles}
         contentLabel={title}
         id={id}
+        className={classes}
       >
         <Button Icon={closeIcon} onClick={onRequestClose} className="modalClose" />
         {children}
