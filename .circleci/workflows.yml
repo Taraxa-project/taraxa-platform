@@ -19,12 +19,19 @@ aliases:
     setup_remote_docker:
       version: 19.03.14
       docker_layer_caching: true
+  - &step_checkout_submodules
+    run:
+      name: Checkout Submodules
+      command: |
+          git submodule sync
+          git submodule update --init --recursive --jobs 8
 
 jobs:
   build-community-site:
     <<: *build_config
     steps:
       - checkout
+      - *step_checkout_submodules
       - *step_setup_remote_docker
       - run:
           name: Build image
