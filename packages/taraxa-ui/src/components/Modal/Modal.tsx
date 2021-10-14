@@ -47,7 +47,7 @@ const Modal = ({
   onRequestClose,
   id,
   closeIcon,
-  style,
+  styles,
 }: ModalProps) => {
   const { height } = useWindowDimensions();
 
