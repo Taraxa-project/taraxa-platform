@@ -28,6 +28,7 @@ import Loading from './components/Loading';
 import Menu from './components/Menu';
 import MenuItem from './components/MenuItem';
 import Notification from './components/Notification';
+import ModalTitle from "./components/ModalTitle";
 
 export {
   Button,
@@ -60,4 +61,5 @@ export {
   Menu,
   MenuItem,
   Notification,
+  ModalTitle,
 };
