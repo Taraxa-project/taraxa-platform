@@ -1,6 +1,0 @@
-[submodule "packages/taraxa-ui"]
-	path = packages/taraxa-ui
-	url = git@github.com:Taraxa-project/taraxa-ui.git
-[submodule "services/community-site"]
-	path = services/community-site
-	url = git@github.com:Taraxa-project/taraxa-community-site-v2.git

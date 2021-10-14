@@ -5,11 +5,6 @@ orbs:
 workflows:
   setup:
     jobs:
-      - run:
-        name: Checkout Submodules
-        command: |
-            git submodule sync
-            git submodule update --init --recursive --jobs 8
       - path-filtering/filter:
           base-revision: main
           mapping: |
