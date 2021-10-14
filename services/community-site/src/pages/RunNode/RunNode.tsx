@@ -422,24 +422,12 @@ const RunNodeModal = ({
   }
 
   return (
-    // <Modal
-    //   id={isMobile ? 'mobile-signinModal' : 'signinModal'}
-    //   title="Register Node"
-    //   show={hasRegisterNodeModal || hasUpdateNodeModal}
-    //   children={modalContent}
-    //   parentElementID="root"
-    //   onRequestClose={() => {
-    //     setHasRegisterNodeModal(false)
-    //     setHasUpdateNodeModal(false)
-    //   }}
-    //   closeIcon={CloseIcon}
-    // />
     <Modal
-      title={'Register a node'}
+      title={hasUpdateNodeModal && currentEditedNode ? 'Update a node' : 'Register a node'}
       onClose={() =>{
         setHasRegisterNodeModal(false);
         setHasUpdateNodeModal(false);
-        history.push('/nodes');
+        history.push('/node');
       }}
       content={modalContent}
     />

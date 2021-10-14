@@ -33,12 +33,6 @@ const UpdateNode = ({ id, name, onSuccess }: UpdateNodeProps) => {
 
   return (
     <div>
-      <Text
-        style={{ marginBottom: '2%' }}
-        label="Update node"
-        variant="h6"
-        color="primary"
-      />
       <form onSubmit={submit}>
         <InputField
           label="Node name"
