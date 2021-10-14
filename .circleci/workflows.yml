@@ -14,11 +14,16 @@ parameters:
 aliases:
   - &build_config
     docker:
-      - image: alpine:3.14
+      - image: alpine:3.10
   - &step_setup_remote_docker
     setup_remote_docker:
       version: 19.03.14
       docker_layer_caching: true
+  - &step_install_deps
+    run:
+      name: Install dependencies
+      command: |
+        apk add docker-cli
 
 jobs:
   build-community-site:
@@ -26,8 +31,10 @@ jobs:
     steps:
       - checkout
       - *step_setup_remote_docker
+      - *step_install_deps
       - run:
           name: Build image
+          shell: /bin/bash -eo pipefail
           command: |
             docker build -t taraxa-community-site:latest -f services/community-site/Dockerfile .
 
