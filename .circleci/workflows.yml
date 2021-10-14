@@ -28,7 +28,6 @@ jobs:
       - *step_setup_remote_docker
       - run:
           name: Build image
-          shell: /bin/bash -eo pipefail
           command: |
             docker build -t taraxa-community-site:latest -f services/community-site/Dockerfile .
 
