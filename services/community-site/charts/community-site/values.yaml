@@ -1,0 +1,97 @@
+# Default values for community.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+frontend:
+
+  name: frontend
+
+  replicaCount: 2
+
+  apiHost: "http://api.default.community.taraxa.io"
+  taraAddress: "0x0000000000000000000000000000000000000000"
+  claimAddress: "0x0000000000000000000000000000000000000000"
+  stakingAddress: "0x0000000000000000000000000000000000000000"
+
+  imagePullSecrets: []
+  image:
+    repository: gcr.io/jovial-meridian-249123/taraxa-community-frontend-main
+    # pullPolicy: IfNotPresent
+    tag: "latest"
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector:
+    cloud.google.com/gke-nodepool: taraxa-community-default
+
+
+  customError:
+    resources:
+      limits:
+        cpu: 300m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+
+# Backend and frontend share the same ingress
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($blocked_country_community) {
+        return 451;
+      }
+    nginx.ingress.kubernetes.io/default-backend: custom-error-community-service
+    nginx.ingress.kubernetes.io/custom-http-errors: "451"
+  hosts:
+    - host: default.community.taraxa.io
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local

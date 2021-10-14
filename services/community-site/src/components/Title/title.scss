@@ -1,0 +1,36 @@
+.page-title {
+  margin-bottom: 40px;
+
+  .page-title-container {
+    display: flex;
+    align-items: center;
+
+    .page-title-tooltip {
+      margin-left: 10px;
+    }
+
+    .page-title-icon {
+      margin: 0 15px;
+      svg {
+        height: 18px;
+      }
+    }
+  }
+
+  .page-title-main {
+    font-size: 36px;
+    font-weight: 500;
+    margin-bottom: 1% !important;
+  }
+
+  .page-medium-title-main {
+    font-weight: bold;
+    font-size: 20px;
+    height: 26px;
+    line-height: normal;
+  }
+
+  .page-title-subtitle {
+    margin-bottom: 3% !important;
+  }
+}

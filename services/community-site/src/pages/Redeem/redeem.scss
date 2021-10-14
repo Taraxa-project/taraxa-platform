@@ -1,0 +1,47 @@
+.claim, .claim-mobile {
+  display: flex;
+}
+
+.claim-content {
+  height: 100%;
+  width: 100%;
+  text-align: left;
+}
+
+.claim-green-stripe {
+  border-left: 3px solid #15ac5b;
+  padding-left: 2%;
+  width: 100%;
+}
+
+.claim-red-stripe {
+  border-left: 3px solid #ff515a;
+  padding-left: 2%;
+  width: 100%;
+}
+
+.chip {
+  margin-right: 3% !important;
+  color: white !important;
+  background-color: #282c3e !important;
+}
+
+.chipSelected {
+  margin-right: 3% !important;
+  color: white !important;
+  background-color: #15ac5b !important;
+}
+
+.whiteInput {
+  input {
+    color: rgba(255, 255, 255, 1) !important;
+  }
+  div {
+    width: 95% !important;
+    margin-left: 2% !important;
+  }
+
+  fieldset {
+    border-color: white !important;
+  }
+}

@@ -1,0 +1,140 @@
+#signinModal {
+  width: 30% !important;
+  padding: 2% !important;
+  text-align: center;
+
+  .marginButton {
+    margin: 2% 0;
+    height: 52px;
+  }
+
+  #noAccountLabel {
+    margin: 3% 0;
+  }
+
+  #forgotPasswordLabel {
+    float: right;
+    margin-bottom: 5%;
+    cursor: pointer;
+  }
+
+  .greyButton {
+    background-color: #31364b;
+    color: white;
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .bubbleButton {
+    width: 45%;
+    background-color: #282c3e;
+    color: white;
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+  }
+
+  #bubbleButtonLeft {
+    margin-right: 10%;
+  }
+}
+
+#mobile-signinModal {
+  width: calc(100% - 64px) !important;
+  padding: 24px !important;
+  text-align: center;
+
+  .marginButton {
+    margin: 2% 0;
+    height: 52px;
+  }
+
+  #noAccountLabel {
+    margin: 3% 0;
+  }
+
+  #forgotPasswordLabel {
+    float: right;
+    margin-bottom: 5%;
+    cursor: pointer;
+  }
+
+  .greyButton {
+    background-color: #31364b;
+    color: white;
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .bubbleButton {
+    width: 45%;
+    background-color: #282c3e;
+    color: white;
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+  }
+
+  #bubbleButtonLeft {
+    margin-right: 10%;
+  }
+}
+
+.header {
+  #noWalletContainer {
+    margin-right: 16px;
+  }
+}
+
+#walletContainer {
+  overflow: hidden;
+  background-color: #31364b;
+  color: #878ca4;
+  padding: 10px 16px;
+  margin: 0 16px;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 25px !important;
+
+  svg {
+    margin-right: 1% !important;
+  }
+
+  .walletIcon {
+    height: 14px;
+    width: 14px;
+    background-color: #15ac5b;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+}
+
+#profileButton {
+  margin-bottom: 5%;
+}
+
+.profile-container {
+  position: relative;
+}
+
+.profile-modal {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 16px);
+  display: grid;
+  width: 311px;
+  padding: 24px;
+  background-color: #282c3e;
+  border: 1px solid #878ca4;
+  border-radius: 5px;
+}
+
+.signUpSuccessfullTitle {
+  margin-bottom: 13% !important;
+}
+
+.checkboxContainer {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  margin-left: -3%;
+
+  .link {
+    color: #15ac5b !important;
+    text-decoration: none !important;
+  }
+}

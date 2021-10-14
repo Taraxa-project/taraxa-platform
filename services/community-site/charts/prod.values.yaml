@@ -1,0 +1,23 @@
+frontend:
+  apiHost: "https://api.community.taraxa.io"
+  taraAddress: "0xf001937650bb4f62b57521824b2c20f5b91bea05"
+  claimAddress: "0xf142EB87f0A5C480C8b573c3e5279043822AC10B"
+  stakingAddress: "0x7Af59Ea121a8Da8e49d2d44856feB7761561995b"
+  image:
+    repository: gcr.io/jovial-meridian-249123/taraxa-community-frontend-main
+    pullPolicy: Always
+    tag: "latest"
+  nodeSelector:
+    cloud.google.com/gke-nodepool: taraxa-community-prod
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+  hosts:
+    - host: community.taraxa.io
+  tls:
+    - secretName: wild-community-taraxa-io-tls
+      hosts:
+        - community.taraxa.io

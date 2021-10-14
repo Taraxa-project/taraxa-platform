@@ -1,0 +1,49 @@
+.MuiSnackbar-anchorOriginTopCenter {
+  left: 45% !important;
+}
+
+.MuiSnackbar-root {
+  width: 40% !important;
+  @media only screen and (max-width: 600px) {
+    width: 23% !important;
+  }
+  .MuiPaper-root {
+    background-color: #202534 !important;
+    color: white !important;
+    display: block !important;
+    margin-left: 45% !important;
+
+    @media only screen and (max-width: 600px) {
+      margin-left: -58% !important;
+    }
+  }
+  .MuiButtonBase-root {
+    position: absolute !important;
+    right: 12% !important;
+    top: 10% !important;
+  }
+  .MuiButtonBase-root {
+    margin-left: 65% !important;
+    margin-bottom: 5% !important;
+  }
+}
+
+.MuiAlert-message {
+  margin-bottom: 5% !important;
+}
+
+.MuiAlert-standardError {
+  border: 1px solid #ff515a;
+}
+
+.MuiAlert-standardInfo {
+  border: 1px solid #48bdff;
+}
+
+.MuiAlert-standardSuccess {
+  border: 1px solid #15ac5b;
+}
+
+.MuiAlert-standardWarning {
+  border: 1px solid orange;
+}

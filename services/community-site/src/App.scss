@@ -1,0 +1,60 @@
+body {
+  margin: 0;
+  background-color: #151823 !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.App {
+  text-align: center;
+
+  .cardContainer {
+    display: flex;
+    margin-bottom: 40px;
+  }
+
+  .cardContainer > div {
+    margin-right: 24px;
+  }
+
+  .cardContainer > div:last-child {
+    margin-right: 0;
+  }
+
+  &.App-mobile {
+    .cardContainer {
+      display: inherit;
+    }
+
+    .cardContainer > div {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 24px;
+      max-height: fit-content;
+    }
+    .cardContainer > div:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.App-Container {
+  margin-top: 52px;
+  display: flex;
+}
+
+.App-Content {
+  flex-grow: 1;
+  margin-left: 103px;
+  margin-right: 125px;
+}
+
+@media only screen and (max-width: 760px) {
+  .App-Content {
+    margin: 0;
+  }
+
+  .App-Page {
+    margin: 0 32px;
+  }
+}

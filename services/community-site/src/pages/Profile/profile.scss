@@ -1,0 +1,188 @@
+.profile,
+.mobile-profile {
+  display: flex;
+
+  .page-title {
+    margin-bottom: 24px;
+  }
+
+  .profile-content {
+    text-align: left;
+    flex: 1;
+  }
+}
+
+.mobile-profile {
+  .profile-content {
+
+    .formInputContainer {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 24px;
+      align-items: center;
+
+      > div {
+        flex: 1;
+        flex-direction: column;
+      }
+
+      .profileInput,
+      .profileDisabledInput {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+
+      .profile-inputLabel {
+        width: 100%;
+      }
+    }
+
+    .formProfileEditContainer {
+      .profileEditButton {
+        left: 75%;
+        top: 10px;
+      }
+    }
+
+    #buttonsContainer {
+      margin: 24px 0 0;
+
+      > button {
+        width: 100% !important;
+        margin: 0 0 12px !important;
+      }
+
+      > button:last-child {
+        margin: 0 !important;
+      }
+    }
+  }
+}
+
+.formProfileEditContainer {
+  position: relative;
+
+  .profileEditButton {
+    position: absolute;
+    left: 80%;
+    top: -10px;
+  }
+}
+
+.formInputContainer > div {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 24px;
+}
+
+.verticalFormContainer {
+  align-items: baseline;
+  margin-bottom: 3%;
+}
+
+.profileEditButton {
+  float: right;
+}
+
+.profile-inputLabel {
+  width: 100px;
+  font-weight: bold !important;
+}
+
+.profileInput,
+.profileDisabledInput {
+  margin-top: 12px !important;
+  margin-left: 15%  !important;
+  border-bottom: 1px solid #878ca4 !important;
+
+  width: 65% !important;
+  margin-bottom: 0% !important;
+  input {
+    margin-bottom: 0% !important;
+    border: none !important;
+    background-color: #151823 !important;
+  }
+}
+
+.profileDisabledInput {
+  color: #878CA4;
+}
+
+#buttonsContainer {
+  margin: 6% 0 3% 0;
+
+  button {
+    width: 20% !important;
+    margin-right: 3% !important;
+  }
+
+  #grayButton {
+    background-color: #31364b;
+    color: white;
+  }
+}
+
+.chip {
+  margin-right: 3% !important;
+  color: white !important;
+  background-color: #282c3e !important;
+}
+
+.chipSelected {
+  margin-right: 3% !important;
+  color: white !important;
+  background-color: #15ac5b !important;
+}
+
+.whiteInput {
+  input {
+    color: rgba(255, 255, 255, 1) !important;
+  }
+  div {
+    width: 95% !important;
+    margin-left: 2% !important;
+  }
+
+  fieldset {
+    border-color: white !important;
+  }
+}
+
+.noContent {
+  margin-top: 30% !important;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 65% 35%;
+  margin-top: 24px !important;
+
+  .gridLeft {
+    grid-column: 1;
+  }
+
+  .gridRight {
+    grid-column: 2;
+  }
+
+  .profileContentTitle {
+    margin-bottom: 10% !important;
+  }
+}
+
+.kycTopContainer {
+  text-align: center;
+}
+
+.decimalUL {
+  text-align: left;
+  list-style-type: decimal;
+  color: #878ca4;
+}
+
+.checkboxContainer {
+  display: flex;
+  text-align: left;
+  margin-top: 5%;
+  align-items: center;
+}

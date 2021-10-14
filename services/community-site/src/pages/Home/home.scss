@@ -1,0 +1,21 @@
+.home,
+.home-mobile {
+  display: flex;
+
+  .home-content {
+    text-align: left;
+    flex-grow: 1;
+
+    .notification {
+      margin-bottom: 30px;
+    }
+  }
+}
+
+.home-mobile {
+  .home-content {
+    .toggleButton {
+      margin-bottom: 40px;
+    }
+  }
+}

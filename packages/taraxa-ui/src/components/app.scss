@@ -1,0 +1,126 @@
+.sidebar {
+  &.MuiDrawer-docked {
+    margin: 0 0 0 32px !important;
+
+    .hamburger {
+      display: none;
+    }
+
+    & > .MuiDrawer-paper {
+      width: 240px !important;
+    }
+  }
+
+  &.MuiDrawer-modal {
+    position: relative;
+
+    .hamburger {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+    }
+
+    & > .MuiDrawer-paper {
+      width: 90%;
+      padding: 44px 24px 24px;
+      background-color: #202534 !important;
+
+      & > button {
+        margin-bottom: 12px;
+      }
+
+      & > button:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    #sidebarList {
+      width: 263px;
+      background-color: transparent;
+      margin-top: 32px;
+      margin-bottom: 24px;
+    }
+  }
+
+  background-color: #151823 !important;
+  color: #878ca4;
+  font-family: "Inter, sans-serif" !important;
+
+  .MuiDrawer-paper {
+    flex-shrink: 0;
+    border: none;
+  }
+
+  #sidebarList {
+    background-color: #151823;
+  }
+}
+
+.sidebar a {
+  display: block;
+  color: #878ca4;
+  text-decoration: none !important;
+}
+
+.whiteLink {
+  text-decoration: none !important;
+  display: -webkit-inline-box !important;
+  color: #fff !important;
+  padding-top: 5% !important;
+}
+
+.subItemOpened,
+.itemOpened,
+.item,
+.subItem,
+.soloItem {
+  color: #fff !important;
+  background-color: #282c3e !important;
+  border-radius: 8px !important;
+  text-align: center !important;
+  box-sizing: inherit;
+  padding: 0 !important;
+  margin: 5px 0 5px 0 !important;
+
+  .active {
+    color: #fff !important;
+  }
+
+  svg path {
+    fill: white !important;
+  }
+}
+
+.item,
+.subItem,
+.soloItem {
+  background-color: transparent !important;
+  svg path {
+    fill: #878ca4 !important;
+  }
+}
+
+.item {
+  padding: 0 0 0 8px !important;
+  .label {
+    text-align: left;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #4f5368;
+  }
+}
+
+.MuiListItemText-root {
+  padding-left: 5px !important;
+}
+
+.modalClose {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  height: 14px !important;
+  width: 14px !important;
+  margin-top: 2.5% !important;
+  margin-left: 75% !important;
+  display: flex !important;
+  position: absolute !important;
+}

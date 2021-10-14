@@ -1,0 +1,27 @@
+import React from "react";
+import { CssBaseline, ThemeProvider, Typography, TypographyProps } from "@material-ui/core";
+import theme from "../theme";
+
+
+export interface TextProps extends TypographyProps {
+  label?: string;
+};
+
+const Text = ({
+  label,
+  children,
+  ...props
+}: TextProps) => {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+        <Typography {...props}>
+          {label ? label : children}
+        </Typography>
+    </ThemeProvider>
+  );
+};
+
+
+
+export default Text;
