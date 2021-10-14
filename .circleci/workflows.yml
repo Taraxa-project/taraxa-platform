@@ -31,16 +31,6 @@ jobs:
           shell: /bin/bash -eo pipefail
           command: |
             docker build -t taraxa-community-site:latest -f services/community-site/Dockerfile .
-  push-community-site:
-    steps:
-      - run:
-          name: push community-site
-          command: echo "pushing community-site..."
-  deploy-community-site:
-    steps:
-      - run:
-          name: deploy community-site
-          command: echo "deploying community-site..."
 
 workflows:
   community-site:
@@ -50,15 +40,3 @@ workflows:
         - << pipeline.parameters.ui-package-modified >>
     jobs:
       - build-community-site
-      - push-community-site:
-          requires:
-            - build-community-site
-          filters:
-            branches:
-              only: main
-      - deploy-community-site:
-          requires:
-            - push-community-site
-          filters:
-            branches:
-              only: main
