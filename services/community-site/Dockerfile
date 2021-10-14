@@ -1,5 +1,5 @@
 # build environment
-FROM node:16.9-alpine as build
+FROM node:14-alpine as build
 
 # Default replace vars for entrypoint
 # Should be removed after we able to configure at runtime
@@ -12,7 +12,11 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json yarn.lock /app/
+COPY services/community-site/package.json services/community-site/yarn.lock /app/services/community-site/
+COPY packages/taraxa-ui/package.json packages/taraxa-ui/yarn.lock /app/packages/taraxa-ui/
+
 RUN yarn install
+
 COPY . /app
 RUN SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-ui build
 RUN SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-community-site build
