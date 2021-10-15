@@ -24,11 +24,11 @@ aliases:
       name: Install dependencies
       shell: /bin/sh -eo pipefail
       command: |
-        apk add --update docker-cli git
+        apk add --update bash git docker-cli
   - &step_prepare_environment
     run:
       name: Prepare Environment
-      shell: /bin/sh -eo pipefail
+      shell: /bin/bash -eo pipefail
       command: |
         if [ "${CIRCLE_BRANCH}" == "develop" ]; then
           export ENV=stage
@@ -53,11 +53,12 @@ jobs:
       - *step_prepare_environment
       - run:
           name: Build image
-          shell: /bin/sh -eo pipefail
+          shell: /bin/bash -eo pipefail
           command: |
             docker build --build-arg NODE_ENV=${ENV} -t ${IMAGE}:${VERSION} -f services/community-site/Dockerfile .
       - run:
           name: Tag and push images
+          shell: /bin/bash -eo pipefail
           command: |
             if [ "${ENV}" == "main" ]; then
               echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
