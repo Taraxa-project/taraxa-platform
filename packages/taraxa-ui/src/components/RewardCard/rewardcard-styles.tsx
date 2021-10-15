@@ -42,9 +42,13 @@ const useStyles = makeStyles({
   rewardContent: {
     color: 'white',
     border: '1px solid #15AC5B',
-    padding: '3% 5%',
-    width: '60%',
-    margin: '2% 0 2% 20%',
+    padding: '12px 0',
+    width: '265px',
+    height: '52px',
+    margin: '0 auto',
+    fontWeight: 'bold',
+    borderRadius: '4px',
+    fontSize: '18px',
   },
   actions: {
     display: 'grid',
@@ -58,8 +62,8 @@ const useStyles = makeStyles({
     marginTop: '5%',
   },
   button: {
-    marginTop: '8%',
-    width: '60%',
+    marginTop: '20px',
+    width: '265px',
     borderRadius: '4px',
     height: '52px',
   },
