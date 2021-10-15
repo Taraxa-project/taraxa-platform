@@ -24,7 +24,7 @@ aliases:
       name: Install dependencies
       shell: /bin/sh -eo pipefail
       command: |
-        apk add --update openssl openssh-client git bash curl docker-cli
+        apk add --update openssl openssh-client sudo git bash curl docker-cli
   - &step_install_deploy_deps
     run:
       name: Install deploy dependencies
