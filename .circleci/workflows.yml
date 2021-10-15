@@ -24,7 +24,7 @@ aliases:
       name: Install dependencies
       shell: /bin/sh -eo pipefail
       command: |
-        apk add --update bash git docker-cli
+        apk add --update openssh-client git bash docker-cli
   - &step_prepare_environment
     run:
       name: Prepare Environment
@@ -41,15 +41,15 @@ aliases:
           exit 1
         fi
         echo "export IMAGE=taraxa-community-frontend" >> $BASH_ENV
-        echo "export GCP_IMAGE=gcr.io/${GOOGLE_PROJECT_ID}/${IMAGE}" >> $BASH_ENV
+        echo "export GCP_REGISTRY=gcr.io/${GOOGLE_PROJECT_ID}" >> $BASH_ENV
         echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
 jobs:
   build-community-site:
     <<: *build_config
     steps:
+      - *step_install_deps
       - checkout
       - *step_setup_remote_docker
-      - *step_install_deps
       - *step_prepare_environment
       - run:
           name: Build image
@@ -60,7 +60,7 @@ jobs:
           name: Tag and push images
           shell: /bin/bash -eo pipefail
           command: |
-            if [ "${ENV}" == "main" ]; then
+            if [ "${ENV}" == "prod" ]; then
               echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
 
               docker tag ${IMAGE}:${VERSION} taraxa/${IMAGE}:${VERSION}
@@ -70,10 +70,10 @@ jobs:
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag ${IMAGE}:${VERSION} ${GCP_IMAGE}-develop:${VERSION}
-              docker tag ${IMAGE}:${VERSION} ${GCP_IMAGE}-develop:latest
-              docker push ${GCP_IMAGE}-develop:${VERSION}
-              docker push ${GCP_IMAGE}-develop:latest
+              docker tag ${IMAGE}:${VERSION} ${GCP_REGISTRY}/${IMAGE}-develop:${VERSION}
+              docker tag ${IMAGE}:${VERSION} ${GCP_REGISTRY}/${IMAGE}-develop:latest
+              docker push ${GCP_REGISTRY}/${IMAGE}-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/${IMAGE}-develop:latest
             fi
 workflows:
   community-site:
