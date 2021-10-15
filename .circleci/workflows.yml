@@ -31,7 +31,7 @@ aliases:
       shell: /bin/sh -eo pipefail
       command: |
         mkdir -p $HOME/.kube
-        echo -n "${KUBE_CONFIG}" | base64 --decode > $HOME/.kube/config
+        echo -n "${KUBE_CONFIG}" | base64 -d > $HOME/.kube/config
         curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         sudo cp kubectl /usr/local/bin 
