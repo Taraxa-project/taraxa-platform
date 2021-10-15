@@ -4,7 +4,7 @@ frontend:
   claimAddress: "0xf142EB87f0A5C480C8b573c3e5279043822AC10B"
   stakingAddress: "0x7Af59Ea121a8Da8e49d2d44856feB7761561995b"
   image:
-    repository: gcr.io/jovial-meridian-249123/taraxa-community-frontend-main
+    repository: taraxa/taraxa-community-frontend
     pullPolicy: Always
     tag: "latest"
   nodeSelector:
