@@ -4,7 +4,7 @@ import { useMediaQuery } from 'react-responsive'
 import { useMetaMask } from 'metamask-react'
 import { Button, Sidebar as MSidebar } from '@taraxa_project/taraxa-ui'
 
-// import BountiesSidebar from "../../assets/icons/bountiesSidebar";
+import BountiesSidebar from "../../assets/icons/bountiesSidebar";
 import DeploySidebar from '../../assets/icons/deploySidebar'
 import ExplorerSidebar from '../../assets/icons/explorerSidebar'
 import GetStarted from '../../assets/icons/getStarted'
@@ -53,7 +53,7 @@ const Sidebar = () => {
           Link: <NavLink label="Staking" Icon={StakingSidebar} to="/staking" />,
           name: 'staking',
         },
-        // { Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />, name: "bounties" },
+        { Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />, name: "bounties" },
         // { Link: <NavLink label="Redeem" Icon={RedeemSidebar} to="/redeem" />, name: "redeem" },
       ],
     },

@@ -122,6 +122,17 @@ function Bounties() {
           title="Taraxa ecosystem bounties"
           subtitle="Earn rewards and help grow the Taraxa's ecosystem"
         />
+        <RewardCard
+          title="Incentivized testnet"
+          description={'Earn rewards for participating in running testnet nodes'}
+          onClickText={detailsPage ? 'Submit' : 'Learn More'}
+          reward={'100,000 TARA / month'}
+          submissions={0}
+          expiration={'Never expires'}
+          SubmissionIcon={SubmissionIcon}
+          ExpirationIcon={ExpirationIcon}
+          // dataList={detailsPage ? list : undefined}
+        />
         {submitPage ? (
           <SubmitCard
             title="Incentivized testnet"
