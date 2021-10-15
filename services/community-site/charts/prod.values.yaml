@@ -7,6 +7,7 @@ frontend:
     repository: taraxa/taraxa-community-frontend
     pullPolicy: Always
     tag: "latest"
+
   nodeSelector:
     cloud.google.com/gke-nodepool: taraxa-community-prod
 
