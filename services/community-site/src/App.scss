@@ -49,6 +49,17 @@ body {
   margin-right: 125px;
 }
 
+a.default-link {
+  &,
+  &:visited,
+  &:hover,
+  &:active {
+    color: #307da9;
+    text-decoration: none;
+    padding-left: 10px;
+  }
+}
+
 @media only screen and (max-width: 760px) {
   .App-Content {
     margin: 0;

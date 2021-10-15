@@ -19,7 +19,6 @@ import {
 import CloseIcon from '../../assets/icons/close'
 import InfoIcon from '../../assets/icons/info'
 import TrophyIcon from '../../assets/icons/trophy'
-import LockIcon from './../../assets/icons/lock'
 
 import StakingSuccess from './Modal/StakingSuccess'
 import StakingError from './Modal/StakingError'
@@ -47,8 +46,6 @@ function Staking() {
   const { account } = useMetaMask()
   const token = useToken()
   const staking = useStaking()
-
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
 
   const [isSuccess, setIsSuccess] = useState(false)
   const [isError, setIsError] = useState(false)
@@ -116,10 +113,25 @@ function Staking() {
         lockingPeriod={formatTime(lockingPeriod.toNumber())}
         transactionHash={transactionHash}
       />
-      <div className={isMobile ? 'stakingRootMobile' : 'stakingRoot'}>
+      <div className='stakingRoot'>
         <Title
           title="Staking: Phase 1 - Pre-staking"
-          subtitle="Earn rewards and help test &amp; secure the Taraxa’s network"
+          subtitle={(
+            <Text
+              variant="body2"
+              color="textSecondary"
+            >
+              Earn rewards and help test &amp; secure the Taraxa’s network
+              <a
+                href="https://taraxa.io/faq/staking"
+                target="_blank"
+                rel="noreferrer"
+                className="default-link"
+              >
+                Go to FAQ -&gt;
+              </a>
+            </Text>
+          )}
           tooltip="We’re currently in the first phase of staking roll-out, Pre-staking, which enables TARA lockups on the ETH network. The next phase will be Mirrored Staking, which mirrors staking data from the ETH network over to the Taraxa testnet to enable delegation to consensus nodes. The last phase is mainnet launch, in which all tokens, staking, and delegation is migrated to the Taraxa mainnet."
         />
         <StakingNotifications />
@@ -572,7 +584,7 @@ function Stake({
               disabled={true}
               variant="outlined"
               color="secondary"
-              onClick={() => {}}
+              onClick={() => { }}
               label="Redeem"
               size="small"
             ></Button>

@@ -71,9 +71,18 @@ const StakingSuccess = ({
           />
         </div>
         <Text
-          label={`After ${lockingPeriod} you will be able to withdraw your TARA (If you don’t withdraw, your funds remain staked and unlocked). View full staking rules`}
           color="textSecondary"
-        />
+        >
+          After {lockingPeriod} you will be able to withdraw your TARA (If you don’t withdraw, your funds remain staked and unlocked).
+          <a
+            href="https://taraxa.io/faq/staking"
+            target="_blank"
+            rel="noreferrer"
+            className="default-link"
+          >
+            View full staking rules
+          </a>
+        </Text>
       </div>
       <Button
         className="staking-success-button"

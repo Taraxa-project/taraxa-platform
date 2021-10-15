@@ -6,7 +6,7 @@ import './title.scss'
 
 interface TitleProps {
   title: string
-  subtitle?: string
+  subtitle?: string | JSX.Element
   tooltip?: string
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>
   size?: 'default' | 'medium'
@@ -38,13 +38,18 @@ const Title = ({ title, subtitle, tooltip, Icon, size }: TitleProps) => {
           )}
         </Text>
       </div>
-      {subtitle && (
+      {subtitle && typeof subtitle === 'string' && (
         <Text
           label={subtitle}
           variant="body2"
           color="textSecondary"
           className="page-title-subtitle"
         />
+      )}
+      {subtitle && typeof subtitle !== 'string' && (
+        <div className="page-title-subtitle">
+          {subtitle}
+        </div>
       )}
     </div>
   )
