@@ -61,22 +61,22 @@ jobs:
           name: Build image
           shell: /bin/sh -eo pipefail
           command: |
-            docker build --build-arg NODE_ENV=${ENV} -t ${IMAGE}:${CIRCLE_BUILD_NUM} -f services/community-site/Dockerfile .
+            docker build --build-arg NODE_ENV=${ENV} -t ${IMAGE}:${VERSION} -f services/community-site/Dockerfile .
       - run:
           name: Tag and push images
           command: |
             if [ "${ENV}" == "main" ]; then
               echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
 
-              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} taraxa/${IMAGE}:${VERSION}
-              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} taraxa/${IMAGE}:latest
+              docker tag ${IMAGE}:${VERSION} taraxa/${IMAGE}:${VERSION}
+              docker tag ${IMAGE}:${VERSION} taraxa/${IMAGE}:latest
               docker push taraxa/${IMAGE}:${VERSION}
               docker push taraxa/${IMAGE}:latest
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} ${GCP_IMAGE}-develop:${VERSION}
-              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} ${GCP_IMAGE}-develop:latest
+              docker tag ${IMAGE}:${VERSION} ${GCP_IMAGE}-develop:${VERSION}
+              docker tag ${IMAGE}:${VERSION} ${GCP_IMAGE}-develop:latest
               docker push ${GCP_IMAGE}-develop:${VERSION}
               docker push ${GCP_IMAGE}-develop:latest
             fi
