@@ -42,11 +42,6 @@ aliases:
         fi
         echo "export IMAGE=taraxa-community-frontend" >> $BASH_ENV
         echo "export GCP_IMAGE=gcr.io/${GOOGLE_PROJECT_ID}/${IMAGE}" >> $BASH_ENV
-  - &step_set_version
-    run:
-      name: Set version
-      shell: /bin/sh -eo pipefail
-      command: |
         echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
 jobs:
   build-community-site:
@@ -56,7 +51,6 @@ jobs:
       - *step_setup_remote_docker
       - *step_install_deps
       - *step_prepare_environment
-      - *step_set_version
       - run:
           name: Build image
           shell: /bin/sh -eo pipefail
