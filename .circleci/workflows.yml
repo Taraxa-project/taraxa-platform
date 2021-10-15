@@ -90,8 +90,8 @@ jobs:
     <<: *config
     steps:
       - *step_install_deps
-      - *step_install_deploy_deps
       - checkout
+      - *step_install_deploy_deps
       - *step_setup_remote_docker
       - *step_prepare_environment
       - run:
