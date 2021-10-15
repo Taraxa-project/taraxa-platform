@@ -230,7 +230,7 @@ function ViewProfileBounties({
       <div key={sub.id} className="contentGrid">
         <div className="gridLeft">
           <Text
-            label={sub.bounty.name}
+            label={(sub.bounty && sub.bounty.name) || '-'}
             className="profileContentTitle"
             variant="body2"
             color="primary"
