@@ -121,6 +121,11 @@ workflows:
         - << pipeline.parameters.ui-package-modified >>
     jobs:
       - build-community-site:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
           context:
             - TARAXA
             - DOCKERHUB
@@ -128,5 +133,10 @@ workflows:
       - deploy-community-site:
           requires:
             - build-community-site
+          filters:
+            branches:
+              only:
+                - main
+                - develop
           context:
             - K8S
