@@ -112,7 +112,7 @@ jobs:
               --namespace ${NS} \
               -f services/community-site/charts/community-site/values.yaml \
               -f services/community-site/charts/${HELM_CONFIG} \
-              --set image.tag=${VERSION}
+              --set frontend.image.tag=${VERSION}
 workflows:
   community-site:
     when:
