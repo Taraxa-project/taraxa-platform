@@ -24,7 +24,7 @@ aliases:
       name: Install dependencies
       shell: /bin/sh -eo pipefail
       command: |
-        apk add docker-cli
+        apk add --update docker-cli git
   - &step_prepare_environment
     run:
       name: Prepare Environment
