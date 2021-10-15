@@ -24,7 +24,7 @@ aliases:
       name: Install dependencies
       shell: /bin/sh -eo pipefail
       command: |
-        apk add --update openssh-client git bash docker-cli
+        apk add --update openssh-client git bash curl docker-cli
   - &step_install_deploy_deps
     run:
       name: Install deploy dependencies
@@ -126,5 +126,7 @@ workflows:
             - DOCKERHUB
             - GCR
       - deploy-community-site:
+          requires:
+            - build-community-site
           context:
             - K8S
