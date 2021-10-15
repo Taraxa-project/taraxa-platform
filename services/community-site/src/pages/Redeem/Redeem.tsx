@@ -1,11 +1,5 @@
 import { useState } from 'react'
-import {
-  BaseCard,
-  DataCard,
-  InputField,
-  Chip,
-  Snackbar,
-} from '@taraxa_project/taraxa-ui'
+import { BaseCard, DataCard, InputField, Chip } from '@taraxa_project/taraxa-ui'
 import { useMediaQuery } from 'react-responsive'
 
 import Title from '../../components/Title/Title'
@@ -83,7 +77,6 @@ function Redeem() {
 
   return (
     <div className={isMobile ? 'claim-mobile' : 'claim'}>
-      {/* <Snackbar severity="success" message="Insufficient TARA points" open={open} autoHideDuration={50000} onSnackbarClose={onClose} /> */}
       <div className="claim-content">
         <Title
           title="Redeem TARA Points"
