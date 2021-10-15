@@ -22,9 +22,32 @@ aliases:
   - &step_install_deps
     run:
       name: Install dependencies
+      shell: /bin/sh -eo pipefail
       command: |
         apk add docker-cli
-
+  - &step_prepare_environment
+    run:
+      name: Prepare Environment
+      shell: /bin/sh -eo pipefail
+      command: |
+        if [ "${CIRCLE_BRANCH}" == "develop" ]; then
+          export ENV=stage
+          echo 'export ENV=stage' >> $BASH_ENV
+        elif [ "${CIRCLE_BRANCH}" == "main" ]; then
+          export ENV=prod
+          echo 'export ENV=prod' >> $BASH_ENV
+        else
+          echo 'Unknown branch' >&2
+          exit 1
+        fi
+        echo "export IMAGE=taraxa-community-frontend" >> $BASH_ENV
+        echo "export GCP_IMAGE=gcr.io/${GOOGLE_PROJECT_ID}/${IMAGE}" >> $BASH_ENV
+  - &step_set_version
+    run:
+      name: Set version
+      shell: /bin/sh -eo pipefail
+      command: |
+        echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
 jobs:
   build-community-site:
     <<: *build_config
@@ -32,12 +55,31 @@ jobs:
       - checkout
       - *step_setup_remote_docker
       - *step_install_deps
+      - *step_prepare_environment
+      - *step_set_version
       - run:
           name: Build image
           shell: /bin/sh -eo pipefail
           command: |
-            docker build -t taraxa-community-site:latest -f services/community-site/Dockerfile .
+            docker build --build-arg NODE_ENV=${ENV} -t ${IMAGE}:${CIRCLE_BUILD_NUM} -f services/community-site/Dockerfile .
+      - run:
+          name: Tag and push images
+          command: |
+            if [ "${ENV}" == "main" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
 
+              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} taraxa/${IMAGE}:${VERSION}
+              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} taraxa/${IMAGE}:latest
+              docker push taraxa/${IMAGE}:${VERSION}
+              docker push taraxa/${IMAGE}:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} ${GCP_IMAGE}-develop:${VERSION}
+              docker tag ${IMAGE}:${CIRCLE_BUILD_NUM} ${GCP_IMAGE}-develop:latest
+              docker push ${GCP_IMAGE}-develop:${VERSION}
+              docker push ${GCP_IMAGE}-develop:latest
+            fi
 workflows:
   community-site:
     when:
@@ -45,4 +87,8 @@ workflows:
         - << pipeline.parameters.run-community-site-service-workflow >>
         - << pipeline.parameters.ui-package-modified >>
     jobs:
-      - build-community-site
+      - build-community-site:
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR

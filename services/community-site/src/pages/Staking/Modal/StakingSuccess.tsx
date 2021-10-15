@@ -70,10 +70,9 @@ const StakingSuccess = ({
             color="primary"
           />
         </div>
-        <Text
-          color="textSecondary"
-        >
-          After {lockingPeriod} you will be able to withdraw your TARA (If you don’t withdraw, your funds remain staked and unlocked).
+        <Text color="textSecondary">
+          After {lockingPeriod} you will be able to withdraw your TARA (If you
+          don’t withdraw, your funds remain staked and unlocked).
           <a
             href="https://taraxa.io/faq/staking"
             target="_blank"

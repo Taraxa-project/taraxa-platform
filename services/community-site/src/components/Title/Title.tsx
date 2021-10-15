@@ -47,9 +47,7 @@ const Title = ({ title, subtitle, tooltip, Icon, size }: TitleProps) => {
         />
       )}
       {subtitle && typeof subtitle !== 'string' && (
-        <div className="page-title-subtitle">
-          {subtitle}
-        </div>
+        <div className="page-title-subtitle">{subtitle}</div>
       )}
     </div>
   )

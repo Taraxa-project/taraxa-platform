@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { MetaMaskProvider } from 'metamask-react'
 import { useMediaQuery } from 'react-responsive'
+import { useLocation } from 'react-router-dom'
 
 import { AuthProvider } from './services/useAuth'
 import { ModalProvider, useModal } from './services/useModal'
@@ -21,9 +23,24 @@ import Wallet from './pages/Wallet/Wallet'
 
 import './App.scss'
 
+declare global {
+  interface Window {
+    gtag: any
+  }
+}
+
 const Root = () => {
   const { modal } = useModal()
+  const location = useLocation()
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
+
+  useEffect(() => {
+    window.gtag('config', 'G-QEVR9SEH2J', {
+      page_title: location.pathname,
+      page_path: location.pathname,
+    })
+  }, [location])
+
   let appClassName = 'App'
 
   if (isMobile) {

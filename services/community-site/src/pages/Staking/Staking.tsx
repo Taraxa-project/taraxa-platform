@@ -113,14 +113,11 @@ function Staking() {
         lockingPeriod={formatTime(lockingPeriod.toNumber())}
         transactionHash={transactionHash}
       />
-      <div className='stakingRoot'>
+      <div className="stakingRoot">
         <Title
           title="Staking: Phase 1 - Pre-staking"
-          subtitle={(
-            <Text
-              variant="body2"
-              color="textSecondary"
-            >
+          subtitle={
+            <Text variant="body2" color="textSecondary">
               Earn rewards and help test &amp; secure the Taraxa’s network
               <a
                 href="https://taraxa.io/faq/staking"
@@ -131,7 +128,7 @@ function Staking() {
                 Go to FAQ -&gt;
               </a>
             </Text>
-          )}
+          }
           tooltip="We’re currently in the first phase of staking roll-out, Pre-staking, which enables TARA lockups on the ETH network. The next phase will be Mirrored Staking, which mirrors staking data from the ETH network over to the Taraxa testnet to enable delegation to consensus nodes. The last phase is mainnet launch, in which all tokens, staking, and delegation is migrated to the Taraxa mainnet."
         />
         <StakingNotifications />
@@ -584,7 +581,7 @@ function Stake({
               disabled={true}
               variant="outlined"
               color="secondary"
-              onClick={() => { }}
+              onClick={() => {}}
               label="Redeem"
               size="small"
             ></Button>
