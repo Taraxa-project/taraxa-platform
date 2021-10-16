@@ -85,7 +85,7 @@ const VerticalRewardCard = ({
             </div>
           </div>
           <div className={classes.actionCard}>
-            <Typography color="primary" variant="body1" className={classes.infoData}>
+            <Typography color="primary" variant="body1" className={classes.actionInfoData}>
               Reward:
             </Typography>
             <div className={classes.rewardContent}>{reward}</div>

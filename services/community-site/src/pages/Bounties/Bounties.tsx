@@ -42,6 +42,10 @@ type Bounty = {
   is_pinned: boolean
 }
 
+type BountyList = {
+  items: Bounty[]
+}
+
 function Bounties() {
   const api = useApi()
   const [allBounties, setAllBounties] = useState<Bounty[]>([])
@@ -105,6 +109,53 @@ function Bounties() {
     return bounty.active && bounty.is_pinned
   })
 
+  const inactiveBounties = allBounties.filter((bounty: Bounty) => {
+    return !bounty.active && !bounty.is_pinned
+  })
+
+  const BountyCardList = (list: BountyList) => {
+    return (
+      <div className="cardContainer bounty-card-list-container">
+        {list.items.map((bounty) => {
+          if (bounty.is_pinned && !isMobile) {
+            return (
+              <RewardCard
+                title={bounty.name}
+                description={bounty.description}
+                onClickButton={() => console.log('reward')}
+                onClickText="Learn more"
+                reward={bounty.reward}
+                submissions={bounty.submissionsCount}
+                expiration={new Date(
+                  bounty.end_date
+                ).toLocaleDateString()}
+                SubmissionIcon={SubmissionIcon}
+                ExpirationIcon={ExpirationIcon}
+                // dataList={detailsPage ? list : undefined}
+              />
+            )
+          } else {
+            return (
+              <VerticalRewardCard
+                title={bounty.name}
+                description={bounty.description}
+                onClickButton={() => console.log('reward')}
+                onClickText="Learn more"
+                reward={bounty.reward}
+                submissions={bounty.submissionsCount}
+                expiration={new Date(
+                  bounty.end_date
+                ).toLocaleDateString()}
+                SubmissionIcon={SubmissionIcon}
+                ExpirationIcon={ExpirationIcon}
+              />
+            )
+          }
+        })}
+      </div>
+    )
+  }
+
   const columns = [
     { path: 'username', name: 'username' },
     { path: 'wallet', name: 'wallet' },
@@ -122,181 +173,59 @@ function Bounties() {
           title="Taraxa ecosystem bounties"
           subtitle="Earn rewards and help grow the Taraxa's ecosystem"
         />
-        <RewardCard
-          title="Incentivized testnet"
-          description={'Earn rewards for participating in running testnet nodes'}
-          onClickText={detailsPage ? 'Submit' : 'Learn More'}
-          reward={'100,000 TARA / month'}
-          submissions={0}
-          expiration={'Never expires'}
-          SubmissionIcon={SubmissionIcon}
-          ExpirationIcon={ExpirationIcon}
-          // dataList={detailsPage ? list : undefined}
-        />
-        {submitPage ? (
-          <SubmitCard
-            title="Incentivized testnet"
-            description={bountiesDescription}
-            onClickText="Submit bounty"
-            fileButtonLabel={fileButtonLabel}
-            onClickButton={() => console.log('submited')}
-            onFileChange={(e) => setFile(e.target.files[0])}
-            onInputChange={(e) => setSubmitEmail(e.target.value)}
+
+        <div
+          className={
+            isMobile
+              ? 'mobile-icon-title-container pinned-icon-container'
+              : 'icon-title-container pinned-icon-container'
+          }
+        >
+          <PinnedIcon />
+          <Text
+            label="Pinned"
+            variant="body1"
+            color="primary"
+            className="icon-title"
           />
+        </div>
+        {pinnedBounties.length > 0 && (
+          <BountyCardList items={pinnedBounties} />
+        )}
+
+        <div
+          className={
+            isMobile
+              ? 'mobile-icon-title-container'
+              : 'icon-title-container'
+          }
+        >
+          <span className={inactive ? 'dot inactive' : 'dot active'} />
+          <Text
+            label={(inactive ? 'Inactive' : 'Active') + ` Bounties`}
+            variant="body1"
+            color="primary"
+            className="icon-title"
+          />
+        </div>
+        <Switch
+          id="bountiesSwitch"
+          name="Show inactive"
+          value={inactive}
+          label="Show inactive"
+          onChange={() => onChangeInactive()}
+        />
+
+        {inactive ? (
+          inactiveBounties.length > 0 && (
+            <BountyCardList items={inactiveBounties} />
+          )
         ) : (
-          pinnedBounties.length && (
-            <>
-              <div
-                className={
-                  isMobile
-                    ? 'mobile-icon-title-container'
-                    : 'icon-title-container'
-                }
-              >
-                <PinnedIcon />{' '}
-                <Text
-                  label="Pinned"
-                  variant="body1"
-                  color="primary"
-                  className="icon-title"
-                />
-              </div>
-
-              {pinnedBounties.map((pinnedBounty) => {
-                let list = undefined
-
-                if (pinnedBounty.submissions!.length > 0) {
-                  const rows = pinnedBounty.submissions!.map((submission) => ({
-                    Icon: UserIcon,
-                    data: [
-                      {
-                        username: submission.user.username,
-                        wallet: submission.hashed_content,
-                        date: new Date(submission.created_at),
-                      },
-                    ],
-                  }))
-                  const mobileRows = pinnedBounty.submissions!.map(
-                    (submission) => ({
-                      Icon: UserIcon,
-                      data: [
-                        {
-                          username: submission.user.username,
-                          date: new Date(submission.created_at),
-                          wallet: submission.hashed_content,
-                        },
-                      ],
-                    })
-                  )
-
-                  list = (
-                    <Table
-                      columns={columns}
-                      rows={isMobile ? mobileRows : rows}
-                    />
-                  )
-                }
-                return (
-                  <div className="cardContainer">
-                    {isMobile ? (
-                      <VerticalRewardCard
-                        title={pinnedBounty.name}
-                        description={pinnedBounty.description}
-                        onClickButton={() => console.log('reward')}
-                        onClickText="Learn more"
-                        reward={pinnedBounty.reward}
-                        submissions={pinnedBounty.submissionsCount}
-                        expiration={new Date(
-                          pinnedBounty.end_date
-                        ).toLocaleDateString()}
-                        SubmissionIcon={SubmissionIcon}
-                        ExpirationIcon={ExpirationIcon}
-                      />
-                    ) : (
-                      <RewardCard
-                        title={pinnedBounty.name}
-                        description={pinnedBounty.description}
-                        onClickButton={() =>
-                          detailsPage
-                            ? setSubmitPage(true)
-                            : setDetailsPage(true)
-                        }
-                        onClickText={detailsPage ? 'Submit' : 'Learn More'}
-                        reward={pinnedBounty.reward}
-                        submissions={pinnedBounty.submissionsCount}
-                        expiration={new Date(
-                          pinnedBounty.end_date
-                        ).toLocaleDateString()}
-                        SubmissionIcon={SubmissionIcon}
-                        ExpirationIcon={ExpirationIcon}
-                        dataList={detailsPage ? list : undefined}
-                      />
-                    )}
-                  </div>
-                )
-              })}
-
-              <div
-                className={
-                  isMobile
-                    ? 'mobile-icon-title-container'
-                    : 'icon-title-container'
-                }
-              >
-                <span className="dot inactive" />{' '}
-                <Text
-                  label={(inactive ? 'Inactive' : 'Active') + ` Bounties`}
-                  variant="body1"
-                  color="primary"
-                  className="icon-title"
-                />
-              </div>
-              <Switch
-                id="bountiesSwitch"
-                name="Show inactive"
-                value={inactive}
-                label="Show inactive"
-                onChange={() => onChangeInactive()}
-              />
-              {numRows.map((row) => {
-                const rows = bounties
-                  .slice(row * 3, row * 3 + 3)
-                  .map((bounty) => {
-                    const endDate = new Date(
-                      bounty.end_date
-                    ).toLocaleDateString()
-                    return (
-                      <VerticalRewardCard
-                        active
-                        key={bounty.id}
-                        title={bounty.name}
-                        description={bounty.description}
-                        onClick={() => console.log('reward')}
-                        onClickText="Learn more"
-                        reward={bounty.reward}
-                        submissions={bounty.submissionsCount}
-                        expiration={endDate}
-                        SubmissionIcon={SubmissionIcon}
-                        ExpirationIcon={ExpirationIcon}
-                      />
-                    )
-                  })
-                return <div className="cardContainer">{rows}</div>
-              })}
-              {bounties.length === 0 && (
-                <div>
-                  <Text
-                    label={
-                      `No ` + (inactive ? 'inactive' : 'active') + ` bounties`
-                    }
-                    variant="body2"
-                    color="textSecondary"
-                  />
-                </div>
-              )}
-            </>
+          bounties.length > 0 && (
+            <BountyCardList items={bounties} />
           )
         )}
+
       </div>
     </div>
   )

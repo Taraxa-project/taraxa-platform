@@ -7,10 +7,9 @@ const useStyles = makeStyles({
     minHeight: 350,
     textAlign: 'center',
     backgroundColor: '#212534',
-    paddingLeft: '2%',
-    paddingRight: '1%',
+    padding: '24px',
     border: '1px solid #737B99',
-    marginBottom: '5%',
+    marginBottom: '24px',
   },
   mobileRoot: {
     width: '95%',
@@ -30,8 +29,12 @@ const useStyles = makeStyles({
     textAlign: 'center',
   },
   infoData: {
-    margin: '1% 0 6% 0',
+    margin: '0 0 16px',
+    textAlign: 'left',
   },
+  actionInfoData: {
+    textAlign: 'center',
+  }
   bottomContent: {
     margin: '5% 0 3% 0',
   },
@@ -45,9 +48,14 @@ const useStyles = makeStyles({
   },
   rewardContent: {
     color: 'white',
+    width: '100%',
     border: '1px solid #15AC5B',
-    padding: '3% 5%',
-    width: '93%',
+    height: '52px',
+    margin: '0 auto',
+    padding: '12px 0',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    borderRadius: '4px',
   },
   actions: {
     display: 'grid',
@@ -61,8 +69,8 @@ const useStyles = makeStyles({
     marginTop: '5%',
   },
   button: {
-    marginTop: '8%',
-    width: '60%',
+    marginTop: '18px',
+    width: '100%',
   },
   iconContent: {
     marginBottom: '5%',
