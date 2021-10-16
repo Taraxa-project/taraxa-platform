@@ -13,14 +13,17 @@
     "postinstall": "husky install"
   },
   "lint-staged": {
-    "*.js": [
+    "*.{js,jsx,ts,tsx}": [
       "yarn run format",
       "git add"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && yarn run lint"
+      "pre-commit": [
+        "lint-staged",
+        "yarn run lint"
+      ]
     }
   },
   "devDependencies": {
