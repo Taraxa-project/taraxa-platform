@@ -9,7 +9,8 @@
     "community-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-community-site build",
     "community-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-community-site start",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
-    "lint": "tsc --noEmit -p services/community-site && tsc --noEmit -p packages/taraxa-ui"
+    "lint": "tsc --noEmit -p services/community-site && tsc --noEmit -p packages/taraxa-ui",
+    "postinstall": "husky install"
   },
   "lint-staged": {
     "*.js": [
@@ -19,7 +20,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && yarn run lint"
     }
   },
   "devDependencies": {
