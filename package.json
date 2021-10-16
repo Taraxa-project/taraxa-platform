@@ -8,11 +8,25 @@
     "ui-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-ui build",
     "community-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-community-site build",
     "community-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-community-site start",
-    "fl": "prettier . — write"
+    "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
+    "lint": "tsc --noEmit -p services/community-site && tsc --noEmit -p packages/taraxa-ui"
+  },
+  "lint-staged": {
+    "*.js": [
+      "yarn run format",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "devDependencies": {
     "eslint": "^7.32.0",
     "eslint-config-airbnb-typescript-prettier": "^4.2.0",
+    "husky": "^7.0.2",
+    "lint-staged": "^11.2.3",
     "prettier": "^2.4.1"
   }
 }
