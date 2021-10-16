@@ -1,4 +1,3 @@
-import React from 'react';
 import theme from '../theme';
 import {
   BottomNavigationActionProps as MBottomNavigationActionProps,
