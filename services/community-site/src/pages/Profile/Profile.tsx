@@ -1,38 +1,38 @@
-import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-import { Modal } from '@taraxa_project/taraxa-ui'
-import { useMediaQuery } from 'react-responsive'
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Modal } from '@taraxa_project/taraxa-ui';
+import { useMediaQuery } from 'react-responsive';
 
-import CloseIcon from '../../assets/icons/close'
+import CloseIcon from '../../assets/icons/close';
 
-import { useAuth } from '../../services/useAuth'
+import { useAuth } from '../../services/useAuth';
 
-import Title from '../../components/Title/Title'
+import Title from '../../components/Title/Title';
 
-import KYC from './Modal/KYC'
-import KYCSuccess from './Modal/KYCSuccess'
-import KYCError from './Modal/KYCError'
+import KYC from './Modal/KYC';
+import KYCSuccess from './Modal/KYCSuccess';
+import KYCError from './Modal/KYCError';
 
-import ViewProfile from './ViewProfile'
-import EditProfile from './EditProfile'
+import ViewProfile from './ViewProfile';
+import EditProfile from './EditProfile';
 
-import './profile.scss'
+import './profile.scss';
 
 const Profile = () => {
-  const auth = useAuth()
-  const location = useLocation()
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
+  const auth = useAuth();
+  const location = useLocation();
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
-  const isLoggedIn = auth.user?.id
+  const isLoggedIn = auth.user?.id;
 
-  const [editProfile, setEditProfile] = useState(false)
-  const [isKYCModalOpen, setIsKYCModalOpen] = useState(false)
-  const [modalContent, setModalContent] = useState('kyc')
+  const [editProfile, setEditProfile] = useState(false);
+  const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('kyc');
 
   useEffect(() => {
-    const getUser = async () => await auth.refreshUser!()
-    getUser()
-  }, [])
+    const getUser = async () => await auth.refreshUser!();
+    getUser();
+  }, []);
 
   useEffect(() => {
     const params = location.search
@@ -40,25 +40,25 @@ const Profile = () => {
       .toString()
       .split('&')
       .reduce((previous: { [string: string]: string }, current: string) => {
-        const [key, value] = current.split('=')
-        previous[key] = value
-        return previous
-      }, {})
+        const [key, value] = current.split('=');
+        previous[key] = value;
+        return previous;
+      }, {});
 
     if (params['transactionStatus']) {
-      setIsKYCModalOpen(true)
+      setIsKYCModalOpen(true);
       if (params['transactionStatus'] === 'SUCCESS') {
-        setModalContent('kyc-success')
+        setModalContent('kyc-success');
       }
 
       if (params['transactionStatus'] !== 'SUCCESS') {
-        setModalContent('kyc-error')
+        setModalContent('kyc-error');
       }
     }
-  }, [])
+  }, []);
 
   if (!isLoggedIn) {
-    return null
+    return null;
   }
 
   return (
@@ -81,14 +81,14 @@ const Profile = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 interface ProfileModalProps {
-  isKYCModalOpen: boolean
-  modalContent: string
-  setIsKYCModalOpen: (isKYCModalOpen: boolean) => void
-  setModalContent: (modalContent: string) => void
+  isKYCModalOpen: boolean;
+  modalContent: string;
+  setIsKYCModalOpen: (isKYCModalOpen: boolean) => void;
+  setModalContent: (modalContent: string) => void;
 }
 
 function ProfileModal({
@@ -97,21 +97,21 @@ function ProfileModal({
   setIsKYCModalOpen,
   setModalContent,
 }: ProfileModalProps) {
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const resetModal = () => {
-    setModalContent('kyc')
-    setIsKYCModalOpen(false)
-  }
+    setModalContent('kyc');
+    setIsKYCModalOpen(false);
+  };
 
-  let content = <KYC onSuccess={resetModal} />
+  let content = <KYC onSuccess={resetModal} />;
 
   if (modalContent === 'kyc-success') {
-    content = <KYCSuccess onSuccess={resetModal} />
+    content = <KYCSuccess onSuccess={resetModal} />;
   }
 
   if (modalContent === 'kyc-error') {
-    content = <KYCError onSuccess={resetModal} />
+    content = <KYCError onSuccess={resetModal} />;
   }
 
   return (
@@ -124,7 +124,7 @@ function ProfileModal({
       onRequestClose={resetModal}
       closeIcon={CloseIcon}
     />
-  )
+  );
 }
 
-export default Profile
+export default Profile;

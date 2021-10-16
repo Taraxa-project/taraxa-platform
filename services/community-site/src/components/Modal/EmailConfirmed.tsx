@@ -1,5 +1,5 @@
-import { Button, Text } from '@taraxa_project/taraxa-ui'
-import EmailIcon from '../../assets/icons/email'
+import { Button, Text } from '@taraxa_project/taraxa-ui';
+import EmailIcon from '../../assets/icons/email';
 
 const EmailConfirmed = ({ onSuccess }: { onSuccess: () => void }) => {
   return (
@@ -33,7 +33,7 @@ const EmailConfirmed = ({ onSuccess }: { onSuccess: () => void }) => {
         className="marginButton"
       />
     </div>
-  )
-}
+  );
+};
 
-export default EmailConfirmed
+export default EmailConfirmed;

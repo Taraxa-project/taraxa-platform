@@ -1,32 +1,27 @@
-import { useState } from 'react'
-import { Button, Text, Checkbox } from '@taraxa_project/taraxa-ui'
+import { useState } from 'react';
+import { Button, Text, Checkbox } from '@taraxa_project/taraxa-ui';
 
-import KYCIcon from '../../../assets/icons/kyc'
+import KYCIcon from '../../../assets/icons/kyc';
 
-import { useApi } from '../../../services/useApi'
+import { useApi } from '../../../services/useApi';
 
 type KYCProps = {
-  onSuccess: () => void
-}
+  onSuccess: () => void;
+};
 
 const KYC = ({ onSuccess }: KYCProps) => {
-  const api = useApi()
+  const api = useApi();
 
-  const [agreement, setAgreement] = useState(false)
+  const [agreement, setAgreement] = useState(false);
 
   const agreementTrigger = (event: any) => {
-    setAgreement(event.target.checked)
-  }
+    setAgreement(event.target.checked);
+  };
 
   return (
     <div>
       <div className="kycTopContainer">
-        <Text
-          style={{ marginBottom: '2%' }}
-          label="Submit KYC"
-          variant="h6"
-          color="primary"
-        />
+        <Text style={{ marginBottom: '2%' }} label="Submit KYC" variant="h6" color="primary" />
         <KYCIcon />
         <Text
           style={{ margin: '2% 0 2% 0' }}
@@ -76,11 +71,7 @@ const KYC = ({ onSuccess }: KYCProps) => {
       </ul>
 
       <div className="checkboxContainer">
-        <Checkbox
-          name="agreement"
-          onChange={agreementTrigger}
-          checked={agreement}
-        />
+        <Checkbox name="agreement" onChange={agreementTrigger} checked={agreement} />
         <Text
           label="I agree to the processing of my personal data"
           variant="body2"
@@ -96,16 +87,16 @@ const KYC = ({ onSuccess }: KYCProps) => {
         disabled={!agreement}
         fullWidth
         onClick={async () => {
-          const result = await api.post(`/users/kyc`, {}, true)
+          const result = await api.post(`/users/kyc`, {}, true);
           if (result.success) {
-            window.location.replace(result.response.kycLink)
-            return
+            window.location.replace(result.response.kycLink);
+            return;
           }
-          onSuccess()
+          onSuccess();
         }}
       />
     </div>
-  )
-}
+  );
+};
 
-export default KYC
+export default KYC;

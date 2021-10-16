@@ -1,37 +1,37 @@
-import { ethers } from 'ethers'
-import { useMetaMask } from 'metamask-react'
-import { useMemo } from 'react'
+import { ethers } from 'ethers';
+import { useMetaMask } from 'metamask-react';
+import { useMemo } from 'react';
 
 function useChain() {
-  const { chainId, ethereum } = useMetaMask()
+  const { chainId, ethereum } = useMetaMask();
 
   const provider = useMemo(() => {
-    let provider = undefined
+    let provider = undefined;
     try {
-      provider = new ethers.providers.Web3Provider(ethereum)
+      provider = new ethers.providers.Web3Provider(ethereum);
     } catch (e) {
-      provider = undefined
+      provider = undefined;
     }
 
-    return provider
-  }, [ethereum])
+    return provider;
+  }, [ethereum]);
 
   const signer = useMemo(() => {
-    let signer = undefined
+    let signer = undefined;
     if (!provider) {
-      return signer
+      return signer;
     }
 
     try {
-      signer = provider.getSigner()
+      signer = provider.getSigner();
     } catch (e) {
-      signer = undefined
+      signer = undefined;
     }
 
-    return signer
-  }, [provider])
+    return signer;
+  }, [provider]);
 
-  return { chainId, provider, signer }
+  return { chainId, provider, signer };
 }
 
-export default useChain
+export default useChain;

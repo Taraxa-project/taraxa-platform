@@ -1,5 +1,5 @@
-import { Button, Text } from '@taraxa_project/taraxa-ui'
-import EmailIcon from '../../assets/icons/email'
+import { Button, Text } from '@taraxa_project/taraxa-ui';
+import EmailIcon from '../../assets/icons/email';
 
 const SignUpSuccess = ({ onSuccess }: { onSuccess: () => void }) => {
   return (
@@ -11,12 +11,7 @@ const SignUpSuccess = ({ onSuccess }: { onSuccess: () => void }) => {
         className="signUpSuccessfullTitle"
       />
       <EmailIcon />
-      <Text
-        label="Thank you"
-        variant="body1"
-        color="primary"
-        style={{ marginTop: '10%' }}
-      />
+      <Text label="Thank you" variant="body1" color="primary" style={{ marginTop: '10%' }} />
       <Text
         label="Please confirm your e-mail"
         variant="body1"
@@ -39,7 +34,7 @@ const SignUpSuccess = ({ onSuccess }: { onSuccess: () => void }) => {
         className="marginButton"
       />
     </div>
-  )
-}
+  );
+};
 
-export default SignUpSuccess
+export default SignUpSuccess;

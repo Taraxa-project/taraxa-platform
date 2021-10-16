@@ -1,7 +1,7 @@
-import { ethers } from 'ethers'
-import { useState, useEffect, useCallback } from 'react'
-import { useMediaQuery } from 'react-responsive'
-import { useMetaMask } from 'metamask-react'
+import { ethers } from 'ethers';
+import { useState, useEffect, useCallback } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { useMetaMask } from 'metamask-react';
 
 import {
   Modal,
@@ -14,85 +14,80 @@ import {
   InputField,
   Button,
   Chip,
-} from '@taraxa_project/taraxa-ui'
+} from '@taraxa_project/taraxa-ui';
 
-import CloseIcon from '../../assets/icons/close'
-import InfoIcon from '../../assets/icons/info'
-import TrophyIcon from '../../assets/icons/trophy'
+import CloseIcon from '../../assets/icons/close';
+import InfoIcon from '../../assets/icons/info';
+import TrophyIcon from '../../assets/icons/trophy';
 
-import StakingSuccess from './Modal/StakingSuccess'
-import StakingError from './Modal/StakingError'
-import Approve from './Modal/Approve'
-import IsStaking from './Modal/IsStaking'
-import IsUnstaking from './Modal/IsUnstaking'
+import StakingSuccess from './Modal/StakingSuccess';
+import StakingError from './Modal/StakingError';
+import Approve from './Modal/Approve';
+import IsStaking from './Modal/IsStaking';
+import IsUnstaking from './Modal/IsUnstaking';
 
-import { formatTime } from '../../utils/time'
+import { formatTime } from '../../utils/time';
 
-import useToken from '../../services/useToken'
-import useStaking from '../../services/useStaking'
-import { useAuth } from '../../services/useAuth'
+import useToken from '../../services/useToken';
+import useStaking from '../../services/useStaking';
+import { useAuth } from '../../services/useAuth';
 
-import Title from '../../components/Title/Title'
+import Title from '../../components/Title/Title';
 
-import './staking.scss'
+import './staking.scss';
 
-const weiToEth = (val: ethers.BigNumberish) =>
-  ethers.utils.formatUnits(val, 'ether')
-const formatEth = (val: ethers.BigNumberish) =>
-  ethers.utils.commify(val.toString())
-const roundEth = (val: string) => (+val).toFixed(4)
+const weiToEth = (val: ethers.BigNumberish) => ethers.utils.formatUnits(val, 'ether');
+const formatEth = (val: ethers.BigNumberish) => ethers.utils.commify(val.toString());
+const roundEth = (val: string) => (+val).toFixed(4);
 
 function Staking() {
-  const { account } = useMetaMask()
-  const token = useToken()
-  const staking = useStaking()
+  const { account } = useMetaMask();
+  const token = useToken();
+  const staking = useStaking();
 
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [isError, setIsError] = useState(false)
-  const [isApprove, setIsApprove] = useState(false)
-  const [isStaking, setIsStaking] = useState(false)
-  const [isUnstaking, setIsUnstaking] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isApprove, setIsApprove] = useState(false);
+  const [isStaking, setIsStaking] = useState(false);
+  const [isUnstaking, setIsUnstaking] = useState(false);
 
-  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from('0')
-  )
-  const [toStake, setToStake] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from('0')
-  )
-  const [stakeInput, setStakeInput] = useState('0.0')
-  const [currentStakeBalance, setCurrentStakeBalance] =
-    useState<ethers.BigNumber>(ethers.BigNumber.from('0'))
+  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [toStake, setToStake] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [stakeInput, setStakeInput] = useState('0.0');
+  const [currentStakeBalance, setCurrentStakeBalance] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from('0'),
+  );
 
   const [lockingPeriod, setLockingPeriod] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from(30 * 24 * 60 * 60)
-  )
+    ethers.BigNumber.from(30 * 24 * 60 * 60),
+  );
 
-  const [transactionHash, setTransactionHash] = useState<null | string>(null)
+  const [transactionHash, setTransactionHash] = useState<null | string>(null);
 
   useEffect(() => {
     const getTokenBalance = async () => {
       if (!token) {
-        return
+        return;
       }
 
-      const balance = await token.balanceOf(account)
-      setTokenBalance(balance)
-      setToStake(balance)
-      setStakeInput(formatEth(weiToEth(balance)))
-    }
+      const balance = await token.balanceOf(account);
+      setTokenBalance(balance);
+      setToStake(balance);
+      setStakeInput(formatEth(weiToEth(balance)));
+    };
 
     const getLockingPeriod = async () => {
       if (!staking) {
-        return
+        return;
       }
 
-      const currentLockingPeriod = await staking.lockingPeriod()
-      setLockingPeriod(currentLockingPeriod)
-    }
+      const currentLockingPeriod = await staking.lockingPeriod();
+      setLockingPeriod(currentLockingPeriod);
+    };
 
-    getTokenBalance()
-    getLockingPeriod()
-  }, [account, token, staking])
+    getTokenBalance();
+    getLockingPeriod();
+  }, [account, token, staking]);
 
   return (
     <>
@@ -152,25 +147,25 @@ function Staking() {
         />
       </div>
     </>
-  )
+  );
 }
 
 interface StakingModalProps {
-  isSuccess: boolean
-  isError: boolean
-  isApprove: boolean
-  isStaking: boolean
-  isUnstaking: boolean
-  setIsSuccess: (isSuccess: boolean) => void
-  setIsError: (isError: boolean) => void
-  setIsApprove: (isApprove: boolean) => void
-  setIsStaking: (isStaking: boolean) => void
-  setIsUnstaking: (isUnstaking: boolean) => void
-  stakedAmount: string
-  currentStakeBalance: string
-  balance: string
-  lockingPeriod: string
-  transactionHash: null | string
+  isSuccess: boolean;
+  isError: boolean;
+  isApprove: boolean;
+  isStaking: boolean;
+  isUnstaking: boolean;
+  setIsSuccess: (isSuccess: boolean) => void;
+  setIsError: (isError: boolean) => void;
+  setIsApprove: (isApprove: boolean) => void;
+  setIsStaking: (isStaking: boolean) => void;
+  setIsUnstaking: (isUnstaking: boolean) => void;
+  stakedAmount: string;
+  currentStakeBalance: string;
+  balance: string;
+  lockingPeriod: string;
+  transactionHash: null | string;
 }
 
 function StakingModal({
@@ -190,9 +185,9 @@ function StakingModal({
   lockingPeriod,
   transactionHash,
 }: StakingModalProps) {
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
-  let modal = <></>
+  let modal = <></>;
 
   if (isSuccess) {
     modal = (
@@ -200,10 +195,10 @@ function StakingModal({
         lockingPeriod={lockingPeriod}
         transactionHash={transactionHash}
         onSuccess={() => {
-          setIsSuccess(false)
+          setIsSuccess(false);
         }}
       />
-    )
+    );
   }
 
   if (isError) {
@@ -211,22 +206,22 @@ function StakingModal({
       <StakingError
         amount={balance}
         onSuccess={() => {
-          setIsError(false)
+          setIsError(false);
         }}
       />
-    )
+    );
   }
 
   if (isApprove) {
-    modal = <Approve amount={stakedAmount} />
+    modal = <Approve amount={stakedAmount} />;
   }
 
   if (isStaking) {
-    modal = <IsStaking amount={stakedAmount} />
+    modal = <IsStaking amount={stakedAmount} />;
   }
 
   if (isUnstaking) {
-    modal = <IsUnstaking amount={currentStakeBalance} />
+    modal = <IsUnstaking amount={currentStakeBalance} />;
   }
 
   return (
@@ -237,20 +232,20 @@ function StakingModal({
       children={modal}
       parentElementID="root"
       onRequestClose={() => {
-        setIsSuccess(false)
-        setIsError(false)
-        setIsApprove(false)
-        setIsStaking(false)
-        setIsUnstaking(false)
+        setIsSuccess(false);
+        setIsError(false);
+        setIsApprove(false);
+        setIsStaking(false);
+        setIsUnstaking(false);
       }}
       closeIcon={CloseIcon}
     />
-  )
+  );
 }
 
 function StakingNotifications() {
-  const { status } = useMetaMask()
-  const auth = useAuth()
+  const { status } = useMetaMask();
+  const auth = useAuth();
   return (
     <>
       {status !== 'connected' && (
@@ -273,7 +268,7 @@ function StakingNotifications() {
         </div>
       )}
     </>
-  )
+  );
 }
 
 function StakingTop() {
@@ -310,34 +305,30 @@ function StakingTop() {
         </tr>
       </table>
     </div>
-  )
+  );
   return (
     <div>
-      <TopCard
-        title="23,124,123"
-        description="Total TARA Staked"
-        topData={topData}
-      />
+      <TopCard title="23,124,123" description="Total TARA Staked" topData={topData} />
     </div>
-  )
+  );
 }
 
 interface StakeProps {
-  setIsSuccess: (isSuccess: boolean) => void
-  setIsError: (isError: boolean) => void
-  setIsApprove: (isApprove: boolean) => void
-  setIsStaking: (isStaking: boolean) => void
-  setIsUnstaking: (isUnstaking: boolean) => void
-  tokenBalance: ethers.BigNumber
-  setTokenBalance: (tokenBalance: ethers.BigNumber) => void
-  toStake: ethers.BigNumber
-  setToStake: (toStake: ethers.BigNumber) => void
-  stakeInput: string
-  setStakeInput: (stakeInput: string) => void
-  currentStakeBalance: ethers.BigNumber
-  setCurrentStakeBalance: (currentStakeBalance: ethers.BigNumber) => void
-  lockingPeriod: ethers.BigNumber
-  setTransactionHash: (transactionHash: null | string) => void
+  setIsSuccess: (isSuccess: boolean) => void;
+  setIsError: (isError: boolean) => void;
+  setIsApprove: (isApprove: boolean) => void;
+  setIsStaking: (isStaking: boolean) => void;
+  setIsUnstaking: (isUnstaking: boolean) => void;
+  tokenBalance: ethers.BigNumber;
+  setTokenBalance: (tokenBalance: ethers.BigNumber) => void;
+  toStake: ethers.BigNumber;
+  setToStake: (toStake: ethers.BigNumber) => void;
+  stakeInput: string;
+  setStakeInput: (stakeInput: string) => void;
+  currentStakeBalance: ethers.BigNumber;
+  setCurrentStakeBalance: (currentStakeBalance: ethers.BigNumber) => void;
+  lockingPeriod: ethers.BigNumber;
+  setTransactionHash: (transactionHash: null | string) => void;
 }
 
 function Stake({
@@ -356,164 +347,149 @@ function Stake({
   lockingPeriod,
   setTransactionHash,
 }: StakeProps) {
-  const { account, status } = useMetaMask()
-  const auth = useAuth()
+  const { account, status } = useMetaMask();
+  const auth = useAuth();
 
-  const token = useToken()
-  const staking = useStaking()
+  const token = useToken();
+  const staking = useStaking();
 
-  const [hasStake, setHasStake] = useState(false)
-  const [canClaimStake, setCanClaimStake] = useState(false)
-  const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(
-    null
-  )
+  const [hasStake, setHasStake] = useState(false);
+  const [canClaimStake, setCanClaimStake] = useState(false);
+  const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(null);
 
-  const [stakeInputError, setStakeInputError] = useState<string | null>(null)
+  const [stakeInputError, setStakeInputError] = useState<string | null>(null);
 
   const resetStake = useCallback(() => {
-    setHasStake(false)
-    setCanClaimStake(false)
-    setCurrentStakeBalance(ethers.BigNumber.from('0'))
-    setCurrentStakeEndDate(null)
-  }, [
-    setHasStake,
-    setCanClaimStake,
-    setCurrentStakeBalance,
-    setCurrentStakeEndDate,
-  ])
+    setHasStake(false);
+    setCanClaimStake(false);
+    setCurrentStakeBalance(ethers.BigNumber.from('0'));
+    setCurrentStakeEndDate(null);
+  }, [setHasStake, setCanClaimStake, setCurrentStakeBalance, setCurrentStakeEndDate]);
 
   const formatStakeInputValue = (value: string) => {
-    const stakeInputValue = value.replace(/[^\d.]/g, '')
-    let input
+    const stakeInputValue = value.replace(/[^\d.]/g, '');
+    let input;
     if (stakeInputValue === '') {
-      input = ethers.BigNumber.from('0')
+      input = ethers.BigNumber.from('0');
     } else {
-      input = ethers.utils.parseUnits(stakeInputValue)
+      input = ethers.utils.parseUnits(stakeInputValue);
     }
-    return input
-  }
+    return input;
+  };
 
   useEffect(() => {
     const getStakedBalance = async () => {
       if (!staking) {
-        return
+        return;
       }
 
-      const currentStake = await staking.stakeOf(account)
+      const currentStake = await staking.stakeOf(account);
 
-      const currentStakeBalance = currentStake[0]
-      let currentStakeEndDate = currentStake[2].toNumber()
+      const currentStakeBalance = currentStake[0];
+      let currentStakeEndDate = currentStake[2].toNumber();
 
       if (currentStakeBalance.toString() === '0' || currentStakeEndDate === 0) {
-        resetStake()
-        return
+        resetStake();
+        return;
       }
 
-      const currentTimestamp = Math.ceil(new Date().getTime() / 1000)
-      const canClaimStake = currentTimestamp > currentStakeEndDate
+      const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
+      const canClaimStake = currentTimestamp > currentStakeEndDate;
 
-      currentStakeEndDate = new Date(currentStakeEndDate * 1000)
+      currentStakeEndDate = new Date(currentStakeEndDate * 1000);
 
-      setHasStake(true)
-      setCanClaimStake(canClaimStake)
-      setCurrentStakeBalance(currentStakeBalance)
-      setCurrentStakeEndDate(currentStakeEndDate)
-    }
+      setHasStake(true);
+      setCanClaimStake(canClaimStake);
+      setCurrentStakeBalance(currentStakeBalance);
+      setCurrentStakeEndDate(currentStakeEndDate);
+    };
 
-    getStakedBalance()
-  }, [account, token, staking, resetStake, setCurrentStakeBalance])
+    getStakedBalance();
+  }, [account, token, staking, resetStake, setCurrentStakeBalance]);
 
   const stakeTokens = async () => {
-    setStakeInputError(null)
+    setStakeInputError(null);
 
-    const value = formatStakeInputValue(stakeInput)
-    setStakeInput(formatEth(weiToEth(value)))
-    setToStake(value)
+    const value = formatStakeInputValue(stakeInput);
+    setStakeInput(formatEth(weiToEth(value)));
+    setToStake(value);
 
     if (value.isZero()) {
-      return
+      return;
     }
 
     if (value.gt(tokenBalance)) {
-      setStakeInputError('Not enough tokens available')
-      return
+      setStakeInputError('Not enough tokens available');
+      return;
     }
 
     if (!token || !staking) {
-      return
+      return;
     }
 
-    const allowance = await token.allowance(
-      account,
-      process.env.REACT_APP_STAKING_ADDRESS!
-    )
+    const allowance = await token.allowance(account, process.env.REACT_APP_STAKING_ADDRESS!);
 
     if (value.gt(allowance)) {
-      setIsApprove(true)
+      setIsApprove(true);
       try {
-        const approveTx = await token.approve(
-          process.env.REACT_APP_STAKING_ADDRESS!,
-          value
-        )
-        await approveTx.wait(1)
+        const approveTx = await token.approve(process.env.REACT_APP_STAKING_ADDRESS!, value);
+        await approveTx.wait(1);
       } catch (err) {
-        return
+        return;
       } finally {
-        setIsApprove(false)
+        setIsApprove(false);
       }
     }
 
     try {
-      setIsStaking(true)
-      const stakeTx = await staking.stake(value)
-      setTransactionHash(stakeTx.hash)
-      await stakeTx.wait(1)
+      setIsStaking(true);
+      const stakeTx = await staking.stake(value);
+      setTransactionHash(stakeTx.hash);
+      await stakeTx.wait(1);
 
-      setIsStaking(false)
-      setIsSuccess(true)
+      setIsStaking(false);
+      setIsSuccess(true);
 
-      const newBalance = tokenBalance.sub(value)
-      setTokenBalance(newBalance)
-      setToStake(newBalance)
-      setStakeInput(formatEth(weiToEth(newBalance)))
+      const newBalance = tokenBalance.sub(value);
+      setTokenBalance(newBalance);
+      setToStake(newBalance);
+      setStakeInput(formatEth(weiToEth(newBalance)));
 
-      const currentTimestamp = Math.ceil(new Date().getTime() / 1000)
+      const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
 
-      setHasStake(true)
-      setCanClaimStake(false)
-      setCurrentStakeBalance(currentStakeBalance.add(value))
-      setCurrentStakeEndDate(
-        new Date((currentTimestamp + lockingPeriod.toNumber()) * 1000)
-      )
+      setHasStake(true);
+      setCanClaimStake(false);
+      setCurrentStakeBalance(currentStakeBalance.add(value));
+      setCurrentStakeEndDate(new Date((currentTimestamp + lockingPeriod.toNumber()) * 1000));
     } catch (err) {
-      setTransactionHash(null)
-      setIsStaking(false)
-      setIsSuccess(false)
+      setTransactionHash(null);
+      setIsStaking(false);
+      setIsSuccess(false);
     }
-  }
+  };
 
   const unstakeTokens = async () => {
     if (!token || !staking) {
-      return
+      return;
     }
 
-    setIsUnstaking(true)
+    setIsUnstaking(true);
     try {
-      const unstakeTx = await staking.unstake()
-      await unstakeTx.wait(1)
+      const unstakeTx = await staking.unstake();
+      await unstakeTx.wait(1);
     } catch (err) {
-      return
+      return;
     } finally {
-      setIsUnstaking(false)
+      setIsUnstaking(false);
     }
 
-    const newBalance = tokenBalance.add(currentStakeBalance)
-    setTokenBalance(newBalance)
-    setToStake(newBalance)
-    setStakeInput(formatEth(weiToEth(newBalance)))
+    const newBalance = tokenBalance.add(currentStakeBalance);
+    setTokenBalance(newBalance);
+    setToStake(newBalance);
+    setStakeInput(formatEth(weiToEth(newBalance)));
 
-    resetStake()
-  }
+    resetStake();
+  };
 
   const stakeInputField = (
     <InputField
@@ -531,19 +507,17 @@ function Stake({
       onChange={(event) => setStakeInput(event.target.value)}
       disabled={auth.user !== null && auth.user.kyc !== 'APPROVED'}
     />
-  )
+  );
 
   const chips = [25, 50, 75, 100].map((percentage) => {
-    const value = tokenBalance.mul(ethers.BigNumber.from(percentage)).div(100)
-    const input = formatStakeInputValue(stakeInput)
+    const value = tokenBalance.mul(ethers.BigNumber.from(percentage)).div(100);
+    const input = formatStakeInputValue(stakeInput);
 
     const chipsTrigger = (selectedPercentage: number) => {
-      const newValue = tokenBalance
-        .mul(ethers.BigNumber.from(selectedPercentage))
-        .div(100)
-      setStakeInput(formatEth(weiToEth(newValue)))
-      setToStake(newValue)
-    }
+      const newValue = tokenBalance.mul(ethers.BigNumber.from(selectedPercentage)).div(100);
+      setStakeInput(formatEth(weiToEth(newValue)));
+      setToStake(newValue);
+    };
 
     return (
       <Chip
@@ -553,15 +527,13 @@ function Stake({
         variant="default"
         clickable
         className={
-          value.gt(ethers.BigNumber.from('0')) && value.eq(input)
-            ? 'chipSelected'
-            : 'chip'
+          value.gt(ethers.BigNumber.from('0')) && value.eq(input) ? 'chipSelected' : 'chip'
         }
         disabled={auth.user !== null && auth.user.kyc !== 'APPROVED'}
       />
-    )
-  })
-  const stakingchips = <>{chips}</>
+    );
+  });
+  const stakingchips = <>{chips}</>;
 
   return (
     <>
@@ -622,11 +594,7 @@ function Stake({
       </div>
       <div className="cardContainer">
         <DataCard
-          title={
-            status === 'connected'
-              ? formatEth(roundEth(weiToEth(tokenBalance)))
-              : 'N/A'
-          }
+          title={status === 'connected' ? formatEth(roundEth(weiToEth(tokenBalance))) : 'N/A'}
           description="Available to Stake"
           label="TARA"
           onClickButton={() => stakeTokens()}
@@ -649,7 +617,7 @@ function Stake({
         )}
       </div>
     </>
-  )
+  );
 }
 
-export default Staking
+export default Staking;

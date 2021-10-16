@@ -1,7 +1,7 @@
-import { Text, Loading } from '@taraxa_project/taraxa-ui'
+import { Text, Loading } from '@taraxa_project/taraxa-ui';
 
 interface IsStakingProps {
-  amount: string
+  amount: string;
 }
 
 const IsStaking = ({ amount }: IsStakingProps) => {
@@ -11,13 +11,9 @@ const IsStaking = ({ amount }: IsStakingProps) => {
       <div className="iconContainer">
         <Loading />
       </div>
-      <Text
-        label={`Staking ${amount} TARA from your account...`}
-        variant="body2"
-        color="primary"
-      />
+      <Text label={`Staking ${amount} TARA from your account...`} variant="body2" color="primary" />
     </div>
-  )
-}
+  );
+};
 
-export default IsStaking
+export default IsStaking;

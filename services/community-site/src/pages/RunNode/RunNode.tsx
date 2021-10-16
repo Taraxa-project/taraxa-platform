@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
-import { ethers } from 'ethers'
-import { useMediaQuery } from 'react-responsive'
+import { useState, useEffect, useCallback } from 'react';
+import { ethers } from 'ethers';
+import { useMediaQuery } from 'react-responsive';
 import {
   Modal,
   Notification,
@@ -9,55 +9,55 @@ import {
   Tooltip,
   Text,
   Button,
-} from '@taraxa_project/taraxa-ui'
+} from '@taraxa_project/taraxa-ui';
 
-import CloseIcon from '../../assets/icons/close'
-import NodeIcon from '../../assets/icons/node'
-import InfoIcon from '../../assets/icons/info'
-import EditIcon from '../../assets/icons/edit'
-import DeleteIcon from '../../assets/icons/delete'
-import LeftIcon from '../../assets/icons/left'
-import RightIcon from '../../assets/icons/right'
+import CloseIcon from '../../assets/icons/close';
+import NodeIcon from '../../assets/icons/node';
+import InfoIcon from '../../assets/icons/info';
+import EditIcon from '../../assets/icons/edit';
+import DeleteIcon from '../../assets/icons/delete';
+import LeftIcon from '../../assets/icons/left';
+import RightIcon from '../../assets/icons/right';
 
-import { useAuth } from '../../services/useAuth'
-import { useApi } from '../../services/useApi'
+import { useAuth } from '../../services/useAuth';
+import { useApi } from '../../services/useApi';
 
-import Title from '../../components/Title/Title'
+import Title from '../../components/Title/Title';
 
-import RegisterNode from './Modal/RegisterNode'
-import UpdateNode from './Modal/UpdateNode'
+import RegisterNode from './Modal/RegisterNode';
+import UpdateNode from './Modal/UpdateNode';
 
-import './runnode.scss'
+import './runnode.scss';
 
 interface Node {
-  id: number
-  name: string
-  ethWallet: string
-  active: boolean
-  topPosition: null | number
-  blocksProduced: number
-  lastMinedBlockDate: null | Date
+  id: number;
+  name: string;
+  ethWallet: string;
+  active: boolean;
+  topPosition: null | number;
+  blocksProduced: number;
+  lastMinedBlockDate: null | Date;
 }
 
 const RunNode = () => {
-  const auth = useAuth()
-  const api = useApi()
+  const auth = useAuth();
+  const api = useApi();
 
-  const isLoggedIn = auth.user?.id
+  const isLoggedIn = auth.user?.id;
 
-  const [hasRegisterNodeModal, setHasRegisterNodeModal] = useState(false)
-  const [hasUpdateNodeModal, setHasUpdateNodeModal] = useState(false)
-  const [currentEditedNode, setCurrentEditedNode] = useState<null | Node>(null)
+  const [hasRegisterNodeModal, setHasRegisterNodeModal] = useState(false);
+  const [hasUpdateNodeModal, setHasUpdateNodeModal] = useState(false);
+  const [currentEditedNode, setCurrentEditedNode] = useState<null | Node>(null);
 
-  const [nodes, setNodes] = useState<Node[]>([])
-  const [blocksProduced, setBlocksProduced] = useState('0')
-  const [weeklyRating, setWeeklyRating] = useState('N/A')
-  const [page, setPage] = useState(1)
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [blocksProduced, setBlocksProduced] = useState('0');
+  const [weeklyRating, setWeeklyRating] = useState('N/A');
+  const [page, setPage] = useState(1);
 
   const getNodes = useCallback(async () => {
-    const data = await api.get(`/nodes?_limit=-1`, true)
+    const data = await api.get(`/nodes?_limit=-1`, true);
     if (!data.success) {
-      return
+      return;
     }
     const nodes: Node[] = data.response
       .map((node: Partial<Node>) => {
@@ -65,74 +65,68 @@ const RunNode = () => {
           return {
             ...node,
             lastMinedBlockDate: new Date(node.lastMinedBlockDate!),
-          }
+          };
         }
-        return node
+        return node;
       })
       .map((node: Partial<Node>) => {
-        let active = false
+        let active = false;
         if (node.lastMinedBlockDate !== null) {
-          const now = new Date()
-          const diff = Math.ceil(
-            (now.getTime() - node.lastMinedBlockDate!.getTime()) / 1000
-          )
+          const now = new Date();
+          const diff = Math.ceil((now.getTime() - node.lastMinedBlockDate!.getTime()) / 1000);
           if (diff / 60 < 120) {
-            active = true
+            active = true;
           }
         }
         return {
           ...node,
           active,
-        }
-      })
-    setNodes(nodes)
+        };
+      });
+    setNodes(nodes);
 
-    function notEmpty<TValue>(
-      value: TValue | null | undefined
-    ): value is TValue {
-      return value !== null && value !== undefined
+    function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+      return value !== null && value !== undefined;
     }
 
-    const nodesWithTopPosition = nodes
-      .map((node) => node.topPosition)
-      .filter(notEmpty)
+    const nodesWithTopPosition = nodes.map((node) => node.topPosition).filter(notEmpty);
     if (nodesWithTopPosition.length > 0) {
-      const rating = Math.min(...nodesWithTopPosition)
-      setWeeklyRating(`#${rating}`)
+      const rating = Math.min(...nodesWithTopPosition);
+      setWeeklyRating(`#${rating}`);
     }
 
     const produced = nodes
       .map((node) => node.blocksProduced)
-      .reduce((acc, blocks) => acc + blocks, 0)
-    setBlocksProduced(ethers.utils.commify(produced.toString()))
-  }, [])
+      .reduce((acc, blocks) => acc + blocks, 0);
+    setBlocksProduced(ethers.utils.commify(produced.toString()));
+  }, []);
 
   useEffect(() => {
-    getNodes()
-  }, [getNodes])
+    getNodes();
+  }, [getNodes]);
 
   const deleteNode = async (node: Node) => {
-    await api.del(`/nodes/${node.id}`, true)
-    getNodes()
-  }
+    await api.del(`/nodes/${node.id}`, true);
+    getNodes();
+  };
 
   const formatNodeName = (name: string) => {
     if (name.length <= 17) {
-      return name
+      return name;
     }
-    return `${name.substr(0, 7)} ... ${name.substr(-5)}`
-  }
+    return `${name.substr(0, 7)} ... ${name.substr(-5)}`;
+  };
 
-  const nodesPerPage = 12
-  const totalPages = Math.ceil(nodes.length / nodesPerPage)
-  const start = (page - 1) * nodesPerPage
-  const end = start + nodesPerPage
-  const paginatedNodes = nodes.slice(start, end)
+  const nodesPerPage = 12;
+  const totalPages = Math.ceil(nodes.length / nodesPerPage);
+  const start = (page - 1) * nodesPerPage;
+  const end = start + nodesPerPage;
+  const paginatedNodes = nodes.slice(start, end);
 
   const rows = paginatedNodes.map((node) => {
-    let className = 'dot'
+    let className = 'dot';
     if (node.active) {
-      className += ' active'
+      className += ' active';
     }
     return (
       <div key={node.id}>
@@ -140,17 +134,15 @@ const RunNode = () => {
           <div className={className}></div>
         </div>
         <div className="address">
-          {formatNodeName(
-            !node.name || node.name === '' ? node.ethWallet : node.name
-          )}
+          {formatNodeName(!node.name || node.name === '' ? node.ethWallet : node.name)}
         </div>
         <Button
           size="small"
           Icon={EditIcon}
           className="edit"
           onClick={() => {
-            setCurrentEditedNode(node)
-            setHasUpdateNodeModal(true)
+            setCurrentEditedNode(node);
+            setHasUpdateNodeModal(true);
           }}
         />
         <Button
@@ -158,18 +150,16 @@ const RunNode = () => {
           Icon={DeleteIcon}
           className="delete"
           onClick={() => {
-            const confirmation = window.confirm(
-              'Are you sure you want to delete this node?'
-            )
+            const confirmation = window.confirm('Are you sure you want to delete this node?');
 
             if (confirmation) {
-              deleteNode(node)
+              deleteNode(node);
             }
           }}
         />
       </div>
-    )
-  })
+    );
+  });
 
   return (
     <div className="runnode">
@@ -231,7 +221,7 @@ const RunNode = () => {
                   window.open(
                     'https://docs.taraxa.io/node-setup/testnet_node_setup',
                     '_blank',
-                    'noreferrer noopener'
+                    'noreferrer noopener',
                   )
                 }
                 Icon={NodeIcon}
@@ -241,12 +231,7 @@ const RunNode = () => {
         </div>
         {nodes.length > 0 && (
           <div className="box">
-            <Text
-              label="Active Nodes"
-              variant="h6"
-              color="primary"
-              className="box-title"
-            />
+            <Text label="Active Nodes" variant="h6" color="primary" className="box-title" />
             <div className="box-pagination">
               <div className="box-pagination-info">
                 <Text label={`Page ${page}/${totalPages}`} />
@@ -258,7 +243,7 @@ const RunNode = () => {
                   className="left"
                   disabled={page === 1}
                   onClick={() => {
-                    setPage((page) => page - 1)
+                    setPage((page) => page - 1);
                   }}
                 />
                 <Button
@@ -267,20 +252,20 @@ const RunNode = () => {
                   className="right"
                   disabled={page >= totalPages}
                   onClick={() => {
-                    setPage((page) => page + 1)
+                    setPage((page) => page + 1);
                   }}
                 />
               </div>
             </div>
             <div className="box-list">
               {[0, 1, 2].map((col) => {
-                const l = col * 4
-                const r = rows.slice(l, l + 4)
+                const l = col * 4;
+                const r = rows.slice(l, l + 4);
                 return (
                   <div key={col} className="box-list-col">
                     {r}
                   </div>
-                )
+                );
               })}
             </div>
             <Button
@@ -293,12 +278,7 @@ const RunNode = () => {
         )}
 
         <div className="box">
-          <Text
-            label="References"
-            variant="h6"
-            color="primary"
-            className="box-title"
-          />
+          <Text label="References" variant="h6" color="primary" className="box-title" />
           <Button
             label="How do I install a node?"
             className="referenceButton"
@@ -307,7 +287,7 @@ const RunNode = () => {
               window.open(
                 'https://docs.taraxa.io/node-setup/testnet_node_setup',
                 '_blank',
-                'noreferrer noopener'
+                'noreferrer noopener',
               )
             }
           />
@@ -319,7 +299,7 @@ const RunNode = () => {
               window.open(
                 'https://docs.taraxa.io/node-setup/node_address',
                 '_blank',
-                'noreferrer noopener'
+                'noreferrer noopener',
               )
             }
           />
@@ -337,7 +317,7 @@ const RunNode = () => {
               window.open(
                 'https://docs.taraxa.io/node-setup/upgrade-a-node/software-upgrade',
                 '_blank',
-                'noreferrer noopener'
+                'noreferrer noopener',
               )
             }
           />
@@ -349,7 +329,7 @@ const RunNode = () => {
               window.open(
                 'https://docs.taraxa.io/node-setup/upgrade-a-node/data-reset',
                 '_blank',
-                'noreferrer noopener'
+                'noreferrer noopener',
               )
             }
           />
@@ -358,26 +338,22 @@ const RunNode = () => {
             className="referenceButton"
             variant="contained"
             onClick={() =>
-              window.open(
-                'https://taraxa.io/discord',
-                '_blank',
-                'noreferrer noopener'
-              )
+              window.open('https://taraxa.io/discord', '_blank', 'noreferrer noopener')
             }
           />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 interface RunNodeModalProps {
-  hasRegisterNodeModal: boolean
-  setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void
-  hasUpdateNodeModal: boolean
-  setHasUpdateNodeModal: (hasUpdateNodeModal: boolean) => void
-  getNodes: () => void
-  currentEditedNode: null | Node
+  hasRegisterNodeModal: boolean;
+  setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
+  hasUpdateNodeModal: boolean;
+  setHasUpdateNodeModal: (hasUpdateNodeModal: boolean) => void;
+  getNodes: () => void;
+  currentEditedNode: null | Node;
 }
 
 const RunNodeModal = ({
@@ -388,18 +364,18 @@ const RunNodeModal = ({
   getNodes,
   currentEditedNode,
 }: RunNodeModalProps) => {
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
-  let modal
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  let modal;
 
   if (hasRegisterNodeModal) {
     modal = (
       <RegisterNode
         onSuccess={() => {
-          getNodes()
-          setHasRegisterNodeModal(false)
+          getNodes();
+          setHasRegisterNodeModal(false);
         }}
       />
-    )
+    );
   }
 
   if (hasUpdateNodeModal && currentEditedNode !== null) {
@@ -408,15 +384,15 @@ const RunNodeModal = ({
         id={currentEditedNode.id}
         name={currentEditedNode.name}
         onSuccess={() => {
-          getNodes()
-          setHasUpdateNodeModal(false)
+          getNodes();
+          setHasUpdateNodeModal(false);
         }}
       />
-    )
+    );
   }
 
   if (!modal) {
-    return null
+    return null;
   }
 
   return (
@@ -427,12 +403,12 @@ const RunNodeModal = ({
       children={modal}
       parentElementID="root"
       onRequestClose={() => {
-        setHasRegisterNodeModal(false)
-        setHasUpdateNodeModal(false)
+        setHasRegisterNodeModal(false);
+        setHasUpdateNodeModal(false);
       }}
       closeIcon={CloseIcon}
     />
-  )
-}
+  );
+};
 
-export default RunNode
+export default RunNode;

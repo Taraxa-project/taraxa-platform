@@ -1,19 +1,14 @@
-import { Button, Text } from '@taraxa_project/taraxa-ui'
+import { Button, Text } from '@taraxa_project/taraxa-ui';
 
 type KYCSuccessProps = {
-  onSuccess: () => void
-}
+  onSuccess: () => void;
+};
 
 const KYCSuccess = ({ onSuccess }: KYCSuccessProps) => {
   return (
     <div>
       <div className="kycTopContainer">
-        <Text
-          style={{ marginBottom: '2%' }}
-          label="Submit KYC"
-          variant="h6"
-          color="primary"
-        />
+        <Text style={{ marginBottom: '2%' }} label="Submit KYC" variant="h6" color="primary" />
         <Text
           style={{ marginBottom: '5%' }}
           label="Thank you! We will contact you via e-mail."
@@ -36,7 +31,7 @@ const KYCSuccess = ({ onSuccess }: KYCSuccessProps) => {
         onClick={() => onSuccess()}
       />
     </div>
-  )
-}
+  );
+};
 
-export default KYCSuccess
+export default KYCSuccess;

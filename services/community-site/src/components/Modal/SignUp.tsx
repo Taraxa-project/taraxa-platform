@@ -1,51 +1,48 @@
-import { useState } from 'react'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
-import { Button, Text, InputField, Checkbox } from '@taraxa_project/taraxa-ui'
-import { useAuth } from '../../services/useAuth'
+import { useState } from 'react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { Button, Text, InputField, Checkbox } from '@taraxa_project/taraxa-ui';
+import { useAuth } from '../../services/useAuth';
 
 type SignUpProps = {
-  onSuccess: () => void
-}
+  onSuccess: () => void;
+};
 
 const SignUp = ({ onSuccess }: SignUpProps) => {
-  const auth = useAuth()
-  const { executeRecaptcha } = useGoogleReCaptcha()
+  const auth = useAuth();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [ethWallet, setEthWallet] = useState('')
-  const [password, setPassword] = useState('')
-  const [passwordConfirmation, setPasswordConfirmation] = useState('')
-  const [tc, setTc] = useState(false)
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [ethWallet, setEthWallet] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [tc, setTc] = useState(false);
 
-  const [errors, setErrors] = useState<{ key: string; value: string }[]>([])
+  const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
-  const errIndex = errors.map((error) => error.key)
-  const errValues = errors.map((error) => error.value)
+  const errIndex = errors.map((error) => error.key);
+  const errValues = errors.map((error) => error.value);
 
-  const findErrorIndex = (field: string) =>
-    errIndex.findIndex((err) => err === field)
-  const hasError = (field: string) => findErrorIndex(field) !== -1
+  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
+  const hasError = (field: string) => findErrorIndex(field) !== -1;
 
-  const hasUsernameError = hasError('username')
+  const hasUsernameError = hasError('username');
   const usernameErrorMessage = hasError('username')
     ? errValues[findErrorIndex('username')]
-    : undefined
-  const hasEmailError = hasError('email')
-  const emailErrorMessage = hasError('email')
-    ? errValues[findErrorIndex('email')]
-    : undefined
-  const hasPasswordError = hasError('password')
+    : undefined;
+  const hasEmailError = hasError('email');
+  const emailErrorMessage = hasError('email') ? errValues[findErrorIndex('email')] : undefined;
+  const hasPasswordError = hasError('password');
   const passwordErrorMessage = hasError('password')
     ? errValues[findErrorIndex('password')]
-    : undefined
-  const hasPasswordConfirmationError = hasError('password-confirmation')
+    : undefined;
+  const hasPasswordConfirmationError = hasError('password-confirmation');
   const passwordConfirmationErrorMessage = hasError('password-confirmation')
     ? errValues[findErrorIndex('password-confirmation')]
-    : undefined
+    : undefined;
 
-  let hasGeneralError = false
-  let generalErrorMessage = undefined
+  let hasGeneralError = false;
+  let generalErrorMessage = undefined;
 
   if (
     errors.length > 0 &&
@@ -54,69 +51,63 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
     !hasPasswordError &&
     !hasPasswordConfirmationError
   ) {
-    hasGeneralError = true
-    generalErrorMessage = errValues[0]
+    hasGeneralError = true;
+    generalErrorMessage = errValues[0];
   }
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    setErrors([])
-    const errors = []
+    setErrors([]);
+    const errors = [];
 
     if (password.length < 12) {
       errors.push({
         key: 'password',
         value: 'The password needs to have at least 12 characters.',
-      })
+      });
     }
 
     if (password !== passwordConfirmation) {
       errors.push({
         key: 'password-confirmation',
         value: 'Passwords do not match.',
-      })
+      });
     }
 
     if (username.trim() === '') {
-      errors.push({ key: 'username', value: 'Username not set.' })
+      errors.push({ key: 'username', value: 'Username not set.' });
     }
 
     if (tc === false) {
       errors.push({
         key: 'tc',
         value: 'You must accept the terms and conditions.',
-      })
+      });
     }
 
     if (errors.length > 0) {
-      setErrors(errors)
-      return
+      setErrors(errors);
+      return;
     }
 
-    const token = await executeRecaptcha!('signup')
-    const result = await auth.signup!(
-      username,
-      email,
-      ethWallet,
-      password,
-      token
-    )
+    const token = await executeRecaptcha!('signup');
+    const result = await auth.signup!(username, email, ethWallet, password, token);
 
     if (result.success) {
-      onSuccess()
-      return
+      onSuccess();
+      return;
     }
 
     setErrors(
       result.response[0].messages.map((message: any) => ({
         key: message.id.split('.')[3],
         value: message.message,
-      }))
-    )
-  }
+      })),
+    );
+  };
 
   return (
     <div>
@@ -132,7 +123,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           variant="outlined"
           fullWidth
           onChange={(event) => {
-            setUsername(event.target.value)
+            setUsername(event.target.value);
           }}
           margin="normal"
         />
@@ -146,7 +137,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           variant="outlined"
           fullWidth
           onChange={(event) => {
-            setEmail(event.target.value)
+            setEmail(event.target.value);
           }}
           margin="normal"
         />
@@ -159,7 +150,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           variant="outlined"
           fullWidth
           onChange={(event) => {
-            setEthWallet(event.target.value)
+            setEthWallet(event.target.value);
           }}
           margin="normal"
         />
@@ -173,7 +164,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           variant="outlined"
           fullWidth
           onChange={(event) => {
-            setPassword(event.target.value)
+            setPassword(event.target.value);
           }}
           margin="normal"
         />
@@ -187,7 +178,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           variant="outlined"
           fullWidth
           onChange={(event) => {
-            setPasswordConfirmation(event.target.value)
+            setPasswordConfirmation(event.target.value);
           }}
           margin="normal"
         />
@@ -196,7 +187,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           <Checkbox
             name="conditions"
             onChange={(event) => {
-              setTc(event.target.checked)
+              setTc(event.target.checked);
             }}
             checked={tc}
           />
@@ -217,9 +208,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           </a>
         </div>
 
-        {hasGeneralError && (
-          <Text label={generalErrorMessage!} variant="body1" color="error" />
-        )}
+        {hasGeneralError && <Text label={generalErrorMessage!} variant="body1" color="error" />}
 
         <Button
           type="submit"
@@ -237,7 +226,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
       {/* <Button Icon={GoogleIcon} variant="contained" onClick={() => false} className="marginButton bubbleButton" id="bubbleButtonLeft" /> */}
       {/* <Button Icon={BubbleIcon} variant="contained" onClick={() => false} className="marginButton bubbleButton" /> */}
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;

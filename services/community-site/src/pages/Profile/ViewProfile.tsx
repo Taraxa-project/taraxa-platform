@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
-import { ethers } from 'ethers'
+import { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import { ethers } from 'ethers';
 
 import {
   ProfileBasicCard,
@@ -9,76 +9,75 @@ import {
   Button,
   Tooltip,
   ProfileSubmissionsCard,
-} from '@taraxa_project/taraxa-ui'
+} from '@taraxa_project/taraxa-ui';
 
-import BountyIcon from '../../assets/icons/bounties'
-import TaraxaIcon from '../../assets/icons/taraxaIcon'
-import InfoIcon from '../../assets/icons/info'
-import KYCIcon from '../../assets/icons/kyc'
-import SuccessIcon from '../../assets/icons/success'
-import ErrorIcon from '../../assets/icons/error'
+import BountyIcon from '../../assets/icons/bounties';
+import TaraxaIcon from '../../assets/icons/taraxaIcon';
+import InfoIcon from '../../assets/icons/info';
+import KYCIcon from '../../assets/icons/kyc';
+import SuccessIcon from '../../assets/icons/success';
+import ErrorIcon from '../../assets/icons/error';
 
-import { formatTime } from '../../utils/time'
+import { formatTime } from '../../utils/time';
 
-import { useAuth } from '../../services/useAuth'
-import { useApi } from '../../services/useApi'
-import Title from '../../components/Title/Title'
+import { useAuth } from '../../services/useAuth';
+import { useApi } from '../../services/useApi';
+import Title from '../../components/Title/Title';
 
 interface ViewProfileProps {
-  openEditProfile: () => void
-  openKYCModal: () => void
+  openEditProfile: () => void;
+  openKYCModal: () => void;
 }
 
 const ViewProfile = ({ openEditProfile, openKYCModal }: ViewProfileProps) => {
-  const auth = useAuth()
-  const api = useApi()
+  const auth = useAuth();
+  const api = useApi();
 
-  const [points, setPoints] = useState(0)
-  const [approved, setApproved] = useState([])
-  const [rejected, setRejected] = useState([])
-  const [review, setReview] = useState([])
+  const [points, setPoints] = useState(0);
+  const [approved, setApproved] = useState([]);
+  const [rejected, setRejected] = useState([]);
+  const [review, setReview] = useState([]);
 
   const getSubmissions = async () => {
     if (!auth.user || !auth.user.id) {
-      return
+      return;
     }
 
-    const data = await api.get(`/submissions?user.id=${auth.user!.id}`)
+    const data = await api.get(`/submissions?user.id=${auth.user!.id}`);
     if (!data.success) {
-      return
+      return;
     }
 
     setApproved(
       data.response.filter(
         (sub: { reviewed: boolean; accepted: boolean }) =>
-          sub.reviewed === true && sub.accepted === true
-      )
-    )
+          sub.reviewed === true && sub.accepted === true,
+      ),
+    );
     setRejected(
       data.response.filter(
         (sub: { reviewed: boolean; accepted: boolean }) =>
-          sub.reviewed === true && sub.accepted === false
-      )
-    )
+          sub.reviewed === true && sub.accepted === false,
+      ),
+    );
     setReview(
       data.response.filter(
-        (sub: { reviewed: boolean | null }) =>
-          sub.reviewed === null || sub.reviewed === false
-      )
-    )
-  }
+        (sub: { reviewed: boolean | null }) => sub.reviewed === null || sub.reviewed === false,
+      ),
+    );
+  };
 
   useEffect(() => {
-    getSubmissions()
-  }, [])
+    getSubmissions();
+  }, []);
 
   useEffect(() => {
     const p = approved.reduce((tot, submission: any) => {
-      return tot + parseFloat(submission.submission_reward)
-    }, 0)
+      return tot + parseFloat(submission.submission_reward);
+    }, 0);
 
-    setPoints(p)
-  }, [approved])
+    setPoints(p);
+  }, [approved]);
 
   return (
     <>
@@ -87,28 +86,20 @@ const ViewProfile = ({ openEditProfile, openKYCModal }: ViewProfileProps) => {
         openEditProfile={openEditProfile}
         openKYCModal={openKYCModal}
       />
-      <ViewProfileBounties
-        approved={approved}
-        rejected={rejected}
-        review={review}
-      />
+      <ViewProfileBounties approved={approved} rejected={rejected} review={review} />
     </>
-  )
-}
+  );
+};
 
 interface ViewProfileDetailsProps {
-  points: number
-  openEditProfile: () => void
-  openKYCModal: () => void
+  points: number;
+  openEditProfile: () => void;
+  openKYCModal: () => void;
 }
 
-function ViewProfileDetails({
-  points,
-  openEditProfile,
-  openKYCModal,
-}: ViewProfileDetailsProps) {
-  const auth = useAuth()
-  const history = useHistory()
+function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfileDetailsProps) {
+  const auth = useAuth();
+  const history = useHistory();
 
   const buttons = (
     <>
@@ -125,12 +116,12 @@ function ViewProfileDetails({
         label="Log out"
         fullWidth
         onClick={() => {
-          auth.signout!()
-          history.push('/')
+          auth.signout!();
+          history.push('/');
         }}
       />
     </>
-  )
+  );
 
   return (
     <div className="cardContainer">
@@ -138,9 +129,7 @@ function ViewProfileDetails({
         username={auth.user!.username}
         email={auth.user!.email}
         wallet={
-          auth.user!.eth_wallet
-            ? auth.user!.eth_wallet
-            : 'No Ethereum Wallet Address was set'
+          auth.user!.eth_wallet ? auth.user!.eth_wallet : 'No Ethereum Wallet Address was set'
         }
         Icon={TaraxaIcon}
         buttonOptions={buttons}
@@ -149,35 +138,33 @@ function ViewProfileDetails({
       <ProfileBasicCard
         title="My Rewards"
         description="TARA Points"
-        value={ethers.utils.commify(
-          ethers.BigNumber.from(points.toString()).toString()
-        )}
+        value={ethers.utils.commify(ethers.BigNumber.from(points.toString()).toString())}
       />
     </div>
-  )
+  );
 }
 
 interface ViewProfileDetailsKYCProps {
-  openKYCModal: () => void
+  openKYCModal: () => void;
 }
 
 function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
-  const auth = useAuth()
-  const kyc = auth.user!.kyc
+  const auth = useAuth();
+  const kyc = auth.user!.kyc;
 
-  const empty = [null, '', '-', 'NOT_STARTED']
-  const hasKYC = ![...empty, 'VERIFYING'].includes(kyc)
-  const kycStatus = ![...empty].includes(kyc) ? kyc : 'NOT_STARTED'
+  const empty = [null, '', '-', 'NOT_STARTED'];
+  const hasKYC = ![...empty, 'VERIFYING'].includes(kyc);
+  const kycStatus = ![...empty].includes(kyc) ? kyc : 'NOT_STARTED';
 
   const status: { [string: string]: string } = {
     NOT_STARTED: 'Not sumbitted',
     VERIFYING: 'Verifying...',
     APPROVED: 'Approved',
     DENIED: 'Denied',
-  }
+  };
 
-  let kycButton
-  let kycIcon
+  let kycButton;
+  let kycIcon;
 
   if (!hasKYC) {
     kycButton = (
@@ -188,15 +175,15 @@ function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
         fullWidth
         onClick={() => openKYCModal()}
       />
-    )
+    );
   }
 
   if (kycStatus === 'APPROVED') {
-    kycIcon = <SuccessIcon />
+    kycIcon = <SuccessIcon />;
   }
 
   if (kycStatus === 'DENIED') {
-    kycIcon = <ErrorIcon />
+    kycIcon = <ErrorIcon />;
   }
 
   return (
@@ -208,24 +195,20 @@ function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
     >
       {kycIcon}
     </ProfileBasicCard>
-  )
+  );
 }
 
 interface ViewProfileBountiesProps {
-  approved: any[]
-  rejected: any[]
-  review: any[]
+  approved: any[];
+  rejected: any[];
+  review: any[];
 }
 
-function ViewProfileBounties({
-  approved,
-  rejected,
-  review,
-}: ViewProfileBountiesProps) {
+function ViewProfileBounties({ approved, rejected, review }: ViewProfileBountiesProps) {
   const renderSubmission = (sub: any) => {
-    const now = new Date()
-    const date = new Date(sub.submission_date)
-    const dateDiff = Math.ceil((now.getTime() - date.getTime()) / 1000)
+    const now = new Date();
+    const date = new Date(sub.submission_date);
+    const dateDiff = Math.ceil((now.getTime() - date.getTime()) / 1000);
     return (
       <div key={sub.id} className="contentGrid">
         <div className="gridLeft">
@@ -235,22 +218,14 @@ function ViewProfileBounties({
             variant="body2"
             color="primary"
           />
-          <Text
-            label={`${sub.submission_reward} TARA`}
-            variant="body2"
-            color="textSecondary"
-          />
+          <Text label={`${sub.submission_reward} TARA`} variant="body2" color="textSecondary" />
         </div>
         <div className="gridRight">
-          <Text
-            label={`${formatTime(dateDiff)} ago`}
-            variant="body2"
-            color="textSecondary"
-          />
+          <Text label={`${formatTime(dateDiff)} ago`} variant="body2" color="textSecondary" />
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const noSubmissions = (
     <div>
@@ -261,33 +236,27 @@ function ViewProfileBounties({
         color="textSecondary"
       />
     </div>
-  )
+  );
 
-  let approvedContent = noSubmissions
-  let rejectedContent = noSubmissions
-  let reviewContent = noSubmissions
+  let approvedContent = noSubmissions;
+  let rejectedContent = noSubmissions;
+  let reviewContent = noSubmissions;
 
   if (approved.length > 0) {
-    approvedContent = <>{approved.map((sub: any) => renderSubmission(sub))}</>
+    approvedContent = <>{approved.map((sub: any) => renderSubmission(sub))}</>;
   }
 
   if (rejected.length > 0) {
-    rejectedContent = <>{rejected.map((sub: any) => renderSubmission(sub))}</>
+    rejectedContent = <>{rejected.map((sub: any) => renderSubmission(sub))}</>;
   }
 
   if (review.length > 0) {
-    reviewContent = <>{review.map((sub: any) => renderSubmission(sub))}</>
+    reviewContent = <>{review.map((sub: any) => renderSubmission(sub))}</>;
   }
 
   return (
     <>
-      <Title
-        title="Bounty submissions"
-        subtitle=""
-        tooltip=""
-        Icon={BountyIcon}
-        size="medium"
-      />
+      <Title title="Bounty submissions" subtitle="" tooltip="" Icon={BountyIcon} size="medium" />
       <div className="cardContainer">
         <ProfileSubmissionsCard
           title="Approved"
@@ -324,7 +293,7 @@ function ViewProfileBounties({
         />
       </div>
     </>
-  )
+  );
 }
 
-export default ViewProfile
+export default ViewProfile;

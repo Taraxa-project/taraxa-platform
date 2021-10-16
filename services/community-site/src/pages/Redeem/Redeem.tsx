@@ -1,30 +1,30 @@
-import { useState } from 'react'
-import { BaseCard, DataCard, InputField, Chip } from '@taraxa_project/taraxa-ui'
-import { useMediaQuery } from 'react-responsive'
+import { useState } from 'react';
+import { BaseCard, DataCard, InputField, Chip } from '@taraxa_project/taraxa-ui';
+import { useMediaQuery } from 'react-responsive';
 
-import Title from '../../components/Title/Title'
+import Title from '../../components/Title/Title';
 
-import './redeem.scss'
+import './redeem.scss';
 
 function Redeem() {
-  const [availableToclaim, setAvailableToclaim] = useState(0)
-  const [totalToclaim, setTotalToclaim] = useState(0)
-  const [claim, setClaim] = useState('')
-  const [open, setOpen] = useState(true)
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
+  const [availableToclaim, setAvailableToclaim] = useState(0);
+  const [totalToclaim, setTotalToclaim] = useState(0);
+  const [claim, setClaim] = useState('');
+  const [open, setOpen] = useState(true);
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const availableTrigger = (event: any) => {
-    setAvailableToclaim(event.target.value)
-  }
+    setAvailableToclaim(event.target.value);
+  };
   const totalTrigger = (event: any) => {
-    setTotalToclaim(event.target.value)
-  }
+    setTotalToclaim(event.target.value);
+  };
   const claimTrigger = (claim: string) => {
-    setClaim(claim)
-  }
+    setClaim(claim);
+  };
   const onClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
   const availableInput = (
     <InputField
       type="number"
@@ -40,7 +40,7 @@ function Redeem() {
       onChange={availableTrigger}
       margin="normal"
     />
-  )
+  );
 
   const claimchips = (
     <>
@@ -73,7 +73,7 @@ function Redeem() {
         className={claim === '100%' ? 'chipSelected' : 'chip'}
       />
     </>
-  )
+  );
 
   return (
     <div className={isMobile ? 'claim-mobile' : 'claim'}>
@@ -101,7 +101,7 @@ function Redeem() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Redeem
+export default Redeem;

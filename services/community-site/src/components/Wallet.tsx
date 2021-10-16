@@ -1,14 +1,14 @@
-import { useMetaMask } from 'metamask-react'
-import { useMediaQuery } from 'react-responsive'
-import { Button, Text } from '@taraxa_project/taraxa-ui'
+import { useMetaMask } from 'metamask-react';
+import { useMediaQuery } from 'react-responsive';
+import { Button, Text } from '@taraxa_project/taraxa-ui';
 
 const Wallet = () => {
-  const { status, account, connect } = useMetaMask()
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
+  const { status, account, connect } = useMetaMask();
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   if (status === 'notConnected') {
     if (isMobile) {
-      return null
+      return null;
     }
     return (
       <Button
@@ -18,19 +18,15 @@ const Wallet = () => {
         color="primary"
         onClick={connect}
       />
-    )
+    );
   }
 
   if (status === 'unavailable') {
     return (
       <div id="walletContainer">
-        <Text
-          label="Metamask not available"
-          variant="caption"
-          color="textSecondary"
-        />
+        <Text label="Metamask not available" variant="caption" color="textSecondary" />
       </div>
-    )
+    );
   }
 
   if (status === 'connecting') {
@@ -38,13 +34,11 @@ const Wallet = () => {
       <div id="walletContainer">
         <Text label="Connecting..." variant="caption" color="textSecondary" />
       </div>
-    )
+    );
   }
 
   let address =
-    isMobile && account
-      ? `${account!.substr(0, 7)} ... ${account!.substr(-5)}`
-      : account!
+    isMobile && account ? `${account!.substr(0, 7)} ... ${account!.substr(-5)}` : account!;
 
   return (
     <>
@@ -53,7 +47,7 @@ const Wallet = () => {
         <Text label={address} variant="caption" color="textSecondary" />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Wallet
+export default Wallet;

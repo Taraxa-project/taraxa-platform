@@ -1,130 +1,130 @@
-import React, { useState, useContext, createContext } from 'react'
-import { useHistory } from 'react-router-dom'
-import { useMediaQuery } from 'react-responsive'
-import { Modal } from '@taraxa_project/taraxa-ui'
+import React, { useState, useContext, createContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useMediaQuery } from 'react-responsive';
+import { Modal } from '@taraxa_project/taraxa-ui';
 
-import SignIn from '../components/Modal/SignIn'
-import EmailConfirmed from '../components/Modal/EmailConfirmed'
-import SignUp from '../components/Modal/SignUp'
-import SignUpSuccess from '../components/Modal/SignUpSuccess'
-import ForgotPassword from '../components/Modal/ForgotPassword'
-import ForgotPasswordSuccess from '../components/Modal/ForgotPasswordSuccess'
-import ResetPassword from '../components/Modal/ResetPassword'
+import SignIn from '../components/Modal/SignIn';
+import EmailConfirmed from '../components/Modal/EmailConfirmed';
+import SignUp from '../components/Modal/SignUp';
+import SignUpSuccess from '../components/Modal/SignUpSuccess';
+import ForgotPassword from '../components/Modal/ForgotPassword';
+import ForgotPasswordSuccess from '../components/Modal/ForgotPasswordSuccess';
+import ResetPassword from '../components/Modal/ResetPassword';
 
-import CloseIcon from '../assets/icons/close'
+import CloseIcon from '../assets/icons/close';
 
 type Context = {
-  isOpen: boolean
-  setIsOpen?: (isOpen: boolean) => void
-  content: string
-  setContent?: (content: string) => void
-  signIn?: () => void
-  reset?: () => void
-  code: string | undefined
-  setCode?: (code: string | undefined) => void
-  modal?: null | JSX.Element
-}
+  isOpen: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
+  content: string;
+  setContent?: (content: string) => void;
+  signIn?: () => void;
+  reset?: () => void;
+  code: string | undefined;
+  setCode?: (code: string | undefined) => void;
+  modal?: null | JSX.Element;
+};
 
 const initialState: Context = {
   isOpen: false,
   content: 'sign-in',
   code: undefined,
   modal: null,
-}
+};
 
-const ModalContext = createContext<Context>(initialState)
+const ModalContext = createContext<Context>(initialState);
 
 export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
-  const modal = useProvideModal()
-  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>
-}
+  const modal = useProvideModal();
+  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>;
+};
 
 export const useModal = () => {
-  return useContext(ModalContext)
-}
+  return useContext(ModalContext);
+};
 
 function useProvideModal() {
-  const history = useHistory()
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
+  const history = useHistory();
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [content, setContent] = useState('sign-in')
-  const [code, setCode] = useState<undefined | string>()
+  const [isOpen, setIsOpen] = useState(false);
+  const [content, setContent] = useState('sign-in');
+  const [code, setCode] = useState<undefined | string>();
 
   const signIn = () => {
-    setContent('sign-in')
-    setIsOpen(true)
-  }
+    setContent('sign-in');
+    setIsOpen(true);
+  };
 
   const reset = () => {
-    setContent('sign-in')
-    setIsOpen(false)
-    setCode(undefined)
-    history.push('/')
-  }
+    setContent('sign-in');
+    setIsOpen(false);
+    setCode(undefined);
+    history.push('/');
+  };
 
   let modal = (
     <SignIn
       onSuccess={() => {
-        setIsOpen!(false)
+        setIsOpen!(false);
       }}
       onForgotPassword={() => {
-        setContent!('forgot-password')
+        setContent!('forgot-password');
       }}
       onCreateAccount={() => {
-        setContent!('sign-up')
+        setContent!('sign-up');
       }}
     />
-  )
+  );
 
   if (content === 'email-confirmed') {
     modal = (
       <EmailConfirmed
         onSuccess={() => {
-          reset!()
+          reset!();
         }}
       />
-    )
+    );
   }
 
   if (content === 'sign-up') {
     modal = (
       <SignUp
         onSuccess={() => {
-          setContent!('sign-up-success')
+          setContent!('sign-up-success');
         }}
       />
-    )
+    );
   }
 
   if (content === 'sign-up-success') {
     modal = (
       <SignUpSuccess
         onSuccess={() => {
-          reset!()
+          reset!();
         }}
       />
-    )
+    );
   }
 
   if (content === 'forgot-password') {
     modal = (
       <ForgotPassword
         onSuccess={() => {
-          setContent!('forgot-password-success')
+          setContent!('forgot-password-success');
         }}
       />
-    )
+    );
   }
 
   if (content === 'forgot-password-success') {
     modal = (
       <ForgotPasswordSuccess
         onSuccess={() => {
-          reset!()
+          reset!();
         }}
       />
-    )
+    );
   }
 
   if (content === 'reset-password') {
@@ -132,10 +132,10 @@ function useProvideModal() {
       <ResetPassword
         code={code}
         onSuccess={() => {
-          reset!()
+          reset!();
         }}
       />
-    )
+    );
   }
 
   modal = (
@@ -148,7 +148,7 @@ function useProvideModal() {
       onRequestClose={reset!}
       closeIcon={CloseIcon}
     />
-  )
+  );
 
   return {
     isOpen,
@@ -160,5 +160,5 @@ function useProvideModal() {
     signIn,
     reset,
     modal,
-  }
+  };
 }

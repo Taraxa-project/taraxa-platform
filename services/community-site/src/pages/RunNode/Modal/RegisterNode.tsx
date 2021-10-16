@@ -1,37 +1,33 @@
-import { useState } from 'react'
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui'
+import { useState } from 'react';
+import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
-import { useApi } from '../../../services/useApi'
+import { useApi } from '../../../services/useApi';
 
 type RegisterNodeProps = {
-  onSuccess: () => void
-}
+  onSuccess: () => void;
+};
 
 const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
-  const api = useApi()
+  const api = useApi();
 
-  const [nodePublicAddress, setNodePublicAddress] = useState('')
-  const [error, setError] = useState<string | undefined>(undefined)
+  const [nodePublicAddress, setNodePublicAddress] = useState('');
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    setError(undefined)
+    setError(undefined);
 
-    const result = await api.post(
-      `/nodes`,
-      { ethWallet: nodePublicAddress },
-      true
-    )
+    const result = await api.post(`/nodes`, { ethWallet: nodePublicAddress }, true);
     if (result.success) {
-      onSuccess()
-      return
+      onSuccess();
+      return;
     }
 
-    setError(typeof result.response === 'string' ? result.response : undefined)
-  }
+    setError(typeof result.response === 'string' ? result.response : undefined);
+  };
 
   return (
     <div>
@@ -57,7 +53,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
           fullWidth
           margin="normal"
           onChange={(event) => {
-            setNodePublicAddress(event.target.value)
+            setNodePublicAddress(event.target.value);
           }}
         />
         <Button
@@ -71,12 +67,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
         />
       </form>
 
-      <Text
-        style={{ margin: '5% 0' }}
-        label="References:"
-        variant="body1"
-        color="primary"
-      />
+      <Text style={{ margin: '5% 0' }} label="References:" variant="body1" color="primary" />
 
       <Button
         label="How to find my node's address"
@@ -87,13 +78,13 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
           window.open(
             `https://docs.taraxa.io/node-setup/node_address`,
             '_blank',
-            'noreferrer noopener'
+            'noreferrer noopener',
           )
         }
         fullWidth={true}
       />
     </div>
-  )
-}
+  );
+};
 
-export default RegisterNode
+export default RegisterNode;

@@ -1,19 +1,14 @@
-import { Button, Text } from '@taraxa_project/taraxa-ui'
+import { Button, Text } from '@taraxa_project/taraxa-ui';
 
 type KYCErrorProps = {
-  onSuccess: () => void
-}
+  onSuccess: () => void;
+};
 
 const KYCError = ({ onSuccess }: KYCErrorProps) => {
   return (
     <div>
       <div className="kycTopContainer">
-        <Text
-          style={{ marginBottom: '2%' }}
-          label="Submit KYC"
-          variant="h6"
-          color="primary"
-        />
+        <Text style={{ marginBottom: '2%' }} label="Submit KYC" variant="h6" color="primary" />
         <Text
           style={{ marginBottom: '5%' }}
           label="Something went wrong, please try again."
@@ -36,7 +31,7 @@ const KYCError = ({ onSuccess }: KYCErrorProps) => {
         onClick={() => onSuccess()}
       />
     </div>
-  )
-}
+  );
+};
 
-export default KYCError
+export default KYCError;

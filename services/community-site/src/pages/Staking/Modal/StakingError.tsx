@@ -1,9 +1,9 @@
-import { Button, Text } from '@taraxa_project/taraxa-ui'
-import ErrorIcon from './../../../assets/icons/error'
+import { Button, Text } from '@taraxa_project/taraxa-ui';
+import ErrorIcon from './../../../assets/icons/error';
 
 interface StakingErrorProps {
-  amount: string
-  onSuccess: () => void
+  amount: string;
+  onSuccess: () => void;
 }
 
 const StakingError = ({ amount, onSuccess }: StakingErrorProps) => {
@@ -13,11 +13,7 @@ const StakingError = ({ amount, onSuccess }: StakingErrorProps) => {
       <div className="iconContainer">
         <ErrorIcon />
       </div>
-      <Text
-        label={`Minimum amount to stake is ${amount} TARA.`}
-        variant="body2"
-        color="primary"
-      />
+      <Text label={`Minimum amount to stake is ${amount} TARA.`} variant="body2" color="primary" />
       <Button
         className="staking-error-button"
         label="OK"
@@ -27,7 +23,7 @@ const StakingError = ({ amount, onSuccess }: StakingErrorProps) => {
         onClick={onSuccess}
       />
     </div>
-  )
-}
+  );
+};
 
-export default StakingError
+export default StakingError;

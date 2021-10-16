@@ -1,28 +1,28 @@
-import { useEffect, useRef, useState } from 'react'
-import { IconCard, Table, Text, Tooltip } from '@taraxa_project/taraxa-ui'
-import { useHistory } from 'react-router-dom'
-import { useMediaQuery } from 'react-responsive'
-import { useGlobalState } from 'state-pool'
-import WalletIcon from '../../assets/icons/wallet'
-import InfoIcon from '../../assets/icons/info'
+import { useEffect, useRef, useState } from 'react';
+import { IconCard, Table, Text, Tooltip } from '@taraxa_project/taraxa-ui';
+import { useHistory } from 'react-router-dom';
+import { useMediaQuery } from 'react-responsive';
+import { useGlobalState } from 'state-pool';
+import WalletIcon from '../../assets/icons/wallet';
+import InfoIcon from '../../assets/icons/info';
 
-import Title from '../../components/Title/Title'
+import Title from '../../components/Title/Title';
 
-import './wallet.scss'
+import './wallet.scss';
 
-let walletConnected = false
+let walletConnected = false;
 
 const Wallet = () => {
-  const history = useHistory()
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
-  const [toggleValue, setToggleValue] = useState('earn')
-  const [sidebarOpened, updateSidebarOpened] = useGlobalState('sidebarOpened')
+  const history = useHistory();
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const [toggleValue, setToggleValue] = useState('earn');
+  const [sidebarOpened, updateSidebarOpened] = useGlobalState('sidebarOpened');
 
   const columns = [
     { path: 'wallet', name: 'wallet' },
     { path: 'balance', name: 'balance' },
     { path: 'address', name: 'address' },
-  ]
+  ];
 
   const rows = [
     {
@@ -30,8 +30,7 @@ const Wallet = () => {
         {
           wallet: 'Test wallet #1',
           balance: '1,350,241 TARA',
-          address:
-            'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
+          address: 'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
         },
       ],
     },
@@ -40,8 +39,7 @@ const Wallet = () => {
         {
           wallet: 'Test wallet #1',
           balance: '1,350,241 TARA',
-          address:
-            'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
+          address: 'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
         },
       ],
     },
@@ -50,8 +48,7 @@ const Wallet = () => {
         {
           wallet: 'Test wallet #1',
           balance: '1,350,241 TARA',
-          address:
-            'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
+          address: 'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
         },
       ],
     },
@@ -60,8 +57,7 @@ const Wallet = () => {
         {
           wallet: 'Test wallet #1',
           balance: '1,350,241 TARA',
-          address:
-            'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
+          address: 'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
         },
       ],
     },
@@ -70,8 +66,7 @@ const Wallet = () => {
         {
           wallet: 'Test wallet #1',
           balance: '1,350,241 TARA',
-          address:
-            'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
+          address: 'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
         },
       ],
     },
@@ -80,33 +75,32 @@ const Wallet = () => {
         {
           wallet: 'Test wallet #1',
           balance: '1,350,241 TARA',
-          address:
-            'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
+          address: 'f412430dcf4398sp9fsdv8cno30dn10zs438ccnqkqk43ifd9aure9wv9231',
         },
       ],
     },
-  ]
+  ];
 
   const onChangeToggle = (event: object, value: any) => {
-    setToggleValue(value)
-  }
+    setToggleValue(value);
+  };
 
   function useOutsideAlerter(ref: any) {
     useEffect(() => {
       function handleClickOutside(event: any) {
         if (ref.current && !ref.current.contains(event.target)) {
-          updateSidebarOpened(false)
+          updateSidebarOpened(false);
         }
       }
 
-      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('mousedown', handleClickOutside);
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside)
-      }
-    }, [ref])
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [ref]);
   }
-  const wrapperRef = useRef(null)
-  useOutsideAlerter(wrapperRef)
+  const wrapperRef = useRef(null);
+  useOutsideAlerter(wrapperRef);
 
   return (
     <div className={isMobile ? 'wallet-mobile' : 'wallet'}>
@@ -125,11 +119,7 @@ const Wallet = () => {
                 onClickText="Send"
                 onClickButton={() => console.log('yes')}
                 tooltip={
-                  <Tooltip
-                    className="staking-icon-tooltip"
-                    title="Test test"
-                    Icon={InfoIcon}
-                  />
+                  <Tooltip className="staking-icon-tooltip" title="Test test" Icon={InfoIcon} />
                 }
               />
               <IconCard
@@ -139,11 +129,7 @@ const Wallet = () => {
                 onClickText="Receive"
                 onClickButton={() => console.log('yes')}
                 tooltip={
-                  <Tooltip
-                    className="staking-icon-tooltip"
-                    title="Test test"
-                    Icon={InfoIcon}
-                  />
+                  <Tooltip className="staking-icon-tooltip" title="Test test" Icon={InfoIcon} />
                 }
               />
               <IconCard
@@ -153,11 +139,7 @@ const Wallet = () => {
                 onClickText="Add new account"
                 onClickButton={() => console.log('yes')}
                 tooltip={
-                  <Tooltip
-                    className="staking-icon-tooltip"
-                    title="Test test"
-                    Icon={InfoIcon}
-                  />
+                  <Tooltip className="staking-icon-tooltip" title="Test test" Icon={InfoIcon} />
                 }
               />
             </>
@@ -182,11 +164,7 @@ const Wallet = () => {
         </div>
 
         {walletConnected && (
-          <div
-            className={
-              isMobile ? 'mobileReferenceContainer' : 'referenceContainer'
-            }
-          >
+          <div className={isMobile ? 'mobileReferenceContainer' : 'referenceContainer'}>
             <Text
               id={isMobile ? 'mobileReferenceText' : 'referenceText'}
               label="Accounts"
@@ -199,7 +177,7 @@ const Wallet = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Wallet
+export default Wallet;

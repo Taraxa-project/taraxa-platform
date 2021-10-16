@@ -1,64 +1,61 @@
-import { useEffect, useState } from 'react'
-import { useMediaQuery } from 'react-responsive'
-import { useHistory, withRouter, RouteComponentProps } from 'react-router-dom'
+import { useEffect, useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { useHistory, withRouter, RouteComponentProps } from 'react-router-dom';
 
-import { IconCard, ToggleButton, Notification } from '@taraxa_project/taraxa-ui'
+import { IconCard, ToggleButton, Notification } from '@taraxa_project/taraxa-ui';
 
-import StakingIcon from '../../assets/icons/staking'
+import StakingIcon from '../../assets/icons/staking';
 // import BountiesIcon from '../../assets/icons/bounties';
 // import RedeemIcon from '../../assets/icons/redeem';
-import NodeIcon from '../../assets/icons/node'
-import ExplorerIcon from '../../assets/icons/explorer'
-import DeployIcon from '../../assets/icons/deploy'
+import NodeIcon from '../../assets/icons/node';
+import ExplorerIcon from '../../assets/icons/explorer';
+import DeployIcon from '../../assets/icons/deploy';
 
-import { useModal } from '../../services/useModal'
+import { useModal } from '../../services/useModal';
 
-import Title from '../../components/Title/Title'
+import Title from '../../components/Title/Title';
 
-import './home.scss'
+import './home.scss';
 
 interface HomeProps {
-  code: string | undefined
+  code: string | undefined;
 }
 
 const Home = ({ match }: RouteComponentProps<HomeProps>) => {
-  const { setIsOpen, setContent, setCode } = useModal()
+  const { setIsOpen, setContent, setCode } = useModal();
 
   useEffect(() => {
     if (match.path.includes('/first-login')) {
-      setIsOpen!(true)
-      setContent!('email-confirmed')
+      setIsOpen!(true);
+      setContent!('email-confirmed');
     }
     if (match.path.includes('/reset-password')) {
-      setIsOpen!(true)
-      setContent!('reset-password')
-      setCode!(match.params.code)
+      setIsOpen!(true);
+      setContent!('reset-password');
+      setCode!(match.params.code);
     }
-  }, [])
+  }, []);
 
-  const history = useHistory()
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` })
-  const [toggleValue, setToggleValue] = useState('earn')
+  const history = useHistory();
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const [toggleValue, setToggleValue] = useState('earn');
 
   const toggleOptions = [
     { value: 'earn', label: 'Earn' },
     { value: 'testnet', label: 'Testnet' },
-  ]
+  ];
 
   const onToggle = (event: React.MouseEvent<HTMLElement>, value: string) => {
-    const options = toggleOptions.map((toggleOption) => toggleOption.value)
+    const options = toggleOptions.map((toggleOption) => toggleOption.value);
     if (options.includes(value)) {
-      setToggleValue(value)
+      setToggleValue(value);
     }
-  }
+  };
 
   return (
     <div className={isMobile ? 'home-mobile' : 'home'}>
       <div className="home-content">
-        <Title
-          title="Get started"
-          subtitle="Welcome to Taraxa's community site!"
-        />
+        <Title title="Get started" subtitle="Welcome to Taraxa's community site!" />
         {isMobile && (
           <ToggleButton
             exclusive={true}
@@ -74,21 +71,12 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             display: isMobile && toggleValue !== 'earn' ? 'none' : 'inherit',
           }}
         >
-          <Notification
-            title="EARN"
-            text="Earn rewards while helping us grow."
-            variant="success"
-          />
+          <Notification title="EARN" text="Earn rewards while helping us grow." variant="success" />
         </div>
         <div
           className="cardContainer"
           style={{
-            display:
-              isMobile && toggleValue !== 'earn'
-                ? 'none'
-                : isMobile
-                ? 'inherit'
-                : 'flex',
+            display: isMobile && toggleValue !== 'earn' ? 'none' : isMobile ? 'inherit' : 'flex',
           }}
         >
           <IconCard
@@ -110,21 +98,12 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             display: isMobile && toggleValue !== 'testnet' ? 'none' : 'inherit',
           }}
         >
-          <Notification
-            title="TESTNET"
-            text="Join Taraxa’s public testnet."
-            variant="success"
-          />
+          <Notification title="TESTNET" text="Join Taraxa’s public testnet." variant="success" />
         </div>
         <div
           className="cardContainer"
           style={{
-            display:
-              isMobile && toggleValue !== 'testnet'
-                ? 'none'
-                : isMobile
-                ? 'inherit'
-                : 'flex',
+            display: isMobile && toggleValue !== 'testnet' ? 'none' : isMobile ? 'inherit' : 'flex',
           }}
         >
           <IconCard
@@ -139,11 +118,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Explore the ledger and find the transaction’s data."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open(
-                'https://explorer.testnet.taraxa.io/',
-                '_blank',
-                'noreferrer noopener'
-              )
+              window.open('https://explorer.testnet.taraxa.io/', '_blank', 'noreferrer noopener')
             }
             Icon={ExplorerIcon}
           />
@@ -152,18 +127,14 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open(
-                'https://sandbox.testnet.taraxa.io/',
-                '_blank',
-                'noreferrer noopener'
-              )
+              window.open('https://sandbox.testnet.taraxa.io/', '_blank', 'noreferrer noopener')
             }
             Icon={DeployIcon}
           />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default withRouter(Home)
+export default withRouter(Home);

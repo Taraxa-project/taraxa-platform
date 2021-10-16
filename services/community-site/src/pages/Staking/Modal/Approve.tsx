@@ -1,7 +1,7 @@
-import { Text, Loading } from '@taraxa_project/taraxa-ui'
+import { Text, Loading } from '@taraxa_project/taraxa-ui';
 
 interface ApproveProps {
-  amount: string
+  amount: string;
 }
 
 const Approve = ({ amount }: ApproveProps) => {
@@ -17,7 +17,7 @@ const Approve = ({ amount }: ApproveProps) => {
         color="primary"
       />
     </div>
-  )
-}
+  );
+};
 
-export default Approve
+export default Approve;

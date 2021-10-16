@@ -1,20 +1,14 @@
-import React from 'react'
+import React from 'react';
 
 const LockIcon = () => {
   return (
-    <svg
-      width="16"
-      height="22"
-      viewBox="0 0 16 22"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M14 7.5499H13V5.54631C13 2.78137 10.76 0.537354 8 0.537354C5.24 0.537354 3 2.78137 3 5.54631V7.5499H2C0.9 7.5499 0 8.45151 0 9.55348V19.5714C0 20.6734 0.9 21.575 2 21.575H14C15.1 21.575 16 20.6734 16 19.5714V9.55348C16 8.45151 15.1 7.5499 14 7.5499ZM8 16.566C6.9 16.566 6 15.6644 6 14.5624C6 13.4605 6.9 12.5589 8 12.5589C9.1 12.5589 10 13.4605 10 14.5624C10 15.6644 9.1 16.566 8 16.566ZM11.1 7.5499H4.9V5.54631C4.9 3.83325 6.29 2.44076 8 2.44076C9.71 2.44076 11.1 3.83325 11.1 5.54631V7.5499Z"
         fill="#878CA4"
       />
     </svg>
-  )
-}
+  );
+};
 
-export default LockIcon
+export default LockIcon;

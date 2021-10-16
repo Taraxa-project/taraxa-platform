@@ -1,69 +1,62 @@
-import { useState } from 'react'
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui'
-import { useAuth } from '../../services/useAuth'
+import { useState } from 'react';
+import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { useAuth } from '../../services/useAuth';
 
 type SignInProps = {
-  onSuccess: () => void
-  onForgotPassword: () => void
-  onCreateAccount: () => void
-}
+  onSuccess: () => void;
+  onForgotPassword: () => void;
+  onCreateAccount: () => void;
+};
 
-const SignIn = ({
-  onSuccess,
-  onForgotPassword,
-  onCreateAccount,
-}: SignInProps) => {
-  const auth = useAuth()
+const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) => {
+  const auth = useAuth();
 
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const [errors, setErrors] = useState<{ key: string; value: string }[]>([])
+  const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
-  const errIndex = errors.map((error) => error.key)
-  const errValues = errors.map((error) => error.value)
+  const errIndex = errors.map((error) => error.key);
+  const errValues = errors.map((error) => error.value);
 
-  const findErrorIndex = (field: string) =>
-    errIndex.findIndex((err) => err === field)
-  const hasError = (field: string) => findErrorIndex(field) !== -1
+  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
+  const hasError = (field: string) => findErrorIndex(field) !== -1;
 
-  const hasEmailError = hasError('email')
-  const emailErrorMessage = hasError('email')
-    ? errValues[findErrorIndex('email')]
-    : undefined
-  const hasPasswordError = hasError('password')
+  const hasEmailError = hasError('email');
+  const emailErrorMessage = hasError('email') ? errValues[findErrorIndex('email')] : undefined;
+  const hasPasswordError = hasError('password');
   const passwordErrorMessage = hasError('password')
     ? errValues[findErrorIndex('password')]
-    : undefined
+    : undefined;
 
-  let hasGeneralError = false
-  let generalErrorMessage = undefined
+  let hasGeneralError = false;
+  let generalErrorMessage = undefined;
 
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
-    hasGeneralError = true
-    generalErrorMessage = errValues[0]
+    hasGeneralError = true;
+    generalErrorMessage = errValues[0];
   }
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    setErrors([])
+    setErrors([]);
 
-    const result = await auth.signin!(username, password)
+    const result = await auth.signin!(username, password);
     if (result.success) {
-      onSuccess()
-      return
+      onSuccess();
+      return;
     }
 
     setErrors(
       result.response[0].messages.map((message: any) => ({
         key: message.id.split('.')[3],
         value: message.message,
-      }))
-    )
-  }
+      })),
+    );
+  };
 
   return (
     <div>
@@ -79,7 +72,7 @@ const SignIn = ({
           type="text"
           fullWidth
           onChange={(event) => {
-            setUsername(event.target.value)
+            setUsername(event.target.value);
           }}
           margin="normal"
         />
@@ -93,7 +86,7 @@ const SignIn = ({
           variant="outlined"
           fullWidth
           onChange={(event) => {
-            setPassword(event.target.value)
+            setPassword(event.target.value);
           }}
           margin="normal"
         />
@@ -106,9 +99,7 @@ const SignIn = ({
           color="textSecondary"
         />
 
-        {hasGeneralError && (
-          <Text label={generalErrorMessage!} variant="body1" color="error" />
-        )}
+        {hasGeneralError && <Text label={generalErrorMessage!} variant="body1" color="error" />}
 
         <Button
           type="submit"
@@ -138,7 +129,7 @@ const SignIn = ({
         className="marginButton greyButton"
       />
     </div>
-  )
-}
+  );
+};
 
-export default SignIn
+export default SignIn;
