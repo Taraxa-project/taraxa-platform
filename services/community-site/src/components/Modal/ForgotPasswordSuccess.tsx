@@ -12,14 +12,14 @@ const ForgotPasswordSuccess = ({ onSuccess }: { onSuccess: () => void }) => {
       />
       <EmailIcon />
       <Text
-        label="We have sent your new password to your registration e-mail."
+        label="We have sent you a link to your registration e-mail."
         variant="body1"
         color="primary"
         style={{ marginBottom: '10%' }}
       />
 
       <Text
-        label="Please log in with your new password."
+        label="Please click the link in order to reset your password."
         variant="body2"
         color="textSecondary"
         style={{ marginBottom: '5%' }}
