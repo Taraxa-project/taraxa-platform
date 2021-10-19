@@ -47,14 +47,14 @@ export const useApi = () => {
     };
   };
 
-  const post = async (url: string, data: {}, includeToken: boolean = false) => {
+  const post = async <T>(url: string, data: {}, includeToken: boolean = false) => {
     const options = getOptions(includeToken);
     return axios
-      .post(getUrl(url), data, options)
+      .post<T>(getUrl(url), data, options)
       .then((response) => {
         return {
           success: true,
-          response: response.data,
+          response: response.data as T,
         };
       })
       .catch((err) => getErrorResponse(err));

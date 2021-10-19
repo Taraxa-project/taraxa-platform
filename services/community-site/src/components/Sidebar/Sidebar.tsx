@@ -9,7 +9,7 @@ import DeploySidebar from '../../assets/icons/deploySidebar';
 import ExplorerSidebar from '../../assets/icons/explorerSidebar';
 import GetStarted from '../../assets/icons/getStarted';
 import NodeSidebar from '../../assets/icons/nodeSidebar';
-// import RedeemSidebar from "../../assets/icons/redeemSidebar";
+import RedeemSidebar from "../../assets/icons/redeemSidebar";
 import StakingSidebar from '../../assets/icons/stakingSidebar';
 // import WalletSidebar from "../../assets/icons/walletSidebar";
 import HamburgerIcon from '../../assets/icons/hamburger';
@@ -54,7 +54,7 @@ const Sidebar = () => {
           name: 'staking',
         },
         // { Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />, name: "bounties" },
-        // { Link: <NavLink label="Redeem" Icon={RedeemSidebar} to="/redeem" />, name: "redeem" },
+        { Link: <NavLink label="Redeem" Icon={RedeemSidebar} to="/redeem" />, name: "redeem" },
       ],
     },
     {

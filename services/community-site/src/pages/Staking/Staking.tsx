@@ -27,6 +27,7 @@ import IsStaking from './Modal/IsStaking';
 import IsUnstaking from './Modal/IsUnstaking';
 
 import { formatTime } from '../../utils/time';
+import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 import useToken from '../../services/useToken';
 import useStaking from '../../services/useStaking';
@@ -35,10 +36,6 @@ import { useAuth } from '../../services/useAuth';
 import Title from '../../components/Title/Title';
 
 import './staking.scss';
-
-const weiToEth = (val: ethers.BigNumberish) => ethers.utils.formatUnits(val, 'ether');
-const formatEth = (val: ethers.BigNumberish) => ethers.utils.commify(val.toString());
-const roundEth = (val: string) => (+val).toFixed(4);
 
 function Staking() {
   const { account } = useMetaMask();
@@ -553,7 +550,7 @@ function Stake({
               disabled={true}
               variant="outlined"
               color="secondary"
-              onClick={() => {}}
+              onClick={() => { }}
               label="Redeem"
               size="small"
             ></Button>

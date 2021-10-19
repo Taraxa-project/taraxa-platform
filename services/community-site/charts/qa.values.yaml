@@ -1,5 +1,6 @@
 frontend:
   apiHost: "https://api.qa.community.taraxa.io"
+  apiClaimHost: "https://api.qa.claim.taraxa.io"
   taraAddress: "0xF1ad3aEe148baD0BB1e7c0b7069a130862CC4C0d"
   claimAddress: "0x11D846A8314fBdFcFc8C5f18c5031Bf7a7711938"
   stakingAddress: "0x46Fedb556d84e139846C7401C93fF14D160D4947"

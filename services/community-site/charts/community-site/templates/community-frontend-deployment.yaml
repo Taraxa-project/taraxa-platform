@@ -36,6 +36,8 @@ spec:
           env:
             - name: API_HOST
               value: {{ .Values.frontend.apiHost | quote }}
+            - name: API_CLAIM_HOST
+              value: {{ .Values.frontend.apiClaimHost | quote }}
             - name: TARA_ADDRESS
               value: {{ .Values.frontend.taraAddress | quote }}
             - name: CLAIM_ADDRESS

@@ -1,103 +1,115 @@
-import { useState } from 'react';
-import { BaseCard, DataCard, InputField, Chip } from '@taraxa_project/taraxa-ui';
-import { useMediaQuery } from 'react-responsive';
+import { ethers } from 'ethers';
+import { useState, useEffect } from 'react';
+import { BaseCard, Button } from '@taraxa_project/taraxa-ui';
+import { useMetaMask } from 'metamask-react';
+
+import { weiToEth, formatEth, roundEth } from '../../utils/eth';
+
+import useToken from '../../services/useToken';
+import useClaim from '../../services/useClaim';
+import { useApi } from '../../services/useApi';
 
 import Title from '../../components/Title/Title';
 
 import './redeem.scss';
 
+interface ClaimData {
+  availableToBeClaimed: string;
+  nonce: number;
+  hash: string;
+}
+
 function Redeem() {
-  const [availableToclaim, setAvailableToclaim] = useState(0);
-  const [totalToclaim, setTotalToclaim] = useState(0);
-  const [claim, setClaim] = useState('');
-  const [open, setOpen] = useState(true);
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const { account } = useMetaMask();
+  const token = useToken();
+  const claim = useClaim();
+  const api = useApi();
 
-  const availableTrigger = (event: any) => {
-    setAvailableToclaim(event.target.value);
-  };
-  const totalTrigger = (event: any) => {
-    setTotalToclaim(event.target.value);
-  };
-  const claimTrigger = (claim: string) => {
-    setClaim(claim);
-  };
-  const onClose = () => {
-    setOpen(false);
-  };
-  const availableInput = (
-    <InputField
-      type="number"
-      min={1}
-      max={100000}
-      className="whiteInput"
-      label=""
-      color="secondary"
-      placeholder="Enter amount..."
-      value={availableToclaim}
-      variant="outlined"
-      fullWidth
-      onChange={availableTrigger}
-      margin="normal"
-    />
-  );
+  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [locked, setLocked] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [claimed, setClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
 
-  const claimchips = (
-    <>
-      <Chip
-        label="25%"
-        onClick={() => claimTrigger('25%')}
-        variant="default"
-        clickable
-        className={claim === '25%' ? 'chipSelected' : 'chip'}
-      />
-      <Chip
-        label="50%"
-        onClick={() => claimTrigger('50%')}
-        className={claim === '50%' ? 'chipSelected' : 'chip'}
-        variant="default"
-        clickable
-      />
-      <Chip
-        label="75%"
-        onClick={() => claimTrigger('75%')}
-        variant="default"
-        clickable
-        className={claim === '75%' ? 'chipSelected' : 'chip'}
-      />
-      <Chip
-        label="100%"
-        onClick={() => claimTrigger('100%')}
-        variant="default"
-        clickable
-        className={claim === '100%' ? 'chipSelected' : 'chip'}
-      />
-    </>
-  );
+  useEffect(() => {
+    const getClaimData = async (account: string) => {
+      const data = await api.post(`${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`, {});
+      if (data.success) {
+        setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
+        setLocked(ethers.BigNumber.from(data.response.totalLocked));
+        setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
+      } else {
+        setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+        setLocked(ethers.BigNumber.from('0'));
+        setClaimed(ethers.BigNumber.from('0'));
+      }
+    }
+    if (account) {
+      getClaimData(account)
+    }
+  }, [account]);
+
+  useEffect(() => {
+    const getTokenBalance = async () => {
+      if (!token) {
+        return;
+      }
+
+      const balance = await token.balanceOf(account);
+      setTokenBalance(balance);
+    };
+
+    getTokenBalance();
+  }, [account, token]);
+
+  const onClaim = async () => {
+    if (!claim) {
+      return;
+    }
+
+    try {
+      const claimData = await api.post<ClaimData>(`${process.env.REACT_APP_API_CLAIM_HOST}/claims/${account}`, {});
+      if (claimData.success) {
+        const { availableToBeClaimed, nonce, hash } = claimData.response;
+        const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
+
+        await claimTx.wait(1);
+
+        setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+        setClaimed(currentClaimed => currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)));
+        setTokenBalance((balance) => balance.add(ethers.BigNumber.from(availableToBeClaimed)));
+      }
+    } catch (e) {
+
+    }
+  };
 
   return (
-    <div className={isMobile ? 'claim-mobile' : 'claim'}>
+    <div className="claim">
       <div className="claim-content">
         <Title
           title="Redeem TARA Points"
           subtitle="Earn rewards and help test &amp; secure the Taraxa’s network"
         />
-
         <div className="cardContainer">
-          <BaseCard title="26,322" description="TARA locked till next month" />
-          <BaseCard title="141,234" description="TARA claimed total" />
-          <BaseCard title="41,234" description="Current wallet balance" />
+          <BaseCard
+            title={formatEth(roundEth(weiToEth(availableToBeClaimed)))}
+            description="TARA points"
+            button={
+              <Button
+                disabled={availableToBeClaimed.eq("0")}
+                variant="outlined"
+                color="secondary"
+                onClick={onClaim}
+                label="Redeem"
+                size="small"
+              ></Button>
+            }
+          />
+          <BaseCard title={formatEth(roundEth(weiToEth(claimed)))} description="TARA claimed total" />
+          <BaseCard title={formatEth(roundEth(weiToEth(tokenBalance)))} description="Current wallet balance" />
         </div>
         <div className="cardContainer">
-          <DataCard
-            title="122,234,123"
-            description="Available to claim"
-            label="TARA"
-            onClickButton={() => console.log('tara')}
-            onClickText="Claim"
-            input={availableInput}
-            dataOptions={claimchips}
-          />
+          <BaseCard title={formatEth(roundEth(weiToEth(locked)))} description="Locked" />
         </div>
       </div>
     </div>
