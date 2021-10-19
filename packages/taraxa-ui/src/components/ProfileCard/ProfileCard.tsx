@@ -8,7 +8,6 @@ import {
   ThemeProvider,
   Typography,
 } from '@material-ui/core';
-import Font from 'react-font';
 import Jdenticon from 'jdenticon';
 
 import theme from '../theme';
@@ -38,14 +37,12 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
               dangerouslySetInnerHTML={{ __html: profileIcon }}
             ></div>
           )}
-          <Font family="Inter">
-            <Typography variant="body1" className={classes.label} color="primary">
-              {username}
-            </Typography>
-            <Typography variant="body2" className={classes.label} color="textSecondary">
-              {email}
-            </Typography>
-          </Font>
+          <Typography variant="body1" className={classes.label} color="primary">
+            {username}
+          </Typography>
+          <Typography variant="body2" className={classes.label} color="textSecondary">
+            {email}
+          </Typography>
         </div>
         <CardContent className={classes.content}>
           {wallet && (

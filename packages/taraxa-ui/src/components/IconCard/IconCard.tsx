@@ -11,7 +11,6 @@ import {
 import theme from '../theme';
 import Button from '../Button';
 import useStyles from './iconcard-styles';
-import Font from 'react-font';
 
 export interface IconCardProps extends MCardProps {
   description: string;
@@ -50,14 +49,10 @@ const IconCard = ({
             </div>
           )}
           <Typography color="primary" variant="h5" component="h5" className={classes.bottomSpacing}>
-            <Font family="Poppins">
-              <>{title}</>
-            </Font>
+            {title}
           </Typography>
           <Typography className={classes.label} variant="body1" color="primary">
-            <Font family="Inter">
-              <span>{description}</span>
-            </Font>
+            <span>{description}</span>
           </Typography>
         </CardContent>
         {onClickButton && onClickText && (
