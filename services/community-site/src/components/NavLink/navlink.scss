@@ -1,7 +1,10 @@
 .navlink {
   padding: 14px 20px;
   display: flex;
+  align-content: space-between;
+  justify-content: space-between;
   span {
-    margin-left: 5% !important;
+    text-align: left;
+    width: calc(95% - 22px);
   }
 }
