@@ -29,7 +29,7 @@ type Context = {
   signout?: () => void;
   sendPasswordResetEmail?: (email: string, token: string) => Promise<any>;
   resetPassword?: (code: string, password: string, passwordConfirmation: string) => Promise<any>;
-  emailConfirmation?: () => Promise<any>;
+  emailConfirmation?: (email?: string) => Promise<any>;
   updateUser?: (payload: Partial<UpdateUserPayload>) => Promise<any>;
   refreshUser?: () => Promise<any>;
 };
@@ -108,22 +108,25 @@ function useProvideAuth() {
     });
 
     if (result.success) {
-      if (result.response.jwt) {
-        localStorage.setItem('auth', result.response.jwt);
-      }
+      const user = result.response.user;
 
-      if (result.response.user) {
-        const user = result.response.user;
-        localStorage.setItem('user', JSON.stringify(user));
-        setUser(user);
+      if (user.confirmed) {
+        if (result.response.jwt) {
+          localStorage.setItem('auth', result.response.jwt);
+        }
+
+        if (result.response.user) {
+          localStorage.setItem('user', JSON.stringify(user));
+          setUser(user);
+        }
       }
     }
 
     return result;
   };
-  const emailConfirmation = async () => {
+  const emailConfirmation = async (email?: string) => {
     const result = await api.post('/auth/send-email-confirmation', {
-      email: user!.email,
+      email: email ?? user!.email,
     });
     return result;
   };

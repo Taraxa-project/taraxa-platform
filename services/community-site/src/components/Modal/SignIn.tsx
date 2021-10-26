@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { useModal } from '../../services/useModal';
 import { useAuth } from '../../services/useAuth';
 
 type SignInProps = {
@@ -9,12 +10,23 @@ type SignInProps = {
 };
 
 const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) => {
+  const { setIsOpen, setContent } = useModal();
   const auth = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
+
+  const confirmEmail = async (
+    event: React.MouseEvent<HTMLElement>,
+  ) => {
+    event.preventDefault();
+    await auth.emailConfirmation!(username);
+
+    setIsOpen!(true)
+    setContent!('sign-up-success');
+  };
 
   const errIndex = errors.map((error) => error.key);
   const errValues = errors.map((error) => error.value);
@@ -35,6 +47,13 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;
     generalErrorMessage = errValues[0];
+    if (errIndex[0] === "confirmed") {
+      generalErrorMessage = (
+        <>
+          Email not confirmed. <a href="#" className="default-link" onClick={confirmEmail}>Confirm your email</a>
+        </>
+      );
+    }
   }
 
   const submit = async (
@@ -99,7 +118,7 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
           color="textSecondary"
         />
 
-        {hasGeneralError && <Text label={generalErrorMessage!} variant="body1" color="error" />}
+        {hasGeneralError && <Text variant="body1" color="error">{generalErrorMessage!}</Text>}
 
         <Button
           type="submit"
