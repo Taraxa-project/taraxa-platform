@@ -4,8 +4,9 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { MetaMaskProvider } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
 import { useLocation } from 'react-router-dom';
+import { Notification } from '@taraxa_project/taraxa-ui';
 
-import { AuthProvider } from './services/useAuth';
+import { AuthProvider, useAuth } from './services/useAuth';
 import { ModalProvider, useModal } from './services/useModal';
 import { SidebarProvider } from './services/useSidebar';
 
@@ -30,7 +31,8 @@ declare global {
 }
 
 const Root = () => {
-  const { modal } = useModal();
+  const { modal, setIsOpen, setContent } = useModal();
+  const auth = useAuth();
   const location = useLocation();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
@@ -47,10 +49,30 @@ const Root = () => {
     appClassName += ' App-mobile';
   }
 
+  const confirmEmail = async (
+    event: React.MouseEvent<HTMLElement>,
+  ) => {
+    event.preventDefault();
+    await auth.emailConfirmation!();
+
+    setIsOpen!(true)
+    setContent!('sign-up-success');
+  };
+
   return (
     <div className={appClassName}>
       {modal}
       <Header />
+      {auth.user !== null && !auth.user.confirmed && (
+        <div className="notification">
+          <Notification
+            title="Account not confirmed"
+            variant="danger"
+          >
+            Your email address is not confirmed. Please confirm your email address by clicking <a href="#" className="default-link" onClick={confirmEmail}>here</a>
+          </Notification>
+        </div>
+      )}
       <div className="App-Container">
         <Sidebar />
         <div className="App-Content">

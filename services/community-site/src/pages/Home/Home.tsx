@@ -11,6 +11,7 @@ import NodeIcon from '../../assets/icons/node';
 import ExplorerIcon from '../../assets/icons/explorer';
 import DeployIcon from '../../assets/icons/deploy';
 
+import { useAuth } from '../../services/useAuth';
 import { useModal } from '../../services/useModal';
 
 import Title from '../../components/Title/Title';
@@ -22,10 +23,15 @@ interface HomeProps {
 }
 
 const Home = ({ match }: RouteComponentProps<HomeProps>) => {
+  const auth = useAuth();
   const { setIsOpen, setContent, setCode } = useModal();
 
   useEffect(() => {
     if (match.path.includes('/first-login')) {
+      if (auth.user !== null) {
+        auth.refreshUser!();
+      }
+
       setIsOpen!(true);
       setContent!('email-confirmed');
     }

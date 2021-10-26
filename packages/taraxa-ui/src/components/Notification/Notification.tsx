@@ -8,12 +8,11 @@ import useStyles from './notification-styles';
 
 export interface NotificationProps {
   title: string;
-  text: string;
+  text?: string;
   variant?: 'success' | 'danger';
-  style?: React.CSSProperties | undefined;
 }
 
-const Notification = ({ title, text, variant, style }: NotificationProps) => {
+const Notification = ({ title, text, variant, children }: React.PropsWithChildren<NotificationProps>) => {
   const classes = useStyles();
   let containerStyle = classes.container;
 
@@ -29,9 +28,10 @@ const Notification = ({ title, text, variant, style }: NotificationProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className={containerStyle} style={style}>
+      <div className={containerStyle}>
         <Text label={title} variant="body1" color="primary" className={classes.title} />
-        <Text label={text} variant="body2" color="primary" className={classes.text} />
+        {text && <Text label={text} variant="body2" color="primary" className={classes.text} />}
+        {children && <Text variant="body2" color="primary" className={classes.text}>{children}</Text>}
       </div>
     </ThemeProvider>
   );

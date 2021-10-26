@@ -7,6 +7,7 @@ type User = {
   email: string;
   eth_wallet: string;
   kyc: string;
+  confirmed: boolean;
 };
 
 export type UpdateUserPayload = {
@@ -28,6 +29,7 @@ type Context = {
   signout?: () => void;
   sendPasswordResetEmail?: (email: string, token: string) => Promise<any>;
   resetPassword?: (code: string, password: string, passwordConfirmation: string) => Promise<any>;
+  emailConfirmation?: () => Promise<any>;
   updateUser?: (payload: Partial<UpdateUserPayload>) => Promise<any>;
   refreshUser?: () => Promise<any>;
 };
@@ -119,6 +121,12 @@ function useProvideAuth() {
 
     return result;
   };
+  const emailConfirmation = async () => {
+    const result = await api.post('/auth/send-email-confirmation', {
+      email: user!.email,
+    });
+    return result;
+  };
   const updateUser = async (payload: Partial<UpdateUserPayload>) => {
     const result = await api.put(`/users/${user!.id}`, payload, true);
 
@@ -156,6 +164,7 @@ function useProvideAuth() {
     signout,
     sendPasswordResetEmail,
     resetPassword,
+    emailConfirmation,
     updateUser,
     refreshUser,
   };
