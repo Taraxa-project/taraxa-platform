@@ -4,6 +4,8 @@ import {
   Switch,
   RewardCard,
 } from '@taraxa_project/taraxa-ui';
+import { useHistory } from 'react-router-dom';
+
 
 import SubmissionIcon from '../../assets/icons/submission';
 import ExpirationIcon from '../../assets/icons/expiration'
@@ -13,28 +15,10 @@ import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
 import { useApi } from '../../services/useApi';
-
 import { formatTime } from '../../utils/time';
 
+import { Bounty } from './bounty';
 import './bounties.scss';
-
-type BountyState = {
-  id: number;
-};
-
-type Bounty = {
-  id: number;
-  name: string;
-  description: string;
-  submission: string;
-  reward: string;
-  reward_text: string;
-  state: BountyState | null;
-  submissionsCount?: number;
-  end_date: Date;
-  active: boolean;
-  is_pinned: boolean;
-};
 
 function Bounties() {
   const api = useApi();
@@ -80,6 +64,7 @@ function Bounties() {
 }
 
 function Card(bounty: Bounty) {
+  const history = useHistory();
   const now = new Date().getTime();
   const endTime = new Date(bounty.end_date).getTime();
   const timeAgo = formatTime(Math.ceil((endTime - now) / 1000));
@@ -88,7 +73,7 @@ function Card(bounty: Bounty) {
       key={bounty.id}
       title={bounty.name}
       description={(<Markdown>{bounty.reward_text}</Markdown>)}
-      onClickButton={() => console.log('reward')}
+      onClickButton={() => history.push(`/bounties/${bounty.id}`)}
       onClickText="Learn more"
       reward={bounty.reward}
       submissions={bounty.submissionsCount}

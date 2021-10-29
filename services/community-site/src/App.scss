@@ -55,7 +55,7 @@ body {
   margin-right: 125px;
 }
 
-a.default-link {
+.default-link {
   &,
   &:visited,
   &:hover,
@@ -63,6 +63,14 @@ a.default-link {
     color: #307da9;
     text-decoration: none;
     padding-left: 10px;
+  }
+}
+
+.reward-card {
+  a {
+    @extend .default-link;
+    padding-left: 0;
+    text-decoration: underline;
   }
 }
 

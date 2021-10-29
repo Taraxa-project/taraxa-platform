@@ -17,6 +17,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import Home from './pages/Home/Home';
 import Staking from './pages/Staking/Staking';
 import Bounties from './pages/Bounties/Bounties';
+import BountyDetails from './pages/Bounties/BountyDetails';
 import Redeem from './pages/Redeem/Redeem';
 import Profile from './pages/Profile/Profile';
 import RunNode from './pages/RunNode/RunNode';
@@ -82,6 +83,7 @@ const Root = () => {
               <Route exact path="/reset-password/:code" component={Home} />
               <Route exact path="/staking" component={Staking} />
               <Route exact path="/bounties" component={Bounties} />
+              <Route exact path="/bounties/:id" component={BountyDetails} />
               <Route exact path="/redeem" component={Redeem} />
               <Route exact path="/profile" component={Profile} />
               <Route exact path="/node" component={RunNode} />
