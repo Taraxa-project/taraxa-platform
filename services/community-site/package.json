@@ -21,9 +21,11 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-google-recaptcha-v3": "^1.9.5",
+    "react-markdown": "^7.1.0",
     "react-responsive": "^9.0.0-beta.4",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "remark-gfm": "^3.0.0",
     "state-pool": "^0.6.0",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1"

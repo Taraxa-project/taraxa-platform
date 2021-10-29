@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
+  "composite": true,
   "compilerOptions": {
     "outDir": "lib",
     "declaration": true,

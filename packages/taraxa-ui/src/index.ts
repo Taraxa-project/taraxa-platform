@@ -18,7 +18,6 @@ import ProfileBasicCard from './components/ProfileBasicCard';
 import ProfileSubmissionsCard from './components/ProfileSubmissionsCard';
 import LinkedCards from './components/LinkedCards';
 import Snackbar from './components/Snackbar';
-import VerticalRewardCard from './components/VerticalRewardCard';
 import Table from './components/Table';
 import ToggleButton from './components/ToggleButton';
 import Tooltip from './components/Tooltip';
@@ -50,7 +49,6 @@ export {
   ProfileSubmissionsCard,
   LinkedCards,
   Snackbar,
-  VerticalRewardCard,
   Table,
   ToggleButton,
   Tooltip,

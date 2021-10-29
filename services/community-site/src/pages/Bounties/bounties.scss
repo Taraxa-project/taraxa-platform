@@ -1,91 +1,86 @@
-body {
-  background-color: #151823 !important;
-}
-
 .bounties {
-  display: flex;
-}
+  .bounties-content {
+    text-align: left;
 
-.mobile-bounties {
-  width: 90% !important;
-  display: flex;
-  height: auto;
-}
+    .list-header {
+      display: flex;
+      margin-bottom: 32px;
+    }
 
-.bounties-content {
-  text-align: left;
-}
+    .legend {
+      display: inline-flex;
+      align-items: center;
+      background-color: #282c3e;
+      border-radius: 40px;
+      padding: 10px 20px;
 
-.icon-title-container {
-  display: -webkit-box !important;
-  width: max-content !important;
-  margin-bottom: 2% !important;
-  background-color: #282c3e;
-  border-radius: 40px;
-  padding: 1% 3% 1% 3%;
-}
+      svg,
+      span {
+        margin-right: 12px;
+      }
+    }
 
-.mobile-icon-title-container {
-  display: -webkit-box !important;
-  width: max-content !important;
-  margin: 5% 0 !important;
-  background-color: #282c3e;
-  border-radius: 40px;
-  padding: 3% 8% 3% 8%;
-}
-
-.icon-title {
-  margin-left: 8% !important;
-}
-
-.bounties-green-stripe {
-  border-left: 3px solid #15ac5b;
-  padding-left: 2%;
-  width: 100%;
-}
-
-.bounties-red-stripe {
-  border-left: 3px solid #ff515a;
-  padding-left: 2%;
-  width: 100%;
-}
-
-.chip {
-  margin-right: 3% !important;
-  color: white !important;
-  background-color: #282c3e !important;
-}
-
-.chipSelected {
-  margin-right: 3% !important;
-  color: white !important;
-  background-color: #15ac5b !important;
-}
-
-.whiteInput {
-  input {
-    color: rgba(255, 255, 255, 1) !important;
-  }
-  div {
-    width: 95% !important;
-    margin-left: 2% !important;
-  }
-
-  fieldset {
-    border-color: white !important;
+    .cardContainer.regular {
+      .reward-card {
+        .reward-card-content {
+          height: 100%;
+        }
+        .reward-card-main {
+          height: 100%;
+          align-content: space-between;
+          flex-direction: column;
+          .reward-card-info {
+            & > div {
+              display: block;
+              margin-bottom: 10px;
+              & > div {
+                margin-bottom: 12px;
+              }
+              & > div:last-child {
+                margin-bottom: 0;
+              }
+            }
+          }
+          .reward-card-action {
+            width: auto;
+          }
+        }
+      }
+    }
   }
 }
 
-#bountiesSwitch {
-  margin-left: 1% !important;
-  margin-bottom: 2% !important;
-}
+@media only screen and (max-width: 760px) {
+  .bounties {
+    .bounties-content {
+      .list-header {
+        display: block;
+      }
 
-.dot {
-  height: 15px;
-  width: 15px;
-  background-color: #15ac5b;
-  border-radius: 50%;
-  display: inline-block;
-  margin-top: 2%;
+      .reward-card {
+        .reward-card-main {
+          display: block;
+
+          .reward-card-info {
+            & > div {
+              display: block;
+              margin-bottom: 10px;
+
+              & > div {
+                margin-bottom: 12px;
+              }
+
+              & > div:last-child {
+                margin-bottom: 0;
+              }
+            }
+          }
+
+          .reward-card-action {
+            width: auto;
+          }
+        }
+      }
+    }
+  }
 }
