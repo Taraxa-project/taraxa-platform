@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import { RewardCard, Table } from '@taraxa_project/taraxa-ui';
 
@@ -21,6 +22,8 @@ function BountyDetails() {
   let { id } = useParams<{ id: string }>();
 
   const api = useApi();
+  const history = useHistory();
+
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
@@ -65,7 +68,7 @@ function BountyDetails() {
     Icon: UserIcon,
     data: [
       {
-        username: submission.user.username,
+        username: (submission.user || {}).username || '-',
         wallet: submission.hashed_content,
         date: new Date(submission.created_at),
       },
@@ -85,7 +88,7 @@ function BountyDetails() {
           key={bounty.id}
           title={bounty.name}
           description={(<Markdown>{bounty.description}</Markdown>)}
-          onClickButton={() => console.log('reward')}
+          onClickButton={() => history.push(`/bounties/${bounty.id}/submit`)}
           onClickText="Submit"
           reward={bounty.reward}
           submissions={submissions.length}

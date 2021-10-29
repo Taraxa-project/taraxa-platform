@@ -56,7 +56,7 @@ const SubmitCard = ({
                 fullWidth
                 multiline
                 rows={6}
-                placeholder="E-mail or username..."
+                placeholder="Submission"
                 onChange={onInputChange}
               />
             </div>

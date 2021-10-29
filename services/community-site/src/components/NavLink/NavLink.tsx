@@ -7,9 +7,11 @@ interface NavLinkProps extends LinkProps {
   subItem?: boolean;
 }
 
-const NavLink = ({ Icon, label, ...props }: NavLinkProps) => {
+const NavLink = ({ Icon, label, to, ...props }: NavLinkProps) => {
+
+  const exact = to === '/';
   return (
-    <Link className="link" exact {...props}>
+    <Link className="link" to={to} exact={exact} {...props}>
       <div className="navlink">
         {Icon && <Icon />}
         <span>{label}</span>
