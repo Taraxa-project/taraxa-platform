@@ -49,7 +49,7 @@ const RewardCard = ({
                 <span className={classes.dot}></span>
               </Typography>
 
-              <Typography variant="body2" color="primary" className={classes.description}>
+              <Typography variant="body2" color="primary" className={classes.description} component="div">
                 {description}
               </Typography>
 

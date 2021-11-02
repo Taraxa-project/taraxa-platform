@@ -20,6 +20,20 @@
       }
     }
 
+    .reward-card-info {
+      ul,
+      ol {
+        display: flex;
+        flex-wrap: wrap;
+        li {
+          overflow-wrap: anywhere;
+        }
+      }
+      a {
+        overflow-wrap: anywhere;
+      }
+    }
+
     .cardContainer.regular {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
