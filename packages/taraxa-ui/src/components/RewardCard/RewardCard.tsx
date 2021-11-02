@@ -16,7 +16,7 @@ export interface RewardCardProps extends CardProps {
   reward: string;
   expiration?: string;
   submissions?: number;
-  onClickText: string;
+  onClickText?: string | undefined;
   ExpirationIcon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   SubmissionIcon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   onClickButton?: React.MouseEventHandler<HTMLButtonElement> | undefined;
@@ -73,7 +73,7 @@ const RewardCard = ({
                 Reward:
               </Typography>
               <div className={classes.rewardContent}>{reward}</div>
-              <Button
+              {onClickButton && onClickText && <Button
                 disableElevation
                 color="secondary"
                 onClick={onClickButton}
@@ -81,7 +81,7 @@ const RewardCard = ({
                 label={onClickText}
                 size="medium"
                 fullWidth>
-              </Button>
+              </Button>}
             </div>
           </div>
           {dataList && <div className={classes.dataListContainer}>{dataList}</div>}

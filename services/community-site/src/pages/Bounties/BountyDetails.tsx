@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 
-import { RewardCard, Table } from '@taraxa_project/taraxa-ui';
+import { RewardCard, Table, Text } from '@taraxa_project/taraxa-ui';
 
 import SubmissionIcon from '../../assets/icons/submission';
 import ExpirationIcon from '../../assets/icons/expiration'
@@ -54,28 +54,34 @@ function BountyDetails() {
     }
   }, [bounty]);
 
+  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
+
   const now = new Date().getTime();
   const endTime = new Date(bounty.end_date).getTime();
   const timeAgo = formatTime(Math.ceil((endTime - now) / 1000));
 
-  const columns = [
-    { path: 'username', name: 'username' },
-    { path: 'wallet', name: 'wallet' },
-    { path: 'date', name: 'date' },
-  ];
+  let submissionsTable;
 
-  const rows = submissions!.map((submission: Submission) => ({
-    Icon: UserIcon,
-    data: [
-      {
-        username: (submission.user || {}).username || '-',
-        wallet: submission.hashed_content,
-        date: new Date(submission.created_at),
-      },
-    ],
-  }));
+  if (submissionNeeded) {
+    const columns = [
+      { path: 'username', name: 'username' },
+      { path: 'wallet', name: 'wallet' },
+      { path: 'date', name: 'date' },
+    ];
 
-  const submissionsTable = <Table columns={columns} rows={rows} />;
+    const rows = submissions!.map((submission: Submission) => ({
+      Icon: UserIcon,
+      data: [
+        {
+          username: (submission.user || {}).username || '-',
+          wallet: submission.hashed_content,
+          date: new Date(submission.created_at),
+        },
+      ],
+    }));
+
+    submissionsTable = <Table columns={columns} rows={rows} />;
+  }
 
   return (
     <div className="bounties">
@@ -87,9 +93,30 @@ function BountyDetails() {
         <RewardCard
           key={bounty.id}
           title={bounty.name}
-          description={(<Markdown>{bounty.description}</Markdown>)}
-          onClickButton={() => history.push(`/bounties/${bounty.id}/submit`)}
-          onClickText="Submit"
+          description={(
+            <>
+              <Text
+                variant="h5"
+                color="primary"
+              >
+                Description
+              </Text>
+              <Markdown>{bounty.description!}</Markdown>
+              {bounty.reward_text?.trim() !== '' && (
+                <>
+                  <Text
+                    variant="h5"
+                    color="primary"
+                  >
+                    Reward
+                  </Text>
+                  <Markdown>{bounty.reward_text!}</Markdown>
+                </>
+              )}
+            </>
+          )}
+          onClickButton={submissionNeeded ? () => history.push(`/bounties/${bounty.id}/submit`) : undefined}
+          onClickText={submissionNeeded ? "Submit" : undefined}
           reward={bounty.reward}
           submissions={submissions.length}
           expiration={now > endTime ? 'Expired' : timeAgo}

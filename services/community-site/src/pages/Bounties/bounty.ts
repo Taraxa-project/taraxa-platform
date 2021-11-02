@@ -14,6 +14,8 @@ export type Bounty = {
   end_date: Date;
   active: boolean;
   is_pinned: boolean;
+  text_submission_needed: boolean;
+  file_submission_needed: boolean;
 };
 
 export type Submission = {
