@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 
@@ -21,7 +20,7 @@ import ErrorIcon from '../../assets/icons/error';
 import { formatTime } from '../../utils/time';
 
 import { useAuth } from '../../services/useAuth';
-import { useApi } from '../../services/useApi';
+import { useSubmissions } from '../../services/useSubmissions';
 import Title from '../../components/Title/Title';
 
 interface ViewProfileProps {
@@ -30,55 +29,7 @@ interface ViewProfileProps {
 }
 
 const ViewProfile = ({ openEditProfile, openKYCModal }: ViewProfileProps) => {
-  const auth = useAuth();
-  const api = useApi();
-
-  const [points, setPoints] = useState(0);
-  const [approved, setApproved] = useState([]);
-  const [rejected, setRejected] = useState([]);
-  const [review, setReview] = useState([]);
-
-  const getSubmissions = async () => {
-    if (!auth.user || !auth.user.id) {
-      return;
-    }
-
-    const data = await api.get(`/submissions?user.id=${auth.user!.id}`);
-    if (!data.success) {
-      return;
-    }
-
-    setApproved(
-      data.response.filter(
-        (sub: { reviewed: boolean; accepted: boolean }) =>
-          sub.reviewed === true && sub.accepted === true,
-      ),
-    );
-    setRejected(
-      data.response.filter(
-        (sub: { reviewed: boolean; accepted: boolean }) =>
-          sub.reviewed === true && sub.accepted === false,
-      ),
-    );
-    setReview(
-      data.response.filter(
-        (sub: { reviewed: boolean | null }) => sub.reviewed === null || sub.reviewed === false,
-      ),
-    );
-  };
-
-  useEffect(() => {
-    getSubmissions();
-  }, []);
-
-  useEffect(() => {
-    const p = approved.reduce((tot, submission: any) => {
-      return tot + parseFloat(submission.submission_reward);
-    }, 0);
-
-    setPoints(p);
-  }, [approved]);
-
+  const { points, approved, rejected, review } = useSubmissions();
   return (
     <>
       <ViewProfileDetails
@@ -139,6 +90,14 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         title="My Rewards"
         description="TARA Points"
         value={ethers.utils.commify(ethers.BigNumber.from(points.toString()).toString())}
+        buttonOptions={<Button
+          variant="contained"
+          color="secondary"
+          label="Claim rewards"
+          disabled={ethers.BigNumber.from(points.toString()).eq("0")}
+          fullWidth
+          onClick={() => history.push('/redeem')}
+        />}
       />
     </div>
   );

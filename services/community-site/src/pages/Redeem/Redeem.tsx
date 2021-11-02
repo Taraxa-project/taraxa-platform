@@ -8,6 +8,7 @@ import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 import useToken from '../../services/useToken';
 import useClaim from '../../services/useClaim';
 import { useApi } from '../../services/useApi';
+import { useSubmissions } from '../../services/useSubmissions';
 
 import Title from '../../components/Title/Title';
 
@@ -24,11 +25,14 @@ function Redeem() {
   const token = useToken();
   const claim = useClaim();
   const api = useApi();
+  const { points } = useSubmissions();
 
   const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [locked, setLocked] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [claimed, setClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+
+  const pointsWei = ethers.utils.parseEther(points.toString()).sub(claimed);
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
@@ -109,7 +113,7 @@ function Redeem() {
           <BaseCard title={formatEth(roundEth(weiToEth(tokenBalance)))} description="Current wallet balance" />
         </div>
         <div className="cardContainer">
-          <BaseCard title={formatEth(roundEth(weiToEth(locked)))} description="Locked" />
+          <BaseCard title={formatEth(roundEth(weiToEth(locked.add(pointsWei))))} description="Locked" />
         </div>
       </div>
     </div>
