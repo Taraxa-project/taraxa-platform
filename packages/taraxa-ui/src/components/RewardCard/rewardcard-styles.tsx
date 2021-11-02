@@ -23,6 +23,7 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     flex: 1,
     textAlign: 'left',
+    marginRight: '30px'
   },
   description: {
     flex: 1,
