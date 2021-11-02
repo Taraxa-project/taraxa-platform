@@ -213,16 +213,5 @@
   color: white !important;
 }
 
-.dot {
-  height: 14px;
-  width: 14px;
-  background-color: #6a7085;
-  border-radius: 50%;
-
-  &.active {
-    background-color: #15ac5b;
-  }
-}
-
 @media only screen and (min-width: 760px) {
 }

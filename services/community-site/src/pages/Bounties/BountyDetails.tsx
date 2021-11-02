@@ -123,6 +123,7 @@ function BountyDetails() {
           SubmissionIcon={SubmissionIcon}
           ExpirationIcon={ExpirationIcon}
           dataList={submissionsTable}
+          active={bounty.active}
         />
       </div>
     </div>

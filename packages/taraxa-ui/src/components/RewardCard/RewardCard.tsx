@@ -21,6 +21,7 @@ export interface RewardCardProps extends CardProps {
   SubmissionIcon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   onClickButton?: React.MouseEventHandler<HTMLButtonElement> | undefined;
   dataList?: JSX.Element;
+  active: boolean;
 }
 
 const RewardCard = ({
@@ -34,6 +35,7 @@ const RewardCard = ({
   SubmissionIcon,
   ExpirationIcon,
   dataList,
+  active,
 }: RewardCardProps) => {
   const classes = useStyles();
 
@@ -46,7 +48,7 @@ const RewardCard = ({
             <div className={[classes.informationCard, "reward-card-info"].join(' ')}>
               <Typography variant="h5" color="primary" className={classes.title}>
                 {title}
-                <span className={classes.dot}></span>
+                <span className={[classes.dot, (active ? classes.active : classes.inactive)].join(' ')}></span>
               </Typography>
 
               <Typography variant="body2" color="primary" className={classes.description} component="div">

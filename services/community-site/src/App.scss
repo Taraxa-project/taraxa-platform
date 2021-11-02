@@ -44,6 +44,17 @@ body {
 
 }
 
+.dot {
+  height: 14px;
+  width: 14px;
+  background-color: #6a7085;
+  border-radius: 50%;
+
+  &.active {
+    background-color: #15ac5b;
+  }
+}
+
 .App-Container {
   margin-top: 52px;
   display: flex;

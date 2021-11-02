@@ -76,11 +76,16 @@ const useStyles = makeStyles({
   dot: {
     height: '15px',
     width: '15px',
-    backgroundColor: '#15AC5B',
     borderRadius: '50%',
     display: 'inline-block',
     marginLeft: '2%',
   },
+  active: {
+    backgroundColor: '#15AC5B', 
+  },
+  inactive: {
+    backgroundColor: '#6a7085',
+  }
 });
 
 export default useStyles;

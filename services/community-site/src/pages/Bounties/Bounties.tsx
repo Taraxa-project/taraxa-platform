@@ -80,6 +80,7 @@ function Card(bounty: Bounty) {
       expiration={now > endTime ? 'Expired' : timeAgo}
       SubmissionIcon={SubmissionIcon}
       ExpirationIcon={ExpirationIcon}
+      active={bounty.active}
     />
   );
 }
