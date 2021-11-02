@@ -49,20 +49,24 @@ const RewardCard = ({
                 <span className={classes.dot}></span>
               </Typography>
 
-              <Typography variant="body2" color="primary">
+              <Typography variant="body2" color="primary" className={classes.description}>
                 {description}
               </Typography>
 
               <div className={classes.iconContainer}>
                 <div className={classes.iconContent}>
-                  {ExpirationIcon && <ExpirationIcon />}
-                  <Typography variant="body2" color="textSecondary" style={{ marginLeft: '5%' }}>
+                  <span className={classes.icon}>
+                    {ExpirationIcon && <ExpirationIcon />}
+                  </span>
+                  <Typography variant="body2" color="textSecondary">
                     {expiration}
                   </Typography>
                 </div>
                 <div className={classes.iconContent}>
-                  {SubmissionIcon && <SubmissionIcon />}
-                  <Typography variant="body2" color="textSecondary" style={{ marginLeft: '5%' }}>
+                  <span className={classes.icon}>
+                    {SubmissionIcon && <SubmissionIcon />}
+                  </span>
+                  <Typography variant="body2" color="textSecondary">
                     {submissions} submissions
                   </Typography>
                 </div>

@@ -19,8 +19,13 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
   },
   informationCard: {
+    display: 'flex',
+    flexDirection: 'column',
     flex: 1,
     textAlign: 'left',
+  },
+  description: {
+    flex: 1,
   },
   actionCard: {
     width: '263px'
@@ -41,6 +46,16 @@ const useStyles = makeStyles({
   },
   iconContent: {
     display: 'flex',
+    alignItems: 'center',
+    marginRight: '16px',
+  },
+  icon: {
+    display: 'flex',
+    width: '24px',
+    height: '24px',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: '16px',
   },
   dataListContainer: {
     width: '100%',
@@ -56,10 +71,6 @@ const useStyles = makeStyles({
   actions: {
     display: 'grid',
     marginBottom: '5%',
-  },
-  icon: {
-    marginBottom: '5%',
-    marginTop: '5%',
   },
   dot: {
     height: '15px',
