@@ -21,7 +21,12 @@
     }
 
     .cardContainer.regular {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-column-gap: 24px;
+      margin-bottom: 24px;
       .reward-card {
+        margin-left: 0;
         .reward-card-content {
           height: 100%;
         }
@@ -54,6 +59,10 @@
   .bounties {
     .bounties-content {
       .list-header {
+        display: block;
+      }
+
+      .cardContainer.regular {
         display: block;
       }
 
