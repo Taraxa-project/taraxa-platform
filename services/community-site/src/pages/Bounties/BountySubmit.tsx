@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Redirect } from 'react-router-dom';
 
 import { SubmitCard } from '@taraxa_project/taraxa-ui';
 
@@ -35,6 +35,12 @@ function BountySubmit() {
     };
     getBounty(id);
   }, [id]);
+
+  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
+
+  if (bounty.id && !submissionNeeded) {
+    return (<Redirect to={`/bounties/${bounty.id}`} />);
+  }
 
   return (
     <div className="bounties">

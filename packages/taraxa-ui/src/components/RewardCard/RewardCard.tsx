@@ -73,15 +73,16 @@ const RewardCard = ({
                 Reward:
               </Typography>
               <div className={classes.rewardContent}>{reward}</div>
-              {onClickButton && onClickText && <Button
+              <Button
                 disableElevation
                 color="secondary"
                 onClick={onClickButton}
+                disabled={!onClickButton}
                 variant="contained"
                 label={onClickText}
                 size="medium"
                 fullWidth>
-              </Button>}
+              </Button>
             </div>
           </div>
           {dataList && <div className={classes.dataListContainer}>{dataList}</div>}

@@ -116,7 +116,7 @@ function BountyDetails() {
             </>
           )}
           onClickButton={submissionNeeded ? () => history.push(`/bounties/${bounty.id}/submit`) : undefined}
-          onClickText={submissionNeeded ? "Submit" : undefined}
+          onClickText={submissionNeeded ? "Submit" : "No submission necessary"}
           reward={bounty.reward}
           submissions={submissions.length}
           expiration={now > endTime ? 'Expired' : timeAgo}
