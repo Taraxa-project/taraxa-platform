@@ -26,12 +26,12 @@
         display: flex;
         flex-wrap: wrap;
         li {
-          width: 100%;
-          overflow-wrap: anywhere;
+          &,
+          & a {
+            width: 100%;
+            word-break: break-all;
+          }
         }
-      }
-      a {
-        overflow-wrap: anywhere;
       }
     }
 
