@@ -205,6 +205,17 @@
   margin: 0 5% 5% 5% !important;
 }
 
+#signinModal {
+  & > div {
+    & > .node-control-reference-button {
+      margin-bottom: 16px;
+    }
+    & > .node-control-reference-button:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
 .node-control-reference-button {
   background: #31364b !important;
   border: 1px solid #6a7085 !important;
