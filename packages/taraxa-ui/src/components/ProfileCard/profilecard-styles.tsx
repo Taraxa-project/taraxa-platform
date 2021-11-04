@@ -26,6 +26,7 @@ const useStyles = makeStyles({
     },
   },
   label: {
+    fontFamily: 'Inter',
     overflowWrap: 'anywhere',
     wordBreak: 'break-all',
   },

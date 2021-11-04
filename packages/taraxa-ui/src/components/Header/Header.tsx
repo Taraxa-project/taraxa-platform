@@ -8,10 +8,11 @@ import useStyles from './header-styles';
 import { useMediaQuery } from 'react-responsive';
 
 export interface HeaderProps extends AppBarProps {
+  title: string;
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 }
 
-function Header({ Icon, children, ...props }: HeaderProps) {
+function Header({ title, Icon, children, ...props }: HeaderProps) {
   const classes = useStyles();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
@@ -29,7 +30,7 @@ function Header({ Icon, children, ...props }: HeaderProps) {
 
           <a className={classes.titleContainer} href="/">
             <Typography variant="h2" noWrap className={classes.title}>
-              <>Taraxa Community</>
+              <>{title}</>
             </Typography>
           </a>
           {/* <div className={classes.search}>

@@ -10,6 +10,9 @@ parameters:
   run-community-site-service-workflow:
     type: boolean
     default: false
+  run-node-status-service-workflow:
+    type: boolean
+    default: false
 
 aliases:
   - &config
@@ -113,6 +116,28 @@ jobs:
               -f services/community-site/charts/community-site/values.yaml \
               -f services/community-site/charts/${HELM_CONFIG} \
               --set frontend.image.tag=${VERSION}
+  build-node-status:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/taraxa-node-status:${VERSION} -f services/node-status/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+            docker tag taraxa/taraxa-node-status:${VERSION} taraxa/taraxa-node-status:latest
+
+            docker push taraxa/taraxa-node-status:${VERSION}
+            docker push taraxa/taraxa-node-status:latest
 workflows:
   community-site:
     when:
@@ -140,3 +165,17 @@ workflows:
                 - develop
           context:
             - K8S
+  node-status:
+    when:
+      or:
+        - << pipeline.parameters.run-node-status-service-workflow >>
+        - << pipeline.parameters.ui-package-modified >>
+    jobs:
+      - build-node-status:
+          filters:
+            branches:
+              only:
+                - main
+          context:
+            - TARAXA
+            - DOCKERHUB

@@ -41,7 +41,6 @@
     "material-ui-icons": "^1.0.0-beta.36",
     "moment": "^2.29.1",
     "node-sass": "^6.0.1",
-    "react-font": "^1.2.1",
     "react-modal": "^3.14.3",
     "react-responsive": "^9.0.0-beta.4",
     "sass": "^1.38.0",

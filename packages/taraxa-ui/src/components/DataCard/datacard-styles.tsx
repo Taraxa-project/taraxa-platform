@@ -38,6 +38,7 @@ const useStyles = makeStyles({
     marginTop: '5%',
   },
   label: {
+    fontFamily: 'Inter',
     fontSize: 12,
     marginTop: '5%',
     marginBottom: '5%',

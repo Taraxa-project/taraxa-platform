@@ -1,15 +1,11 @@
-import React from 'react';
 import {
   Card as MCard,
-  CardActions,
   CardContent,
   CssBaseline,
   ThemeProvider,
   Typography,
 } from '@material-ui/core';
 import theme from '../theme';
-import Font from 'react-font';
-import Button from '../Button';
 import useStyles from './topcard-styles';
 
 export interface TopCardProps {

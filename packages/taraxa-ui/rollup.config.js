@@ -30,7 +30,7 @@ export default {
       extensions: ['.css'],
     }),
     url({
-      include: ['**/*.woff', '**/*.eot', '**/*.ttf'],
+      include: ['**/*.woff', '**/*.woff2', '**/*.eot', '**/*.ttf'],
       name: '[name].[ext]',
     }),
     image(),

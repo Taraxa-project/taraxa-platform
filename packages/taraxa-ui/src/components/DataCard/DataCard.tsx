@@ -9,7 +9,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import theme from '../theme';
-import Font from 'react-font';
 import Button from '../Button';
 import useStyles from './datacard-styles';
 import { useMediaQuery } from 'react-responsive';
@@ -57,11 +56,9 @@ const DataCard = ({
             {title}
           </Typography>
           {label && (
-            <Font family="Inter">
-              <Typography className={classes.label} variant="body2" color="textSecondary">
-                {label}
-              </Typography>
-            </Font>
+            <Typography className={classes.label} variant="body2" color="textSecondary">
+              {label}
+            </Typography>
           )}
         </CardContent>
         {input && input}
