@@ -85,7 +85,7 @@ const Header = () => {
   );
 
   return (
-    <THeader className="header" color="primary" position="relative" Icon={TaraxaIcon} elevation={0}>
+    <THeader title="Taraxa Community" className="header" color="primary" position="relative" Icon={TaraxaIcon} elevation={0}>
       <Wallet />
       {isMobile ? hamburger : isMobile ? <></> : button}
     </THeader>

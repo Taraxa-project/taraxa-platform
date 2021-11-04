@@ -8,10 +8,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@taraxa_project/taraxa-ui": "^0.0.1",
     "axios": "^0.21.1",
+    "ethers": "^5.5.1",
     "next": "^10.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "@taraxa_project/taraxa-ui": "^0.0.1"
+    "sass": "^1.43.4"
   }
 }

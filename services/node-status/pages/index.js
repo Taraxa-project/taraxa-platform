@@ -1,7 +1,8 @@
 import Head from 'next/head';
 import { useState, useEffect, useRef } from 'react';
+import { ethers } from 'ethers';
 import axios from 'axios';
-import { Header } from '@taraxa_project/taraxa-ui';
+import { Header, Footer, Text, BaseCard, Button } from '@taraxa_project/taraxa-ui';
 
 export default function Home() {
   const [nodeAddress, setNodeAddress] = useState('');
@@ -104,310 +105,124 @@ export default function Home() {
   let status = '';
 
   if (isSynced) {
-    status = 'SYNCED';
+    status = 'Synced';
     if (dposNodeVotes > 0) {
-      status += ' - PARTICIPATING IN CONSENSUS';
+      status += ' - Participating in consensus';
     }
   } else {
-    status = 'NOT SYNCED';
+    status = 'Not synced';
 
     if (isSyncing) {
-      status += ' - IS SYNCING';
+      status += ' - is syncing';
     } else {
-      status += ' - NOT SYNCING';
+      status += ' - not syncing';
     }
   }
 
   return (
-    <div className="container">
+    <>
       <Head>
         <title>Taraxa Node Status :: {status}</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header
-        color="primary"
-        position="relative"
-        elevation={0}
-      >
-      </Header>
+      <Header title="Taraxa Node Status" color="primary" position="relative" elevation={0}></Header>
 
-      <main>
-        <h1 className="title">Taraxa Node Status</h1>
+      <main className="App">
+        <Text label="Taraxa Node Status" variant="h1" color="primary" className="title" />
+        <Text
+          label="Track the current status and performance of your Taraxa testnet node."
+          variant="body2"
+          color="textSecondary"
+          className="subtitle"
+        />
 
-        <p className="description">{status}</p>
+        <Text label={`${status}:`} variant="h2" color="primary" className="status" />
 
         <div className="progress-bar">
           <div className="progress-bar-inner" style={{ width: `${syncedPercent}%` }}></div>
-          <span>{syncedPercent}%</span>
+          <Text
+            label={`${syncedPercent}%`}
+            variant="body2"
+            color="textSecondary"
+            className="percentage"
+          />
         </div>
 
         <div className="grid">
-          <div className="card">
-            <h3>&rarr; {pbftBlocks}</h3>
-            <p>Number of PBFT Blocks</p>
-          </div>
-
-          <div className="card">
-            <h3>&rarr; {dagBlocks}</h3>
-            <p>Number of DAG Blocks</p>
-          </div>
-
-          <div className="card">
-            <h3>&rarr; {transactions}</h3>
-            <p>Number of transactions</p>
-          </div>
-
-          <div className="card">
-            <h3>&rarr; {peers}</h3>
-            <p>Number of Peers</p>
-          </div>
+          <BaseCard
+            title={ethers.utils.commify(pbftBlocks.toString())}
+            description="Number of PBFT Blocks"
+          />
+          <BaseCard
+            title={ethers.utils.commify(dagBlocks.toString())}
+            description="Number of DAG Blocks"
+          />
+        </div>
+        <div className="grid">
+          <BaseCard
+            title={ethers.utils.commify(transactions.toString())}
+            description="Number of transactions"
+          />
+          <BaseCard title={ethers.utils.commify(peers.toString())} description="Number of Peers" />
         </div>
 
         {nodeAddress !== '' && (
-          <div className="address-container">
-            <label for="address">Node Address:</label>
-            <div className="address-box">
-              <input
-                id="address"
-                ref={inputRef}
-                type="text"
-                value={'0x' + nodeAddress}
-                readOnly={true}
-              />
-              <a href="#" onClick={copyText}>
-                {copy}
-              </a>
+          <>
+            <Text label="Your node address:" variant="h2" color="primary" className="status" />
+            <Text
+              label="In order to get rewards you need to register your node address on Community Site."
+              variant="body2"
+              color="textSecondary"
+              className="subtitle"
+            />
+            <div className="address-container">
+              <div className="address-box">
+                <input
+                  id="address"
+                  ref={inputRef}
+                  onClick={(event) => event.target.select()}
+                  type="text"
+                  value={'0x' + nodeAddress}
+                  readOnly={true}
+                />
+                <a href="#" onClick={copyText}>
+                  {copy}
+                </a>
+              </div>
+              <div className="address">
+                <Button
+                  label="Register your node in our Community Site"
+                  color="secondary"
+                  variant="contained"
+                  onClick={() =>
+                    window.open('https://community.taraxa.io/node', '_blank', 'noreferrer noopener')
+                  }
+                />
+              </div>
             </div>
-            <div className="address">
-              <a href="https://community.taraxa.io/nodes" target="_blank" rel="noopener noreferrer">
-                Register your node in our Community Site
-              </a>
-            </div>
-          </div>
+          </>
         )}
+
+        <Footer
+          description="Taraxa is a public ledger platform purpose-built for audit logging of informal transactions."
+          links={[{ label: 'Privacy Policy', link: 'https://taraxa.io/privacy' }]}
+          items={[
+            {
+              label: 'Send',
+              Icon: <a href="https://www.taraxa.io/tg" target="_blank" rel="noreferrer"></a>,
+            },
+            {
+              label: 'Discord',
+              Icon: <a href="https://www.taraxa.io/discord" target="_blank" rel="noreferrer"></a>,
+            },
+            {
+              label: 'Twitter',
+              Icon: <a href="https://www.taraxa.io/twitter" target="_blank" rel="noreferrer"></a>,
+            },
+          ]}
+        />
       </main>
-
-      <footer>
-        <a href="https://taraxa.io" target="_blank" rel="noopener noreferrer">
-          Powered by Taraxa.io
-        </a>
-      </footer>
-
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: #15ac5b;
-          text-decoration: none;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.3s ease, border-color 0.3s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active,
-        .card.active {
-          color: #15ac5b;
-          border-color: #15ac5b;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-
-          .card {
-            margin: 0;
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-            width: 100%;
-          }
-        }
-
-        .progress-bar {
-          position: relative;
-          width: 100%;
-          background-color: lightgray;
-          height: 50px;
-        }
-
-        .progress-bar span {
-          position: absolute;
-          display: block;
-          width: 100px;
-          height: 50px;
-          left: calc(50% - 50px);
-          top: 0;
-          color: #fff;
-          font-weight: bold;
-          text-align: center;
-          line-height: 50px;
-        }
-
-        .progress-bar-inner {
-          width: 25%;
-          background-color: #15ac5b;
-          height: 50px;
-        }
-
-        .address-container {
-          width: 100%;
-          padding: 1rem;
-          margin-top: 3rem;
-          background: lightgray;
-        }
-
-        .address-container label,
-        .address-container input {
-          display: block;
-          margin-bottom: 0.5rem;
-        }
-
-        .address {
-          width: 100%;
-        }
-
-        .address a,
-        .address a:link,
-        .address a:active,
-        .address a:hover {
-          display: block;
-          width: 100%;
-          height: 50px;
-          background-color: #15ac5b;
-          color: #fff;
-          font-weight: bold;
-          line-height: 50px;
-          padding: 0 0.5em;
-        }
-
-        .address-box {
-          width: 100%;
-          position: relative;
-        }
-
-        .address-box input {
-          width: 100%;
-          font-size: 1.5em;
-          padding: 0.5em;
-          height: 50px;
-          border: 1px solid #15ac5b;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .address-box input:focus {
-          outline: none;
-        }
-
-        .address-box a,
-        .address-box a:link,
-        .address-box a:active,
-        .address-box a:hover {
-          position: absolute;
-          display: block;
-          height: 50px;
-          line-height: 50px;
-          color: #15ac5b;
-          right: 1em;
-          top: 0;
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-            Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
+    </>
   );
 }

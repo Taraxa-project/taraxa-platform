@@ -1,0 +1,144 @@
+body {
+  margin: 0;
+  background-color: #151823 !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+header {
+  .MuiToolbar-root {
+    width: 686px;
+    padding: 0;
+    align-self: center;
+  }
+}
+
+.App {
+  width: 686px;
+  margin: 48px auto 0;
+  a {
+    color: #15ac5b;
+    text-decoration: none;
+  }
+
+  .title {
+    margin: 0 0 8px;
+    font-size: 36px;
+    line-height: 44px;
+  }
+
+  .subtitle {
+    margin: 0 0 24px;
+    font-size: 16px;
+    line-height: 24px !important;
+  }
+
+  .status {
+    margin: 0 0 16px;
+    font-size: 28px;
+    line-height: 36px !important;
+  }
+
+  .progress-bar {
+    position: relative;
+    width: 100%;
+    height: 52px;
+    margin-bottom: 48px;
+    background-color: #202534;
+    border-radius: 4px;
+
+    .percentage {
+      position: absolute;
+      display: block;
+      width: 100px;
+      height: 52px;
+      left: calc(50% - 50px);
+      top: 0;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 400;
+      text-align: center;
+      line-height: 52px;
+    }
+
+    .progress-bar-inner {
+      width: 25%;
+      background-color: #15ac5b;
+      height: 52px;
+      border-radius: 4px;
+    }
+  }
+
+  .grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+
+    > div {
+      width: 311px;
+      border: 2px solid #31364b;
+      border-radius: 4px;
+    }
+  }
+
+  .address-container {
+    width: 100%;
+    padding: 24px;
+    margin-top: 8px;
+    background: #181b27;
+    border: 2px solid #31364b;
+    border-radius: 4px;
+  }
+
+  .address-container input {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .address {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+
+    > button {
+      border-radius: 4px;
+    }
+  }
+
+  .address-box {
+    width: 100%;
+    position: relative;
+  }
+
+  .address-box #address {
+    width: 100%;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    padding: 0.5em;
+    height: 52px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #1e2231 !important;
+    color: #fff;
+  }
+
+  .address-box input:focus {
+    outline: none;
+  }
+
+  .address-box a,
+  .address-box a:link,
+  .address-box a:active,
+  .address-box a:hover {
+    position: absolute;
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    color: #15ac5b;
+    right: 1em;
+    top: 0;
+  }
+}
