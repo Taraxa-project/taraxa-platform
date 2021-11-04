@@ -13,8 +13,8 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json yarn.lock /app/
-COPY services/community-site/package.json services/community-site/yarn.lock /app/services/community-site/
-COPY packages/taraxa-ui/package.json packages/taraxa-ui/yarn.lock /app/packages/taraxa-ui/
+COPY services/community-site/package.json /app/services/community-site/
+COPY packages/taraxa-ui/package.json /app/packages/taraxa-ui/
 
 RUN yarn install
 
