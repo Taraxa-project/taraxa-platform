@@ -63,9 +63,7 @@ frontend:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
-  nodeSelector:
-    cloud.google.com/gke-nodepool: taraxa-community-default
-
+  nodeSelector: {}
 
   customError:
     resources:
