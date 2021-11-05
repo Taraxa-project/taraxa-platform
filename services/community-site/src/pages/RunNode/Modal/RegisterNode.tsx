@@ -143,7 +143,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
         className="node-control-reference-button"
         onClick={() =>
           window.open(
-            `https://docs.taraxa.io/node-setup/get-node-proof-of-owership`,
+            `https://docs.taraxa.io/node-setup/proof_owership`,
             '_blank',
             'noreferrer noopener',
           )
