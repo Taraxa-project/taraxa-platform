@@ -2,6 +2,14 @@ type BountyState = {
   id: number;
 };
 
+type Localization = {
+  id: number;
+  locale: string;
+  description: string;
+  submission: string;
+  reward_text: string; 
+};
+
 export type Bounty = {
   id: number;
   name: string;
@@ -16,6 +24,7 @@ export type Bounty = {
   is_pinned: boolean;
   text_submission_needed: boolean;
   file_submission_needed: boolean;
+  localizations: Localization[];
 };
 
 export type Submission = {

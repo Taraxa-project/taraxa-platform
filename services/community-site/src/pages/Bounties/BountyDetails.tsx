@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 
-import { RewardCard, Table, Text } from '@taraxa_project/taraxa-ui';
+import { RewardCard, Table, Text, Button } from '@taraxa_project/taraxa-ui';
 
 import SubmissionIcon from '../../assets/icons/submission';
 import ExpirationIcon from '../../assets/icons/expiration'
@@ -25,6 +25,7 @@ function BountyDetails() {
   const history = useHistory();
 
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
+  const [locale, setLocale] = useState('en');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   useEffect(() => {
@@ -33,10 +34,28 @@ function BountyDetails() {
       if (!data.success) {
         return;
       }
-      setBounty({
+      const bounty: Bounty = {
         ...data.response,
         active: data.response.state?.id === 1,
-      });
+      };
+
+      if (bounty.localizations.length > 0) {
+        bounty.localizations = await Promise.all(bounty.localizations.map(async locale => {
+          const data = await api.get(`/bounties/${locale.id}`);
+          if (!data.success) {
+            return locale;
+          }
+          const b: Bounty = data.response;
+          const { description, submission, reward_text } = b;
+          return {
+            ...locale,
+            description,
+            submission,
+            reward_text,
+          }
+        }));
+      }
+      setBounty(bounty);
     };
     getBounty(id);
   }, [id]);
@@ -83,6 +102,27 @@ function BountyDetails() {
     submissionsTable = <Table columns={columns} rows={rows} />;
   }
 
+  const localeNames = {
+    "en": "EN",
+    "ru-RU": "RU",
+    "zh-CN": "CN",
+  }
+
+  if (!bounty) {
+    return null;
+  }
+
+  let description = bounty.description || '';
+  let rewardText = bounty.reward_text || '';
+
+  if (locale !== 'en') {
+    const bt = bounty.localizations!.find(b => b.locale === locale);
+    if (bt) {
+      description = bt.description;
+      rewardText = bt.reward_text;
+    }
+  }
+
   return (
     <div className="bounties">
       <div className="bounties-content">
@@ -95,13 +135,39 @@ function BountyDetails() {
           title={bounty.name}
           description={(
             <>
+              {bounty.localizations && bounty.localizations!.length > 0 && (
+                <div className="locale">
+                  <Button
+                    disableElevation
+                    color="primary"
+                    variant="outlined"
+                    label="EN"
+                    onClick={() => setLocale("en")}
+                    size="small"
+                    disabled={locale == "en"}
+                  ></Button>
+                  {bounty.localizations!.map(l => (
+                    <Button
+                      key={l.id}
+                      disableElevation
+                      color="primary"
+                      variant="outlined"
+                      label={localeNames[l.locale]}
+                      onClick={() => setLocale(l.locale)}
+                      size="small"
+                      disabled={l.locale === locale}
+                    ></Button>
+                  ))}
+                </div>
+              )}
+
               <Text
                 variant="h5"
                 color="primary"
               >
                 Description
               </Text>
-              <Markdown>{bounty.description!}</Markdown>
+              <Markdown>{description}</Markdown>
               {bounty.reward_text?.trim() !== '' && (
                 <>
                   <Text
@@ -110,7 +176,7 @@ function BountyDetails() {
                   >
                     Reward
                   </Text>
-                  <Markdown>{bounty.reward_text!}</Markdown>
+                  <Markdown>{rewardText}</Markdown>
                 </>
               )}
             </>

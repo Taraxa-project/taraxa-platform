@@ -2,6 +2,14 @@
   .bounties-content {
     text-align: left;
 
+    .locale {
+      margin: 14px 0;
+
+      & > button {
+        margin-right: 8px;
+      }
+    }
+
     .list-header {
       display: flex;
       margin-bottom: 32px;
