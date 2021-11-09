@@ -9,6 +9,7 @@ import {
   Tooltip,
   Text,
   Button,
+  Pagination,
 } from '@taraxa_project/taraxa-ui';
 
 import CloseIcon from '../../assets/icons/close';
@@ -16,8 +17,6 @@ import NodeIcon from '../../assets/icons/node';
 import InfoIcon from '../../assets/icons/info';
 import EditIcon from '../../assets/icons/edit';
 import DeleteIcon from '../../assets/icons/delete';
-import LeftIcon from '../../assets/icons/left';
-import RightIcon from '../../assets/icons/right';
 
 import { useAuth } from '../../services/useAuth';
 import { useApi } from '../../services/useApi';
@@ -233,29 +232,16 @@ const RunNode = () => {
           <div className="box">
             <Text label="Active Nodes" variant="h6" color="primary" className="box-title" />
             <div className="box-pagination">
-              <div className="box-pagination-info">
-                <Text label={`Page ${page}/${totalPages}`} />
-              </div>
-              <div>
-                <Button
-                  size="small"
-                  Icon={LeftIcon}
-                  className="left"
-                  disabled={page === 1}
-                  onClick={() => {
-                    setPage((page) => page - 1);
-                  }}
-                />
-                <Button
-                  size="small"
-                  Icon={RightIcon}
-                  className="right"
-                  disabled={page >= totalPages}
-                  onClick={() => {
-                    setPage((page) => page + 1);
-                  }}
-                />
-              </div>
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                prev={() => {
+                  setPage(page - 1);
+                }}
+                next={() => {
+                  setPage(page + 1);
+                }}
+              />
             </div>
             <div className="box-list">
               {[0, 1, 2].map((col) => {

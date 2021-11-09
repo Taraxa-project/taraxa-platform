@@ -88,6 +88,10 @@
     .bounties-content {
       .list-header {
         display: block;
+
+        .list-header-left {
+          margin-bottom: 32px;
+        }
       }
 
       .cardContainer.regular {
