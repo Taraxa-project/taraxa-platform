@@ -28,6 +28,7 @@ export type Bounty = {
 };
 
 export type Submission = {
+  id: number;
   user: any;
   hashed_content: string;
   created_at: Date;
