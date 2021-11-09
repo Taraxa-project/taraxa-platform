@@ -4,21 +4,17 @@ import {
   Text,
   Switch,
   Pagination,
-  RewardCard,
 } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
 
-import SubmissionIcon from '../../assets/icons/submission';
-import ExpirationIcon from '../../assets/icons/expiration'
 import PinnedIcon from '../../assets/icons/pinned';
 
 import Title from '../../components/Title/Title';
-import Markdown from '../../components/Markdown';
 
 import { useApi } from '../../services/useApi';
-import { formatTime } from '../../utils/time';
 
 import { Bounty } from './bounty';
+import BountyCard from './BoutyCard';
 import './bounties.scss';
 
 function Bounties() {
@@ -93,7 +89,7 @@ function Bounties() {
       return;
     }
     setBounties(decorateBounties(bounties.response));
-    setGetBountiesSubmissions(true);
+    setGetBountiesSubmissions(bs => !bs);
   }
 
   const getBountiesCount = async () => {
@@ -184,33 +180,12 @@ function Bounties() {
   );
 }
 
-function Card(bounty: Bounty, goTo: (url: string) => void) {
-  const now = new Date().getTime();
-  const endTime = new Date(bounty.end_date).getTime();
-  const timeAgo = formatTime(Math.ceil((endTime - now) / 1000));
-  return (
-    <RewardCard
-      key={bounty.id}
-      title={bounty.name}
-      description={(<Markdown>{bounty.reward_text}</Markdown>)}
-      onClickButton={() => goTo(`/bounties/${bounty.id}`)}
-      onClickText="Learn more"
-      reward={bounty.reward}
-      submissions={bounty.submissionsCount}
-      expiration={now > endTime ? 'Expired' : timeAgo}
-      SubmissionIcon={SubmissionIcon}
-      ExpirationIcon={ExpirationIcon}
-      active={bounty.active}
-    />
-  );
-}
-
 function PinnedBounties({ bounties, goTo }: { bounties: Bounty[], goTo: (url: string) => void }) {
   if (bounties.length === 0) {
     return null;
   }
 
-  const pinnedBounties = bounties.map((bounty) => Card(bounty, goTo));
+  const pinnedBounties = bounties.map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
 
   return (
     <>
@@ -231,7 +206,7 @@ function BountyList({ bounties, goTo }: { bounties: Bounty[], goTo: (url: string
   return (
     <>
       {Array.apply(null, Array(Math.ceil(bounties.length / 3))).map((_, i) => i).map((row) => {
-        const rows = bounties.slice(row * 3, row * 3 + 3).map((bounty) => Card(bounty, goTo));
+        const rows = bounties.slice(row * 3, row * 3 + 3).map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
         return <div key={row} className="cardContainer regular">{rows}</div>;
       })}
     </>

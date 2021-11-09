@@ -78,7 +78,7 @@ const useStyles = makeStyles({
     width: '15px',
     borderRadius: '50%',
     display: 'inline-block',
-    marginLeft: '2%',
+    marginRight: '10px',
   },
   active: {
     backgroundColor: '#15AC5B', 

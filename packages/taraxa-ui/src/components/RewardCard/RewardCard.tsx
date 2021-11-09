@@ -9,6 +9,7 @@ import {
 } from '@material-ui/core';
 import theme from '../theme';
 import Button from '../Button';
+import { ExpirationExpired, ExpirationNotExpired, Submission } from '../Icons';
 import useStyles from './rewardcard-styles';
 
 export interface RewardCardProps extends CardProps {
@@ -17,11 +18,10 @@ export interface RewardCardProps extends CardProps {
   expiration?: string;
   submissions?: number;
   onClickText?: string | undefined;
-  ExpirationIcon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-  SubmissionIcon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   onClickButton?: React.MouseEventHandler<HTMLButtonElement> | undefined;
   dataList?: JSX.Element;
-  active: boolean;
+  isActive: boolean;
+  isInfinite: boolean;
 }
 
 const RewardCard = ({
@@ -32,10 +32,9 @@ const RewardCard = ({
   reward,
   expiration,
   submissions,
-  SubmissionIcon,
-  ExpirationIcon,
   dataList,
-  active,
+  isActive,
+  isInfinite,
 }: RewardCardProps) => {
   const classes = useStyles();
 
@@ -47,8 +46,8 @@ const RewardCard = ({
           <div className={[classes.main, "reward-card-main"].join(' ')}>
             <div className={[classes.informationCard, "reward-card-info"].join(' ')}>
               <Typography variant="h5" color="primary" className={classes.title}>
+                <span className={[classes.dot, (isActive ? classes.active : classes.inactive)].join(' ')}></span>
                 {title}
-                <span className={[classes.dot, (active ? classes.active : classes.inactive)].join(' ')}></span>
               </Typography>
 
               <Typography variant="body2" color="primary" className={classes.description} component="div">
@@ -58,7 +57,7 @@ const RewardCard = ({
               <div className={classes.iconContainer}>
                 <div className={classes.iconContent}>
                   <span className={classes.icon}>
-                    {ExpirationIcon && <ExpirationIcon />}
+                    {isInfinite ? <ExpirationExpired /> : <ExpirationNotExpired />}
                   </span>
                   <Typography variant="body2" color="textSecondary">
                     {expiration}
@@ -66,10 +65,10 @@ const RewardCard = ({
                 </div>
                 <div className={classes.iconContent}>
                   <span className={classes.icon}>
-                    {SubmissionIcon && <SubmissionIcon />}
+                    <Submission />
                   </span>
                   <Typography variant="body2" color="textSecondary">
-                    {submissions} submissions
+                    {submissions} participants
                   </Typography>
                 </div>
               </div>
