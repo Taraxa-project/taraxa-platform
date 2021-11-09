@@ -81,7 +81,7 @@ const Root = () => {
           <Notification
             variant="danger"
           >
-            Please be advised that rewards are tied to wallet addresses. Staking rewards are tied to the wallet you used to stake, and bounty rewards are tied to the address you entered into your profile. If you don't see your staking or bounty rewards, please confirm that you're connected to the right wallet.
+            Please be advised that rewards are tied to wallet addresses. Staking rewards are tied to the wallet you used to stake, and bounty rewards such as node operating rewards are tied to the address you entered into your profile. If you don't see your staking or bounty rewards, please confirm that you're connected to the right wallet.
           </Notification>
         </div>
       )}
