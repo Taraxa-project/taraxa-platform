@@ -7,9 +7,7 @@
     }
 
     .delete,
-    .edit,
-    .left,
-    .right {
+    .edit {
       width: 24px;
       height: 24px;
       border: 1px solid #6a7085;
@@ -37,15 +35,9 @@
       }
 
       .box-pagination {
-        display: flex;
         position: absolute;
         top: 32px;
         right: 32px;
-        align-items: center;
-
-        .box-pagination-info > p {
-          font-size: 14px;
-        }
       }
 
       .box-list {

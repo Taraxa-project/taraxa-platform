@@ -2,19 +2,17 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 
-import { RewardCard, Table, Text, Button } from '@taraxa_project/taraxa-ui';
+import { Table, Text, Button } from '@taraxa_project/taraxa-ui';
 
-import SubmissionIcon from '../../assets/icons/submission';
-import ExpirationIcon from '../../assets/icons/expiration'
 import UserIcon from './../../assets/icons/user';
 
 import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
 import { useApi } from '../../services/useApi';
-import { formatTime } from '../../utils/time';
 
 import { Bounty, Submission } from './bounty';
+import BountyCard from './BoutyCard';
 
 import './bounties.scss';
 
@@ -36,6 +34,7 @@ function BountyDetails() {
       }
       const bounty: Bounty = {
         ...data.response,
+        submissionsCount: 0,
         active: data.response.state?.id === 1,
       };
 
@@ -67,20 +66,15 @@ function BountyDetails() {
         return;
       }
       setSubmissions(data.response);
+      setBounty(bounty => ({ ...bounty, submissionsCount: data.response.length }))
     };
     if (bounty.id) {
       getSubmissions(bounty.id);
     }
-  }, [bounty]);
-
-  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
-
-  const now = new Date().getTime();
-  const endTime = new Date(bounty.end_date).getTime();
-  const timeAgo = formatTime(Math.ceil((endTime - now) / 1000));
+  }, [bounty?.id]);
 
   let submissionsTable;
-
+  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
   if (submissionNeeded) {
     const columns = [
       { path: 'username', name: 'username' },
@@ -99,10 +93,12 @@ function BountyDetails() {
       ],
     }));
 
-    submissionsTable = <Table columns={columns} rows={rows} />;
+    if (rows.length > 0) {
+      submissionsTable = <Table columns={columns} rows={rows} />;
+    }
   }
 
-  const localeNames = {
+  const localeNames: { [key: string]: string } = {
     "en": "EN",
     "ru-RU": "RU",
     "zh-CN": "CN",
@@ -130,9 +126,9 @@ function BountyDetails() {
           title="Taraxa ecosystem bounties"
           subtitle="Earn rewards and help grow the Taraxa's ecosystem"
         />
-        <RewardCard
-          key={bounty.id}
-          title={bounty.name}
+        <BountyCard
+          bounty={bounty}
+          isDetailed={true}
           description={(
             <>
               {bounty.localizations && bounty.localizations!.length > 0 && (
@@ -144,7 +140,7 @@ function BountyDetails() {
                     label="EN"
                     onClick={() => setLocale("en")}
                     size="small"
-                    disabled={locale == "en"}
+                    disabled={locale === "en"}
                   ></Button>
                   {bounty.localizations!.map(l => (
                     <Button
@@ -168,7 +164,7 @@ function BountyDetails() {
                 Description
               </Text>
               <Markdown>{description}</Markdown>
-              {bounty.reward_text?.trim() !== '' && (
+              {rewardText.trim() !== '' && (
                 <>
                   <Text
                     variant="h5"
@@ -181,15 +177,8 @@ function BountyDetails() {
               )}
             </>
           )}
-          onClickButton={submissionNeeded ? () => history.push(`/bounties/${bounty.id}/submit`) : undefined}
-          onClickText={submissionNeeded ? "Submit" : "No submission necessary"}
-          reward={bounty.reward}
-          submissions={submissions.length}
-          expiration={now > endTime ? 'Expired' : timeAgo}
-          SubmissionIcon={SubmissionIcon}
-          ExpirationIcon={ExpirationIcon}
-          dataList={submissionsTable}
-          active={bounty.active}
+          goTo={(url) => history.push(url)}
+          submissions={submissionsTable}
         />
       </div>
     </div>

@@ -13,7 +13,12 @@
 
     .list-header {
       display: flex;
+      justify-content: space-between;
       margin-bottom: 32px;
+
+      .list-header-left {
+        display: flex;
+      }
     }
 
     .legend {
@@ -84,6 +89,10 @@
     .bounties-content {
       .list-header {
         display: block;
+
+        .list-header-left {
+          margin-bottom: 32px;
+        }
       }
 
       .cardContainer.regular {
