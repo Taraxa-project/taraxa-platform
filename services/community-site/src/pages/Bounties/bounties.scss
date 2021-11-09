@@ -12,7 +12,12 @@
 
     .list-header {
       display: flex;
+      justify-content: space-between;
       margin-bottom: 32px;
+
+      .list-header-left {
+        display: flex;
+      }
     }
 
     .legend {

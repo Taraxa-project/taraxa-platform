@@ -236,7 +236,7 @@ const RunNode = () => {
               <div className="box-pagination-info">
                 <Text label={`Page ${page}/${totalPages}`} />
               </div>
-              <div className="box-pagination-buttons">
+              <div>
                 <Button
                   size="small"
                   Icon={LeftIcon}
