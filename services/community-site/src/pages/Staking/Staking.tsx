@@ -26,7 +26,7 @@ import Approve from './Modal/Approve';
 import IsStaking from './Modal/IsStaking';
 import IsUnstaking from './Modal/IsUnstaking';
 
-import { formatTime } from '../../utils/time';
+import { formatTime, secondsInYear } from '../../utils/time';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 import useToken from '../../services/useToken';
@@ -352,7 +352,9 @@ function Stake({
 
   const [hasStake, setHasStake] = useState(false);
   const [canClaimStake, setCanClaimStake] = useState(false);
+  const [currentStakeStartDate, setCurrentStakeStartDate] = useState<Date | null>(null);
   const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(null);
+  const [reward, setReward] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
 
   const [stakeInputError, setStakeInputError] = useState<string | null>(null);
 
@@ -360,8 +362,9 @@ function Stake({
     setHasStake(false);
     setCanClaimStake(false);
     setCurrentStakeBalance(ethers.BigNumber.from('0'));
+    setCurrentStakeStartDate(null);
     setCurrentStakeEndDate(null);
-  }, [setHasStake, setCanClaimStake, setCurrentStakeBalance, setCurrentStakeEndDate]);
+  }, [setHasStake, setCanClaimStake, setCurrentStakeBalance, setCurrentStakeStartDate, setCurrentStakeEndDate]);
 
   const formatStakeInputValue = (value: string) => {
     const stakeInputValue = value.replace(/[^\d.]/g, '');
@@ -383,9 +386,14 @@ function Stake({
       const currentStake = await staking.stakeOf(account);
 
       const currentStakeBalance = currentStake[0];
+      let currentStakeStartDate = currentStake[1].toNumber();
       let currentStakeEndDate = currentStake[2].toNumber();
 
-      if (currentStakeBalance.toString() === '0' || currentStakeEndDate === 0) {
+      if (
+        currentStakeBalance.toString() === '0' ||
+        currentStakeStartDate === 0 ||
+        currentStakeEndDate === 0
+      ) {
         resetStake();
         return;
       }
@@ -393,16 +401,43 @@ function Stake({
       const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
       const canClaimStake = currentTimestamp > currentStakeEndDate;
 
+      currentStakeStartDate = new Date(currentStakeStartDate * 1000);
       currentStakeEndDate = new Date(currentStakeEndDate * 1000);
 
       setHasStake(true);
       setCanClaimStake(canClaimStake);
       setCurrentStakeBalance(currentStakeBalance);
+      setCurrentStakeStartDate(currentStakeStartDate);
       setCurrentStakeEndDate(currentStakeEndDate);
     };
 
     getStakedBalance();
   }, [account, token, staking, resetStake, setCurrentStakeBalance]);
+
+  useEffect(() => {
+    const getReward = () => {
+      let r = ethers.BigNumber.from('0');
+      const yearlyReward = currentStakeBalance.mul(ethers.BigNumber.from('20')).div(100);
+      const perSeconds = yearlyReward.div(ethers.BigNumber.from(secondsInYear()));
+
+      const startDate = Math.ceil(currentStakeStartDate!.getTime() / 1000);
+      const now = Math.ceil(new Date().getTime() / 1000);
+
+      r = perSeconds.mul(now - startDate);
+
+      return r;
+    }
+
+    if (currentStakeBalance.gt(ethers.BigNumber.from('0')) && currentStakeStartDate) {
+      setReward(getReward());
+      const interval = setInterval(() => setReward(getReward()), 1000);
+      return () => {
+        clearInterval(interval);
+      };
+    } else {
+      setReward(ethers.BigNumber.from('0'));
+    }
+  }, [currentStakeBalance, currentStakeStartDate]);
 
   const stakeTokens = async () => {
     setStakeInputError(null);
@@ -536,7 +571,7 @@ function Stake({
     <>
       <div className="cardContainer">
         <BaseCard
-          title="0.0"
+          title={formatEth(roundEth(weiToEth(reward)))}
           description="TARA rewards"
           tooltip={
             <Tooltip

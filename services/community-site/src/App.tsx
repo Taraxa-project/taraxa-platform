@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import { MetaMaskProvider } from 'metamask-react';
+import { MetaMaskProvider, useMetaMask } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
 import { useLocation } from 'react-router-dom';
 import { Notification } from '@taraxa_project/taraxa-ui';
@@ -35,6 +35,7 @@ declare global {
 const Root = () => {
   const { modal, setIsOpen, setContent } = useModal();
   const auth = useAuth();
+  const { status, account } = useMetaMask();
   const location = useLocation();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
@@ -72,6 +73,15 @@ const Root = () => {
             variant="danger"
           >
             Your email address is not confirmed. Please confirm your email address by clicking <a href="#" className="default-link" onClick={confirmEmail}>here</a>
+          </Notification>
+        </div>
+      )}
+      {auth.user !== null && status === 'connected' && auth.user.eth_wallet.toLocaleLowerCase() !== account?.toLocaleLowerCase() && (
+        <div className="notification">
+          <Notification
+            variant="danger"
+          >
+            Please be advised that rewards are tied to wallet addresses. Staking rewards are tied to the wallet you used to stake, and bounty rewards such as node operating rewards are tied to the address you entered into your profile. If you don't see your staking or bounty rewards, please confirm that you're connected to the right wallet.
           </Notification>
         </div>
       )}

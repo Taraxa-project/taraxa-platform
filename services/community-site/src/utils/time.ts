@@ -15,3 +15,9 @@ export const formatTime = (seconds: number) => {
     `${seconds}`,
   );
 };
+
+export const secondsInYear = () => {
+  const days = new Date().getFullYear() % 4 === 0 ? 366 : 365;
+  const seconds = days * 24 * 60 * 60;
+  return seconds;
+};

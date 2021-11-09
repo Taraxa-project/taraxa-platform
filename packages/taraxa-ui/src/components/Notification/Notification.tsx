@@ -7,7 +7,7 @@ import theme from '../theme';
 import useStyles from './notification-styles';
 
 export interface NotificationProps {
-  title: string;
+  title?: string;
   text?: string;
   variant?: 'success' | 'danger';
 }
@@ -29,7 +29,7 @@ const Notification = ({ title, text, variant, children }: React.PropsWithChildre
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className={containerStyle}>
-        <Text label={title} variant="body1" color="primary" className={classes.title} />
+        {title && <Text label={title} variant="body1" color="primary" className={classes.title} />}
         {text && <Text label={text} variant="body2" color="primary" className={classes.text} />}
         {children && <Text variant="body2" color="primary" className={classes.text}>{children}</Text>}
       </div>
