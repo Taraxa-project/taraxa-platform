@@ -20,7 +20,7 @@ import './bounties.scss';
 function BountyDetails() {
   let { id } = useParams<{ id: string }>();
 
-  const api = useApi();
+  const { get } = useApi();
   const history = useHistory();
 
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
@@ -32,7 +32,7 @@ function BountyDetails() {
 
   useEffect(() => {
     const getBounty = async (id: string) => {
-      const data = await api.get(`/bounties/${id}`);
+      const data = await get(`/bounties/${id}`);
       if (!data.success) {
         return;
       }
@@ -44,7 +44,7 @@ function BountyDetails() {
 
       if (bounty.localizations.length > 0) {
         bounty.localizations = await Promise.all(bounty.localizations.map(async locale => {
-          const data = await api.get(`/bounties/${locale.id}`);
+          const data = await get(`/bounties/${locale.id}`);
           if (!data.success) {
             return locale;
           }
@@ -61,11 +61,11 @@ function BountyDetails() {
       setBounty(bounty);
     };
     getBounty(id);
-  }, [id]);
+  }, [get, id]);
 
   useEffect(() => {
     const getSubmissions = async (id: number) => {
-      const data = await api.get(`/submissions?bounty=${id}`);
+      const data = await get(`/submissions?bounty=${id}`);
       if (!data.success) {
         return;
       }
@@ -75,7 +75,7 @@ function BountyDetails() {
     if (bounty.id) {
       getSubmissions(bounty.id);
     }
-  }, [bounty?.id]);
+  }, [get, bounty?.id]);
 
   let submissionsTable;
   const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
