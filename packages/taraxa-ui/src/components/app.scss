@@ -71,11 +71,10 @@
   padding-top: 5% !important;
 }
 
+.subItem,
 .subItemOpened,
 .itemOpened,
-.item,
-.subItem,
-.soloItem {
+.item {
   color: #fff !important;
   background-color: #282c3e !important;
   border-radius: 8px !important;
@@ -94,8 +93,7 @@
 }
 
 .item,
-.subItem,
-.soloItem {
+.subItem {
   background-color: transparent !important;
   svg path {
     fill: #878ca4 !important;

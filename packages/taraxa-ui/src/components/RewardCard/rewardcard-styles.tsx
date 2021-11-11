@@ -61,7 +61,7 @@ const useStyles = makeStyles({
   dataListContainer: {
     width: '100%',
     gridColumn: '1 / span 2',
-    marginTop: '5%',
+    marginTop: '45px',
   },
   label: {
     fontSize: 12,

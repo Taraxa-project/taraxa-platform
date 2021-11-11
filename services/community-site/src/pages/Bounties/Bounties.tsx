@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import stringify from 'qs-stringify';
 import {
   Text,
@@ -18,7 +18,7 @@ import BountyCard from './BoutyCard';
 import './bounties.scss';
 
 function Bounties() {
-  const api = useApi();
+  const { get } = useApi();
   const history = useHistory();
 
   const [page, setPage] = useState(1);
@@ -41,20 +41,20 @@ function Bounties() {
   };
 
 
-  const decorateBounties = (bounties: Bounty[]): Bounty[] => {
+  const decorateBounties = useCallback((bounties: Bounty[]): Bounty[] => {
     return bounties
       .map((bounty: Bounty) => ({
         ...bounty,
         submissionsCount: 0,
         active: bounty.state?.id === 1,
       }));
-  }
+  }, []);
 
-  const getSubmissions = async (bounties: Bounty[]): Promise<Bounty[]> => {
+  const getSubmissions = useCallback(async (bounties: Bounty[]): Promise<Bounty[]> => {
     const bountiesWithSubmissions = bounties
       .map(async (bounty: Bounty) => {
         let submissionsCount = 0;
-        const submissionsCountRequest = await api.get(`/submissions/count?bounty=${bounty.id}`);
+        const submissionsCountRequest = await get(`/submissions/count?bounty=${bounty.id}`);
         if (submissionsCountRequest.success) {
           submissionsCount = submissionsCountRequest.response;
         }
@@ -65,68 +65,68 @@ function Bounties() {
       });
 
     return await Promise.all(bountiesWithSubmissions);
-  }
+  }, [get])
 
-  const getPinnedBounties = async () => {
-    const data = await api.get(`/bounties?state.id=1&is_pinned=1`);
+  const getPinnedBounties = useCallback(async () => {
+    const data = await get(`/bounties?state.id=1&is_pinned=1`);
     if (!data.success) {
       return;
     }
     setPinnedBounties(decorateBounties(data.response));
     setGetPinnedBountiesSubmissions(true);
-  }
+  }, [get, decorateBounties]);
 
-  const getBountiesFilter = () => {
+  const getBountiesFilter = useCallback(() => {
     const pinnedFilter = stringify({ _where: { _or: [{ is_pinned_null: 1 }, { is_pinned: 0 }] } });
     const stateFilter = inactive ? 'state.id=2' : 'state.id=1';
     return `${stateFilter}&${pinnedFilter}&_limit=${perPage}&_start=${(page - 1) * perPage}`;
-  }
+  }, [inactive, page]);
 
-  const getBounties = async () => {
+  const getBounties = useCallback(async () => {
     const filter = getBountiesFilter();
-    const bounties = await api.get(`/bounties?${filter}`);
+    const bounties = await get(`/bounties?${filter}`);
     if (!bounties.success) {
       return;
     }
     setBounties(decorateBounties(bounties.response));
     setGetBountiesSubmissions(bs => !bs);
-  }
+  }, [get, getBountiesFilter, decorateBounties]);
 
-  const getBountiesCount = async () => {
+  const getBountiesCount = useCallback(async () => {
     const filter = getBountiesFilter();
-    const total = await api.get(`/bounties/count?${filter}`);
+    const total = await get(`/bounties/count?${filter}`);
     if (!total.success) {
       return;
     }
 
     setTotal(total.response);
-  }
+  }, [get, getBountiesFilter]);
 
   useEffect(() => {
     getPinnedBounties();
-  }, []);
+  }, [getPinnedBounties]);
 
   useEffect(() => {
     getBounties();
-  }, [inactive, page]);
+  }, [getBounties, inactive, page]);
 
   useEffect(() => {
     getBountiesCount();
-  }, [inactive]);
+  }, [getBountiesCount, inactive]);
 
   useEffect(() => {
     const addSubmissions = async () => {
       setPinnedBounties(await getSubmissions(pinnedBounties));
     };
     addSubmissions();
-  }, [getPinnedBountiesSubmissions]);
+  }, [getSubmissions, getPinnedBountiesSubmissions]);
 
   useEffect(() => {
     const addSubmissions = async () => {
       setBounties(await getSubmissions(bounties));
     };
     addSubmissions();
-  }, [getBountiesSubmissions]);
+  }, [getSubmissions, getBountiesSubmissions]);
 
   return (
     <div className="bounties">

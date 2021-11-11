@@ -81,6 +81,57 @@
         }
       }
     }
+
+    .submission-table {
+      .submission-table-header,
+      .submission-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .submission-table-header {
+        margin-bottom: 24px;
+
+        h5 {
+          font-family: Inter;
+          font-size: 14px;
+          line-height: 26px;
+          font-weight: bold;
+          letter-spacing: -0.03em;
+          color: #6a7085;
+        }
+      }
+      .submission-row {
+        height: 32px;
+        margin-bottom: 16px;
+
+        .submission-row-username {
+          display: flex;
+          flex: 1;
+          align-items: center;
+          .submission-row-username-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+          }
+        }
+        .submission-row-content {
+          flex: 2;
+          text-align: left;
+        }
+        .submission-row-date {
+          text-align: right;
+          p {
+            color: #6a7085;
+            font-size: 14px;
+            line-height: 22px;
+          }
+        }
+      }
+    }
   }
 }
 

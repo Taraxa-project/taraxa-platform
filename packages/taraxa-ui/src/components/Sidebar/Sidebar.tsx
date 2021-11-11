@@ -159,22 +159,29 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
     window.location.pathname.length > 1
       ? window.location.pathname.substring(1)
       : window.location.pathname;
+
+  let className = [];
+
+  let isOpen = false;
+
+  if (name === 'dashboard' && pathname === '/') {
+    isOpen = true;
+  }
+
+  if (name === pathname || pathname.substring(0, (name?.length || 0)) === name?.toLocaleLowerCase()) {
+    isOpen = true;
+  }
+
+  if (subItem || items.length < 1) {
+    className.push(isOpen ? 'subItemOpened' : 'subItem');
+  } else {
+    className.push(isOpen ? 'itemOpened' : 'item');
+  }
+
   return (
     <>
       <ListItem
-        className={
-          name === pathname && subItem
-            ? 'subItemOpened'
-            : name === pathname && !subItem
-            ? 'itemOpened'
-            : name === 'dashboard' && pathname === '/' && !subItem
-            ? 'itemOpened'
-            : subItem
-            ? 'subItem'
-            : !subItem && items.length < 1
-            ? 'soloItem'
-            : 'item'
-        }
+        className={className.join(' ')}
         button
         dense
       >
