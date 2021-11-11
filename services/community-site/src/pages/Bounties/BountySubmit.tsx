@@ -42,7 +42,7 @@ function BountySubmit() {
 
   const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
 
-  if ((bounty.id && !submissionNeeded) || !bounty.active) {
+  if (bounty.id && (!submissionNeeded || !bounty.active)) {
     return (<Redirect to={`/bounties/${bounty.id}`} />);
   }
 
