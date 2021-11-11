@@ -43,13 +43,7 @@ export default function Home() {
           return n.slice(0, 5);
         });
 
-        setPeerPbftBlockCount(
-          Math.ceil(
-            status?.network?.peers
-              ?.filter((peer) => peer.dag_synced)
-              .reduce((acc, curr) => acc + curr.pbft_size, 0) / status?.peer_count,
-          ),
-        );
+        setPeerPbftBlockCount(Math.max(...status?.network?.peers?.filter((peer) => peer.dag_synced).map(peer => peer.pbft_size)));
       });
     };
 
