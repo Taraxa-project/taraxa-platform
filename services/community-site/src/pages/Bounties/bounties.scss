@@ -132,6 +132,35 @@
         }
       }
     }
+
+    .bounties-details {
+      .title {
+        span.dot {
+          width: 15px;
+          height: 15px;
+          display: inline-block;
+          margin-right: 10px;
+          border-radius: 50%;
+        }
+      }
+      .subtitle {
+        margin-top: 32px;
+        margin-bottom: 32px;
+        font-weight: bold;
+        font-size: 18px;
+        line-height: 22px;
+        display: flex;
+        align-items: center;
+        letter-spacing: -0.015em;
+        color: #878CA4;
+        svg {
+          margin-right: 8px;
+        }
+      }
+      .input {
+        margin-bottom: 32px;
+      }
+    }
   }
 }
 

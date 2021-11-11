@@ -1,5 +1,6 @@
 import Button from './components/Button';
 import Text from './components/Text';
+import Card from './components/Card';
 import IconCard from './components/IconCard';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -22,17 +23,18 @@ import Table from './components/Table';
 import ToggleButton from './components/ToggleButton';
 import Tooltip from './components/Tooltip';
 import TopCard from './components/TopCard';
-import SubmitCard from './components/SubmitCard';
 import Loading from './components/Loading';
 import Menu from './components/Menu';
 import MenuItem from './components/MenuItem';
 import Notification from './components/Notification';
 import Pagination from './components/Pagination';
 import Icons from './components/Icons';
+import File from './components/File';
 
 export {
   Button,
   Text,
+  Card,
   IconCard,
   Sidebar,
   Footer,
@@ -55,11 +57,11 @@ export {
   ToggleButton,
   Tooltip,
   TopCard,
-  SubmitCard,
   Loading,
   Menu,
   MenuItem,
   Notification,
   Pagination,
   Icons,
+  File,
 };
