@@ -1,4 +1,4 @@
-const SubmitIcon = () => {
+const Submit = () => {
   return (
     <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -9,4 +9,4 @@ const SubmitIcon = () => {
   );
 };
 
-export default SubmitIcon;
+export default Submit;

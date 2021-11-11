@@ -65,7 +65,7 @@ function BountyDetails() {
 
   useEffect(() => {
     const getSubmissions = async (id: number) => {
-      const data = await get(`/submissions?bounty=${id}`);
+      const data = await get(`/submissions?bounty=${id}&_sort=created_at:DESC`);
       if (!data.success) {
         return;
       }

@@ -24,6 +24,8 @@ export type Bounty = {
   is_pinned: boolean;
   text_submission_needed: boolean;
   file_submission_needed: boolean;
+  proof_file?: string;
+  proof_text?: string;
   localizations: Localization[];
 };
 
