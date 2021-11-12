@@ -175,7 +175,16 @@ const RunNode = () => {
           title="Running Testnet Nodes"
           subtitle="Help accelerate Taraxa’s path towards mainnet by running nodes on the testnet"
         />
-        {nodes.length === 0 && (
+        {!isLoggedIn && (
+          <div className="notification">
+            <Notification
+              title="Notice:"
+              text="You need to sign in or sign up for a new account in order to register nodes."
+              variant="danger"
+            />
+          </div>
+        )}
+        {isLoggedIn && nodes.length === 0 && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -190,6 +199,12 @@ const RunNode = () => {
               <BaseCard
                 title={`${nodes.filter((node) => node.active).length}`}
                 description="Active nodes"
+                tooltip={
+                  <Tooltip
+                    title="A node is considered active if it produced at least one block in the last 2 hours."
+                    Icon={InfoIcon}
+                  />
+                }
               />
               <BaseCard title={blocksProduced} description="Blocks produced" />
               <BaseCard title={weeklyRating} description="Weekly rating" />
@@ -294,6 +309,7 @@ const RunNode = () => {
             className="referenceButton"
             variant="contained"
             onClick={() => setHasRegisterNodeModal(true)}
+            disabled={!isLoggedIn}
           />
           <Button
             label="How do I upgrade my node?"
