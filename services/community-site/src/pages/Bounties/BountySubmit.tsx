@@ -146,11 +146,7 @@ function BountySubmit() {
     }
 
     const resultBounty = await api.put(`/bounties/${bounty.id}`, {
-      user: auth.user?.id,
-      bounty: Number(bounty.id),
-      hashed_content: ciphertext,
-      file_proof: uploadedFile.url,
-      text_proof: submitText,
+      users: auth.user?.id,
     }, true);
 
     if (!resultBounty.success) {
