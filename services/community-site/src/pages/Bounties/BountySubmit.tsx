@@ -83,23 +83,25 @@ function BountySubmit() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("files", file!);
-
     let uploadedFile;
-    const result = await api.post('/upload', formData, true);
-    if (result.success) {
-      uploadedFile = result.response[0];
-    } else {
-      if (typeof result.response === 'string') {
-        setErrors([{ key: 'file', value: result.response }]);
+    if (file !== null) {
+      const formData = new FormData();
+      formData.append("files", file!);
+
+      const result = await api.post('/upload', formData, true);
+      if (result.success) {
+        uploadedFile = result.response[0];
+      } else {
+        if (typeof result.response === 'string') {
+          setErrors([{ key: 'file', value: result.response }]);
+          return;
+        }
+      }
+
+      if (!uploadedFile) {
+        setErrors([{ key: 'file', value: 'File upload failed' }]);
         return;
       }
-    }
-
-    if (!uploadedFile) {
-      setErrors([{ key: 'file', value: 'File upload failed' }]);
-      return;
     }
 
     let ciphertext = CryptoJS.AES.encrypt(
@@ -107,13 +109,34 @@ function BountySubmit() {
       "255826e3232d021e830f3dd19e77055f"
     ).toString();
     ciphertext = CryptoJS.SHA3(ciphertext).toString();
-    const resultSubmission = await api.post('/submissions', {
-      user: auth.user?.id,
+
+    let s: {
+      user: number;
+      bounty: number;
+      hashed_content: string;
+      file_proof?: string;
+      text_proof?: string;
+    } = {
+      user: auth.user?.id!,
       bounty: Number(bounty.id),
       hashed_content: ciphertext,
-      file_proof: uploadedFile.url,
-      text_proof: submitText,
-    }, true);
+    };
+
+    if (file !== null) {
+      s = {
+        ...s,
+        file_proof: uploadedFile.url,
+      };
+    }
+
+    if (submitText !== '') {
+      s = {
+        ...s,
+        text_proof: submitText,
+      };
+    }
+
+    const resultSubmission = await api.post('/submissions', s, true);
 
     if (!resultSubmission.success) {
       if (typeof resultSubmission.response === 'string') {
