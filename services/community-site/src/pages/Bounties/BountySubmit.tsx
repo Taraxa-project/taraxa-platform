@@ -102,10 +102,11 @@ function BountySubmit() {
       return;
     }
 
-    const ciphertext = CryptoJS.AES.encrypt(
+    let ciphertext = CryptoJS.AES.encrypt(
       submitText,
       "255826e3232d021e830f3dd19e77055f"
     ).toString();
+    ciphertext = CryptoJS.SHA3(ciphertext).toString();
     const resultSubmission = await api.post('/submissions', {
       user: auth.user?.id,
       bounty: Number(bounty.id),

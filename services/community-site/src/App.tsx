@@ -62,11 +62,17 @@ const Root = () => {
     setContent!('sign-up-success');
   };
 
+  const isLoggedIn = auth.user?.id;
+  const isConfirmed = auth.user?.confirmed;
+  const walletConnected = status === 'connected';
+  const userWallet = auth.user?.eth_wallet ? auth.user?.eth_wallet?.toLocaleLowerCase() : "";
+  const accountWallet = account?.toLocaleLowerCase();
+
   return (
     <div className={appClassName}>
       {modal}
       <Header />
-      {auth.user !== null && !auth.user.confirmed && (
+      {isLoggedIn && !isConfirmed && (
         <div className="notification">
           <Notification
             title="Account not confirmed"
@@ -76,7 +82,7 @@ const Root = () => {
           </Notification>
         </div>
       )}
-      {auth.user !== null && status === 'connected' && auth.user.eth_wallet.toLocaleLowerCase() !== account?.toLocaleLowerCase() && (
+      {isLoggedIn && walletConnected && userWallet !== accountWallet && (
         <div className="notification">
           <Notification
             variant="danger"
