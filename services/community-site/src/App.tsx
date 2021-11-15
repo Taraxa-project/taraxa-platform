@@ -7,11 +7,12 @@ import { useLocation } from 'react-router-dom';
 import { Notification } from '@taraxa_project/taraxa-ui';
 
 import { AuthProvider, useAuth } from './services/useAuth';
-import { LoadingProvider, useLoading } from './services/useLoading';
+import { LoadingProvider } from './services/useLoading';
 import { ModalProvider, useModal } from './services/useModal';
 import { SidebarProvider } from './services/useSidebar';
 
 import Header from './components/Header/Header';
+import Loader from './components/Loader/Loader';
 import Footer from './components/Footer/Footer';
 import Sidebar from './components/Sidebar/Sidebar';
 
@@ -36,7 +37,6 @@ declare global {
 const Root = () => {
   const { modal, setIsOpen, setContent } = useModal();
   const auth = useAuth();
-  const { isLoading } = useLoading();
   const { status, account } = useMetaMask();
   const location = useLocation();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
@@ -97,8 +97,7 @@ const Root = () => {
         <Sidebar />
         <div className="App-Content">
           <div className="App-Page">
-            {isLoading && <Notification variant="danger">Loading...</Notification>}
-
+            <Loader />
             <Switch>
               <Route exact path="/first-login" component={Home} />
               <Route exact path="/reset-password/:code" component={Home} />
