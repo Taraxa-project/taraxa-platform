@@ -73,6 +73,8 @@ const Root = () => {
   const userWallet = auth.user?.eth_wallet ? auth.user?.eth_wallet?.toLocaleLowerCase() : "";
   const accountWallet = account?.toLocaleLowerCase();
 
+  console.log(isLoading);
+
   return (
     <div className={appClassName}>
       {modal}

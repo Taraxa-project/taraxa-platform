@@ -2,11 +2,12 @@ import React, { useState, useContext, createContext } from 'react';
 
 type Context = {
   isLoading: boolean;
-  setIsLoading?: (isLoading: boolean) => void;
+  startLoading?: () => void;
+  finishLoading?: () => void;
 };
 
 const initialState: Context = {
-  isLoading: false,
+  isLoading: false
 };
 
 const LoadingContext = createContext<Context>(initialState);
@@ -21,6 +22,10 @@ export const useLoading = () => {
 };
 
 function useProvideLoading() {
-  const [isLoading, setIsLoading] = useState(false);
-  return { isLoading, setIsLoading };
+  const [loadingCount, setLoadingCount] = useState(0);
+
+  const startLoading = () => setLoadingCount(prevCount => prevCount + 1);
+  const finishLoading = () => setLoadingCount(prevCount => prevCount - 1);
+
+  return { isLoading: loadingCount > 0, startLoading, finishLoading };
 }

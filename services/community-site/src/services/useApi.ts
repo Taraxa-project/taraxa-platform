@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import axios, { AxiosError } from 'axios';
 import { useLoading } from './useLoading';
 
 export const useApi = () => {
-  const { setIsLoading } = useLoading();
+  const { startLoading, finishLoading } = useLoading();
   const baseUrl = process.env.REACT_APP_API_HOST;
   const token = localStorage.getItem('auth');
 
@@ -60,7 +60,7 @@ export const useApi = () => {
   const post = useCallback(
     async <T>(url: string, data: {}, includeToken: boolean = false) => {
       const options = getOptions(includeToken);
-      setIsLoading!(true);
+      startLoading!();
       return axios
         .post<T>(getUrl(url), data, options)
         .then((response) => {
@@ -70,7 +70,7 @@ export const useApi = () => {
           };
         })
         .catch((err) => getErrorResponse(err))
-        .finally(() => setIsLoading!(false));
+        .finally(() => finishLoading!());
     },
     [getOptions, getUrl, getErrorResponse],
   );
@@ -78,7 +78,7 @@ export const useApi = () => {
   const put = useCallback(
     async (url: string, data: {}, includeToken: boolean = false) => {
       const options = getOptions(includeToken);
-      setIsLoading!(true);
+      startLoading!();
       return axios
         .put(getUrl(url), data, options)
         .then((response) => {
@@ -88,7 +88,7 @@ export const useApi = () => {
           };
         })
         .catch((err) => getErrorResponse(err))
-        .finally(() => setIsLoading!(false));
+        .finally(() => finishLoading!());
     },
     [getOptions, getUrl, getErrorResponse],
   );
@@ -96,7 +96,7 @@ export const useApi = () => {
   const del = useCallback(
     async (url: string, includeToken: boolean = false) => {
       const options = getOptions(includeToken);
-      setIsLoading!(true);
+      startLoading!();
       return axios
         .delete(getUrl(url), options)
         .then((response) => {
@@ -106,7 +106,7 @@ export const useApi = () => {
           };
         })
         .catch((err) => getErrorResponse(err))
-        .finally(() => setIsLoading!(false));
+        .finally(() => finishLoading!());
     },
     [getOptions, getUrl, getErrorResponse],
   );
@@ -114,7 +114,7 @@ export const useApi = () => {
   const get = useCallback(
     async (url: string, includeToken: boolean = false) => {
       const options = getOptions(includeToken);
-      setIsLoading!(true);
+      startLoading!();
       return axios
         .get(getUrl(url), options)
         .then((response) => {
@@ -124,7 +124,7 @@ export const useApi = () => {
           };
         })
         .catch((err) => getErrorResponse(err))
-        .finally(() => setIsLoading!(false));
+        .finally(() => finishLoading!());
     },
     [getOptions, getUrl, getErrorResponse],
   );
