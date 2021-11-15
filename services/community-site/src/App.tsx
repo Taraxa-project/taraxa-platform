@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import { Notification } from '@taraxa_project/taraxa-ui';
 
 import { AuthProvider, useAuth } from './services/useAuth';
+import { LoadingProvider, useLoading } from './services/useLoading';
 import { ModalProvider, useModal } from './services/useModal';
 import { SidebarProvider } from './services/useSidebar';
 
@@ -24,6 +25,9 @@ import Profile from './pages/Profile/Profile';
 import RunNode from './pages/RunNode/RunNode';
 import Wallet from './pages/Wallet/Wallet';
 
+import { useApi } from './services/useApi';
+
+
 import './App.scss';
 
 declare global {
@@ -35,6 +39,7 @@ declare global {
 const Root = () => {
   const { modal, setIsOpen, setContent } = useModal();
   const auth = useAuth();
+  const { isLoading } = useLoading();
   const { status, account } = useMetaMask();
   const location = useLocation();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
@@ -95,6 +100,8 @@ const Root = () => {
         <Sidebar />
         <div className="App-Content">
           <div className="App-Page">
+            {isLoading && <Notification variant="danger">Loading...</Notification>}
+
             <Switch>
               <Route exact path="/first-login" component={Home} />
               <Route exact path="/reset-password/:code" component={Home} />
@@ -120,15 +127,17 @@ function App() {
   return (
     <MetaMaskProvider>
       <GoogleReCaptchaProvider reCaptchaKey="6LdLJXAaAAAAAAipA9gQ8gpbvVs6b9Jq64Lmr9dl">
-        <AuthProvider>
-          <BrowserRouter>
-            <ModalProvider>
-              <SidebarProvider>
-                <Root />
-              </SidebarProvider>
-            </ModalProvider>
-          </BrowserRouter>
-        </AuthProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <ModalProvider>
+                <SidebarProvider>
+                  <Root />
+                </SidebarProvider>
+              </ModalProvider>
+            </BrowserRouter>
+          </AuthProvider>
+        </LoadingProvider>
       </GoogleReCaptchaProvider>
     </MetaMaskProvider>
   );
