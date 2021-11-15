@@ -25,9 +25,6 @@ import Profile from './pages/Profile/Profile';
 import RunNode from './pages/RunNode/RunNode';
 import Wallet from './pages/Wallet/Wallet';
 
-import { useApi } from './services/useApi';
-
-
 import './App.scss';
 
 declare global {
