@@ -94,6 +94,8 @@ body {
   }
 }
 
-.App-Page {
-  position: relative;
+@media only screen and (min-width: 760px) {
+  .App-Page {
+    position: relative;
+  }
 }

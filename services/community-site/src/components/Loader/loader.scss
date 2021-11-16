@@ -33,3 +33,17 @@
   position: absolute;
   right: 0;
 }
+
+#loaderWidget.mobile-loaderWidget {
+  #loaderWidgetProgress {
+    position: absolute;
+    top: 14px;
+    left: 30px;
+  }
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  margin-left: -115px;
+  z-index: 9000;
+  box-shadow: 4px 5px 41px 4px rgba(0, 0, 0, 0.75);
+}
