@@ -202,7 +202,7 @@ function BountyDetails() {
                 Description
               </Text>
               <Markdown>{description}</Markdown>
-              {rewardText.trim() !== '' && (
+              {rewardText && rewardText.trim() !== '' && (
                 <>
                   <Text
                     variant="h5"
