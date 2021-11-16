@@ -33,16 +33,13 @@ interface Node {
   name: string;
   ethWallet: string;
   active: boolean;
-  topPosition: null | number;
-  blocksProduced: number;
-  lastMinedBlockDate: null | Date;
 }
 
 const RunNode = () => {
   const auth = useAuth();
   const api = useApi();
 
-  const isLoggedIn = auth.user?.id;
+  const isLoggedIn = !!auth.user?.id;
 
   const [hasRegisterNodeModal, setHasRegisterNodeModal] = useState(false);
   const [hasUpdateNodeModal, setHasUpdateNodeModal] = useState(false);
@@ -58,51 +55,90 @@ const RunNode = () => {
     if (!data.success) {
       return;
     }
-    const nodes: Node[] = data.response
-      .map((node: Partial<Node>) => {
-        if (node.lastMinedBlockDate !== null) {
-          return {
-            ...node,
-            lastMinedBlockDate: new Date(node.lastMinedBlockDate!),
-          };
-        }
-        return node;
-      })
-      .map((node: Partial<Node>) => {
-        let active = false;
-        if (node.lastMinedBlockDate !== null) {
-          const now = new Date();
-          const diff = Math.ceil((now.getTime() - node.lastMinedBlockDate!.getTime()) / 1000);
-          if (diff / 60 < 120) {
-            active = true;
-          }
-        }
-        return {
-          ...node,
-          active,
-        };
-      });
-    setNodes(nodes);
-
-    function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-      return value !== null && value !== undefined;
-    }
-
-    const nodesWithTopPosition = nodes.map((node) => node.topPosition).filter(notEmpty);
-    if (nodesWithTopPosition.length > 0) {
-      const rating = Math.min(...nodesWithTopPosition);
-      setWeeklyRating(`#${rating}`);
-    }
-
-    const produced = nodes
-      .map((node) => node.blocksProduced)
-      .reduce((acc, blocks) => acc + blocks, 0);
-    setBlocksProduced(ethers.utils.commify(produced.toString()));
+    setNodes(data.response);
   }, []);
 
   useEffect(() => {
     getNodes();
   }, [getNodes]);
+
+  useEffect(() => {
+    const getTopNodes = async () => {
+      const limit = 100;
+      type ExplorerNode = {
+        _id?: string;
+        address: string,
+        count: number;
+      }
+      let explorerNodes: ExplorerNode[] = [];
+
+      let lastResponse;
+      let page = 1;
+      do {
+        const skip = (page - 1) * limit;
+        const data = await api.get(`${process.env.REACT_APP_API_EXPLORER_HOST}/nodes?limit=${limit}&skip=${skip}`, true);
+        if (!data.success) {
+          break;
+        }
+        lastResponse = data.response;
+        explorerNodes = [...explorerNodes, ...lastResponse.result.nodes.map((node: ExplorerNode) => ({ address: node._id?.toLowerCase(), count: node.count }))];
+        page++;
+      } while (explorerNodes.length < lastResponse.total);
+      const wr = nodes.map((node) => node.ethWallet).reduce((acc, wallet) => {
+        const nodePosition = explorerNodes.findIndex((node) => node.address.toLowerCase() === wallet);
+        if (nodePosition !== -1) {
+          acc = Math.min(acc, nodePosition + 1);
+        }
+        return acc;
+      }, Infinity);
+      if (wr !== Infinity) {
+        setWeeklyRating(`#${wr}`);
+      }
+    };
+
+    if (nodes.length > 0) {
+      getTopNodes();
+    }
+  }, [nodes.length]);
+
+  useEffect(() => {
+    const getNodeStats = async () => {
+      const now = new Date();
+      let totalProduced = 0;
+      setNodes(await Promise.all(nodes.map(async node => {
+        const data = await api.get(`${process.env.REACT_APP_API_EXPLORER_HOST}/address/${node.ethWallet}`, true);
+        if (!data.success) {
+          return node;
+        }
+
+        type NodeStats = {
+          lastMinedBlockDate?: Date | null;
+          produced?: number;
+        }
+        const stats: NodeStats = data.response;
+
+        if (stats.lastMinedBlockDate && stats.lastMinedBlockDate !== null) {
+          const lastMinedBlockDate = new Date(stats.lastMinedBlockDate);
+
+          node.active = false;
+          const diff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000);
+          if (diff / 60 < 120) {
+            node.active = true;
+          }
+        }
+
+        if (stats.produced) {
+          totalProduced += stats.produced;
+        }
+        return node;
+      })));
+      setBlocksProduced(ethers.utils.commify(totalProduced.toString()));
+    };
+
+    if (nodes.length > 0) {
+      getNodeStats();
+    }
+  }, [nodes.length]);
 
   const deleteNode = async (node: Node) => {
     await api.del(`/nodes/${node.id}`, true);
@@ -245,7 +281,7 @@ const RunNode = () => {
         </div>
         {nodes.length > 0 && (
           <div className="box">
-            <Text label="Active Nodes" variant="h6" color="primary" className="box-title" />
+            <Text label="Nodes" variant="h6" color="primary" className="box-title" />
             <div className="box-pagination">
               <Pagination
                 page={page}
@@ -277,77 +313,93 @@ const RunNode = () => {
             />
           </div>
         )}
-
-        <div className="box">
-          <Text label="References" variant="h6" color="primary" className="box-title" />
-          <Button
-            label="How do I install a node?"
-            className="referenceButton"
-            variant="contained"
-            onClick={() =>
-              window.open(
-                'https://docs.taraxa.io/node-setup/testnet_node_setup',
-                '_blank',
-                'noreferrer noopener',
-              )
-            }
-          />
-          <Button
-            label="Where do I find my address?"
-            className="referenceButton"
-            variant="contained"
-            onClick={() =>
-              window.open(
-                'https://docs.taraxa.io/node-setup/node_address',
-                '_blank',
-                'noreferrer noopener',
-              )
-            }
-          />
-          <Button
-            label="How do I register my node?"
-            className="referenceButton"
-            variant="contained"
-            onClick={() => setHasRegisterNodeModal(true)}
-            disabled={!isLoggedIn}
-          />
-          <Button
-            label="How do I upgrade my node?"
-            className="referenceButton"
-            variant="contained"
-            onClick={() =>
-              window.open(
-                'https://docs.taraxa.io/node-setup/upgrade-a-node/software-upgrade',
-                '_blank',
-                'noreferrer noopener',
-              )
-            }
-          />
-          <Button
-            label="How do I reset my node?"
-            className="referenceButton"
-            variant="contained"
-            onClick={() =>
-              window.open(
-                'https://docs.taraxa.io/node-setup/upgrade-a-node/data-reset',
-                '_blank',
-                'noreferrer noopener',
-              )
-            }
-          />
-          <Button
-            label="I need help!"
-            className="referenceButton"
-            variant="contained"
-            onClick={() =>
-              window.open('https://taraxa.io/discord', '_blank', 'noreferrer noopener')
-            }
-          />
-        </div>
+        <References
+          isLoggedIn={isLoggedIn}
+          setHasRegisterNodeModal={setHasRegisterNodeModal}
+        />
       </div>
     </div>
   );
 };
+
+interface ReferencesProps {
+  isLoggedIn: boolean;
+  setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
+}
+
+const References = ({
+  isLoggedIn,
+  setHasRegisterNodeModal,
+}: ReferencesProps) => {
+  return (
+    <div className="box">
+      <Text label="References" variant="h6" color="primary" className="box-title" />
+      <Button
+        label="How do I install a node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/testnet_node_setup',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="Where do I find my address?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/node_address',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="How do I register my node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() => setHasRegisterNodeModal(true)}
+        disabled={!isLoggedIn}
+      />
+      <Button
+        label="How do I upgrade my node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/upgrade-a-node/software-upgrade',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="How do I reset my node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/upgrade-a-node/data-reset',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="I need help!"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open('https://taraxa.io/discord', '_blank', 'noreferrer noopener')
+        }
+      />
+    </div>
+  );
+}
 
 interface RunNodeModalProps {
   hasRegisterNodeModal: boolean;
