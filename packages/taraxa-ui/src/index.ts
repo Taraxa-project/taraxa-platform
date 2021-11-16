@@ -30,6 +30,7 @@ import Notification from './components/Notification';
 import Pagination from './components/Pagination';
 import Icons from './components/Icons';
 import File from './components/File';
+import LoadingWidget from './components/LoadingWidget';
 
 export {
   Button,
@@ -64,4 +65,5 @@ export {
   Pagination,
   Icons,
   File,
+  LoadingWidget,
 };

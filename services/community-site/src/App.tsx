@@ -12,7 +12,7 @@ import { ModalProvider, useModal } from './services/useModal';
 import { SidebarProvider } from './services/useSidebar';
 
 import Header from './components/Header/Header';
-import Loader from './components/Loader/Loader';
+import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import Footer from './components/Footer/Footer';
 import Sidebar from './components/Sidebar/Sidebar';
 
@@ -97,7 +97,7 @@ const Root = () => {
         <Sidebar />
         <div className="App-Content">
           <div className="App-Page">
-            <Loader />
+            <LoadingWidget />
             <Switch>
               <Route exact path="/first-login" component={Home} />
               <Route exact path="/reset-password/:code" component={Home} />
