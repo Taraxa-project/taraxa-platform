@@ -157,7 +157,6 @@ function useProvideAuth() {
   };
 
   const setSessionExpired = () => {
-    console.log('session expired, redirecting to sigin in');
     localStorage.setItem('sessionExpired', 'true');
     signout();
     window.location.reload();
