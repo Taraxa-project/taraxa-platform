@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, Notification } from '@taraxa_project/taraxa-ui';
 import { useModal } from '../../services/useModal';
 import { useAuth } from '../../services/useAuth';
 
@@ -7,9 +7,15 @@ type SignInProps = {
   onSuccess: () => void;
   onForgotPassword: () => void;
   onCreateAccount: () => void;
+  isSessionExpired: boolean;
 };
 
-const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) => {
+const SignIn = ({
+  onSuccess,
+  onForgotPassword,
+  onCreateAccount,
+  isSessionExpired,
+}: SignInProps) => {
   const { setIsOpen, setContent } = useModal();
   const auth = useAuth();
 
@@ -41,7 +47,6 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
 
   let hasGeneralError = false;
   let generalErrorMessage = undefined;
-
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;
     generalErrorMessage = errValues[0];
@@ -61,6 +66,9 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    if (isSessionExpired) {
+      auth.clearSessionExpired!();
+    }
 
     setErrors([]);
 
@@ -81,6 +89,11 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
   return (
     <div>
       <Text label="Sign in" variant="h6" color="primary" />
+      {isSessionExpired && (
+        <Text variant="body1" color="error">
+          Your session expired. Please sign in again.
+        </Text>
+      )}
       <form onSubmit={submit}>
         <InputField
           label="E-mail"

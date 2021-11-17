@@ -2,7 +2,7 @@ import React, { useState, useContext, createContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { Modal } from '@taraxa_project/taraxa-ui';
-
+import { useAuth } from './useAuth';
 import SignIn from '../components/Modal/SignIn';
 import EmailConfirmed from '../components/Modal/EmailConfirmed';
 import SignUp from '../components/Modal/SignUp';
@@ -45,9 +45,10 @@ export const useModal = () => {
 
 function useProvideModal() {
   const history = useHistory();
+  const auth = useAuth();
+  const isSessionExpired = auth.isSessionExpired!();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isSessionExpired);
   const [content, setContent] = useState('sign-in');
   const [code, setCode] = useState<undefined | string>();
 
@@ -57,6 +58,9 @@ function useProvideModal() {
   };
 
   const reset = () => {
+    if (isSessionExpired) {
+      auth.clearSessionExpired!();
+    }
     setContent('sign-in');
     setIsOpen(false);
     setCode(undefined);
@@ -127,6 +131,7 @@ function useProvideModal() {
         />
       );
       break;
+    case 'sign-in':
     default:
       title = 'Sign in';
       modal = (
@@ -140,6 +145,7 @@ function useProvideModal() {
           onCreateAccount={() => {
             setContent!('sign-up');
           }}
+          isSessionExpired={isSessionExpired}
         />
       );
   }

@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useLoading } from './useLoading';
+import { useAuth } from './useAuth';
 
 abstract class ResponseHandler<T> {
   handleResponse(response: AxiosResponse<any>) {
@@ -27,6 +28,7 @@ class TypedResponseHandler<T> extends ResponseHandler<T> {
 
 export const useApi = () => {
   const { startLoading, finishLoading } = useLoading();
+  const auth = useAuth();
   const baseUrl = process.env.REACT_APP_API_HOST;
   const token = localStorage.getItem('auth');
 
@@ -68,6 +70,14 @@ export const useApi = () => {
       return {
         success: false,
         response: err.toString(),
+      };
+    }
+
+    if (err.response!.status === 401) {
+      auth.setSessionExpired!();
+      return {
+        success: false,
+        response: 'Session expired',
       };
     }
 
