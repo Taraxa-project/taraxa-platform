@@ -21,11 +21,8 @@ const LoadingWidget = ({ isLoading, widgetId, progressId }: LoadingWidgetProps) 
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   const rootClasses = clsx(
     classes.root,
-    isLoading && classes.show,
-    !isLoading && classes.hide,
-    isMobile && classes.mobile,
-    isMobile && 'mobile-loadingWidget',
-    !isMobile && 'desktop-loadingWidget'
+    isLoading ? classes.show : classes.hide,
+    isMobile ? [classes.mobile, 'mobile-loadingWidget'] : 'desktop-loadingWidget'
   )
 
   return (
