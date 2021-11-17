@@ -63,92 +63,86 @@ function useProvideModal() {
     history.push('/');
   };
 
-  let modal = (
-    <SignIn
-      onSuccess={() => {
-        setIsOpen!(false);
-      }}
-      onForgotPassword={() => {
-        setContent!('forgot-password');
-      }}
-      onCreateAccount={() => {
-        setContent!('sign-up');
-      }}
-    />
-  );
+  let modal: JSX.Element, title: string;
 
-  if (content === 'email-confirmed') {
-    modal = (
-      <EmailConfirmed
-        onSuccess={() => {
-          reset!();
-        }}
-      />
-    );
+  switch (content) {
+    case 'email-confirmed':
+      title = 'Create an account';
+      modal = (
+        <EmailConfirmed
+          onSuccess={() => {
+            reset!();
+          }}
+        />
+      );
+      break;
+    case 'sign-up':
+      title = 'Create an account';
+      modal = (
+        <SignUp
+          onSuccess={() => {
+            setContent!('sign-up-success');
+          }}
+        />
+      );
+      break;
+    case 'sign-up-success':
+      title = 'Create an account';
+      modal = (
+        <SignUpSuccess
+          onSuccess={() => {
+            reset!();
+          }}
+        />
+      );
+      break;
+    case 'forgot-password':
+      title = 'Forgot password';
+      modal = (
+        <ForgotPassword
+          onSuccess={() => {
+            setContent!('forgot-password-success');
+          }}
+        />
+      );
+      break;
+    case 'forgot-password-success':
+      title = 'Forgot password';
+      modal = (
+        <ForgotPasswordSuccess
+          onSuccess={() => {
+            reset!();
+          }}
+        />
+      );
+      break;
+    case 'reset-password':
+      title = 'Enter your new password';
+      modal = (
+        <ResetPassword
+          code={code}
+          onSuccess={() => {
+            reset!();
+          }}
+        />
+      );
+      break;
+    default:
+      title = 'Sign in';
+      modal = (
+        <SignIn
+          onSuccess={() => {
+            setIsOpen!(false);
+          }}
+          onForgotPassword={() => {
+            setContent!('forgot-password');
+          }}
+          onCreateAccount={() => {
+            setContent!('sign-up');
+          }}
+        />
+      );
   }
-
-  if (content === 'sign-up') {
-    modal = (
-      <SignUp
-        onSuccess={() => {
-          setContent!('sign-up-success');
-        }}
-      />
-    );
-  }
-
-  if (content === 'sign-up-success') {
-    modal = (
-      <SignUpSuccess
-        onSuccess={() => {
-          reset!();
-        }}
-      />
-    );
-  }
-
-  if (content === 'forgot-password') {
-    modal = (
-      <ForgotPassword
-        onSuccess={() => {
-          setContent!('forgot-password-success');
-        }}
-      />
-    );
-  }
-
-  if (content === 'forgot-password-success') {
-    modal = (
-      <ForgotPasswordSuccess
-        onSuccess={() => {
-          reset!();
-        }}
-      />
-    );
-  }
-
-  if (content === 'reset-password') {
-    modal = (
-      <ResetPassword
-        code={code}
-        onSuccess={() => {
-          reset!();
-        }}
-      />
-    );
-  }
-
-  modal = (
-    <Modal
-      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
-      title="Test"
-      show={isOpen}
-      children={modal!}
-      parentElementID="root"
-      onRequestClose={reset!}
-      closeIcon={CloseIcon}
-    />
-  );
 
   return {
     isOpen,
@@ -159,6 +153,16 @@ function useProvideModal() {
     setCode,
     signIn,
     reset,
-    modal,
+    modal: (
+      <Modal
+        id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+        title={title}
+        show={isOpen}
+        children={modal!}
+        parentElementID="root"
+        onRequestClose={reset!}
+        closeIcon={CloseIcon}
+      />
+    ),
   };
 }
