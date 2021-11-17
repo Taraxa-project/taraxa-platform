@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
     "target": "es5",
-    "outDir": "lib",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": false,
     "skipLibCheck": true,
@@ -16,7 +17,18 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx"
-  }
+  },
+  "references": [
+    {
+      "path": "packages/taraxa-ui"
+    },
+    {
+      "path": "services/community-site"
+    },
+    {
+      "path": "services/node-status"
+    }
+  ],
+  "exclude": ["node_modules", "lib", "*.d.ts"]
 }

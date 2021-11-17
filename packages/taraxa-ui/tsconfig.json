@@ -1,11 +1,14 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "composite": true,
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "lib",
+    "rootDir": ".",
+    "baseUrl": ".",
     "declaration": true,
-    "declarationDir": "lib"
+    "declarationMap": true,
+    "declarationDir": "lib",
+    "composite": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "lib"]
+  "exclude": ["node_modules", "lib", "*.d.ts"]
 }
