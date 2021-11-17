@@ -7,10 +7,12 @@ import { useLocation } from 'react-router-dom';
 import { Notification } from '@taraxa_project/taraxa-ui';
 
 import { AuthProvider, useAuth } from './services/useAuth';
+import { LoadingProvider } from './services/useLoading';
 import { ModalProvider, useModal } from './services/useModal';
 import { SidebarProvider } from './services/useSidebar';
 
 import Header from './components/Header/Header';
+import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import Footer from './components/Footer/Footer';
 import Sidebar from './components/Sidebar/Sidebar';
 
@@ -95,6 +97,7 @@ const Root = () => {
         <Sidebar />
         <div className="App-Content">
           <div className="App-Page">
+            <LoadingWidget />
             <Switch>
               <Route exact path="/first-login" component={Home} />
               <Route exact path="/reset-password/:code" component={Home} />
@@ -120,15 +123,17 @@ function App() {
   return (
     <MetaMaskProvider>
       <GoogleReCaptchaProvider reCaptchaKey="6LdLJXAaAAAAAAipA9gQ8gpbvVs6b9Jq64Lmr9dl">
-        <AuthProvider>
-          <BrowserRouter>
-            <ModalProvider>
-              <SidebarProvider>
-                <Root />
-              </SidebarProvider>
-            </ModalProvider>
-          </BrowserRouter>
-        </AuthProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <ModalProvider>
+                <SidebarProvider>
+                  <Root />
+                </SidebarProvider>
+              </ModalProvider>
+            </BrowserRouter>
+          </AuthProvider>
+        </LoadingProvider>
       </GoogleReCaptchaProvider>
     </MetaMaskProvider>
   );

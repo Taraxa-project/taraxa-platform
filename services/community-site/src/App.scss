@@ -41,7 +41,6 @@ body {
     margin: 26px 32px 0 32px;
     text-align: left;
   }
-
 }
 
 .dot {
@@ -92,5 +91,11 @@ body {
 
   .App-Page {
     margin: 0 32px;
+  }
+}
+
+@media only screen and (min-width: 760px) {
+  .App-Page {
+    position: relative;
   }
 }
