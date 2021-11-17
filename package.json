@@ -15,18 +15,7 @@
     "postinstall": "husky install"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "yarn run format",
-      "git add"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": [
-        "lint-staged",
-        "yarn run lint"
-      ]
-    }
+    "*.{js,jsx,ts,tsx}": ["eslint", "prettier --write"]
   },
   "dependencies": {
     "husky": "^7.0.2"
