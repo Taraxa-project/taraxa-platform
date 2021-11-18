@@ -21,12 +21,8 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "paths": {
-      "@taraxa_project/taraxa-ui": [
-        "packages/taraxa-ui/src/index.ts"
-      ],
-      "@taraxa_project/taraxa-community-site": [
-        "services/community-site/src/index.ts"
-      ]
+      "@taraxa_project/taraxa-ui": ["packages/taraxa-ui/src/index.ts"],
+      "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"]
     }
   },
   "references": [
