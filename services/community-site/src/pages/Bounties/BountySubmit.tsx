@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useHistory, Redirect } from 'react-router-dom';
 import * as CryptoJS from 'crypto-js';
 
@@ -7,7 +7,7 @@ import { Text, Card, Button, File, Icons, InputField } from '@taraxa_project/tar
 import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
 import { useAuth } from '../../services/useAuth';
 
 import { Bounty } from './bounty';
@@ -194,7 +194,7 @@ function BountySubmit() {
                   />
                   {hasGeneralError && (
                     <Text variant="body1" color="error">
-                      {hasGeneralError}
+                      {generalErrorMessage}
                     </Text>
                   )}
                 </>

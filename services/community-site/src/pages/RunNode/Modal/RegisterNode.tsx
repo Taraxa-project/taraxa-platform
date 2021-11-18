@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
-import { useApi } from '../../../services/useApi';
+import useApi from '../../../services/useApi';
 
 type RegisterNodeProps = {
   onSuccess: () => void;
@@ -30,7 +30,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage;
+  let generalErrorMessage: string;
 
   if (errors.length > 0 && !hasAddressError && !hasSignatureError) {
     hasGeneralError = true;

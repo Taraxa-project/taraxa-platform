@@ -1,5 +1,5 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { useState, useEffect, useCallback } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { useMetaMask } from 'metamask-react';
 
@@ -36,116 +36,6 @@ import { useAuth } from '../../services/useAuth';
 import Title from '../../components/Title/Title';
 
 import './staking.scss';
-
-function Staking() {
-  const { account } = useMetaMask();
-  const token = useToken();
-  const staking = useStaking();
-
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isApprove, setIsApprove] = useState(false);
-  const [isStaking, setIsStaking] = useState(false);
-  const [isUnstaking, setIsUnstaking] = useState(false);
-
-  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
-  const [toStake, setToStake] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
-  const [stakeInput, setStakeInput] = useState('0.0');
-  const [currentStakeBalance, setCurrentStakeBalance] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from('0'),
-  );
-
-  const [lockingPeriod, setLockingPeriod] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from(30 * 24 * 60 * 60),
-  );
-
-  const [transactionHash, setTransactionHash] = useState<null | string>(null);
-
-  useEffect(() => {
-    const getTokenBalance = async () => {
-      if (!token) {
-        return;
-      }
-
-      const balance = await token.balanceOf(account);
-      setTokenBalance(balance);
-      setToStake(balance);
-      setStakeInput(formatEth(weiToEth(balance)));
-    };
-
-    const getLockingPeriod = async () => {
-      if (!staking) {
-        return;
-      }
-
-      const currentLockingPeriod = await staking.lockingPeriod();
-      setLockingPeriod(currentLockingPeriod);
-    };
-
-    getTokenBalance();
-    getLockingPeriod();
-  }, [account, token, staking]);
-
-  return (
-    <>
-      <StakingModal
-        isSuccess={isSuccess}
-        isError={isError}
-        isApprove={isApprove}
-        isStaking={isStaking}
-        isUnstaking={isUnstaking}
-        setIsSuccess={setIsSuccess}
-        setIsError={setIsError}
-        setIsApprove={setIsApprove}
-        setIsStaking={setIsStaking}
-        setIsUnstaking={setIsUnstaking}
-        stakedAmount={formatEth(roundEth(weiToEth(toStake)))}
-        currentStakeBalance={formatEth(roundEth(weiToEth(currentStakeBalance)))}
-        balance={formatEth(roundEth(weiToEth(tokenBalance)))}
-        lockingPeriod={formatTime(lockingPeriod.toNumber())}
-        transactionHash={transactionHash}
-      />
-      <div className="stakingRoot">
-        <Title
-          title="Staking: Phase 1 - Pre-staking"
-          subtitle={
-            <Text variant="body2" color="textSecondary">
-              Earn rewards and help test &amp; secure the Taraxa’s network
-              <a
-                href="https://taraxa.io/faq/staking"
-                target="_blank"
-                rel="noreferrer"
-                className="default-link"
-              >
-                Go to FAQ -&gt;
-              </a>
-            </Text>
-          }
-          tooltip="We’re currently in the first phase of staking roll-out, Pre-staking, which enables TARA lockups on the ETH network. The next phase will be Mirrored Staking, which mirrors staking data from the ETH network over to the Taraxa testnet to enable delegation to consensus nodes. The last phase is mainnet launch, in which all tokens, staking, and delegation is migrated to the Taraxa mainnet."
-        />
-        <StakingNotifications />
-        {false && <StakingTop />}
-        <Stake
-          setIsSuccess={setIsSuccess}
-          setIsError={setIsError}
-          setIsApprove={setIsApprove}
-          setIsStaking={setIsStaking}
-          setIsUnstaking={setIsUnstaking}
-          tokenBalance={tokenBalance}
-          setTokenBalance={setTokenBalance}
-          toStake={toStake}
-          setToStake={setToStake}
-          stakeInput={stakeInput}
-          setStakeInput={setStakeInput}
-          currentStakeBalance={currentStakeBalance}
-          setCurrentStakeBalance={setCurrentStakeBalance}
-          lockingPeriod={lockingPeriod}
-          setTransactionHash={setTransactionHash}
-        />
-      </div>
-    </>
-  );
-}
 
 interface StakingModalProps {
   isSuccess: boolean;
@@ -312,13 +202,11 @@ function StakingTop() {
 
 interface StakeProps {
   setIsSuccess: (isSuccess: boolean) => void;
-  setIsError: (isError: boolean) => void;
   setIsApprove: (isApprove: boolean) => void;
   setIsStaking: (isStaking: boolean) => void;
   setIsUnstaking: (isUnstaking: boolean) => void;
   tokenBalance: ethers.BigNumber;
   setTokenBalance: (tokenBalance: ethers.BigNumber) => void;
-  toStake: ethers.BigNumber;
   setToStake: (toStake: ethers.BigNumber) => void;
   stakeInput: string;
   setStakeInput: (stakeInput: string) => void;
@@ -330,7 +218,6 @@ interface StakeProps {
 
 function Stake({
   setIsSuccess,
-  setIsError,
   setIsApprove,
   setIsStaking,
   setIsUnstaking,
@@ -442,6 +329,7 @@ function Stake({
       };
     }
     setReward(ethers.BigNumber.from('0'));
+    return undefined;
   }, [currentStakeBalance, currentStakeStartDate]);
 
   const stakeTokens = async () => {
@@ -590,7 +478,7 @@ function Stake({
               disabled
               variant="outlined"
               color="secondary"
-              onClick={() => {}}
+              // onClick={() => {}}
               label="Redeem"
               size="small"
             />
@@ -652,6 +540,114 @@ function Stake({
             description={`Locked till ${currentStakeEndDate.toLocaleDateString()}`}
           />
         )}
+      </div>
+    </>
+  );
+}
+
+function Staking() {
+  const { account } = useMetaMask();
+  const token = useToken();
+  const staking = useStaking();
+
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isApprove, setIsApprove] = useState(false);
+  const [isStaking, setIsStaking] = useState(false);
+  const [isUnstaking, setIsUnstaking] = useState(false);
+
+  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [toStake, setToStake] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [stakeInput, setStakeInput] = useState('0.0');
+  const [currentStakeBalance, setCurrentStakeBalance] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from('0'),
+  );
+
+  const [lockingPeriod, setLockingPeriod] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from(30 * 24 * 60 * 60),
+  );
+
+  const [transactionHash, setTransactionHash] = useState<null | string>(null);
+
+  useEffect(() => {
+    const getTokenBalance = async () => {
+      if (!token) {
+        return;
+      }
+
+      const balance = await token.balanceOf(account);
+      setTokenBalance(balance);
+      setToStake(balance);
+      setStakeInput(formatEth(weiToEth(balance)));
+    };
+
+    const getLockingPeriod = async () => {
+      if (!staking) {
+        return;
+      }
+
+      const currentLockingPeriod = await staking.lockingPeriod();
+      setLockingPeriod(currentLockingPeriod);
+    };
+
+    getTokenBalance();
+    getLockingPeriod();
+  }, [account, token, staking]);
+
+  return (
+    <>
+      <StakingModal
+        isSuccess={isSuccess}
+        isError={isError}
+        isApprove={isApprove}
+        isStaking={isStaking}
+        isUnstaking={isUnstaking}
+        setIsSuccess={setIsSuccess}
+        setIsError={setIsError}
+        setIsApprove={setIsApprove}
+        setIsStaking={setIsStaking}
+        setIsUnstaking={setIsUnstaking}
+        stakedAmount={formatEth(roundEth(weiToEth(toStake)))}
+        currentStakeBalance={formatEth(roundEth(weiToEth(currentStakeBalance)))}
+        balance={formatEth(roundEth(weiToEth(tokenBalance)))}
+        lockingPeriod={formatTime(lockingPeriod.toNumber())}
+        transactionHash={transactionHash}
+      />
+      <div className="stakingRoot">
+        <Title
+          title="Staking: Phase 1 - Pre-staking"
+          subtitle={
+            <Text variant="body2" color="textSecondary">
+              Earn rewards and help test &amp; secure the Taraxa’s network
+              <a
+                href="https://taraxa.io/faq/staking"
+                target="_blank"
+                rel="noreferrer"
+                className="default-link"
+              >
+                Go to FAQ -&gt;
+              </a>
+            </Text>
+          }
+          tooltip="We’re currently in the first phase of staking roll-out, Pre-staking, which enables TARA lockups on the ETH network. The next phase will be Mirrored Staking, which mirrors staking data from the ETH network over to the Taraxa testnet to enable delegation to consensus nodes. The last phase is mainnet launch, in which all tokens, staking, and delegation is migrated to the Taraxa mainnet."
+        />
+        <StakingNotifications />
+        {false && <StakingTop />}
+        <Stake
+          setIsSuccess={setIsSuccess}
+          setIsApprove={setIsApprove}
+          setIsStaking={setIsStaking}
+          setIsUnstaking={setIsUnstaking}
+          tokenBalance={tokenBalance}
+          setTokenBalance={setTokenBalance}
+          setToStake={setToStake}
+          stakeInput={stakeInput}
+          setStakeInput={setStakeInput}
+          currentStakeBalance={currentStakeBalance}
+          setCurrentStakeBalance={setCurrentStakeBalance}
+          lockingPeriod={lockingPeriod}
+          setTransactionHash={setTransactionHash}
+        />
       </div>
     </>
   );

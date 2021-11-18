@@ -12,15 +12,6 @@ const initialState: Context = {
 
 const LoadingContext = createContext<Context>(initialState);
 
-export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
-  const loading = useProvideLoading();
-  return <LoadingContext.Provider value={loading}>{children}</LoadingContext.Provider>;
-};
-
-export const useLoading = () => {
-  return useContext(LoadingContext);
-};
-
 function useProvideLoading() {
   const [loadingCount, setLoadingCount] = useState(0);
 
@@ -29,3 +20,12 @@ function useProvideLoading() {
 
   return { isLoading: loadingCount > 0, startLoading, finishLoading };
 }
+
+export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
+  const loading = useProvideLoading();
+  return <LoadingContext.Provider value={loading}>{children}</LoadingContext.Provider>;
+};
+
+export const useLoading = () => {
+  return useContext(LoadingContext);
+};

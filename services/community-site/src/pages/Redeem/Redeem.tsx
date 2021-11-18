@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { useState, useEffect } from 'react';
 import { BaseCard, Button } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
@@ -7,7 +7,7 @@ import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 import useToken from '../../services/useToken';
 import useClaim from '../../services/useClaim';
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
 
 import Title from '../../components/Title/Title';
 

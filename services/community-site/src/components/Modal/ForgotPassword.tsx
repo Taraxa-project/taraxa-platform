@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import { useAuth } from '../../services/useAuth';

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import theme from '../theme';
 
@@ -7,7 +7,6 @@ import Button from '../Button';
 import useStyles from './file-styles';
 
 export interface FileProps {
-  label: string;
   onChange: (file: File) => void;
 }
 

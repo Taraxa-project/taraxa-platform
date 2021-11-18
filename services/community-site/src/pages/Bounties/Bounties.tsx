@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import stringify from 'qs-stringify';
 import { Text, Switch, Pagination } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
@@ -7,11 +7,52 @@ import PinnedIcon from '../../assets/icons/pinned';
 
 import Title from '../../components/Title/Title';
 
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
 
 import { Bounty } from './bounty';
-import BountyCard from './BoutyCard';
+import BountyCard from './BountyCard';
 import './bounties.scss';
+
+function PinnedBounties({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
+  if (bounties.length === 0) {
+    return null;
+  }
+
+  const pinnedBounties = bounties.map((bounty) => (
+    <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />
+  ));
+
+  return (
+    <>
+      <div className="list-header">
+        <div className="legend">
+          <PinnedIcon />
+          <Text label="Pinned" variant="body1" color="primary" className="icon-title" />
+        </div>
+      </div>
+      <div className="cardContainer pinned">{pinnedBounties}</div>
+    </>
+  );
+}
+
+function BountyList({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
+  return (
+    <>
+      {Array.apply(null, Array(Math.ceil(bounties.length / 3)))
+        .map((_, i) => i)
+        .map((row) => {
+          const rows = bounties
+            .slice(row * 3, row * 3 + 3)
+            .map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
+          return (
+            <div key={row} className="cardContainer regular">
+              {rows}
+            </div>
+          );
+        })}
+    </>
+  );
+}
 
 function Bounties() {
   const { get } = useApi();
@@ -173,47 +214,6 @@ function Bounties() {
         {bounties.length > 0 && <BountyList bounties={bounties} goTo={goTo} />}
       </div>
     </div>
-  );
-}
-
-function PinnedBounties({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
-  if (bounties.length === 0) {
-    return null;
-  }
-
-  const pinnedBounties = bounties.map((bounty) => (
-    <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />
-  ));
-
-  return (
-    <>
-      <div className="list-header">
-        <div className="legend">
-          <PinnedIcon />
-          <Text label="Pinned" variant="body1" color="primary" className="icon-title" />
-        </div>
-      </div>
-      <div className="cardContainer pinned">{pinnedBounties}</div>
-    </>
-  );
-}
-
-function BountyList({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
-  return (
-    <>
-      {Array.apply(null, Array(Math.ceil(bounties.length / 3)))
-        .map((_, i) => i)
-        .map((row) => {
-          const rows = bounties
-            .slice(row * 3, row * 3 + 3)
-            .map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
-          return (
-            <div key={row} className="cardContainer regular">
-              {rows}
-            </div>
-          );
-        })}
-    </>
   );
 }
 

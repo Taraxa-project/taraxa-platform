@@ -1,3 +1,5 @@
+import React from 'react';
+
 const DiscordIcon = () => {
   return (
     <svg width="28" height="30" viewBox="0 0 28 30" fill="none" xmlns="http://www.w3.org/2000/svg">

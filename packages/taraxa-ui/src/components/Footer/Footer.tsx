@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   BottomNavigationActionProps as MBottomNavigationActionProps,
   CssBaseline,

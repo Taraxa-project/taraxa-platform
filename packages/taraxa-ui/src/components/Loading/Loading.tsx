@@ -3,9 +3,7 @@ import { CssBaseline, ThemeProvider, CircularProgress } from '@material-ui/core'
 import theme from '../theme';
 import '../app.scss';
 
-export interface LoadingProps {}
-
-const Loading = ({}: LoadingProps) => {
+const Loading = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

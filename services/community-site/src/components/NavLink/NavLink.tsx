@@ -1,3 +1,4 @@
+import React from 'react';
 import { NavLink as Link, NavLinkProps as LinkProps } from 'react-router-dom';
 import './navlink.scss';
 

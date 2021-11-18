@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { Button, Header as THeader } from '@taraxa_project/taraxa-ui';
@@ -94,7 +94,7 @@ const Header = () => {
       elevation={0}
     >
       <Wallet />
-      {isMobile ? hamburger : isMobile ? <></> : button}
+      {isMobile ? hamburger : button}
     </THeader>
   );
 };

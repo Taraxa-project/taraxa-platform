@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
-import { useApi } from './useApi';
+import useApi from './useApi';
 
 type User = {
   id: number;
@@ -39,15 +39,6 @@ const initialState: Context = {
 };
 
 const AuthContext = createContext<Context>(initialState);
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const auth = useProvideAuth();
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
 
 function useProvideAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -172,3 +163,12 @@ function useProvideAuth() {
     refreshUser,
   };
 }
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const auth = useProvideAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

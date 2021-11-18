@@ -32,7 +32,6 @@ export default function Table({ columns, rows }: TableProps) {
     setPage(0);
   };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

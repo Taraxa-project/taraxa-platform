@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import { useAuth } from '../../services/useAuth';
 
@@ -32,7 +32,7 @@ const ResetPassword = ({
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage;
+  let generalErrorMessage: any;
 
   if (errors.length > 0 && !hasPasswordError && !hasPasswordConfirmationError) {
     hasGeneralError = true;

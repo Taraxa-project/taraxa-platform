@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
-import { useApi } from '../../../services/useApi';
+import useApi from '../../../services/useApi';
 
 type UpdateNodeProps = {
   id: number;

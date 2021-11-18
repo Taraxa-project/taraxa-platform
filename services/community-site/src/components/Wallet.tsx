@@ -1,3 +1,4 @@
+import React from 'react';
 import { useMetaMask } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
 import { Button, Text } from '@taraxa_project/taraxa-ui';

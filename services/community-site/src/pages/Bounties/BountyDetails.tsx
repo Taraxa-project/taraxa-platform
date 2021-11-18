@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 
 import { Text, Button, Pagination } from '@taraxa_project/taraxa-ui';
@@ -8,11 +8,11 @@ import UserIcon from '../../assets/icons/user';
 import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
 import { formatTime } from '../../utils/time';
 
 import { Bounty, Submission } from './bounty';
-import BountyCard from './BoutyCard';
+import BountyCard from './BountyCard';
 
 import './bounties.scss';
 
@@ -161,7 +161,7 @@ function BountyDetails() {
           subtitle="Earn rewards and help grow the Taraxa's ecosystem"
         />
         <BountyCard
-          bounty={bounty}
+          bounty={bounty as Bounty}
           isDetailed
           description={
             <>

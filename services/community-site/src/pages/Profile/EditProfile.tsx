@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Text, Button, InputField } from '@taraxa_project/taraxa-ui';
 
 import { useAuth, UpdateUserPayload } from '../../services/useAuth';
@@ -45,7 +45,7 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage;
+  let generalErrorMessage: string;
 
   if (
     errors.length > 0 &&
@@ -203,7 +203,7 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
             size="small"
             label={updatingPassword ? 'Cancel' : 'Update'}
             onClick={() => {
-              updatingPassword ? setUpdatingPassword(false) : setUpdatingPassword(true);
+              setUpdatingPassword(!updatingPassword);
             }}
           />
         </div>

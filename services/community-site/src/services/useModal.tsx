@@ -34,15 +34,6 @@ const initialState: Context = {
 
 const ModalContext = createContext<Context>(initialState);
 
-export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
-  const modal = useProvideModal();
-  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>;
-};
-
-export const useModal = () => {
-  return useContext(ModalContext);
-};
-
 function useProvideModal() {
   const history = useHistory();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
@@ -162,3 +153,12 @@ function useProvideModal() {
     modal,
   };
 }
+
+export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
+  const modal = useProvideModal();
+  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>;
+};
+
+export const useModal = () => {
+  return useContext(ModalContext);
+};

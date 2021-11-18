@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Modal } from '@taraxa_project/taraxa-ui';
 import { useMediaQuery } from 'react-responsive';
@@ -17,6 +17,49 @@ import ViewProfile from './ViewProfile';
 import EditProfile from './EditProfile';
 
 import './profile.scss';
+
+interface ProfileModalProps {
+  isKYCModalOpen: boolean;
+  modalContent: string;
+  setIsKYCModalOpen: (isKYCModalOpen: boolean) => void;
+  setModalContent: (modalContent: string) => void;
+}
+
+function ProfileModal({
+  isKYCModalOpen,
+  modalContent,
+  setIsKYCModalOpen,
+  setModalContent,
+}: ProfileModalProps) {
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+
+  const resetModal = () => {
+    setModalContent('kyc');
+    setIsKYCModalOpen(false);
+  };
+
+  let content = <KYC onSuccess={resetModal} />;
+
+  if (modalContent === 'kyc-success') {
+    content = <KYCSuccess onSuccess={resetModal} />;
+  }
+
+  if (modalContent === 'kyc-error') {
+    content = <KYCError onSuccess={resetModal} />;
+  }
+
+  return (
+    <Modal
+      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+      title="Submit KYC"
+      parentElementID="root"
+      show={isKYCModalOpen}
+      children={content}
+      onRequestClose={resetModal}
+      closeIcon={CloseIcon}
+    />
+  );
+}
 
 const Profile = () => {
   const auth = useAuth();
@@ -83,48 +126,5 @@ const Profile = () => {
     </div>
   );
 };
-
-interface ProfileModalProps {
-  isKYCModalOpen: boolean;
-  modalContent: string;
-  setIsKYCModalOpen: (isKYCModalOpen: boolean) => void;
-  setModalContent: (modalContent: string) => void;
-}
-
-function ProfileModal({
-  isKYCModalOpen,
-  modalContent,
-  setIsKYCModalOpen,
-  setModalContent,
-}: ProfileModalProps) {
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-
-  const resetModal = () => {
-    setModalContent('kyc');
-    setIsKYCModalOpen(false);
-  };
-
-  let content = <KYC onSuccess={resetModal} />;
-
-  if (modalContent === 'kyc-success') {
-    content = <KYCSuccess onSuccess={resetModal} />;
-  }
-
-  if (modalContent === 'kyc-error') {
-    content = <KYCError onSuccess={resetModal} />;
-  }
-
-  return (
-    <Modal
-      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
-      title="Submit KYC"
-      parentElementID="root"
-      show={isKYCModalOpen}
-      children={content}
-      onRequestClose={resetModal}
-      closeIcon={CloseIcon}
-    />
-  );
-}
 
 export default Profile;

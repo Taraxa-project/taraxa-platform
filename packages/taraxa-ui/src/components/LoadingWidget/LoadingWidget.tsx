@@ -1,5 +1,5 @@
+import React, { useMediaQuery } from 'react-responsive';
 import clsx from 'clsx';
-import { useMediaQuery } from 'react-responsive';
 import { Box, CircularProgress, CssBaseline, ThemeProvider } from '@material-ui/core';
 import theme from '../theme';
 

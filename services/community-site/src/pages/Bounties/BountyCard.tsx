@@ -1,3 +1,4 @@
+import React from 'react';
 import { RewardCard } from '@taraxa_project/taraxa-ui';
 
 import Markdown from '../../components/Markdown';

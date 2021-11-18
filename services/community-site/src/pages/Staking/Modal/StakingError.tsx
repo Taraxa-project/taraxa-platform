@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button, Text } from '@taraxa_project/taraxa-ui';
 import ErrorIcon from '../../../assets/icons/error';
 

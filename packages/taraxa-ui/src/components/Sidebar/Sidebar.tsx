@@ -62,20 +62,6 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export interface SidebarProps extends DrawerProps {
-  disablePadding?: boolean;
-  dense?: boolean;
-  depthStep?: 0;
-  depth?: 0;
-  className?: string;
-  items: {
-    label?: string;
-    name?: string;
-    Link?: JSX.Element;
-    items?: { label?: string; name?: string; Link?: JSX.Element }[];
-  }[];
-}
-
 interface SidebarItemProps {
   label?: string;
   name?: string;
@@ -90,69 +76,6 @@ interface SidebarItemProps {
   }[];
   Link?: JSX.Element;
 }
-
-const Sidebar = ({
-  disablePadding,
-  dense,
-  depthStep,
-  depth,
-  items,
-  className,
-  children,
-  ...props
-}: SidebarProps) => {
-  const classes = useStyles();
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  let paperClasses = [classes.drawerPaper];
-
-  if (isMobile) {
-    paperClasses = [...paperClasses, classes.drawerPaperMobile];
-  }
-
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Drawer
-        className="sidebar"
-        variant={!isMobile ? 'permanent' : 'temporary'}
-        classes={{ paper: paperClasses.join(' ') }}
-        anchor={isMobile ? 'right' : 'left'}
-        elevation={0}
-        {...props}
-      >
-        <div>
-          <List
-            disablePadding={disablePadding}
-            dense={dense}
-            id="sidebarList"
-            className={className || ''}
-          >
-            {items.map((sidebarItem, index) => (
-              <SidebarItem
-                key={`${sidebarItem.label}${index}`}
-                depthStep={depthStep || 10}
-                depth={depth || 0}
-                subItem={false}
-                items={sidebarItem.items ? sidebarItem.items : []}
-                label={sidebarItem.label ? sidebarItem.label : ''}
-                Link={sidebarItem.Link ? sidebarItem.Link : undefined}
-                name={sidebarItem.name ? sidebarItem.name : undefined}
-              />
-            ))}
-          </List>
-          {children}
-        </div>
-        <div>
-          <Text
-            label={`© Taraxa ${new Date().getFullYear()}`}
-            variant="body1"
-            color="textSecondary"
-          />
-        </div>
-      </Drawer>
-    </ThemeProvider>
-  );
-};
 
 const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: SidebarItemProps) => {
   const pathname =
@@ -216,6 +139,84 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
         </List>
       ) : null}
     </>
+  );
+};
+
+export interface SidebarProps extends DrawerProps {
+  disablePadding?: boolean;
+  dense?: boolean;
+  depthStep?: 0;
+  depth?: 0;
+  className?: string;
+  children?: JSX.Element | false | Array<JSX.Element | false>;
+  items: {
+    label?: string;
+    name?: string;
+    Link?: JSX.Element;
+    items?: { label?: string; name?: string; Link?: JSX.Element }[];
+  }[];
+}
+
+const Sidebar = ({
+  disablePadding,
+  dense,
+  depthStep,
+  depth,
+  items,
+  className,
+  children,
+  ...props
+}: SidebarProps) => {
+  const classes = useStyles();
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  let paperClasses = [classes.drawerPaper];
+
+  if (isMobile) {
+    paperClasses = [...paperClasses, classes.drawerPaperMobile];
+  }
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Drawer
+        className="sidebar"
+        variant={!isMobile ? 'permanent' : 'temporary'}
+        classes={{ paper: paperClasses.join(' ') }}
+        anchor={isMobile ? 'right' : 'left'}
+        elevation={0}
+        {...props}
+      >
+        <div>
+          <List
+            disablePadding={disablePadding}
+            dense={dense}
+            id="sidebarList"
+            className={className || ''}
+          >
+            {items.map((sidebarItem, index) => (
+              <SidebarItem
+                key={`${sidebarItem.label}${index}`}
+                depthStep={depthStep || 10}
+                depth={depth || 0}
+                subItem={false}
+                items={sidebarItem.items ? sidebarItem.items : []}
+                label={sidebarItem.label ? sidebarItem.label : ''}
+                Link={sidebarItem.Link ? sidebarItem.Link : undefined}
+                name={sidebarItem.name ? sidebarItem.name : undefined}
+              />
+            ))}
+          </List>
+          {children}
+        </div>
+        <div>
+          <Text
+            label={`© Taraxa ${new Date().getFullYear()}`}
+            variant="body1"
+            color="textSecondary"
+          />
+        </div>
+      </Drawer>
+    </ThemeProvider>
   );
 };
 

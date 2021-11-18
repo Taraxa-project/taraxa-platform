@@ -34,6 +34,7 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
           {Icon && (
             <div
               className={classes.iconContainer}
+              // eslint-disable-next-line
               dangerouslySetInnerHTML={{ __html: profileIcon }}
             />
           )}

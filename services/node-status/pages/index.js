@@ -1,5 +1,5 @@
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
 import axios from 'axios';
 import { Header, Footer, Text, BaseCard, Button } from '@taraxa_project/taraxa-ui';

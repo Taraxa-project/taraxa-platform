@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useMediaQuery } from 'react-responsive';
 import {
@@ -19,7 +19,7 @@ import EditIcon from '../../assets/icons/edit';
 import DeleteIcon from '../../assets/icons/delete';
 
 import { useAuth } from '../../services/useAuth';
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
 
 import Title from '../../components/Title/Title';
 
@@ -34,6 +34,144 @@ interface Node {
   ethWallet: string;
   active: boolean;
 }
+
+interface RunNodeModalProps {
+  hasRegisterNodeModal: boolean;
+  setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
+  hasUpdateNodeModal: boolean;
+  setHasUpdateNodeModal: (hasUpdateNodeModal: boolean) => void;
+  getNodes: () => void;
+  currentEditedNode: null | Node;
+}
+
+const RunNodeModal = ({
+  hasRegisterNodeModal,
+  hasUpdateNodeModal,
+  setHasRegisterNodeModal,
+  setHasUpdateNodeModal,
+  getNodes,
+  currentEditedNode,
+}: RunNodeModalProps) => {
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  let modal;
+
+  if (hasRegisterNodeModal) {
+    modal = (
+      <RegisterNode
+        onSuccess={() => {
+          getNodes();
+          setHasRegisterNodeModal(false);
+        }}
+      />
+    );
+  }
+
+  if (hasUpdateNodeModal && currentEditedNode !== null) {
+    modal = (
+      <UpdateNode
+        id={currentEditedNode.id}
+        name={currentEditedNode.name}
+        onSuccess={() => {
+          getNodes();
+          setHasUpdateNodeModal(false);
+        }}
+      />
+    );
+  }
+
+  if (!modal) {
+    return null;
+  }
+
+  return (
+    <Modal
+      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+      title="Register Node"
+      show={hasRegisterNodeModal || hasUpdateNodeModal}
+      children={modal}
+      parentElementID="root"
+      onRequestClose={() => {
+        setHasRegisterNodeModal(false);
+        setHasUpdateNodeModal(false);
+      }}
+      closeIcon={CloseIcon}
+    />
+  );
+};
+
+interface ReferencesProps {
+  isLoggedIn: boolean;
+  setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
+}
+
+const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) => {
+  return (
+    <div className="box">
+      <Text label="References" variant="h6" color="primary" className="box-title" />
+      <Button
+        label="How do I install a node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/testnet_node_setup',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="Where do I find my address?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/node_address',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="How do I register my node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() => setHasRegisterNodeModal(true)}
+        disabled={!isLoggedIn}
+      />
+      <Button
+        label="How do I upgrade my node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/upgrade-a-node/software-upgrade',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="How do I reset my node?"
+        className="referenceButton"
+        variant="contained"
+        onClick={() =>
+          window.open(
+            'https://docs.taraxa.io/node-setup/upgrade-a-node/data-reset',
+            '_blank',
+            'noreferrer noopener',
+          )
+        }
+      />
+      <Button
+        label="I need help!"
+        className="referenceButton"
+        variant="contained"
+        onClick={() => window.open('https://taraxa.io/discord', '_blank', 'noreferrer noopener')}
+      />
+    </div>
+  );
+};
 
 const RunNode = () => {
   const auth = useAuth();
@@ -336,144 +474,6 @@ const RunNode = () => {
         <References isLoggedIn={isLoggedIn} setHasRegisterNodeModal={setHasRegisterNodeModal} />
       </div>
     </div>
-  );
-};
-
-interface ReferencesProps {
-  isLoggedIn: boolean;
-  setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
-}
-
-const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) => {
-  return (
-    <div className="box">
-      <Text label="References" variant="h6" color="primary" className="box-title" />
-      <Button
-        label="How do I install a node?"
-        className="referenceButton"
-        variant="contained"
-        onClick={() =>
-          window.open(
-            'https://docs.taraxa.io/node-setup/testnet_node_setup',
-            '_blank',
-            'noreferrer noopener',
-          )
-        }
-      />
-      <Button
-        label="Where do I find my address?"
-        className="referenceButton"
-        variant="contained"
-        onClick={() =>
-          window.open(
-            'https://docs.taraxa.io/node-setup/node_address',
-            '_blank',
-            'noreferrer noopener',
-          )
-        }
-      />
-      <Button
-        label="How do I register my node?"
-        className="referenceButton"
-        variant="contained"
-        onClick={() => setHasRegisterNodeModal(true)}
-        disabled={!isLoggedIn}
-      />
-      <Button
-        label="How do I upgrade my node?"
-        className="referenceButton"
-        variant="contained"
-        onClick={() =>
-          window.open(
-            'https://docs.taraxa.io/node-setup/upgrade-a-node/software-upgrade',
-            '_blank',
-            'noreferrer noopener',
-          )
-        }
-      />
-      <Button
-        label="How do I reset my node?"
-        className="referenceButton"
-        variant="contained"
-        onClick={() =>
-          window.open(
-            'https://docs.taraxa.io/node-setup/upgrade-a-node/data-reset',
-            '_blank',
-            'noreferrer noopener',
-          )
-        }
-      />
-      <Button
-        label="I need help!"
-        className="referenceButton"
-        variant="contained"
-        onClick={() => window.open('https://taraxa.io/discord', '_blank', 'noreferrer noopener')}
-      />
-    </div>
-  );
-};
-
-interface RunNodeModalProps {
-  hasRegisterNodeModal: boolean;
-  setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
-  hasUpdateNodeModal: boolean;
-  setHasUpdateNodeModal: (hasUpdateNodeModal: boolean) => void;
-  getNodes: () => void;
-  currentEditedNode: null | Node;
-}
-
-const RunNodeModal = ({
-  hasRegisterNodeModal,
-  hasUpdateNodeModal,
-  setHasRegisterNodeModal,
-  setHasUpdateNodeModal,
-  getNodes,
-  currentEditedNode,
-}: RunNodeModalProps) => {
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  let modal;
-
-  if (hasRegisterNodeModal) {
-    modal = (
-      <RegisterNode
-        onSuccess={() => {
-          getNodes();
-          setHasRegisterNodeModal(false);
-        }}
-      />
-    );
-  }
-
-  if (hasUpdateNodeModal && currentEditedNode !== null) {
-    modal = (
-      <UpdateNode
-        id={currentEditedNode.id}
-        name={currentEditedNode.name}
-        onSuccess={() => {
-          getNodes();
-          setHasUpdateNodeModal(false);
-        }}
-      />
-    );
-  }
-
-  if (!modal) {
-    return null;
-  }
-
-  return (
-    <Modal
-      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
-      title="Register Node"
-      show={hasRegisterNodeModal || hasUpdateNodeModal}
-      children={modal}
-      parentElementID="root"
-      onRequestClose={() => {
-        setHasRegisterNodeModal(false);
-        setHasUpdateNodeModal(false);
-      }}
-      closeIcon={CloseIcon}
-    />
   );
 };
 

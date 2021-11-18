@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import { useModal } from '../../services/useModal';
 import { useAuth } from '../../services/useAuth';
@@ -40,7 +40,7 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage;
+  let generalErrorMessage: any;
 
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;

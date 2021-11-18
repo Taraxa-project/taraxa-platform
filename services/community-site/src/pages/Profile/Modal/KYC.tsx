@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, Checkbox } from '@taraxa_project/taraxa-ui';
 
 import KYCIcon from '../../../assets/icons/kyc';
 
-import { useApi } from '../../../services/useApi';
+import useApi from '../../../services/useApi';
 
 type KYCProps = {
   onSuccess: () => void;

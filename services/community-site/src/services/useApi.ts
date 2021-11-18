@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import axios, { AxiosError } from 'axios';
 import { useLoading } from './useLoading';
 
-export const useApi = () => {
+const useApi = () => {
   const { startLoading, finishLoading } = useLoading();
   const baseUrl = process.env.REACT_APP_API_HOST;
   const token = localStorage.getItem('auth');
@@ -58,7 +58,7 @@ export const useApi = () => {
   }, []);
 
   const post = useCallback(
-    async <T>(url: string, data: {}, includeToken = false) => {
+    async <T>(url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
       const options = getOptions(includeToken);
       startLoading!();
       return axios
@@ -76,7 +76,7 @@ export const useApi = () => {
   );
 
   const put = useCallback(
-    async (url: string, data: {}, includeToken = false) => {
+    async (url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
       const options = getOptions(includeToken);
       startLoading!();
       return axios
@@ -131,3 +131,5 @@ export const useApi = () => {
 
   return { post, put, del, get };
 };
+
+export default useApi;

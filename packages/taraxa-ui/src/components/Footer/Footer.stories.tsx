@@ -1,5 +1,5 @@
-import { Meta } from '@storybook/react/types-6-0';
-import { Story } from '@storybook/react';
+import React from 'react';
+import { Story, Meta } from '@storybook/react';
 import Footer, { FooterProps } from './Footer';
 
 export default {

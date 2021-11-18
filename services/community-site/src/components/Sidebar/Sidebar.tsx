@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { withRouter, useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { useMetaMask } from 'metamask-react';
@@ -153,8 +153,8 @@ const Sidebar = () => {
 
   return (
     <MSidebar disablePadding dense items={menu} open={isOpen} onClose={() => close!()}>
-      {hamburger && hamburger}
-      {isMobile && mobileButtons && mobileButtons}
+      {hamburger}
+      {isMobile && mobileButtons}
     </MSidebar>
   );
 };

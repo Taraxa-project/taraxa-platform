@@ -1,3 +1,4 @@
+import React from 'react';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 
 import Text from '../Text';
