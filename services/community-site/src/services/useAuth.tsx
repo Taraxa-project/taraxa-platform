@@ -32,6 +32,9 @@ type Context = {
   emailConfirmation?: (email?: string) => Promise<any>;
   updateUser?: (payload: Partial<UpdateUserPayload>) => Promise<any>;
   refreshUser?: () => Promise<any>;
+  setSessionExpired?: () => void;
+  clearSessionExpired?: () => void;
+  isSessionExpired?: () => boolean;
 };
 
 const initialState: Context = {
@@ -144,6 +147,16 @@ function useProvideAuth() {
     return result;
   };
 
+  const setSessionExpired = () => {
+    localStorage.setItem('sessionExpired', 'true');
+    signout();
+    window.location.reload();
+  };
+
+  const clearSessionExpired = () => localStorage.removeItem('sessionExpired');
+
+  const isSessionExpired = () => localStorage.getItem('sessionExpired') === 'true';
+
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (user) {
@@ -161,6 +174,9 @@ function useProvideAuth() {
     emailConfirmation,
     updateUser,
     refreshUser,
+    setSessionExpired,
+    isSessionExpired,
+    clearSessionExpired,
   };
 }
 
