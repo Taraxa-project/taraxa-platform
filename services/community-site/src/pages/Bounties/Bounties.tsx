@@ -135,9 +135,9 @@ function Bounties() {
         <div className="list-header">
           <div className="list-header-left">
             <div className="legend">
-              <span className={`dot ${inactive ? 'inactive' : 'active'}`}></span>
+              <span className={`dot ${inactive ? 'inactive' : 'active'}`} />
               <Text
-                label={(inactive ? 'Inactive' : 'Active') + ` Bounties`}
+                label={`${inactive ? 'Inactive' : 'Active'} Bounties`}
                 variant="body1"
                 color="primary"
                 className="icon-title"
@@ -164,7 +164,7 @@ function Bounties() {
         {bounties.length === 0 && (
           <div>
             <Text
-              label={`No ` + (inactive ? 'inactive' : 'active') + ` bounties`}
+              label={`No ${inactive ? 'inactive' : 'active'} bounties`}
               variant="body2"
               color="textSecondary"
             />

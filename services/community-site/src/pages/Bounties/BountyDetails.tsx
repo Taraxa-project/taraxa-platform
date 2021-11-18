@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useHistory } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 
 import { Text, Button, Pagination } from '@taraxa_project/taraxa-ui';
 
-import UserIcon from './../../assets/icons/user';
+import UserIcon from '../../assets/icons/user';
 
 import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
@@ -18,7 +17,7 @@ import BountyCard from './BoutyCard';
 import './bounties.scss';
 
 function BountyDetails() {
-  let { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
 
   const { get } = useApi();
   const history = useHistory();
@@ -163,7 +162,7 @@ function BountyDetails() {
         />
         <BountyCard
           bounty={bounty}
-          isDetailed={true}
+          isDetailed
           description={
             <>
               {bounty.localizations && bounty.localizations!.length > 0 && (
@@ -176,7 +175,7 @@ function BountyDetails() {
                     onClick={() => setLocale('en')}
                     size="small"
                     disabled={locale === 'en'}
-                  ></Button>
+                  />
                   {bounty.localizations!.map((l) => (
                     <Button
                       key={l.id}
@@ -187,7 +186,7 @@ function BountyDetails() {
                       onClick={() => setLocale(l.locale)}
                       size="small"
                       disabled={l.locale === locale}
-                    ></Button>
+                    />
                   ))}
                 </div>
               )}

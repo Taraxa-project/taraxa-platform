@@ -42,7 +42,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage;
 
   if (
     errors.length > 0 &&

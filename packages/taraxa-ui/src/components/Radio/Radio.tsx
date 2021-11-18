@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import theme from '../theme';
 
-export interface RadioProps extends MRadioProps {}
+export type RadioProps = MRadioProps;
 
 const Radio = ({ checked, name, color, disabled, onChange, id, className, value }: RadioProps) => {
   return (

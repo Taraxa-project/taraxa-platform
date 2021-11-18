@@ -111,7 +111,7 @@ interface ViewProfileDetailsKYCProps {
 
 function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
   const auth = useAuth();
-  const kyc = auth.user!.kyc;
+  const { kyc } = auth.user!;
 
   const empty = [null, '', '-', 'NOT_STARTED'];
   const hasKYC = ![...empty, 'VERIFYING'].includes(kyc);

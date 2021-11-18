@@ -40,7 +40,7 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage;
 
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;

@@ -36,14 +36,12 @@ const ProfileBasicCard = ({
       <MCard className={classes.root} elevation={0} variant="outlined">
         {Icon && (
           <Typography variant="body1" className={classes.label} color="primary">
-            {
-              <div className={classes.iconContainer}>
-                <div className={classes.icon}>
-                  <Icon />
-                </div>
-                {title}
+            <div className={classes.iconContainer}>
+              <div className={classes.icon}>
+                <Icon />
               </div>
-            }
+              {title}
+            </div>
           </Typography>
         )}
         {!Icon && (
@@ -63,7 +61,7 @@ const ProfileBasicCard = ({
           </Typography>
         </CardContent>
         {buttonOptions && (
-          <CardActions className={classes.actions} disableSpacing={true}>
+          <CardActions className={classes.actions} disableSpacing>
             {buttonOptions}
           </CardActions>
         )}

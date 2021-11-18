@@ -125,13 +125,13 @@ const Sidebar = ({
             disablePadding={disablePadding}
             dense={dense}
             id="sidebarList"
-            className={className ? className : ''}
+            className={className || ''}
           >
             {items.map((sidebarItem, index) => (
               <SidebarItem
                 key={`${sidebarItem.label}${index}`}
-                depthStep={depthStep ? depthStep : 10}
-                depth={depth ? depth : 0}
+                depthStep={depthStep || 10}
+                depth={depth || 0}
                 subItem={false}
                 items={sidebarItem.items ? sidebarItem.items : []}
                 label={sidebarItem.label ? sidebarItem.label : ''}
@@ -160,7 +160,7 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
       ? window.location.pathname.substring(1)
       : window.location.pathname;
 
-  let className = [];
+  const className = [];
 
   let isOpen = false;
 
@@ -189,13 +189,13 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
               marginTop: 0,
               marginBottom: 0,
             }}
-          ></ListItemText>
+          />
         ) : (
           <>
             <ListItemText
               primary={<div className="label">{label}</div>}
               style={{ paddingLeft: subItem ? depth * depthStep : 15 }}
-            ></ListItemText>
+            />
           </>
         )}
       </ListItem>

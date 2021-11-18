@@ -1,5 +1,5 @@
 import { Button, Text } from '@taraxa_project/taraxa-ui';
-import ErrorIcon from './../../../assets/icons/error';
+import ErrorIcon from '../../../assets/icons/error';
 
 interface StakingErrorProps {
   amount: string;

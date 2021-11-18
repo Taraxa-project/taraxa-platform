@@ -1,12 +1,12 @@
-import theme from '../theme';
 import {
   BottomNavigationActionProps as MBottomNavigationActionProps,
   CssBaseline,
   ThemeProvider,
 } from '@material-ui/core';
+import { useMediaQuery } from 'react-responsive';
+import theme from '../theme';
 import Text from '../Text';
 import useStyles from './footer-styles';
-import { useMediaQuery } from 'react-responsive';
 import logo from '../../images/logo.svg';
 
 export interface FooterProps extends MBottomNavigationActionProps {
@@ -65,6 +65,7 @@ const Footer = ({ items, description, links }: FooterProps) => {
                 href={link.link}
                 target="_blank"
                 className={classes.footerParagraph}
+                rel="noreferrer"
               >
                 <Text label={link.label} variant="body1" color="textSecondary" />
               </a>

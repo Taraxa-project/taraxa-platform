@@ -440,9 +440,8 @@ function Stake({
       return () => {
         clearInterval(interval);
       };
-    } else {
-      setReward(ethers.BigNumber.from('0'));
     }
+    setReward(ethers.BigNumber.from('0'));
   }, [currentStakeBalance, currentStakeStartDate]);
 
   const stakeTokens = async () => {
@@ -588,13 +587,13 @@ function Stake({
           }
           button={
             <Button
-              disabled={true}
+              disabled
               variant="outlined"
               color="secondary"
               onClick={() => {}}
               label="Redeem"
               size="small"
-            ></Button>
+            />
           }
         />
         <BaseCard
@@ -615,7 +614,7 @@ function Stake({
               onClick={() => unstakeTokens()}
               label="Unstake"
               size="small"
-            ></Button>
+            />
           }
         />
         <BaseCard

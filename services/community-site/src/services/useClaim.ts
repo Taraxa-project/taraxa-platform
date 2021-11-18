@@ -6,7 +6,7 @@ function useClaim() {
   const { provider, signer } = useChain();
 
   const instance = useMemo(() => {
-    let instance = undefined;
+    let instance;
 
     if (!provider || !signer) {
       return instance;

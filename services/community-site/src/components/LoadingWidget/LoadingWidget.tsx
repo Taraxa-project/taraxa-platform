@@ -1,6 +1,6 @@
 import { useMediaQuery } from 'react-responsive';
-import { useLoading } from '../../services/useLoading';
 import { LoadingWidget as TLoadingWidget } from '@taraxa_project/taraxa-ui';
+import { useLoading } from '../../services/useLoading';
 
 import './loading-widget.scss';
 

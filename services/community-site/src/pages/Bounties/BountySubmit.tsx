@@ -15,7 +15,7 @@ import { Bounty } from './bounty';
 import './bounties.scss';
 
 function BountySubmit() {
-  let { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
 
   const api = useApi();
   const auth = useAuth();
@@ -60,7 +60,7 @@ function BountySubmit() {
   const fileErrorMessage = hasError('file') ? errValues[findErrorIndex('file')] : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage;
 
   if (errors.length > 0 && !hasSubmissionError && !hasFileError) {
     hasGeneralError = true;
@@ -91,11 +91,9 @@ function BountySubmit() {
       const result = await api.post('/upload', formData, true);
       if (result.success) {
         uploadedFile = result.response[0];
-      } else {
-        if (typeof result.response === 'string') {
-          setErrors([{ key: 'file', value: result.response }]);
-          return;
-        }
+      } else if (typeof result.response === 'string') {
+        setErrors([{ key: 'file', value: result.response }]);
+        return;
       }
 
       if (!uploadedFile) {
@@ -203,7 +201,7 @@ function BountySubmit() {
               }
             >
               <Text variant="h5" color="primary" className="title">
-                <span className={['dot', bounty.active ? 'active' : 'inactive'].join(' ')}></span>
+                <span className={['dot', bounty.active ? 'active' : 'inactive'].join(' ')} />
                 {bounty.name!}
               </Text>
               <Markdown>{bounty.submission!}</Markdown>

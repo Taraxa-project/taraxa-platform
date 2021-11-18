@@ -32,7 +32,7 @@ const ResetPassword = ({
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage;
 
   if (errors.length > 0 && !hasPasswordError && !hasPasswordConfirmationError) {
     hasGeneralError = true;

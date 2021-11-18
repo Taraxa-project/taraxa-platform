@@ -8,10 +8,10 @@ import {
   ThemeProvider,
   Typography,
 } from '@material-ui/core';
+import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import Button from '../Button';
 import useStyles from './datacard-styles';
-import { useMediaQuery } from 'react-responsive';
 
 export interface DataCardProps extends MCardProps {
   description: string;
@@ -73,7 +73,7 @@ const DataCard = ({
               variant="contained"
               label={onClickText}
               size="medium"
-            ></Button>
+            />
           </CardActions>
         )}
       </MCard>

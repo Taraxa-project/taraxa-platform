@@ -74,4 +74,4 @@ const rows = [
 const Template: Story<TableProps> = (args) => <Table {...args} />;
 
 export const Primary = Template.bind({});
-Primary.args = { columns: columns, rows: rows };
+Primary.args = { columns, rows };

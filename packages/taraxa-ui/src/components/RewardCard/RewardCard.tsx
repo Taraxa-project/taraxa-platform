@@ -48,7 +48,7 @@ const RewardCard = ({
               <Typography variant="h5" color="primary" className={classes.title}>
                 <span
                   className={[classes.dot, isActive ? classes.active : classes.inactive].join(' ')}
-                ></span>
+                />
                 {title}
               </Typography>
 
@@ -94,7 +94,7 @@ const RewardCard = ({
                 label={onClickText}
                 size="medium"
                 fullWidth
-              ></Button>
+              />
             </div>
           </div>
           {dataList && <div className={classes.dataListContainer}>{dataList}</div>}

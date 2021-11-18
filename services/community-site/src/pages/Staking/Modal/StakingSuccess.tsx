@@ -2,7 +2,7 @@ import { Button, Text } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
 import SuccessIcon from '../../../assets/icons/success';
-import LockIcon from './../../../assets/icons/lock';
+import LockIcon from '../../../assets/icons/lock';
 
 interface StakingSuccessProps {
   lockingPeriod: string;
@@ -38,7 +38,7 @@ const StakingSuccess = ({ lockingPeriod, transactionHash, onSuccess }: StakingSu
         <SuccessIcon />
       </div>
       <Text
-        label={`Your TARA has been successfully transferred to the staking contract.`}
+        label="Your TARA has been successfully transferred to the staking contract."
         variant="body2"
         color="primary"
       />

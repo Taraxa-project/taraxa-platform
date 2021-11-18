@@ -35,8 +35,8 @@ const InputField = ({ max, min, ...props }: InputFieldProps) => {
           max && min
             ? {
                 inputProps: {
-                  max: max,
-                  min: min,
+                  max,
+                  min,
                 },
               }
             : undefined

@@ -10,7 +10,7 @@ import Title from '../../components/Title/Title';
 
 import './wallet.scss';
 
-let walletConnected = false;
+const walletConnected = false;
 
 const Wallet = () => {
   const history = useHistory();

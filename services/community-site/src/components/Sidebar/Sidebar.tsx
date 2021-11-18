@@ -14,7 +14,7 @@ import StakingSidebar from '../../assets/icons/stakingSidebar';
 // import WalletSidebar from "../../assets/icons/walletSidebar";
 import HamburgerIcon from '../../assets/icons/hamburger';
 
-import NavLink from '../../components/NavLink/NavLink';
+import NavLink from '../NavLink/NavLink';
 
 import { useAuth } from '../../services/useAuth';
 import { useModal } from '../../services/useModal';
@@ -112,7 +112,7 @@ const Sidebar = () => {
       label="Sign in / Sign up"
       color="secondary"
       variant="contained"
-      fullWidth={true}
+      fullWidth
       onClick={login}
     />
   ) : (
@@ -120,7 +120,7 @@ const Sidebar = () => {
       label="My Profile"
       color="secondary"
       variant="contained"
-      fullWidth={true}
+      fullWidth
       onClick={goToProfile}
     />
   );
@@ -132,7 +132,7 @@ const Sidebar = () => {
           label="Connect Wallet"
           variant="outlined"
           color="primary"
-          fullWidth={true}
+          fullWidth
           onClick={async () => {
             try {
               await connect();
@@ -152,13 +152,7 @@ const Sidebar = () => {
   );
 
   return (
-    <MSidebar
-      disablePadding={true}
-      dense={true}
-      items={menu}
-      open={isOpen}
-      onClose={() => close!()}
-    >
+    <MSidebar disablePadding dense items={menu} open={isOpen} onClose={() => close!()}>
       {hamburger && hamburger}
       {isMobile && mobileButtons && mobileButtons}
     </MSidebar>

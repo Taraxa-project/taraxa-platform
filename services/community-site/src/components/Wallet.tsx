@@ -37,7 +37,7 @@ const Wallet = () => {
     );
   }
 
-  let address =
+  const address =
     isMobile && account ? `${account!.substr(0, 7)} ... ${account!.substr(-5)}` : account!;
 
   return (

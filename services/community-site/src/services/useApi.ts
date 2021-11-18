@@ -22,7 +22,7 @@ export const useApi = () => {
   );
 
   const getOptions = useCallback(
-    (includeToken: boolean = false) => {
+    (includeToken = false) => {
       let options = {};
 
       if (includeToken) {
@@ -48,7 +48,7 @@ export const useApi = () => {
       };
     }
 
-    const data = err.response.data;
+    const { data } = err.response;
     const response = data.data ?? data;
     const message = response.message ?? response;
     return {
@@ -58,7 +58,7 @@ export const useApi = () => {
   }, []);
 
   const post = useCallback(
-    async <T>(url: string, data: {}, includeToken: boolean = false) => {
+    async <T>(url: string, data: {}, includeToken = false) => {
       const options = getOptions(includeToken);
       startLoading!();
       return axios
@@ -76,7 +76,7 @@ export const useApi = () => {
   );
 
   const put = useCallback(
-    async (url: string, data: {}, includeToken: boolean = false) => {
+    async (url: string, data: {}, includeToken = false) => {
       const options = getOptions(includeToken);
       startLoading!();
       return axios
@@ -94,7 +94,7 @@ export const useApi = () => {
   );
 
   const del = useCallback(
-    async (url: string, includeToken: boolean = false) => {
+    async (url: string, includeToken = false) => {
       const options = getOptions(includeToken);
       startLoading!();
       return axios
@@ -112,7 +112,7 @@ export const useApi = () => {
   );
 
   const get = useCallback(
-    async (url: string, includeToken: boolean = false) => {
+    async (url: string, includeToken = false) => {
       const options = getOptions(includeToken);
       startLoading!();
       return axios

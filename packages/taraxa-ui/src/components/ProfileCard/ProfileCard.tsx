@@ -35,7 +35,7 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
             <div
               className={classes.iconContainer}
               dangerouslySetInnerHTML={{ __html: profileIcon }}
-            ></div>
+            />
           )}
           <Typography variant="body1" className={classes.label} color="primary">
             {username}
@@ -57,7 +57,7 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
           )}
         </CardContent>
         {buttonOptions && (
-          <CardActions className={classes.actions} disableSpacing={true}>
+          <CardActions className={classes.actions} disableSpacing>
             {buttonOptions}
           </CardActions>
         )}

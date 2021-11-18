@@ -57,7 +57,7 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
     <RewardCard
       key={bounty.id}
       title={bounty.name}
-      description={description ? description : <Markdown>{bounty.reward_text}</Markdown>}
+      description={description || <Markdown>{bounty.reward_text}</Markdown>}
       onClickButton={onClickButton}
       onClickText={onClickText}
       reward={bounty.reward}
@@ -65,7 +65,7 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
       expiration={expiration}
       isActive={bounty.active}
       isInfinite={isInfinite}
-      dataList={submissions ? submissions : undefined}
+      dataList={submissions || undefined}
     />
   );
 }

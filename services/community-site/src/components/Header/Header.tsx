@@ -11,7 +11,7 @@ import { useModal } from '../../services/useModal';
 import { useSidebar } from '../../services/useSidebar';
 import useOutsideClick from '../../services/useOutsideClick';
 
-import Wallet from './../Wallet';
+import Wallet from '../Wallet';
 import './header.scss';
 
 const Header = () => {

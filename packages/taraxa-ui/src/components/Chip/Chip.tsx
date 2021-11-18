@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import theme from '../theme';
 
-export interface ChipProps extends MChipProps {}
+export type ChipProps = MChipProps;
 
 const Chip = ({
   clickable,

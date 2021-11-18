@@ -6,9 +6,9 @@ import {
   ThemeProvider,
   Typography,
 } from '@material-ui/core';
+import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import useStyles from './linkedCards-styles';
-import { useMediaQuery } from 'react-responsive';
 
 export interface LinkedCardsProps extends MCardProps {
   approvedContent: JSX.Element;

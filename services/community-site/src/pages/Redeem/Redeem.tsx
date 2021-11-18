@@ -110,7 +110,7 @@ function Redeem() {
                 onClick={onClaim}
                 label="Redeem"
                 size="small"
-              ></Button>
+              />
             }
           />
           <BaseCard

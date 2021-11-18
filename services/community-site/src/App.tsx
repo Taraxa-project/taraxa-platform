@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import { MetaMaskProvider, useMetaMask } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
-import { useLocation } from 'react-router-dom';
 import { Notification } from '@taraxa_project/taraxa-ui';
 
 import { AuthProvider, useAuth } from './services/useAuth';

@@ -30,7 +30,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage;
 
   if (errors.length > 0 && !hasAddressError && !hasSignatureError) {
     hasGeneralError = true;
@@ -140,7 +140,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
             'noreferrer noopener',
           )
         }
-        fullWidth={true}
+        fullWidth
       />
       <Button
         label="How do I get the proof of owership?"
@@ -154,7 +154,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
             'noreferrer noopener',
           )
         }
-        fullWidth={true}
+        fullWidth
       />
     </div>
   );

@@ -23,7 +23,7 @@ const Card = ({ children, actions }: CardProps) => {
       <MCard className={classes.root} elevation={0} variant="outlined">
         <CardContent className={classes.content}>{children}</CardContent>
         {actions && (
-          <CardActions className={classes.actions} disableSpacing={true}>
+          <CardActions className={classes.actions} disableSpacing>
             {actions}
           </CardActions>
         )}

@@ -64,7 +64,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
         <Title title="Get started" subtitle="Welcome to Taraxa's community site!" />
         {isMobile && (
           <ToggleButton
-            exclusive={true}
+            exclusive
             onChange={onToggle}
             currentValue={toggleValue}
             data={toggleOptions}

@@ -3,9 +3,9 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { CssBaseline, AppBarProps, AppBar } from '@material-ui/core';
+import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import useStyles from './header-styles';
-import { useMediaQuery } from 'react-responsive';
 
 export interface HeaderProps extends AppBarProps {
   title: string;

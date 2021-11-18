@@ -186,7 +186,7 @@ const RunNode = () => {
     return (
       <div key={node.id}>
         <div className="status">
-          <div className={className}></div>
+          <div className={className} />
         </div>
         <div className="address">
           {formatNodeName(!node.name || node.name === '' ? node.ethWallet : node.name)}

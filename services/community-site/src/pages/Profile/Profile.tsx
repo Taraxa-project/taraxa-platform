@@ -45,13 +45,13 @@ const Profile = () => {
         return previous;
       }, {});
 
-    if (params['transactionStatus']) {
+    if (params.transactionStatus) {
       setIsKYCModalOpen(true);
-      if (params['transactionStatus'] === 'SUCCESS') {
+      if (params.transactionStatus === 'SUCCESS') {
         setModalContent('kyc-success');
       }
 
-      if (params['transactionStatus'] !== 'SUCCESS') {
+      if (params.transactionStatus !== 'SUCCESS') {
         setModalContent('kyc-error');
       }
     }
