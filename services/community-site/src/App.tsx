@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import { MetaMaskProvider, useMetaMask } from 'metamask-react';
