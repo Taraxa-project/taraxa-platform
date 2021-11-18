@@ -11,7 +11,7 @@
     "status-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status build",
     "status-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status dev",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
-    "lint": "eslint services/community-site && eslint services/node--status &&  eslint packages/taraxa-ui",
+    "lint": "eslint services/community-site && eslint services/node--status && eslint packages/taraxa-ui",
     "postinstall": "husky install"
   },
   "lint-staged": {
