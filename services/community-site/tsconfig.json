@@ -8,6 +8,7 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
+    "declarationDir": "./build",
     "noEmit": true
   },
   "references": [
@@ -15,12 +16,6 @@
       "path": "../../packages/taraxa-ui"
     }
   ],
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "*.d.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "build", "*.d.ts"]
 }

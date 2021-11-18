@@ -8,11 +8,8 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
+    "declarationDir": "./lib"
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "lib",
-    "*.d.ts"
-  ]
+  "exclude": ["node_modules", "lib", "*.d.ts"]
 }
