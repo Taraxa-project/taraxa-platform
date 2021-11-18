@@ -7,7 +7,7 @@ type Context = {
 };
 
 const initialState: Context = {
-  isLoading: false
+  isLoading: false,
 };
 
 const LoadingContext = createContext<Context>(initialState);
@@ -24,8 +24,8 @@ export const useLoading = () => {
 function useProvideLoading() {
   const [loadingCount, setLoadingCount] = useState(0);
 
-  const startLoading = () => setLoadingCount(prevCount => prevCount + 1);
-  const finishLoading = () => setLoadingCount(prevCount => prevCount - 1);
+  const startLoading = () => setLoadingCount((prevCount) => prevCount + 1);
+  const finishLoading = () => setLoadingCount((prevCount) => prevCount - 1);
 
   return { isLoading: loadingCount > 0, startLoading, finishLoading };
 }

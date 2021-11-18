@@ -15,18 +15,13 @@ interface CardProps extends MCardProps {
   actions: JSX.Element;
 }
 
-const Card = ({
-  children,
-  actions
-}: CardProps) => {
+const Card = ({ children, actions }: CardProps) => {
   const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <MCard className={classes.root} elevation={0} variant="outlined">
-        <CardContent className={classes.content}>
-          {children}
-        </CardContent>
+        <CardContent className={classes.content}>{children}</CardContent>
         {actions && (
           <CardActions className={classes.actions} disableSpacing={true}>
             {actions}

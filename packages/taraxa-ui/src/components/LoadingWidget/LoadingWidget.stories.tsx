@@ -18,6 +18,6 @@ const Template: Story<LoadingWidgetProps> = (args) => <LoadingWidget {...args} /
 export const Primary = Template.bind({});
 Primary.args = {
   isLoading: true,
-  widgetId: "loadingWidgetId",
-  progressId: "progressWidgetId",
+  widgetId: 'loadingWidgetId',
+  progressId: 'progressWidgetId',
 };

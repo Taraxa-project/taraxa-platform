@@ -43,7 +43,7 @@ function BountySubmit() {
   const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
 
   if (bounty.id && (!submissionNeeded || !bounty.active)) {
-    return (<Redirect to={`/bounties/${bounty.id}`} />);
+    return <Redirect to={`/bounties/${bounty.id}`} />;
   }
 
   const errIndex = errors.map((error) => error.key);
@@ -53,11 +53,11 @@ function BountySubmit() {
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
   const hasSubmissionError = hasError('submission');
-  const submissionErrorMessage = hasError('submission') ? errValues[findErrorIndex('submission')] : undefined;
-  const hasFileError = hasError('file');
-  const fileErrorMessage = hasError('file')
-    ? errValues[findErrorIndex('file')]
+  const submissionErrorMessage = hasError('submission')
+    ? errValues[findErrorIndex('submission')]
     : undefined;
+  const hasFileError = hasError('file');
+  const fileErrorMessage = hasError('file') ? errValues[findErrorIndex('file')] : undefined;
 
   let hasGeneralError = false;
   let generalErrorMessage = undefined;
@@ -86,7 +86,7 @@ function BountySubmit() {
     let uploadedFile;
     if (file !== null) {
       const formData = new FormData();
-      formData.append("files", file!);
+      formData.append('files', file!);
 
       const result = await api.post('/upload', formData, true);
       if (result.success) {
@@ -106,7 +106,7 @@ function BountySubmit() {
 
     let ciphertext = CryptoJS.AES.encrypt(
       submitText,
-      "255826e3232d021e830f3dd19e77055f"
+      '255826e3232d021e830f3dd19e77055f',
     ).toString();
     ciphertext = CryptoJS.SHA3(ciphertext).toString();
 
@@ -145,9 +145,13 @@ function BountySubmit() {
       }
     }
 
-    const resultBounty = await api.put(`/bounties/${bounty.id}`, {
-      users: auth.user?.id,
-    }, true);
+    const resultBounty = await api.put(
+      `/bounties/${bounty.id}`,
+      {
+        users: auth.user?.id,
+      },
+      true,
+    );
 
     if (!resultBounty.success) {
       if (typeof resultBounty.response === 'string') {
@@ -159,7 +163,6 @@ function BountySubmit() {
     history.push(`/bounties/${bounty.id}`);
   };
 
-
   return (
     <div className="bounties">
       <div className="bounties-content">
@@ -169,24 +172,38 @@ function BountySubmit() {
         />
         <div className="bounties-details">
           <form onSubmit={submit}>
-            <Card actions={(
-              <>
-                {(bounty.proof_file && bounty.proof_file.trim() !== '') && <Text variant="body2" color="primary">{bounty.proof_file}</Text>}
-                <File onChange={(f: File) => setFile(f)} />
-                {hasFileError && <Text variant="body1" color="error">{fileErrorMessage}</Text>}
-                <Button
-                  type="submit"
-                  label="Submit"
-                  color="secondary"
-                  variant="contained"
-                  onClick={submit}
-                  fullWidth
-                />
-                {hasGeneralError && <Text variant="body1" color="error">{hasGeneralError}</Text>}
-              </>
-            )}>
+            <Card
+              actions={
+                <>
+                  {bounty.proof_file && bounty.proof_file.trim() !== '' && (
+                    <Text variant="body2" color="primary">
+                      {bounty.proof_file}
+                    </Text>
+                  )}
+                  <File onChange={(f: File) => setFile(f)} />
+                  {hasFileError && (
+                    <Text variant="body1" color="error">
+                      {fileErrorMessage}
+                    </Text>
+                  )}
+                  <Button
+                    type="submit"
+                    label="Submit"
+                    color="secondary"
+                    variant="contained"
+                    onClick={submit}
+                    fullWidth
+                  />
+                  {hasGeneralError && (
+                    <Text variant="body1" color="error">
+                      {hasGeneralError}
+                    </Text>
+                  )}
+                </>
+              }
+            >
               <Text variant="h5" color="primary" className="title">
-                <span className={["dot", (bounty.active ? "active" : "inactive")].join(' ')}></span>
+                <span className={['dot', bounty.active ? 'active' : 'inactive'].join(' ')}></span>
                 {bounty.name!}
               </Text>
               <Markdown>{bounty.submission!}</Markdown>
@@ -194,7 +211,11 @@ function BountySubmit() {
                 <Icons.Submit />
                 Submit bounty
               </Text>
-              {(bounty.proof_text && bounty.proof_text.trim() !== '') && <Text variant="body2" color="primary">{bounty.proof_text}</Text>}
+              {bounty.proof_text && bounty.proof_text.trim() !== '' && (
+                <Text variant="body2" color="primary">
+                  {bounty.proof_text}
+                </Text>
+              )}
               <div className="input">
                 <InputField
                   label="Submission"

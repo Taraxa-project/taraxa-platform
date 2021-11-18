@@ -168,7 +168,7 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
     isOpen = true;
   }
 
-  if (name === pathname || pathname.substring(0, (name?.length || 0)) === name?.toLocaleLowerCase()) {
+  if (name === pathname || pathname.substring(0, name?.length || 0) === name?.toLocaleLowerCase()) {
     isOpen = true;
   }
 
@@ -180,11 +180,7 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
 
   return (
     <>
-      <ListItem
-        className={className.join(' ')}
-        button
-        dense
-      >
+      <ListItem className={className.join(' ')} button dense>
         {Link ? (
           <ListItemText
             primary={Link}

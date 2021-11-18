@@ -92,10 +92,20 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             onClickButton={() => history.push('/staking')}
             Icon={StakingIcon}
           />
-          <IconCard title="Bounties" description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
-            onClickText="Get Started" onClickButton={() => history.push('/bounties')} Icon={BountiesIcon} />
-          <IconCard title="Redeem" description="Redeem TARA points for $TARA tokens and cool Taraxa swag."
-            onClickText="Get Started" onClickButton={() => history.push('/redeem')} Icon={RedeemIcon} />
+          <IconCard
+            title="Bounties"
+            description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
+            onClickText="Get Started"
+            onClickButton={() => history.push('/bounties')}
+            Icon={BountiesIcon}
+          />
+          <IconCard
+            title="Redeem"
+            description="Redeem TARA points for $TARA tokens and cool Taraxa swag."
+            onClickText="Get Started"
+            onClickButton={() => history.push('/redeem')}
+            Icon={RedeemIcon}
+          />
         </div>
 
         <div

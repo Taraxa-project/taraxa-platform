@@ -43,20 +43,22 @@ function BountyDetails() {
       };
 
       if (bounty.localizations.length > 0) {
-        bounty.localizations = await Promise.all(bounty.localizations.map(async locale => {
-          const data = await get(`/bounties/${locale.id}`);
-          if (!data.success) {
-            return locale;
-          }
-          const b: Bounty = data.response;
-          const { description, submission, reward_text } = b;
-          return {
-            ...locale,
-            description,
-            submission,
-            reward_text,
-          }
-        }));
+        bounty.localizations = await Promise.all(
+          bounty.localizations.map(async (locale) => {
+            const data = await get(`/bounties/${locale.id}`);
+            if (!data.success) {
+              return locale;
+            }
+            const b: Bounty = data.response;
+            const { description, submission, reward_text } = b;
+            return {
+              ...locale,
+              description,
+              submission,
+              reward_text,
+            };
+          }),
+        );
       }
       setBounty(bounty);
     };
@@ -70,7 +72,7 @@ function BountyDetails() {
         return;
       }
       setSubmissions(data.response);
-      setBounty(bounty => ({ ...bounty, submissionsCount: data.response.length }))
+      setBounty((bounty) => ({ ...bounty, submissionsCount: data.response.length }));
     };
     if (bounty.id) {
       getSubmissions(bounty.id);
@@ -84,39 +86,34 @@ function BountyDetails() {
     const totalPages = Math.ceil(submissions.length / perPage);
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    const rows = submissions!.slice(start, end).map((submission: Submission) => (<div className="submission-row" key={submission.id}>
-      <div className="submission-row-username">
-        <div className="submission-row-username-icon">
-          <UserIcon />
-        </div>
+    const rows = submissions!.slice(start, end).map((submission: Submission) => (
+      <div className="submission-row" key={submission.id}>
+        <div className="submission-row-username">
+          <div className="submission-row-username-icon">
+            <UserIcon />
+          </div>
 
-        <Text
-          variant="body2"
-          label={(submission.user || {}).username || '-'}
-        />
+          <Text variant="body2" label={(submission.user || {}).username || '-'} />
+        </div>
+        <div className="submission-row-content">
+          <Text variant="body2" label={submission.hashed_content || '-'} />
+        </div>
+        <div className="submission-row-date">
+          <Text
+            variant="body2"
+            label={`${formatTime(
+              Math.ceil((now - new Date(submission.created_at).getTime()) / 1000),
+            )} ago`}
+          />
+        </div>
       </div>
-      <div className="submission-row-content">
-        <Text
-          variant="body2"
-          label={submission.hashed_content || '-'}
-        />
-      </div>
-      <div className="submission-row-date">
-        <Text
-          variant="body2"
-          label={`${formatTime(Math.ceil((now - new Date(submission.created_at).getTime()) / 1000))} ago`}
-        />
-      </div>
-    </div>));
+    ));
 
     if (rows.length > 0) {
       submissionsTable = (
         <div className="submission-table">
           <div className="submission-table-header">
-            <Text
-              variant="h5"
-              color="primary"
-            >
+            <Text variant="h5" color="primary">
               SUBMISSIONS ({submissions.length})
             </Text>
             <Pagination
@@ -137,10 +134,10 @@ function BountyDetails() {
   }
 
   const localeNames: { [key: string]: string } = {
-    "en": "EN",
-    "ru-RU": "RU",
-    "zh-CN": "CN",
-  }
+    en: 'EN',
+    'ru-RU': 'RU',
+    'zh-CN': 'CN',
+  };
 
   if (!bounty) {
     return null;
@@ -150,7 +147,7 @@ function BountyDetails() {
   let rewardText = bounty.reward_text || '';
 
   if (locale !== 'en') {
-    const bt = bounty.localizations!.find(b => b.locale === locale);
+    const bt = bounty.localizations!.find((b) => b.locale === locale);
     if (bt) {
       description = bt.description;
       rewardText = bt.reward_text;
@@ -167,7 +164,7 @@ function BountyDetails() {
         <BountyCard
           bounty={bounty}
           isDetailed={true}
-          description={(
+          description={
             <>
               {bounty.localizations && bounty.localizations!.length > 0 && (
                 <div className="locale">
@@ -176,11 +173,11 @@ function BountyDetails() {
                     color="primary"
                     variant="outlined"
                     label="EN"
-                    onClick={() => setLocale("en")}
+                    onClick={() => setLocale('en')}
                     size="small"
-                    disabled={locale === "en"}
+                    disabled={locale === 'en'}
                   ></Button>
-                  {bounty.localizations!.map(l => (
+                  {bounty.localizations!.map((l) => (
                     <Button
                       key={l.id}
                       disableElevation
@@ -195,26 +192,20 @@ function BountyDetails() {
                 </div>
               )}
 
-              <Text
-                variant="h5"
-                color="primary"
-              >
+              <Text variant="h5" color="primary">
                 Description
               </Text>
               <Markdown>{description}</Markdown>
               {rewardText && rewardText.trim() !== '' && (
                 <>
-                  <Text
-                    variant="h5"
-                    color="primary"
-                  >
+                  <Text variant="h5" color="primary">
                     Reward
                   </Text>
                   <Markdown>{rewardText}</Markdown>
                 </>
               )}
             </>
-          )}
+          }
           goTo={(url) => history.push(url)}
           submissions={submissionsTable}
         />

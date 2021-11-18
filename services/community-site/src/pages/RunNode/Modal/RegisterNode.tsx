@@ -21,7 +21,9 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
   const hasAddressError = hasError('address');
-  const addressErrorMessage = hasError('address') ? errValues[findErrorIndex('address')] : undefined;
+  const addressErrorMessage = hasError('address')
+    ? errValues[findErrorIndex('address')]
+    : undefined;
   const hasSignatureError = hasError('signature');
   const signatureErrorMessage = hasError('signature')
     ? errValues[findErrorIndex('signature')]
@@ -107,7 +109,11 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
           }}
         />
 
-        {hasGeneralError && <Text variant="body1" color="error">{generalErrorMessage!}</Text>}
+        {hasGeneralError && (
+          <Text variant="body1" color="error">
+            {generalErrorMessage!}
+          </Text>
+        )}
 
         <Button
           type="submit"

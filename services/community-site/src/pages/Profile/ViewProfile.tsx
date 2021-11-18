@@ -90,14 +90,16 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         title="My Rewards"
         description="TARA Points"
         value={ethers.utils.commify(ethers.BigNumber.from(points.toString()).toString())}
-        buttonOptions={<Button
-          variant="contained"
-          color="secondary"
-          label="Claim rewards"
-          disabled={ethers.BigNumber.from(points.toString()).eq("0")}
-          fullWidth
-          onClick={() => history.push('/redeem')}
-        />}
+        buttonOptions={
+          <Button
+            variant="contained"
+            color="secondary"
+            label="Claim rewards"
+            disabled={ethers.BigNumber.from(points.toString()).eq('0')}
+            fullWidth
+            onClick={() => history.push('/redeem')}
+          />
+        }
       />
     </div>
   );

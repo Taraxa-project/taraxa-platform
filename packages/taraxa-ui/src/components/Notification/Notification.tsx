@@ -12,7 +12,12 @@ export interface NotificationProps {
   variant?: 'success' | 'danger';
 }
 
-const Notification = ({ title, text, variant, children }: React.PropsWithChildren<NotificationProps>) => {
+const Notification = ({
+  title,
+  text,
+  variant,
+  children,
+}: React.PropsWithChildren<NotificationProps>) => {
   const classes = useStyles();
   let containerStyle = classes.container;
 
@@ -31,7 +36,11 @@ const Notification = ({ title, text, variant, children }: React.PropsWithChildre
       <div className={containerStyle}>
         {title && <Text label={title} variant="body1" color="primary" className={classes.title} />}
         {text && <Text label={text} variant="body2" color="primary" className={classes.text} />}
-        {children && <Text variant="body2" color="primary" className={classes.text}>{children}</Text>}
+        {children && (
+          <Text variant="body2" color="primary" className={classes.text}>
+            {children}
+          </Text>
+        )}
       </div>
     </ThemeProvider>
   );

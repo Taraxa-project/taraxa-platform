@@ -18,13 +18,11 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
 
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
-  const confirmEmail = async (
-    event: React.MouseEvent<HTMLElement>,
-  ) => {
+  const confirmEmail = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     await auth.emailConfirmation!(username);
 
-    setIsOpen!(true)
+    setIsOpen!(true);
     setContent!('sign-up-success');
   };
 
@@ -47,10 +45,13 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;
     generalErrorMessage = errValues[0];
-    if (errIndex[0] === "confirmed") {
+    if (errIndex[0] === 'confirmed') {
       generalErrorMessage = (
         <>
-          Email not confirmed. <a href="#" className="default-link" onClick={confirmEmail}>Confirm your email</a>
+          Email not confirmed.{' '}
+          <a href="#" className="default-link" onClick={confirmEmail}>
+            Confirm your email
+          </a>
         </>
       );
     }
@@ -118,7 +119,11 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
           color="textSecondary"
         />
 
-        {hasGeneralError && <Text variant="body1" color="error">{generalErrorMessage!}</Text>}
+        {hasGeneralError && (
+          <Text variant="body1" color="error">
+            {generalErrorMessage!}
+          </Text>
+        )}
 
         <Button
           type="submit"

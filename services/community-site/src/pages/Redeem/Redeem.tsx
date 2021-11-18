@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { BaseCard, Button } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
-
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 import useToken from '../../services/useToken';
@@ -27,13 +26,18 @@ function Redeem() {
   const api = useApi();
 
   const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
-  const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from('0'),
+  );
   const [locked, setLocked] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [claimed, setClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
-      const data = await api.post(`${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`, {});
+      const data = await api.post(
+        `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
+        {},
+      );
       if (data.success) {
         setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
         setLocked(ethers.BigNumber.from(data.response.totalLocked));
@@ -43,9 +47,9 @@ function Redeem() {
         setLocked(ethers.BigNumber.from('0'));
         setClaimed(ethers.BigNumber.from('0'));
       }
-    }
+    };
     if (account) {
-      getClaimData(account)
+      getClaimData(account);
     }
   }, [account]);
 
@@ -68,7 +72,10 @@ function Redeem() {
     }
 
     try {
-      const claimData = await api.post<ClaimData>(`${process.env.REACT_APP_API_CLAIM_HOST}/claims/${account}`, {});
+      const claimData = await api.post<ClaimData>(
+        `${process.env.REACT_APP_API_CLAIM_HOST}/claims/${account}`,
+        {},
+      );
       if (claimData.success) {
         const { availableToBeClaimed, nonce, hash } = claimData.response;
         const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
@@ -76,12 +83,12 @@ function Redeem() {
         await claimTx.wait(1);
 
         setAvailableToBeClaimed(ethers.BigNumber.from('0'));
-        setClaimed(currentClaimed => currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)));
+        setClaimed((currentClaimed) =>
+          currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)),
+        );
         setTokenBalance((balance) => balance.add(ethers.BigNumber.from(availableToBeClaimed)));
       }
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
 
   return (
@@ -97,7 +104,7 @@ function Redeem() {
             description="TARA points"
             button={
               <Button
-                disabled={availableToBeClaimed.eq("0")}
+                disabled={availableToBeClaimed.eq('0')}
                 variant="outlined"
                 color="secondary"
                 onClick={onClaim}
@@ -106,8 +113,14 @@ function Redeem() {
               ></Button>
             }
           />
-          <BaseCard title={formatEth(roundEth(weiToEth(claimed)))} description="TARA claimed total" />
-          <BaseCard title={formatEth(roundEth(weiToEth(tokenBalance)))} description="Current wallet balance" />
+          <BaseCard
+            title={formatEth(roundEth(weiToEth(claimed)))}
+            description="TARA claimed total"
+          />
+          <BaseCard
+            title={formatEth(roundEth(weiToEth(tokenBalance)))}
+            description="Current wallet balance"
+          />
         </div>
         <div className="cardContainer">
           <BaseCard title={formatEth(roundEth(weiToEth(locked)))} description="Locked" />

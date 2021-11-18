@@ -8,7 +8,6 @@ interface NavLinkProps extends LinkProps {
 }
 
 const NavLink = ({ Icon, label, to, ...props }: NavLinkProps) => {
-
   const exact = to === '/';
   return (
     <Link className="link" to={to} exact={exact} {...props}>

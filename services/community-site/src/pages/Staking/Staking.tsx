@@ -364,7 +364,13 @@ function Stake({
     setCurrentStakeBalance(ethers.BigNumber.from('0'));
     setCurrentStakeStartDate(null);
     setCurrentStakeEndDate(null);
-  }, [setHasStake, setCanClaimStake, setCurrentStakeBalance, setCurrentStakeStartDate, setCurrentStakeEndDate]);
+  }, [
+    setHasStake,
+    setCanClaimStake,
+    setCurrentStakeBalance,
+    setCurrentStakeStartDate,
+    setCurrentStakeEndDate,
+  ]);
 
   const formatStakeInputValue = (value: string) => {
     const stakeInputValue = value.replace(/[^\d.]/g, '');
@@ -426,7 +432,7 @@ function Stake({
       r = perSeconds.mul(now - startDate);
 
       return r;
-    }
+    };
 
     if (currentStakeBalance.gt(ethers.BigNumber.from('0')) && currentStakeStartDate) {
       setReward(getReward());
@@ -585,7 +591,7 @@ function Stake({
               disabled={true}
               variant="outlined"
               color="secondary"
-              onClick={() => { }}
+              onClick={() => {}}
               label="Redeem"
               size="small"
             ></Button>

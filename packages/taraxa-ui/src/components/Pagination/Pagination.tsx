@@ -1,7 +1,4 @@
-import {
-  CssBaseline,
-  ThemeProvider,
-} from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
 
 import Text from '../Text';
 import Button from '../Button';
@@ -17,12 +14,7 @@ export interface PaginationProps {
   next: () => void;
 }
 
-const Pagination = ({
-  page,
-  totalPages,
-  prev,
-  next,
-}: PaginationProps) => {
+const Pagination = ({ page, totalPages, prev, next }: PaginationProps) => {
   const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>

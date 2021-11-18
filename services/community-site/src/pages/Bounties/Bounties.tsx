@@ -1,10 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import stringify from 'qs-stringify';
-import {
-  Text,
-  Switch,
-  Pagination,
-} from '@taraxa_project/taraxa-ui';
+import { Text, Switch, Pagination } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
 
 import PinnedIcon from '../../assets/icons/pinned';
@@ -32,7 +28,7 @@ function Bounties() {
   const perPage = 6;
 
   const toggleInactive = () => {
-    setInactive(i => !i);
+    setInactive((i) => !i);
     setPage(1);
   };
 
@@ -40,19 +36,17 @@ function Bounties() {
     history.push(url);
   };
 
-
   const decorateBounties = useCallback((bounties: Bounty[]): Bounty[] => {
-    return bounties
-      .map((bounty: Bounty) => ({
-        ...bounty,
-        submissionsCount: 0,
-        active: bounty.state?.id === 1,
-      }));
+    return bounties.map((bounty: Bounty) => ({
+      ...bounty,
+      submissionsCount: 0,
+      active: bounty.state?.id === 1,
+    }));
   }, []);
 
-  const getSubmissions = useCallback(async (bounties: Bounty[]): Promise<Bounty[]> => {
-    const bountiesWithSubmissions = bounties
-      .map(async (bounty: Bounty) => {
+  const getSubmissions = useCallback(
+    async (bounties: Bounty[]): Promise<Bounty[]> => {
+      const bountiesWithSubmissions = bounties.map(async (bounty: Bounty) => {
         let submissionsCount = 0;
         const submissionsCountRequest = await get(`/submissions/count?bounty=${bounty.id}`);
         if (submissionsCountRequest.success) {
@@ -61,11 +55,13 @@ function Bounties() {
         return {
           ...bounty,
           submissionsCount,
-        }
+        };
       });
 
-    return await Promise.all(bountiesWithSubmissions);
-  }, [get])
+      return await Promise.all(bountiesWithSubmissions);
+    },
+    [get],
+  );
 
   const getPinnedBounties = useCallback(async () => {
     const data = await get(`/bounties?state.id=1&is_pinned=1`);
@@ -89,7 +85,7 @@ function Bounties() {
       return;
     }
     setBounties(decorateBounties(bounties.response));
-    setGetBountiesSubmissions(bs => !bs);
+    setGetBountiesSubmissions((bs) => !bs);
   }, [get, getBountiesFilter, decorateBounties]);
 
   const getBountiesCount = useCallback(async () => {
@@ -180,12 +176,14 @@ function Bounties() {
   );
 }
 
-function PinnedBounties({ bounties, goTo }: { bounties: Bounty[], goTo: (url: string) => void }) {
+function PinnedBounties({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
   if (bounties.length === 0) {
     return null;
   }
 
-  const pinnedBounties = bounties.map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
+  const pinnedBounties = bounties.map((bounty) => (
+    <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />
+  ));
 
   return (
     <>
@@ -195,20 +193,26 @@ function PinnedBounties({ bounties, goTo }: { bounties: Bounty[], goTo: (url: st
           <Text label="Pinned" variant="body1" color="primary" className="icon-title" />
         </div>
       </div>
-      <div className="cardContainer pinned">
-        {pinnedBounties}
-      </div>
+      <div className="cardContainer pinned">{pinnedBounties}</div>
     </>
   );
 }
 
-function BountyList({ bounties, goTo }: { bounties: Bounty[], goTo: (url: string) => void }) {
+function BountyList({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
   return (
     <>
-      {Array.apply(null, Array(Math.ceil(bounties.length / 3))).map((_, i) => i).map((row) => {
-        const rows = bounties.slice(row * 3, row * 3 + 3).map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
-        return <div key={row} className="cardContainer regular">{rows}</div>;
-      })}
+      {Array.apply(null, Array(Math.ceil(bounties.length / 3)))
+        .map((_, i) => i)
+        .map((row) => {
+          const rows = bounties
+            .slice(row * 3, row * 3 + 3)
+            .map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
+          return (
+            <div key={row} className="cardContainer regular">
+              {rows}
+            </div>
+          );
+        })}
     </>
   );
 }
