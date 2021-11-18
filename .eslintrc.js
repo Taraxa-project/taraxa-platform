@@ -1,4 +1,5 @@
 module.exports = {
+  root: true,
   overrides: [
     {
       // JavaScript and JSX
