@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useApi } from './useApi';
+import useApi from './useApi';
 import { useAuth } from './useAuth';
 
-export const useSubmissions = () => {
+const useSubmissions = () => {
   const auth = useAuth();
   const api = useApi();
 
@@ -54,3 +54,5 @@ export const useSubmissions = () => {
 
   return { points, approved, rejected, review };
 };
+
+export default useSubmissions;

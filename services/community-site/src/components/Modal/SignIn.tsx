@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import { useModal } from '../../services/useModal';
 import { useAuth } from '../../services/useAuth';
@@ -7,9 +7,15 @@ type SignInProps = {
   onSuccess: () => void;
   onForgotPassword: () => void;
   onCreateAccount: () => void;
+  isSessionExpired: boolean;
 };
 
-const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) => {
+const SignIn = ({
+  onSuccess,
+  onForgotPassword,
+  onCreateAccount,
+  isSessionExpired,
+}: SignInProps) => {
   const { setIsOpen, setContent } = useModal();
   const auth = useAuth();
 
@@ -18,13 +24,11 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
 
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
-  const confirmEmail = async (
-    event: React.MouseEvent<HTMLElement>,
-  ) => {
+  const confirmEmail = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     await auth.emailConfirmation!(username);
 
-    setIsOpen!(true)
+    setIsOpen!(true);
     setContent!('sign-up-success');
   };
 
@@ -42,15 +46,17 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
-
+  let generalErrorMessage: any;
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;
     generalErrorMessage = errValues[0];
-    if (errIndex[0] === "confirmed") {
+    if (errIndex[0] === 'confirmed') {
       generalErrorMessage = (
         <>
-          Email not confirmed. <a href="#" className="default-link" onClick={confirmEmail}>Confirm your email</a>
+          Email not confirmed.{' '}
+          <a href="#" className="default-link" onClick={confirmEmail}>
+            Confirm your email
+          </a>
         </>
       );
     }
@@ -60,6 +66,9 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    if (isSessionExpired) {
+      auth.clearSessionExpired!();
+    }
 
     setErrors([]);
 
@@ -79,7 +88,12 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
 
   return (
     <div>
-      <Text label="Sign In" variant="h6" color="primary" />
+      <Text label="Sign in" variant="h6" color="primary" />
+      {isSessionExpired && (
+        <Text variant="body1" color="error">
+          Your session expired. Please sign in again.
+        </Text>
+      )}
       <form onSubmit={submit}>
         <InputField
           label="E-mail"
@@ -118,7 +132,11 @@ const SignIn = ({ onSuccess, onForgotPassword, onCreateAccount }: SignInProps) =
           color="textSecondary"
         />
 
-        {hasGeneralError && <Text variant="body1" color="error">{generalErrorMessage!}</Text>}
+        {hasGeneralError && (
+          <Text variant="body1" color="error">
+            {generalErrorMessage!}
+          </Text>
+        )}
 
         <Button
           type="submit"

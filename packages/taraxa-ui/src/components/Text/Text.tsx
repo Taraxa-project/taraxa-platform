@@ -10,7 +10,7 @@ const Text = ({ label, children, ...props }: TextProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Typography {...props}>{label ? label : children}</Typography>
+      <Typography {...props}>{label || children}</Typography>
     </ThemeProvider>
   );
 };

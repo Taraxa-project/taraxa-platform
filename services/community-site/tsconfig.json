@@ -1,5 +1,27 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["src"],
-  "references": [{ "path": "@taraxa_project/taraxa-ui" }]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./build",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./build",
+    "noEmit": true
+  },
+  "references": [
+    {
+      "path": "../../packages/taraxa-ui"
+    }
+  ],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "*.d.ts"
+  ]
 }

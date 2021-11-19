@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { useHistory, withRouter, RouteComponentProps } from 'react-router-dom';
 
@@ -64,7 +64,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
         <Title title="Get started" subtitle="Welcome to Taraxa's community site!" />
         {isMobile && (
           <ToggleButton
-            exclusive={true}
+            exclusive
             onChange={onToggle}
             currentValue={toggleValue}
             data={toggleOptions}
@@ -92,10 +92,20 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             onClickButton={() => history.push('/staking')}
             Icon={StakingIcon}
           />
-          <IconCard title="Bounties" description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
-            onClickText="Get Started" onClickButton={() => history.push('/bounties')} Icon={BountiesIcon} />
-          <IconCard title="Redeem" description="Redeem TARA points for $TARA tokens and cool Taraxa swag."
-            onClickText="Get Started" onClickButton={() => history.push('/redeem')} Icon={RedeemIcon} />
+          <IconCard
+            title="Bounties"
+            description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
+            onClickText="Get Started"
+            onClickButton={() => history.push('/bounties')}
+            Icon={BountiesIcon}
+          />
+          <IconCard
+            title="Redeem"
+            description="Redeem TARA points for $TARA tokens and cool Taraxa swag."
+            onClickText="Get Started"
+            onClickButton={() => history.push('/redeem')}
+            Icon={RedeemIcon}
+          />
         </div>
 
         <div

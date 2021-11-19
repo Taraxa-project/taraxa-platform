@@ -16,11 +16,11 @@ const useStyles = makeStyles({
   },
   mobileRoot: {
     width: '110%',
-    ['@media (max-width: 320px)']: {
+    '@media (max-width: 320px)': {
       // eslint-disable-line no-useless-computed-key
       width: '120%',
     },
-    ['@media only screen and (min-width: 321px) and (max-width: 400px)']: {
+    '@media only screen and (min-width: 321px) and (max-width: 400px)': {
       // eslint-disable-line no-useless-computed-key
       width: '113%',
     },

@@ -1,20 +1,20 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { withRouter, useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { useMetaMask } from 'metamask-react';
 import { Button, Sidebar as MSidebar } from '@taraxa_project/taraxa-ui';
 
-import BountiesSidebar from "../../assets/icons/bountiesSidebar";
+import BountiesSidebar from '../../assets/icons/bountiesSidebar';
 import DeploySidebar from '../../assets/icons/deploySidebar';
 import ExplorerSidebar from '../../assets/icons/explorerSidebar';
 import GetStarted from '../../assets/icons/getStarted';
 import NodeSidebar from '../../assets/icons/nodeSidebar';
-import RedeemSidebar from "../../assets/icons/redeemSidebar";
+import RedeemSidebar from '../../assets/icons/redeemSidebar';
 import StakingSidebar from '../../assets/icons/stakingSidebar';
 // import WalletSidebar from "../../assets/icons/walletSidebar";
 import HamburgerIcon from '../../assets/icons/hamburger';
 
-import NavLink from '../../components/NavLink/NavLink';
+import NavLink from '../NavLink/NavLink';
 
 import { useAuth } from '../../services/useAuth';
 import { useModal } from '../../services/useModal';
@@ -53,8 +53,11 @@ const Sidebar = () => {
           Link: <NavLink label="Staking" Icon={StakingSidebar} to="/staking" />,
           name: 'staking',
         },
-        { Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />, name: "bounties" },
-        { Link: <NavLink label="Redeem" Icon={RedeemSidebar} to="/redeem" />, name: "redeem" },
+        {
+          Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />,
+          name: 'bounties',
+        },
+        { Link: <NavLink label="Redeem" Icon={RedeemSidebar} to="/redeem" />, name: 'redeem' },
       ],
     },
     {
@@ -109,7 +112,7 @@ const Sidebar = () => {
       label="Sign in / Sign up"
       color="secondary"
       variant="contained"
-      fullWidth={true}
+      fullWidth
       onClick={login}
     />
   ) : (
@@ -117,7 +120,7 @@ const Sidebar = () => {
       label="My Profile"
       color="secondary"
       variant="contained"
-      fullWidth={true}
+      fullWidth
       onClick={goToProfile}
     />
   );
@@ -129,7 +132,7 @@ const Sidebar = () => {
           label="Connect Wallet"
           variant="outlined"
           color="primary"
-          fullWidth={true}
+          fullWidth
           onClick={async () => {
             try {
               await connect();
@@ -149,15 +152,9 @@ const Sidebar = () => {
   );
 
   return (
-    <MSidebar
-      disablePadding={true}
-      dense={true}
-      items={menu}
-      open={isOpen}
-      onClose={() => close!()}
-    >
-      {hamburger && hamburger}
-      {isMobile && mobileButtons && mobileButtons}
+    <MSidebar disablePadding dense items={menu} open={isOpen} onClose={() => close!()}>
+      {hamburger}
+      {isMobile && mobileButtons}
     </MSidebar>
   );
 };

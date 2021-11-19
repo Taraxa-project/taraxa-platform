@@ -1,4 +1,4 @@
-import { accountAddress } from "../../lib/rpc";
+import { accountAddress } from '../../lib/rpc';
 
 export default async function addressHandler(_, res) {
   try {

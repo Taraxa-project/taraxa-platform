@@ -1,9 +1,34 @@
 import { useCallback } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useLoading } from './useLoading';
+import { useAuth } from './useAuth';
 
-export const useApi = () => {
+abstract class ResponseHandler<T> {
+  handleResponse(response: AxiosResponse<any>) {
+    return {
+      success: true,
+      response: this.convertResponse(response),
+    };
+  }
+
+  abstract convertResponse(response: AxiosResponse<any>): T;
+}
+
+class RawResponseHandler extends ResponseHandler<any> {
+  convertResponse(response: AxiosResponse<any>): any {
+    return response.data;
+  }
+}
+
+class TypedResponseHandler<T> extends ResponseHandler<T> {
+  convertResponse(response: AxiosResponse<any>): T {
+    return response.data as T;
+  }
+}
+
+const useApi = () => {
   const { startLoading, finishLoading } = useLoading();
+  const auth = useAuth();
   const baseUrl = process.env.REACT_APP_API_HOST;
   const token = localStorage.getItem('auth');
 
@@ -22,7 +47,7 @@ export const useApi = () => {
   );
 
   const getOptions = useCallback(
-    (includeToken: boolean = false) => {
+    (includeToken = false) => {
       let options = {};
 
       if (includeToken) {
@@ -48,7 +73,15 @@ export const useApi = () => {
       };
     }
 
-    const data = err.response.data;
+    if (err.response!.status === 401) {
+      auth.setSessionExpired!();
+      return {
+        success: false,
+        response: 'Session expired',
+      };
+    }
+
+    const { data } = err.response;
     const response = data.data ?? data;
     const message = response.message ?? response;
     return {
@@ -58,17 +91,13 @@ export const useApi = () => {
   }, []);
 
   const post = useCallback(
-    async <T>(url: string, data: {}, includeToken: boolean = false) => {
+    async <T>(url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
+      const responseHandler = new TypedResponseHandler<T>();
       const options = getOptions(includeToken);
       startLoading!();
       return axios
         .post<T>(getUrl(url), data, options)
-        .then((response) => {
-          return {
-            success: true,
-            response: response.data as T,
-          };
-        })
+        .then((response) => responseHandler.handleResponse(response))
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
@@ -76,17 +105,13 @@ export const useApi = () => {
   );
 
   const put = useCallback(
-    async (url: string, data: {}, includeToken: boolean = false) => {
+    async (url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
+      const responseHandler = new RawResponseHandler();
       const options = getOptions(includeToken);
       startLoading!();
       return axios
         .put(getUrl(url), data, options)
-        .then((response) => {
-          return {
-            success: true,
-            response: response.data,
-          };
-        })
+        .then((response) => responseHandler.handleResponse(response))
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
@@ -94,17 +119,13 @@ export const useApi = () => {
   );
 
   const del = useCallback(
-    async (url: string, includeToken: boolean = false) => {
+    async (url: string, includeToken = false) => {
+      const responseHandler = new RawResponseHandler();
       const options = getOptions(includeToken);
       startLoading!();
       return axios
         .delete(getUrl(url), options)
-        .then((response) => {
-          return {
-            success: true,
-            response: response.data,
-          };
-        })
+        .then((response) => responseHandler.handleResponse(response))
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
@@ -112,17 +133,13 @@ export const useApi = () => {
   );
 
   const get = useCallback(
-    async (url: string, includeToken: boolean = false) => {
+    async (url: string, includeToken = false) => {
+      const responseHandler = new RawResponseHandler();
       const options = getOptions(includeToken);
       startLoading!();
       return axios
         .get(getUrl(url), options)
-        .then((response) => {
-          return {
-            success: true,
-            response: response.data,
-          };
-        })
+        .then((response) => responseHandler.handleResponse(response))
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
@@ -131,3 +148,5 @@ export const useApi = () => {
 
   return { post, put, del, get };
 };
+
+export default useApi;

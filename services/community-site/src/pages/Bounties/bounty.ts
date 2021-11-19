@@ -7,7 +7,7 @@ type Localization = {
   locale: string;
   description: string;
   submission: string;
-  reward_text: string; 
+  reward_text: string;
 };
 
 export type Bounty = {
@@ -27,6 +27,8 @@ export type Bounty = {
   proof_file?: string;
   proof_text?: string;
   localizations: Localization[];
+  allow_multiple_submissions: boolean;
+  userSubmissionsCount?: number;
 };
 
 export type Submission = {

@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router-dom';
+import React, { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 
 import {
@@ -20,27 +20,62 @@ import ErrorIcon from '../../assets/icons/error';
 import { formatTime } from '../../utils/time';
 
 import { useAuth } from '../../services/useAuth';
-import { useSubmissions } from '../../services/useSubmissions';
+import useSubmissions from '../../services/useSubmissions';
 import Title from '../../components/Title/Title';
 
-interface ViewProfileProps {
-  openEditProfile: () => void;
+interface ViewProfileDetailsKYCProps {
   openKYCModal: () => void;
 }
 
-const ViewProfile = ({ openEditProfile, openKYCModal }: ViewProfileProps) => {
-  const { points, approved, rejected, review } = useSubmissions();
-  return (
-    <>
-      <ViewProfileDetails
-        points={points}
-        openEditProfile={openEditProfile}
-        openKYCModal={openKYCModal}
+function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
+  const auth = useAuth();
+  const { kyc } = auth.user!;
+
+  const empty = [null, '', '-', 'NOT_STARTED'];
+  const hasKYC = ![...empty, 'VERIFYING'].includes(kyc);
+  const kycStatus = ![...empty].includes(kyc) ? kyc : 'NOT_STARTED';
+
+  const status: { [string: string]: string } = {
+    NOT_STARTED: 'Not sumbitted',
+    VERIFYING: 'Verifying...',
+    APPROVED: 'Approved',
+    DENIED: 'Denied',
+  };
+
+  let kycButton;
+  let kycIcon;
+
+  if (!hasKYC) {
+    kycButton = (
+      <Button
+        variant="contained"
+        color="secondary"
+        label="Verify"
+        fullWidth
+        onClick={() => openKYCModal()}
       />
-      <ViewProfileBounties approved={approved} rejected={rejected} review={review} />
-    </>
+    );
+  }
+
+  if (kycStatus === 'APPROVED') {
+    kycIcon = <SuccessIcon />;
+  }
+
+  if (kycStatus === 'DENIED') {
+    kycIcon = <ErrorIcon />;
+  }
+
+  return (
+    <ProfileBasicCard
+      title="KYC"
+      description={status[kycStatus]}
+      Icon={KYCIcon}
+      buttonOptions={kycButton}
+    >
+      {kycIcon}
+    </ProfileBasicCard>
   );
-};
+}
 
 interface ViewProfileDetailsProps {
   points: number;
@@ -90,70 +125,18 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         title="My Rewards"
         description="TARA Points"
         value={ethers.utils.commify(ethers.BigNumber.from(points.toString()).toString())}
-        buttonOptions={<Button
-          variant="contained"
-          color="secondary"
-          label="Claim rewards"
-          disabled={ethers.BigNumber.from(points.toString()).eq("0")}
-          fullWidth
-          onClick={() => history.push('/redeem')}
-        />}
+        buttonOptions={
+          <Button
+            variant="contained"
+            color="secondary"
+            label="Claim rewards"
+            disabled={ethers.BigNumber.from(points.toString()).eq('0')}
+            fullWidth
+            onClick={() => history.push('/redeem')}
+          />
+        }
       />
     </div>
-  );
-}
-
-interface ViewProfileDetailsKYCProps {
-  openKYCModal: () => void;
-}
-
-function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
-  const auth = useAuth();
-  const kyc = auth.user!.kyc;
-
-  const empty = [null, '', '-', 'NOT_STARTED'];
-  const hasKYC = ![...empty, 'VERIFYING'].includes(kyc);
-  const kycStatus = ![...empty].includes(kyc) ? kyc : 'NOT_STARTED';
-
-  const status: { [string: string]: string } = {
-    NOT_STARTED: 'Not sumbitted',
-    VERIFYING: 'Verifying...',
-    APPROVED: 'Approved',
-    DENIED: 'Denied',
-  };
-
-  let kycButton;
-  let kycIcon;
-
-  if (!hasKYC) {
-    kycButton = (
-      <Button
-        variant="contained"
-        color="secondary"
-        label="Verify"
-        fullWidth
-        onClick={() => openKYCModal()}
-      />
-    );
-  }
-
-  if (kycStatus === 'APPROVED') {
-    kycIcon = <SuccessIcon />;
-  }
-
-  if (kycStatus === 'DENIED') {
-    kycIcon = <ErrorIcon />;
-  }
-
-  return (
-    <ProfileBasicCard
-      title="KYC"
-      description={status[kycStatus]}
-      Icon={KYCIcon}
-      buttonOptions={kycButton}
-    >
-      {kycIcon}
-    </ProfileBasicCard>
   );
 }
 
@@ -254,5 +237,24 @@ function ViewProfileBounties({ approved, rejected, review }: ViewProfileBounties
     </>
   );
 }
+
+interface ViewProfileProps {
+  openEditProfile: () => void;
+  openKYCModal: () => void;
+}
+
+const ViewProfile = ({ openEditProfile, openKYCModal }: ViewProfileProps) => {
+  const { points, approved, rejected, review } = useSubmissions();
+  return (
+    <>
+      <ViewProfileDetails
+        points={points}
+        openEditProfile={openEditProfile}
+        openKYCModal={openKYCModal}
+      />
+      <ViewProfileBounties approved={approved} rejected={rejected} review={review} />
+    </>
+  );
+};
 
 export default ViewProfile;

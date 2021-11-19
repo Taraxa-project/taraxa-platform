@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import { MetaMaskProvider, useMetaMask } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
-import { useLocation } from 'react-router-dom';
 import { Notification } from '@taraxa_project/taraxa-ui';
 
 import { AuthProvider, useAuth } from './services/useAuth';
@@ -54,20 +53,18 @@ const Root = () => {
     appClassName += ' App-mobile';
   }
 
-  const confirmEmail = async (
-    event: React.MouseEvent<HTMLElement>,
-  ) => {
+  const confirmEmail = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     await auth.emailConfirmation!();
 
-    setIsOpen!(true)
+    setIsOpen!(true);
     setContent!('sign-up-success');
   };
 
   const isLoggedIn = auth.user?.id;
   const isConfirmed = auth.user?.confirmed;
   const walletConnected = status === 'connected';
-  const userWallet = auth.user?.eth_wallet ? auth.user?.eth_wallet?.toLocaleLowerCase() : "";
+  const userWallet = auth.user?.eth_wallet ? auth.user?.eth_wallet?.toLocaleLowerCase() : '';
   const accountWallet = account?.toLocaleLowerCase();
 
   return (
@@ -76,20 +73,21 @@ const Root = () => {
       <Header />
       {isLoggedIn && !isConfirmed && (
         <div className="notification">
-          <Notification
-            title="Account not confirmed"
-            variant="danger"
-          >
-            Your email address is not confirmed. Please confirm your email address by clicking <a href="#" className="default-link" onClick={confirmEmail}>here</a>
+          <Notification title="Account not confirmed" variant="danger">
+            Your email address is not confirmed. Please confirm your email address by clicking{' '}
+            <a href="#" className="default-link" onClick={confirmEmail}>
+              here
+            </a>
           </Notification>
         </div>
       )}
       {isLoggedIn && walletConnected && userWallet !== accountWallet && (
         <div className="notification">
-          <Notification
-            variant="danger"
-          >
-            Please be advised that rewards are tied to wallet addresses. Staking rewards are tied to the wallet you used to stake, and bounty rewards such as node operating rewards are tied to the address you entered into your profile. If you don't see your staking or bounty rewards, please confirm that you're connected to the right wallet.
+          <Notification variant="danger">
+            Please be advised that rewards are tied to wallet addresses. Staking rewards are tied to
+            the wallet you used to stake, and bounty rewards such as node operating rewards are tied
+            to the address you entered into your profile. If you don't see your staking or bounty
+            rewards, please confirm that you're connected to the right wallet.
           </Notification>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useHistory, Redirect } from 'react-router-dom';
 import * as CryptoJS from 'crypto-js';
 
@@ -7,20 +7,25 @@ import { Text, Card, Button, File, Icons, InputField } from '@taraxa_project/tar
 import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
 import { useAuth } from '../../services/useAuth';
+import useBounties from '../../services/useBounties';
 
 import { Bounty } from './bounty';
 
 import './bounties.scss';
 
 function BountySubmit() {
-  let { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
 
   const api = useApi();
   const auth = useAuth();
+  let userId: number | undefined;
+  if (auth.isLoggedIn) {
+    userId = auth.user!.id;
+  }
   const history = useHistory();
-
+  const { getBountyUserSubmissionsCount } = useBounties();
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
   const [submitText, setSubmitText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -32,18 +37,28 @@ function BountySubmit() {
       if (!data.success) {
         return;
       }
+
+      const userSubmissionsCount = await getBountyUserSubmissionsCount(data.response.id);
+
       setBounty({
         ...data.response,
+        userSubmissionsCount,
         active: data.response.state?.id === 1,
       });
     };
     getBounty(id);
-  }, [id]);
+  }, [id, getBountyUserSubmissionsCount]);
 
   const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
 
-  if (bounty.id && (!submissionNeeded || !bounty.active)) {
-    return (<Redirect to={`/bounties/${bounty.id}`} />);
+  if (
+    !auth.isLoggedIn ||
+    (bounty.id &&
+      (!submissionNeeded ||
+        !bounty.active ||
+        (!bounty.allow_multiple_submissions && bounty.userSubmissionsCount! >= 1)))
+  ) {
+    return <Redirect to={`/bounties/${id}`} />;
   }
 
   const errIndex = errors.map((error) => error.key);
@@ -53,14 +68,14 @@ function BountySubmit() {
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
   const hasSubmissionError = hasError('submission');
-  const submissionErrorMessage = hasError('submission') ? errValues[findErrorIndex('submission')] : undefined;
-  const hasFileError = hasError('file');
-  const fileErrorMessage = hasError('file')
-    ? errValues[findErrorIndex('file')]
+  const submissionErrorMessage = hasError('submission')
+    ? errValues[findErrorIndex('submission')]
     : undefined;
+  const hasFileError = hasError('file');
+  const fileErrorMessage = hasError('file') ? errValues[findErrorIndex('file')] : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage;
 
   if (errors.length > 0 && !hasSubmissionError && !hasFileError) {
     hasGeneralError = true;
@@ -86,16 +101,14 @@ function BountySubmit() {
     let uploadedFile;
     if (file !== null) {
       const formData = new FormData();
-      formData.append("files", file!);
+      formData.append('files', file!);
 
       const result = await api.post('/upload', formData, true);
       if (result.success) {
         uploadedFile = result.response[0];
-      } else {
-        if (typeof result.response === 'string') {
-          setErrors([{ key: 'file', value: result.response }]);
-          return;
-        }
+      } else if (typeof result.response === 'string') {
+        setErrors([{ key: 'file', value: result.response }]);
+        return;
       }
 
       if (!uploadedFile) {
@@ -106,7 +119,7 @@ function BountySubmit() {
 
     let ciphertext = CryptoJS.AES.encrypt(
       submitText,
-      "255826e3232d021e830f3dd19e77055f"
+      '255826e3232d021e830f3dd19e77055f',
     ).toString();
     ciphertext = CryptoJS.SHA3(ciphertext).toString();
 
@@ -117,7 +130,7 @@ function BountySubmit() {
       file_proof?: string;
       text_proof?: string;
     } = {
-      user: auth.user?.id!,
+      user: userId!,
       bounty: Number(bounty.id),
       hashed_content: ciphertext,
     };
@@ -145,9 +158,13 @@ function BountySubmit() {
       }
     }
 
-    const resultBounty = await api.put(`/bounties/${bounty.id}`, {
-      users: auth.user?.id,
-    }, true);
+    const resultBounty = await api.put(
+      `/bounties/${bounty.id}`,
+      {
+        users: userId!,
+      },
+      true,
+    );
 
     if (!resultBounty.success) {
       if (typeof resultBounty.response === 'string') {
@@ -159,7 +176,6 @@ function BountySubmit() {
     history.push(`/bounties/${bounty.id}`);
   };
 
-
   return (
     <div className="bounties">
       <div className="bounties-content">
@@ -169,24 +185,38 @@ function BountySubmit() {
         />
         <div className="bounties-details">
           <form onSubmit={submit}>
-            <Card actions={(
-              <>
-                {(bounty.proof_file && bounty.proof_file.trim() !== '') && <Text variant="body2" color="primary">{bounty.proof_file}</Text>}
-                <File onChange={(f: File) => setFile(f)} />
-                {hasFileError && <Text variant="body1" color="error">{fileErrorMessage}</Text>}
-                <Button
-                  type="submit"
-                  label="Submit"
-                  color="secondary"
-                  variant="contained"
-                  onClick={submit}
-                  fullWidth
-                />
-                {hasGeneralError && <Text variant="body1" color="error">{hasGeneralError}</Text>}
-              </>
-            )}>
+            <Card
+              actions={
+                <>
+                  {bounty.proof_file && bounty.proof_file.trim() !== '' && (
+                    <Text variant="body2" color="primary">
+                      {bounty.proof_file}
+                    </Text>
+                  )}
+                  <File onChange={(f: File) => setFile(f)} />
+                  {hasFileError && (
+                    <Text variant="body1" color="error">
+                      {fileErrorMessage}
+                    </Text>
+                  )}
+                  <Button
+                    type="submit"
+                    label="Submit"
+                    color="secondary"
+                    variant="contained"
+                    onClick={submit}
+                    fullWidth
+                  />
+                  {hasGeneralError && (
+                    <Text variant="body1" color="error">
+                      {generalErrorMessage}
+                    </Text>
+                  )}
+                </>
+              }
+            >
               <Text variant="h5" color="primary" className="title">
-                <span className={["dot", (bounty.active ? "active" : "inactive")].join(' ')}></span>
+                <span className={['dot', bounty.active ? 'active' : 'inactive'].join(' ')} />
                 {bounty.name!}
               </Text>
               <Markdown>{bounty.submission!}</Markdown>
@@ -194,7 +224,11 @@ function BountySubmit() {
                 <Icons.Submit />
                 Submit bounty
               </Text>
-              {(bounty.proof_text && bounty.proof_text.trim() !== '') && <Text variant="body2" color="primary">{bounty.proof_text}</Text>}
+              {bounty.proof_text && bounty.proof_text.trim() !== '' && (
+                <Text variant="body2" color="primary">
+                  {bounty.proof_text}
+                </Text>
+              )}
               <div className="input">
                 <InputField
                   label="Submission"

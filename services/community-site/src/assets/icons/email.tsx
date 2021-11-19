@@ -1,3 +1,5 @@
+import React from 'react';
+
 const EmailIcon = () => {
   return (
     <svg width="40" height="36" viewBox="0 0 40 36" fill="none" xmlns="http://www.w3.org/2000/svg">

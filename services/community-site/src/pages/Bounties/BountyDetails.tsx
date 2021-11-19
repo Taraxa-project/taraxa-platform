@@ -1,28 +1,29 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 
 import { Text, Button, Pagination } from '@taraxa_project/taraxa-ui';
 
-import UserIcon from './../../assets/icons/user';
+import UserIcon from '../../assets/icons/user';
 
 import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
+import useBounties from '../../services/useBounties';
 import { formatTime } from '../../utils/time';
 
 import { Bounty, Submission } from './bounty';
-import BountyCard from './BoutyCard';
+import BountyCard from './BountyCard';
 
 import './bounties.scss';
 
 function BountyDetails() {
-  let { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
 
   const { get } = useApi();
   const history = useHistory();
 
+  const { getBountyUserSubmissionsCount } = useBounties();
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
   const [locale, setLocale] = useState('en');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -36,32 +37,38 @@ function BountyDetails() {
       if (!data.success) {
         return;
       }
+
+      const userSubmissionsCount = await getBountyUserSubmissionsCount(id);
+
       const bounty: Bounty = {
         ...data.response,
         submissionsCount: 0,
+        userSubmissionsCount,
         active: data.response.state?.id === 1,
       };
 
       if (bounty.localizations.length > 0) {
-        bounty.localizations = await Promise.all(bounty.localizations.map(async locale => {
-          const data = await get(`/bounties/${locale.id}`);
-          if (!data.success) {
-            return locale;
-          }
-          const b: Bounty = data.response;
-          const { description, submission, reward_text } = b;
-          return {
-            ...locale,
-            description,
-            submission,
-            reward_text,
-          }
-        }));
+        bounty.localizations = await Promise.all(
+          bounty.localizations.map(async (locale) => {
+            const data = await get(`/bounties/${locale.id}`);
+            if (!data.success) {
+              return locale;
+            }
+            const b: Bounty = data.response;
+            const { description, submission, reward_text } = b;
+            return {
+              ...locale,
+              description,
+              submission,
+              reward_text,
+            };
+          }),
+        );
       }
       setBounty(bounty);
     };
     getBounty(id);
-  }, [get, id]);
+  }, [get, id, getBountyUserSubmissionsCount]);
 
   useEffect(() => {
     const getSubmissions = async (id: number) => {
@@ -70,7 +77,7 @@ function BountyDetails() {
         return;
       }
       setSubmissions(data.response);
-      setBounty(bounty => ({ ...bounty, submissionsCount: data.response.length }))
+      setBounty((bounty) => ({ ...bounty, submissionsCount: data.response.length }));
     };
     if (bounty.id) {
       getSubmissions(bounty.id);
@@ -84,39 +91,34 @@ function BountyDetails() {
     const totalPages = Math.ceil(submissions.length / perPage);
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    const rows = submissions!.slice(start, end).map((submission: Submission) => (<div className="submission-row" key={submission.id}>
-      <div className="submission-row-username">
-        <div className="submission-row-username-icon">
-          <UserIcon />
-        </div>
+    const rows = submissions!.slice(start, end).map((submission: Submission) => (
+      <div className="submission-row" key={submission.id}>
+        <div className="submission-row-username">
+          <div className="submission-row-username-icon">
+            <UserIcon />
+          </div>
 
-        <Text
-          variant="body2"
-          label={(submission.user || {}).username || '-'}
-        />
+          <Text variant="body2" label={(submission.user || {}).username || '-'} />
+        </div>
+        <div className="submission-row-content">
+          <Text variant="body2" label={submission.hashed_content || '-'} />
+        </div>
+        <div className="submission-row-date">
+          <Text
+            variant="body2"
+            label={`${formatTime(
+              Math.ceil((now - new Date(submission.created_at).getTime()) / 1000),
+            )} ago`}
+          />
+        </div>
       </div>
-      <div className="submission-row-content">
-        <Text
-          variant="body2"
-          label={submission.hashed_content || '-'}
-        />
-      </div>
-      <div className="submission-row-date">
-        <Text
-          variant="body2"
-          label={`${formatTime(Math.ceil((now - new Date(submission.created_at).getTime()) / 1000))} ago`}
-        />
-      </div>
-    </div>));
+    ));
 
     if (rows.length > 0) {
       submissionsTable = (
         <div className="submission-table">
           <div className="submission-table-header">
-            <Text
-              variant="h5"
-              color="primary"
-            >
+            <Text variant="h5" color="primary">
               SUBMISSIONS ({submissions.length})
             </Text>
             <Pagination
@@ -137,10 +139,10 @@ function BountyDetails() {
   }
 
   const localeNames: { [key: string]: string } = {
-    "en": "EN",
-    "ru-RU": "RU",
-    "zh-CN": "CN",
-  }
+    en: 'EN',
+    'ru-RU': 'RU',
+    'zh-CN': 'CN',
+  };
 
   if (!bounty) {
     return null;
@@ -150,7 +152,7 @@ function BountyDetails() {
   let rewardText = bounty.reward_text || '';
 
   if (locale !== 'en') {
-    const bt = bounty.localizations!.find(b => b.locale === locale);
+    const bt = bounty.localizations!.find((b) => b.locale === locale);
     if (bt) {
       description = bt.description;
       rewardText = bt.reward_text;
@@ -165,9 +167,9 @@ function BountyDetails() {
           subtitle="Earn rewards and help grow the Taraxa's ecosystem"
         />
         <BountyCard
-          bounty={bounty}
-          isDetailed={true}
-          description={(
+          bounty={bounty as Bounty}
+          isDetailed
+          description={
             <>
               {bounty.localizations && bounty.localizations!.length > 0 && (
                 <div className="locale">
@@ -176,11 +178,11 @@ function BountyDetails() {
                     color="primary"
                     variant="outlined"
                     label="EN"
-                    onClick={() => setLocale("en")}
+                    onClick={() => setLocale('en')}
                     size="small"
-                    disabled={locale === "en"}
-                  ></Button>
-                  {bounty.localizations!.map(l => (
+                    disabled={locale === 'en'}
+                  />
+                  {bounty.localizations!.map((l) => (
                     <Button
                       key={l.id}
                       disableElevation
@@ -190,31 +192,25 @@ function BountyDetails() {
                       onClick={() => setLocale(l.locale)}
                       size="small"
                       disabled={l.locale === locale}
-                    ></Button>
+                    />
                   ))}
                 </div>
               )}
 
-              <Text
-                variant="h5"
-                color="primary"
-              >
+              <Text variant="h5" color="primary">
                 Description
               </Text>
               <Markdown>{description}</Markdown>
               {rewardText && rewardText.trim() !== '' && (
                 <>
-                  <Text
-                    variant="h5"
-                    color="primary"
-                  >
+                  <Text variant="h5" color="primary">
                     Reward
                   </Text>
                   <Markdown>{rewardText}</Markdown>
                 </>
               )}
             </>
-          )}
+          }
           goTo={(url) => history.push(url)}
           submissions={submissionsTable}
         />

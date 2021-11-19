@@ -1,3 +1,4 @@
+import React from 'react';
 import { Footer as TFooter } from '@taraxa_project/taraxa-ui';
 import SendIcon from '../../assets/icons/send';
 import TwitterIcon from '../../assets/icons/twitter';

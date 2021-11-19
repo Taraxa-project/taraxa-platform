@@ -1,5 +1,5 @@
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
 import axios from 'axios';
 import { Header, Footer, Text, BaseCard, Button } from '@taraxa_project/taraxa-ui';
@@ -43,7 +43,13 @@ export default function Home() {
           return n.slice(0, 5);
         });
 
-        setPeerPbftBlockCount(Math.max(...status?.network?.peers?.filter((peer) => peer.dag_synced).map(peer => peer.pbft_size)));
+        setPeerPbftBlockCount(
+          Math.max(
+            ...status?.network?.peers
+              ?.filter((peer) => peer.dag_synced)
+              .map((peer) => peer.pbft_size),
+          ),
+        );
       });
     };
 

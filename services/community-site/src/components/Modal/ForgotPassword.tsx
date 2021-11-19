@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import { useAuth } from '../../services/useAuth';
@@ -31,7 +31,7 @@ const ForgotPassword = ({ onSuccess }: { onSuccess: () => void }) => {
 
   return (
     <div>
-      <Text label="Forgot Password" variant="h6" color="primary" />
+      <Text label="Forgot password" variant="h6" color="primary" />
       <Text label="Please, enter your registration e-mail." variant="body2" color="textSecondary" />
       <form onSubmit={submit}>
         <InputField

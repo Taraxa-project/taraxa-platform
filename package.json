@@ -11,22 +11,14 @@
     "status-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status build",
     "status-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status dev",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
-    "lint": "tsc --noEmit -p services/community-site && tsc --noEmit -p packages/taraxa-ui",
+    "lint": "eslint services/community-site && eslint packages/taraxa-ui",
     "postinstall": "husky install"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn run format",
-      "git add"
+      "eslint",
+      "prettier --write"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": [
-        "lint-staged",
-        "yarn run lint"
-      ]
-    }
   },
   "dependencies": {
     "husky": "^7.0.2"

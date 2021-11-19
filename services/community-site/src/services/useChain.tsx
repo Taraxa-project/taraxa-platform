@@ -6,7 +6,7 @@ function useChain() {
   const { chainId, ethereum } = useMetaMask();
 
   const provider = useMemo(() => {
-    let provider = undefined;
+    let provider;
     try {
       provider = new ethers.providers.Web3Provider(ethereum);
     } catch (e) {
@@ -17,7 +17,7 @@ function useChain() {
   }, [ethereum]);
 
   const signer = useMemo(() => {
-    let signer = undefined;
+    let signer;
     if (!provider) {
       return signer;
     }

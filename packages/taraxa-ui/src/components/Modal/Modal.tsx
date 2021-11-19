@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import theme from '../theme';
 import RModal from 'react-modal';
+import theme from '../theme';
 import Button from '../Button';
 import '../app.scss';
 

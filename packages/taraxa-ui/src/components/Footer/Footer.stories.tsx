@@ -1,5 +1,5 @@
-import { Meta } from '@storybook/react/types-6-0';
-import { Story } from '@storybook/react';
+import React from 'react';
+import { Story, Meta } from '@storybook/react';
 import Footer, { FooterProps } from './Footer';
 
 export default {
@@ -15,15 +15,17 @@ export default {
 
 const Template: Story<FooterProps> = (args) => <Footer {...args} />;
 
-
 export const Primary = Template.bind({});
 Primary.args = {
   description:
     'Taraxa is a public ledger platform purpose-built for audit logging of informal transactions. ',
-  links: [{ label: 'Privacy Policy', link: '#' }, { label: 'Terms of Use', link: '#' }],
+  links: [
+    { label: 'Privacy Policy', link: '#' },
+    { label: 'Terms of Use', link: '#' },
+  ],
   items: [
-    { label: 'Send', Icon: (<></>) },
-    { label: 'Discord', Icon: (<></>) },
-    { label: 'Twitter', Icon: (<></>) },
+    { label: 'Send', Icon: <></> },
+    { label: 'Discord', Icon: <></> },
+    { label: 'Twitter', Icon: <></> },
   ],
 };

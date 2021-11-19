@@ -62,20 +62,6 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export interface SidebarProps extends DrawerProps {
-  disablePadding?: boolean;
-  dense?: boolean;
-  depthStep?: 0;
-  depth?: 0;
-  className?: string;
-  items: {
-    label?: string;
-    name?: string;
-    Link?: JSX.Element;
-    items?: { label?: string; name?: string; Link?: JSX.Element }[];
-  }[];
-}
-
 interface SidebarItemProps {
   label?: string;
   name?: string;
@@ -89,6 +75,86 @@ interface SidebarItemProps {
     items?: { label?: string; name?: string; Link?: JSX.Element }[];
   }[];
   Link?: JSX.Element;
+}
+
+const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: SidebarItemProps) => {
+  const pathname =
+    window.location.pathname.length > 1
+      ? window.location.pathname.substring(1)
+      : window.location.pathname;
+
+  const className = [];
+
+  let isOpen = false;
+
+  if (name === 'dashboard' && pathname === '/') {
+    isOpen = true;
+  }
+
+  if (name === pathname || pathname.substring(0, name?.length || 0) === name?.toLocaleLowerCase()) {
+    isOpen = true;
+  }
+
+  if (subItem || items.length < 1) {
+    className.push(isOpen ? 'subItemOpened' : 'subItem');
+  } else {
+    className.push(isOpen ? 'itemOpened' : 'item');
+  }
+
+  return (
+    <>
+      <ListItem className={className.join(' ')} button dense>
+        {Link ? (
+          <ListItemText
+            primary={Link}
+            style={{
+              paddingLeft: subItem ? depth * depthStep : !items ? (depth + 2) * depthStep : 15,
+              marginTop: 0,
+              marginBottom: 0,
+            }}
+          />
+        ) : (
+          <>
+            <ListItemText
+              primary={<div className="label">{label}</div>}
+              style={{ paddingLeft: subItem ? depth * depthStep : 15 }}
+            />
+          </>
+        )}
+      </ListItem>
+      {Array.isArray(items) ? (
+        <List disablePadding dense>
+          {items.map((subItem, index) => (
+            <SidebarItem
+              key={`${subItem.label}${index}`}
+              depth={depth + 2}
+              depthStep={depthStep}
+              subItem
+              label={subItem.label}
+              items={subItem.items ? subItem.items : []}
+              Link={subItem.Link ? subItem.Link : undefined}
+              name={subItem.name ? subItem.name : undefined}
+            />
+          ))}
+        </List>
+      ) : null}
+    </>
+  );
+};
+
+export interface SidebarProps extends DrawerProps {
+  disablePadding?: boolean;
+  dense?: boolean;
+  depthStep?: 0;
+  depth?: 0;
+  className?: string;
+  children?: JSX.Element | false | Array<JSX.Element | false>;
+  items: {
+    label?: string;
+    name?: string;
+    Link?: JSX.Element;
+    items?: { label?: string; name?: string; Link?: JSX.Element }[];
+  }[];
 }
 
 const Sidebar = ({
@@ -125,13 +191,13 @@ const Sidebar = ({
             disablePadding={disablePadding}
             dense={dense}
             id="sidebarList"
-            className={className ? className : ''}
+            className={className || ''}
           >
             {items.map((sidebarItem, index) => (
               <SidebarItem
                 key={`${sidebarItem.label}${index}`}
-                depthStep={depthStep ? depthStep : 10}
-                depth={depth ? depth : 0}
+                depthStep={depthStep || 10}
+                depth={depth || 0}
                 subItem={false}
                 items={sidebarItem.items ? sidebarItem.items : []}
                 label={sidebarItem.label ? sidebarItem.label : ''}
@@ -151,75 +217,6 @@ const Sidebar = ({
         </div>
       </Drawer>
     </ThemeProvider>
-  );
-};
-
-const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: SidebarItemProps) => {
-  const pathname =
-    window.location.pathname.length > 1
-      ? window.location.pathname.substring(1)
-      : window.location.pathname;
-
-  let className = [];
-
-  let isOpen = false;
-
-  if (name === 'dashboard' && pathname === '/') {
-    isOpen = true;
-  }
-
-  if (name === pathname || pathname.substring(0, (name?.length || 0)) === name?.toLocaleLowerCase()) {
-    isOpen = true;
-  }
-
-  if (subItem || items.length < 1) {
-    className.push(isOpen ? 'subItemOpened' : 'subItem');
-  } else {
-    className.push(isOpen ? 'itemOpened' : 'item');
-  }
-
-  return (
-    <>
-      <ListItem
-        className={className.join(' ')}
-        button
-        dense
-      >
-        {Link ? (
-          <ListItemText
-            primary={Link}
-            style={{
-              paddingLeft: subItem ? depth * depthStep : !items ? (depth + 2) * depthStep : 15,
-              marginTop: 0,
-              marginBottom: 0,
-            }}
-          ></ListItemText>
-        ) : (
-          <>
-            <ListItemText
-              primary={<div className="label">{label}</div>}
-              style={{ paddingLeft: subItem ? depth * depthStep : 15 }}
-            ></ListItemText>
-          </>
-        )}
-      </ListItem>
-      {Array.isArray(items) ? (
-        <List disablePadding dense>
-          {items.map((subItem, index) => (
-            <SidebarItem
-              key={`${subItem.label}${index}`}
-              depth={depth + 2}
-              depthStep={depthStep}
-              subItem
-              label={subItem.label}
-              items={subItem.items ? subItem.items : []}
-              Link={subItem.Link ? subItem.Link : undefined}
-              name={subItem.name ? subItem.name : undefined}
-            />
-          ))}
-        </List>
-      ) : null}
-    </>
   );
 };
 

@@ -41,16 +41,23 @@ const RewardCard = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={[classes.root, "reward-card"].join(' ')} elevation={0} variant="outlined">
-        <CardContent className={[classes.content, "reward-card-content"].join(' ')}>
-          <div className={[classes.main, "reward-card-main"].join(' ')}>
-            <div className={[classes.informationCard, "reward-card-info"].join(' ')}>
+      <MCard className={[classes.root, 'reward-card'].join(' ')} elevation={0} variant="outlined">
+        <CardContent className={[classes.content, 'reward-card-content'].join(' ')}>
+          <div className={[classes.main, 'reward-card-main'].join(' ')}>
+            <div className={[classes.informationCard, 'reward-card-info'].join(' ')}>
               <Typography variant="h5" color="primary" className={classes.title}>
-                <span className={[classes.dot, (isActive ? classes.active : classes.inactive)].join(' ')}></span>
+                <span
+                  className={[classes.dot, isActive ? classes.active : classes.inactive].join(' ')}
+                />
                 {title}
               </Typography>
 
-              <Typography variant="body2" color="primary" className={classes.description} component="div">
+              <Typography
+                variant="body2"
+                color="primary"
+                className={classes.description}
+                component="div"
+              >
                 {description}
               </Typography>
 
@@ -73,7 +80,7 @@ const RewardCard = ({
                 </div>
               </div>
             </div>
-            <div className={[classes.actionCard, "reward-card-action"].join(' ')}>
+            <div className={[classes.actionCard, 'reward-card-action'].join(' ')}>
               <Typography color="primary" variant="body1">
                 Reward:
               </Typography>
@@ -86,8 +93,8 @@ const RewardCard = ({
                 variant="contained"
                 label={onClickText}
                 size="medium"
-                fullWidth>
-              </Button>
+                fullWidth
+              />
             </div>
           </div>
           {dataList && <div className={classes.dataListContainer}>{dataList}</div>}

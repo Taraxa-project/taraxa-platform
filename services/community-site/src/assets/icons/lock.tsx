@@ -1,3 +1,5 @@
+import React from 'react';
+
 const LockIcon = () => {
   return (
     <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg">
