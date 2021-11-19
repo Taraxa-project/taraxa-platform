@@ -6,8 +6,9 @@ export const formatTime = (seconds: number) => {
       const decimal = seconds / currVal;
 
       if (decimal >= 1) {
-        const plural = decimal > 1;
-        return `${Math.round(decimal)} ${u}${plural ? 's' : ''}`;
+        const rounded = Math.round(decimal);
+        const plural = rounded > 1;
+        return `${rounded} ${u}${plural ? 's' : ''}`;
       }
 
       return prev;
