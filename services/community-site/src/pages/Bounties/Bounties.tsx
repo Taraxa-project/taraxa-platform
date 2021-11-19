@@ -7,7 +7,6 @@ import PinnedIcon from '../../assets/icons/pinned';
 
 import Title from '../../components/Title/Title';
 
-import { useAuth } from '../../services/useAuth';
 import useApi from '../../services/useApi';
 
 import { Bounty } from './bounty';
@@ -59,13 +58,6 @@ function Bounties() {
   const { get } = useApi();
   const history = useHistory();
 
-  const auth = useAuth();
-  const isLoggedIn = !!auth.user?.id;
-  let userId: any;
-  if (isLoggedIn) {
-    userId = auth.user!.id;
-  }
-
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [getPinnedBountiesSubmissions, setGetPinnedBountiesSubmissions] = useState(false);
@@ -89,7 +81,6 @@ function Bounties() {
     return bounties.map((bounty: Bounty) => ({
       ...bounty,
       submissionsCount: 0,
-      userSubmissionsCount: 0,
       active: bounty.state?.id === 1,
     }));
   }, []);
@@ -102,20 +93,10 @@ function Bounties() {
         if (submissionsCountRequest.success) {
           submissionsCount = submissionsCountRequest.response;
         }
-        let userSubmissionsCount = 0;
-        if (isLoggedIn) {
-          const userSubmissionsCountRequest = await get(
-            `/submissions/count?bounty=${bounty.id}&user=${userId}`,
-          );
-          if (userSubmissionsCountRequest.success) {
-            userSubmissionsCount = userSubmissionsCountRequest.response;
-          }
-        }
 
         return {
           ...bounty,
           submissionsCount,
-          userSubmissionsCount,
         };
       });
 
