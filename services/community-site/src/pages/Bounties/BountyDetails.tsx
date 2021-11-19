@@ -9,7 +9,7 @@ import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
 import useApi from '../../services/useApi';
-import { useAuth } from '../../services/useAuth';
+import useBounties from '../../services/useBounties';
 import { formatTime } from '../../utils/time';
 
 import { Bounty, Submission } from './bounty';
@@ -23,13 +23,7 @@ function BountyDetails() {
   const { get } = useApi();
   const history = useHistory();
 
-  const auth = useAuth();
-  const isLoggedIn = !!auth.user?.id;
-  let userId: any;
-  if (isLoggedIn) {
-    userId = auth.user!.id;
-  }
-
+  const { getBountyUserSubmissionsCount } = useBounties();
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
   const [locale, setLocale] = useState('en');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -44,15 +38,7 @@ function BountyDetails() {
         return;
       }
 
-      let userSubmissionsCount = 0;
-      if (isLoggedIn) {
-        const userSubmissionsCountRequest = await get(
-          `/submissions/count?bounty=${data.response.id}&user=${userId}`,
-        );
-        if (userSubmissionsCountRequest.success) {
-          userSubmissionsCount = userSubmissionsCountRequest.response;
-        }
-      }
+      const userSubmissionsCount = await getBountyUserSubmissionsCount(id);
 
       const bounty: Bounty = {
         ...data.response,
@@ -82,7 +68,7 @@ function BountyDetails() {
       setBounty(bounty);
     };
     getBounty(id);
-  }, [get, id, userId, isLoggedIn]);
+  }, [get, id, getBountyUserSubmissionsCount]);
 
   useEffect(() => {
     const getSubmissions = async (id: number) => {
