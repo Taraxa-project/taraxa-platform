@@ -26,7 +26,7 @@ class TypedResponseHandler<T> extends ResponseHandler<T> {
   }
 }
 
-export const useApi = () => {
+const useApi = () => {
   const { startLoading, finishLoading } = useLoading();
   const auth = useAuth();
   const baseUrl = process.env.REACT_APP_API_HOST;
@@ -47,7 +47,7 @@ export const useApi = () => {
   );
 
   const getOptions = useCallback(
-    (includeToken: boolean = false) => {
+    (includeToken = false) => {
       let options = {};
 
       if (includeToken) {
@@ -81,7 +81,7 @@ export const useApi = () => {
       };
     }
 
-    const data = err.response.data;
+    const { data } = err.response;
     const response = data.data ?? data;
     const message = response.message ?? response;
     return {
@@ -91,7 +91,7 @@ export const useApi = () => {
   }, []);
 
   const post = useCallback(
-    async <T>(url: string, data: {}, includeToken: boolean = false) => {
+    async <T>(url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
       const responseHandler = new TypedResponseHandler<T>();
       const options = getOptions(includeToken);
       startLoading!();
@@ -105,7 +105,7 @@ export const useApi = () => {
   );
 
   const put = useCallback(
-    async (url: string, data: {}, includeToken: boolean = false) => {
+    async (url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
       const responseHandler = new RawResponseHandler();
       const options = getOptions(includeToken);
       startLoading!();
@@ -119,7 +119,7 @@ export const useApi = () => {
   );
 
   const del = useCallback(
-    async (url: string, includeToken: boolean = false) => {
+    async (url: string, includeToken = false) => {
       const responseHandler = new RawResponseHandler();
       const options = getOptions(includeToken);
       startLoading!();
@@ -133,7 +133,7 @@ export const useApi = () => {
   );
 
   const get = useCallback(
-    async (url: string, includeToken: boolean = false) => {
+    async (url: string, includeToken = false) => {
       const responseHandler = new RawResponseHandler();
       const options = getOptions(includeToken);
       startLoading!();
@@ -148,3 +148,5 @@ export const useApi = () => {
 
   return { post, put, del, get };
 };
+
+export default useApi;

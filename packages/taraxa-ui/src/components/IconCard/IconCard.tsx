@@ -64,7 +64,7 @@ const IconCard = ({
               variant="contained"
               label={onClickText}
               disabled={disabled}
-            ></Button>
+            />
           </CardActions>
         )}
       </MCard>

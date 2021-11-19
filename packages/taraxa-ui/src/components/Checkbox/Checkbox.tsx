@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Checkbox as MCheckbox,
   CssBaseline,

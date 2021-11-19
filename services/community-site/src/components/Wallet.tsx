@@ -1,3 +1,4 @@
+import React from 'react';
 import { useMetaMask } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
 import { Button, Text } from '@taraxa_project/taraxa-ui';
@@ -37,7 +38,7 @@ const Wallet = () => {
     );
   }
 
-  let address =
+  const address =
     isMobile && account ? `${account!.substr(0, 7)} ... ${account!.substr(-5)}` : account!;
 
   return (

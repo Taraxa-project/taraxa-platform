@@ -1,3 +1,4 @@
+import React from 'react';
 import { Text, Loading } from '@taraxa_project/taraxa-ui';
 
 interface IsStakingProps {

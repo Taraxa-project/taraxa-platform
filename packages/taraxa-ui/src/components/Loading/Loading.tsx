@@ -1,12 +1,9 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import { CircularProgress } from '@material-ui/core';
+import { CssBaseline, ThemeProvider, CircularProgress } from '@material-ui/core';
 import theme from '../theme';
 import '../app.scss';
 
-export interface LoadingProps {}
-
-const Loading = ({}: LoadingProps) => {
+const Loading = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

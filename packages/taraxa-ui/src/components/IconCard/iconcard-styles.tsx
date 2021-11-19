@@ -19,9 +19,9 @@ const useStyles = makeStyles({
     fontSize: 12,
     marginTop: '7%',
     marginBottom: '15%',
-    "& > span": {
-      fontFamily: 'Inter'
-    }
+    '& > span': {
+      fontFamily: 'Inter',
+    },
   },
   tooltipIcon: {
     float: 'right',

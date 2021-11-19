@@ -1,3 +1,5 @@
+import React from 'react';
+
 const DeploySidebar = () => {
   return (
     <svg width="17" height="22" viewBox="0 0 17 22" fill="none" xmlns="http://www.w3.org/2000/svg">

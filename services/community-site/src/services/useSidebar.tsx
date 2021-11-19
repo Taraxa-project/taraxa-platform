@@ -13,15 +13,6 @@ const initialState: Context = {
 
 const SidebarContext = createContext<Context>(initialState);
 
-export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
-  const sidebar = useProvideSidebar();
-  return <SidebarContext.Provider value={sidebar}>{children}</SidebarContext.Provider>;
-};
-
-export const useSidebar = () => {
-  return useContext(SidebarContext);
-};
-
 function useProvideSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const open = () => setIsOpen(true);
@@ -35,3 +26,12 @@ function useProvideSidebar() {
     toggle,
   };
 }
+
+export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
+  const sidebar = useProvideSidebar();
+  return <SidebarContext.Provider value={sidebar}>{children}</SidebarContext.Provider>;
+};
+
+export const useSidebar = () => {
+  return useContext(SidebarContext);
+};

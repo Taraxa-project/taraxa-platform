@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
-import { useApi } from '../../../services/useApi';
+import useApi from '../../../services/useApi';
 
 type RegisterNodeProps = {
   onSuccess: () => void;
@@ -21,14 +21,16 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
   const hasAddressError = hasError('address');
-  const addressErrorMessage = hasError('address') ? errValues[findErrorIndex('address')] : undefined;
+  const addressErrorMessage = hasError('address')
+    ? errValues[findErrorIndex('address')]
+    : undefined;
   const hasSignatureError = hasError('signature');
   const signatureErrorMessage = hasError('signature')
     ? errValues[findErrorIndex('signature')]
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage: string;
 
   if (errors.length > 0 && !hasAddressError && !hasSignatureError) {
     hasGeneralError = true;
@@ -107,7 +109,11 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
           }}
         />
 
-        {hasGeneralError && <Text variant="body1" color="error">{generalErrorMessage!}</Text>}
+        {hasGeneralError && (
+          <Text variant="body1" color="error">
+            {generalErrorMessage!}
+          </Text>
+        )}
 
         <Button
           type="submit"
@@ -134,7 +140,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
             'noreferrer noopener',
           )
         }
-        fullWidth={true}
+        fullWidth
       />
       <Button
         label="How do I get the proof of owership?"
@@ -148,7 +154,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
             'noreferrer noopener',
           )
         }
-        fullWidth={true}
+        fullWidth
       />
     </div>
   );

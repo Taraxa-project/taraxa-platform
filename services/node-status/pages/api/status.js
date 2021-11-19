@@ -1,4 +1,4 @@
-import { nodeStatus } from "../../lib/rpc";
+import { nodeStatus } from '../../lib/rpc';
 
 export default async function statusHandler(_, res) {
   try {

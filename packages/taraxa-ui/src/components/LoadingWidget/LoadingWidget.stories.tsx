@@ -1,6 +1,5 @@
 import React from 'react';
-import { Meta } from '@storybook/react/types-6-0';
-import { Story } from '@storybook/react';
+import { Story, Meta } from '@storybook/react';
 import LoadingWidget, { LoadingWidgetProps } from './LoadingWidget';
 
 export default {
@@ -18,6 +17,6 @@ const Template: Story<LoadingWidgetProps> = (args) => <LoadingWidget {...args} /
 export const Primary = Template.bind({});
 Primary.args = {
   isLoading: true,
-  widgetId: "loadingWidgetId",
-  progressId: "progressWidgetId",
+  widgetId: 'loadingWidgetId',
+  progressId: 'progressWidgetId',
 };

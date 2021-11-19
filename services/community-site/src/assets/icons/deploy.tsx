@@ -1,3 +1,5 @@
+import React from 'react';
+
 const DeployIcon = () => {
   return (
     <svg width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">

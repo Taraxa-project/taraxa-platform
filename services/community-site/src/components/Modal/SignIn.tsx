@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Button, Text, InputField, Notification } from '@taraxa_project/taraxa-ui';
+import React, { useState } from 'react';
+import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import { useModal } from '../../services/useModal';
 import { useAuth } from '../../services/useAuth';
 
@@ -46,7 +46,7 @@ const SignIn = ({
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage: any;
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;
     generalErrorMessage = errValues[0];

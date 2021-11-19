@@ -34,15 +34,6 @@ const initialState: Context = {
 
 const ModalContext = createContext<Context>(initialState);
 
-export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
-  const modal = useProvideModal();
-  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>;
-};
-
-export const useModal = () => {
-  return useContext(ModalContext);
-};
-
 function useProvideModal() {
   const history = useHistory();
   const auth = useAuth();
@@ -67,7 +58,8 @@ function useProvideModal() {
     history.push('/');
   };
 
-  let modal: JSX.Element, title: string;
+  let modal: JSX.Element;
+  let title: string;
 
   switch (content) {
     case 'email-confirmed':
@@ -172,3 +164,12 @@ function useProvideModal() {
     ),
   };
 }
+
+export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
+  const modal = useProvideModal();
+  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>;
+};
+
+export const useModal = () => {
+  return useContext(ModalContext);
+};

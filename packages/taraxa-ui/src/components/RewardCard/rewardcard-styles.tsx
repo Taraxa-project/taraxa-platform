@@ -23,24 +23,24 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     flex: 1,
     textAlign: 'left',
-    marginRight: '30px'
+    marginRight: '30px',
   },
   description: {
     flex: 1,
   },
   actionCard: {
-    width: '263px'
+    width: '263px',
   },
   title: {
     fontWeight: 700,
-    marginBottom: '16px'
+    marginBottom: '16px',
   },
   rewardContent: {
     color: 'white',
     border: '1px solid #15AC5B',
     padding: '16px 32px',
     margin: '16px 0',
-    fontWeight: 700
+    fontWeight: 700,
   },
   iconContainer: {
     display: 'flex',
@@ -81,11 +81,11 @@ const useStyles = makeStyles({
     marginRight: '10px',
   },
   active: {
-    backgroundColor: '#15AC5B', 
+    backgroundColor: '#15AC5B',
   },
   inactive: {
     backgroundColor: '#6a7085',
-  }
+  },
 });
 
 export default useStyles;

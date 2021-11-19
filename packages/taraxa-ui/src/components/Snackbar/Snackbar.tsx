@@ -20,7 +20,7 @@ const Snackbar = ({
     <MSnackbar
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       open={open}
-      autoHideDuration={autoHideDuration ? autoHideDuration : 2000}
+      autoHideDuration={autoHideDuration || 2000}
       onClose={onSnackbarClose}
     >
       <Alert severity={severity} onClose={onSnackbarClose}>

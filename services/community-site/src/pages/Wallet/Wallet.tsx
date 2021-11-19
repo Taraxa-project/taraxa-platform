@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+/* eslint-disable */
+
+import React, { useEffect, useRef, useState } from 'react';
 import { IconCard, Table, Text, Tooltip } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
@@ -10,7 +12,7 @@ import Title from '../../components/Title/Title';
 
 import './wallet.scss';
 
-let walletConnected = false;
+const walletConnected = false;
 
 const Wallet = () => {
   const history = useHistory();
@@ -181,3 +183,5 @@ const Wallet = () => {
 };
 
 export default Wallet;
+
+/* eslint-enable */

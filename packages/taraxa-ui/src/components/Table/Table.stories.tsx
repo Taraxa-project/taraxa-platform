@@ -1,6 +1,5 @@
 import React from 'react';
-import { Meta } from '@storybook/react/types-6-0';
-import { Story } from '@storybook/react';
+import { Story, Meta } from '@storybook/react';
 import Table, { TableProps } from './Table';
 
 export default {
@@ -74,4 +73,4 @@ const rows = [
 const Template: Story<TableProps> = (args) => <Table {...args} />;
 
 export const Primary = Template.bind({});
-Primary.args = { columns: columns, rows: rows };
+Primary.args = { columns, rows };

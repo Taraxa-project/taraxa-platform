@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
-import { useApi } from './useApi';
+import useApi from './useApi';
 
 type User = {
   id: number;
@@ -43,15 +43,6 @@ const initialState: Context = {
 
 const AuthContext = createContext<Context>(initialState);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const auth = useProvideAuth();
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
-
 function useProvideAuth() {
   const [user, setUser] = useState<User | null>(null);
   const api = useApi();
@@ -59,7 +50,7 @@ function useProvideAuth() {
   const signin = async (username: string, password: string) => {
     const result = await api.post('/auth/local', {
       identifier: username,
-      password: password,
+      password,
     });
 
     if (result.success) {
@@ -68,7 +59,7 @@ function useProvideAuth() {
       }
 
       if (result.response.user) {
-        const user = result.response.user;
+        const { user } = result.response;
         localStorage.setItem('user', JSON.stringify(user));
         setUser(user);
       }
@@ -84,11 +75,11 @@ function useProvideAuth() {
     token: string,
   ) => {
     return await api.post('/auth/local/register', {
-      username: username,
-      password: password,
+      username,
+      password,
       eth_wallet: ethWallet,
-      email: email,
-      token: token,
+      email,
+      token,
       confirmed: false,
     });
   };
@@ -99,8 +90,8 @@ function useProvideAuth() {
   };
   const sendPasswordResetEmail = async (email: string, token: string) => {
     return await api.post('/auth/forgot-password', {
-      email: email,
-      token: token,
+      email,
+      token,
     });
   };
   const resetPassword = async (code: string, password: string, passwordConfirmation: string) => {
@@ -111,7 +102,7 @@ function useProvideAuth() {
     });
 
     if (result.success) {
-      const user = result.response.user;
+      const { user } = result.response;
 
       if (user.confirmed) {
         if (result.response.jwt) {
@@ -188,3 +179,12 @@ function useProvideAuth() {
     clearSessionExpired,
   };
 }
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const auth = useProvideAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

@@ -1,21 +1,58 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import stringify from 'qs-stringify';
-import {
-  Text,
-  Switch,
-  Pagination,
-} from '@taraxa_project/taraxa-ui';
+import { Text, Switch, Pagination } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
 
 import PinnedIcon from '../../assets/icons/pinned';
 
 import Title from '../../components/Title/Title';
 
-import { useApi } from '../../services/useApi';
+import useApi from '../../services/useApi';
 
 import { Bounty } from './bounty';
-import BountyCard from './BoutyCard';
+import BountyCard from './BountyCard';
 import './bounties.scss';
+
+function PinnedBounties({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
+  if (bounties.length === 0) {
+    return null;
+  }
+
+  const pinnedBounties = bounties.map((bounty) => (
+    <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />
+  ));
+
+  return (
+    <>
+      <div className="list-header">
+        <div className="legend">
+          <PinnedIcon />
+          <Text label="Pinned" variant="body1" color="primary" className="icon-title" />
+        </div>
+      </div>
+      <div className="cardContainer pinned">{pinnedBounties}</div>
+    </>
+  );
+}
+
+function BountyList({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
+  return (
+    <>
+      {Array.apply(null, Array(Math.ceil(bounties.length / 3)))
+        .map((_, i) => i)
+        .map((row) => {
+          const rows = bounties
+            .slice(row * 3, row * 3 + 3)
+            .map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
+          return (
+            <div key={row} className="cardContainer regular">
+              {rows}
+            </div>
+          );
+        })}
+    </>
+  );
+}
 
 function Bounties() {
   const { get } = useApi();
@@ -32,7 +69,7 @@ function Bounties() {
   const perPage = 6;
 
   const toggleInactive = () => {
-    setInactive(i => !i);
+    setInactive((i) => !i);
     setPage(1);
   };
 
@@ -40,19 +77,17 @@ function Bounties() {
     history.push(url);
   };
 
-
   const decorateBounties = useCallback((bounties: Bounty[]): Bounty[] => {
-    return bounties
-      .map((bounty: Bounty) => ({
-        ...bounty,
-        submissionsCount: 0,
-        active: bounty.state?.id === 1,
-      }));
+    return bounties.map((bounty: Bounty) => ({
+      ...bounty,
+      submissionsCount: 0,
+      active: bounty.state?.id === 1,
+    }));
   }, []);
 
-  const getSubmissions = useCallback(async (bounties: Bounty[]): Promise<Bounty[]> => {
-    const bountiesWithSubmissions = bounties
-      .map(async (bounty: Bounty) => {
+  const getSubmissions = useCallback(
+    async (bounties: Bounty[]): Promise<Bounty[]> => {
+      const bountiesWithSubmissions = bounties.map(async (bounty: Bounty) => {
         let submissionsCount = 0;
         const submissionsCountRequest = await get(`/submissions/count?bounty=${bounty.id}`);
         if (submissionsCountRequest.success) {
@@ -61,11 +96,13 @@ function Bounties() {
         return {
           ...bounty,
           submissionsCount,
-        }
+        };
       });
 
-    return await Promise.all(bountiesWithSubmissions);
-  }, [get])
+      return await Promise.all(bountiesWithSubmissions);
+    },
+    [get],
+  );
 
   const getPinnedBounties = useCallback(async () => {
     const data = await get(`/bounties?state.id=1&is_pinned=1`);
@@ -89,7 +126,7 @@ function Bounties() {
       return;
     }
     setBounties(decorateBounties(bounties.response));
-    setGetBountiesSubmissions(bs => !bs);
+    setGetBountiesSubmissions((bs) => !bs);
   }, [get, getBountiesFilter, decorateBounties]);
 
   const getBountiesCount = useCallback(async () => {
@@ -139,9 +176,9 @@ function Bounties() {
         <div className="list-header">
           <div className="list-header-left">
             <div className="legend">
-              <span className={`dot ${inactive ? 'inactive' : 'active'}`}></span>
+              <span className={`dot ${inactive ? 'inactive' : 'active'}`} />
               <Text
-                label={(inactive ? 'Inactive' : 'Active') + ` Bounties`}
+                label={`${inactive ? 'Inactive' : 'Active'} Bounties`}
                 variant="body1"
                 color="primary"
                 className="icon-title"
@@ -168,7 +205,7 @@ function Bounties() {
         {bounties.length === 0 && (
           <div>
             <Text
-              label={`No ` + (inactive ? 'inactive' : 'active') + ` bounties`}
+              label={`No ${inactive ? 'inactive' : 'active'} bounties`}
               variant="body2"
               color="textSecondary"
             />
@@ -177,39 +214,6 @@ function Bounties() {
         {bounties.length > 0 && <BountyList bounties={bounties} goTo={goTo} />}
       </div>
     </div>
-  );
-}
-
-function PinnedBounties({ bounties, goTo }: { bounties: Bounty[], goTo: (url: string) => void }) {
-  if (bounties.length === 0) {
-    return null;
-  }
-
-  const pinnedBounties = bounties.map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
-
-  return (
-    <>
-      <div className="list-header">
-        <div className="legend">
-          <PinnedIcon />
-          <Text label="Pinned" variant="body1" color="primary" className="icon-title" />
-        </div>
-      </div>
-      <div className="cardContainer pinned">
-        {pinnedBounties}
-      </div>
-    </>
-  );
-}
-
-function BountyList({ bounties, goTo }: { bounties: Bounty[], goTo: (url: string) => void }) {
-  return (
-    <>
-      {Array.apply(null, Array(Math.ceil(bounties.length / 3))).map((_, i) => i).map((row) => {
-        const rows = bounties.slice(row * 3, row * 3 + 3).map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
-        return <div key={row} className="cardContainer regular">{rows}</div>;
-      })}
-    </>
   );
 }
 

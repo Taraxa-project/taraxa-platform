@@ -7,7 +7,7 @@ type Localization = {
   locale: string;
   description: string;
   submission: string;
-  reward_text: string; 
+  reward_text: string;
 };
 
 export type Bounty = {

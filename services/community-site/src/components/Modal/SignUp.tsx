@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { Button, Text, InputField, Checkbox } from '@taraxa_project/taraxa-ui';
 import { useAuth } from '../../services/useAuth';
@@ -42,7 +42,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
     : undefined;
 
   let hasGeneralError = false;
-  let generalErrorMessage = undefined;
+  let generalErrorMessage: any;
 
   if (
     errors.length > 0 &&

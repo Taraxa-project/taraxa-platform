@@ -1,6 +1,5 @@
-import {
-  RewardCard,
-} from '@taraxa_project/taraxa-ui';
+import React from 'react';
+import { RewardCard } from '@taraxa_project/taraxa-ui';
 
 import Markdown from '../../components/Markdown';
 
@@ -32,24 +31,24 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
       expiration = 'Never Expires';
       isInfinite = true;
     } else {
-      expiration = formatTime(dateDiff)
+      expiration = formatTime(dateDiff);
     }
   }
 
   let onClickButton;
-  let onClickText = "Learn more";
+  let onClickText = 'Learn more';
 
   if (isDetailed) {
     if (bounty.active) {
       const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
       if (submissionNeeded) {
         onClickButton = () => goTo(`/bounties/${bounty.id}/submit`);
-        onClickText = "Submit";
+        onClickText = 'Submit';
       } else {
-        onClickText = "No submission necessary";
+        onClickText = 'No submission necessary';
       }
     } else {
-      onClickText = "Bounty inactive";
+      onClickText = 'Bounty inactive';
     }
   } else {
     onClickButton = () => goTo(`/bounties/${bounty.id}`);
@@ -59,7 +58,7 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
     <RewardCard
       key={bounty.id}
       title={bounty.name}
-      description={description ? description : <Markdown>{bounty.reward_text}</Markdown>}
+      description={description || <Markdown>{bounty.reward_text}</Markdown>}
       onClickButton={onClickButton}
       onClickText={onClickText}
       reward={bounty.reward}
@@ -67,7 +66,7 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
       expiration={expiration}
       isActive={bounty.active}
       isInfinite={isInfinite}
-      dataList={submissions ? submissions : undefined}
+      dataList={submissions || undefined}
     />
   );
 }

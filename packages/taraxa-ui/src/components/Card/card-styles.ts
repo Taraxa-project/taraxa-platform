@@ -20,7 +20,7 @@ const useStyles = makeStyles({
     },
     '& > button:first-child': {
       marginTop: 0,
-    }
+    },
   },
 });
 

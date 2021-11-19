@@ -1,5 +1,4 @@
 import React from 'react';
-import useStyles from './table-styles';
 import MTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,6 +9,7 @@ import Paper from '@material-ui/core/Paper';
 import moment from 'moment';
 import { useMediaQuery } from 'react-responsive';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import useStyles from './table-styles';
 import theme from '../theme';
 
 export interface TableProps {
@@ -32,7 +32,6 @@ export default function Table({ columns, rows }: TableProps) {
     setPage(0);
   };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -78,7 +77,7 @@ export default function Table({ columns, rows }: TableProps) {
                         >
                           {row.Icon && (
                             <TableCell className={classes.mobileTableCell} align="left">
-                              {<row.Icon />}
+                              <row.Icon />
                             </TableCell>
                           )}
                           {columns.map(({ path }) =>
@@ -104,7 +103,7 @@ export default function Table({ columns, rows }: TableProps) {
                         >
                           {row.Icon && (
                             <TableCell className={classes.tableCell} align="left">
-                              {<row.Icon />}
+                              <row.Icon />
                             </TableCell>
                           )}
                           {columns.map(({ path }) =>
