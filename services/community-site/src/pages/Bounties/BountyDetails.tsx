@@ -9,6 +9,7 @@ import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
 import useApi from '../../services/useApi';
+import useBounties from '../../services/useBounties';
 import { formatTime } from '../../utils/time';
 
 import { Bounty, Submission } from './bounty';
@@ -22,6 +23,7 @@ function BountyDetails() {
   const { get } = useApi();
   const history = useHistory();
 
+  const { getBountyUserSubmissionsCount } = useBounties();
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
   const [locale, setLocale] = useState('en');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -35,9 +37,13 @@ function BountyDetails() {
       if (!data.success) {
         return;
       }
+
+      const userSubmissionsCount = await getBountyUserSubmissionsCount(id);
+
       const bounty: Bounty = {
         ...data.response,
         submissionsCount: 0,
+        userSubmissionsCount,
         active: data.response.state?.id === 1,
       };
 
@@ -62,7 +68,7 @@ function BountyDetails() {
       setBounty(bounty);
     };
     getBounty(id);
-  }, [get, id]);
+  }, [get, id, getBountyUserSubmissionsCount]);
 
   useEffect(() => {
     const getSubmissions = async (id: number) => {

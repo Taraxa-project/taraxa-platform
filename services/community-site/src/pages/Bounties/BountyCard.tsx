@@ -3,6 +3,7 @@ import { RewardCard } from '@taraxa_project/taraxa-ui';
 
 import Markdown from '../../components/Markdown';
 
+import { useAuth } from '../../services/useAuth';
 import { formatTime } from '../../utils/time';
 
 import { Bounty } from './bounty';
@@ -16,6 +17,7 @@ interface BountyCardProps {
 }
 
 function BountyCard({ bounty, goTo, isDetailed, description, submissions }: BountyCardProps) {
+  const auth = useAuth();
   const now = new Date().getTime();
   const endTime = new Date(bounty.end_date).getTime();
   const dateDiff = Math.ceil((endTime - now) / 1000);
@@ -36,21 +38,25 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
   }
 
   let onClickButton;
-  let onClickText = 'Learn more';
+  let onClickText = 'Submit';
 
-  if (isDetailed) {
-    if (bounty.active) {
-      const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
-      if (submissionNeeded) {
-        onClickButton = () => goTo(`/bounties/${bounty.id}/submit`);
-        onClickText = 'Submit';
+  if (isDetailed && bounty.active && auth.isLoggedIn) {
+    const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
+    if (submissionNeeded) {
+      if (!bounty.allow_multiple_submissions && bounty.userSubmissionsCount! >= 1) {
+        onClickText = 'Already submitted';
       } else {
-        onClickText = 'No submission necessary';
+        onClickButton = () => goTo(`/bounties/${bounty.id}/submit`);
       }
     } else {
-      onClickText = 'Bounty inactive';
+      onClickText = 'No submission necessary';
     }
-  } else {
+  } else if (!bounty.id) {
+    onClickText = 'Loading...';
+  } else if (!bounty.active) {
+    onClickText = 'Bounty inactive';
+  } else if (!isDetailed) {
+    onClickText = 'Learn more';
     onClickButton = () => goTo(`/bounties/${bounty.id}`);
   }
 
@@ -61,7 +67,7 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
       description={description || <Markdown>{bounty.reward_text}</Markdown>}
       onClickButton={onClickButton}
       onClickText={onClickText}
-      reward={bounty.reward}
+      reward={bounty.reward || 'Loading...'}
       submissions={bounty.submissionsCount}
       expiration={expiration}
       isActive={bounty.active}

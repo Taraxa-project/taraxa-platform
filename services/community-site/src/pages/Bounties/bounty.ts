@@ -27,6 +27,8 @@ export type Bounty = {
   proof_file?: string;
   proof_text?: string;
   localizations: Localization[];
+  allow_multiple_submissions: boolean;
+  userSubmissionsCount?: number;
 };
 
 export type Submission = {

@@ -9,6 +9,7 @@ import Markdown from '../../components/Markdown';
 
 import useApi from '../../services/useApi';
 import { useAuth } from '../../services/useAuth';
+import useBounties from '../../services/useBounties';
 
 import { Bounty } from './bounty';
 
@@ -19,8 +20,12 @@ function BountySubmit() {
 
   const api = useApi();
   const auth = useAuth();
+  let userId: number | undefined;
+  if (auth.isLoggedIn) {
+    userId = auth.user!.id;
+  }
   const history = useHistory();
-
+  const { getBountyUserSubmissionsCount } = useBounties();
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
   const [submitText, setSubmitText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -32,18 +37,28 @@ function BountySubmit() {
       if (!data.success) {
         return;
       }
+
+      const userSubmissionsCount = await getBountyUserSubmissionsCount(data.response.id);
+
       setBounty({
         ...data.response,
+        userSubmissionsCount,
         active: data.response.state?.id === 1,
       });
     };
     getBounty(id);
-  }, [id]);
+  }, [id, getBountyUserSubmissionsCount]);
 
   const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
 
-  if (bounty.id && (!submissionNeeded || !bounty.active)) {
-    return <Redirect to={`/bounties/${bounty.id}`} />;
+  if (
+    !auth.isLoggedIn ||
+    (bounty.id &&
+      (!submissionNeeded ||
+        !bounty.active ||
+        (!bounty.allow_multiple_submissions && bounty.userSubmissionsCount! >= 1)))
+  ) {
+    return <Redirect to={`/bounties/${id}`} />;
   }
 
   const errIndex = errors.map((error) => error.key);
@@ -115,7 +130,7 @@ function BountySubmit() {
       file_proof?: string;
       text_proof?: string;
     } = {
-      user: auth.user?.id!,
+      user: userId!,
       bounty: Number(bounty.id),
       hashed_content: ciphertext,
     };
@@ -146,7 +161,7 @@ function BountySubmit() {
     const resultBounty = await api.put(
       `/bounties/${bounty.id}`,
       {
-        users: auth.user?.id,
+        users: userId!,
       },
       true,
     );

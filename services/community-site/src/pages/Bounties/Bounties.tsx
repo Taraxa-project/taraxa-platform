@@ -93,6 +93,7 @@ function Bounties() {
         if (submissionsCountRequest.success) {
           submissionsCount = submissionsCountRequest.response;
         }
+
         return {
           ...bounty,
           submissionsCount,

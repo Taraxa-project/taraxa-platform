@@ -35,6 +35,7 @@ type Context = {
   setSessionExpired?: () => void;
   clearSessionExpired?: () => void;
   isSessionExpired?: () => boolean;
+  isLoggedIn?: boolean;
 };
 
 const initialState: Context = {
@@ -164,6 +165,8 @@ function useProvideAuth() {
     }
   }, []);
 
+  const isLoggedIn = !!user?.id;
+
   return {
     user,
     signin,
@@ -177,6 +180,7 @@ function useProvideAuth() {
     setSessionExpired,
     isSessionExpired,
     clearSessionExpired,
+    isLoggedIn,
   };
 }
 
