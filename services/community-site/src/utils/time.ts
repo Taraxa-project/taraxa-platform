@@ -1,3 +1,5 @@
+import date from 'date-and-time';
+
 export const formatTime = (seconds: number) => {
   const unit = ['second', 'minute', 'hour', 'day', 'month', 'year'];
   return [1, 60, 60 * 60, 24 * 60 * 60, 30 * 24 * 60 * 60, 365 * 24 * 60 * 60].reduce(
@@ -18,7 +20,7 @@ export const formatTime = (seconds: number) => {
 };
 
 export const secondsInYear = () => {
-  const days = new Date().getFullYear() % 4 === 0 ? 366 : 365;
+  const days = date.isLeapYear(new Date().getFullYear()) ? 366 : 365;
   const seconds = days * 24 * 60 * 60;
   return seconds;
 };
