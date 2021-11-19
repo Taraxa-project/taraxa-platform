@@ -40,8 +40,6 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
   let onClickButton;
   let onClickText = 'Submit';
 
-  console.log(bounty);
-
   if (isDetailed && bounty.active && auth.isLoggedIn) {
     const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
     if (submissionNeeded) {
