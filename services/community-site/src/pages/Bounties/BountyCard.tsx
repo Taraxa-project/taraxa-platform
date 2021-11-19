@@ -74,7 +74,7 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
       description={description || <Markdown>{bounty.reward_text}</Markdown>}
       onClickButton={onClickButton}
       onClickText={onClickText}
-      reward={bounty.reward}
+      reward={bounty.reward || 'Loading...'}
       submissions={bounty.submissionsCount}
       expiration={expiration}
       isActive={bounty.active}
