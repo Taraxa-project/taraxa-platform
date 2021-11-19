@@ -9,6 +9,7 @@ import Title from '../../components/Title/Title';
 import Markdown from '../../components/Markdown';
 
 import useApi from '../../services/useApi';
+import { useAuth } from '../../services/useAuth';
 import { formatTime } from '../../utils/time';
 
 import { Bounty, Submission } from './bounty';
@@ -21,6 +22,13 @@ function BountyDetails() {
 
   const { get } = useApi();
   const history = useHistory();
+
+  const auth = useAuth();
+  const isLoggedIn = !!auth.user?.id;
+  let userId: any;
+  if (isLoggedIn) {
+    userId = auth.user!.id;
+  }
 
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
   const [locale, setLocale] = useState('en');
@@ -35,9 +43,21 @@ function BountyDetails() {
       if (!data.success) {
         return;
       }
+
+      let userSubmissionsCount = 0;
+      if (isLoggedIn) {
+        const userSubmissionsCountRequest = await get(
+          `/submissions/count?bounty=${data.response.id}&user=${userId}`,
+        );
+        if (userSubmissionsCountRequest.success) {
+          userSubmissionsCount = userSubmissionsCountRequest.response;
+        }
+      }
+
       const bounty: Bounty = {
         ...data.response,
         submissionsCount: 0,
+        userSubmissionsCount,
         active: data.response.state?.id === 1,
       };
 
@@ -62,7 +82,7 @@ function BountyDetails() {
       setBounty(bounty);
     };
     getBounty(id);
-  }, [get, id]);
+  }, [get, id, userId, isLoggedIn]);
 
   useEffect(() => {
     const getSubmissions = async (id: number) => {

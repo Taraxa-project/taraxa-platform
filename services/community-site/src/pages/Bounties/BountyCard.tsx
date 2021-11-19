@@ -3,6 +3,7 @@ import { RewardCard } from '@taraxa_project/taraxa-ui';
 
 import Markdown from '../../components/Markdown';
 
+import { useAuth } from '../../services/useAuth';
 import { formatTime } from '../../utils/time';
 
 import { Bounty } from './bounty';
@@ -16,6 +17,8 @@ interface BountyCardProps {
 }
 
 function BountyCard({ bounty, goTo, isDetailed, description, submissions }: BountyCardProps) {
+  const auth = useAuth();
+  const isLoggedIn = !!auth.user?.id;
   const now = new Date().getTime();
   const endTime = new Date(bounty.end_date).getTime();
   const dateDiff = Math.ceil((endTime - now) / 1000);
@@ -40,13 +43,23 @@ function BountyCard({ bounty, goTo, isDetailed, description, submissions }: Boun
 
   if (isDetailed) {
     if (bounty.active) {
-      const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
-      if (submissionNeeded) {
-        onClickButton = () => goTo(`/bounties/${bounty.id}/submit`);
-        onClickText = 'Submit';
+      if (isLoggedIn) {
+        const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
+        if (submissionNeeded) {
+          if (!bounty.allow_multiple_submissions && bounty.userSubmissionsCount! >= 1) {
+            onClickText = 'Already submitted';
+          } else {
+            onClickButton = () => goTo(`/bounties/${bounty.id}/submit`);
+            onClickText = 'Submit';
+          }
+        } else {
+          onClickText = 'No submission necessary';
+        }
       } else {
-        onClickText = 'No submission necessary';
+        onClickText = 'Must sign in to submit';
       }
+    } else if (!bounty.id) {
+      onClickText = 'Loading...';
     } else {
       onClickText = 'Bounty inactive';
     }
