@@ -211,7 +211,7 @@ const RunNode = () => {
     const getNodeStats = async () => {
       const now = new Date();
       let totalProduced = 0;
-      let rank: number | null = null;
+      let rank: number;
       const newNodes = nodes.map(async (node) => {
         const data = await api.get(
           `${process.env.REACT_APP_API_EXPLORER_HOST}/address/${node.ethWallet}/stats`,
@@ -238,16 +238,16 @@ const RunNode = () => {
         }
 
         if (stats.rank) {
-          if (rank === null) {
-            rank = stats.rank;
-          } else {
+          if (rank) {
             rank = Math.min(rank, stats.rank);
+          } else {
+            rank = stats.rank;
           }
         }
         return node;
       });
       setNodes(await Promise.all(newNodes));
-      if (rank !== null) {
+      if (rank!) {
         setWeeklyRating(`#${rank}`);
       }
       setBlocksProduced(ethers.utils.commify(totalProduced.toString()));
