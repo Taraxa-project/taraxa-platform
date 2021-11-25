@@ -37,7 +37,7 @@ interface Node {
 
 type NodeStats = {
   totalProduced: number;
-  lastBlockTimestamp: Date | null;
+  lastBlockTimestamp: Date;
   rank: number;
   produced: number;
 };
