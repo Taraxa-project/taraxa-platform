@@ -151,8 +151,6 @@ function ViewProfileBounties({ approved, rejected, review }: ViewProfileBounties
     const now = new Date();
     const date = new Date(sub.created_at);
     const dateDiff = Math.ceil((now.getTime() - date.getTime()) / 1000);
-    /* eslint-disable-next-line */
-    console.log(sub);
     return (
       <div key={sub.id} className="contentGrid">
         <div className="gridLeft">
