@@ -35,6 +35,13 @@ interface Node {
   active: boolean;
 }
 
+type NodeStats = {
+  totalProduced: number;
+  lastBlockTimestamp: Date;
+  rank: number;
+  produced: number;
+};
+
 interface RunNodeModalProps {
   hasRegisterNodeModal: boolean;
   setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
@@ -201,95 +208,48 @@ const RunNode = () => {
   }, [getNodes]);
 
   useEffect(() => {
-    const getTopNodes = async () => {
-      const limit = 100;
-      type ExplorerNode = {
-        _id?: string;
-        address: string;
-        count: number;
-      };
-      let explorerNodes: ExplorerNode[] = [];
-
-      let lastResponse;
-      let page = 1;
-      do {
-        const skip = (page - 1) * limit;
-        const data = await api.get(
-          `${process.env.REACT_APP_API_EXPLORER_HOST}/nodes?limit=${limit}&skip=${skip}`,
-          true,
-        );
-        if (!data.success) {
-          break;
-        }
-        lastResponse = data.response;
-        explorerNodes = [
-          ...explorerNodes,
-          ...lastResponse.result.nodes.map((node: ExplorerNode) => ({
-            address: node._id?.toLowerCase(),
-            count: node.count,
-          })),
-        ];
-        page++;
-      } while (explorerNodes.length < lastResponse.total);
-      const wr = nodes
-        .map((node) => node.ethWallet)
-        .reduce((acc, wallet) => {
-          const nodePosition = explorerNodes.findIndex(
-            (node) => node.address.toLowerCase() === wallet,
-          );
-          if (nodePosition !== -1) {
-            acc = Math.min(acc, nodePosition + 1);
-          }
-          return acc;
-        }, Infinity);
-      if (wr !== Infinity) {
-        setWeeklyRating(`#${wr}`);
-      }
-    };
-
-    if (nodes.length > 0) {
-      getTopNodes();
-    }
-  }, [nodes.length]);
-
-  useEffect(() => {
     const getNodeStats = async () => {
       const now = new Date();
       let totalProduced = 0;
-      setNodes(
-        await Promise.all(
-          nodes.map(async (node) => {
-            const data = await api.get(
-              `${process.env.REACT_APP_API_EXPLORER_HOST}/address/${node.ethWallet}`,
-              true,
-            );
-            if (!data.success) {
-              return node;
-            }
+      let rank: number;
+      const newNodes = nodes.map(async (node) => {
+        const data = await api.get(
+          `${process.env.REACT_APP_API_EXPLORER_HOST}/address/${node.ethWallet}/stats`,
+          true,
+        );
+        if (!data.success) {
+          return node;
+        }
 
-            type NodeStats = {
-              lastMinedBlockDate?: Date | null;
-              produced?: number;
-            };
-            const stats: NodeStats = data.response;
+        const stats: Partial<NodeStats> = data.response;
 
-            if (stats.lastMinedBlockDate && stats.lastMinedBlockDate !== null) {
-              const lastMinedBlockDate = new Date(stats.lastMinedBlockDate);
+        if (stats.lastBlockTimestamp && stats.lastBlockTimestamp !== null) {
+          const lastMinedBlockDate = new Date(stats.lastBlockTimestamp);
 
-              node.active = false;
-              const diff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000);
-              if (diff / 60 < 120) {
-                node.active = true;
-              }
-            }
+          node.active = false;
+          const minsDiff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000 / 60);
+          if (minsDiff < 24 * 60) {
+            node.active = true;
+          }
+        }
 
-            if (stats.produced) {
-              totalProduced += stats.produced;
-            }
-            return node;
-          }),
-        ),
-      );
+        if (stats.totalProduced) {
+          totalProduced += stats.totalProduced;
+        }
+
+        if (stats.rank) {
+          if (rank) {
+            rank = Math.min(rank, stats.rank);
+          } else {
+            rank = stats.rank;
+          }
+        }
+        return node;
+      });
+      setNodes(await Promise.all(newNodes));
+      if (rank!) {
+        setWeeklyRating(`#${rank}`);
+      }
       setBlocksProduced(ethers.utils.commify(totalProduced.toString()));
     };
 
@@ -395,7 +355,7 @@ const RunNode = () => {
                 description="Active nodes"
                 tooltip={
                   <Tooltip
-                    title="A node is considered active if it produced at least one block in the last 2 hours."
+                    title="A node is considered active if it produced at least one block in the last 24 hours."
                     Icon={InfoIcon}
                   />
                 }
