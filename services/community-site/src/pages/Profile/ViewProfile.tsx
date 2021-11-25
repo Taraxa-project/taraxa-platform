@@ -151,6 +151,8 @@ function ViewProfileBounties({ approved, rejected, review }: ViewProfileBounties
     const now = new Date();
     const date = new Date(sub.created_at);
     const dateDiff = Math.ceil((now.getTime() - date.getTime()) / 1000);
+    /* eslint-disable-next-line */
+    console.log(sub);
     return (
       <div key={sub.id} className="contentGrid">
         <div className="gridLeft">
@@ -160,7 +162,9 @@ function ViewProfileBounties({ approved, rejected, review }: ViewProfileBounties
             variant="body2"
             color="primary"
           />
-          <Text label={`${sub.submission_reward} TARA`} variant="body2" color="textSecondary" />
+          {sub.submission_reward && (
+            <Text label={`${sub.submission_reward} TARA`} variant="body2" color="textSecondary" />
+          )}
         </div>
         <div className="gridRight">
           <Text label={`${formatTime(dateDiff)} ago`} variant="body2" color="textSecondary" />
