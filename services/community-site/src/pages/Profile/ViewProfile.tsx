@@ -149,7 +149,7 @@ interface ViewProfileBountiesProps {
 function ViewProfileBounties({ approved, rejected, review }: ViewProfileBountiesProps) {
   const renderSubmission = (sub: any) => {
     const now = new Date();
-    const date = new Date(sub.submission_date);
+    const date = new Date(sub.created_at);
     const dateDiff = Math.ceil((now.getTime() - date.getTime()) / 1000);
     return (
       <div key={sub.id} className="contentGrid">
