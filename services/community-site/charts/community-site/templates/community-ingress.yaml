@@ -12,9 +12,14 @@ metadata:
   name: {{ $fullName }}
   labels:
     {{- include "community.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+  {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.ingress.auth }}
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: {{ .Release.Name }}
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - Taraxa Community"
   {{- end }}
 spec:
   {{- if .Values.ingress.tls }}
