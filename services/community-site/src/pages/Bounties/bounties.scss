@@ -103,7 +103,6 @@
       .submission-row {
         height: 32px;
         margin-bottom: 16px;
-
         .submission-row-username {
           display: flex;
           flex: 1;
@@ -118,6 +117,7 @@
           }
         }
         .submission-row-content {
+          padding: 0 5px;
           flex: 2;
           text-align: left;
         }
