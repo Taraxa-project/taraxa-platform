@@ -80,6 +80,8 @@ frontend:
 # Backend and frontend share the same ingress
 ingress:
   enabled: true
+  auth:
+    enabled: false
   annotations:
     kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"

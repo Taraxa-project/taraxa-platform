@@ -16,7 +16,7 @@ metadata:
   {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- if .Values.ingress.auth }}
+  {{- if .Values.ingress.auth.enabled }}
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: {{ .Release.Name }}
     nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - Taraxa Community"

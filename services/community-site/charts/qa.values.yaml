@@ -14,6 +14,8 @@ frontend:
 
 ingress:
   enabled: true
+  auth:
+    enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/enable-cors: "true"
