@@ -33,6 +33,7 @@ interface Node {
   name: string;
   ethWallet: string;
   active: boolean;
+  delegable: boolean;
 }
 
 type NodeStats = {
@@ -78,6 +79,7 @@ const RunNodeModal = ({
       <UpdateNode
         id={currentEditedNode.id}
         name={currentEditedNode.name}
+        delegable={currentEditedNode.delegable}
         onSuccess={() => {
           getNodes();
           setHasUpdateNodeModal(false);

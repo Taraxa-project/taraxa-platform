@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, Checkbox } from '@taraxa_project/taraxa-ui';
 
 import useApi from '../../../services/useApi';
 
 type UpdateNodeProps = {
   id: number;
   name: string;
+  delegable: boolean;
   onSuccess: () => void;
 };
 
-const UpdateNode = ({ id, name, onSuccess }: UpdateNodeProps) => {
+const UpdateNode = ({ id, name, delegable, onSuccess }: UpdateNodeProps) => {
   const api = useApi();
 
   const [nodeName, setNodeName] = useState(name);
+  const [nodeDelegable, setDelegable] = useState(delegable);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const submit = async (
@@ -22,7 +24,11 @@ const UpdateNode = ({ id, name, onSuccess }: UpdateNodeProps) => {
 
     setError(undefined);
 
-    const result = await api.put(`/nodes/${id}`, { name: nodeName }, true);
+    const result = await api.put(
+      `/nodes/${id}`,
+      { name: nodeName, delegable: nodeDelegable },
+      true,
+    );
     if (result.success) {
       onSuccess();
       return;
@@ -47,6 +53,23 @@ const UpdateNode = ({ id, name, onSuccess }: UpdateNodeProps) => {
           onChange={(event) => {
             setNodeName(event.target.value);
           }}
+        />
+        <Checkbox
+          aria-label="Show in delegation list"
+          name="delegable"
+          onChange={(event) => {
+            setDelegable(event.target.checked);
+          }}
+          checked={nodeDelegable}
+        />
+        <Text
+          label="Show in delegation list"
+          variant="button"
+          onClick={(e) => {
+            e.preventDefault();
+            setDelegable((val) => !val);
+          }}
+          color="primary"
         />
         <Button
           type="submit"

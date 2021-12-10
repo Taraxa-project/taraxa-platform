@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, Checkbox } from '@taraxa_project/taraxa-ui';
 
 import useApi from '../../../services/useApi';
 
@@ -12,6 +12,7 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
 
   const [nodePublicAddress, setNodePublicAddress] = useState('');
   const [signature, setSignature] = useState('');
+  const [nodeDelegable, setNodeDelegable] = useState(false);
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
   const errIndex = errors.map((error) => error.key);
@@ -44,7 +45,11 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
 
     setErrors([]);
 
-    const result = await api.post(`/nodes`, { ethWallet: nodePublicAddress, sig: signature }, true);
+    const result = await api.post(
+      `/nodes`,
+      { delegable: nodeDelegable, ethWallet: nodePublicAddress, sig: signature },
+      true,
+    );
     if (result.success) {
       onSuccess();
       return;
@@ -107,6 +112,23 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
           onChange={(event) => {
             setSignature(event.target.value);
           }}
+        />
+        <Checkbox
+          aria-label="Show in delegation list"
+          name="delegable"
+          onChange={(event) => {
+            setNodeDelegable(event.target.checked);
+          }}
+          checked={nodeDelegable}
+        />
+        <Text
+          label="Show in delegation list"
+          variant="button"
+          onClick={(e) => {
+            e.preventDefault();
+            setNodeDelegable((val) => !val);
+          }}
+          color="primary"
         />
 
         {hasGeneralError && (
