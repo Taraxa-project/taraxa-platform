@@ -75,7 +75,7 @@ const RewardCard = ({
                     <Submission />
                   </span>
                   <Typography variant="body2" color="textSecondary">
-                    {submissions} participants
+                    {submissions} submissions
                   </Typography>
                 </div>
               </div>

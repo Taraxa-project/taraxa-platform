@@ -40,9 +40,15 @@ function BountyDetails() {
 
       const userSubmissionsCount = await getBountyUserSubmissionsCount(id);
 
+      let submissionsCount = 0;
+      const submissionsCountRequest = await get(`/submissions/count?bounty=${id}`);
+      if (submissionsCountRequest.success) {
+        submissionsCount = submissionsCountRequest.response;
+      }
+
       const bounty: Bounty = {
         ...data.response,
-        submissionsCount: 0,
+        submissionsCount,
         userSubmissionsCount,
         active: data.response.state?.id === 1,
       };
@@ -70,22 +76,22 @@ function BountyDetails() {
     getBounty(id);
   }, [get, id, getBountyUserSubmissionsCount]);
 
+  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
+
   useEffect(() => {
     const getSubmissions = async (id: number) => {
-      const data = await get(`/submissions?bounty=${id}&_sort=created_at:DESC`);
+      const data = await get(`/submissions?bounty=${id}&_limit=-1&_sort=created_at:DESC`);
       if (!data.success) {
         return;
       }
       setSubmissions(data.response);
-      setBounty((bounty) => ({ ...bounty, submissionsCount: data.response.length }));
     };
-    if (bounty.id) {
+    if (bounty.id && submissionNeeded) {
       getSubmissions(bounty.id);
     }
-  }, [get, bounty?.id]);
+  }, [get, bounty?.id, submissionNeeded]);
 
   let submissionsTable;
-  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
   if (submissionNeeded) {
     const now = new Date().getTime();
     const totalPages = Math.ceil(submissions.length / perPage);
