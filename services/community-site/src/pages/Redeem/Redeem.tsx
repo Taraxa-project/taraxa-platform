@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { BaseCard, Button } from '@taraxa_project/taraxa-ui';
+import { BaseCard, Button, Notification } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
@@ -20,7 +20,7 @@ interface ClaimData {
 }
 
 function Redeem() {
-  const { account } = useMetaMask();
+  const { status, account } = useMetaMask();
   const token = useToken();
   const claim = useClaim();
   const api = useApi();
@@ -98,6 +98,22 @@ function Redeem() {
           title="Redeem TARA Points"
           subtitle="Earn rewards and help test &amp; secure the Taraxa’s network"
         />
+        <div className="notification">
+          <Notification
+            title="Info:"
+            text="We release the rewards once a month, usually on the 15th."
+            variant="info"
+          />
+        </div>
+        {status !== 'connected' && (
+          <div className="notification">
+            <Notification
+              title="Notice:"
+              text="You are not connected to the Metamask wallet"
+              variant="danger"
+            />
+          </div>
+        )}
         <div className="cardContainer">
           <BaseCard
             title={formatEth(roundEth(weiToEth(availableToBeClaimed)))}

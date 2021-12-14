@@ -11,6 +11,9 @@ const useStyles = makeStyles({
   danger: {
     borderLeftColor: '#ff515a',
   },
+  info: {
+    borderLeftColor: '#48BDFF',
+  },
   title: {
     fontSize: '20px',
     fontWeight: 700,

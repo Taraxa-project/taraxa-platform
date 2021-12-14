@@ -9,7 +9,7 @@ import useStyles from './notification-styles';
 export interface NotificationProps {
   title?: string;
   text?: string;
-  variant?: 'success' | 'danger';
+  variant?: 'success' | 'danger' | 'info';
 }
 
 const Notification = ({
@@ -27,6 +27,9 @@ const Notification = ({
     }
     if (variant === 'danger') {
       containerStyle += ` ${classes.danger}`;
+    }
+    if (variant === 'info') {
+      containerStyle += ` ${classes.info}`;
     }
   }
 
