@@ -1,0 +1,33 @@
+app:
+  environment: production
+  dbHost: 10.39.112.4
+  dbName: taraxa-community-prod
+
+image:
+  repository: taraxa/delegation
+  tag: "latest"
+
+ingress:
+  hosts:
+    - host: api-delegation.community.taraxa.io
+  tls:
+    - secretName: wild-community-taraxa-io-tls
+      hosts:
+        - api-delegation.community.taraxa.io
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2048Mi
+  requests:
+    cpu: 400m
+    memory: 750Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-prod

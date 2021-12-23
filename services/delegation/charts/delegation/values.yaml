@@ -1,0 +1,106 @@
+replicaCount: 2
+
+app:
+  name: community-delegation
+  component: api
+
+  environment: default
+  url: https://api-delegation.default.community.taraxa.io
+  dbHost: default-db.address
+  dbName: taraxa-community-default
+  uploadBucketName: taraxa-community-default
+  explorerUrl: http://explorer.default.taraxa.io
+
+  serverPort: 1337
+  dbPort: 5432
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-default
+
+image:
+  repository: gcr.io/jovial-meridian-249123/taraxa-community-server-develop
+  # pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, DELETE"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization,Range,Content-Range,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Access-Control-Allow-Origin"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      set $test A;
+      
+      if ($remote_addr ~ (34.202.241.227|34.226.103.119|34.226.254.127|52.52.51.178|52.53.95.123|54.67.101.173)) {
+        set $test "${test}J";
+      }
+
+      if ($blocked_country_community) {
+        set $test  "${test}B";
+      }
+
+      if ($test = AB) {
+        return 451;
+      }
+    nginx.ingress.kubernetes.io/default-backend: custom-error-community-service
+    nginx.ingress.kubernetes.io/custom-http-errors: "451"
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+tolerations: []
+
+affinity: {}

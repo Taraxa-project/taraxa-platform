@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.app.environment }}-{{ include "community-delegation.fullname" . }}
+  labels:
+    {{- include "community-delegation.labels" . | nindent 4 }}
+data:
+  DATABASE_HOST: {{ .Values.app.dbHost | quote }}
+  DATABASE_NAME: {{ .Values.app.dbName | quote }}
+  NODE_ENV: {{ .Values.app.environment | quote }}

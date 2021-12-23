@@ -13,6 +13,9 @@ parameters:
   run-node-status-service-workflow:
     type: boolean
     default: false
+  run-delegation-service-workflow:
+    type: boolean
+    default: false
 
 aliases:
   - &config
@@ -138,6 +141,63 @@ jobs:
 
             docker push taraxa/taraxa-node-status:${VERSION}
             docker push taraxa/taraxa-node-status:latest
+  build-delegation:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/delegation:${VERSION} -f services/delegation/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa/delegation:${VERSION} taraxa/delegation:latest
+              docker push taraxa/delegation:${VERSION}
+              docker push taraxa/delegation:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa/delegation:${VERSION} ${GCP_REGISTRY}/taraxa/delegation-develop:${VERSION}
+              docker tag taraxa/delegation:${VERSION} ${GCP_REGISTRY}/taraxa/delegation-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa/delegation-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa/delegation-develop:latest
+            fi
+  deploy-delegation:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_install_deploy_deps
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Deploy
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              export NS=taraxa-community-prod
+              export HELM_NAME=community-delegation
+              export HELM_CONFIG=prod.values.yaml
+            else
+              export NS=taraxa-community-qa
+              export HELM_NAME=qa-community-delegation
+              export HELM_CONFIG=qa.values.yaml
+            fi
+
+            helm upgrade -i ${HELM_NAME} services/delegation/charts/community-delegation/ \
+              --namespace ${NS} \
+              -f services/delegation/charts/community-delegation/values.yaml \
+              -f services/delegation/charts/${HELM_CONFIG} \
+              --set image.tag=${VERSION}
 workflows:
   community-site:
     when:
@@ -179,3 +239,28 @@ workflows:
           context:
             - TARAXA
             - DOCKERHUB
+  delegation:
+    when:
+      or:
+        - << pipeline.parameters.run-delegation-service-workflow >>
+    jobs:
+      - build-delegation:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+      - deploy-delegation:
+          requires:
+            - build-delegation
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - K8S

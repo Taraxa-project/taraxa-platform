@@ -10,8 +10,11 @@
     "community-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-community-site start",
     "status-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status build",
     "status-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status dev",
+    "delegation-build": "yarn workspace @taraxa_project/delegation build",
+    "delegation-start": "yarn workspace @taraxa_project/delegation start:dev",
+    "delegation-start:prod": "yarn workspace @taraxa_project/delegation start:prod",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
-    "lint": "eslint services/community-site && eslint packages/taraxa-ui",
+    "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation",
     "postinstall": "husky install"
   },
   "lint-staged": {

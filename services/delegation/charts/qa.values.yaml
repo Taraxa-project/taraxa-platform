@@ -1,0 +1,33 @@
+app:
+  environment: qa
+  dbHost: 10.39.112.3
+  dbName: taraxa-community-qa
+
+image:
+  repository: gcr.io/jovial-meridian-249123/taraxa/delegation-develop
+  tag: "latest"
+
+ingress:
+  hosts:
+    - host: api-delegation.qa.community.taraxa.io
+  tls:
+    - secretName: wild-qa-community-taraxa-io-tls
+      hosts:
+        - api-delegation.qa.community.taraxa.io
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2048Mi
+  requests:
+    cpu: 300m
+    memory: 750Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-qa

@@ -1,5 +1,7 @@
+dist/
 build/
 lib/
+.next/
 charts/
 # disable for node-status for now
 services/node-status
