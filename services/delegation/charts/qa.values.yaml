@@ -1,7 +1,7 @@
 app:
   environment: qa
   dbHost: 10.39.112.3
-  dbName: taraxa-community-qa
+  dbName: delegation
 
 image:
   repository: gcr.io/jovial-meridian-249123/taraxa/delegation-develop

@@ -37,9 +37,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ .Values.app.environment }}-{{ include "community-delegation.fullname" . }}
+                name: {{ .Release.Name }}
             - secretRef:
-                name: {{ .Values.app.environment }}-{{ include "community-delegation.fullname" . }}
+                name: {{ .Release.Name }}
           ports:
             - name: http
               containerPort: {{ .Values.app.serverPort }}

@@ -1,7 +1,7 @@
 app:
-  environment: production
+  environment: prod
   dbHost: 10.39.112.4
-  dbName: taraxa-community-prod
+  dbName: delegation
 
 image:
   repository: taraxa/delegation
