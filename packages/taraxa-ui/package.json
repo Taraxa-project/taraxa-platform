@@ -7,8 +7,6 @@
   "types": "lib/src/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
     "build": "rollup -c",
     "prepublishOnly": "yarn build"
   },
@@ -17,7 +15,6 @@
     "tests": false
   },
   "keywords": [
-    "stroybook",
     "react",
     "typescript"
   ],
@@ -36,11 +33,6 @@
     "@rollup/plugin-image": "^2.1.1",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-url": "^6.1.0",
-    "@storybook/addon-actions": "^6.1.9",
-    "@storybook/addon-essentials": "^6.1.9",
-    "@storybook/addon-links": "^6.1.9",
-    "@storybook/preset-scss": "^1.0.3",
-    "@storybook/react": "^6.1.9",
     "@types/react": "^17.0.0",
     "@types/react-modal": "^3.12.1",
     "babel-loader": "^8.2.2",
