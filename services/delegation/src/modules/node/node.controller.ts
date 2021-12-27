@@ -8,11 +8,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiSecurity,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -21,6 +23,7 @@ import { User } from '../user/user.decorator';
 import { JwtUser } from '../user/jwt-user.type';
 import { ProfileNotFoundException } from '../profile/exceptions/profile-not-found.exception';
 import { Node } from './node.entity';
+import { NodeType } from './node-type.enum';
 import { NodeService } from './node.service';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
@@ -158,10 +161,13 @@ export class NodeController {
   }
 
   @ApiOkResponse({ description: 'Nodes found' })
+  @ApiQuery({ name: 'type', enum: NodeType })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get()
-  findAllNodes(@User() user: JwtUser): Promise<Node[]> {
-    console.log(user);
-    return this.nodeService.findAllNodesByUser(user.id);
+  findAllNodes(
+    @User() user: JwtUser,
+    @Query('type') type: NodeType = NodeType.TESTNET,
+  ): Promise<Node[]> {
+    return this.nodeService.findAllNodesByUserAndType(user.id, type);
   }
 }

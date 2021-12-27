@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Repository, Connection, MoreThan } from 'typeorm';
 import { ProfileService } from '../profile/profile.service';
 import { Node } from './node.entity';
+import { NodeType } from './node-type.enum';
 import { NodeCommission } from './node-commission.entity';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
@@ -148,8 +149,11 @@ export class NodeService {
     return n;
   }
 
-  findAllNodesByUser(user: number): Promise<Node[]> {
-    return this.nodeRepository.find({ user });
+  findAllNodesByUserAndType(
+    user: number,
+    type: NodeType = NodeType.TESTNET,
+  ): Promise<Node[]> {
+    return this.nodeRepository.find({ user, type });
   }
 
   async findAllCommissionsByNode(

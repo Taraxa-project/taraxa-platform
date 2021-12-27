@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Delegation } from '../delegation/delegation.entity';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { NodeCommission } from './node-commission.entity';
 import { NodeType } from './node-type.enum';
@@ -51,6 +52,9 @@ export class Node {
     cascade: true,
   })
   commissions: NodeCommission[];
+
+  @OneToMany(() => Delegation, (delegation) => delegation.node)
+  delegations: Delegation[];
 
   @CreateDateColumn()
   createdAt: Date;

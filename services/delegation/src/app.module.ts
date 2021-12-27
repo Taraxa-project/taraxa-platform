@@ -8,6 +8,7 @@ import databaseConfig from './config/database';
 import { AuthModule } from './modules/auth/auth.module';
 import { NodeModule } from './modules/node/node.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { DelegationModule } from './modules/delegation/delegation.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ProfileModule } from './modules/profile/profile.module';
     AuthModule,
     NodeModule,
     ProfileModule,
+    DelegationModule,
   ],
   providers: [
     {
