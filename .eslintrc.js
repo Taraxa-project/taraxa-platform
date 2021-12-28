@@ -1,5 +1,10 @@
 module.exports = {
   root: true,
+  settings: {
+    'import/resolver': {
+      typescript: {},
+    },
+  },
   overrides: [
     {
       // JavaScript and JSX

@@ -26,10 +26,9 @@ class TypedResponseHandler<T> extends ResponseHandler<T> {
   }
 }
 
-const useApi = () => {
+const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
   const { startLoading, finishLoading } = useLoading();
   const auth = useAuth();
-  const baseUrl = process.env.REACT_APP_API_HOST;
   const token = localStorage.getItem('auth');
 
   const getUrl = useCallback(
@@ -147,6 +146,10 @@ const useApi = () => {
   );
 
   return { post, put, del, get };
+};
+
+export const useDelegationApi = () => {
+  return useApi(process.env.REACT_APP_DELEGATION_API_HOST);
 };
 
 export default useApi;

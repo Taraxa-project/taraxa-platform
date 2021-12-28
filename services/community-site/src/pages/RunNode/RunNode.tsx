@@ -9,7 +9,6 @@ import {
   Tooltip,
   Text,
   Button,
-  Pagination,
 } from '@taraxa_project/taraxa-ui';
 
 import CloseIcon from '../../assets/icons/close';
@@ -19,7 +18,7 @@ import EditIcon from '../../assets/icons/edit';
 import DeleteIcon from '../../assets/icons/delete';
 
 import { useAuth } from '../../services/useAuth';
-import useApi from '../../services/useApi';
+import useApi, { useDelegationApi } from '../../services/useApi';
 
 import Title from '../../components/Title/Title';
 
@@ -31,8 +30,10 @@ import './runnode.scss';
 interface Node {
   id: number;
   name: string;
-  ethWallet: string;
+  address: string;
+  ip: string;
   active: boolean;
+  type: 'mainnet' | 'testnet';
 }
 
 type NodeStats = {
@@ -49,6 +50,7 @@ interface RunNodeModalProps {
   setHasUpdateNodeModal: (hasUpdateNodeModal: boolean) => void;
   getNodes: () => void;
   currentEditedNode: null | Node;
+  nodeType: 'mainnet' | 'testnet';
 }
 
 const RunNodeModal = ({
@@ -58,6 +60,7 @@ const RunNodeModal = ({
   setHasUpdateNodeModal,
   getNodes,
   currentEditedNode,
+  nodeType,
 }: RunNodeModalProps) => {
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   let modal;
@@ -65,6 +68,7 @@ const RunNodeModal = ({
   if (hasRegisterNodeModal) {
     modal = (
       <RegisterNode
+        type={nodeType}
         onSuccess={() => {
           getNodes();
           setHasRegisterNodeModal(false);
@@ -78,10 +82,7 @@ const RunNodeModal = ({
       <UpdateNode
         id={currentEditedNode.id}
         name={currentEditedNode.name}
-        onSuccess={() => {
-          getNodes();
-          setHasUpdateNodeModal(false);
-        }}
+        ip={currentEditedNode.ip}
       />
     );
   }
@@ -183,25 +184,28 @@ const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) =>
 const RunNode = () => {
   const auth = useAuth();
   const api = useApi();
+  const delegationApi = useDelegationApi();
 
   const isLoggedIn = !!auth.user?.id;
 
+  const [nodeType, setNodeType] = useState<'mainnet' | 'testnet'>('testnet');
   const [hasRegisterNodeModal, setHasRegisterNodeModal] = useState(false);
   const [hasUpdateNodeModal, setHasUpdateNodeModal] = useState(false);
   const [currentEditedNode, setCurrentEditedNode] = useState<null | Node>(null);
 
+  const [typeNodes, setTypeNodes] = useState<Node[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [blocksProduced, setBlocksProduced] = useState('0');
   const [weeklyRating, setWeeklyRating] = useState('N/A');
-  const [page, setPage] = useState(1);
 
   const getNodes = useCallback(async () => {
-    const data = await api.get(`/nodes?_limit=-1`, true);
+    const data = await delegationApi.get('/nodes', true);
     if (!data.success) {
       return;
     }
     setNodes(data.response);
-  }, []);
+    setTypeNodes(data.response.filter((node: any) => node.type === nodeType));
+  }, [nodeType]);
 
   useEffect(() => {
     getNodes();
@@ -212,9 +216,9 @@ const RunNode = () => {
       const now = new Date();
       let totalProduced = 0;
       let rank: number;
-      const newNodes = nodes.map(async (node) => {
+      const newTypeNodes = typeNodes.map(async (node) => {
         const data = await api.get(
-          `${process.env.REACT_APP_API_EXPLORER_HOST}/address/${node.ethWallet}/stats`,
+          `${process.env.REACT_APP_API_EXPLORER_HOST}/address/${node.address}/stats`,
           true,
         );
         if (!data.success) {
@@ -246,20 +250,20 @@ const RunNode = () => {
         }
         return node;
       });
-      setNodes(await Promise.all(newNodes));
+      setTypeNodes(await Promise.all(newTypeNodes));
       if (rank!) {
         setWeeklyRating(`#${rank}`);
       }
       setBlocksProduced(ethers.utils.commify(totalProduced.toString()));
     };
 
-    if (nodes.length > 0) {
+    if (typeNodes.length > 0) {
       getNodeStats();
     }
-  }, [nodes.length]);
+  }, [nodeType]);
 
   const deleteNode = async (node: Node) => {
-    await api.del(`/nodes/${node.id}`, true);
+    await delegationApi.del(`/nodes/${node.id}`, true);
     getNodes();
   };
 
@@ -270,13 +274,7 @@ const RunNode = () => {
     return `${name.substr(0, 7)} ... ${name.substr(-5)}`;
   };
 
-  const nodesPerPage = 12;
-  const totalPages = Math.ceil(nodes.length / nodesPerPage);
-  const start = (page - 1) * nodesPerPage;
-  const end = start + nodesPerPage;
-  const paginatedNodes = nodes.slice(start, end);
-
-  const rows = paginatedNodes.map((node) => {
+  const rows = typeNodes.map((node) => {
     let className = 'dot';
     if (node.active) {
       className += ' active';
@@ -287,7 +285,7 @@ const RunNode = () => {
           <div className={className} />
         </div>
         <div className="address">
-          {formatNodeName(!node.name || node.name === '' ? node.ethWallet : node.name)}
+          {formatNodeName(!node.name || node.name === '' ? node.address : node.name)}
         </div>
         <Button
           size="small"
@@ -314,6 +312,8 @@ const RunNode = () => {
     );
   });
 
+  const nodeTypeLabel = nodeType === 'mainnet' ? 'Mainnet Candidate' : 'Testnet';
+
   return (
     <div className="runnode">
       <RunNodeModal
@@ -323,12 +323,10 @@ const RunNode = () => {
         setHasUpdateNodeModal={setHasUpdateNodeModal}
         currentEditedNode={currentEditedNode}
         getNodes={getNodes}
+        nodeType={nodeType}
       />
       <div className="runnode-content">
-        <Title
-          title="Running Testnet Nodes"
-          subtitle="Help accelerate Taraxa’s path towards mainnet by running nodes on the testnet"
-        />
+        <Title title="Running a Node" />
         {!isLoggedIn && (
           <div className="notification">
             <Notification
@@ -338,20 +336,48 @@ const RunNode = () => {
             />
           </div>
         )}
-        {isLoggedIn && nodes.length === 0 && (
+        {isLoggedIn && typeNodes.length === 0 && (
           <div className="notification">
             <Notification
               title="Notice:"
-              text="You aren’t running any block-producing nodes"
+              text={`You aren’t running any block-producing nodes on the ${nodeTypeLabel}`}
               variant="danger"
             />
           </div>
         )}
+        {isLoggedIn && (
+          <div className="nodeTypes">
+            <Text label="My Nodes" variant="h6" color="primary" className="box-title" />
+            <Button
+              label="Mainnet Candidate"
+              variant="contained"
+              onClick={() => {
+                setNodeType('mainnet');
+                setTypeNodes(nodes.filter((node: any) => node.type === 'mainnet'));
+              }}
+            />
+            <Button
+              label="Testnet"
+              variant="contained"
+              onClick={() => {
+                setNodeType('testnet');
+                setTypeNodes(nodes.filter((node: any) => node.type === 'testnet'));
+              }}
+            />
+            <Button
+              label={`Register a node (on the ${nodeTypeLabel})`}
+              className="referenceButton"
+              variant="contained"
+              onClick={() => setHasRegisterNodeModal(true)}
+            />
+          </div>
+        )}
+
         <div className="cardContainer">
-          {nodes.length > 0 && (
+          {typeNodes.length > 0 && (
             <>
               <BaseCard
-                title={`${nodes.filter((node) => node.active).length}`}
+                title={`${typeNodes.filter((node) => node.active).length}`}
                 description="Active nodes"
                 tooltip={
                   <Tooltip
@@ -361,24 +387,20 @@ const RunNode = () => {
                 }
               />
               <BaseCard title={blocksProduced} description="Blocks produced" />
-              <BaseCard title={weeklyRating} description="Weekly rating" />
+              <BaseCard
+                title={weeklyRating}
+                description="Weekly block production ranking of your top node"
+              />
             </>
           )}
-          {nodes.length === 0 && (
+          {typeNodes.length === 0 && (
             <>
               <IconCard
                 title="Register a node"
                 description="Register a node you’ve aleady set up."
-                onClickText="Register a node"
+                onClickText={`Register a node (on the ${nodeTypeLabel})`}
                 onClickButton={() => setHasRegisterNodeModal(true)}
                 Icon={NodeIcon}
-                tooltip={
-                  <Tooltip
-                    className="runnode-icon-tooltip"
-                    title="A registered node (which has already been setup) will automatically be delegated enough testnet tokens to participate in consensus."
-                    Icon={InfoIcon}
-                  />
-                }
                 disabled={!isLoggedIn}
               />
               <IconCard
@@ -397,21 +419,9 @@ const RunNode = () => {
             </>
           )}
         </div>
-        {nodes.length > 0 && (
+        {typeNodes.length > 0 && (
           <div className="box">
             <Text label="Nodes" variant="h6" color="primary" className="box-title" />
-            <div className="box-pagination">
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                prev={() => {
-                  setPage(page - 1);
-                }}
-                next={() => {
-                  setPage(page + 1);
-                }}
-              />
-            </div>
             <div className="box-list">
               {[0, 1, 2].map((col) => {
                 const l = col * 4;
@@ -423,12 +433,6 @@ const RunNode = () => {
                 );
               })}
             </div>
-            <Button
-              label="Register a new node"
-              color="secondary"
-              variant="contained"
-              onClick={() => setHasRegisterNodeModal(true)}
-            />
           </div>
         )}
         <References isLoggedIn={isLoggedIn} setHasRegisterNodeModal={setHasRegisterNodeModal} />

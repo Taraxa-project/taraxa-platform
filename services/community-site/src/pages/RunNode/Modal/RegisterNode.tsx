@@ -1,70 +1,82 @@
 import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
-import useApi from '../../../services/useApi';
+import { useDelegationApi } from '../../../services/useApi';
 
 type RegisterNodeProps = {
   onSuccess: () => void;
+  type: 'mainnet' | 'testnet';
 };
 
-const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
-  const api = useApi();
+const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
+  const delegationApi = useDelegationApi();
 
-  const [nodePublicAddress, setNodePublicAddress] = useState('');
-  const [signature, setSignature] = useState('');
-  const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
-
-  const errIndex = errors.map((error) => error.key);
-  const errValues = errors.map((error) => error.value);
-
-  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
-  const hasError = (field: string) => findErrorIndex(field) !== -1;
-
-  const hasAddressError = hasError('address');
-  const addressErrorMessage = hasError('address')
-    ? errValues[findErrorIndex('address')]
-    : undefined;
-  const hasSignatureError = hasError('signature');
-  const signatureErrorMessage = hasError('signature')
-    ? errValues[findErrorIndex('signature')]
-    : undefined;
-
-  let hasGeneralError = false;
-  let generalErrorMessage: string;
-
-  if (errors.length > 0 && !hasAddressError && !hasSignatureError) {
-    hasGeneralError = true;
-    generalErrorMessage = errValues[0];
-  }
+  const [error, setError] = useState('');
+  const [address, setAddress] = useState('');
+  const [addressError, setAddressError] = useState('');
+  const [addressProof, setAddressProof] = useState('');
+  const [addressProofError, setAddressProofError] = useState('');
+  const [commission, setCommission] = useState('');
+  const [commissionError, setCommissionError] = useState('');
+  const [ip, setIp] = useState('');
+  const [ipError, setIpError] = useState('');
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
-    setErrors([]);
+    setError('');
+    setAddressError('');
+    setAddressProofError('');
+    setIpError('');
+    setCommissionError('');
 
-    const result = await api.post(`/nodes`, { ethWallet: nodePublicAddress, sig: signature }, true);
+    const result = await delegationApi.post(
+      `/nodes`,
+      {
+        address,
+        addressProof,
+        ip,
+        type,
+        commission: type === 'mainnet' ? parseInt(commission, 10) : null,
+      },
+      true,
+    );
+
     if (result.success) {
       onSuccess();
-      return;
-    }
+    } else if (Array.isArray(result.response)) {
+      const generalErrors = result.response.filter((errMsg) => {
+        if (errMsg.startsWith('addressProof')) {
+          setAddressProofError(errMsg.slice('addressProof'.length + 1));
+          return false;
+        }
+        if (errMsg.startsWith('address')) {
+          setAddressError(errMsg.slice('address'.length + 1));
+          return false;
+        }
+        if (errMsg.startsWith('commission')) {
+          setCommissionError(errMsg.slice('commission'.length + 1));
+          return false;
+        }
+        if (errMsg.startsWith('ip')) {
+          setIpError(errMsg.slice('ip'.length + 1));
+          return false;
+        }
 
-    if (typeof result.response === 'string') {
-      if (result.response.search(/wallet/i) !== -1) {
-        setErrors([{ key: 'address', value: result.response }]);
-      } else if (result.response.search(/signature/i) !== -1) {
-        setErrors([{ key: 'signature', value: result.response }]);
-      } else {
-        setErrors([{ key: 'general', value: result.response }]);
+        return true;
+      });
+
+      if (generalErrors.length > 0) {
+        setError(generalErrors.join(', '));
       }
-    } else {
-      setErrors(
-        result.response[0].messages.map((message: any) => ({
-          key: message.id.split('.')[3],
-          value: message.message,
-        })),
-      );
+    } else if (typeof result.response === 'string') {
+      if (result.response.includes("doesn't have a profile")) {
+        setError('Please setup your profile before registering a node.');
+      } else {
+        setError(result.response);
+      }
     }
   };
 
@@ -80,41 +92,66 @@ const RegisterNode = ({ onSuccess }: RegisterNodeProps) => {
         variant="h6"
         color="primary"
       />
-
       <form onSubmit={submit}>
         <InputField
           label="Node public address"
-          error={hasAddressError}
-          helperText={addressErrorMessage}
-          value={nodePublicAddress}
+          error={!!addressError}
+          helperText={addressError}
+          value={address}
           variant="outlined"
           type="text"
           fullWidth
           margin="normal"
           onChange={(event) => {
-            setNodePublicAddress(event.target.value);
+            setAddress(event.target.value);
           }}
         />
         <InputField
           label="Proof of node ownership"
-          error={hasSignatureError}
-          helperText={signatureErrorMessage}
-          value={signature}
+          error={!!addressProofError}
+          helperText={addressProofError}
+          value={addressProof}
           variant="outlined"
           type="text"
           fullWidth
           margin="normal"
           onChange={(event) => {
-            setSignature(event.target.value);
+            setAddressProof(event.target.value);
           }}
         />
-
-        {hasGeneralError && (
+        <InputField
+          label="IP address"
+          error={!!ipError}
+          helperText={ipError}
+          value={ip}
+          variant="outlined"
+          type="text"
+          fullWidth
+          margin="normal"
+          onChange={(event) => {
+            setIp(event.target.value);
+          }}
+        />
+        {type === 'mainnet' && (
+          <InputField
+            label="Commission"
+            error={!!commissionError}
+            helperText={commissionError}
+            value={commission}
+            variant="outlined"
+            type="text"
+            fullWidth
+            margin="normal"
+            onChange={(event) => {
+              setCommission(event.target.value);
+            }}
+          />
+        )}
+        {error && (
           <Text variant="body1" color="error">
-            {generalErrorMessage!}
+            {error}
           </Text>
         )}
-
         <Button
           type="submit"
           label="Submit"
