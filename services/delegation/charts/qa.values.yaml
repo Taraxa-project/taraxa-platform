@@ -2,6 +2,7 @@ app:
   environment: qa
   dbHost: 10.39.112.3
   dbName: delegation
+  stakingContractAddress: "0x7Af59Ea121a8Da8e49d2d44856feB7761561995b"
 
 image:
   repository: gcr.io/jovial-meridian-249123/taraxa/delegation-develop

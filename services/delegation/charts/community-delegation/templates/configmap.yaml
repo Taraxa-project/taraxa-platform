@@ -9,4 +9,5 @@ data:
   DATABASE_HOST: {{ .Values.app.dbHost | quote }}
   DATABASE_PORT: {{ .Values.app.dbPort | quote }}
   DATABASE_NAME: {{ .Values.app.dbName | quote }}
+  STAKING_CONTRACT_ADDRESS: {{ .Values.app.stakingContractAddress | quote }}
   NODE_ENV: {{ .Values.app.environment | quote }}
