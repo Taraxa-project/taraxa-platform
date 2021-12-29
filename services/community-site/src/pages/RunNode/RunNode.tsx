@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useState, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import { ethers } from 'ethers';
@@ -185,7 +184,6 @@ const RunNode = () => {
 
   const getProfile = useCallback(async () => {
     const data = await delegationApi.get('/profiles', true);
-    console.dir(data);
     if (!data.success) {
       return;
     }
@@ -249,7 +247,6 @@ const RunNode = () => {
 
   const getNodes = useCallback(async () => {
     const data = await delegationApi.get(`/nodes?type=${nodeType}`, true);
-    console.dir(data);
     if (!data.success) {
       return;
     }

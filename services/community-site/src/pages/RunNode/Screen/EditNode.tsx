@@ -1,9 +1,10 @@
-/* eslint-disable no-console */
 import React, { useState } from 'react';
-import { Text, Button, InputField } from '@taraxa_project/taraxa-ui';
+import { Text, Button, InputField, Modal } from '@taraxa_project/taraxa-ui';
 import Title from '../../../components/Title/Title';
 import { useDelegationApi } from '../../../services/useApi';
+import CloseIcon from '../../../assets/icons/close';
 import useStyles from './editnode-styles';
+import UpdateCommission from '../Modal/UpdateCommission';
 
 interface Node {
   id: number;
@@ -27,6 +28,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
   const [nameError, setNameError] = useState('');
   const [ip, setIp] = useState(node.ip || '');
   const [ipError, setIpError] = useState('');
+  const [isUpdatingCommission, setIsUpdatingCommssion] = useState(false);
   const delegationApi = useDelegationApi();
 
   const submit = async (
@@ -56,6 +58,28 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
 
   return (
     <>
+      {isUpdatingCommission && (
+        <Modal
+          id="signinModal"
+          title="Update Commission"
+          show={isUpdatingCommission}
+          children={
+            <UpdateCommission
+              id={node.id}
+              currentCommission={node.commissions[0].value}
+              onSuccess={() => {
+                setIsUpdatingCommssion(false);
+                closeEditNode(true);
+              }}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setIsUpdatingCommssion(false);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
       <Title title="Edit node" />
       <p className={classes.editNodeAddressWrapper}>
         <span className={classes.editNodeAddress}>{node.address}</span>
@@ -110,6 +134,29 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
               />
             </div>
           </div>
+          {node.type === 'mainnet' && (
+            <div className="formInputContainer">
+              <div className={classes.commissionWrapper}>
+                <Text
+                  className="profile-inputLabel"
+                  label="Commission"
+                  variant="body2"
+                  color="primary"
+                />
+                <div className={classes.commissionDisplay}>{node.commissions[0].value}%</div>
+                <Button
+                  className={classes.commissionUpdate}
+                  variant="outlined"
+                  color="secondary"
+                  size="small"
+                  label="Update"
+                  onClick={() => {
+                    setIsUpdatingCommssion(true);
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
         <div id="buttonsContainer">
           <Button

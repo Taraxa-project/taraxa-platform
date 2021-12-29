@@ -9,7 +9,24 @@ const useStyles = makeStyles({
   editNodeAddress: {
     backgroundColor: '#282C3E',
     borderRadius: '4px',
-    padding: '5px 10px',
+    padding: '7px 10px',
+  },
+  commissionWrapper: {
+    position: 'relative',
+    marginTop: '50px',
+  },
+  commissionUpdate: {
+    position: 'absolute',
+    bottom: '10px',
+    right: '90px',
+  },
+  commissionDisplay: {
+    textAlign: 'left',
+    paddingBottom: '5px',
+    borderBottom: '1px solid #878CA4',
+    display: 'block',
+    width: '65%',
+    marginLeft: '140px',
   },
 });
 
