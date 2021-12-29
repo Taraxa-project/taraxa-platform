@@ -156,17 +156,15 @@ export class NodeService {
     type: NodeType = NodeType.TESTNET,
   ): Promise<Node[]> {
     const nodes = await this.nodeRepository.find({ user, type });
-
-    const delegationYield = this.config.get<number>('delegation.yield');
-    const maxDelegation = this.config.get<number>('delegation.maxDelegation');
-    return nodes.map((node) => {
-      node.yield = delegationYield;
-      node.remainingDelegation = maxDelegation - node.totalDelegation;
-      return node;
-    });
+    return this.decorateNodes(nodes);
   }
 
-  async findNode(user: number, nodeId: number): Promise<Node> {
+  async findAllMainnetNodes(): Promise<Node[]> {
+    const nodes = await this.nodeRepository.find({ type: NodeType.MAINNET });
+    return this.decorateNodes(nodes);
+  }
+
+  async findNodeByUserAndId(user: number, nodeId: number): Promise<Node> {
     const node = await this.nodeRepository.findOne({
       user,
       id: nodeId,
@@ -176,7 +174,23 @@ export class NodeService {
       throw new NodeNotFoundException(nodeId);
     }
 
-    return node;
+    return this.decorateNode(node);
+  }
+
+  async findNodeByTypeAndId(
+    type: NodeType = NodeType.TESTNET,
+    id: number,
+  ): Promise<Node> {
+    const node = await this.nodeRepository.findOne({
+      type,
+      id,
+    });
+
+    if (!node) {
+      throw new NodeNotFoundException(id);
+    }
+
+    return this.decorateNode(node);
   }
 
   async findAllCommissionsByNode(
@@ -202,5 +216,18 @@ export class NodeService {
     if (node.user !== user) {
       throw new NodeDoesntBelongToUserException(node.id);
     }
+  }
+
+  private decorateNode(node: Node): Node {
+    const delegationYield = this.config.get<number>('delegation.yield');
+    const maxDelegation = this.config.get<number>('delegation.maxDelegation');
+
+    node.yield = delegationYield;
+    node.remainingDelegation = maxDelegation - node.totalDelegation;
+    return node;
+  }
+
+  private decorateNodes(nodes: Node[]): Node[] {
+    return nodes.map((node) => this.decorateNode(node));
   }
 }

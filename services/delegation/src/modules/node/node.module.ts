@@ -6,7 +6,6 @@ import { Delegation } from '../delegation/delegation.entity';
 import { ProfileModule } from '../profile/profile.module';
 import { Node } from './node.entity';
 import { NodeCommission } from './node-commission.entity';
-import { Validator } from './validator.entity';
 import { NodeController } from './node.controller';
 import { ValidatorController } from './validator.controller';
 import { NodeService } from './node.service';
@@ -14,7 +13,7 @@ import { ValidatorService } from './validator.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Node, NodeCommission, Validator, Delegation]),
+    TypeOrmModule.forFeature([Node, NodeCommission, Delegation]),
     ConfigModule.forFeature(delegationConfig),
     ProfileModule,
   ],

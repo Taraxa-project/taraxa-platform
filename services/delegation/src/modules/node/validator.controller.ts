@@ -1,11 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
 import {
-  ApiOkResponse,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../user/public.decorator';
-import { Validator } from './validator.entity';
+import { NodeNotFoundException } from './exceptions/node-not-found-exception';
+import { Node } from './node.entity';
 import { ValidatorService } from './validator.service';
 
 @Public()
@@ -15,9 +18,23 @@ export class ValidatorController {
   constructor(private validatorService: ValidatorService) {}
 
   @ApiOkResponse({ description: 'Validators found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get()
-  findAllNodes(): Promise<Validator[]> {
+  findAllNodes(): Promise<Partial<Node>[]> {
     return this.validatorService.find();
+  }
+
+  @ApiOkResponse({ description: 'Validator found' })
+  @ApiNotFoundResponse({ description: 'Node not found' })
+  @Get(':id')
+  async get(@Param('id', ParseIntPipe) id: number): Promise<Partial<Node>> {
+    try {
+      return await this.validatorService.get(id);
+    } catch (e) {
+      if (e instanceof NodeNotFoundException) {
+        throw new NotFoundException(e.message);
+      } else {
+        throw e;
+      }
+    }
   }
 }

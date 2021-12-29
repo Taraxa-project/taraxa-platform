@@ -182,7 +182,7 @@ export class NodeController {
     @Param('node', ParseIntPipe) node: number,
   ): Promise<Node> {
     try {
-      return await this.nodeService.findNode(user.id, node);
+      return await this.nodeService.findNodeByUserAndId(user.id, node);
     } catch (e) {
       if (e instanceof NodeNotFoundException) {
         throw new NotFoundException(e.message);
