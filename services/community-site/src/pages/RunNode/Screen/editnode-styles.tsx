@@ -28,6 +28,12 @@ const useStyles = makeStyles({
     width: '65%',
     marginLeft: '140px',
   },
+  commissionDisplayPendingChange: {
+    color: '#E96828',
+    backgroundColor: '#3D2C2C',
+    padding: '5px 10px',
+    borderRadius: '8px',
+  },
 });
 
 export default useStyles;

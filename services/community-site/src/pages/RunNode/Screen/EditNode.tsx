@@ -3,6 +3,7 @@ import { Text, Button, InputField, Modal } from '@taraxa_project/taraxa-ui';
 import Title from '../../../components/Title/Title';
 import { useDelegationApi } from '../../../services/useApi';
 import CloseIcon from '../../../assets/icons/close';
+import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import useStyles from './editnode-styles';
 import UpdateCommission from '../Modal/UpdateCommission';
 
@@ -15,6 +16,17 @@ interface Node {
   type: 'mainnet' | 'testnet';
   commissions: any[];
   rank: string;
+  currentCommission: number | null;
+  pendingCommission: number | null;
+  hasPendingCommissionChange: boolean;
+  weeklyRank: string | null;
+  remainingDelegation: number;
+  totalDelegation: number;
+  totalProduced: number;
+  yield: number;
+  blocksProduced: number | null;
+  weeklyBlocksProduced: string | null;
+  lastBlockCreatedAt: number | null;
 }
 
 interface EditNodeProps {
@@ -37,7 +49,11 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
     event.preventDefault();
     setNameError('');
     setIpError('');
-    const result = await delegationApi.put(`/nodes/${node.id}`, { name, ip }, true);
+    const result = await delegationApi.put(
+      `/nodes/${node.id}`,
+      { name: name || null, ip: ip || null },
+      true,
+    );
 
     if (result.success) {
       closeEditNode(true);
@@ -66,7 +82,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
           children={
             <UpdateCommission
               id={node.id}
-              currentCommission={node.commissions[0].value}
+              currentCommission={node.currentCommission}
               onSuccess={() => {
                 setIsUpdatingCommssion(false);
                 closeEditNode(true);
@@ -143,7 +159,17 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
                   variant="body2"
                   color="primary"
                 />
-                <div className={classes.commissionDisplay}>{node.commissions[0].value}%</div>
+                {node.hasPendingCommissionChange ? (
+                  <div className={classes.commissionDisplay}>
+                    <NodeCommissionChangeIcon />{' '}
+                    <span className={classes.commissionDisplayPendingChange}>
+                      {node.currentCommission || 0}% ➞ {node.pendingCommission}%
+                    </span>
+                  </div>
+                ) : (
+                  <div className={classes.commissionDisplay}>{node.currentCommission || 0}%</div>
+                )}
+
                 <Button
                   className={classes.commissionUpdate}
                   variant="outlined"
@@ -153,6 +179,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
                   onClick={() => {
                     setIsUpdatingCommssion(true);
                   }}
+                  disabled={node.hasPendingCommissionChange}
                 />
               </div>
             </div>

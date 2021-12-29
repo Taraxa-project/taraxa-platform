@@ -27,7 +27,7 @@ import NodeIcon from '../../assets/icons/node';
 import InfoIcon from '../../assets/icons/info';
 
 import { useAuth } from '../../services/useAuth';
-import useApi, { useDelegationApi } from '../../services/useApi';
+import { useDelegationApi } from '../../services/useApi';
 
 import Title from '../../components/Title/Title';
 
@@ -37,13 +37,6 @@ import EditNode, { Node } from './Screen/EditNode';
 
 import useStyles from './table-styles';
 import './runnode.scss';
-
-type NodeStats = {
-  totalProduced: number;
-  lastBlockTimestamp: Date;
-  rank: number;
-  produced: number;
-};
 
 interface RunNodeModalProps {
   hasRegisterNodeModal: boolean;
@@ -165,7 +158,6 @@ const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) =>
 
 const RunNode = () => {
   const auth = useAuth();
-  const api = useApi();
   const delegationApi = useDelegationApi();
   const classes = useStyles();
 
@@ -195,23 +187,20 @@ const RunNode = () => {
     getProfile();
   }, [getProfile]);
 
-  const getNodeStats = async (fetchedNodes: Node[]) => {
+  const getNodes = useCallback(async () => {
+    const data = await delegationApi.get(`/nodes?type=${nodeType}`, true);
+    if (!data.success) {
+      return;
+    }
+
+    setNodes(data.response);
+
     const now = new Date();
     let totalProduced = 0;
     let rank: number;
-    const nodesWithStats = fetchedNodes.map(async (node: any) => {
-      const data = await api.get(
-        `${process.env.REACT_APP_API_EXPLORER_HOST}/address/${node.address}/stats`,
-        true,
-      );
-      if (!data.success) {
-        return node;
-      }
-
-      const stats: Partial<NodeStats> = data.response;
-
-      if (stats.lastBlockTimestamp && stats.lastBlockTimestamp !== null) {
-        const lastMinedBlockDate = new Date(stats.lastBlockTimestamp);
+    data.response.forEach((node: any) => {
+      if (node.lastBlockCreatedAt) {
+        const lastMinedBlockDate = new Date(node.lastBlockCreatedAt);
 
         node.active = false;
         const minsDiff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000 / 60);
@@ -220,43 +209,25 @@ const RunNode = () => {
         }
       }
 
-      if (stats.totalProduced) {
-        totalProduced += stats.totalProduced;
+      if (node.totalProduced) {
+        totalProduced += node.totalProduced;
       }
 
-      if (stats.rank) {
+      if (node.weeklyRank) {
         if (rank) {
-          rank = Math.min(rank, stats.rank);
+          rank = Math.min(rank, node.weeklyRank);
         } else {
-          rank = stats.rank;
+          rank = node.weeklyRank;
         }
-
-        node.rank = `#${stats.rank}`;
-      } else {
-        node.rank = 'N/A';
       }
 
       return node;
     });
-    setNodes(await Promise.all(nodesWithStats));
+
     if (rank!) {
       setWeeklyRating(`#${rank}`);
     }
     setBlocksProduced(ethers.utils.commify(totalProduced));
-  };
-
-  const getNodes = useCallback(async () => {
-    const data = await delegationApi.get(`/nodes?type=${nodeType}`, true);
-    if (!data.success) {
-      return;
-    }
-    const fetchedNodes = data.response.map((node: any) => {
-      node.rank = 'N/A';
-      return node;
-    });
-    setNodes(fetchedNodes);
-
-    await getNodeStats(fetchedNodes);
   }, [nodeType]);
 
   useEffect(() => {
@@ -330,11 +301,11 @@ const RunNode = () => {
     );
 
     const name = formatNodeName(!node.name || node.name === '' ? node.address : node.name);
-    const expectedYield = '20%';
-    const commissions = node.commissions;
-    const totalDelegation = ethers.utils.commify(1000);
-    const availableDelegation = ethers.utils.commify(500);
-    const rank = node.rank;
+    const expectedYield = `${node.yield}%`;
+    const currentCommission = `${node.currentCommission || 0}%`;
+    const totalDelegation = ethers.utils.commify(node.totalDelegation);
+    const remainingDelegation = ethers.utils.commify(node.remainingDelegation);
+    const rank = node.rank ? `#${node.rank}` : 'N/A';
 
     const actions = (
       <>
@@ -346,17 +317,19 @@ const RunNode = () => {
             setCurrentEditedNode(node);
           }}
         />
-        <Button
-          size="small"
-          label="Delete"
-          className="delete"
-          onClick={() => {
-            const confirmation = window.confirm('Are you sure you want to delete this node?');
-            if (confirmation) {
-              deleteNode(node);
-            }
-          }}
-        />
+        {node.type === 'testnet' && (
+          <Button
+            size="small"
+            label="Delete"
+            className="delete"
+            onClick={() => {
+              const confirmation = window.confirm('Are you sure you want to delete this node?');
+              if (confirmation) {
+                deleteNode(node);
+              }
+            }}
+          />
+        )}
       </>
     );
 
@@ -364,9 +337,9 @@ const RunNode = () => {
       status,
       name,
       expectedYield,
-      commissions,
+      currentCommission,
       totalDelegation,
-      availableDelegation,
+      remainingDelegation,
       rank,
       actions,
     };
@@ -387,12 +360,26 @@ const RunNode = () => {
         {isLoggedIn &&
           (profile ? (
             <Card className="nodeProfile">
-              <Text label={auth.user!.username} variant="h4" color="primary" />
-              <Text label="Description" variant="h6" color="primary" />
-              <p>{profile.description}</p>
+              <Text
+                label={auth.user!.username}
+                variant="h5"
+                color="primary"
+                className="profileTitle"
+              />
+              {profile.description && (
+                <>
+                  <Text
+                    label="Description"
+                    variant="h6"
+                    color="primary"
+                    className="profileSubtitle"
+                  />
+                  <p>{profile.description}</p>
+                </>
+              )}
               {profile.website && (
                 <>
-                  <Text label="Website" variant="h6" color="primary" />
+                  <Text label="Website" variant="h6" color="primary" className="profileSubtitle" />
                   <p>
                     <a href={profile.website}>{profile.website}</a>
                   </p>
@@ -400,7 +387,7 @@ const RunNode = () => {
               )}
               {profile.social && (
                 <>
-                  <Text label="Social" variant="h6" color="primary" />
+                  <Text label="Social" variant="h6" color="primary" className="profileSubtitle" />
                   <p>
                     <a href={profile.social}>{profile.social}</a>
                   </p>
@@ -549,12 +536,10 @@ const RunNode = () => {
                     <TableCell className={classes.tableCell}>{row.name}</TableCell>
                     <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
                     {nodeType === 'mainnet' && (
-                      <TableCell className={classes.tableCell}>
-                        {row.commissions[0].value}%
-                      </TableCell>
+                      <TableCell className={classes.tableCell}>{row.currentCommission}</TableCell>
                     )}
                     <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
-                    <TableCell className={classes.tableCell}>{row.availableDelegation}</TableCell>
+                    <TableCell className={classes.tableCell}>{row.remainingDelegation}</TableCell>
                     <TableCell className={classes.tableCell}>{row.rank}</TableCell>
                     <TableCell className={classes.tableCell} align="right">
                       {row.actions}

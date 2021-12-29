@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import React, { useState } from 'react';
 import { Text, Button, InputField } from '@taraxa_project/taraxa-ui';
+import Title from '../../../components/Title/Title';
 import { useDelegationApi } from '../../../services/useApi';
 
 interface Profile {
@@ -22,17 +22,15 @@ const CreateOrEditProfile = ({
   const [description, setDescription] = useState(profile ? profile.description : '');
   const [descriptionError, setDescriptionError] = useState('');
   const [website, setWebsite] = useState(profile ? profile.website : '');
+  const [websiteError, setWebsiteError] = useState('');
   const [social, setSocial] = useState(profile ? profile.social : '');
+  const [socialError, setSocialError] = useState('');
   const delegationApi = useDelegationApi();
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    if (!description) {
-      setDescriptionError("can't be empty");
-      return;
-    }
     setDescriptionError('');
 
     const payload = { description, social, website };
@@ -45,23 +43,34 @@ const CreateOrEditProfile = ({
 
     if (result.success) {
       closeCreateOrEditProfile(true);
+      return;
+    }
+
+    if (Array.isArray(result.response)) {
+      result.response.forEach((errMsg) => {
+        if (errMsg.startsWith('description')) {
+          setDescriptionError(errMsg.slice('description'.length + 1));
+        }
+        if (errMsg.startsWith('website')) {
+          setWebsiteError(errMsg.slice('website'.length + 1));
+        }
+        if (errMsg.startsWith('social')) {
+          setSocialError(errMsg.slice('social'.length + 1));
+        }
+      });
     }
   };
 
   return (
     <>
-      <Text
-        label={action === 'create' ? 'Create profile' : 'Update profile'}
-        variant="h6"
-        color="primary"
-      />
+      <Title title={action === 'create' ? 'Create profile' : 'Update profile'} />
       <form onSubmit={submit}>
         <div className="editProfileForm">
           <div className="formInputContainer">
             <div>
               <Text
                 className="profile-inputLabel"
-                label="Description"
+                label="Description (optional)"
                 variant="body2"
                 color="primary"
               />
@@ -90,6 +99,8 @@ const CreateOrEditProfile = ({
                 color="primary"
               />
               <InputField
+                error={!!websiteError}
+                helperText={websiteError}
                 type="string"
                 className="profileInput"
                 label=""
@@ -112,6 +123,8 @@ const CreateOrEditProfile = ({
                 color="primary"
               />
               <InputField
+                error={!!socialError}
+                helperText={socialError}
                 type="string"
                 className="profileInput"
                 label=""

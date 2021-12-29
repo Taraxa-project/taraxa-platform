@@ -5,7 +5,7 @@ import { useDelegationApi } from '../../../services/useApi';
 
 type UpdateCommissionProps = {
   id: number;
-  currentCommission: number;
+  currentCommission: number | null;
   onSuccess: () => void;
 };
 
@@ -27,7 +27,7 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
       return;
     }
 
-    if (Math.abs(currentCommission - commissionNumber) < 5) {
+    if (currentCommission !== null && Math.abs(currentCommission - commissionNumber) < 5) {
       setError('maximum change is ±5%');
       return;
     }
@@ -87,7 +87,9 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
             error={!!error}
             helperText={error}
             label="Your new commission value"
-            placeholder={`Your current commission is ${currentCommission}%`}
+            placeholder={
+              currentCommission !== null ? `Your current commission is ${currentCommission}%` : ''
+            }
             value={commission}
             variant="outlined"
             type="text"
