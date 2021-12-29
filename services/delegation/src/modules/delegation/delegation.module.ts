@@ -6,17 +6,19 @@ import { NodeModule } from '../node/node.module';
 import { StakingModule } from '../staking/staking.module';
 import { Node } from '../node/node.entity';
 import { Delegation } from './delegation.entity';
+import { DelegationNonce } from './delegation-nonce.entity';
 import { DelegationController } from './delegation.controller';
+import { BalanceController } from './balance.controller';
 import { DelegationService } from './delegation.service';
 
 @Module({
   imports: [
     ConfigModule.forFeature(delegationConfig),
-    TypeOrmModule.forFeature([Delegation, Node]),
+    TypeOrmModule.forFeature([Delegation, DelegationNonce, Node]),
     NodeModule,
     StakingModule,
   ],
-  controllers: [DelegationController],
+  controllers: [DelegationController, BalanceController],
   providers: [DelegationService],
   exports: [TypeOrmModule],
 })

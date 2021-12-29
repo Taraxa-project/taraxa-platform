@@ -30,11 +30,20 @@ export class NodeCommission {
   createdAt: Date;
 
   static fromValue(value: number): NodeCommission {
-    const startsAt = moment().add(5, 'days').utc().toDate();
-
     const commission = new NodeCommission();
     commission.value = value;
-    commission.startsAt = startsAt;
+    return commission;
+  }
+
+  static fromValueCreate(value: number): NodeCommission {
+    const commission = NodeCommission.fromValue(value);
+    commission.startsAt = moment().utc().toDate();
+    return commission;
+  }
+
+  static fromValueUpdate(value: number): NodeCommission {
+    const commission = NodeCommission.fromValue(value);
+    commission.startsAt = moment().add(5, 'days').utc().toDate();
     return commission;
   }
 }

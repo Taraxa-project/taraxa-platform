@@ -19,6 +19,7 @@ import { NodeNotFoundException } from '../node/exceptions/node-not-found-excepti
 import { DelegationService } from './delegation.service';
 import { Delegation } from './delegation.entity';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
+import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
 
 @ApiTags('delegations')
 @ApiSecurity('bearer')
@@ -31,6 +32,27 @@ export class DelegationController {
   @Get()
   find(@User() user: JwtUser): Promise<Delegation[]> {
     return this.delegationService.find(user.id);
+  }
+
+  @ApiCreatedResponse({
+    description: 'The nonce has been successfully created',
+  })
+  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @Post('nonces')
+  async createNoce(
+    @User() user: JwtUser,
+    @Body() nonceDto: CreateDelegationNonceDto,
+  ): Promise<string> {
+    try {
+      return await this.delegationService.createNonce(user.id, nonceDto);
+    } catch (e) {
+      if (e instanceof NodeNotFoundException) {
+        throw new BadRequestException(e.message);
+      } else {
+        throw e;
+      }
+    }
   }
 
   @ApiCreatedResponse({

@@ -170,4 +170,14 @@ export class NodeController {
   ): Promise<Node[]> {
     return this.nodeService.findAllNodesByUserAndType(user.id, type);
   }
+
+  @ApiOkResponse({ description: 'Node found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @Get(':node')
+  findNode(
+    @User() user: JwtUser,
+    @Param('node', ParseIntPipe) node: number,
+  ): Promise<Node> {
+    return this.nodeService.findNode(user.id, node);
+  }
 }
