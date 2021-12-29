@@ -8,12 +8,11 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Node } from '../node/node.entity';
-import { CreateDelegationDto } from './dto/create-delegation.dto';
 
 @Entity({
-  name: 'delegations',
+  name: 'delegation_nonces',
 })
-export class Delegation {
+export class DelegationNonce {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -25,8 +24,8 @@ export class Delegation {
   @Index()
   address: string;
 
-  @ManyToOne(() => Node, (node) => node.delegations, {
-    cascade: true,
+  @ManyToOne(() => Node, {
+    eager: true,
   })
   node: Node;
 
@@ -38,12 +37,4 @@ export class Delegation {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  static fromDto(dto: CreateDelegationDto): Delegation {
-    const delegation = new Delegation();
-    delegation.address = dto.from;
-    delegation.value = dto.value;
-
-    return delegation;
-  }
 }

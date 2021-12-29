@@ -43,15 +43,15 @@ export class ProfileService {
       throw new ProfileNotFoundException(user);
     }
 
-    if (profileDto.description) {
+    if (typeof profileDto.description !== 'undefined') {
       profile.description = profileDto.description;
     }
 
-    if (profileDto.website) {
+    if (typeof profileDto.website !== 'undefined') {
       profile.website = profileDto.website;
     }
 
-    if (profileDto.social) {
+    if (typeof profileDto.social !== 'undefined') {
       profile.social = profileDto.social;
     }
 

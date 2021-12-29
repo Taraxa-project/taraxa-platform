@@ -72,7 +72,7 @@ export class NodeService {
       await manager.save(node);
 
       if (node.isMainnet()) {
-        const commission = NodeCommission.fromValue(nodeDto.commission);
+        const commission = NodeCommission.fromValueCreate(nodeDto.commission);
         commission.node = node;
         await manager.save(commission);
       }
@@ -93,11 +93,11 @@ export class NodeService {
     }
     this.checkNodeBelongsToUser(node, user);
 
-    if (nodeDto.name) {
+    if (typeof nodeDto.name !== 'undefined') {
       node.name = nodeDto.name;
     }
 
-    if (nodeDto.ip) {
+    if (typeof nodeDto.ip !== 'undefined') {
       node.ip = nodeDto.ip;
     }
 
@@ -116,21 +116,23 @@ export class NodeService {
       throw new NodeDoesntSupportCommissionsException(n.id);
     }
 
-    const coolingOffPeriodDays = this.config.get<number>(
-      'delegation.coolingOffPeriodDays',
-    );
-    const currentCommissionCount = await this.nodeCommissionRepository.count({
-      createdAt: MoreThan(
-        moment().utc().subtract(coolingOffPeriodDays, 'days').toDate(),
-      ),
-      node: n,
-    });
+    if (n.commissions.length > 1) {
+      const coolingOffPeriodDays = this.config.get<number>(
+        'delegation.coolingOffPeriodDays',
+      );
+      const currentCommissionCount = await this.nodeCommissionRepository.count({
+        createdAt: MoreThan(
+          moment().utc().subtract(coolingOffPeriodDays, 'days').toDate(),
+        ),
+        node: n,
+      });
 
-    if (currentCommissionCount >= 1) {
-      throw new CantAddCommissionException(n.id);
+      if (currentCommissionCount >= 1) {
+        throw new CantAddCommissionException(n.id);
+      }
     }
 
-    const commission = NodeCommission.fromValue(commissionDto.commission);
+    const commission = NodeCommission.fromValueUpdate(commissionDto.commission);
     n.commissions = [...n.commissions, commission];
 
     return this.nodeRepository.save(n);
@@ -149,11 +151,26 @@ export class NodeService {
     return n;
   }
 
-  findAllNodesByUserAndType(
+  async findAllNodesByUserAndType(
     user: number,
     type: NodeType = NodeType.TESTNET,
   ): Promise<Node[]> {
-    return this.nodeRepository.find({ user, type });
+    const nodes = await this.nodeRepository.find({ user, type });
+
+    const delegationYield = this.config.get<number>('delegation.yield');
+    const maxDelegation = this.config.get<number>('delegation.maxDelegation');
+    return nodes.map((node) => {
+      node.yield = delegationYield;
+      node.remainingDelegation = maxDelegation - node.totalDelegation;
+      return node;
+    });
+  }
+
+  findNode(user: number, nodeId: number): Promise<Node> {
+    return this.nodeRepository.findOne({
+      user,
+      id: nodeId,
+    });
   }
 
   async findAllCommissionsByNode(

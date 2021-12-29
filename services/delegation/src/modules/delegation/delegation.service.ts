@@ -4,24 +4,80 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NodeNotFoundException } from '../node/exceptions/node-not-found-exception';
 import { NodeService } from '../node/node.service';
+import { Node } from '../node/node.entity';
 import { StakingService } from '../staking/staking.service';
 import { Delegation } from './delegation.entity';
+import { DelegationNonce } from './delegation-nonce.entity';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
+import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
+import { BalancesDto } from './dto/balances.dto';
 
 @Injectable()
 export class DelegationService {
   constructor(
     @InjectRepository(Delegation)
     private delegationRepository: Repository<Delegation>,
+    @InjectRepository(DelegationNonce)
+    private delegationNonceRepository: Repository<DelegationNonce>,
     private config: ConfigService,
     private nodeService: NodeService,
     private stakingService: StakingService,
   ) {}
+  async getBalances(address: string): Promise<BalancesDto> {
+    const total = await this.stakingService.getStakingAmount(address);
+    const delegated = await this.getUserDelegations(address);
+    return {
+      total,
+      delegated,
+      remaining: total - delegated,
+    };
+  }
   find(user: number): Promise<Delegation[]> {
     return this.delegationRepository.find({
       user,
     });
   }
+  async getNonce(user: number, address: string, node: Node): Promise<string> {
+    const nonce = await this.delegationNonceRepository.findOne({
+      user,
+      address,
+      node,
+    });
+
+    return `Delegate to ${nonce.node.address}, from ${nonce.address} with nonce #${nonce.value}`;
+  }
+  async createNonce(
+    user: number,
+    delegationNonceDto: CreateDelegationNonceDto,
+  ): Promise<string> {
+    const node = await this.nodeService.findNodeOrThrow(
+      delegationNonceDto.node,
+    );
+
+    if (node.isTestnet()) {
+      throw new NodeNotFoundException(delegationNonceDto.node);
+    }
+
+    let nonce = await this.delegationNonceRepository.findOne({
+      user,
+      address: delegationNonceDto.from,
+      node: node,
+    });
+
+    if (nonce) {
+      nonce.value = nonce.value + 1;
+    } else {
+      nonce = new DelegationNonce();
+      nonce.user = user;
+      nonce.address = delegationNonceDto.from;
+      nonce.node = node;
+      nonce.value = 1;
+    }
+    await this.delegationNonceRepository.save(nonce);
+
+    return this.getNonce(user, delegationNonceDto.from, node);
+  }
+
   async create(
     user: number,
     delegationDto: CreateDelegationDto,
@@ -32,47 +88,33 @@ export class DelegationService {
       throw new NodeNotFoundException(delegationDto.node);
     }
 
-    const userDelegationsToNode = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
-      .where('"d"."user" = :user', { user })
-      .andWhere('"d"."address" = :address', { address: delegationDto.from })
-      .getRawOne();
-    const currentUserDelegationsToNode =
-      parseInt(userDelegationsToNode.total, 10) || 0;
+    const userDelegationsToNode = await this.getUserDelegationsToNode(
+      user,
+      node.address,
+    );
     const minDelegation = this.config.get<number>('delegation.minDelegation');
-    if (currentUserDelegationsToNode + delegationDto.value < minDelegation) {
+    if (userDelegationsToNode + delegationDto.value < minDelegation) {
       throw new Error('Minimum delegation value is ' + minDelegation);
     }
 
-    const nodeDelegations = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
-      .where('"d"."nodeId" = :node', { node: node.id })
-      .getRawOne();
-    const currentNodeDelegations = parseInt(nodeDelegations.total, 10) || 0;
+    const nodeDelegations = await this.getNodeDelegations(node.id);
     const maxDelegation = this.config.get<number>('delegation.maxDelegation');
-    if (currentNodeDelegations + delegationDto.value > maxDelegation) {
+    if (nodeDelegations + delegationDto.value > maxDelegation) {
       throw new Error(
         'Maximum delegation exceeded. Node can only be delegated ' +
-          (maxDelegation - currentNodeDelegations) +
+          (maxDelegation - nodeDelegations) +
           ' more tokens.',
       );
     }
 
-    const userDelegations = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
-      .where('"d"."address" = :address', { address: delegationDto.from })
-      .getRawOne();
-    const currentUserDelegations = parseInt(userDelegations.total, 10) || 0;
+    const userDelegations = await this.getUserDelegations(delegationDto.from);
     const totalUserStake = await this.stakingService.getStakingAmount(
       delegationDto.from,
     );
-    if (currentUserDelegations + delegationDto.value > totalUserStake) {
+    if (userDelegations + delegationDto.value > totalUserStake) {
       throw new Error(
         'Maximum stake exceeded. User can only delegate ' +
-          (totalUserStake - currentUserDelegations) +
+          (totalUserStake - userDelegations) +
           ' more tokens.',
       );
     }
@@ -82,5 +124,34 @@ export class DelegationService {
     delegation.node = node;
 
     return this.delegationRepository.save(delegation);
+  }
+
+  private async getUserDelegationsToNode(user: number, address: string) {
+    const d = await this.delegationRepository
+      .createQueryBuilder('d')
+      .select('SUM("d"."value")', 'total')
+      .where('"d"."user" = :user', { user })
+      .andWhere('"d"."address" = :address', { address })
+      .getRawOne();
+
+    return parseInt(d.total, 10) || 0;
+  }
+
+  private async getNodeDelegations(nodeId: number) {
+    const d = await this.delegationRepository
+      .createQueryBuilder('d')
+      .select('SUM("d"."value")', 'total')
+      .where('"d"."nodeId" = :node', { node: nodeId })
+      .getRawOne();
+    return parseInt(d.total, 10) || 0;
+  }
+
+  private async getUserDelegations(address: string) {
+    const d = await this.delegationRepository
+      .createQueryBuilder('d')
+      .select('SUM("d"."value")', 'total')
+      .where('"d"."address" = :address', { address })
+      .getRawOne();
+    return parseInt(d.total, 10) || 0;
   }
 }
