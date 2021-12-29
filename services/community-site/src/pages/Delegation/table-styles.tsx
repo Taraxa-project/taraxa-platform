@@ -23,6 +23,9 @@ const useStyles = makeStyles({
     border: 'none',
     height: 'auto',
   },
+  tableSection: {
+    textAlign: 'center',
+  },
 });
 
 export default useStyles;

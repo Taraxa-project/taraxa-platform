@@ -175,19 +175,27 @@ const RunNode = () => {
   const [profile, setProfile] = useState<Profile | undefined>(undefined);
 
   const getProfile = useCallback(async () => {
+    if (!isLoggedIn) {
+      return;
+    }
+
     const data = await delegationApi.get('/profiles', true);
     if (!data.success) {
       return;
     }
 
     setProfile(data.response);
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     getProfile();
   }, [getProfile]);
 
   const getNodes = useCallback(async () => {
+    if (!isLoggedIn) {
+      return;
+    }
+
     const data = await delegationApi.get(`/nodes?type=${nodeType}`, true);
     if (!data.success) {
       return;
@@ -228,7 +236,7 @@ const RunNode = () => {
       setWeeklyRating(`#${rank}`);
     }
     setBlocksProduced(ethers.utils.commify(totalProduced));
-  }, [nodeType]);
+  }, [nodeType, isLoggedIn]);
 
   useEffect(() => {
     getNodes();
@@ -381,7 +389,9 @@ const RunNode = () => {
                 <>
                   <Text label="Website" variant="h6" color="primary" className="profileSubtitle" />
                   <p>
-                    <a href={profile.website}>{profile.website}</a>
+                    <a href={profile.website} rel="noreferrer" target="_blank">
+                      {profile.website}
+                    </a>
                   </p>
                 </>
               )}
@@ -389,7 +399,9 @@ const RunNode = () => {
                 <>
                   <Text label="Social" variant="h6" color="primary" className="profileSubtitle" />
                   <p>
-                    <a href={profile.social}>{profile.social}</a>
+                    <a href={profile.social} rel="noreferrer" target="_blank">
+                      {profile.social}
+                    </a>
                   </p>
                 </>
               )}
