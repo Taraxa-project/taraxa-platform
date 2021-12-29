@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -13,6 +14,7 @@ import {
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
   ApiSecurity,
@@ -172,12 +174,21 @@ export class NodeController {
   }
 
   @ApiOkResponse({ description: 'Node found' })
+  @ApiNotFoundResponse({ description: 'Node not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get(':node')
-  findNode(
+  async findNode(
     @User() user: JwtUser,
     @Param('node', ParseIntPipe) node: number,
   ): Promise<Node> {
-    return this.nodeService.findNode(user.id, node);
+    try {
+      return await this.nodeService.findNode(user.id, node);
+    } catch (e) {
+      if (e instanceof NodeNotFoundException) {
+        throw new NotFoundException(e.message);
+      } else {
+        throw e;
+      }
+    }
   }
 }

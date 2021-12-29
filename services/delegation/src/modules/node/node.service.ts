@@ -166,11 +166,17 @@ export class NodeService {
     });
   }
 
-  findNode(user: number, nodeId: number): Promise<Node> {
-    return this.nodeRepository.findOne({
+  async findNode(user: number, nodeId: number): Promise<Node> {
+    const node = await this.nodeRepository.findOne({
       user,
       id: nodeId,
     });
+
+    if (!node) {
+      throw new NodeNotFoundException(nodeId);
+    }
+
+    return node;
   }
 
   async findAllCommissionsByNode(
