@@ -12,7 +12,6 @@ import {
   Text,
   Button,
   Card,
-  InputField,
 } from '@taraxa_project/taraxa-ui';
 
 import {
@@ -34,21 +33,11 @@ import useApi, { useDelegationApi } from '../../services/useApi';
 import Title from '../../components/Title/Title';
 
 import RegisterNode from './Modal/RegisterNode';
-import UpdateNode from './Modal/UpdateNode';
+import CreateOrEditProfile, { Profile } from './Screen/CreateOrEditProfile';
+import EditNode, { Node } from './Screen/EditNode';
 
 import useStyles from './table-styles';
 import './runnode.scss';
-
-interface Node {
-  id: number;
-  name: string;
-  address: string;
-  ip: string;
-  active: boolean;
-  type: 'mainnet' | 'testnet';
-  commission: number;
-  rank: string;
-}
 
 type NodeStats = {
   totalProduced: number;
@@ -57,205 +46,44 @@ type NodeStats = {
   produced: number;
 };
 
-interface Profile {
-  description: string;
-  website: string;
-  social: string;
-}
-interface EditProfileProps {
-  closeCreateOrEditProfile: (refreshProfile: boolean) => void;
-  action: 'create' | 'edit';
-  profile?: Profile;
-}
-
-const CreateOrEditProfile = ({ closeCreateOrEditProfile, action, profile }: EditProfileProps) => {
-  const [description, setDescription] = useState(profile ? profile.description : '');
-  const [descriptionError, setDescriptionError] = useState('');
-  const [website, setWebsite] = useState(profile ? profile.website : '');
-  const [social, setSocial] = useState(profile ? profile.social : '');
-  const delegationApi = useDelegationApi();
-
-  const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault();
-    if (!description) {
-      setDescriptionError("can't be empty");
-      return;
-    }
-    setDescriptionError('');
-
-    const payload = { description, social, website };
-    let result;
-    if (action === 'create') {
-      result = await delegationApi.post('/profiles', payload, true);
-    } else {
-      result = await delegationApi.put('/profiles', payload, true);
-    }
-
-    if (result.success) {
-      closeCreateOrEditProfile(true);
-    }
-  };
-
-  return (
-    <>
-      <Text
-        label={action === 'create' ? 'Create profile' : 'Update profile'}
-        variant="h6"
-        color="primary"
-      />
-      <form onSubmit={submit}>
-        <div className="editProfileForm">
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Description"
-                variant="body2"
-                color="primary"
-              />
-              <InputField
-                error={!!descriptionError}
-                helperText={descriptionError}
-                type="string"
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={description}
-                variant="standard"
-                onChange={(event: any) => {
-                  setDescription(event.target.value);
-                }}
-                margin="normal"
-              />
-            </div>
-          </div>
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Website (optional)"
-                variant="body2"
-                color="primary"
-              />
-              <InputField
-                type="string"
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={website}
-                variant="standard"
-                onChange={(event: any) => {
-                  setWebsite(event.target.value);
-                }}
-                margin="normal"
-              />
-            </div>
-          </div>
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Social (optional)"
-                variant="body2"
-                color="primary"
-              />
-              <InputField
-                type="string"
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={social}
-                variant="standard"
-                onChange={(event: any) => {
-                  setSocial(event.target.value);
-                }}
-                margin="normal"
-              />
-            </div>
-          </div>
-        </div>
-        <div id="buttonsContainer">
-          <Button
-            type="submit"
-            label={action === 'create' ? 'Create profile' : 'Update profile'}
-            variant="contained"
-            color="secondary"
-            onClick={submit}
-          />
-          <Button
-            label="Cancel"
-            variant="contained"
-            id="grayButton"
-            onClick={() => {
-              closeCreateOrEditProfile(false);
-            }}
-          />
-        </div>
-      </form>
-    </>
-  );
-};
-
 interface RunNodeModalProps {
   hasRegisterNodeModal: boolean;
   setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
-  hasUpdateNodeModal: boolean;
-  setHasUpdateNodeModal: (hasUpdateNodeModal: boolean) => void;
   getNodes: () => void;
-  currentEditedNode: null | Node;
   nodeType: 'mainnet' | 'testnet';
 }
 
 const RunNodeModal = ({
   hasRegisterNodeModal,
-  hasUpdateNodeModal,
   setHasRegisterNodeModal,
-  setHasUpdateNodeModal,
   getNodes,
-  currentEditedNode,
   nodeType,
 }: RunNodeModalProps) => {
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  let modal;
 
-  if (hasRegisterNodeModal) {
-    modal = (
-      <RegisterNode
-        type={nodeType}
-        onSuccess={() => {
-          getNodes();
-          setHasRegisterNodeModal(false);
-        }}
-      />
-    );
-  }
-
-  if (hasUpdateNodeModal && currentEditedNode !== null) {
-    modal = (
-      <UpdateNode
-        id={currentEditedNode.id}
-        name={currentEditedNode.name}
-        ip={currentEditedNode.ip}
-      />
-    );
-  }
-
-  if (!modal) {
+  if (!hasRegisterNodeModal) {
     return null;
   }
+
+  const modal = (
+    <RegisterNode
+      type={nodeType}
+      onSuccess={() => {
+        getNodes();
+        setHasRegisterNodeModal(false);
+      }}
+    />
+  );
 
   return (
     <Modal
       id={isMobile ? 'mobile-signinModal' : 'signinModal'}
       title="Register Node"
-      show={hasRegisterNodeModal || hasUpdateNodeModal}
+      show={hasRegisterNodeModal}
       children={modal}
       parentElementID="root"
       onRequestClose={() => {
         setHasRegisterNodeModal(false);
-        setHasUpdateNodeModal(false);
       }}
       closeIcon={CloseIcon}
     />
@@ -346,9 +174,8 @@ const RunNode = () => {
 
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [nodeType, setNodeType] = useState<'mainnet' | 'testnet'>('testnet');
+  const [nodeType, setNodeType] = useState<'mainnet' | 'testnet'>('mainnet');
   const [hasRegisterNodeModal, setHasRegisterNodeModal] = useState(false);
-  const [hasUpdateNodeModal, setHasUpdateNodeModal] = useState(false);
   const [currentEditedNode, setCurrentEditedNode] = useState<null | Node>(null);
 
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -480,6 +307,20 @@ const RunNode = () => {
     );
   }
 
+  if (currentEditedNode) {
+    return (
+      <EditNode
+        node={currentEditedNode}
+        closeEditNode={(refreshNodes) => {
+          setCurrentEditedNode(null);
+          if (refreshNodes) {
+            getNodes();
+          }
+        }}
+      />
+    );
+  }
+
   const rows = nodes.map((node) => {
     let className = 'dot';
     if (node.active) {
@@ -493,7 +334,7 @@ const RunNode = () => {
 
     const name = formatNodeName(!node.name || node.name === '' ? node.address : node.name);
     const expectedYield = '20%';
-    const commission = `${node.commission}%`;
+    const commissions = node.commissions;
     const totalDelegation = ethers.utils.commify(1000);
     const availableDelegation = ethers.utils.commify(500);
     const rank = node.rank;
@@ -506,7 +347,6 @@ const RunNode = () => {
           className="edit"
           onClick={() => {
             setCurrentEditedNode(node);
-            setHasUpdateNodeModal(true);
           }}
         />
         <Button
@@ -527,7 +367,7 @@ const RunNode = () => {
       status,
       name,
       expectedYield,
-      commission,
+      commissions,
       totalDelegation,
       availableDelegation,
       rank,
@@ -540,11 +380,8 @@ const RunNode = () => {
   return (
     <div className="runnode">
       <RunNodeModal
-        hasUpdateNodeModal={hasUpdateNodeModal}
         hasRegisterNodeModal={hasRegisterNodeModal}
         setHasRegisterNodeModal={setHasRegisterNodeModal}
-        setHasUpdateNodeModal={setHasUpdateNodeModal}
-        currentEditedNode={currentEditedNode}
         getNodes={getNodes}
         nodeType={nodeType}
       />
@@ -640,7 +477,6 @@ const RunNode = () => {
             />
           </div>
         )}
-
         <div className="cardContainer">
           {nodes.length > 0 && (
             <>
@@ -716,7 +552,9 @@ const RunNode = () => {
                     <TableCell className={classes.tableCell}>{row.name}</TableCell>
                     <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
                     {nodeType === 'mainnet' && (
-                      <TableCell className={classes.tableCell}>{row.commission}</TableCell>
+                      <TableCell className={classes.tableCell}>
+                        {row.commissions[0].value}%
+                      </TableCell>
                     )}
                     <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
                     <TableCell className={classes.tableCell}>{row.availableDelegation}</TableCell>

@@ -121,7 +121,7 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
           }}
         />
         <InputField
-          label="IP address (optional)"
+          label="Node IP (optional)"
           error={!!ipError}
           helperText={ipError}
           value={ip}
