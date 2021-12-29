@@ -1,0 +1,264 @@
+.runnode {
+  .runnode-content {
+    text-align: left;
+
+    .notification {
+      margin-bottom: 40px;
+    }
+
+    .delete,
+    .edit {
+      background-color: #31364b;
+      border: 1px solid #6a7085;
+      border-radius: 4px;
+      padding: 0px 15px;
+      font-size: 12px;
+      line-height: 16px;
+      min-width: auto;
+      margin-left: 9px;
+    }
+
+    .box {
+      position: relative;
+      background-color: #151823;
+      border: 2px solid #31364b;
+      border-radius: 4px;
+      max-width: 1008px;
+      margin-top: 38px;
+      box-sizing: border-box;
+      padding: 14px 24px 40px 24px;
+
+      .box-title {
+        font-family: 'Poppins';
+        font-weight: bold;
+        font-size: 22px;
+        margin-bottom: 0;
+      }
+
+      .box-pagination {
+        position: absolute;
+        top: 32px;
+        right: 32px;
+      }
+
+      .box-list {
+        display: flex;
+        margin-top: 24px;
+        margin-bottom: 40px;
+
+        .box-list-col {
+          flex: 1;
+          margin-right: 40px;
+
+          & > div {
+            display: flex;
+            min-height: 24px;
+            align-items: center;
+            margin-bottom: 12px;
+
+            button {
+              display: none;
+            }
+          }
+
+          & > div:last-child {
+            margin-bottom: 0;
+          }
+
+          & > div:hover {
+            button {
+              display: block;
+            }
+          }
+
+          .status {
+            display: flex;
+            padding-right: 10px;
+          }
+
+          .address {
+            flex: 1;
+          }
+        }
+
+        & > .box-list-col:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
+    .referenceButton {
+      background: #31364b;
+      border: 1px solid #6a7085;
+      box-sizing: border-box;
+      border-radius: 4px;
+      color: white;
+      width: 35%;
+      margin-right: 24px;
+      margin-top: 24px;
+    }
+  }
+
+  .noProfile {
+    text-align: center;
+  }
+  .nodeProfile {
+    a {
+      color: #48bdff;
+    }
+  }
+  .nodeTypes {
+    clear: both;
+    height: 50px;
+    margin: 25px 0;
+    svg {
+      float: left;
+      width: 15px;
+      height: 15px;
+      margin-top: 18px;
+    }
+    h6 {
+      float: left;
+      margin-top: 10px;
+      margin-left: 10px;
+      margin-right: 35px;
+    }
+
+    button.nodeTypeTab {
+      float: left;
+      border-radius: 32px;
+      margin-left: 5px;
+      background: #31364b;
+      color: #fff;
+      margin-top: 10px;
+    }
+    button.nodeTypeTab.active {
+      background: #15ac5b;
+    }
+    button.registerNode {
+      float: right;
+      height: 40px;
+      margin-top: 5px;
+    }
+  }
+}
+
+.App {
+  &.App-mobile {
+    .runnode {
+      .runnode-content {
+        .box {
+          width: 100%;
+          margin-top: 0;
+          margin-bottom: 24px;
+
+          .box-pagination {
+            position: inherit;
+            top: auto;
+            right: auto;
+            margin-top: 24px;
+            justify-content: flex-end;
+          }
+
+          .box-list {
+            display: inherit;
+
+            .box-list-col {
+              flex: 1;
+              margin-right: 0;
+
+              & > div {
+                button {
+                  display: block;
+                }
+              }
+            }
+          }
+
+          & > .referenceButton {
+            width: 100%;
+            margin-right: 0;
+          }
+
+          & > .referenceButton:first-child {
+            margin-top: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+.referenceContainer {
+  width: 95% !important;
+  margin-bottom: 5%;
+  box-sizing: border-box;
+  border-radius: 4px;
+
+  #referenceText {
+    margin: 2% 0 0 2%;
+  }
+
+  .bottomReferencesButtonContainer {
+    margin-bottom: 5%;
+  }
+}
+
+.mobileReferenceContainer {
+  background-color: #151823;
+  border: 2px solid #31364b;
+  width: 95% !important;
+
+  margin-bottom: 5%;
+  box-sizing: border-box;
+  border-radius: 4px;
+
+  #referenceText {
+    margin: 2% 0 0 2%;
+  }
+
+  #mobileReferenceText {
+    margin: 2% 0 0 10%;
+  }
+
+  .bottomReferencesButtonContainer {
+    margin-bottom: 5%;
+  }
+
+  .referenceButton {
+    background: #31364b;
+    border: 1px solid #6a7085;
+    box-sizing: border-box;
+    border-radius: 4px;
+    color: white;
+    width: 35%;
+    margin-left: 10%;
+    margin-top: 5%;
+  }
+}
+
+.node-control-button {
+  margin: 0 5% 5% 5% !important;
+}
+
+#signinModal {
+  & > div {
+    & > .node-control-reference-button {
+      margin-bottom: 16px;
+    }
+    & > .node-control-reference-button:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.node-control-reference-button {
+  background: #31364b !important;
+  border: 1px solid #6a7085 !important;
+  box-sizing: border-box !important;
+  border-radius: 4px !important;
+  color: white !important;
+}
+
+@media only screen and (min-width: 760px) {
+}

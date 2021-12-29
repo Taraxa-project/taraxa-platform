@@ -5,6 +5,7 @@ import { useMetaMask } from 'metamask-react';
 import { Button, Sidebar as MSidebar } from '@taraxa_project/taraxa-ui';
 
 import BountiesSidebar from '../../assets/icons/bountiesSidebar';
+import DelegationSidebar from '../../assets/icons/delegationSidebar';
 import DeploySidebar from '../../assets/icons/deploySidebar';
 import ExplorerSidebar from '../../assets/icons/explorerSidebar';
 import GetStarted from '../../assets/icons/getStarted';
@@ -52,6 +53,10 @@ const Sidebar = () => {
         {
           Link: <NavLink label="Staking" Icon={StakingSidebar} to="/staking" />,
           name: 'staking',
+        },
+        {
+          Link: <NavLink label="Delegation" Icon={DelegationSidebar} to="/delegation" />,
+          name: 'delegation',
         },
         {
           Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />,
