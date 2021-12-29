@@ -32,17 +32,18 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
     setIpError('');
     setCommissionError('');
 
-    const result = await delegationApi.post(
-      `/nodes`,
-      {
-        address,
-        addressProof,
-        ip,
-        type,
-        commission: type === 'mainnet' ? parseInt(commission, 10) : null,
-      },
-      true,
-    );
+    const payload: any = {
+      address,
+      addressProof,
+      type,
+      commission: type === 'mainnet' ? parseInt(commission, 10) : null,
+    };
+
+    if (ip) {
+      payload.ip = ip;
+    }
+
+    const result = await delegationApi.post(`/nodes`, payload, true);
 
     if (result.success) {
       onSuccess();
@@ -120,7 +121,7 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
           }}
         />
         <InputField
-          label="IP address"
+          label="IP address (optional)"
           error={!!ipError}
           helperText={ipError}
           value={ip}
