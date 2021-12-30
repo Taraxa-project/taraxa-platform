@@ -4,8 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Profile } from './profile.entity';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ProfileAlreadyExistsException } from './exceptions/profile-already-exists.exception';
-import { ProfileNotFoundException } from './exceptions/profile-not-found.exception';
+import { ValidationException } from '../utils/exceptions/validation.exception';
 
 @Injectable()
 export class ProfileService {
@@ -14,21 +13,15 @@ export class ProfileService {
     private profileRepository: Repository<Profile>,
   ) {}
 
-  async get(user: number): Promise<Profile> {
-    const profile = await this.profileRepository.findOne({ user });
-
-    if (!profile) {
-      throw new ProfileNotFoundException(user);
-    }
-
-    return profile;
+  get(user: number): Promise<Profile> {
+    return this.profileRepository.findOneOrFail({ user });
   }
 
   async create(user: number, profileDto: CreateProfileDto): Promise<Profile> {
     const profileExists = await this.profileRepository.findOne({ user });
 
     if (profileExists) {
-      throw new ProfileAlreadyExistsException(user);
+      throw new ValidationException(`User already has a profile.`);
     }
 
     const profile = Profile.fromDto(profileDto);
@@ -37,11 +30,7 @@ export class ProfileService {
   }
 
   async update(user: number, profileDto: UpdateProfileDto): Promise<Profile> {
-    const profile = await this.profileRepository.findOne({ user });
-
-    if (!profile) {
-      throw new ProfileNotFoundException(user);
-    }
+    const profile = await this.profileRepository.findOneOrFail({ user });
 
     if (typeof profileDto.description !== 'undefined') {
       profile.description = profileDto.description;

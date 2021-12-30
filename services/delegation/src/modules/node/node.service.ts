@@ -3,7 +3,7 @@ import * as moment from 'moment';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Repository, Connection, MoreThan } from 'typeorm';
+import { Repository, Connection, MoreThan, FindConditions } from 'typeorm';
 import { ProfileService } from '../profile/profile.service';
 import { Node } from './node.entity';
 import { NodeType } from './node-type.enum';
@@ -11,14 +11,7 @@ import { NodeCommission } from './node-commission.entity';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { CreateCommissionDto } from './dto/create-commission.dto';
-import { ProfileNotFoundException } from '../profile/exceptions/profile-not-found.exception';
-import { NodeAlreadyExistsException } from './exceptions/node-already-exists.exception';
-import { NodeNotFoundException } from './exceptions/node-not-found-exception';
-import { NodeDoesntBelongToUserException } from './exceptions/node-doesnt-belong-to-user.exception';
-import { NodeCantBeDeletedException } from './exceptions/node-cant-be-deleted.exception';
-import { NodeDoesntSupportCommissionsException } from './exceptions/node-doesnt-support-commissions';
-import { NodeProofInvalidException } from './exceptions/node-proof-invalid';
-import { CantAddCommissionException } from './exceptions/cant-add-commission';
+import { ValidationException } from '../utils/exceptions/validation.exception';
 
 @Injectable()
 export class NodeService {
@@ -40,7 +33,9 @@ export class NodeService {
     });
 
     if (nodeExists) {
-      throw new NodeAlreadyExistsException(nodeDto.address);
+      throw new ValidationException(
+        `Node with address ${nodeDto.address} already exists`,
+      );
     }
 
     const node = Node.fromDto(nodeDto);
@@ -54,17 +49,21 @@ export class NodeService {
       );
 
       if (recoveredAddress !== node.address) {
-        throw new NodeProofInvalidException(node.address);
+        throw new ValidationException(
+          `Node proof for ${node.address} is invalid`,
+        );
       }
     } catch (e) {
-      throw new NodeProofInvalidException(node.address);
+      throw new ValidationException(
+        `Node proof for ${node.address} is invalid`,
+      );
     }
 
     if (node.isMainnet()) {
       try {
         await this.profileService.get(user);
       } catch (e) {
-        throw new ProfileNotFoundException(user);
+        throw new ValidationException(`User ${user} doesn't have a profile`);
       }
     }
 
@@ -86,12 +85,10 @@ export class NodeService {
     nodeId: number,
     nodeDto: UpdateNodeDto,
   ): Promise<Node> {
-    const node = await this.nodeRepository.findOne(nodeId);
-
-    if (!node) {
-      throw new NodeNotFoundException(nodeId);
-    }
-    this.checkNodeBelongsToUser(node, user);
+    const node = await this.findNodeByOrFail({
+      id: nodeId,
+      user,
+    });
 
     if (typeof nodeDto.name !== 'undefined') {
       node.name = nodeDto.name;
@@ -109,12 +106,11 @@ export class NodeService {
     node: number,
     commissionDto: CreateCommissionDto,
   ): Promise<Node> {
-    const n = await this.findNodeOrThrow(node);
-    this.checkNodeBelongsToUser(n, user);
-
-    if (n.isTestnet()) {
-      throw new NodeDoesntSupportCommissionsException(n.id);
-    }
+    const n = await this.findNodeByOrFail({
+      id: node,
+      type: NodeType.MAINNET,
+      user,
+    });
 
     if (n.commissions.length > 1) {
       const coolingOffPeriodDays = this.config.get<number>(
@@ -128,7 +124,9 @@ export class NodeService {
       });
 
       if (currentCommissionCount >= 1) {
-        throw new CantAddCommissionException(n.id);
+        throw new ValidationException(
+          `Node with id ${n.id} already has a pending commission change.`,
+        );
       }
     }
 
@@ -139,13 +137,11 @@ export class NodeService {
   }
 
   async deleteNode(user: number, node: number): Promise<Node> {
-    const n = await this.findNodeOrThrow(node);
-    this.checkNodeBelongsToUser(n, user);
-
-    if (n.isMainnet()) {
-      throw new NodeCantBeDeletedException(n.id);
-    }
-
+    const n = await this.findNodeByOrFail({
+      id: node,
+      user,
+      type: NodeType.TESTNET,
+    });
     await this.nodeRepository.delete(node);
 
     return n;
@@ -165,30 +161,10 @@ export class NodeService {
   }
 
   async findNodeByUserAndId(user: number, nodeId: number): Promise<Node> {
-    const node = await this.nodeRepository.findOne({
+    const node = await this.nodeRepository.findOneOrFail({
       user,
       id: nodeId,
     });
-
-    if (!node) {
-      throw new NodeNotFoundException(nodeId);
-    }
-
-    return this.decorateNode(node);
-  }
-
-  async findNodeByTypeAndId(
-    type: NodeType = NodeType.TESTNET,
-    id: number,
-  ): Promise<Node> {
-    const node = await this.nodeRepository.findOne({
-      type,
-      id,
-    });
-
-    if (!node) {
-      throw new NodeNotFoundException(id);
-    }
 
     return this.decorateNode(node);
   }
@@ -197,25 +173,17 @@ export class NodeService {
     user: number,
     node: number,
   ): Promise<NodeCommission[]> {
-    const n = await this.findNodeOrThrow(node);
-    this.checkNodeBelongsToUser(n, user);
+    const n = await this.findNodeByOrFail({
+      id: node,
+      user,
+    });
 
     return this.nodeCommissionRepository.find({ node: n });
   }
 
-  async findNodeOrThrow(node: number): Promise<Node> {
-    const n = await this.nodeRepository.findOne(node);
-    if (!n) {
-      throw new NodeNotFoundException(node);
-    }
-
-    return n;
-  }
-
-  checkNodeBelongsToUser(node: Node, user: number): void {
-    if (node.user !== user) {
-      throw new NodeDoesntBelongToUserException(node.id);
-    }
+  async findNodeByOrFail(options: FindConditions<Node>): Promise<Node> {
+    const node = await this.nodeRepository.findOneOrFail(options);
+    return this.decorateNode(node);
   }
 
   private decorateNode(node: Node): Node {

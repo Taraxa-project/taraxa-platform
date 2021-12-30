@@ -90,12 +90,13 @@ export class Node {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  yield: number;
   currentCommission: number;
   pendingCommission: number | null;
   hasPendingCommissionChange: boolean;
   totalDelegation: number;
-  yield: number;
   remainingDelegation: number;
+  ownDelegation: number;
 
   @AfterLoad()
   calculateCommission = () => {
@@ -136,6 +137,7 @@ export class Node {
     this.remainingDelegation = 0;
     if (this.isTestnet()) {
       this.totalDelegation = 0;
+      this.ownDelegation = 0;
       return;
     }
 
@@ -143,6 +145,13 @@ export class Node {
       (acc, delegation) => acc + delegation.value,
       0,
     );
+
+    this.ownDelegation = this.delegations.reduce((acc, delegation) => {
+      if (delegation.user === this.user) {
+        return acc + delegation.value;
+      }
+      return acc;
+    }, 0);
   };
 
   isMainnet(): boolean {

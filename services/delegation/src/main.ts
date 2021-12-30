@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import generalConfig from './config/general';
 
 async function bootstrap() {
-  const config = generalConfig();
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
 
-  if (!config.isProd) {
+  if (!configService.get<boolean>('isProd')) {
     const swagger = new DocumentBuilder()
       .setTitle('delegation')
       .setDescription('Taraxa Delegation Service')
@@ -19,6 +19,6 @@ async function bootstrap() {
     SwaggerModule.setup('apidocs', app, document);
   }
 
-  await app.listen(config.port);
+  await app.listen(configService.get<number>('port'));
 }
 bootstrap();

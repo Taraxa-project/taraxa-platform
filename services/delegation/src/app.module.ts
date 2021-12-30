@@ -1,4 +1,4 @@
-import { APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NodeModule } from './modules/node/node.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { DelegationModule } from './modules/delegation/delegation.module';
+import { HttpExceptionFilter } from './modules/utils/http-exception.filter';
 
 @Module({
   imports: [
@@ -39,6 +40,10 @@ import { DelegationModule } from './modules/delegation/delegation.module';
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
     },
   ],
 })
