@@ -1,13 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  BadRequestException,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
@@ -15,7 +10,6 @@ import {
 } from '@nestjs/swagger';
 import { User } from '../user/user.decorator';
 import { JwtUser } from '../user/jwt-user.type';
-import { NodeNotFoundException } from '../node/exceptions/node-not-found-exception';
 import { DelegationService } from './delegation.service';
 import { Delegation } from './delegation.entity';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
@@ -44,35 +38,20 @@ export class DelegationController {
     @User() user: JwtUser,
     @Body() nonceDto: CreateDelegationNonceDto,
   ): Promise<string> {
-    try {
-      return await this.delegationService.createNonce(user.id, nonceDto);
-    } catch (e) {
-      if (e instanceof NodeNotFoundException) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.delegationService.createNonce(user.id, nonceDto);
   }
 
   @ApiCreatedResponse({
     description: 'The delegation has been successfully created',
   })
   @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post()
-  async create(
+  create(
     @User() user: JwtUser,
     @Body() delegation: CreateDelegationDto,
   ): Promise<Delegation> {
-    try {
-      return await this.delegationService.create(user.id, delegation);
-    } catch (e) {
-      if (e instanceof NodeNotFoundException) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.delegationService.create(user.id, delegation);
   }
 }

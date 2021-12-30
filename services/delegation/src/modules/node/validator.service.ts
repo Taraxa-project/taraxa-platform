@@ -10,11 +10,11 @@ export class ValidatorService {
     const nodes = await this.nodeService.findAllMainnetNodes();
     return nodes.map((node) => this.decorateNode(node));
   }
-  async get(nodeId: number): Promise<Partial<Node>> {
-    const node = await this.nodeService.findNodeByTypeAndId(
-      NodeType.MAINNET,
-      nodeId,
-    );
+  async get(id: number): Promise<Partial<Node>> {
+    const node = await this.nodeService.findNodeByOrFail({
+      id,
+      type: NodeType.MAINNET,
+    });
     return this.decorateNode(node);
   }
   private decorateNode(node: Node): Partial<Node> {
@@ -32,6 +32,7 @@ export class ValidatorService {
       pendingCommission: node.pendingCommission,
       currentCommission: node.currentCommission,
       totalDelegation: node.totalDelegation,
+      ownDelegation: node.ownDelegation,
       remainingDelegation: node.remainingDelegation,
     };
   }

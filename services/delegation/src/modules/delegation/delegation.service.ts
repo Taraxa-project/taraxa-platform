@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NodeNotFoundException } from '../node/exceptions/node-not-found-exception';
+import { ValidationException } from '../utils/exceptions/validation.exception';
 import { NodeService } from '../node/node.service';
 import { Node } from '../node/node.entity';
 import { StakingService } from '../staking/staking.service';
@@ -11,6 +11,7 @@ import { DelegationNonce } from './delegation-nonce.entity';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
 import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
 import { BalancesDto } from './dto/balances.dto';
+import { NodeType } from '../node/node-type.enum';
 
 @Injectable()
 export class DelegationService {
@@ -50,13 +51,10 @@ export class DelegationService {
     user: number,
     delegationNonceDto: CreateDelegationNonceDto,
   ): Promise<string> {
-    const node = await this.nodeService.findNodeOrThrow(
-      delegationNonceDto.node,
-    );
-
-    if (node.isTestnet()) {
-      throw new NodeNotFoundException(delegationNonceDto.node);
-    }
+    const node = await this.nodeService.findNodeByOrFail({
+      id: delegationNonceDto.node,
+      type: NodeType.MAINNET,
+    });
 
     let nonce = await this.delegationNonceRepository.findOne({
       user,
@@ -82,11 +80,10 @@ export class DelegationService {
     user: number,
     delegationDto: CreateDelegationDto,
   ): Promise<Delegation> {
-    const node = await this.nodeService.findNodeOrThrow(delegationDto.node);
-
-    if (node.isTestnet()) {
-      throw new NodeNotFoundException(delegationDto.node);
-    }
+    const node = await this.nodeService.findNodeByOrFail({
+      id: delegationDto.node,
+      type: NodeType.MAINNET,
+    });
 
     const userDelegationsToNode = await this.getUserDelegationsToNode(
       user,
@@ -94,13 +91,15 @@ export class DelegationService {
     );
     const minDelegation = this.config.get<number>('delegation.minDelegation');
     if (userDelegationsToNode + delegationDto.value < minDelegation) {
-      throw new Error('Minimum delegation value is ' + minDelegation);
+      throw new ValidationException(
+        'Minimum delegation value is ' + minDelegation,
+      );
     }
 
     const nodeDelegations = await this.getNodeDelegations(node.id);
     const maxDelegation = this.config.get<number>('delegation.maxDelegation');
     if (nodeDelegations + delegationDto.value > maxDelegation) {
-      throw new Error(
+      throw new ValidationException(
         'Maximum delegation exceeded. Node can only be delegated ' +
           (maxDelegation - nodeDelegations) +
           ' more tokens.',
@@ -112,7 +111,7 @@ export class DelegationService {
       delegationDto.from,
     );
     if (userDelegations + delegationDto.value > totalUserStake) {
-      throw new Error(
+      throw new ValidationException(
         'Maximum stake exceeded. User can only delegate ' +
           (totalUserStake - userDelegations) +
           ' more tokens.',

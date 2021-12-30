@@ -1,10 +1,8 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -23,7 +21,6 @@ import {
 } from '@nestjs/swagger';
 import { User } from '../user/user.decorator';
 import { JwtUser } from '../user/jwt-user.type';
-import { ProfileNotFoundException } from '../profile/exceptions/profile-not-found.exception';
 import { Node } from './node.entity';
 import { NodeType } from './node-type.enum';
 import { NodeService } from './node.service';
@@ -31,13 +28,6 @@ import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { CreateCommissionDto } from './dto/create-commission.dto';
 import { NodeCommission } from './node-commission.entity';
-import { NodeAlreadyExistsException } from './exceptions/node-already-exists.exception';
-import { NodeNotFoundException } from './exceptions/node-not-found-exception';
-import { NodeDoesntBelongToUserException } from './exceptions/node-doesnt-belong-to-user.exception';
-import { NodeCantBeDeletedException } from './exceptions/node-cant-be-deleted.exception';
-import { NodeDoesntSupportCommissionsException } from './exceptions/node-doesnt-support-commissions';
-import { NodeProofInvalidException } from './exceptions/node-proof-invalid';
-import { CantAddCommissionException } from './exceptions/cant-add-commission';
 
 @ApiTags('nodes')
 @ApiSecurity('bearer')
@@ -53,65 +43,30 @@ export class NodeController {
     @User() user: JwtUser,
     @Body() node: CreateNodeDto,
   ): Promise<Node> {
-    try {
-      return await this.nodeService.createNode(user.id, node);
-    } catch (e) {
-      if (
-        e instanceof NodeAlreadyExistsException ||
-        e instanceof NodeProofInvalidException ||
-        e instanceof ProfileNotFoundException
-      ) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.nodeService.createNode(user.id, node);
   }
 
   @ApiOkResponse({ description: 'The node has been successfully updated' })
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Put(':node')
-  async updateNode(
+  updateNode(
     @User() user: JwtUser,
     @Param('node', ParseIntPipe) node: number,
     @Body() nodeDto: UpdateNodeDto,
   ): Promise<Node> {
-    try {
-      return await this.nodeService.updateNode(user.id, node, nodeDto);
-    } catch (e) {
-      if (
-        e instanceof NodeNotFoundException ||
-        e instanceof NodeDoesntBelongToUserException
-      ) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.nodeService.updateNode(user.id, node, nodeDto);
   }
 
   @ApiOkResponse({ description: 'The node has been successfully deleted' })
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Delete(':node')
-  async deleteNode(
+  deleteNode(
     @User() user: JwtUser,
     @Param('node', ParseIntPipe) node: number,
   ): Promise<Node> {
-    try {
-      return await this.nodeService.deleteNode(user.id, node);
-    } catch (e) {
-      if (
-        e instanceof NodeCantBeDeletedException ||
-        e instanceof NodeNotFoundException ||
-        e instanceof NodeDoesntBelongToUserException
-      ) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.nodeService.deleteNode(user.id, node);
   }
 
   @ApiCreatedResponse({
@@ -120,46 +75,22 @@ export class NodeController {
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post(':node/commissions')
-  async createCommission(
+  createCommission(
     @User() user: JwtUser,
     @Param('node', ParseIntPipe) node: number,
     @Body() commission: CreateCommissionDto,
   ): Promise<Node> {
-    try {
-      return await this.nodeService.createCommission(user.id, node, commission);
-    } catch (e) {
-      if (
-        e instanceof NodeDoesntBelongToUserException ||
-        e instanceof NodeNotFoundException ||
-        e instanceof NodeDoesntSupportCommissionsException ||
-        e instanceof CantAddCommissionException
-      ) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.nodeService.createCommission(user.id, node, commission);
   }
 
   @ApiOkResponse({ description: 'Commissions found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get(':node/commissions')
-  async findAllCommissions(
+  findAllCommissions(
     @User() user: JwtUser,
     @Param('node', ParseIntPipe) node: number,
   ): Promise<NodeCommission[]> {
-    try {
-      return await this.nodeService.findAllCommissionsByNode(user.id, node);
-    } catch (e) {
-      if (
-        e instanceof NodeDoesntBelongToUserException ||
-        e instanceof NodeNotFoundException
-      ) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.nodeService.findAllCommissionsByNode(user.id, node);
   }
 
   @ApiOkResponse({ description: 'Nodes found' })
@@ -177,18 +108,10 @@ export class NodeController {
   @ApiNotFoundResponse({ description: 'Node not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get(':node')
-  async findNode(
+  findNode(
     @User() user: JwtUser,
     @Param('node', ParseIntPipe) node: number,
   ): Promise<Node> {
-    try {
-      return await this.nodeService.findNodeByUserAndId(user.id, node);
-    } catch (e) {
-      if (e instanceof NodeNotFoundException) {
-        throw new NotFoundException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.nodeService.findNodeByUserAndId(user.id, node);
   }
 }

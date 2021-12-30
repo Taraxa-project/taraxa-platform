@@ -1,12 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  NotFoundException,
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -22,8 +14,6 @@ import { Profile } from './profile.entity';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ProfileAlreadyExistsException } from './exceptions/profile-already-exists.exception';
-import { ProfileNotFoundException } from './exceptions/profile-not-found.exception';
 
 @ApiTags('profiles')
 @ApiSecurity('bearer')
@@ -37,19 +27,11 @@ export class ProfileController {
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post()
-  async createProfile(
+  createProfile(
     @User() user: JwtUser,
     @Body() profile: CreateProfileDto,
   ): Promise<Profile> {
-    try {
-      return await this.profileService.create(user.id, profile);
-    } catch (e) {
-      if (e instanceof ProfileAlreadyExistsException) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.profileService.create(user.id, profile);
   }
 
   @ApiOkResponse({
@@ -58,34 +40,18 @@ export class ProfileController {
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Put()
-  async updateProfile(
+  updateProfile(
     @User() user: JwtUser,
     @Body() profile: UpdateProfileDto,
   ): Promise<Profile> {
-    try {
-      return await this.profileService.update(user.id, profile);
-    } catch (e) {
-      if (e instanceof ProfileNotFoundException) {
-        throw new BadRequestException(e.message);
-      } else {
-        throw e;
-      }
-    }
+    return this.profileService.update(user.id, profile);
   }
 
   @ApiOkResponse({ description: 'Profile found' })
   @ApiNotFoundResponse({ description: 'Profile not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get()
-  async getProfile(@User() user: JwtUser): Promise<Profile> {
-    try {
-      return await this.profileService.get(user.id);
-    } catch (e) {
-      if (e instanceof ProfileNotFoundException) {
-        throw new NotFoundException(e.message);
-      } else {
-        throw e;
-      }
-    }
+  getProfile(@User() user: JwtUser): Promise<Profile> {
+    return this.profileService.get(user.id);
   }
 }
