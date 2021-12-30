@@ -36,6 +36,8 @@ spec:
           env:
             - name: API_HOST
               value: {{ .Values.frontend.apiHost | quote }}
+            - name: DELEGATION_API_HOST
+              value: {{ .Values.frontend.delegationApiHost | quote }}
             - name: API_CLAIM_HOST
               value: {{ .Values.frontend.apiClaimHost | quote }}
             - name: API_EXPLORER_HOST

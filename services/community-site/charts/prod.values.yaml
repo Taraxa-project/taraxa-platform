@@ -1,6 +1,7 @@
 frontend:
   apiHost: "https://api.community.taraxa.io"
   apiClaimHost: "https://api.claim.taraxa.io"
+  delegationApiHost: "https://api-delegation.community.taraxa.io"
   apiExplorerHost: "https://explorer.testnet.taraxa.io/api"
   taraAddress: "0xf001937650bb4f62b57521824b2c20f5b91bea05"
   claimAddress: "0xf142EB87f0A5C480C8b573c3e5279043822AC10B"
