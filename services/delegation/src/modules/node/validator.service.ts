@@ -6,8 +6,20 @@ import { NodeService } from './node.service';
 @Injectable()
 export class ValidatorService {
   constructor(private nodeService: NodeService) {}
-  async find(): Promise<Partial<Node>[]> {
-    const nodes = await this.nodeService.findAllMainnetNodes();
+  async find(
+    user: number | null,
+    showMyValidators: boolean,
+    showFullyDelegated: boolean,
+  ): Promise<Partial<Node>[]> {
+    let nodes = await this.nodeService.findAllMainnetNodes();
+    if (showMyValidators && user !== null) {
+      nodes = nodes.filter((node) => {
+        return node.delegations.some((delegation) => delegation.user === user);
+      });
+    }
+    if (!showFullyDelegated) {
+      nodes = nodes.filter((node) => node.remainingDelegation > 0);
+    }
     return nodes.map((node) => this.decorateNode(node));
   }
   async get(id: number): Promise<Partial<Node>> {

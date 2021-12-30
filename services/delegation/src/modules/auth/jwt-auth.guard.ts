@@ -1,5 +1,9 @@
 import { Reflector } from '@nestjs/core';
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from './jwt.constant';
 
@@ -9,15 +13,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
-  canActivate(context: ExecutionContext) {
+  handleRequest(err, user, info, context: ExecutionContext) {
+    if (err) {
+      throw err;
+    }
+
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) {
-      return true;
+
+    if (!user && !isPublic) {
+      throw new UnauthorizedException(info?.message);
     }
 
-    return super.canActivate(context);
+    return user;
   }
 }

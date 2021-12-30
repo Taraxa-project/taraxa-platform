@@ -60,9 +60,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       console.error(exception);
     }
 
-    console.log(typeof exception);
-    console.log(Object.keys(exception));
-
     response.status(statusCode).json(
       errorResponse ?? {
         statusCode,
