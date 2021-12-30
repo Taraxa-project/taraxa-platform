@@ -12,7 +12,7 @@ type DelegateProps = {
   validatorId: number;
   validatorName: string;
   validatorAddress: string;
-  delegatorAddress: string;
+  delegatorAddress: string | null;
   remainingDelegation: number;
   availableStakingBalance: number;
   onSuccess: () => void;
