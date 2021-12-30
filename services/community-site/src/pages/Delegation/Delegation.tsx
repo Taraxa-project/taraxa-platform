@@ -77,7 +77,10 @@ const Delegation = () => {
     if (!isLoggedIn) {
       return;
     }
-    const data = await delegationApi.get('/validators', true);
+    const data = await delegationApi.get(
+      '/validators?show_fully_delegated=true&show_my_validators=false',
+      true,
+    );
     if (!data.success) {
       return;
     }

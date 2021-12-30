@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 import { useDelegationApi } from '../../../services/useApi';
+import useSigning from '../../../services/useSigning';
 
 import useStyles from './delegate-styles';
 
@@ -18,7 +19,7 @@ type DelegateProps = {
   onFinish: () => void;
 };
 
-const UpdateCommission = ({
+const Delegate = ({
   validatorId,
   validatorName,
   validatorAddress,
@@ -31,6 +32,7 @@ const UpdateCommission = ({
   const classes = useStyles();
   const maximumDelegatable = Math.min(remainingDelegation, availableStakingBalance);
   const delegationApi = useDelegationApi();
+  const sign = useSigning();
 
   const [step, setStep] = useState(1);
   const [delegationTotal, setDelegationTotal] = useState(`${maximumDelegatable}`);
@@ -58,9 +60,17 @@ const UpdateCommission = ({
 
     setError('');
 
+    const nonce = await delegationApi.post(
+      '/delegations/nonces',
+      { from: delegatorAddress, node: validatorId },
+      true,
+    );
+
+    const proof = await sign(nonce.response);
+
     const result = await delegationApi.post(
       '/delegations',
-      { from: delegatorAddress, value: delegationNumber, node: validatorId },
+      { proof, from: delegatorAddress, value: delegationNumber, node: validatorId },
       true,
     );
 
@@ -208,4 +218,4 @@ const UpdateCommission = ({
   );
 };
 
-export default UpdateCommission;
+export default Delegate;
