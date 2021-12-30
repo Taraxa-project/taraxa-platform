@@ -43,9 +43,7 @@ interface Node {
 }
 
 const Delegation = () => {
-  // const { status, account } = useMetaMask();
-  const { status } = useMetaMask();
-  const account = '0xa395a37cc73ce936cd1c84d7ad31c699bfd59475';
+  const { status, account } = useMetaMask();
   const auth = useAuth();
   const delegationApi = useDelegationApi();
   const classes = useStyles();
@@ -242,7 +240,7 @@ const Delegation = () => {
                 description="Number of network validators"
               />
               <BaseCard
-                title={ethers.utils.commify(averageDelegation)}
+                title={ethers.utils.commify(Math.round(averageDelegation))}
                 description="Average TARA delegatated to validators"
               />
               <BaseCard
