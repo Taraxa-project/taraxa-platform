@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEthereumAddress, Min } from 'class-validator';
+import { IsEthereumAddress, IsHexadecimal, Min } from 'class-validator';
 
 export class CreateDelegationDto {
   @ApiProperty()
@@ -8,6 +8,10 @@ export class CreateDelegationDto {
   @IsEthereumAddress()
   @ApiProperty()
   from: string;
+
+  @IsHexadecimal()
+  @ApiProperty()
+  proof: string;
 
   @Min(1)
   @ApiProperty({

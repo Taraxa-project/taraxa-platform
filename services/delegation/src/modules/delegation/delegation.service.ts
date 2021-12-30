@@ -85,6 +85,8 @@ export class DelegationService {
       type: NodeType.MAINNET,
     });
 
+    console.log('proof', delegationDto.proof);
+
     const userDelegationsToNode = await this.getUserDelegationsToNode(
       user,
       node.address,
