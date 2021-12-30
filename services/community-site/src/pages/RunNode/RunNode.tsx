@@ -23,6 +23,7 @@ import {
 } from '@material-ui/core';
 
 import CloseIcon from '../../assets/icons/close';
+import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
 import NodeIcon from '../../assets/icons/node';
 import InfoIcon from '../../assets/icons/info';
 
@@ -205,7 +206,7 @@ const RunNode = () => {
 
     const now = new Date();
     let totalProduced = 0;
-    let rank: number;
+    let weeklyRank: number;
     data.response.forEach((node: any) => {
       if (node.lastBlockCreatedAt) {
         const lastMinedBlockDate = new Date(node.lastBlockCreatedAt);
@@ -222,18 +223,18 @@ const RunNode = () => {
       }
 
       if (node.weeklyRank) {
-        if (rank) {
-          rank = Math.min(rank, node.weeklyRank);
+        if (weeklyRank) {
+          weeklyRank = Math.min(weeklyRank, node.weeklyRank);
         } else {
-          rank = node.weeklyRank;
+          weeklyRank = node.weeklyRank;
         }
       }
 
       return node;
     });
 
-    if (rank!) {
-      setWeeklyRating(`#${rank}`);
+    if (weeklyRank!) {
+      setWeeklyRating(`#${weeklyRank}`);
     }
     setBlocksProduced(ethers.utils.commify(totalProduced));
   }, [nodeType, isLoggedIn]);
@@ -310,10 +311,12 @@ const RunNode = () => {
 
     const name = formatNodeName(!node.name || node.name === '' ? node.address : node.name);
     const expectedYield = `${node.yield}%`;
-    const currentCommission = `${node.currentCommission || 0}%`;
+    const currentCommission = node.type === 'mainnet' ? `${node.currentCommission}%` : null;
+    const pendingCommission = node.hasPendingCommissionChange ? `${node.pendingCommission}%` : null;
+    const hasPendingCommissionChange = node.hasPendingCommissionChange;
     const totalDelegation = ethers.utils.commify(node.totalDelegation);
     const remainingDelegation = ethers.utils.commify(node.remainingDelegation);
-    const rank = node.rank ? `#${node.rank}` : 'N/A';
+    const weeklyRank = node.weeklyRank ? `#${node.weeklyRank}` : 'N/A';
 
     const actions = (
       <>
@@ -346,9 +349,11 @@ const RunNode = () => {
       name,
       expectedYield,
       currentCommission,
+      pendingCommission,
+      hasPendingCommissionChange,
       totalDelegation,
       remainingDelegation,
-      rank,
+      weeklyRank,
       actions,
     };
   });
@@ -548,11 +553,22 @@ const RunNode = () => {
                     <TableCell className={classes.tableCell}>{row.name}</TableCell>
                     <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
                     {nodeType === 'mainnet' && (
-                      <TableCell className={classes.tableCell}>{row.currentCommission}</TableCell>
+                      <TableCell className={classes.tableCell}>
+                        {row.hasPendingCommissionChange ? (
+                          <>
+                            <NodeCommissionChangeIcon />{' '}
+                            <span className={classes.commissionDisplayPendingChange}>
+                              {row.currentCommission} ➞ {row.pendingCommission}
+                            </span>
+                          </>
+                        ) : (
+                          row.currentCommission
+                        )}
+                      </TableCell>
                     )}
                     <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
                     <TableCell className={classes.tableCell}>{row.remainingDelegation}</TableCell>
-                    <TableCell className={classes.tableCell}>{row.rank}</TableCell>
+                    <TableCell className={classes.tableCell}>{row.weeklyRank}</TableCell>
                     <TableCell className={classes.tableCell} align="right">
                       {row.actions}
                     </TableCell>

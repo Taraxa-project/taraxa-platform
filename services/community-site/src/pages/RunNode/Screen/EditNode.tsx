@@ -15,7 +15,6 @@ interface Node {
   active: boolean;
   type: 'mainnet' | 'testnet';
   commissions: any[];
-  rank: string;
   currentCommission: number | null;
   pendingCommission: number | null;
   hasPendingCommissionChange: boolean;
@@ -163,11 +162,11 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
                   <div className={classes.commissionDisplay}>
                     <NodeCommissionChangeIcon />{' '}
                     <span className={classes.commissionDisplayPendingChange}>
-                      {node.currentCommission || 0}% ➞ {node.pendingCommission}%
+                      {node.currentCommission}% ➞ {node.pendingCommission}%
                     </span>
                   </div>
                 ) : (
-                  <div className={classes.commissionDisplay}>{node.currentCommission || 0}%</div>
+                  <div className={classes.commissionDisplay}>{node.currentCommission}%</div>
                 )}
 
                 <Button

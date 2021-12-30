@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import { ethers } from 'ethers';
-import { Notification, BaseCard, Button } from '@taraxa_project/taraxa-ui';
+import { Notification, BaseCard, Button, Modal } from '@taraxa_project/taraxa-ui';
 
 import {
   Table,
@@ -11,39 +11,24 @@ import {
   TableHead,
   TableRow,
 } from '@material-ui/core';
+
 import { useMetaMask } from 'metamask-react';
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
-
+import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
+import CloseIcon from '../../assets/icons/close';
 import Title from '../../components/Title/Title';
+import Delegate from './Modal/Delegate';
 
 import useStyles from './table-styles';
 import './delegation.scss';
-
-interface Delegation {
-  node: number;
-  from: string;
-  value: number;
-}
-interface Validator {
-  address: string;
-  commission: number;
-  delegation: null | number;
-  id: number;
-  ownDelegation: null | number;
-  user: number;
-}
 
 interface Node {
   id: number;
   user: number;
   name: string;
   address: string;
-  ip: string;
   active: boolean;
-  type: 'mainnet' | 'testnet';
-  commissions: any[];
-  rank: string;
   currentCommission: number | null;
   pendingCommission: number | null;
   hasPendingCommissionChange: boolean;
@@ -58,7 +43,9 @@ interface Node {
 }
 
 const Delegation = () => {
-  const { status, account } = useMetaMask();
+  // const { status, account } = useMetaMask();
+  const { status } = useMetaMask();
+  const account = '0xa395a37cc73ce936cd1c84d7ad31c699bfd59475';
   const auth = useAuth();
   const delegationApi = useDelegationApi();
   const classes = useStyles();
@@ -68,9 +55,9 @@ const Delegation = () => {
   const [averageDelegation, setAverageDelegation] = useState(0);
   const [totalDelegation, setTotalDelegation] = useState(0);
   const [nodes, setNodes] = useState<Node[]>([]);
-  const [delegations, setDelegations] = useState<Delegation[]>([]);
+  const [delegateToNode, setDelegateToNode] = useState<Node | null>(null);
 
-  const canDelegate = isLoggedIn && status === 'connected' && availableBalance > 0;
+  const canDelegate = isLoggedIn && status === 'connected';
 
   const getBalances = useCallback(async () => {
     if (!isLoggedIn || !account) {
@@ -86,72 +73,40 @@ const Delegation = () => {
     getBalances();
   }, [getBalances]);
 
-  const getDelegations = useCallback(async () => {
-    if (!isLoggedIn) {
-      return;
-    }
-    const data = await delegationApi.get('/delegations', true);
-    if (data.success) {
-      setDelegations(data.response);
-    }
-  }, [isLoggedIn]);
-
-  useEffect(() => {
-    getDelegations();
-  }, [getDelegations]);
-
-  const getNodes = useCallback(
-    async (validators: Validator[]) => {
-      if (!isLoggedIn) {
-        return;
-      }
-      let totalDelegationAcc = 0;
-      const now = new Date();
-      const nodePromises = validators.map(async (validator: Validator) => {
-        const data = await delegationApi.get(`/nodes/${validator.id}`, true);
-        if (!data.success || !data.response) {
-          return [];
-        }
-
-        const node: Node = data.response;
-
-        if (node.lastBlockCreatedAt) {
-          const lastMinedBlockDate = new Date(node.lastBlockCreatedAt);
-
-          node.active = false;
-          const minsDiff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000 / 60);
-          if (minsDiff < 24 * 60) {
-            node.active = true;
-          }
-        }
-
-        if (node.totalDelegation) {
-          totalDelegationAcc += node.totalDelegation;
-        }
-
-        return [node];
-      });
-
-      const nodes = (await Promise.all(nodePromises)).flat();
-
-      setNodes(nodes);
-      setTotalDelegation(totalDelegationAcc);
-      if (nodes.length > 0) {
-        setAverageDelegation(totalDelegationAcc / nodes.length);
-      }
-    },
-    [isLoggedIn],
-  );
-
   const getValidators = useCallback(async () => {
     if (!isLoggedIn) {
       return;
     }
-    const data = await delegationApi.get('/validators');
+    const data = await delegationApi.get('/validators', true);
     if (!data.success) {
       return;
     }
-    await getNodes(data.response);
+
+    let totalDelegationAcc = 0;
+    const now = new Date();
+    const nodes = data.response.map((node: Node) => {
+      if (node.lastBlockCreatedAt) {
+        const lastMinedBlockDate = new Date(node.lastBlockCreatedAt);
+
+        node.active = false;
+        const minsDiff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000 / 60);
+        if (minsDiff < 24 * 60) {
+          node.active = true;
+        }
+      }
+
+      if (node.totalDelegation) {
+        totalDelegationAcc += node.totalDelegation;
+      }
+
+      return node;
+    });
+
+    setNodes(nodes);
+    setTotalDelegation(totalDelegationAcc);
+    if (nodes.length > 0) {
+      setAverageDelegation(totalDelegationAcc / nodes.length);
+    }
   }, [isLoggedIn]);
 
   useEffect(() => {
@@ -178,9 +133,14 @@ const Delegation = () => {
 
     const name = formatNodeName(!node.name ? node.address : node.name);
     const expectedYield = `${node.yield}%`;
-    const currentCommission = `${node.currentCommission || 0}%`;
+    const currentCommission = `${node.currentCommission}%`;
+    const pendingCommission = node.hasPendingCommissionChange ? `${node.pendingCommission}%` : null;
+    const hasPendingCommissionChange = node.hasPendingCommissionChange;
     const totalDelegation = ethers.utils.commify(node.totalDelegation);
-    const remainingDelegation = ethers.utils.commify(node.remainingDelegation);
+    const remainingDelegation =
+      node.remainingDelegation > 0
+        ? ethers.utils.commify(node.remainingDelegation)
+        : '0 (Fully delegated)';
 
     const actions = (
       <>
@@ -190,17 +150,11 @@ const Delegation = () => {
           color="secondary"
           label="Delegate"
           disabled={!canDelegate}
+          onClick={() => {
+            setDelegateToNode(node);
+          }}
         />
-        <Button
-          size="small"
-          label="Un-delegate"
-          className="delete"
-          disabled={
-            delegations.filter(
-              (delegation) => delegation.from === account && delegation.node === node.id,
-            ).length === 0
-          }
-        />
+        <Button size="small" label="Un-delegate" className="delete" disabled />
       </>
     );
 
@@ -209,6 +163,8 @@ const Delegation = () => {
       name,
       expectedYield,
       currentCommission,
+      pendingCommission,
+      hasPendingCommissionChange,
       totalDelegation,
       remainingDelegation,
       actions,
@@ -226,6 +182,35 @@ const Delegation = () => {
 
   return (
     <div className="runnode">
+      {delegateToNode && (
+        <Modal
+          id="signinModal"
+          title="Delegate to..."
+          show={!!delegateToNode}
+          children={
+            <Delegate
+              validatorId={delegateToNode.id}
+              validatorName={delegateToNode.name}
+              validatorAddress={delegateToNode.address}
+              delegatorAddress={account}
+              remainingDelegation={delegateToNode.remainingDelegation}
+              availableStakingBalance={availableBalance}
+              onSuccess={() => {
+                getBalances();
+                getValidators();
+              }}
+              onFinish={() => {
+                setDelegateToNode(null);
+              }}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setDelegateToNode(null);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
       <div className="runnode-content">
         <Title title="Delegation" />
         {!isLoggedIn && (
@@ -255,7 +240,7 @@ const Delegation = () => {
               />
               <BaseCard
                 title={ethers.utils.commify(averageDelegation)}
-                description="Average delegation"
+                description="Average TARA delegatated to validators"
               />
               <BaseCard
                 title={ethers.utils.commify(totalDelegation)}
@@ -286,7 +271,18 @@ const Delegation = () => {
                       <TableCell className={classes.tableCell}>{row.status}</TableCell>
                       <TableCell className={classes.tableCell}>{row.name}</TableCell>
                       <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
-                      <TableCell className={classes.tableCell}>{row.currentCommission}</TableCell>
+                      <TableCell className={classes.tableCell}>
+                        {row.hasPendingCommissionChange ? (
+                          <>
+                            <NodeCommissionChangeIcon />{' '}
+                            <span className={classes.commissionDisplayPendingChange}>
+                              {row.currentCommission} ➞ {row.pendingCommission}
+                            </span>
+                          </>
+                        ) : (
+                          row.currentCommission
+                        )}
+                      </TableCell>
                       <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
                       <TableCell className={classes.tableCell}>{row.remainingDelegation}</TableCell>
                       <TableCell className={classes.tableCell} align="right">
@@ -294,33 +290,6 @@ const Delegation = () => {
                       </TableCell>
                     </TableRow>
                   ))}
-                {fullyDelegatedNodes.length > 0 && (
-                  <>
-                    <TableRow className={classes.tableRow}>
-                      <TableCell
-                        className={clsx(classes.tableCell, classes.tableSection)}
-                        colSpan={7}
-                      >
-                        fully delegated nodes
-                      </TableCell>
-                    </TableRow>
-                    {fullyDelegatedNodes.map((row) => (
-                      <TableRow className={classes.tableRow}>
-                        <TableCell className={classes.tableCell}>{row.status}</TableCell>
-                        <TableCell className={classes.tableCell}>{row.name}</TableCell>
-                        <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
-                        <TableCell className={classes.tableCell}>{row.currentCommission}</TableCell>
-                        <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
-                        <TableCell className={classes.tableCell}>
-                          {row.remainingDelegation}
-                        </TableCell>
-                        <TableCell className={classes.tableCell} align="right">
-                          {row.actions}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </>
-                )}
                 {myNodes.length > 0 && (
                   <>
                     <TableRow className={classes.tableRow}>
@@ -336,7 +305,56 @@ const Delegation = () => {
                         <TableCell className={classes.tableCell}>{row.status}</TableCell>
                         <TableCell className={classes.tableCell}>{row.name}</TableCell>
                         <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
-                        <TableCell className={classes.tableCell}>{row.currentCommission}</TableCell>
+                        <TableCell className={classes.tableCell}>
+                          {row.hasPendingCommissionChange ? (
+                            <>
+                              <NodeCommissionChangeIcon />{' '}
+                              <span className={classes.commissionDisplayPendingChange}>
+                                {row.currentCommission} ➞ {row.pendingCommission}
+                              </span>
+                            </>
+                          ) : (
+                            row.currentCommission
+                          )}
+                        </TableCell>
+                        <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
+                        <TableCell className={classes.tableCell}>
+                          {row.remainingDelegation}
+                        </TableCell>
+                        <TableCell className={classes.tableCell} align="right">
+                          {row.actions}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                )}
+                {fullyDelegatedNodes.length > 0 && (
+                  <>
+                    <TableRow className={classes.tableRow}>
+                      <TableCell
+                        className={clsx(classes.tableCell, classes.tableSection)}
+                        colSpan={7}
+                      >
+                        fully delegated nodes
+                      </TableCell>
+                    </TableRow>
+                    {fullyDelegatedNodes.map((row) => (
+                      <TableRow className={classes.tableRow}>
+                        <TableCell className={classes.tableCell}>{row.status}</TableCell>
+                        <TableCell className={classes.tableCell}>{row.name}</TableCell>
+                        <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
+                        <TableCell className={classes.tableCell}>
+                          {row.hasPendingCommissionChange ? (
+                            <>
+                              <NodeCommissionChangeIcon />{' '}
+                              <span className={classes.commissionDisplayPendingChange}>
+                                {row.currentCommission} ➞ {row.pendingCommission}
+                              </span>
+                            </>
+                          ) : (
+                            row.currentCommission
+                          )}
+                        </TableCell>
                         <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
                         <TableCell className={classes.tableCell}>
                           {row.remainingDelegation}
