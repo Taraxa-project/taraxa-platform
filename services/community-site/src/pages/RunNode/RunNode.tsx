@@ -36,7 +36,6 @@ import RegisterNode from './Modal/RegisterNode';
 import CreateOrEditProfile, { Profile } from './Screen/CreateOrEditProfile';
 import EditNode, { Node } from './Screen/EditNode';
 
-import useStyles from './table-styles';
 import './runnode.scss';
 
 interface RunNodeModalProps {
@@ -160,7 +159,6 @@ const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) =>
 const RunNode = () => {
   const auth = useAuth();
   const delegationApi = useDelegationApi();
-  const classes = useStyles();
 
   const isLoggedIn = !!auth.user?.id;
 
@@ -530,34 +528,34 @@ const RunNode = () => {
         </div>
         {rows.length > 0 && (
           <TableContainer>
-            <Table className={classes.table}>
+            <Table className="table">
               <TableHead>
-                <TableRow className={classes.tableHeadRow}>
-                  <TableCell className={classes.tableHeadCell}>Status</TableCell>
-                  <TableCell className={classes.tableHeadCell}>Name</TableCell>
-                  <TableCell className={classes.tableHeadCell}>Expected Yield</TableCell>
+                <TableRow className="tableHeadRow">
+                  <TableCell className="tableHeadCell">Status</TableCell>
+                  <TableCell className="tableHeadCell">Name</TableCell>
+                  <TableCell className="tableHeadCell">Expected Yield</TableCell>
                   {nodeType === 'mainnet' && (
-                    <TableCell className={classes.tableHeadCell}>Commission</TableCell>
+                    <TableCell className="tableHeadCell">Commission</TableCell>
                   )}
-                  <TableCell className={classes.tableHeadCell}>Delegation</TableCell>
-                  <TableCell className={classes.tableHeadCell}>Available for Delegation</TableCell>
-                  <TableCell className={classes.tableHeadCell} colSpan={2}>
+                  <TableCell className="tableHeadCell">Delegation</TableCell>
+                  <TableCell className="tableHeadCell">Available for Delegation</TableCell>
+                  <TableCell className="tableHeadCell" colSpan={2}>
                     Ranking
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {rows.map((row) => (
-                  <TableRow className={classes.tableRow}>
-                    <TableCell className={classes.tableCell}>{row.status}</TableCell>
-                    <TableCell className={classes.tableCell}>{row.name}</TableCell>
-                    <TableCell className={classes.tableCell}>{row.expectedYield}</TableCell>
+                  <TableRow className="tableRow">
+                    <TableCell className="tableCell">{row.status}</TableCell>
+                    <TableCell className="tableCell">{row.name}</TableCell>
+                    <TableCell className="tableCell">{row.expectedYield}</TableCell>
                     {nodeType === 'mainnet' && (
-                      <TableCell className={classes.tableCell}>
+                      <TableCell className="tableCell">
                         {row.hasPendingCommissionChange ? (
                           <>
                             <NodeCommissionChangeIcon />{' '}
-                            <span className={classes.commissionDisplayPendingChange}>
+                            <span className="commissionDisplayPendingChange">
                               {row.currentCommission} ➞ {row.pendingCommission}
                             </span>
                           </>
@@ -566,10 +564,10 @@ const RunNode = () => {
                         )}
                       </TableCell>
                     )}
-                    <TableCell className={classes.tableCell}>{row.totalDelegation}</TableCell>
-                    <TableCell className={classes.tableCell}>{row.remainingDelegation}</TableCell>
-                    <TableCell className={classes.tableCell}>{row.weeklyRank}</TableCell>
-                    <TableCell className={classes.tableCell} align="right">
+                    <TableCell className="tableCell">{row.totalDelegation}</TableCell>
+                    <TableCell className="tableCell">{row.remainingDelegation}</TableCell>
+                    <TableCell className="tableCell">{row.weeklyRank}</TableCell>
+                    <TableCell className="tableCell" align="right">
                       {row.actions}
                     </TableCell>
                   </TableRow>

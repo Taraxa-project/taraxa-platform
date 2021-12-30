@@ -1,4 +1,41 @@
 .runnode {
+  .table {
+    min-width: 750;
+    color: #ffffff;
+  }
+
+  .tableHeadRow {
+    border-bottom: 1px solid #40465f;
+  }
+
+  .tableHeadCell {
+    color: #878ca4;
+    background-color: #1b1e2b;
+    border: none;
+    height: auto;
+    line-height: 8px;
+  }
+
+  .tableRow {
+    border-bottom: 1px solid #1e2231;
+  }
+
+  .tableCell {
+    color: #ffffff;
+    border: none;
+    height: auto;
+  }
+
+  .tableSection {
+    text-align: center;
+  }
+  .commissionDisplayPendingChange {
+    color: #e96828;
+    background-color: #3d2c2c;
+    padding: 5px 10px;
+    border-radius: 8px;
+  }
+
   .runnode-content {
     text-align: left;
 
