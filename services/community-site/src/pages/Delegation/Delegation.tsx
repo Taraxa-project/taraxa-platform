@@ -183,7 +183,7 @@ const Delegation = () => {
 
   return (
     <div className="runnode">
-      {delegateToNode && (
+      {delegateToNode && account && (
         <Modal
           id="signinModal"
           title="Delegate to..."
