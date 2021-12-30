@@ -52,29 +52,26 @@ const Delegation = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [delegateToNode, setDelegateToNode] = useState<Node | null>(null);
 
-  const canDelegate = isLoggedIn && status === 'connected';
+  const canDelegate = isLoggedIn && status === 'connected' && !!account;
 
   const getBalances = useCallback(async () => {
-    if (!isLoggedIn || !account) {
+    if (!canDelegate) {
       return;
     }
     const data = await delegationApi.get(`/delegations/${account}/balances`);
     if (data.success) {
       setAvailableBalance(data.response.remaining);
     }
-  }, [isLoggedIn, account]);
+  }, [canDelegate, account]);
 
   useEffect(() => {
     getBalances();
   }, [getBalances]);
 
   const getValidators = useCallback(async () => {
-    if (!isLoggedIn) {
-      return;
-    }
     const data = await delegationApi.get(
       '/validators?show_fully_delegated=true&show_my_validators=false',
-      true,
+      isLoggedIn,
     );
     if (!data.success) {
       return;
