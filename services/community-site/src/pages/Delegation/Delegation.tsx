@@ -237,6 +237,7 @@ const Delegation = () => {
                 href="#"
                 onClick={() => {
                   setShowOnlyMyValidators(true);
+                  setShowFullyDelegatedNodes(true);
                 }}
               >
                 Review the upcoming change ➞
