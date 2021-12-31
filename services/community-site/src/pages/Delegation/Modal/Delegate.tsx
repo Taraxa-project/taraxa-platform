@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import clsx from 'clsx';
 import { ethers } from 'ethers';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 import { useDelegationApi } from '../../../services/useApi';
 import useSigning from '../../../services/useSigning';
-
-import useStyles from './delegate-styles';
 
 type DelegateProps = {
   validatorId: number;
@@ -29,7 +26,6 @@ const Delegate = ({
   onSuccess,
   onFinish,
 }: DelegateProps) => {
-  const classes = useStyles();
   const maximumDelegatable = Math.min(remainingDelegation, availableStakingBalance);
   const delegationApi = useDelegationApi();
   const sign = useSigning();
@@ -81,7 +77,7 @@ const Delegate = ({
   };
 
   return (
-    <div>
+    <div className="delegateNodeModal">
       {step === 1 ? (
         <>
           <Text
@@ -90,42 +86,38 @@ const Delegate = ({
             variant="h6"
             color="primary"
           />
-          <div className={classes.nodeDescriptor}>
-            {validatorName && <p className={classes.nodeName}>{validatorName}</p>}
-            <p className={classes.nodeAddressWrapper}>
-              <span className={classes.nodeAddress}>{validatorAddress}</span>
+          <div className="nodeDescriptor">
+            {validatorName && <p className="nodeName">{validatorName}</p>}
+            <p className="nodeAddressWrapper">
+              <span className="nodeAddress">{validatorAddress}</span>
             </p>
           </div>
-          <div className={classes.taraContainerWrapper}>
-            <div className={classes.taraContainer}>
-              <p className={classes.taraContainerAmountDescription}>
-                My available TARA for delegation
-              </p>
-              <div className={clsx(classes.taraContainerAmount, classes.taraContainerBalance)}>
-                <p className={classes.taraContainerAmountTotal}>
+          <div className="taraContainerWrapper">
+            <div className="taraContainer">
+              <p className="taraContainerAmountDescription">My available TARA for delegation</p>
+              <div className="taraContainerAmount taraContainerBalance">
+                <p className="taraContainerAmountTotal">
                   {ethers.utils.commify(availableStakingBalance)}
                 </p>
-                <p className={classes.taraContainerUnit}>TARA</p>
+                <p className="taraContainerUnit">TARA</p>
               </div>
             </div>
-            <div className={classes.taraContainer}>
-              <p className={classes.taraContainerAmountDescription}>
+            <div className="taraContainer">
+              <p className="taraContainerAmountDescription">
                 Validator’s availability to receive delegation
               </p>
-              <div className={classes.taraContainerAmount}>
-                <p className={classes.taraContainerAmountTotal}>
+              <div className="taraContainerAmount">
+                <p className="taraContainerAmountTotal">
                   {ethers.utils.commify(remainingDelegation)}
                 </p>
-                <p className={classes.taraContainerUnit}>TARA</p>
+                <p className="taraContainerUnit">TARA</p>
               </div>
             </div>
           </div>
-          <div className={classes.taraInputWrapper}>
-            <p className={classes.maxDelegatableDescription}>Maximum delegateable</p>
-            <p className={classes.maxDelegatableTotal}>
-              {ethers.utils.commify(maximumDelegatable)}
-            </p>
-            <p className={classes.maxDelegatableUnit}>TARA</p>
+          <div className="taraInputWrapper">
+            <p className="maxDelegatableDescription">Maximum delegateable</p>
+            <p className="maxDelegatableTotal">{ethers.utils.commify(maximumDelegatable)}</p>
+            <p className="maxDelegatableUnit">TARA</p>
             <InputField
               error={!!error}
               helperText={error}
@@ -139,10 +131,10 @@ const Delegate = ({
                 setDelegationTotal(event.target.value);
               }}
             />
-            <div className={classes.delegatePercentWrapper}>
+            <div className="delegatePercentWrapper">
               <Button
                 size="small"
-                className={classes.delegatePercent}
+                className="delegatePercent"
                 label="25%"
                 variant="contained"
                 onClick={() => {
@@ -151,7 +143,7 @@ const Delegate = ({
               />
               <Button
                 size="small"
-                className={classes.delegatePercent}
+                className="delegatePercent"
                 label="50%"
                 variant="contained"
                 onClick={() => {
@@ -160,7 +152,7 @@ const Delegate = ({
               />
               <Button
                 size="small"
-                className={classes.delegatePercent}
+                className="delegatePercent"
                 label="75%"
                 variant="contained"
                 onClick={() => {
@@ -169,7 +161,7 @@ const Delegate = ({
               />
               <Button
                 size="small"
-                className={classes.delegatePercent}
+                className="delegatePercent"
                 label="100%"
                 variant="contained"
                 onClick={() => {
@@ -191,14 +183,14 @@ const Delegate = ({
       ) : (
         <>
           <Text style={{ marginBottom: '2%' }} label="Success" variant="h6" color="primary" />
-          <div className={classes.successIcon}>
+          <div className="successIcon">
             <SuccessIcon />
           </div>
-          <p className={classes.successText}>You've successfully delegated to a validator:</p>
-          <div className={clsx(classes.nodeDescriptor, classes.nodeDescriptorSuccess)}>
-            {validatorName && <p className={classes.nodeName}>{validatorName}</p>}
-            <p className={classes.nodeAddressWrapper}>
-              <span className={classes.nodeAddress}>{validatorAddress}</span>
+          <p className="successText">You've successfully delegated to a validator:</p>
+          <div className="nodeDescriptor nodeDescriptorSuccess">
+            {validatorName && <p className="nodeName">{validatorName}</p>}
+            <p className="nodeAddressWrapper">
+              <span className="nodeAddress">{validatorAddress}</span>
             </p>
           </div>
           <Button
