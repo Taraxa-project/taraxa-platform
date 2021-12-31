@@ -1,5 +1,5 @@
 import * as ethers from 'ethers';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';

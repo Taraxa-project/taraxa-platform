@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   Column,
 } from 'typeorm';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Node } from './node.entity';
 
 @Entity({

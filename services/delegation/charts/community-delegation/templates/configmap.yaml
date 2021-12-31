@@ -10,4 +10,5 @@ data:
   DATABASE_PORT: {{ .Values.app.dbPort | quote }}
   DATABASE_NAME: {{ .Values.app.dbName | quote }}
   STAKING_CONTRACT_ADDRESS: {{ .Values.app.stakingContractAddress | quote }}
+  MAINNET_ENDPOINT: {{ .Values.app.mainnetEndpoint | quote }}
   NODE_ENV: {{ .Values.app.environment | quote }}

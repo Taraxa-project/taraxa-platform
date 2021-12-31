@@ -10,6 +10,7 @@ import { DelegationNonce } from './delegation-nonce.entity';
 import { DelegationController } from './delegation.controller';
 import { BalanceController } from './balance.controller';
 import { DelegationService } from './delegation.service';
+import { DelegationTaskService } from './delegation-task.service';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { DelegationService } from './delegation.service';
     StakingModule,
   ],
   controllers: [DelegationController, BalanceController],
-  providers: [DelegationService],
+  providers: [DelegationService, DelegationTaskService],
   exports: [TypeOrmModule],
 })
 export class DelegationModule {}

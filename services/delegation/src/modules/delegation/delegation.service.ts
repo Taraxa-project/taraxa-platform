@@ -127,6 +127,31 @@ export class DelegationService {
     return this.delegationRepository.save(delegation);
   }
 
+  async ensureMainnetDelegation(address: string, delegation: number) {
+    const currentDelegation = await this.stakingService.getMainnetStake(
+      address,
+    );
+    if (currentDelegation === delegation) {
+      return;
+    }
+
+    if (currentDelegation > delegation) {
+      await this.stakingService.undelegateTransaction(
+        address,
+        currentDelegation - delegation,
+      );
+    } else {
+      await this.stakingService.delegateTransaction(
+        address,
+        delegation - currentDelegation,
+      );
+    }
+  }
+
+  async ensureTestnetDelegation(address: string, delegation: number) {
+    console.log('ensureTestnetDelegation for', address, 'is', delegation);
+  }
+
   private async getUserDelegationsToNode(user: number, address: string) {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
