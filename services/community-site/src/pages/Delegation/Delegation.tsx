@@ -52,6 +52,7 @@ const Delegation = () => {
   const [availableBalance, setAvailableBalance] = useState(0);
   const [averageDelegation, setAverageDelegation] = useState(0);
   const [totalDelegation, setTotalDelegation] = useState(0);
+  const [totalValidators, setTotalValidators] = useState(0);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [delegateToNode, setDelegateToNode] = useState<Node | null>(null);
 
@@ -76,6 +77,30 @@ const Delegation = () => {
     checkOwnValidatorsCommissionChanges();
   }, [checkOwnValidatorsCommissionChanges]);
 
+  const getStats = useCallback(async () => {
+    const data = await delegationApi.get(
+      '/validators?show_fully_delegated=true&show_my_validators=false',
+    );
+    if (data.success) {
+      let totalDelegationAcc = 0;
+      data.response.forEach((node: any) => {
+        if (node.totalDelegation) {
+          totalDelegationAcc += node.totalDelegation;
+        }
+      });
+
+      setTotalDelegation(totalDelegationAcc);
+      if (data.response.length > 0) {
+        setAverageDelegation(Math.round(totalDelegationAcc / data.response.length));
+        setTotalValidators(data.response.length);
+      }
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    getStats();
+  }, []);
+
   const getBalances = useCallback(async () => {
     if (!canDelegate) {
       return;
@@ -99,7 +124,6 @@ const Delegation = () => {
       return;
     }
 
-    let totalDelegationAcc = 0;
     const now = new Date();
     const nodes = data.response.map((node: Node) => {
       if (node.lastBlockCreatedAt) {
@@ -111,19 +135,10 @@ const Delegation = () => {
           node.active = true;
         }
       }
-
-      if (node.totalDelegation) {
-        totalDelegationAcc += node.totalDelegation;
-      }
-
       return node;
     });
 
     setNodes(nodes);
-    setTotalDelegation(totalDelegationAcc);
-    if (nodes.length > 0) {
-      setAverageDelegation(totalDelegationAcc / nodes.length);
-    }
   }, [isLoggedIn, showOnlyMyValidators, showFullyDelegatedNodes]);
 
   useEffect(() => {
@@ -210,6 +225,7 @@ const Delegation = () => {
               onSuccess={() => {
                 getBalances();
                 getValidators();
+                getStats();
               }}
               onFinish={() => {
                 setDelegateToNode(null);
@@ -264,24 +280,22 @@ const Delegation = () => {
             />
           </div>
         )}
-        <div className="cardContainer">
-          {nodes.length > 0 && (
-            <>
-              <BaseCard
-                title={ethers.utils.commify(nodes.length)}
-                description="Number of network validators"
-              />
-              <BaseCard
-                title={ethers.utils.commify(Math.round(averageDelegation))}
-                description="Average TARA delegatated to validators"
-              />
-              <BaseCard
-                title={ethers.utils.commify(totalDelegation)}
-                description="Total TARA delegated to validators"
-              />
-            </>
-          )}
-        </div>
+        {totalValidators > 0 && (
+          <div className="cardContainer">
+            <BaseCard
+              title={ethers.utils.commify(totalValidators)}
+              description="Number of network validators"
+            />
+            <BaseCard
+              title={ethers.utils.commify(averageDelegation)}
+              description="Average TARA delegatated to validators"
+            />
+            <BaseCard
+              title={ethers.utils.commify(totalDelegation)}
+              description="Total TARA delegated to validators"
+            />
+          </div>
+        )}
         {rows.length > 0 && (
           <>
             {isLoggedIn && (
