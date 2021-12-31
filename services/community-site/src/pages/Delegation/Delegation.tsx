@@ -235,7 +235,8 @@ const Delegation = () => {
               <a
                 className="commissionChangeCheck"
                 href="#"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setShowOnlyMyValidators(true);
                   setShowFullyDelegatedNodes(true);
                 }}
