@@ -4,7 +4,6 @@ import Title from '../../../components/Title/Title';
 import { useDelegationApi } from '../../../services/useApi';
 import CloseIcon from '../../../assets/icons/close';
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
-import useStyles from './editnode-styles';
 import UpdateCommission from '../Modal/UpdateCommission';
 
 interface Node {
@@ -34,7 +33,6 @@ interface EditNodeProps {
 }
 
 const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
-  const classes = useStyles();
   const [name, setName] = useState(node.name || '');
   const [nameError, setNameError] = useState('');
   const [ip, setIp] = useState(node.ip || '');
@@ -72,7 +70,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
   };
 
   return (
-    <>
+    <div className="editNodeScreen">
       {isUpdatingCommission && (
         <Modal
           id="signinModal"
@@ -96,8 +94,8 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
         />
       )}
       <Title title="Edit node" />
-      <p className={classes.editNodeAddressWrapper}>
-        <span className={classes.editNodeAddress}>{node.address}</span>
+      <p className="editNodeAddressWrapper">
+        <span className="editNodeAddress">{node.address}</span>
       </p>
       <form onSubmit={submit}>
         <div className="editProfileForm">
@@ -151,7 +149,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
           </div>
           {node.type === 'mainnet' && (
             <div className="formInputContainer">
-              <div className={classes.commissionWrapper}>
+              <div className="commissionWrapper">
                 <Text
                   className="profile-inputLabel"
                   label="Commission"
@@ -159,18 +157,18 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
                   color="primary"
                 />
                 {node.hasPendingCommissionChange ? (
-                  <div className={classes.commissionDisplay}>
+                  <div className="commissionDisplay">
                     <NodeCommissionChangeIcon />{' '}
-                    <span className={classes.commissionDisplayPendingChange}>
+                    <span className="commissionDisplayPendingChange">
                       {node.currentCommission}% ➞ {node.pendingCommission}%
                     </span>
                   </div>
                 ) : (
-                  <div className={classes.commissionDisplay}>{node.currentCommission}%</div>
+                  <div className="commissionDisplay">{node.currentCommission}%</div>
                 )}
 
                 <Button
-                  className={classes.commissionUpdate}
+                  className="commissionUpdate"
                   variant="outlined"
                   color="secondary"
                   size="small"
@@ -202,7 +200,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
           />
         </div>
       </form>
-    </>
+    </div>
   );
 };
 
