@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import Web3 from 'web3';
 import * as RLP from 'rlp';
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import * as ethUtil from 'ethereumjs-util';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 
@@ -73,20 +74,46 @@ export class StakingService {
       16,
     );
   }
-  async delegateTransaction(address: string, value: number) {
+  async delegateTestnetTransaction(address: string) {
+    const explorerUrl = this.config.get<string>('ethereum.testnetExplorerUrl');
+
+    await this.httpService
+      .get(
+        `${explorerUrl}/api/delegate/${address}?sig=${this.getSignature(
+          address,
+        )}`,
+      )
+      .toPromise();
+  }
+
+  async undelegateTestnetTransaction(address: string) {
+    const explorerUrl = this.config.get<string>('ethereum.testnetExplorerUrl');
+
+    await this.httpService
+      .get(
+        `${explorerUrl}/api/undelegate/${address}?sig=${this.getSignature(
+          address,
+        )}`,
+      )
+      .toPromise();
+  }
+  async delegateMainnetTransaction(address: string, value: number) {
     await this.sendMainnetTransaction(
       '0x00000000000000000000000000000000000000ff',
       `0x${this.bufferToHex(RLP.encode([[address, [value, 0]]]))}`,
     );
   }
 
-  async undelegateTransaction(address: string, value: number) {
+  async undelegateMainnetTransaction(address: string, value: number) {
     await this.sendMainnetTransaction(
       '0x00000000000000000000000000000000000000ff',
       `0x${this.bufferToHex(RLP.encode([[address, [value, 1]]]))}`,
     );
   }
-  async sendMainnetTransaction(to: string, input: string): Promise<boolean> {
+  private async sendMainnetTransaction(
+    to: string,
+    input: string,
+  ): Promise<boolean> {
     const tx = await this.mainnetWallet.signTransaction({
       from: this.mainnetWallet.address,
       to,
@@ -116,5 +143,17 @@ export class StakingService {
     return [...new Uint8Array(buffer)]
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
+  }
+
+  private getSignature(address: string): string {
+    const privKey = this.config.get<string>('ethereum.testnetWallet');
+
+    const { v, r, s } = ethUtil.ecsign(
+      ethUtil.keccak256(ethUtil.toBuffer(address)),
+      Buffer.from(privKey.substring(2), 'hex'),
+    );
+    const hash = ethUtil.toRpcSig(v, r, s);
+
+    return hash;
   }
 }

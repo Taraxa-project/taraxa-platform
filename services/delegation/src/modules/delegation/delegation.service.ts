@@ -136,20 +136,20 @@ export class DelegationService {
     }
 
     if (currentDelegation > delegation) {
-      await this.stakingService.undelegateTransaction(
+      await this.stakingService.undelegateMainnetTransaction(
         address,
         currentDelegation - delegation,
       );
     } else {
-      await this.stakingService.delegateTransaction(
+      await this.stakingService.delegateMainnetTransaction(
         address,
         delegation - currentDelegation,
       );
     }
   }
 
-  async ensureTestnetDelegation(address: string, delegation: number) {
-    console.log('ensureTestnetDelegation for', address, 'is', delegation);
+  async ensureTestnetDelegation(address: string) {
+    await this.stakingService.delegateTestnetTransaction(address);
   }
 
   private async getUserDelegationsToNode(user: number, address: string) {

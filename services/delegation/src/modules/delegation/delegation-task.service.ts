@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Delegation } from './delegation.entity';
 import { DelegationService } from './delegation.service';
 import { NodeService } from '../node/node.service';
+import { NodeType } from '../node/node-type.enum';
 
 @Injectable()
 export class DelegationTaskService {
@@ -15,6 +16,7 @@ export class DelegationTaskService {
     @InjectRepository(Delegation)
     private delegationRepository: Repository<Delegation>,
     private delegationService: DelegationService,
+    private nodeService: NodeService,
   ) {}
 
   @Cron('*/15 * * * *')
@@ -49,8 +51,22 @@ export class DelegationTaskService {
       );
     }
   }
+
   @Cron('*/15 * * * *')
   async delegateTestnet() {
     this.logger.debug('Starting testnet delegation worker...');
+    const date = moment().subtract(15, 'minutes').utc().toDate();
+    const nodes = await this.nodeService.findNodes({
+      type: NodeType.TESTNET,
+    });
+
+    for (const node of nodes) {
+      const createdAt = moment(node.createdAt).utc().toDate();
+      if (createdAt < date) {
+        continue;
+      }
+
+      await this.delegationService.ensureTestnetDelegation(node.address);
+    }
   }
 }

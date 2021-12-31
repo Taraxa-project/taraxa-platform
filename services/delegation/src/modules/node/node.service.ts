@@ -12,6 +12,7 @@ import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { CreateCommissionDto } from './dto/create-commission.dto';
 import { ValidationException } from '../utils/exceptions/validation.exception';
+import { StakingService } from '../staking/staking.service';
 
 @Injectable()
 export class NodeService {
@@ -23,6 +24,7 @@ export class NodeService {
     private connection: Connection,
     private config: ConfigService,
     private profileService: ProfileService,
+    private stakingService: StakingService,
   ) {}
 
   async createNode(user: number, nodeDto: CreateNodeDto): Promise<Node> {
@@ -143,6 +145,7 @@ export class NodeService {
       type: NodeType.TESTNET,
     });
     await this.nodeRepository.delete(node);
+    await this.stakingService.undelegateTestnetTransaction(n.address);
 
     return n;
   }
@@ -184,6 +187,11 @@ export class NodeService {
   async findNodeByOrFail(options: FindConditions<Node>): Promise<Node> {
     const node = await this.nodeRepository.findOneOrFail(options);
     return this.decorateNode(node);
+  }
+
+  async findNodes(options: FindConditions<Node>): Promise<Node[]> {
+    const node = await this.nodeRepository.find(options);
+    return this.decorateNodes(node);
   }
 
   private decorateNode(node: Node): Node {
