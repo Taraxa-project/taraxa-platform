@@ -1,3 +1,4 @@
+import * as ethUtil from 'ethereumjs-util';
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -39,7 +40,7 @@ export class DelegationService {
     });
   }
   async getNonce(user: number, address: string, node: Node): Promise<string> {
-    const nonce = await this.delegationNonceRepository.findOne({
+    const nonce = await this.delegationNonceRepository.findOneOrFail({
       user,
       address,
       node,
@@ -47,6 +48,25 @@ export class DelegationService {
 
     return `Delegate to ${nonce.node.address}, from ${nonce.address} with nonce #${nonce.value}`;
   }
+  async getAndUpdateNonce(
+    user: number,
+    address: string,
+    node: Node,
+  ): Promise<string> {
+    const nonce = await this.delegationNonceRepository.findOneOrFail({
+      user,
+      address,
+      node,
+    });
+
+    const nonceString = `Delegate to ${nonce.node.address}, from ${nonce.address} with nonce #${nonce.value}`;
+
+    nonce.value = nonce.value + 1;
+    await this.delegationNonceRepository.save(nonce);
+
+    return nonceString;
+  }
+
   async createNonce(
     user: number,
     delegationNonceDto: CreateDelegationNonceDto,
@@ -56,22 +76,20 @@ export class DelegationService {
       type: NodeType.MAINNET,
     });
 
-    let nonce = await this.delegationNonceRepository.findOne({
+    const nonceExists = await this.delegationNonceRepository.findOne({
       user,
       address: delegationNonceDto.from,
       node: node,
     });
 
-    if (nonce) {
-      nonce.value = nonce.value + 1;
-    } else {
-      nonce = new DelegationNonce();
+    if (!nonceExists) {
+      const nonce = new DelegationNonce();
       nonce.user = user;
       nonce.address = delegationNonceDto.from;
       nonce.node = node;
       nonce.value = 1;
+      await this.delegationNonceRepository.save(nonce);
     }
-    await this.delegationNonceRepository.save(nonce);
 
     return this.getNonce(user, delegationNonceDto.from, node);
   }
@@ -85,17 +103,19 @@ export class DelegationService {
       type: NodeType.MAINNET,
     });
 
-    console.log('proof', delegationDto.proof);
+    const nonce = await this.getAndUpdateNonce(user, delegationDto.from, node);
+    const nonceBuffer = ethUtil.toBuffer(ethUtil.fromUtf8(nonce));
+    const nonceHash = ethUtil.hashPersonalMessage(nonceBuffer);
 
-    const userDelegationsToNode = await this.getUserDelegationsToNode(
-      user,
-      node.address,
+    const { v, r, s } = ethUtil.fromRpcSig(delegationDto.proof);
+    const address = ethUtil.bufferToHex(
+      ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
     );
-    const minDelegation = this.config.get<number>('delegation.minDelegation');
-    if (userDelegationsToNode + delegationDto.value < minDelegation) {
-      throw new ValidationException(
-        'Minimum delegation value is ' + minDelegation,
-      );
+
+    if (
+      address.toLocaleLowerCase() !== delegationDto.from.toLocaleLowerCase()
+    ) {
+      throw new ValidationException('Invalid proof');
     }
 
     const nodeDelegations = await this.getNodeDelegations(node.id);
@@ -150,17 +170,6 @@ export class DelegationService {
 
   async ensureTestnetDelegation(address: string) {
     await this.stakingService.delegateTestnetTransaction(address);
-  }
-
-  private async getUserDelegationsToNode(user: number, address: string) {
-    const d = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
-      .where('"d"."user" = :user', { user })
-      .andWhere('"d"."address" = :address', { address })
-      .getRawOne();
-
-    return parseInt(d.total, 10) || 0;
   }
 
   private async getNodeDelegations(nodeId: number) {

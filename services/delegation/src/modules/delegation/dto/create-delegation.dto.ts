@@ -13,9 +13,9 @@ export class CreateDelegationDto {
   @ApiProperty()
   proof: string;
 
-  @Min(1)
+  @Min(1000)
   @ApiProperty({
-    minimum: 1,
+    minimum: 1000,
   })
   value: number;
 }
