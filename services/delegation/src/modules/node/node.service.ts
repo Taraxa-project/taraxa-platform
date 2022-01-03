@@ -109,35 +109,42 @@ export class NodeService {
 
   async createCommission(
     user: number,
-    node: number,
+    nodeId: number,
     commissionDto: CreateCommissionDto,
   ): Promise<Node> {
-    const n = await this.findNodeByOrFail({
-      id: node,
+    const node = await this.findNodeByOrFail({
+      id: nodeId,
       type: NodeType.MAINNET,
       user,
     });
 
-    if (n.commissions.length > 1) {
-      const currentCommissionCount = await this.nodeCommissionRepository.count({
-        startsAt: MoreThan(moment().utc().toDate()),
-        node: n,
-      });
-
-      if (currentCommissionCount >= 1) {
-        throw new ValidationException(
-          `Node with id ${n.id} already has a pending commission change.`,
-        );
-      }
+    if (node.hasPendingCommissionChange) {
+      throw new ValidationException(
+        `Node with id ${node.id} already has a pending commission change.`,
+      );
     }
 
-    const commission = NodeCommission.fromValueUpdate(commissionDto.commission);
-    n.commissions = [...n.commissions, commission];
+    const commissionChangeThreshold = this.config.get<number>(
+      'delegation.commissionChangeThreshold',
+    );
+    if (
+      Math.abs(node.currentCommission - commissionDto.commission) >
+      commissionChangeThreshold
+    ) {
+      throw new ValidationException(
+        'New commission must be within 5% of the current commission.',
+      );
+    }
 
-    await this.nodeRepository.save(n);
+    node.commissions = [
+      ...node.commissions,
+      NodeCommission.fromValueUpdate(commissionDto.commission),
+    ];
+
+    await this.nodeRepository.save(node);
 
     return this.findNodeByOrFail({
-      id: n.id,
+      id: node.id,
     });
   }
 
