@@ -1,9 +1,8 @@
 import * as ethers from 'ethers';
-import moment from 'moment';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Repository, Connection, MoreThan, FindConditions } from 'typeorm';
+import { Repository, Connection, FindConditions } from 'typeorm';
 import { ProfileService } from '../profile/profile.service';
 import { Node } from './node.entity';
 import { NodeType } from './node-type.enum';
@@ -28,38 +27,37 @@ export class NodeService {
   ) {}
 
   async createNode(user: number, nodeDto: CreateNodeDto): Promise<Node> {
-    nodeDto.address = ethers.utils.getAddress(nodeDto.address);
-
-    const nodeExists = await this.nodeRepository.findOne({
-      address: nodeDto.address,
-    });
-
-    if (nodeExists) {
-      throw new ValidationException(
-        `Node with address ${nodeDto.address} already exists`,
-      );
-    }
-
-    const node = Node.fromDto(nodeDto);
-    node.user = user;
+    const { address } = nodeDto;
 
     try {
-      const digest = ethers.utils.keccak256(node.address);
+      const digest = ethers.utils.keccak256(address);
       const recoveredAddress = ethers.utils.recoverAddress(
         digest,
         nodeDto.addressProof,
       );
 
-      if (recoveredAddress !== node.address) {
-        throw new ValidationException(
-          `Node proof for ${node.address} is invalid`,
-        );
+      if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+        throw new ValidationException(`Node proof for ${address} is invalid`);
       }
     } catch (e) {
+      throw new ValidationException(`Node proof for ${address} is invalid`);
+    }
+
+    const existingNode = await this.nodeRepository
+      .createQueryBuilder('n')
+      .select('COUNT("n"."id")', 'count')
+      .where('LOWER("n"."address") = :address', { address })
+      .getRawOne();
+    const existingNodeCount = parseInt(existingNode.count, 10);
+
+    if (existingNodeCount > 0) {
       throw new ValidationException(
-        `Node proof for ${node.address} is invalid`,
+        `Node with address ${address} already exists.`,
       );
     }
+
+    const node = Node.fromDto(nodeDto);
+    node.user = user;
 
     if (node.isMainnet()) {
       try {
@@ -70,16 +68,16 @@ export class NodeService {
     }
 
     await this.connection.transaction(async (manager) => {
-      await manager.save(node);
-
       if (node.isMainnet()) {
         const commission = NodeCommission.fromValueCreate(nodeDto.commission);
-        commission.node = node;
-        await manager.save(commission);
+        node.commissions = [commission];
       }
+      await manager.save(node);
     });
 
-    return node;
+    return this.findNodeByOrFail({
+      id: node.id,
+    });
   }
 
   async updateNode(
@@ -100,42 +98,52 @@ export class NodeService {
       node.ip = nodeDto.ip;
     }
 
-    return this.nodeRepository.save(node);
+    await this.nodeRepository.save(node);
+
+    return this.findNodeByOrFail({
+      id: node.id,
+    });
   }
 
   async createCommission(
     user: number,
-    node: number,
+    nodeId: number,
     commissionDto: CreateCommissionDto,
   ): Promise<Node> {
-    const n = await this.findNodeByOrFail({
-      id: node,
+    const node = await this.findNodeByOrFail({
+      id: nodeId,
       type: NodeType.MAINNET,
       user,
     });
 
-    if (n.commissions.length > 1) {
-      const coolingOffPeriodDays = this.config.get<number>(
-        'delegation.coolingOffPeriodDays',
+    if (node.hasPendingCommissionChange) {
+      throw new ValidationException(
+        `Node with id ${node.id} already has a pending commission change.`,
       );
-      const currentCommissionCount = await this.nodeCommissionRepository.count({
-        createdAt: MoreThan(
-          moment().utc().subtract(coolingOffPeriodDays, 'days').toDate(),
-        ),
-        node: n,
-      });
-
-      if (currentCommissionCount >= 1) {
-        throw new ValidationException(
-          `Node with id ${n.id} already has a pending commission change.`,
-        );
-      }
     }
 
-    const commission = NodeCommission.fromValueUpdate(commissionDto.commission);
-    n.commissions = [...n.commissions, commission];
+    const commissionChangeThreshold = this.config.get<number>(
+      'delegation.commissionChangeThreshold',
+    );
+    if (
+      Math.abs(node.currentCommission - commissionDto.commission) >
+      commissionChangeThreshold
+    ) {
+      throw new ValidationException(
+        'New commission must be within 5% of the current commission.',
+      );
+    }
 
-    return this.nodeRepository.save(n);
+    node.commissions = [
+      ...node.commissions,
+      NodeCommission.fromValueUpdate(commissionDto.commission),
+    ];
+
+    await this.nodeRepository.save(node);
+
+    return this.findNodeByOrFail({
+      id: node.id,
+    });
   }
 
   async deleteNode(user: number, node: number): Promise<Node> {

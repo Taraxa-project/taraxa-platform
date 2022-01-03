@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -5,7 +6,6 @@ import {
   CreateDateColumn,
   Column,
 } from 'typeorm';
-import moment from 'moment';
 import { Node } from './node.entity';
 
 @Entity({
@@ -23,10 +23,15 @@ export class NodeCommission {
   @ManyToOne(() => Node)
   node: Node;
 
-  @Column()
+  @Column({
+    type: 'timestamp with time zone',
+    default: 'now()',
+  })
   startsAt: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+  })
   createdAt: Date;
 
   static fromValue(value: number): NodeCommission {

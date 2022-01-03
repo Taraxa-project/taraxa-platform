@@ -1,4 +1,5 @@
 import moment from 'moment';
+import * as ethers from 'ethers';
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -36,7 +37,7 @@ export class Node {
     nullable: true,
     default: null,
   })
-  name: string;
+  name: string | null = null;
 
   @Column({
     unique: true,
@@ -47,7 +48,7 @@ export class Node {
     nullable: true,
     default: null,
   })
-  ip: string;
+  ip: string | null = null;
 
   @Column({
     nullable: true,
@@ -84,26 +85,27 @@ export class Node {
   })
   delegations: Delegation[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+  })
   updatedAt: Date;
 
-  yield: number;
-  currentCommission: number;
-  pendingCommission: number | null;
-  hasPendingCommissionChange: boolean;
-  totalDelegation: number;
-  remainingDelegation: number;
-  ownDelegation: number;
+  yield = 0;
+  currentCommission = 0;
+  pendingCommission: number | null = null;
+  hasPendingCommissionChange = false;
+  totalDelegation = 0;
+  remainingDelegation = 0;
+  ownDelegation = 0;
 
   @AfterLoad()
   calculateCommission = () => {
     if (this.isTestnet()) {
-      this.currentCommission = 0;
-      this.pendingCommission = null;
-      this.hasPendingCommissionChange = false;
       return;
     }
 
@@ -133,11 +135,11 @@ export class Node {
 
   @AfterLoad()
   calculateDelegated = () => {
-    this.yield = 0;
-    this.remainingDelegation = 0;
     if (this.isTestnet()) {
-      this.totalDelegation = 0;
-      this.ownDelegation = 0;
+      return;
+    }
+
+    if (!this.delegations) {
       return;
     }
 
@@ -165,13 +167,13 @@ export class Node {
   static fromDto(dto: CreateNodeDto): Node {
     const node = new Node();
     node.type = dto.type;
-    node.address = dto.address;
+    node.address = ethers.utils.getAddress(dto.address);
 
-    if (dto.name) {
+    if (typeof dto.name !== 'undefined' && dto.name !== '') {
       node.name = dto.name;
     }
 
-    if (dto.ip) {
+    if (typeof dto.ip !== 'undefined') {
       node.ip = dto.ip;
     }
 
