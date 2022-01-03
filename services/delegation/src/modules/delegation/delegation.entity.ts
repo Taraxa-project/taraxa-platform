@@ -4,7 +4,6 @@ import {
   Column,
   Index,
   CreateDateColumn,
-  UpdateDateColumn,
   ManyToOne,
 } from 'typeorm';
 import { Node } from '../node/node.entity';
@@ -33,11 +32,10 @@ export class Delegation {
   @Column()
   value: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+  })
   createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   static fromDto(dto: CreateDelegationDto): Delegation {
     const delegation = new Delegation();

@@ -22,7 +22,7 @@ export class DelegationTaskService {
   @Cron('*/15 * * * *')
   async delegateMainnet() {
     this.logger.debug('Starting mainnet delegation worker...');
-    const date = moment().subtract(15, 'minutes').utc().toDate();
+    const date = moment().utc().subtract(15, 'minutes').utc().toDate();
     const delegations = await this.delegationRepository.find({
       where: {
         createdAt: MoreThan(date),
@@ -55,7 +55,7 @@ export class DelegationTaskService {
   @Cron('*/15 * * * *')
   async delegateTestnet() {
     this.logger.debug('Starting testnet delegation worker...');
-    const date = moment().subtract(15, 'minutes').utc().toDate();
+    const date = moment().utc().subtract(15, 'minutes').utc().toDate();
     const nodes = await this.nodeService.findNodes({
       type: NodeType.TESTNET,
     });

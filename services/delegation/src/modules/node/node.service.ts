@@ -70,16 +70,16 @@ export class NodeService {
     }
 
     await this.connection.transaction(async (manager) => {
-      await manager.save(node);
-
       if (node.isMainnet()) {
         const commission = NodeCommission.fromValueCreate(nodeDto.commission);
-        commission.node = node;
-        await manager.save(commission);
+        node.commissions = [commission];
       }
+      await manager.save(node);
     });
 
-    return node;
+    return this.findNodeByOrFail({
+      id: node.id,
+    });
   }
 
   async updateNode(
@@ -100,7 +100,11 @@ export class NodeService {
       node.ip = nodeDto.ip;
     }
 
-    return this.nodeRepository.save(node);
+    await this.nodeRepository.save(node);
+
+    return this.findNodeByOrFail({
+      id: node.id,
+    });
   }
 
   async createCommission(
@@ -115,13 +119,8 @@ export class NodeService {
     });
 
     if (n.commissions.length > 1) {
-      const coolingOffPeriodDays = this.config.get<number>(
-        'delegation.coolingOffPeriodDays',
-      );
       const currentCommissionCount = await this.nodeCommissionRepository.count({
-        createdAt: MoreThan(
-          moment().utc().subtract(coolingOffPeriodDays, 'days').toDate(),
-        ),
+        startsAt: MoreThan(moment().utc().toDate()),
         node: n,
       });
 
@@ -135,7 +134,11 @@ export class NodeService {
     const commission = NodeCommission.fromValueUpdate(commissionDto.commission);
     n.commissions = [...n.commissions, commission];
 
-    return this.nodeRepository.save(n);
+    await this.nodeRepository.save(n);
+
+    return this.findNodeByOrFail({
+      id: n.id,
+    });
   }
 
   async deleteNode(user: number, node: number): Promise<Node> {

@@ -40,10 +40,14 @@ export class Profile {
   })
   social: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+  })
   updatedAt: Date;
 
   static fromDto(profileDto: CreateProfileDto): Profile {
