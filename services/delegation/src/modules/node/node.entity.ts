@@ -1,4 +1,5 @@
 import moment from 'moment';
+import * as ethers from 'ethers';
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -166,7 +167,7 @@ export class Node {
   static fromDto(dto: CreateNodeDto): Node {
     const node = new Node();
     node.type = dto.type;
-    node.address = dto.address;
+    node.address = ethers.utils.getAddress(dto.address);
 
     if (typeof dto.name !== 'undefined' && dto.name !== '') {
       node.name = dto.name;
