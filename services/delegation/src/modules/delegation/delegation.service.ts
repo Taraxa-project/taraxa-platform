@@ -12,6 +12,7 @@ import { DelegationNonce } from './delegation-nonce.entity';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
 import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
 import { BalancesDto } from './dto/balances.dto';
+import { BalancesByNodeDto } from './dto/balances-by-node.dto';
 import { NodeType } from '../node/node-type.enum';
 
 @Injectable()
@@ -32,6 +33,15 @@ export class DelegationService {
       total,
       delegated,
       remaining: total - delegated,
+    };
+  }
+  async getBalancesByNode(
+    wallet: string,
+    node: number,
+  ): Promise<BalancesByNodeDto> {
+    const delegated = await this.getUserDelegationsToNode(wallet, node);
+    return {
+      delegated,
     };
   }
   find(user: number): Promise<Delegation[]> {
@@ -186,6 +196,16 @@ export class DelegationService {
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
       .where('"d"."address" = :address', { address })
+      .getRawOne();
+    return parseInt(d.total, 10) || 0;
+  }
+
+  private async getUserDelegationsToNode(address: string, node: number) {
+    const d = await this.delegationRepository
+      .createQueryBuilder('d')
+      .select('SUM("d"."value")', 'total')
+      .where('"d"."address" = :address', { address })
+      .andWhere('"d"."nodeId" = :node', { node })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
   }
