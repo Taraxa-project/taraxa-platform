@@ -1,4 +1,5 @@
 import * as ethUtil from 'ethereumjs-util';
+import moment from 'moment';
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -40,8 +41,13 @@ export class DelegationService {
     node: number,
   ): Promise<BalancesByNodeDto> {
     const delegated = await this.getUserDelegationsToNode(wallet, node);
+    const undelegatable = await this.getUserUndelegatableDelegationsToNode(
+      wallet,
+      node,
+    );
     return {
       delegated,
+      undelegatable,
     };
   }
   find(user: number): Promise<Delegation[]> {
@@ -206,6 +212,22 @@ export class DelegationService {
       .select('SUM("d"."value")', 'total')
       .where('"d"."address" = :address', { address })
       .andWhere('"d"."nodeId" = :node', { node })
+      .getRawOne();
+    return parseInt(d.total, 10) || 0;
+  }
+
+  private async getUserUndelegatableDelegationsToNode(
+    address: string,
+    node: number,
+  ) {
+    const d = await this.delegationRepository
+      .createQueryBuilder('d')
+      .select('SUM("d"."value")', 'total')
+      .where('"d"."address" = :address', { address })
+      .andWhere('"d"."nodeId" = :node', { node })
+      .andWhere('"d"."createdAt" < :date', {
+        date: moment().utc().subtract(5, 'days').utc().toDate(),
+      })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
   }

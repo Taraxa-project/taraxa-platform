@@ -47,7 +47,10 @@ export class ValidatorController {
   @ApiOkResponse({ description: 'Validator found' })
   @ApiNotFoundResponse({ description: 'Node not found' })
   @Get(':id')
-  get(@Param('id', ParseIntPipe) id: number): Promise<Partial<Node>> {
-    return this.validatorService.get(id);
+  get(
+    @User() user: JwtUser | false,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Partial<Node>> {
+    return this.validatorService.get(id, user ? user.id : null);
   }
 }

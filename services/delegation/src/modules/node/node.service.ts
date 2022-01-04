@@ -166,7 +166,7 @@ export class NodeService {
     return this.decorateNodes(nodes);
   }
 
-  async findAllMainnetNodes(): Promise<Node[]> {
+  async findAllMainnetNodes(user: number | null): Promise<Node[]> {
     const nodes = await this.nodeRepository.find({
       type: NodeType.MAINNET,
     });

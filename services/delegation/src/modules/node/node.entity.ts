@@ -114,6 +114,7 @@ export class Node {
   remainingDelegation = 0;
   ownDelegation = 0;
   isTopNode = false;
+  canUndelegate = false;
 
   @AfterLoad()
   calculateCommission = () => {
@@ -187,6 +188,16 @@ export class Node {
 
   isTestnet(): boolean {
     return this.type === NodeType.TESTNET;
+  }
+
+  canUserUndelegate(user: number | null): boolean {
+    return this.delegations.some(
+      (delegation) =>
+        delegation.user === user &&
+        moment()
+          .utc()
+          .isAfter(moment(delegation.createdAt).utc().add(5, 'days').utc()),
+    );
   }
 
   static fromDto(dto: CreateNodeDto): Node {
