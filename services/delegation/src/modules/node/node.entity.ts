@@ -9,11 +9,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   AfterLoad,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Delegation } from '../delegation/delegation.entity';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { NodeCommission } from './node-commission.entity';
 import { NodeType } from './node-type.enum';
+import { TopUser } from './top-user.entity';
 
 @Entity({
   name: 'nodes',
@@ -85,6 +88,14 @@ export class Node {
   })
   delegations: Delegation[];
 
+  @ManyToOne(() => TopUser, (topUser) => topUser.user, {
+    nullable: true,
+    createForeignKeyConstraints: false,
+    eager: true,
+  })
+  @JoinColumn({ name: 'user', referencedColumnName: 'user' })
+  topUser: TopUser;
+
   @CreateDateColumn({
     type: 'timestamp with time zone',
   })
@@ -102,6 +113,7 @@ export class Node {
   totalDelegation = 0;
   remainingDelegation = 0;
   ownDelegation = 0;
+  isTopNode = false;
 
   @AfterLoad()
   calculateCommission = () => {
@@ -154,6 +166,19 @@ export class Node {
       }
       return acc;
     }, 0);
+  };
+
+  @AfterLoad()
+  calculateTopNode = () => {
+    if (this.isTestnet()) {
+      return;
+    }
+
+    if (this.topUser === null) {
+      return;
+    }
+
+    this.isTopNode = true;
   };
 
   isMainnet(): boolean {

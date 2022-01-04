@@ -46,6 +46,7 @@ export class ValidatorService {
       totalDelegation: node.totalDelegation,
       ownDelegation: node.ownDelegation,
       remainingDelegation: node.remainingDelegation,
+      isTopNode: node.isTopNode,
     };
   }
 }
