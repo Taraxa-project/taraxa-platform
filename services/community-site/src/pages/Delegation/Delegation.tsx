@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { Notification, BaseCard, Button, Modal, Switch, Text } from '@taraxa_project/taraxa-ui';
+import {
+  Notification,
+  BaseCard,
+  Button,
+  Modal,
+  Switch,
+  Text,
+  Icons,
+} from '@taraxa_project/taraxa-ui';
 
 import {
   Table,
@@ -25,6 +33,7 @@ interface Node {
   id: number;
   user: number;
   name: string;
+  isTopNode: boolean;
   address: string;
   active: boolean;
   currentCommission: number | null;
@@ -164,6 +173,7 @@ const Delegation = () => {
     );
 
     const name = formatNodeName(!node.name ? node.address : node.name);
+    const isTopNode = node.isTopNode;
     const expectedYield = `${node.yield}%`;
     const currentCommission = `${node.currentCommission}%`;
     const pendingCommission = node.hasPendingCommissionChange ? `${node.pendingCommission}%` : null;
@@ -193,6 +203,7 @@ const Delegation = () => {
     return {
       status,
       name,
+      isTopNode,
       expectedYield,
       currentCommission,
       pendingCommission,
@@ -334,7 +345,16 @@ const Delegation = () => {
                   delegatableNodes.map((row) => (
                     <TableRow className="tableRow">
                       <TableCell className="tableCell">{row.status}</TableCell>
-                      <TableCell className="tableCell">{row.name}</TableCell>
+                      <TableCell className="tableCell">
+                        <div className="flexCell">
+                          <div>{row.name}</div>
+                          {row.isTopNode && (
+                            <div>
+                              <Icons.Trophy />
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="tableCell">{row.expectedYield}</TableCell>
                       <TableCell className="tableCell">
                         {row.hasPendingCommissionChange ? (

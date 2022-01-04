@@ -122,6 +122,11 @@ a.commissionChangeCheck {
     color: #ffffff;
     border: none;
     height: auto;
+
+    .flexCell {
+      display: flex;
+      justify-content: space-between;
+    }
   }
 
   .tableSection {
