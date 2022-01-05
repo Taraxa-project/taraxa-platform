@@ -8,6 +8,7 @@ import {
   Switch,
   Text,
   Icons,
+  Card,
 } from '@taraxa_project/taraxa-ui';
 
 import {
@@ -307,24 +308,33 @@ const Delegation = () => {
             />
           </div>
         )}
-        {isLoggedIn && (
-          <Switch
-            name="Show only my validators"
-            checked={showOnlyMyValidators}
-            label="Show only my validators"
-            onChange={() => {
-              setShowOnlyMyValidators((v) => !v);
-            }}
-          />
-        )}
-        <Switch
-          name="Show fully delegated nodes"
-          checked={showFullyDelegatedNodes}
-          label="Show fully delegated nodes"
-          onChange={() => {
-            setShowFullyDelegatedNodes((v) => !v);
-          }}
-        />
+        <div className="flexDiv">
+          <div>
+            {isLoggedIn && (
+              <Switch
+                name="Show only my validators"
+                checked={showOnlyMyValidators}
+                label="Show only my validators"
+                onChange={() => {
+                  setShowOnlyMyValidators((v) => !v);
+                }}
+              />
+            )}
+            <Switch
+              name="Show fully delegated nodes"
+              checked={showFullyDelegatedNodes}
+              label="Show fully delegated nodes"
+              onChange={() => {
+                setShowFullyDelegatedNodes((v) => !v);
+              }}
+            />
+          </div>
+          <div>
+            <Card className="trophyLegend">
+              <Icons.Trophy /> Multiple weeks winner of the testnet block producer challenge
+            </Card>
+          </div>
+        </div>
         {rows.length > 0 ? (
           <TableContainer>
             <Table className="table">
