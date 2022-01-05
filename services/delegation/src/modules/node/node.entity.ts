@@ -9,8 +9,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   AfterLoad,
-  ManyToOne,
-  JoinColumn,
+  getRepository,
 } from 'typeorm';
 import { Delegation } from '../delegation/delegation.entity';
 import { CreateNodeDto } from './dto/create-node.dto';
@@ -88,14 +87,6 @@ export class Node {
   })
   delegations: Delegation[];
 
-  @ManyToOne(() => TopUser, (topUser) => topUser.user, {
-    nullable: true,
-    createForeignKeyConstraints: false,
-    eager: true,
-  })
-  @JoinColumn({ name: 'user', referencedColumnName: 'user' })
-  topUser: TopUser;
-
   @CreateDateColumn({
     type: 'timestamp with time zone',
   })
@@ -170,16 +161,18 @@ export class Node {
   };
 
   @AfterLoad()
-  calculateTopNode = () => {
+  calculateTopNode = async () => {
     if (this.isTestnet()) {
       return;
     }
 
-    if (this.topUser === null) {
-      return;
-    }
+    const topNode = await getRepository(TopUser).findOne({
+      user: this.user,
+    });
 
-    this.isTopNode = true;
+    if (topNode) {
+      this.isTopNode = true;
+    }
   };
 
   isMainnet(): boolean {
