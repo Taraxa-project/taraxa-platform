@@ -29,12 +29,11 @@ export class NodeTaskService {
 
     const nodes = await this.nodeRepository.find();
     for (const node of nodes) {
-      let url: string;
-      if (node.type === NodeType.MAINNET) {
-        url = `${mainnetExplorerUrl}/api/address/${node.address}/stats`;
-      } else {
-        url = `${testnetExplorerUrl}/api/address/${node.address}/stats`;
-      }
+      const uri = `/api/address/${node.address.toLowerCase()}/stats`;
+      const url =
+        node.type === NodeType.MAINNET
+          ? `${mainnetExplorerUrl}${uri}`
+          : `${testnetExplorerUrl}${uri}`;
       const stats = await this.httpService
         .get(url, {
           headers: {
