@@ -11,7 +11,7 @@ export class ValidatorService {
     showMyValidators: boolean,
     showFullyDelegated: boolean,
   ): Promise<Partial<Node>[]> {
-    let nodes = await this.nodeService.findAllMainnetNodes();
+    let nodes = await this.nodeService.findAllMainnetNodes(user);
     if (showMyValidators && user !== null) {
       nodes = nodes.filter((node) => {
         return node.delegations.some((delegation) => delegation.user === user);
@@ -20,16 +20,16 @@ export class ValidatorService {
     if (!showFullyDelegated) {
       nodes = nodes.filter((node) => node.remainingDelegation > 0);
     }
-    return nodes.map((node) => this.decorateNode(node));
+    return nodes.map((node) => this.decorateNode(node, user));
   }
-  async get(id: number): Promise<Partial<Node>> {
+  async get(id: number, user: number | null): Promise<Partial<Node>> {
     const node = await this.nodeService.findNodeByOrFail({
       id,
       type: NodeType.MAINNET,
     });
-    return this.decorateNode(node);
+    return this.decorateNode(node, user);
   }
-  private decorateNode(node: Node): Partial<Node> {
+  private decorateNode(node: Node, user: number | null): Partial<Node> {
     return {
       id: node.id,
       user: node.user,
@@ -46,6 +46,8 @@ export class ValidatorService {
       totalDelegation: node.totalDelegation,
       ownDelegation: node.ownDelegation,
       remainingDelegation: node.remainingDelegation,
+      isTopNode: node.isTopNode,
+      canUndelegate: node.canUserUndelegate(user),
     };
   }
 }

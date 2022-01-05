@@ -13,6 +13,8 @@
     "delegation-build": "yarn workspace @taraxa_project/delegation build",
     "delegation-start": "yarn workspace @taraxa_project/delegation start:dev",
     "delegation-start:prod": "yarn workspace @taraxa_project/delegation start:prod",
+    "delegation-console": "yarn workspace @taraxa_project/delegation console:dev",
+    "delegation-console:prod": "yarn workspace @taraxa_project/delegation console",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
     "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation",
     "postinstall": "husky install"

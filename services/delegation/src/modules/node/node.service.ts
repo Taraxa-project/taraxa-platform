@@ -166,8 +166,10 @@ export class NodeService {
     return this.decorateNodes(nodes);
   }
 
-  async findAllMainnetNodes(): Promise<Node[]> {
-    const nodes = await this.nodeRepository.find({ type: NodeType.MAINNET });
+  async findAllMainnetNodes(user: number | null): Promise<Node[]> {
+    const nodes = await this.nodeRepository.find({
+      type: NodeType.MAINNET,
+    });
     return this.decorateNodes(nodes);
   }
 

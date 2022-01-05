@@ -9,7 +9,9 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main"
+    "start:prod": "node dist/main",
+    "console:dev": "ts-node -r tsconfig-paths/register src/cli.ts",
+    "console": "node dist/cli.js"
   },
   "dependencies": {
     "@nestjs/axios": "^0.0.3",
@@ -36,7 +38,8 @@
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.3.0",
     "typeorm": "^0.2.41",
-    "web3": "^1.6.1"
+    "web3": "^1.6.1",
+    "yargs": "^17.3.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
@@ -46,6 +49,7 @@
     "@types/node": "^16.0.0",
     "@types/passport-jwt": "^3.0.6",
     "@types/web3": "^1.2.2",
+    "@types/yargs": "^17.0.8",
     "source-map-support": "^0.5.20",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
