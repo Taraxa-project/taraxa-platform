@@ -5,8 +5,18 @@ import ExpirationExpired from './ExpirationExpired';
 import Submission from './Submission';
 import Attachment from './Attachment';
 import Submit from './Submit';
+import Trophy from './Trophy';
 
-export { Left, Right, ExpirationNotExpired, ExpirationExpired, Submission, Attachment, Submit };
+export {
+  Left,
+  Right,
+  ExpirationNotExpired,
+  ExpirationExpired,
+  Submission,
+  Attachment,
+  Submit,
+  Trophy,
+};
 export default {
   Left,
   Right,
@@ -15,4 +25,5 @@ export default {
   Submission,
   Attachment,
   Submit,
+  Trophy,
 };

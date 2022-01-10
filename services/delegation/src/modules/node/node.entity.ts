@@ -19,6 +19,12 @@ import { TopUser } from './top-user.entity';
 
 @Entity({
   name: 'nodes',
+  orderBy: {
+    lastBlockCreatedAt: {
+      order: 'DESC',
+      nulls: 'NULLS LAST',
+    },
+  },
 })
 export class Node {
   @PrimaryGeneratedColumn()
@@ -104,6 +110,7 @@ export class Node {
   totalDelegation = 0;
   remainingDelegation = 0;
   ownDelegation = 0;
+  isActive = false;
   isTopNode = false;
   canUndelegate = false;
 
@@ -173,6 +180,22 @@ export class Node {
     if (topNode) {
       this.isTopNode = true;
     }
+  };
+
+  @AfterLoad()
+  calculateIsActive = () => {
+    if (this.lastBlockCreatedAt === null) {
+      return;
+    }
+
+    const threshold = moment()
+      .utc()
+      .subtract(24, 'hours')
+      .utc()
+      .toDate()
+      .getTime();
+    this.isActive =
+      moment(this.lastBlockCreatedAt).utc().toDate().getTime() > threshold;
   };
 
   isMainnet(): boolean {
