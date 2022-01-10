@@ -97,6 +97,30 @@ a.commissionChangeCheck {
 }
 
 .runnode {
+
+  .flexDiv {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 37px;
+
+    .trophyLegend {
+      padding: 12px 12px 12px 15px;
+      font-size: 12px;
+      border: 1px solid #282C3E;
+      background-color: #181B27 !important;
+      border-radius: 8px;
+
+      div {
+        display: flex;
+        align-items: center;
+
+        svg {
+          margin-right: 15px;
+        }
+      }
+    }
+  }
+
   .table {
     min-width: 750;
     color: #ffffff;
@@ -122,6 +146,11 @@ a.commissionChangeCheck {
     color: #ffffff;
     border: none;
     height: auto;
+
+    .flexCell {
+      display: flex;
+      justify-content: space-between;
+    }
   }
 
   .tableSection {
