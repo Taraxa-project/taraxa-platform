@@ -19,12 +19,6 @@ import { TopUser } from './top-user.entity';
 
 @Entity({
   name: 'nodes',
-  orderBy: {
-    lastBlockCreatedAt: {
-      order: 'DESC',
-      nulls: 'NULLS LAST',
-    },
-  },
 })
 export class Node {
   @PrimaryGeneratedColumn()
