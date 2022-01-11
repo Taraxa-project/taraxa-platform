@@ -27,7 +27,7 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
       return;
     }
 
-    if (currentCommission !== null && Math.abs(currentCommission - commissionNumber) < 5) {
+    if (currentCommission !== null && Math.abs(currentCommission - commissionNumber) > 5) {
       setError('maximum change is ±5%');
       return;
     }
