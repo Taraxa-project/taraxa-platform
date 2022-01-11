@@ -35,15 +35,14 @@ interface Node {
   user: number;
   name: string;
   isTopNode: boolean;
+  isActive: boolean;
   address: string;
-  active: boolean;
   currentCommission: number | null;
   pendingCommission: number | null;
   hasPendingCommissionChange: boolean;
   weeklyRank: string | null;
   remainingDelegation: number;
   totalDelegation: number;
-  totalProduced: number;
   yield: number;
   blocksProduced: number | null;
   weeklyBlocksProduced: string | null;
@@ -134,21 +133,7 @@ const Delegation = () => {
       return;
     }
 
-    const now = new Date();
-    const nodes = data.response.map((node: Node) => {
-      if (node.lastBlockCreatedAt) {
-        const lastMinedBlockDate = new Date(node.lastBlockCreatedAt);
-
-        node.active = false;
-        const minsDiff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000 / 60);
-        if (minsDiff < 24 * 60) {
-          node.active = true;
-        }
-      }
-      return node;
-    });
-
-    setNodes(nodes);
+    setNodes(data.response);
   }, [isLoggedIn, showOnlyMyValidators, showFullyDelegatedNodes]);
 
   useEffect(() => {
@@ -164,7 +149,7 @@ const Delegation = () => {
 
   const rows = nodes.map((node) => {
     let className = 'dot';
-    if (node.active) {
+    if (node.isActive) {
       className += ' active';
     }
     const status = (

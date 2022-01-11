@@ -11,7 +11,7 @@ interface Node {
   name: string;
   address: string;
   ip: string;
-  active: boolean;
+  isActive: boolean;
   type: 'mainnet' | 'testnet';
   commissions: any[];
   currentCommission: number | null;
@@ -20,7 +20,6 @@ interface Node {
   weeklyRank: string | null;
   remainingDelegation: number;
   totalDelegation: number;
-  totalProduced: number;
   yield: number;
   blocksProduced: number | null;
   weeklyBlocksProduced: string | null;

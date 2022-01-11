@@ -202,22 +202,11 @@ const RunNode = () => {
 
     setNodes(data.response);
 
-    const now = new Date();
     let totalProduced = 0;
     let weeklyRank: number;
     data.response.forEach((node: any) => {
-      if (node.lastBlockCreatedAt) {
-        const lastMinedBlockDate = new Date(node.lastBlockCreatedAt);
-
-        node.active = false;
-        const minsDiff = Math.ceil((now.getTime() - lastMinedBlockDate.getTime()) / 1000 / 60);
-        if (minsDiff < 24 * 60) {
-          node.active = true;
-        }
-      }
-
-      if (node.totalProduced) {
-        totalProduced += node.totalProduced;
+      if (node.blocksProduced) {
+        totalProduced += node.blocksProduced;
       }
 
       if (node.weeklyRank) {
@@ -227,8 +216,6 @@ const RunNode = () => {
           weeklyRank = node.weeklyRank;
         }
       }
-
-      return node;
     });
 
     if (weeklyRank!) {
@@ -298,7 +285,7 @@ const RunNode = () => {
 
   const rows = nodes.map((node) => {
     let className = 'dot';
-    if (node.active) {
+    if (node.isActive) {
       className += ' active';
     }
     const status = (
@@ -480,7 +467,7 @@ const RunNode = () => {
           {nodes.length > 0 && (
             <>
               <BaseCard
-                title={`${nodes.filter((node) => node.active).length}`}
+                title={`${nodes.filter((node) => node.isActive).length}`}
                 description="Active nodes"
                 tooltip={
                   <Tooltip
