@@ -1,20 +1,23 @@
 import * as ethUtil from 'ethereumjs-util';
 import moment from 'moment';
-import { Repository } from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ValidationException } from '../utils/exceptions/validation.exception';
 import { NodeService } from '../node/node.service';
 import { Node } from '../node/node.entity';
+import { NodeType } from '../node/node-type.enum';
 import { StakingService } from '../staking/staking.service';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
+import { DELEGATION_CREATED_EVENT } from './delegation.constants';
+import { DelegationCreatedEvent } from './event/delegation-created.event';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
 import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
 import { BalancesDto } from './dto/balances.dto';
 import { BalancesByNodeDto } from './dto/balances-by-node.dto';
-import { NodeType } from '../node/node-type.enum';
 
 @Injectable()
 export class DelegationService {
@@ -23,6 +26,7 @@ export class DelegationService {
     private delegationRepository: Repository<Delegation>,
     @InjectRepository(DelegationNonce)
     private delegationNonceRepository: Repository<DelegationNonce>,
+    private eventEmitter: EventEmitter2,
     private config: ConfigService,
     private nodeService: NodeService,
     private stakingService: StakingService,
@@ -160,7 +164,20 @@ export class DelegationService {
     delegation.user = user;
     delegation.node = node;
 
-    return this.delegationRepository.save(delegation);
+    const createdDelegation = await this.delegationRepository.save(delegation);
+
+    this.eventEmitter.emit(
+      DELEGATION_CREATED_EVENT,
+      new DelegationCreatedEvent(createdDelegation.id),
+    );
+
+    return createdDelegation;
+  }
+
+  async findDelegationByOrFail(
+    options: FindConditions<Delegation>,
+  ): Promise<Delegation> {
+    return this.delegationRepository.findOneOrFail(options);
   }
 
   async ensureMainnetDelegation(nodeId: number): Promise<void> {
