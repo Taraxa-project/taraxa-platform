@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEthereumAddress, Min } from 'class-validator';
+import { IsEthereumAddress } from 'class-validator';
 
 export class CreateDelegationNonceDto {
   @IsEthereumAddress()

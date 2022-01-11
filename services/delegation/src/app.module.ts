@@ -2,10 +2,12 @@ import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bull';
 import { ScheduleModule } from '@nestjs/schedule';
 
 import generalConfig from './config/general';
 import databaseConfig from './config/database';
+import queueConfig from './config/queue';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { NodeModule } from './modules/node/node.module';
@@ -30,6 +32,17 @@ import { HttpExceptionFilter } from './modules/utils/http-exception.filter';
         database: config.get('database.name'),
         autoLoadEntities: true,
         synchronize: !config.get<boolean>('isProd'),
+      }),
+      inject: [ConfigService],
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule.forFeature(queueConfig)],
+      useFactory: (config: ConfigService) => ({
+        redis: {
+          host: config.get('queue.host'),
+          port: config.get('queue.port'),
+          prefix: config.get('queue.prefix'),
+        },
       }),
       inject: [ConfigService],
     }),

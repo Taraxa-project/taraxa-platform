@@ -2,6 +2,7 @@ app:
   environment: prod
   dbHost: 10.39.112.4
   dbName: delegation
+  queueHost: 10.39.114.21
   stakingContractAddress: "0x7Af59Ea121a8Da8e49d2d44856feB7761561995b"
   mainnetEndpoint: "https://rpc.mainnet.taraxa.io"
   testnetEndpoint: "https://rpc.testnet.taraxa.io"
