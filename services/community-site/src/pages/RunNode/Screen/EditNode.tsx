@@ -5,30 +5,11 @@ import { useDelegationApi } from '../../../services/useApi';
 import CloseIcon from '../../../assets/icons/close';
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import UpdateCommission from '../Modal/UpdateCommission';
-
-interface Node {
-  id: number;
-  name: string;
-  address: string;
-  ip: string;
-  isActive: boolean;
-  type: 'mainnet' | 'testnet';
-  commissions: any[];
-  currentCommission: number | null;
-  pendingCommission: number | null;
-  hasPendingCommissionChange: boolean;
-  weeklyRank: string | null;
-  remainingDelegation: number;
-  totalDelegation: number;
-  yield: number;
-  blocksProduced: number | null;
-  weeklyBlocksProduced: string | null;
-  lastBlockCreatedAt: number | null;
-}
+import OwnNode from '../../../interfaces/OwnNode';
 
 interface EditNodeProps {
   closeEditNode: (refreshNodes: boolean) => void;
-  node: Node;
+  node: OwnNode;
 }
 
 const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
@@ -203,5 +184,4 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
   );
 };
 
-export type { Node };
 export default EditNode;

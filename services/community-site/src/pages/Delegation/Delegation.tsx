@@ -23,31 +23,13 @@ import {
 import { useMetaMask } from 'metamask-react';
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
+import PublicNode from '../../interfaces/PublicNode';
 import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
 import CloseIcon from '../../assets/icons/close';
 import Title from '../../components/Title/Title';
 import Delegate from './Modal/Delegate';
 
 import './delegation.scss';
-
-interface Node {
-  id: number;
-  user: number;
-  name: string;
-  isTopNode: boolean;
-  isActive: boolean;
-  address: string;
-  currentCommission: number | null;
-  pendingCommission: number | null;
-  hasPendingCommissionChange: boolean;
-  weeklyRank: string | null;
-  remainingDelegation: number;
-  totalDelegation: number;
-  yield: number;
-  blocksProduced: number | null;
-  weeklyBlocksProduced: string | null;
-  lastBlockCreatedAt: number | null;
-}
 
 const Delegation = () => {
   const { status, account } = useMetaMask();
@@ -62,8 +44,8 @@ const Delegation = () => {
   const [averageDelegation, setAverageDelegation] = useState(0);
   const [totalDelegation, setTotalDelegation] = useState(0);
   const [totalValidators, setTotalValidators] = useState(0);
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [delegateToNode, setDelegateToNode] = useState<Node | null>(null);
+  const [nodes, setNodes] = useState<PublicNode[]>([]);
+  const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
 
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
 

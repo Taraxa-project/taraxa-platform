@@ -29,12 +29,12 @@ import InfoIcon from '../../assets/icons/info';
 
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
-
+import OwnNode from '../../interfaces/OwnNode';
 import Title from '../../components/Title/Title';
 
 import RegisterNode from './Modal/RegisterNode';
 import CreateOrEditProfile, { Profile } from './Screen/CreateOrEditProfile';
-import EditNode, { Node } from './Screen/EditNode';
+import EditNode from './Screen/EditNode';
 
 import './runnode.scss';
 
@@ -166,9 +166,9 @@ const RunNode = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [nodeType, setNodeType] = useState<'mainnet' | 'testnet'>('mainnet');
   const [hasRegisterNodeModal, setHasRegisterNodeModal] = useState(false);
-  const [currentEditedNode, setCurrentEditedNode] = useState<null | Node>(null);
+  const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
 
-  const [nodes, setNodes] = useState<Node[]>([]);
+  const [nodes, setNodes] = useState<OwnNode[]>([]);
   const [blocksProduced, setBlocksProduced] = useState('0');
   const [weeklyRating, setWeeklyRating] = useState('N/A');
   const [profile, setProfile] = useState<Profile | undefined>(undefined);
@@ -228,7 +228,7 @@ const RunNode = () => {
     getNodes();
   }, [getNodes]);
 
-  const deleteNode = async (node: Node) => {
+  const deleteNode = async (node: OwnNode) => {
     await delegationApi.del(`/nodes/${node.id}`, true);
     await getNodes();
   };
