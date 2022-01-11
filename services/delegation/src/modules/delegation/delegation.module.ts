@@ -13,6 +13,7 @@ import { BalanceController } from './balance.controller';
 import { DelegationService } from './delegation.service';
 import { DelegationTaskService } from './delegation-task.service';
 import { DelegationConsumer } from './delegation.consumer';
+import { NodeCreatedListener } from './listener/node-created.listener';
 
 @Module({
   imports: [
@@ -25,7 +26,12 @@ import { DelegationConsumer } from './delegation.consumer';
     StakingModule,
   ],
   controllers: [DelegationController, BalanceController],
-  providers: [DelegationService, DelegationTaskService, DelegationConsumer],
+  providers: [
+    DelegationService,
+    DelegationTaskService,
+    DelegationConsumer,
+    NodeCreatedListener,
+  ],
   exports: [TypeOrmModule],
 })
 export class DelegationModule {}

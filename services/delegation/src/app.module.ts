@@ -3,6 +3,7 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 
 import generalConfig from './config/general';
@@ -46,6 +47,7 @@ import { HttpExceptionFilter } from './modules/utils/http-exception.filter';
       }),
       inject: [ConfigService],
     }),
+    EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     AuthModule,
     NodeModule,

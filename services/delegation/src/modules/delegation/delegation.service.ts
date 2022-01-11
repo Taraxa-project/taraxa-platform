@@ -134,7 +134,7 @@ export class DelegationService {
       throw new ValidationException('Invalid proof');
     }
 
-    const nodeDelegations = await this.getNodeDelegations(node.id);
+    const nodeDelegations = await this.getTotalNodeDelegation(node.id);
     const maxDelegation = this.config.get<number>('delegation.maxDelegation');
     if (nodeDelegations + delegationDto.value > maxDelegation) {
       throw new ValidationException(
@@ -163,32 +163,36 @@ export class DelegationService {
     return this.delegationRepository.save(delegation);
   }
 
-  async ensureMainnetDelegation(address: string, delegation: number) {
+  async ensureMainnetDelegation(nodeId: number): Promise<void> {
+    const node = await this.nodeService.findNodeByOrFail({ id: nodeId });
+    const totalNodeDelegation = await this.getTotalNodeDelegation(nodeId);
+
     const currentDelegation = await this.stakingService.getMainnetStake(
-      address,
+      node.address,
     );
-    if (currentDelegation === delegation) {
+    if (currentDelegation === totalNodeDelegation) {
       return;
     }
 
-    if (currentDelegation > delegation) {
+    if (currentDelegation > totalNodeDelegation) {
       await this.stakingService.undelegateMainnetTransaction(
-        address,
-        currentDelegation - delegation,
+        node.address,
+        currentDelegation - totalNodeDelegation,
       );
     } else {
       await this.stakingService.delegateMainnetTransaction(
-        address,
-        delegation - currentDelegation,
+        node.address,
+        totalNodeDelegation - currentDelegation,
       );
     }
   }
 
-  async ensureTestnetDelegation(address: string) {
-    await this.stakingService.delegateTestnetTransaction(address);
+  async ensureTestnetDelegation(nodeId: number) {
+    const node = await this.nodeService.findNodeByOrFail({ id: nodeId });
+    await this.stakingService.delegateTestnetTransaction(node.address);
   }
 
-  private async getNodeDelegations(nodeId: number) {
+  private async getTotalNodeDelegation(nodeId: number) {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
