@@ -28,6 +28,7 @@ import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
 import CloseIcon from '../../assets/icons/close';
 import Title from '../../components/Title/Title';
 import Delegate from './Modal/Delegate';
+import Undelegate from './Modal/Undelegate';
 
 import './delegation.scss';
 
@@ -46,6 +47,7 @@ const Delegation = () => {
   const [totalValidators, setTotalValidators] = useState(0);
   const [nodes, setNodes] = useState<PublicNode[]>([]);
   const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
+  const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
 
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
 
@@ -164,7 +166,13 @@ const Delegation = () => {
             setDelegateToNode(node);
           }}
         />
-        <Button size="small" label="Un-delegate" className="delete" disabled />
+        <Button
+          size="small"
+          label="Un-delegate"
+          disabled={!canDelegate}
+          className="delete"
+          onClick={() => setUndelegateFromNode(node)}
+        />
       </>
     );
 
@@ -214,6 +222,26 @@ const Delegation = () => {
           parentElementID="root"
           onRequestClose={() => {
             setDelegateToNode(null);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
+      {undelegateFromNode && (
+        <Modal
+          id="signinModal"
+          title="Undelegate from..."
+          show={!!undelegateFromNode}
+          children={
+            <Undelegate
+              validatorName={undelegateFromNode.name}
+              validatorAddress={undelegateFromNode.address}
+              totalDelegation={undelegateFromNode.totalDelegation}
+              onSuccess={() => setUndelegateFromNode(null)}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setUndelegateFromNode(null);
           }}
           closeIcon={CloseIcon}
         />
@@ -320,7 +348,7 @@ const Delegation = () => {
               <TableBody>
                 {delegatableNodes.length > 0 &&
                   delegatableNodes.map((row) => (
-                    <TableRow className="tableRow">
+                    <TableRow className="tableRow" key={row.name}>
                       <TableCell className="tableCell">{row.status}</TableCell>
                       <TableCell className="tableCell">
                         <div className="flexCell">
