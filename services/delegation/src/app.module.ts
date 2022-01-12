@@ -42,6 +42,7 @@ import { HttpExceptionFilter } from './modules/utils/http-exception.filter';
         redis: {
           host: config.get('queue.host'),
           port: config.get('queue.port'),
+          password: config.get('queue.pass'),
           prefix: config.get('queue.prefix'),
         },
       }),
