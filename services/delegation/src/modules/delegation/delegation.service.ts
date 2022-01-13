@@ -216,10 +216,6 @@ export class DelegationService {
     }
 
     if (currentDelegation > totalNodeDelegation) {
-      await this.stakingService.undelegateMainnetTransaction(
-        node.address,
-        currentDelegation - totalNodeDelegation,
-      );
       await this.stakingService.undelegateTestnetTransaction(node.address);
     } else {
       await this.stakingService.delegateTestnetTransaction(node.address);
