@@ -182,43 +182,73 @@ export class DelegationService {
     return this.delegationRepository.findOneOrFail(options);
   }
 
-  async ensureMainnetDelegation(nodeId: number): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({ id: nodeId });
-    const totalNodeDelegation = await this.getTotalNodeDelegation(nodeId);
+  async ensureDelegation(nodeId: number, type: string, address: string) {
+    let node: Node;
+    try {
+      node = await this.nodeService.findNodeByOrFail({ id: nodeId });
+    } catch (e) {
+      node = null;
+    }
 
-    const currentDelegation = await this.getDelegation(node.address, node.type);
+    let totalNodeDelegation = 0;
+    if (node) {
+      if (type === NodeType.MAINNET) {
+        totalNodeDelegation = await this.getTotalNodeDelegation(nodeId);
+      } else {
+        totalNodeDelegation = this.config.get<number>(
+          'delegation.testnetDelegation',
+        );
+      }
+    }
+
+    if (type === NodeType.MAINNET) {
+      await this.ensureMainnetDelegation(address, totalNodeDelegation);
+    } else {
+      await this.ensureTestnetDelegation(address, totalNodeDelegation);
+    }
+  }
+
+  private async ensureMainnetDelegation(
+    address: string,
+    totalNodeDelegation: number,
+  ): Promise<void> {
+    const currentDelegation = await this.getDelegation(
+      address,
+      NodeType.MAINNET,
+    );
     if (currentDelegation === totalNodeDelegation) {
       return;
     }
 
     if (currentDelegation > totalNodeDelegation) {
       await this.stakingService.undelegateMainnetTransaction(
-        node.address,
+        address,
         currentDelegation - totalNodeDelegation,
       );
     } else {
       await this.stakingService.delegateMainnetTransaction(
-        node.address,
+        address,
         totalNodeDelegation - currentDelegation,
       );
     }
   }
 
-  async ensureTestnetDelegation(nodeId: number) {
-    const node = await this.nodeService.findNodeByOrFail({ id: nodeId });
-    const totalNodeDelegation = this.config.get<number>(
-      'delegation.testnetDelegation',
+  private async ensureTestnetDelegation(
+    address: string,
+    totalNodeDelegation: number,
+  ) {
+    const currentDelegation = await this.getDelegation(
+      address,
+      NodeType.TESTNET,
     );
-
-    const currentDelegation = await this.getDelegation(node.address, node.type);
     if (currentDelegation === totalNodeDelegation) {
       return;
     }
 
     if (currentDelegation > totalNodeDelegation) {
-      await this.stakingService.undelegateTestnetTransaction(node.address);
+      await this.stakingService.undelegateTestnetTransaction(address);
     } else {
-      await this.stakingService.delegateTestnetTransaction(node.address);
+      await this.stakingService.delegateTestnetTransaction(address);
     }
   }
 

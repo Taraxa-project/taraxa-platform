@@ -1,7 +1,6 @@
 import { Job } from 'bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Processor, Process } from '@nestjs/bull';
-import { NodeType } from '../node/node-type.enum';
 import { ENSURE_DELEGATION_JOB } from './delegation.constants';
 import { DelegationService } from './delegation.service';
 import { EnsureDelegationJob } from './job/ensure-delegation.job';
@@ -19,15 +18,11 @@ export class DelegationConsumer {
       }, data: ${JSON.stringify(job.data, null, 2)}`,
     );
 
-    const { nodeId, type } = job.data;
+    const { nodeId, type, address } = job.data;
 
     this.logger.debug(
       `${ENSURE_DELEGATION_JOB} worker (job ${job.id}): Ensuring node ${nodeId} has delegation`,
     );
-    if (type === NodeType.MAINNET) {
-      await this.delegationService.ensureMainnetDelegation(nodeId);
-    } else {
-      await this.delegationService.ensureTestnetDelegation(nodeId);
-    }
+    await this.delegationService.ensureDelegation(nodeId, type, address);
   }
 }

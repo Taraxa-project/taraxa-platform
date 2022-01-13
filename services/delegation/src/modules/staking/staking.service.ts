@@ -35,45 +35,6 @@ export class StakingService {
     const stakeOf = await this.contract.stakeOf(address);
     return stakeOf[0].div(ethers.BigNumber.from(10).pow(18)).toNumber();
   }
-  async getMainnetStake(address: string): Promise<number> {
-    const formattedAddress = address.toLocaleLowerCase();
-    const mainnetEndpoint = this.config.get<string>('ethereum.mainnetEndpoint');
-    const payload = {
-      jsonrpc: '2.0',
-      method: 'taraxa_queryDPOS',
-      params: [
-        {
-          account_queries: {
-            [formattedAddress]: {
-              inbound_deposits_addrs_only: false,
-              outbound_deposits_addrs_only: false,
-              with_inbound_deposits: true,
-              with_outbound_deposits: true,
-              with_staking_balance: true,
-            },
-          },
-          with_eligible_count: true,
-        },
-      ],
-      id: 1,
-    };
-    const state = await this.httpService
-      .post(mainnetEndpoint, payload, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .toPromise();
-
-    if (state.status !== 200) {
-      throw new Error('Failed to get mainnet stake');
-    }
-
-    return parseInt(
-      state.data.result.account_results[formattedAddress].staking_balance,
-      16,
-    );
-  }
   async delegateTestnetTransaction(address: string) {
     const explorerUrl = this.config.get<string>('ethereum.testnetExplorerUrl');
 
@@ -85,7 +46,6 @@ export class StakingService {
       )
       .toPromise();
   }
-
   async undelegateTestnetTransaction(address: string) {
     const explorerUrl = this.config.get<string>('ethereum.testnetExplorerUrl');
 
