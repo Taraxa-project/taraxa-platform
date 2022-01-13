@@ -29,8 +29,9 @@ const Undelegate = ({
   return (
     <div className="delegateNodeModal">
       <Text
-        style={{ marginBottom: '2%' }}
+        style={{ marginBottom: '32px', fontSize: '18px' }}
         label="Undelegate from..."
+        align="center"
         variant="h6"
         color="primary"
       />

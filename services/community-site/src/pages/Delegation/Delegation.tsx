@@ -198,7 +198,7 @@ const Delegation = () => {
     <div className="runnode">
       {delegateToNode && (
         <Modal
-          id="signinModal"
+          id="delegateModal"
           title="Delegate to..."
           show={!!delegateToNode}
           children={
@@ -228,7 +228,7 @@ const Delegation = () => {
       )}
       {undelegateFromNode && (
         <Modal
-          id="signinModal"
+          id="delegateModal"
           title="Undelegate from..."
           show={!!undelegateFromNode}
           children={

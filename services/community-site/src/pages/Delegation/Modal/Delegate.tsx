@@ -81,7 +81,8 @@ const Delegate = ({
       {step === 1 ? (
         <>
           <Text
-            style={{ marginBottom: '2%' }}
+            style={{ marginBottom: '32px', fontSize: '18px' }}
+            align="center"
             label="Delegate to..."
             variant="h6"
             color="primary"
@@ -93,9 +94,9 @@ const Delegate = ({
             </p>
           </div>
           <div className="taraContainerWrapper">
-            <div className="taraContainer">
+            <div className="taraContainer taraContainerBalance">
               <p className="taraContainerAmountDescription">My available TARA for delegation</p>
-              <div className="taraContainerAmount taraContainerBalance">
+              <div className="taraContainerAmount">
                 <p className="taraContainerAmountTotal">
                   {ethers.utils.commify(availableStakingBalance)}
                 </p>
@@ -115,7 +116,7 @@ const Delegate = ({
             </div>
           </div>
           <div className="taraInputWrapper">
-            <p className="maxDelegatableDescription">Maximum delegateable</p>
+            <p className="maxDelegatableDescription">Maximum delegate-able</p>
             <p className="maxDelegatableTotal">{ethers.utils.commify(maximumDelegatable)}</p>
             <p className="maxDelegatableUnit">TARA</p>
             <InputField
