@@ -8,7 +8,6 @@ import ethereumConfig from '../../config/ethereum';
 
 import { Delegation } from '../delegation/delegation.entity';
 import { ProfileModule } from '../profile/profile.module';
-import { StakingModule } from '../staking/staking.module';
 
 import { Node } from './node.entity';
 import { NodeCommission } from './node-commission.entity';
@@ -33,7 +32,6 @@ import { ValidatorService } from './validator.service';
     ConfigModule.forFeature(delegationConfig),
     ConfigModule.forFeature(ethereumConfig),
     ProfileModule,
-    StakingModule,
   ],
   controllers: [NodeController, ValidatorController],
   providers: [NodeService, ValidatorService, NodeTaskService],

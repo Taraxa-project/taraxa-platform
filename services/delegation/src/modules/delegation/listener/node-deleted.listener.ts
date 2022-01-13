@@ -2,23 +2,23 @@ import { Queue } from 'bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bull';
-import { NODE_CREATED_EVENT } from '../../node/node.constants';
-import { NodeCreatedEvent } from '../../node/event/node-created.event';
+import { NODE_DELETED_EVENT } from '../../node/node.constants';
 import { NodeType } from '../../node/node-type.enum';
+import { NodeDeletedEvent } from '../../node/event/node-deleted.event';
 import { ENSURE_DELEGATION_JOB } from '../delegation.constants';
 import { EnsureDelegationJob } from '../job/ensure-delegation.job';
 
 @Injectable()
-export class NodeCreatedListener {
-  private readonly logger = new Logger(NodeCreatedListener.name);
+export class NodeDeletedListener {
+  private readonly logger = new Logger(NodeDeletedListener.name);
   constructor(
     @InjectQueue('delegation')
     private delegationQueue: Queue,
   ) {}
-  @OnEvent(NODE_CREATED_EVENT, { async: true })
-  async handleNodeCreatedEvent(event: NodeCreatedEvent) {
+  @OnEvent(NODE_DELETED_EVENT, { async: true })
+  async handleNodeDeletedEvent(event: NodeDeletedEvent) {
     this.logger.debug(
-      `Received ${NODE_CREATED_EVENT} event, data: ${JSON.stringify(
+      `Received ${NODE_DELETED_EVENT} event, data: ${JSON.stringify(
         event,
         null,
         2,
@@ -27,7 +27,7 @@ export class NodeCreatedListener {
 
     if (event.type === NodeType.MAINNET) {
       this.logger.debug(
-        `${NODE_CREATED_EVENT} event: Skipping, node ${event.nodeId} is a mainnet node`,
+        `${NODE_DELETED_EVENT} event: Skipping, node ${event.nodeId} is a mainnet node`,
       );
       return;
     }
