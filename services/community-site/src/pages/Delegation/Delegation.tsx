@@ -39,7 +39,7 @@ const Delegation = () => {
   const isLoggedIn = !!auth.user?.id;
 
   const [ownValidatorsHaveCommissionChange, setOwnValidatorsHaveCommissionChange] = useState(false);
-  const [showMyValidators, setShowMyValidators] = useState(false);
+  const [showUserOwnValidators, setShowUserOwnValidators] = useState(false);
   const [showFullyDelegatedNodes, setShowFullyDelegatedNodes] = useState(true);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [averageDelegation, setAverageDelegation] = useState(0);
@@ -90,7 +90,7 @@ const Delegation = () => {
 
   const getValidators = useCallback(async () => {
     const data = await delegationApi.get(
-      `/validators?show_fully_delegated=${showFullyDelegatedNodes}&show_my_validators=${showMyValidators}`,
+      `/validators?show_fully_delegated=${showFullyDelegatedNodes}&show_my_validators=${showUserOwnValidators}`,
       isLoggedIn,
     );
 
@@ -119,7 +119,7 @@ const Delegation = () => {
     }
 
     setNodes(validators);
-  }, [isLoggedIn, showMyValidators, showFullyDelegatedNodes]);
+  }, [isLoggedIn, showUserOwnValidators, showFullyDelegatedNodes]);
 
   useEffect(() => {
     getValidators();
@@ -239,7 +239,7 @@ const Delegation = () => {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  setShowMyValidators(true);
+                  setShowUserOwnValidators(true);
                   setShowFullyDelegatedNodes(true);
                 }}
               >
@@ -288,11 +288,11 @@ const Delegation = () => {
               <Switch
                 className="switch"
                 name="Only show my validators"
-                checked={showMyValidators}
+                checked={showUserOwnValidators}
                 label="Only show my validators"
                 labelPlacement="end"
                 onChange={() => {
-                  setShowMyValidators((v) => !v);
+                  setShowUserOwnValidators((v) => !v);
                 }}
               />
             )}
