@@ -10,6 +10,7 @@ import theme from '../theme';
 
 export interface SwitchProps extends MSwitchProps {
   label: string;
+  labelPlacement?: 'start' | 'end' | 'top' | 'bottom';
 }
 
 const Switch = ({
@@ -22,30 +23,29 @@ const Switch = ({
   id,
   className,
   value,
-}: SwitchProps) => {
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <FormControlLabel
-        value={value}
-        id={id}
-        className={className}
-        control={
-          <MSwitch
-            checked={checked}
-            onChange={onChange}
-            name={name}
-            disabled={disabled}
-            color={color}
-            value={value}
-          />
-        }
-        label={label}
-        labelPlacement="start"
-        color="white"
-      />
-    </ThemeProvider>
-  );
-};
+  labelPlacement,
+}: SwitchProps) => (
+  <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <FormControlLabel
+      value={value}
+      id={id}
+      className={className}
+      control={
+        <MSwitch
+          checked={checked}
+          onChange={onChange}
+          name={name}
+          disabled={disabled}
+          color={color}
+          value={value}
+        />
+      }
+      label={label}
+      labelPlacement={labelPlacement || 'start'}
+      color="white"
+    />
+  </ThemeProvider>
+);
 
 export default Switch;

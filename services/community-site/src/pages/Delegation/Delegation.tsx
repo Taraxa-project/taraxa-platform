@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import clsx from 'clsx';
 import { ethers } from 'ethers';
 import {
   Notification,
@@ -38,7 +39,7 @@ const Delegation = () => {
   const isLoggedIn = !!auth.user?.id;
 
   const [ownValidatorsHaveCommissionChange, setOwnValidatorsHaveCommissionChange] = useState(false);
-  const [showOnlyMyValidators, setShowOnlyMyValidators] = useState(false);
+  const [showMyValidators, setShowMyValidators] = useState(false);
   const [showFullyDelegatedNodes, setShowFullyDelegatedNodes] = useState(true);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [averageDelegation, setAverageDelegation] = useState(0);
@@ -48,25 +49,6 @@ const Delegation = () => {
   const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
 
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
-
-  const checkOwnValidatorsCommissionChanges = useCallback(async () => {
-    if (!isLoggedIn) {
-      return;
-    }
-    const data = await delegationApi.get(
-      '/validators?show_fully_delegated=true&show_my_validators=true',
-      true,
-    );
-    if (data.success) {
-      setOwnValidatorsHaveCommissionChange(
-        data.response.filter((node: any) => node.hasPendingCommissionChange).length > 0,
-      );
-    }
-  }, [isLoggedIn]);
-
-  useEffect(() => {
-    checkOwnValidatorsCommissionChanges();
-  }, [checkOwnValidatorsCommissionChanges]);
 
   const getStats = useCallback(async () => {
     const data = await delegationApi.get(
@@ -108,15 +90,36 @@ const Delegation = () => {
 
   const getValidators = useCallback(async () => {
     const data = await delegationApi.get(
-      `/validators?show_fully_delegated=${showFullyDelegatedNodes}&show_my_validators=${showOnlyMyValidators}`,
+      `/validators?show_fully_delegated=${showFullyDelegatedNodes}&show_my_validators=${showMyValidators}`,
       isLoggedIn,
     );
+
     if (!data.success) {
       return;
     }
 
-    setNodes(data.response);
-  }, [isLoggedIn, showOnlyMyValidators, showFullyDelegatedNodes]);
+    let validators = data.response;
+
+    if (isLoggedIn) {
+      const ownValidators = await delegationApi.get(
+        '/validators?show_fully_delegated=true&show_my_validators=true',
+        true,
+      );
+      if (data.success) {
+        setOwnValidatorsHaveCommissionChange(
+          ownValidators.response.filter((node: PublicNode) => node.hasPendingCommissionChange)
+            .length > 0,
+        );
+        const ownValidatorsIds = ownValidators.response.map((v: PublicNode) => v.id);
+        validators = validators.map((v: PublicNode) => {
+          v.isUserOwnValidator = ownValidatorsIds.includes(v.id);
+          return v;
+        });
+      }
+    }
+
+    setNodes(validators);
+  }, [isLoggedIn, showMyValidators, showFullyDelegatedNodes]);
 
   useEffect(() => {
     getValidators();
@@ -141,6 +144,7 @@ const Delegation = () => {
     );
 
     const name = formatNodeName(!node.name ? node.address : node.name);
+    const isUserOwnValidator = node.isUserOwnValidator;
     const isTopNode = node.isTopNode;
     const expectedYield = `${node.yield}%`;
     const currentCommission = `${node.currentCommission}%`;
@@ -154,16 +158,18 @@ const Delegation = () => {
 
     const actions = (
       <>
-        <Button
-          size="small"
-          variant="contained"
-          color="secondary"
-          label="Delegate"
-          disabled={!canDelegate}
-          onClick={() => {
-            setDelegateToNode(node);
-          }}
-        />
+        {node.remainingDelegation > 0 && (
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            label="Delegate"
+            disabled={!canDelegate}
+            onClick={() => {
+              setDelegateToNode(node);
+            }}
+          />
+        )}
         <Button size="small" label="Un-delegate" className="delete" disabled />
       </>
     );
@@ -172,6 +178,7 @@ const Delegation = () => {
       status,
       name,
       isTopNode,
+      isUserOwnValidator,
       expectedYield,
       currentCommission,
       pendingCommission,
@@ -232,7 +239,7 @@ const Delegation = () => {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  setShowOnlyMyValidators(true);
+                  setShowMyValidators(true);
                   setShowFullyDelegatedNodes(true);
                 }}
               >
@@ -279,18 +286,22 @@ const Delegation = () => {
           <div>
             {isLoggedIn && (
               <Switch
-                name="Show only my validators"
-                checked={showOnlyMyValidators}
-                label="Show only my validators"
+                className="switch"
+                name="Only show my validators"
+                checked={showMyValidators}
+                label="Only show my validators"
+                labelPlacement="end"
                 onChange={() => {
-                  setShowOnlyMyValidators((v) => !v);
+                  setShowMyValidators((v) => !v);
                 }}
               />
             )}
             <Switch
+              className="switch"
               name="Show fully delegated nodes"
               checked={showFullyDelegatedNodes}
               label="Show fully delegated nodes"
+              labelPlacement="end"
               onChange={() => {
                 setShowFullyDelegatedNodes((v) => !v);
               }}
@@ -307,12 +318,12 @@ const Delegation = () => {
             <Table className="table">
               <TableHead>
                 <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell">Status</TableCell>
-                  <TableCell className="tableHeadCell">Name</TableCell>
-                  <TableCell className="tableHeadCell">Yield</TableCell>
-                  <TableCell className="tableHeadCell">Commission</TableCell>
-                  <TableCell className="tableHeadCell">Delegation</TableCell>
-                  <TableCell className="tableHeadCell" colSpan={2}>
+                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
+                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
+                  <TableCell className="tableHeadCell yieldCell">Yield, %</TableCell>
+                  <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
+                  <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
+                  <TableCell className="tableHeadCell availableDelegationActionsCell">
                     Available for Delegation
                   </TableCell>
                 </TableRow>
@@ -320,9 +331,11 @@ const Delegation = () => {
               <TableBody>
                 {delegatableNodes.length > 0 &&
                   delegatableNodes.map((row) => (
-                    <TableRow className="tableRow">
-                      <TableCell className="tableCell">{row.status}</TableCell>
-                      <TableCell className="tableCell">
+                    <TableRow
+                      className={clsx('tableRow', row.isUserOwnValidator && 'userValidator')}
+                    >
+                      <TableCell className="tableCell statusCell">{row.status}</TableCell>
+                      <TableCell className="tableCell nameCell">
                         <div className="flexCell">
                           <div>{row.name}</div>
                           {row.isTopNode && (
@@ -332,54 +345,69 @@ const Delegation = () => {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="tableCell">{row.expectedYield}</TableCell>
-                      <TableCell className="tableCell">
+                      <TableCell className="tableCell yieldCell">{row.expectedYield}</TableCell>
+                      <TableCell className="tableCell commissionCell">
                         {row.hasPendingCommissionChange ? (
-                          <>
+                          <div className="commissionDisplayPendingChangeWrapper">
                             <NodeCommissionChangeIcon />{' '}
                             <span className="commissionDisplayPendingChange">
                               {row.currentCommission} ➞ {row.pendingCommission}
                             </span>
-                          </>
+                          </div>
                         ) : (
                           row.currentCommission
                         )}
                       </TableCell>
-                      <TableCell className="tableCell">{row.totalDelegation}</TableCell>
-                      <TableCell className="tableCell">{row.remainingDelegation}</TableCell>
-                      <TableCell className="tableCell" align="right">
-                        {row.actions}
+                      <TableCell className="tableCell delegationCell">
+                        <strong>{row.totalDelegation}</strong>
+                      </TableCell>
+                      <TableCell className="tableCell availableDelegationActionsCell">
+                        <div className="availableDelegation">{row.remainingDelegation}</div>
+                        <div className="validatorActions">{row.actions}</div>
                       </TableCell>
                     </TableRow>
                   ))}
                 {fullyDelegatedNodes.length > 0 && (
                   <>
                     <TableRow className="tableRow">
-                      <TableCell className="tableCell tableSection" colSpan={7}>
-                        fully delegated nodes
+                      <TableCell className="tableCell tableSection" colSpan={6}>
+                        <div className="fullyDelegatedSeparator">fully delegated</div>
                       </TableCell>
                     </TableRow>
                     {fullyDelegatedNodes.map((row) => (
-                      <TableRow className="tableRow">
-                        <TableCell className="tableCell">{row.status}</TableCell>
-                        <TableCell className="tableCell">{row.name}</TableCell>
-                        <TableCell className="tableCell">{row.expectedYield}</TableCell>
-                        <TableCell className="tableCell">
+                      <TableRow
+                        className={clsx('tableRow', row.isUserOwnValidator && 'userValidator')}
+                      >
+                        <TableCell className="tableCell statusCell">{row.status}</TableCell>
+                        <TableCell className="tableCell nameCell">
+                          <div className="flexCell">
+                            <div>{row.name}</div>
+                            {row.isTopNode && (
+                              <div>
+                                <Icons.Trophy />
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="tableCell yieldCell">{row.expectedYield}</TableCell>
+                        <TableCell className="tableCell commissionCell">
                           {row.hasPendingCommissionChange ? (
-                            <>
+                            <div className="commissionDisplayPendingChangeWrapper">
                               <NodeCommissionChangeIcon />{' '}
                               <span className="commissionDisplayPendingChange">
                                 {row.currentCommission} ➞ {row.pendingCommission}
                               </span>
-                            </>
+                            </div>
                           ) : (
                             row.currentCommission
                           )}
                         </TableCell>
-                        <TableCell className="tableCell">{row.totalDelegation}</TableCell>
-                        <TableCell className="tableCell">{row.remainingDelegation}</TableCell>
-                        <TableCell className="tableCell" align="right">
-                          {row.actions}
+                        <TableCell className="tableCell delegationCell">
+                          <strong>{row.totalDelegation}</strong>
+                        </TableCell>
+                        <TableCell className="tableCell availableDelegationActionsCell">
+                          <div className="availableDelegation">{row.remainingDelegation}</div>
+                          <div className="validatorActions">{row.actions}</div>
                         </TableCell>
                       </TableRow>
                     ))}
