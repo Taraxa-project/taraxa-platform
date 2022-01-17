@@ -141,7 +141,6 @@ const Delegation = () => {
     );
 
     const name = formatNodeName(!node.name ? node.address : node.name);
-    const isTopNode = node.isTopNode;
     const expectedYield = `${node.yield}%`;
     const currentCommission = `${node.currentCommission}%`;
     const pendingCommission = node.hasPendingCommissionChange ? `${node.pendingCommission}%` : null;
@@ -171,7 +170,6 @@ const Delegation = () => {
     return {
       status,
       name,
-      isTopNode,
       expectedYield,
       currentCommission,
       pendingCommission,
@@ -325,7 +323,7 @@ const Delegation = () => {
                       <TableCell className="tableCell">
                         <div className="flexCell">
                           <div>{row.name}</div>
-                          {row.isTopNode && (
+                          {row.node.isTopNode && (
                             <div>
                               <Icons.Trophy />
                             </div>
