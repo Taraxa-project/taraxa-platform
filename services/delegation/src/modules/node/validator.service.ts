@@ -22,11 +22,12 @@ export class ValidatorService {
       nodes = nodes.filter((node) => node.remainingDelegation > 0);
     }
     const decoratedNodes = nodes.map((node) => this.decorateNode(node, user));
-    const sortedNodes = _.sortBy(decoratedNodes, [
+    let sortedNodes = _.sortBy(decoratedNodes, [
       'remainingDelegation',
       'currentCommission',
-      'lastBlockCreatedAt',
     ]);
+    sortedNodes = _.sortBy(decoratedNodes, ['isActive']).reverse();
+    sortedNodes = _.sortBy(decoratedNodes, ['isTopNode']).reverse();
     return sortedNodes;
   }
   async get(id: number, user: number | null): Promise<Partial<Node>> {
