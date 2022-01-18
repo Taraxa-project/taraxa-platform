@@ -246,20 +246,44 @@ export class DelegationService {
     }
 
     if (currentDelegation > totalNodeDelegation) {
-      await this.stakingService.undelegateTestnetTransaction(address);
+      await this.stakingService.undelegateTestnetTransaction(
+        address,
+        totalNodeDelegation,
+      );
     } else {
-      await this.stakingService.delegateTestnetTransaction(address);
+      await this.stakingService.delegateTestnetTransaction(
+        address,
+        totalNodeDelegation,
+      );
     }
   }
 
-  private async getDelegation(address: string, type: string): Promise<number> {
+  async getDelegation(
+    address: string,
+    type: 'mainnet' | 'testnet',
+  ): Promise<number> {
+    const formattedAddress = address.toLowerCase();
+    const currentDelegations = await this.getDelegationsFor(type);
+    const currentDelegation = currentDelegations[formattedAddress]
+      ? parseInt(currentDelegations[formattedAddress], 16)
+      : 0;
+
+    return currentDelegation;
+  }
+
+  async getDelegationsFor(
+    type: 'mainnet' | 'testnet',
+  ): Promise<{ [address: string]: string }> {
     let endpoint: string;
+    let delegatorAddress: string;
     if (type === 'mainnet') {
       endpoint = this.config.get<string>('ethereum.mainnetEndpoint');
+      delegatorAddress = this.stakingService.mainnetWalletAddress;
     } else {
       endpoint = this.config.get<string>('ethereum.testnetEndpoint');
+      delegatorAddress = this.stakingService.testnetWalletAddress;
     }
-    const formattedAddress = address.toLocaleLowerCase();
+    const formattedAddress = delegatorAddress.toLowerCase();
     const state = await this.httpService
       .post(
         endpoint,
@@ -291,13 +315,11 @@ export class DelegationService {
       .toPromise();
 
     if (state.status !== 200) {
-      throw new Error('Failed to get mainnet stake');
+      throw new Error('Failed to get DPOS stake');
     }
 
-    return parseInt(
-      state.data.result.account_results[formattedAddress].staking_balance,
-      16,
-    );
+    return state.data.result.account_results[formattedAddress]
+      .outbound_deposits;
   }
 
   private async getTotalNodeDelegation(nodeId: number) {
