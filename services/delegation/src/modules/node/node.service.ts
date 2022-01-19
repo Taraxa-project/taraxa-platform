@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository, Connection, FindConditions } from 'typeorm';
 import { ProfileService } from '../profile/profile.service';
-import { NODE_CREATED_EVENT } from './node.constants';
+import { NODE_CREATED_EVENT, NODE_DELETED_EVENT } from './node.constants';
 import { Node } from './node.entity';
 import { NodeType } from './node-type.enum';
 import { NodeCommission } from './node-commission.entity';
@@ -13,8 +13,8 @@ import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { CreateCommissionDto } from './dto/create-commission.dto';
 import { ValidationException } from '../utils/exceptions/validation.exception';
-import { StakingService } from '../staking/staking.service';
 import { NodeCreatedEvent } from './event/node-created.event';
+import { NodeDeletedEvent } from './event/node-deleted.event';
 
 @Injectable()
 export class NodeService {
@@ -27,7 +27,6 @@ export class NodeService {
     private connection: Connection,
     private config: ConfigService,
     private profileService: ProfileService,
-    private stakingService: StakingService,
   ) {}
 
   async createNode(user: number, nodeDto: CreateNodeDto): Promise<Node> {
@@ -81,7 +80,7 @@ export class NodeService {
 
     this.eventEmitter.emit(
       NODE_CREATED_EVENT,
-      new NodeCreatedEvent(node.id, nodeDto.type),
+      new NodeCreatedEvent(node.id, node.type, node.address),
     );
 
     return this.findNodeByOrFail({
@@ -162,7 +161,11 @@ export class NodeService {
       type: NodeType.TESTNET,
     });
     await this.nodeRepository.delete(node);
-    await this.stakingService.undelegateTestnetTransaction(n.address);
+
+    this.eventEmitter.emit(
+      NODE_DELETED_EVENT,
+      new NodeDeletedEvent(n.id, n.type, n.address),
+    );
 
     return n;
   }

@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { HttpService } from '@nestjs/axios';
 import { ValidationException } from '../utils/exceptions/validation.exception';
 import { NodeService } from '../node/node.service';
 import { Node } from '../node/node.entity';
@@ -28,6 +29,7 @@ export class DelegationService {
     private delegationNonceRepository: Repository<DelegationNonce>,
     private eventEmitter: EventEmitter2,
     private config: ConfigService,
+    private httpService: HttpService,
     private nodeService: NodeService,
     private stakingService: StakingService,
   ) {}
@@ -180,12 +182,39 @@ export class DelegationService {
     return this.delegationRepository.findOneOrFail(options);
   }
 
-  async ensureMainnetDelegation(nodeId: number): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({ id: nodeId });
-    const totalNodeDelegation = await this.getTotalNodeDelegation(nodeId);
+  async ensureDelegation(nodeId: number, type: string, address: string) {
+    let node: Node;
+    try {
+      node = await this.nodeService.findNodeByOrFail({ id: nodeId });
+    } catch (e) {
+      node = null;
+    }
 
-    const currentDelegation = await this.stakingService.getMainnetStake(
-      node.address,
+    let totalNodeDelegation = 0;
+    if (node) {
+      if (type === NodeType.MAINNET) {
+        totalNodeDelegation = await this.getTotalNodeDelegation(nodeId);
+      } else {
+        totalNodeDelegation = this.config.get<number>(
+          'delegation.testnetDelegation',
+        );
+      }
+    }
+
+    if (type === NodeType.MAINNET) {
+      await this.ensureMainnetDelegation(address, totalNodeDelegation);
+    } else {
+      await this.ensureTestnetDelegation(address, totalNodeDelegation);
+    }
+  }
+
+  private async ensureMainnetDelegation(
+    address: string,
+    totalNodeDelegation: number,
+  ): Promise<void> {
+    const currentDelegation = await this.getDelegation(
+      address,
+      NodeType.MAINNET,
     );
     if (currentDelegation === totalNodeDelegation) {
       return;
@@ -193,20 +222,104 @@ export class DelegationService {
 
     if (currentDelegation > totalNodeDelegation) {
       await this.stakingService.undelegateMainnetTransaction(
-        node.address,
+        address,
         currentDelegation - totalNodeDelegation,
       );
     } else {
       await this.stakingService.delegateMainnetTransaction(
-        node.address,
+        address,
         totalNodeDelegation - currentDelegation,
       );
     }
   }
 
-  async ensureTestnetDelegation(nodeId: number) {
-    const node = await this.nodeService.findNodeByOrFail({ id: nodeId });
-    await this.stakingService.delegateTestnetTransaction(node.address);
+  private async ensureTestnetDelegation(
+    address: string,
+    totalNodeDelegation: number,
+  ) {
+    const currentDelegation = await this.getDelegation(
+      address,
+      NodeType.TESTNET,
+    );
+    if (currentDelegation === totalNodeDelegation) {
+      return;
+    }
+
+    if (currentDelegation > totalNodeDelegation) {
+      await this.stakingService.undelegateTestnetTransaction(
+        address,
+        totalNodeDelegation,
+      );
+    } else {
+      await this.stakingService.delegateTestnetTransaction(
+        address,
+        totalNodeDelegation,
+      );
+    }
+  }
+
+  async getDelegation(
+    address: string,
+    type: 'mainnet' | 'testnet',
+  ): Promise<number> {
+    const formattedAddress = address.toLowerCase();
+    const currentDelegations = await this.getDelegationsFor(type);
+    const currentDelegation = currentDelegations[formattedAddress]
+      ? parseInt(currentDelegations[formattedAddress], 16)
+      : 0;
+
+    return currentDelegation;
+  }
+
+  async getDelegationsFor(
+    type: 'mainnet' | 'testnet',
+  ): Promise<{ [address: string]: string }> {
+    let endpoint: string;
+    let delegatorAddress: string;
+    if (type === 'mainnet') {
+      endpoint = this.config.get<string>('ethereum.mainnetEndpoint');
+      delegatorAddress = this.stakingService.mainnetWalletAddress;
+    } else {
+      endpoint = this.config.get<string>('ethereum.testnetEndpoint');
+      delegatorAddress = this.stakingService.testnetWalletAddress;
+    }
+    const formattedAddress = delegatorAddress.toLowerCase();
+    const state = await this.httpService
+      .post(
+        endpoint,
+        {
+          jsonrpc: '2.0',
+          method: 'taraxa_queryDPOS',
+          params: [
+            {
+              account_queries: {
+                [formattedAddress]: {
+                  inbound_deposits_addrs_only: false,
+                  outbound_deposits_addrs_only: false,
+                  with_inbound_deposits: true,
+                  with_outbound_deposits: true,
+                  with_staking_balance: true,
+                },
+              },
+              with_eligible_count: true,
+            },
+          ],
+          id: 1,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      .toPromise();
+
+    if (state.status !== 200) {
+      throw new Error('Failed to get DPOS stake');
+    }
+
+    return state.data.result.account_results[formattedAddress]
+      .outbound_deposits;
   }
 
   private async getTotalNodeDelegation(nodeId: number) {

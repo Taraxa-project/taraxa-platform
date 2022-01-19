@@ -24,7 +24,7 @@ export class DelegationTaskService {
     for (const node of nodes) {
       await this.delegationQueue.add(
         ENSURE_DELEGATION_JOB,
-        new EnsureDelegationJob(node.id),
+        new EnsureDelegationJob(node.id, node.type, node.address),
       );
     }
   }

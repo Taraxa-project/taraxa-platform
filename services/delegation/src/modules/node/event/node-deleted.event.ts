@@ -1,4 +1,4 @@
-export class EnsureDelegationJob {
+export class NodeDeletedEvent {
   constructor(
     public nodeId: number,
     public type: string,

@@ -6,4 +6,5 @@ export default registerAs('delegation', () => ({
   commissionChangeThreshold: 5,
   minDelegation: 1000,
   maxDelegation: 10000000,
+  testnetDelegation: 1000000,
 }));
