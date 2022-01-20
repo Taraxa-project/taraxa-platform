@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
@@ -36,13 +36,21 @@ import { NodeDeletedListener } from './listener/node-deleted.listener';
     StakingModule,
   ],
   controllers: [DelegationController, BalanceController],
-  providers: [
-    DelegationService,
-    DelegationTaskService,
-    DelegationConsumer,
-    NodeCreatedListener,
-    NodeDeletedListener,
-  ],
+  providers: [DelegationService, NodeCreatedListener, NodeDeletedListener],
   exports: [TypeOrmModule],
 })
-export class DelegationModule {}
+export class DelegationModule {
+  static forRoot(type = 'web'): DynamicModule {
+    let providers = [];
+    if (type === 'cron') {
+      providers = [DelegationTaskService];
+    }
+    if (type === 'worker') {
+      providers = [DelegationConsumer];
+    }
+    return {
+      module: DelegationModule,
+      providers,
+    };
+  }
+}

@@ -15,6 +15,10 @@
     "delegation-start:prod": "yarn workspace @taraxa_project/delegation start:prod",
     "delegation-console": "yarn workspace @taraxa_project/delegation console:dev",
     "delegation-console:prod": "yarn workspace @taraxa_project/delegation console",
+    "delegation-cron": "yarn workspace @taraxa_project/delegation cron:dev",
+    "delegation-cron:prod": "yarn workspace @taraxa_project/delegation cron",
+    "delegation-worker": "yarn workspace @taraxa_project/delegation worker:dev",
+    "delegation-worker:prod": "yarn workspace @taraxa_project/delegation worker",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
     "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation",
     "postinstall": "husky install"

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import { NodeType } from './node-type.enum';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class NodeTaskService {
+export class NodeTaskService implements OnModuleInit {
   private readonly logger = new Logger(NodeTaskService.name);
   constructor(
     @InjectRepository(Node)
@@ -16,6 +16,9 @@ export class NodeTaskService {
     private configService: ConfigService,
     private httpService: HttpService,
   ) {}
+  onModuleInit() {
+    this.logger.debug(`Init ${NodeTaskService.name} cron`);
+  }
 
   @Cron('*/15 * * * *')
   async getStats() {

@@ -11,7 +11,11 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "console:dev": "ts-node -r tsconfig-paths/register src/cli.ts",
-    "console": "node dist/cli.js"
+    "console": "node dist/cli.js",
+    "cron:dev": "ts-node -r tsconfig-paths/register src/cron.ts",
+    "cron": "node dist/cron.js",
+    "worker:dev": "ts-node -r tsconfig-paths/register src/worker.ts",
+    "worker": "node dist/worker.js"
   },
   "dependencies": {
     "@nestjs/axios": "^0.0.3",
