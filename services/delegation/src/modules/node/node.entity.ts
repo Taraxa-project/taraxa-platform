@@ -114,28 +114,21 @@ export class Node {
       return;
     }
 
-    let hasPendingCommissionChange = false;
+    const commissions = this.commissions.sort(
+      (a: NodeCommission, b: NodeCommission) => a.id - b.id,
+    );
 
-    const now = moment().utc().toDate().getTime();
-
-    for (const commission of this.commissions) {
-      const startsAt = moment(commission.startsAt).utc().toDate().getTime();
-      if (startsAt > now) {
-        hasPendingCommissionChange = true;
-        this.pendingCommission = commission.value;
-        break;
-      }
-    }
-
-    for (const commission of this.commissions.reverse()) {
-      const startsAt = moment(commission.startsAt).utc().toDate().getTime();
-      if (startsAt < now) {
+    const now = moment().utc();
+    for (const commission of commissions) {
+      const startsAt = moment(commission.startsAt).utc();
+      if (startsAt.isBefore(now)) {
         this.currentCommission = commission.value;
-        break;
+      }
+      if (startsAt.isAfter(now)) {
+        this.hasPendingCommissionChange = true;
+        this.pendingCommission = commission.value;
       }
     }
-
-    this.hasPendingCommissionChange = hasPendingCommissionChange;
   };
 
   @AfterLoad()
