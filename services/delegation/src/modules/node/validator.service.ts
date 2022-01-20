@@ -59,6 +59,12 @@ export class ValidatorService {
         'isTopNode',
       ]),
       canUndelegate: node.canUserUndelegate(user),
+      isOwnValidator: node.isUserOwnValidator(user),
+      profile: node.profile
+        ? {
+            ..._.pick(node.profile, ['description', 'website', 'social']),
+          }
+        : null,
     };
   }
 }

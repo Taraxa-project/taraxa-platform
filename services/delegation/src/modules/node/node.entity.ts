@@ -16,6 +16,7 @@ import { CreateNodeDto } from './dto/create-node.dto';
 import { NodeCommission } from './node-commission.entity';
 import { NodeType } from './node-type.enum';
 import { TopUser } from './top-user.entity';
+import { Profile } from '../profile/profile.entity';
 
 @Entity({
   name: 'nodes',
@@ -97,6 +98,7 @@ export class Node {
   })
   updatedAt: Date;
 
+  profile: Partial<Profile> | null = null;
   yield = 0;
   currentCommission = 0;
   pendingCommission: number | null = null;
@@ -107,6 +109,7 @@ export class Node {
   isActive = false;
   isTopNode = false;
   canUndelegate = false;
+  isOwnValidator = false;
 
   @AfterLoad()
   calculateCommission = () => {
@@ -170,6 +173,17 @@ export class Node {
   };
 
   @AfterLoad()
+  getProfile = async () => {
+    if (this.isTestnet()) {
+      return;
+    }
+
+    this.profile = await getRepository(Profile).findOne({
+      user: this.user,
+    });
+  };
+
+  @AfterLoad()
   calculateIsActive = () => {
     if (this.lastBlockCreatedAt === null) {
       return;
@@ -201,6 +215,10 @@ export class Node {
           .utc()
           .isAfter(moment(delegation.createdAt).utc().add(5, 'days').utc()),
     );
+  }
+
+  isUserOwnValidator(user: number | null): boolean {
+    return this.delegations.some((delegation) => delegation.user === user);
   }
 
   static fromDto(dto: CreateNodeDto): Node {

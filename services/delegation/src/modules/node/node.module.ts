@@ -7,6 +7,7 @@ import delegationConfig from '../../config/delegation';
 import ethereumConfig from '../../config/ethereum';
 
 import { Delegation } from '../delegation/delegation.entity';
+import { Profile } from '../profile/profile.entity';
 import { ProfileModule } from '../profile/profile.module';
 
 import { Node } from './node.entity';
@@ -28,7 +29,13 @@ import { ValidatorService } from './validator.service';
         maxRedirects: 5,
       }),
     }),
-    TypeOrmModule.forFeature([Node, NodeCommission, Delegation, TopUser]),
+    TypeOrmModule.forFeature([
+      Node,
+      NodeCommission,
+      Delegation,
+      Profile,
+      TopUser,
+    ]),
     ConfigModule.forFeature(delegationConfig),
     ConfigModule.forFeature(ethereumConfig),
     ProfileModule,
