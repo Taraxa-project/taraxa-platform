@@ -7,6 +7,7 @@ import { NodeModule } from './modules/node/node.module';
 import { NodeService } from './modules/node/node.service';
 import { DelegationModule } from './modules/delegation/delegation.module';
 import { DelegationService } from './modules/delegation/delegation.service';
+import { DelegationTaskService } from './modules/delegation/delegation-task.service';
 
 interface Node {
   id: number;
@@ -51,10 +52,12 @@ async function bootstrap() {
 
   const testnetNodes = async () => {
     console.log(await nodes('testnet'));
+    return Promise.resolve();
   };
 
   const mainnetNodes = async () => {
     console.log(await nodes('mainnet'));
+    return Promise.resolve();
   };
 
   const testnetEnsureDelegation = async () => {
@@ -73,6 +76,11 @@ async function bootstrap() {
     await ensureDelegation(n, currentDelegations);
   };
 
+  const rebalanceTestnet = async () => {
+    await delegationService.rebalanceTestnet();
+    return Promise.resolve();
+  };
+
   await yargs(hideBin(process.argv))
     .command('testnet-nodes', 'get all testnet nodes', testnetNodes)
     .command('mainnet-nodes', 'get all mainnets nodes', mainnetNodes)
@@ -85,6 +93,11 @@ async function bootstrap() {
       'mainnet-ensure-delegation',
       'ensure delegation for all mainnet nodes',
       mainnetEnsureDelegation,
+    )
+    .command(
+      'rebalance-testnet',
+      'rebalances own node delegations for testnet',
+      rebalanceTestnet,
     ).argv;
   await app.close();
 }
