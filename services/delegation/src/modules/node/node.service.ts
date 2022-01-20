@@ -130,6 +130,18 @@ export class NodeService {
       );
     }
 
+    if (Math.floor(commissionDto.commission) !== commissionDto.commission) {
+      throw new ValidationException(
+        `New commission has to be between 0 and 100.`,
+      );
+    }
+
+    if (node.currentCommission === commissionDto.commission) {
+      throw new ValidationException(
+        `New commission can't be the same as the current commission.`,
+      );
+    }
+
     const commissionChangeThreshold = this.config.get<number>(
       'delegation.commissionChangeThreshold',
     );
