@@ -119,7 +119,7 @@ export class Node {
     const now = moment().utc().toDate().getTime();
 
     for (const commission of this.commissions) {
-      const startsAt = moment(commission.startsAt).toDate().getTime();
+      const startsAt = moment(commission.startsAt).utc().toDate().getTime();
       if (startsAt > now) {
         hasPendingCommissionChange = true;
         this.pendingCommission = commission.value;
@@ -128,7 +128,7 @@ export class Node {
     }
 
     for (const commission of this.commissions.reverse()) {
-      const startsAt = moment(commission.startsAt).toDate().getTime();
+      const startsAt = moment(commission.startsAt).utc().toDate().getTime();
       if (startsAt < now) {
         this.currentCommission = commission.value;
         break;
