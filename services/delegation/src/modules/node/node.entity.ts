@@ -109,6 +109,7 @@ export class Node {
   isActive = false;
   isTopNode = false;
   canUndelegate = false;
+  canDelete = false;
   isOwnValidator = false;
 
   @AfterLoad()
@@ -197,6 +198,18 @@ export class Node {
       .getTime();
     this.isActive =
       moment(this.lastBlockCreatedAt).utc().toDate().getTime() > threshold;
+  };
+
+  @AfterLoad()
+  calculateCanDelete = () => {
+    if (this.isTestnet()) {
+      this.canDelete = true;
+      return;
+    }
+
+    if (this.delegations.length === 0) {
+      this.canDelete = true;
+    }
   };
 
   isMainnet(): boolean {

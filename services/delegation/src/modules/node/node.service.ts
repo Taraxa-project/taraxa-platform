@@ -170,8 +170,12 @@ export class NodeService {
     const n = await this.findNodeByOrFail({
       id: node,
       user,
-      type: NodeType.TESTNET,
     });
+
+    if (!n.canDelete) {
+      throw new ValidationException(`Node can't be deleted.`);
+    }
+
     await this.nodeRepository.delete(node);
 
     this.eventEmitter.emit(
