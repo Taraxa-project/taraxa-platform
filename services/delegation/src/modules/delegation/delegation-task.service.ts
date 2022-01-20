@@ -5,6 +5,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { NodeService } from '../node/node.service';
 import { ENSURE_DELEGATION_JOB } from './delegation.constants';
 import { EnsureDelegationJob } from './job/ensure-delegation.job';
+import { DelegationService } from './delegation.service';
 
 @Injectable()
 export class DelegationTaskService {
@@ -14,6 +15,7 @@ export class DelegationTaskService {
     private nodeService: NodeService,
     @InjectQueue('delegation')
     private delegationQueue: Queue,
+    private delegationService: DelegationService,
   ) {}
 
   @Cron('0 0 * * *')
@@ -27,5 +29,11 @@ export class DelegationTaskService {
         new EnsureDelegationJob(node.id, node.type, node.address),
       );
     }
+  }
+
+  @Cron('0 0 * * *')
+  async rebalanceTestnet() {
+    this.logger.debug('Starting testnet rebalancing worker...');
+    await this.delegationService.rebalanceTestnet();
   }
 }
