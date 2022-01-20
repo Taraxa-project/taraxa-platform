@@ -18,6 +18,7 @@ import { User } from '../user/user.decorator';
 import { JwtUser } from '../user/jwt-user.type';
 import { Node } from './node.entity';
 import { ValidatorService } from './validator.service';
+import { Delegation } from '../delegation/delegation.entity';
 
 @Public()
 @ApiTags('validators')
@@ -45,12 +46,22 @@ export class ValidatorController {
   }
 
   @ApiOkResponse({ description: 'Validator found' })
-  @ApiNotFoundResponse({ description: 'Node not found' })
+  @ApiNotFoundResponse({ description: 'Validator not found' })
   @Get(':id')
   get(
     @User() user: JwtUser | false,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Partial<Node>> {
     return this.validatorService.get(id, user ? user.id : null);
+  }
+
+  @ApiOkResponse({ description: 'Delegations found' })
+  @ApiNotFoundResponse({ description: 'Validator not found' })
+  @Get(':id/delegations')
+  getDelegations(
+    @User() user: JwtUser | false,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Partial<Delegation>[]> {
+    return this.validatorService.getDelegations(id, user ? user.id : null);
   }
 }

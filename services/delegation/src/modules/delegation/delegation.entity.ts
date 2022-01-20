@@ -37,11 +37,17 @@ export class Delegation {
   })
   createdAt: Date;
 
+  isOwnDelegation: boolean;
+
   static fromDto(dto: CreateDelegationDto): Delegation {
     const delegation = new Delegation();
     delegation.address = dto.from;
     delegation.value = dto.value;
 
     return delegation;
+  }
+
+  isUserOwnDelegation(user: number | null): boolean {
+    return user === this.user;
   }
 }
