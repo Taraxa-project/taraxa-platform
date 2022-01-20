@@ -1,5 +1,5 @@
 import { Queue } from 'bull';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bull';
 import { NodeService } from '../node/node.service';
@@ -8,7 +8,7 @@ import { EnsureDelegationJob } from './job/ensure-delegation.job';
 import { DelegationService } from './delegation.service';
 
 @Injectable()
-export class DelegationTaskService {
+export class DelegationTaskService implements OnModuleInit {
   private readonly logger = new Logger(DelegationTaskService.name);
 
   constructor(
@@ -17,6 +17,9 @@ export class DelegationTaskService {
     private delegationQueue: Queue,
     private delegationService: DelegationService,
   ) {}
+  onModuleInit() {
+    this.logger.debug(`Init ${DelegationTaskService.name} cron`);
+  }
 
   @Cron('0 0 * * *')
   async ensureDelegation() {

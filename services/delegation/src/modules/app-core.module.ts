@@ -1,20 +1,20 @@
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
-import { Module, ValidationPipe } from '@nestjs/common';
+import { DynamicModule, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 
-import generalConfig from './config/general';
-import databaseConfig from './config/database';
-import queueConfig from './config/queue';
+import generalConfig from '../config/general';
+import databaseConfig from '../config/database';
+import queueConfig from '../config/queue';
 
-import { AuthModule } from './modules/auth/auth.module';
-import { NodeModule } from './modules/node/node.module';
-import { ProfileModule } from './modules/profile/profile.module';
-import { DelegationModule } from './modules/delegation/delegation.module';
-import { HttpExceptionFilter } from './modules/utils/http-exception.filter';
+import { AuthModule } from '../modules/auth/auth.module';
+import { NodeModule } from '../modules/node/node.module';
+import { ProfileModule } from '../modules/profile/profile.module';
+import { DelegationModule } from '../modules/delegation/delegation.module';
+import { HttpExceptionFilter } from '../modules/utils/http-exception.filter';
 
 @Module({
   imports: [
@@ -51,9 +51,7 @@ import { HttpExceptionFilter } from './modules/utils/http-exception.filter';
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     AuthModule,
-    NodeModule,
     ProfileModule,
-    DelegationModule,
   ],
   providers: [
     {
@@ -66,4 +64,11 @@ import { HttpExceptionFilter } from './modules/utils/http-exception.filter';
     },
   ],
 })
-export class AppModule {}
+export class AppCoreModule {
+  static forRoot(type = 'web'): DynamicModule {
+    return {
+      module: AppCoreModule,
+      imports: [NodeModule.forRoot(type), DelegationModule.forRoot(type)],
+    };
+  }
+}

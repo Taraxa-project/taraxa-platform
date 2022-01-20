@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -41,7 +41,18 @@ import { ValidatorService } from './validator.service';
     ProfileModule,
   ],
   controllers: [NodeController, ValidatorController],
-  providers: [NodeService, ValidatorService, NodeTaskService],
+  providers: [NodeService, ValidatorService],
   exports: [NodeService],
 })
-export class NodeModule {}
+export class NodeModule {
+  static forRoot(type = 'web'): DynamicModule {
+    let providers = [];
+    if (type === 'cron') {
+      providers = [NodeTaskService];
+    }
+    return {
+      module: NodeModule,
+      providers,
+    };
+  }
+}

@@ -1,3 +1,5 @@
+workerReplicaCount: 4
+
 app:
   environment: prod
   dbHost: 10.39.112.4

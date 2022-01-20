@@ -2,12 +2,11 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { NestFactory } from '@nestjs/core';
 
-import { AppModule } from './app.module';
+import { AppCoreModule } from './modules/app-core.module';
 import { NodeModule } from './modules/node/node.module';
 import { NodeService } from './modules/node/node.service';
 import { DelegationModule } from './modules/delegation/delegation.module';
 import { DelegationService } from './modules/delegation/delegation.service';
-import { DelegationTaskService } from './modules/delegation/delegation-task.service';
 
 interface Node {
   id: number;
@@ -20,7 +19,9 @@ interface Delegations {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(AppModule);
+  const app = await NestFactory.createApplicationContext(
+    AppCoreModule.forRoot(),
+  );
   const nodeService = app.select(NodeModule).get(NodeService, { strict: true });
   const delegationService = app
     .select(DelegationModule)
