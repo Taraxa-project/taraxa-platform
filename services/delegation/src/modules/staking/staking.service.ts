@@ -108,6 +108,8 @@ export class StakingService {
       type === 'testnet' ? this.testnetProvider : this.mainnetProvider
     ).eth;
 
+    const wallet = type === 'testnet' ? this.testnetWallet : this.mainnetWallet;
+
     const nonce = (await ethProvider.getTransactionCount(from)) + 1;
     const tx = {
       from,
@@ -118,7 +120,7 @@ export class StakingService {
       value: 0,
       gasPrice: 0,
     };
-    const signedTx = await this.mainnetWallet.signTransaction(tx);
+    const signedTx = await wallet.signTransaction(tx);
 
     return await new Promise((resolve, reject) => {
       ethProvider
