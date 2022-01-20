@@ -36,7 +36,7 @@ export class NodeCommission {
 
   static fromValue(value: number): NodeCommission {
     const commission = new NodeCommission();
-    commission.value = value;
+    commission.value = Math.floor(value);
     return commission;
   }
 
