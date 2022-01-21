@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import {
   Notification,
@@ -34,6 +35,7 @@ import './delegation.scss';
 const Delegation = () => {
   const { status, account } = useMetaMask();
   const auth = useAuth();
+  const history = useHistory();
   const delegationApi = useDelegationApi();
   const isLoggedIn = !!auth.user?.id;
 
@@ -322,7 +324,10 @@ const Delegation = () => {
                   delegatableNodes.map((row) => (
                     <TableRow className="tableRow">
                       <TableCell className="tableCell">{row.status}</TableCell>
-                      <TableCell className="tableCell">
+                      <TableCell
+                        className="tableCell"
+                        onClick={() => history.push(`/delegation/${row.node.id}`)}
+                      >
                         <div className="flexCell">
                           <div>{row.name}</div>
                           {row.isTopNode && (

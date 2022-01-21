@@ -1,0 +1,192 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+
+import { toSvg } from 'jdenticon';
+
+import { Button, Checkbox } from '@taraxa_project/taraxa-ui';
+
+import Title from '../../components/Title/Title';
+import { useDelegationApi } from '../../services/useApi';
+import Delegation from '../../interfaces/Delegation';
+import PublicNode from '../../interfaces/PublicNode';
+
+import './nodePage.scss';
+
+const NodePage = () => {
+  const [node, setNode] = useState<PublicNode | null>(null);
+  const [delegations, setDelegations] = useState<Delegation[] | []>([]);
+  const { nodeId } = useParams<{ nodeId?: string }>();
+  const delegationApi = useDelegationApi();
+  const nodeIcon = toSvg('Aweesome node 1', 40, { backColor: '#fff' });
+
+  const fetchNode = useCallback(async () => {
+    const data = await delegationApi.get(`/validators/${nodeId}`);
+    if (data.success) {
+      setNode(data.response);
+      // eslint-disable-next-line no-console
+      console.log(data.response);
+      // eslint-disable-next-line no-console
+      console.log(node);
+    }
+  }, [nodeId]);
+
+  const fetchDelegators = useCallback(async () => {
+    const data = await delegationApi.get(`/validators/${nodeId}/delegations`);
+    if (data.success) {
+      setDelegations(data.response);
+      // eslint-disable-next-line no-console
+      console.log(data.response);
+      // eslint-disable-next-line no-console
+      console.log(delegations);
+    }
+  }, [nodeId]);
+
+  useEffect(() => {
+    fetchNode();
+    fetchDelegators();
+  }, [fetchNode, fetchDelegators]);
+
+  const delegationPossible = (node?.totalDelegation || 0) + (node?.remainingDelegation || 0);
+  const communityDelegated =
+    (((node?.totalDelegation || 0) - (node?.ownDelegation || 0)) / delegationPossible) * 100;
+  const selfDelegated = ((node?.ownDelegation || 0) / delegationPossible) * 100;
+  const availableDelegation = ((node?.remainingDelegation || 0) / delegationPossible) * 100;
+
+  if (!node) {
+    return null;
+  }
+  return (
+    <div className="runnode">
+      <Title title="Delegation" />
+      <div className="nodeInfoWrapper">
+        <div className="nodeInfoFlex">
+          <div className="nodeInfoColumn">
+            <div className="nodeTitle">
+              <div
+                // eslint-disable-next-line
+                dangerouslySetInnerHTML={{ __html: nodeIcon }}
+              />
+              {node?.name}
+            </div>
+            <div className="nodeAddress">{node?.address}</div>
+            <div className="nodeInfoTitle">expected yield</div>
+            <div className="nodeInfoContent">{node?.yield.toFixed(2)}%</div>
+            <div className="nodeInfoTitle">commission</div>
+            <div className="nodeInfoContent">{node?.currentCommission?.toFixed(2)}%</div>
+            <div className="nodeInfoTitle">node operator description</div>
+            <div className="nodeInfoContent">{node?.profile?.description}</div>
+            <div className="nodeInfoTitle">node operator Website</div>
+            <div className="nodeInfoContent">
+              <a href="https://t.me/awesome_node">{node?.profile?.website}</a>
+            </div>
+            <div className="nodeInfoTitle">node active since</div>
+            <div className="nodeInfoContent">30 DEC 2021</div>
+          </div>
+          <div className="nodeDelegationColumn">
+            <div className="taraContainerWrapper">
+              <div className="taraContainer">
+                <div className="taraContainerAmount">
+                  <div className="taraContainerAmountTotal">{node?.remainingDelegation}</div>
+                  <div className="taraContainerUnit">TARA</div>
+                </div>
+                <div className="taraContainerAmountDescription">Available for delegation</div>
+              </div>
+              <div className="taraContainer">
+                <div className="taraContainerAmount">
+                  <div className="taraContainerAmountTotal">{node?.totalDelegation}</div>
+                  <div className="taraContainerUnit">TARA</div>
+                </div>
+                <div className="taraContainerAmountDescription">Total delegated</div>
+              </div>
+            </div>
+            <div className="nodeDelegationSplit">
+              <div className="barFlex">
+                <div
+                  className="percentageAmount"
+                  style={{
+                    width: `${communityDelegated}}%`,
+                    display: communityDelegated >= 1 ? 'flex' : 'none',
+                  }}
+                >
+                  <div className="barPercentage" style={{ background: '#15AC5B' }} />
+                </div>
+                <div
+                  className="percentageAmount"
+                  style={{
+                    width: `${selfDelegated}%`,
+                    display: selfDelegated >= 1 ? 'flex' : 'none',
+                  }}
+                >
+                  <div className="barPercentage" style={{ background: '#8E8E8E' }} />
+                </div>
+                <div
+                  className="percentageAmount"
+                  style={{
+                    width: `${availableDelegation}%`,
+                    display: availableDelegation >= 1 ? 'flex' : 'none',
+                  }}
+                >
+                  <div className="barPercentage" style={{ background: '#48BDFF' }} />
+                </div>
+              </div>
+              <div className="percentagesBar">
+                <span>0%</span>
+                <span>25%</span>
+                <span>50%</span>
+                <span>75%</span>
+                <span>100%</span>
+              </div>
+              <div className="percentageLegends">
+                <div className="percentageLegend">
+                  <div className="legendColor" style={{ background: '#15AC5B' }} />
+                  community-delegated
+                </div>
+                <div className="percentageLegend">
+                  <div className="legendColor" style={{ background: '#8E8E8E' }} />
+                  self-delegated
+                </div>
+                <div className="percentageLegend">
+                  <div className="legendColor" style={{ background: '#48BDFF' }} />
+                  available for delegation
+                </div>
+              </div>
+            </div>
+            <div className="delegationButtons">
+              <Button variant="contained" color="secondary" label="Delegate" />
+              <Button variant="contained" color="secondary" label="Un-Delegate" />
+            </div>
+          </div>
+        </div>
+        <hr className="nodeInfoDivider" />
+        <div className="delegatorsHeader">
+          <span className="delegatorsLegend">Delegators</span>
+          <div className="showOwnDelegation">
+            <Checkbox />
+            Show my delegation at the top
+          </div>
+          <div className="delegatorsPagination">
+            {/* <Button className="paginationButton" Icon={Icons.Left} />
+            <Button className="paginationButton" Icon={Icons.Right} /> */}
+          </div>
+        </div>
+        <div className="tableHeader">
+          <span>Address</span>
+          <span>Amount of TARA delegated</span>
+        </div>
+        <div className="delegators">
+          {delegations.map((delegator, dIndex) => (
+            <div className="delegatorRow">
+              <div className="address">
+                <span>{dIndex + 1}.</span> {delegator.address}
+              </div>
+              <div className="badges">{}</div>
+              <div className="amount">{delegator.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default NodePage;
