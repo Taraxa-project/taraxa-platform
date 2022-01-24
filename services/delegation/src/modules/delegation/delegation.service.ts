@@ -287,12 +287,10 @@ export class DelegationService {
     const nodes = await this.nodeService.findNodes({ type: 'testnet' });
     const nodeCount = nodes.length;
     const newDelegation = Math.ceil(
-      (nodeCount * this.testnetDelegationAmount) / ownNodes.length,
+      (nodeCount * this.testnetDelegationAmount * 2) / ownNodes.length,
     );
 
-    let count = 0;
     for (const node of ownNodes) {
-      count++;
       await this.ensureTestnetDelegation(node, newDelegation);
     }
   }
