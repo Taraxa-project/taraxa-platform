@@ -50,12 +50,13 @@ export class NodeTaskService implements OnModuleInit {
 
       const { totalProduced, lastBlockTimestamp, rank, produced } = stats.data;
 
-      node.blocksProduced = totalProduced;
-      node.lastBlockCreatedAt = lastBlockTimestamp;
-      node.weeklyRank = rank;
-      node.weeklyBlocksProduced = produced;
+      const n = await this.nodeRepository.findOneOrFail(node.id);
+      n.blocksProduced = totalProduced;
+      n.lastBlockCreatedAt = lastBlockTimestamp;
+      n.weeklyRank = rank;
+      n.weeklyBlocksProduced = produced;
 
-      await this.nodeRepository.save(node);
+      await this.nodeRepository.save(n);
     }
   }
 }
