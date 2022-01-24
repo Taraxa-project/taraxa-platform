@@ -9,6 +9,7 @@ data:
   DATABASE_HOST: {{ .Values.app.dbHost | quote }}
   DATABASE_PORT: {{ .Values.app.dbPort | quote }}
   DATABASE_NAME: {{ .Values.app.dbName | quote }}
+  QUEUE_HOST: {{ .Values.app.queueHost | quote }}
   STAKING_CONTRACT_ADDRESS: {{ .Values.app.stakingContractAddress | quote }}
   MAINNET_ENDPOINT: {{ .Values.app.mainnetEndpoint | quote }}
   TESTNET_ENDPOINT: {{ .Values.app.testnetEndpoint | quote }}

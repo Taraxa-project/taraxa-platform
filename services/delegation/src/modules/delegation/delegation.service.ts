@@ -1,32 +1,51 @@
 import * as ethUtil from 'ethereumjs-util';
 import moment from 'moment';
-import { Repository } from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { HttpService } from '@nestjs/axios';
 import { ValidationException } from '../utils/exceptions/validation.exception';
 import { NodeService } from '../node/node.service';
 import { Node } from '../node/node.entity';
+import { NodeType } from '../node/node-type.enum';
 import { StakingService } from '../staking/staking.service';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
+import { DELEGATION_CREATED_EVENT } from './delegation.constants';
+import { DelegationCreatedEvent } from './event/delegation-created.event';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
 import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
 import { BalancesDto } from './dto/balances.dto';
 import { BalancesByNodeDto } from './dto/balances-by-node.dto';
-import { NodeType } from '../node/node-type.enum';
 
 @Injectable()
 export class DelegationService {
+  private mainnetEndpoint: string;
+  private testnetEndpoint: string;
+  private testnetDelegationAmount: number;
+  private maxDelegationPerNode: number;
   constructor(
     @InjectRepository(Delegation)
     private delegationRepository: Repository<Delegation>,
     @InjectRepository(DelegationNonce)
     private delegationNonceRepository: Repository<DelegationNonce>,
+    private eventEmitter: EventEmitter2,
     private config: ConfigService,
+    private httpService: HttpService,
     private nodeService: NodeService,
     private stakingService: StakingService,
-  ) {}
+  ) {
+    this.mainnetEndpoint = this.config.get<string>('ethereum.mainnetEndpoint');
+    this.testnetEndpoint = this.config.get<string>('ethereum.testnetEndpoint');
+    this.testnetDelegationAmount = this.config.get<number>(
+      'delegation.testnetDelegation',
+    );
+    this.maxDelegationPerNode = this.config.get<number>(
+      'delegation.maxDelegation',
+    );
+  }
   async getBalances(address: string): Promise<BalancesDto> {
     const total = await this.stakingService.getStakingAmount(address);
     const delegated = await this.getUserDelegations(address);
@@ -134,12 +153,11 @@ export class DelegationService {
       throw new ValidationException('Invalid proof');
     }
 
-    const nodeDelegations = await this.getNodeDelegations(node.id);
-    const maxDelegation = this.config.get<number>('delegation.maxDelegation');
-    if (nodeDelegations + delegationDto.value > maxDelegation) {
+    const nodeDelegations = await this.getTotalNodeDelegation(node.id);
+    if (nodeDelegations + delegationDto.value > this.maxDelegationPerNode) {
       throw new ValidationException(
         'Maximum delegation exceeded. Node can only be delegated ' +
-          (maxDelegation - nodeDelegations) +
+          (this.maxDelegationPerNode - nodeDelegations) +
           ' more tokens.',
       );
     }
@@ -160,35 +178,211 @@ export class DelegationService {
     delegation.user = user;
     delegation.node = node;
 
-    return this.delegationRepository.save(delegation);
+    const createdDelegation = await this.delegationRepository.save(delegation);
+
+    this.eventEmitter.emit(
+      DELEGATION_CREATED_EVENT,
+      new DelegationCreatedEvent(createdDelegation.id),
+    );
+
+    return createdDelegation;
   }
 
-  async ensureMainnetDelegation(address: string, delegation: number) {
-    const currentDelegation = await this.stakingService.getMainnetStake(
-      address,
+  async findDelegationByOrFail(
+    options: FindConditions<Delegation>,
+  ): Promise<Delegation> {
+    return this.delegationRepository.findOneOrFail(options);
+  }
+
+  async ensureDelegation(nodeId: number, type: string, address: string) {
+    let node: Node;
+    try {
+      node = await this.nodeService.findNodeByOrFail({ id: nodeId });
+    } catch (e) {
+      node = null;
+    }
+
+    let totalNodeDelegation = 0;
+    if (node) {
+      if (type === NodeType.MAINNET) {
+        totalNodeDelegation = await this.getTotalNodeDelegation(nodeId);
+      } else {
+        totalNodeDelegation = this.testnetDelegationAmount;
+      }
+    }
+
+    if (type === NodeType.MAINNET) {
+      await this.ensureMainnetDelegation(address, totalNodeDelegation);
+    } else {
+      await this.ensureTestnetDelegation(address, totalNodeDelegation);
+    }
+  }
+
+  async getDelegation(
+    address: string,
+    type: 'mainnet' | 'testnet',
+  ): Promise<number> {
+    const formattedAddress = address.toLowerCase();
+    const currentDelegations = await this.getDelegationsFor(type);
+    const currentDelegation = currentDelegations[formattedAddress]
+      ? parseInt(currentDelegations[formattedAddress], 16)
+      : 0;
+
+    return currentDelegation;
+  }
+
+  async getDelegationsFor(
+    type: 'mainnet' | 'testnet',
+  ): Promise<{ [address: string]: string }> {
+    let endpoint: string;
+    let delegatorAddress: string;
+    if (type === 'mainnet') {
+      endpoint = this.mainnetEndpoint;
+      delegatorAddress = this.stakingService.mainnetWalletAddress;
+    } else {
+      endpoint = this.testnetEndpoint;
+      delegatorAddress = this.stakingService.testnetWalletAddress;
+    }
+    const formattedAddress = delegatorAddress.toLowerCase();
+    const state = await this.httpService
+      .post(
+        endpoint,
+        {
+          jsonrpc: '2.0',
+          method: 'taraxa_queryDPOS',
+          params: [
+            {
+              account_queries: {
+                [formattedAddress]: {
+                  inbound_deposits_addrs_only: false,
+                  outbound_deposits_addrs_only: false,
+                  with_inbound_deposits: true,
+                  with_outbound_deposits: true,
+                  with_staking_balance: true,
+                },
+              },
+              with_eligible_count: true,
+            },
+          ],
+          id: 1,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      .toPromise();
+
+    if (state.status !== 200) {
+      throw new Error('Failed to get DPOS stake');
+    }
+
+    return state.data.result.account_results[formattedAddress]
+      .outbound_deposits;
+  }
+
+  async rebalanceTestnet() {
+    const ownNodes = await this.getOwnNodes('testnet');
+    const nodes = await this.nodeService.findNodes({ type: 'testnet' });
+    const nodeCount = nodes.length;
+    const newDelegation = Math.ceil(
+      (nodeCount * this.testnetDelegationAmount) / ownNodes.length,
     );
-    if (currentDelegation === delegation) {
+
+    let count = 0;
+    for (const node of ownNodes) {
+      count++;
+      await this.ensureTestnetDelegation(node, newDelegation);
+    }
+  }
+
+  private async ensureMainnetDelegation(
+    address: string,
+    totalNodeDelegation: number,
+  ): Promise<void> {
+    const currentDelegation = await this.getDelegation(
+      address,
+      NodeType.MAINNET,
+    );
+    if (currentDelegation === totalNodeDelegation) {
       return;
     }
 
-    if (currentDelegation > delegation) {
+    if (currentDelegation > totalNodeDelegation) {
       await this.stakingService.undelegateMainnetTransaction(
         address,
-        currentDelegation - delegation,
+        currentDelegation - totalNodeDelegation,
       );
     } else {
       await this.stakingService.delegateMainnetTransaction(
         address,
-        delegation - currentDelegation,
+        totalNodeDelegation - currentDelegation,
       );
     }
   }
 
-  async ensureTestnetDelegation(address: string) {
-    await this.stakingService.delegateTestnetTransaction(address);
+  private async ensureTestnetDelegation(
+    address: string,
+    totalNodeDelegation: number,
+  ) {
+    const currentDelegation = await this.getDelegation(
+      address,
+      NodeType.TESTNET,
+    );
+    if (currentDelegation === totalNodeDelegation) {
+      return;
+    }
+
+    if (currentDelegation > totalNodeDelegation) {
+      await this.stakingService.undelegateTestnetTransaction(
+        address,
+        totalNodeDelegation,
+      );
+    } else {
+      await this.stakingService.delegateTestnetTransaction(
+        address,
+        totalNodeDelegation,
+      );
+    }
   }
 
-  private async getNodeDelegations(nodeId: number) {
+  private async getOwnNodes(type: 'mainnet' | 'testnet'): Promise<string[]> {
+    let endpoint: string;
+    if (type === 'mainnet') {
+      endpoint = this.mainnetEndpoint;
+    } else {
+      endpoint = this.testnetEndpoint;
+    }
+
+    const state = await this.httpService
+      .post(
+        endpoint,
+        {
+          jsonrpc: '2.0',
+          method: 'taraxa_getConfig',
+          params: [],
+          id: 1,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      .toPromise();
+
+    if (state.status !== 200) {
+      throw new Error('Failed to get DPOS stake');
+    }
+
+    const genesisState = state.data.result.final_chain.state.dpos.genesis_state;
+    const genesisStateKey = Object.keys(genesisState)[0];
+
+    return Object.keys(genesisState[genesisStateKey]);
+  }
+
+  private async getTotalNodeDelegation(nodeId: number) {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')

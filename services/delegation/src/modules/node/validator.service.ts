@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { NodeType } from './node-type.enum';
 import { Node } from './node.entity';
 import { NodeService } from './node.service';
+import { Delegation } from '../delegation/delegation.entity';
 
 @Injectable()
 export class ValidatorService {
@@ -37,6 +38,19 @@ export class ValidatorService {
     });
     return this.decorateNode(node, user);
   }
+  async getDelegations(
+    id: number,
+    user: number | null,
+  ): Promise<Partial<Delegation>[]> {
+    const node = await this.nodeService.findNodeByOrFail({
+      id,
+      type: NodeType.MAINNET,
+    });
+    return node.delegations.map((delegation) => ({
+      ...delegation,
+      isOwnDelegation: delegation.isUserOwnDelegation(user),
+    }));
+  }
   private decorateNode(node: Node, user: number | null): Partial<Node> {
     return {
       ..._.pick(node, [
@@ -59,6 +73,12 @@ export class ValidatorService {
         'isTopNode',
       ]),
       canUndelegate: node.canUserUndelegate(user),
+      isOwnValidator: node.isUserOwnValidator(user),
+      profile: node.profile
+        ? {
+            ..._.pick(node.profile, ['description', 'website', 'social']),
+          }
+        : null,
     };
   }
 }

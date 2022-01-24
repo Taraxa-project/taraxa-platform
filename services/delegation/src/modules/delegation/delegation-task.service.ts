@@ -1,72 +1,42 @@
-import moment from 'moment';
-import { Repository, MoreThan } from 'typeorm';
-import { Injectable, Logger } from '@nestjs/common';
+import { Queue } from 'bull';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Delegation } from './delegation.entity';
-import { DelegationService } from './delegation.service';
+import { InjectQueue } from '@nestjs/bull';
 import { NodeService } from '../node/node.service';
-import { NodeType } from '../node/node-type.enum';
+import { ENSURE_DELEGATION_JOB } from './delegation.constants';
+import { EnsureDelegationJob } from './job/ensure-delegation.job';
+import { DelegationService } from './delegation.service';
 
 @Injectable()
-export class DelegationTaskService {
+export class DelegationTaskService implements OnModuleInit {
   private readonly logger = new Logger(DelegationTaskService.name);
 
   constructor(
-    @InjectRepository(Delegation)
-    private delegationRepository: Repository<Delegation>,
-    private delegationService: DelegationService,
     private nodeService: NodeService,
+    @InjectQueue('delegation')
+    private delegationQueue: Queue,
+    private delegationService: DelegationService,
   ) {}
+  onModuleInit() {
+    this.logger.debug(`Init ${DelegationTaskService.name} cron`);
+  }
 
-  @Cron('*/15 * * * *')
-  async delegateMainnet() {
-    this.logger.debug('Starting mainnet delegation worker...');
-    const date = moment().utc().subtract(15, 'minutes').utc().toDate();
-    const delegations = await this.delegationRepository.find({
-      where: {
-        createdAt: MoreThan(date),
-      },
-      relations: ['node'],
-    });
+  @Cron('0 0 * * *')
+  async ensureDelegation() {
+    this.logger.debug('Starting delegation worker...');
+    const nodes = await this.nodeService.findNodes({});
 
-    const nodeDelegation: { [key: string]: number } = {};
-    for (const delegation of delegations) {
-      if (nodeDelegation[delegation.node.address]) {
-        continue;
-      }
-      const allDelegations = await this.delegationRepository.find({
-        node: delegation.node,
-      });
-      nodeDelegation[delegation.node.address] = allDelegations.reduce(
-        (acc, delegation) => acc + delegation.value,
-        0,
-      );
-    }
-
-    for (const nodeAddress in nodeDelegation) {
-      await this.delegationService.ensureMainnetDelegation(
-        nodeAddress,
-        nodeDelegation[nodeAddress],
+    for (const node of nodes) {
+      await this.delegationQueue.add(
+        ENSURE_DELEGATION_JOB,
+        new EnsureDelegationJob(node.id, node.type, node.address),
       );
     }
   }
 
-  @Cron('*/15 * * * *')
-  async delegateTestnet() {
-    this.logger.debug('Starting testnet delegation worker...');
-    const date = moment().utc().subtract(15, 'minutes').utc().toDate();
-    const nodes = await this.nodeService.findNodes({
-      type: NodeType.TESTNET,
-    });
-
-    for (const node of nodes) {
-      const createdAt = moment(node.createdAt).utc().toDate();
-      if (createdAt < date) {
-        continue;
-      }
-
-      await this.delegationService.ensureTestnetDelegation(node.address);
-    }
+  @Cron('0 0 * * *')
+  async rebalanceTestnet() {
+    this.logger.debug('Starting testnet rebalancing worker...');
+    await this.delegationService.rebalanceTestnet();
   }
 }

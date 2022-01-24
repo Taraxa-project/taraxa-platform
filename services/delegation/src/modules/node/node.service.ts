@@ -1,9 +1,11 @@
 import * as ethers from 'ethers';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository, Connection, FindConditions } from 'typeorm';
 import { ProfileService } from '../profile/profile.service';
+import { NODE_CREATED_EVENT, NODE_DELETED_EVENT } from './node.constants';
 import { Node } from './node.entity';
 import { NodeType } from './node-type.enum';
 import { NodeCommission } from './node-commission.entity';
@@ -11,11 +13,13 @@ import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { CreateCommissionDto } from './dto/create-commission.dto';
 import { ValidationException } from '../utils/exceptions/validation.exception';
-import { StakingService } from '../staking/staking.service';
+import { NodeCreatedEvent } from './event/node-created.event';
+import { NodeDeletedEvent } from './event/node-deleted.event';
 
 @Injectable()
 export class NodeService {
   constructor(
+    private eventEmitter: EventEmitter2,
     @InjectRepository(Node)
     private nodeRepository: Repository<Node>,
     @InjectRepository(NodeCommission)
@@ -23,7 +27,6 @@ export class NodeService {
     private connection: Connection,
     private config: ConfigService,
     private profileService: ProfileService,
-    private stakingService: StakingService,
   ) {}
 
   async createNode(user: number, nodeDto: CreateNodeDto): Promise<Node> {
@@ -75,6 +78,11 @@ export class NodeService {
       await manager.save(node);
     });
 
+    this.eventEmitter.emit(
+      NODE_CREATED_EVENT,
+      new NodeCreatedEvent(node.id, node.type, node.address),
+    );
+
     return this.findNodeByOrFail({
       id: node.id,
     });
@@ -122,6 +130,18 @@ export class NodeService {
       );
     }
 
+    if (Math.floor(commissionDto.commission) !== commissionDto.commission) {
+      throw new ValidationException(
+        `New commission has to be between 0 and 100.`,
+      );
+    }
+
+    if (node.currentCommission === commissionDto.commission) {
+      throw new ValidationException(
+        `New commission can't be the same as the current commission.`,
+      );
+    }
+
     const commissionChangeThreshold = this.config.get<number>(
       'delegation.commissionChangeThreshold',
     );
@@ -150,10 +170,18 @@ export class NodeService {
     const n = await this.findNodeByOrFail({
       id: node,
       user,
-      type: NodeType.TESTNET,
     });
+
+    if (!n.canDelete) {
+      throw new ValidationException(`Node can't be deleted.`);
+    }
+
     await this.nodeRepository.delete(node);
-    await this.stakingService.undelegateTestnetTransaction(n.address);
+
+    this.eventEmitter.emit(
+      NODE_DELETED_EVENT,
+      new NodeDeletedEvent(n.id, n.type, n.address),
+    );
 
     return n;
   }
