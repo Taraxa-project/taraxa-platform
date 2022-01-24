@@ -1,4 +1,5 @@
-workerReplicaCount: 4
+replicaCount: 3
+workerReplicaCount: 3
 
 app:
   environment: prod
