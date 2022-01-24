@@ -41,7 +41,7 @@ export class StakingService {
     );
   }
   get mainnetWalletAddress(): string {
-    return this.testnetWallet.address;
+    return this.mainnetWallet.address;
   }
   get testnetWalletAddress(): string {
     return this.testnetWallet.address;
