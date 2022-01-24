@@ -3,9 +3,7 @@ import { hideBin } from 'yargs/helpers';
 import { NestFactory } from '@nestjs/core';
 
 import { AppCoreModule } from './modules/app-core.module';
-import { NodeModule } from './modules/node/node.module';
 import { NodeService } from './modules/node/node.service';
-import { DelegationModule } from './modules/delegation/delegation.module';
 import { DelegationService } from './modules/delegation/delegation.service';
 
 interface Node {
@@ -22,10 +20,9 @@ async function bootstrap() {
   const app = await NestFactory.createApplicationContext(
     AppCoreModule.forRoot(),
   );
-  const nodeService = app.select(NodeModule).get(NodeService, { strict: true });
-  const delegationService = app
-    .select(DelegationModule)
-    .get(DelegationService, { strict: true });
+  await app.init();
+  const nodeService = app.get(NodeService);
+  const delegationService = app.get(DelegationService);
 
   const nodes = async (type: string) => {
     return nodeService.findNodes({ type });
