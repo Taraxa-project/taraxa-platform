@@ -241,7 +241,7 @@ export class DelegationService {
       delegatorAddress = this.stakingService.mainnetWalletAddress;
     } else {
       endpoint = this.testnetEndpoint;
-      delegatorAddress = this.stakingService.testnetWalletAddress;
+      delegatorAddress = this.stakingService.testnetFaucetWalletAddress;
     }
     const formattedAddress = delegatorAddress.toLowerCase();
     const state = await this.httpService
@@ -333,15 +333,9 @@ export class DelegationService {
     }
 
     if (currentDelegation > totalNodeDelegation) {
-      await this.stakingService.undelegateTestnetTransaction(
-        address,
-        totalNodeDelegation,
-      );
+      await this.stakingService.undelegateTestnetTransaction(address);
     } else {
-      await this.stakingService.delegateTestnetTransaction(
-        address,
-        totalNodeDelegation,
-      );
+      await this.stakingService.delegateTestnetTransaction(address);
     }
   }
 
