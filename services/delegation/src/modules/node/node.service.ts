@@ -50,6 +50,7 @@ export class NodeService {
       .createQueryBuilder('n')
       .select('COUNT("n"."id")', 'count')
       .where('LOWER("n"."address") = :address', { address })
+      .withDeleted()
       .getRawOne();
     const existingNodeCount = parseInt(existingNode.count, 10);
 
