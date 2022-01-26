@@ -2,8 +2,10 @@ import { ethers } from 'ethers';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import * as RLP from 'rlp';
+import * as ethUtil from 'ethereumjs-util';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class StakingService {
@@ -14,8 +16,10 @@ export class StakingService {
   private testnetWallet: Account;
   private contract: ethers.Contract;
   private dposContractAddress = '0x00000000000000000000000000000000000000ff';
+  private testnetExplorerUrl: string;
+  public testnetFaucetWalletAddress: string;
 
-  constructor(private config: ConfigService) {
+  constructor(private config: ConfigService, private httpService: HttpService) {
     this.ethProvider = new ethers.providers.JsonRpcProvider(
       this.config.get<string>('ethereum.ethEndpoint'),
     );
@@ -38,6 +42,13 @@ export class StakingService {
     );
     this.testnetWallet = this.testnetProvider.eth.accounts.privateKeyToAccount(
       this.config.get<string>('ethereum.testnetWallet'),
+    );
+
+    this.testnetExplorerUrl = this.config.get<string>(
+      'ethereum.testnetExplorerUrl',
+    );
+    this.testnetFaucetWalletAddress = this.config.get<string>(
+      'ethereum.testnetFaucetWalletAddress',
     );
   }
   get mainnetWalletAddress(): string {
@@ -66,18 +77,24 @@ export class StakingService {
     );
   }
 
-  async delegateTestnetTransaction(address: string, value: number) {
-    await this.sendTestnetTransaction(
-      this.dposContractAddress,
-      this.getDPOSInput(address, value, 'add'),
-    );
+  async delegateTestnetTransaction(address: string) {
+    await this.httpService
+      .get(
+        `${
+          this.testnetExplorerUrl
+        }/api/delegate/${address}?sig=${this.getSignature(address)}`,
+      )
+      .toPromise();
   }
 
-  async undelegateTestnetTransaction(address: string, value: number) {
-    await this.sendTestnetTransaction(
-      this.dposContractAddress,
-      this.getDPOSInput(address, value, 'substract'),
-    );
+  async undelegateTestnetTransaction(address: string) {
+    await this.httpService
+      .get(
+        `${
+          this.testnetExplorerUrl
+        }/api/undelegate/${address}?sig=${this.getSignature(address)}`,
+      )
+      .toPromise();
   }
 
   private async sendMainnetTransaction(
@@ -85,13 +102,6 @@ export class StakingService {
     input: string,
   ): Promise<boolean> {
     return this.sendTransaction(to, input, 'mainnet');
-  }
-
-  private async sendTestnetTransaction(
-    to: string,
-    input: string,
-  ): Promise<boolean> {
-    return this.sendTransaction(to, input, 'testnet');
   }
 
   private async sendTransaction(
@@ -148,5 +158,17 @@ export class StakingService {
     return [...new Uint8Array(buffer)]
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
+  }
+
+  private getSignature(address: string): string {
+    const privKey = this.config.get<string>('ethereum.testnetDelegationWallet');
+
+    const { v, r, s } = ethUtil.ecsign(
+      ethUtil.keccak256(ethUtil.toBuffer(address)),
+      Buffer.from(privKey.substring(2), 'hex'),
+    );
+    const hash = ethUtil.toRpcSig(v, r, s);
+
+    return hash;
   }
 }
