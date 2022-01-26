@@ -8,6 +8,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   AfterLoad,
   getRepository,
 } from 'typeorm';
@@ -97,6 +98,11 @@ export class Node {
     type: 'timestamp with time zone',
   })
   updatedAt: Date;
+
+  @DeleteDateColumn({
+    type: 'timestamp with time zone',
+  })
+  deletedAt?: Date;
 
   profile: Partial<Profile> | null = null;
   yield = 0;
