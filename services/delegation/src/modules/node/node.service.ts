@@ -177,7 +177,7 @@ export class NodeService {
       throw new ValidationException(`Node can't be deleted.`);
     }
 
-    await this.nodeRepository.delete(node);
+    await this.nodeRepository.softDelete(node);
 
     this.eventEmitter.emit(
       NODE_DELETED_EVENT,
