@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "community-delegation.fullname" . }}-cron
   labels:
-    {{- include "community-delegation.labels" . | nindent 4 }}
+    {{- include "community-delegation-cron.labels" . | nindent 4 }}
   annotations:
     checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
@@ -11,7 +11,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "community-delegation.selectorLabels" . | nindent 6 }}
+      {{- include "community-delegation-cron.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,7 +19,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "community-delegation.selectorLabels" . | nindent 8 }}
+        {{- include "community-delegation-cron.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
