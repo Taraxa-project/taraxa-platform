@@ -43,11 +43,57 @@ helm.sh/chart: {{ include "community-delegation.chart" . }}
 {{- end }}
 
 {{/*
+Cron labels
+*/}}
+{{- define "community-delegation-cron.labels" -}}
+{{ include "community-delegation-cron.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+helm.sh/chart: {{ include "community-delegation.chart" . }}
+{{- end }}
+
+{{/*
+Worker labels
+*/}}
+{{- define "community-delegation-worker.labels" -}}
+{{ include "community-delegation-worker.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+helm.sh/chart: {{ include "community-delegation.chart" . }}
+{{- end }}
+
+{{/*
 Default Selector labels
 */}}
 {{- define "community-delegation.selectorLabels" -}}
 app: {{ .Values.app.name }}
 component: {{ .Values.app.component }}
+environment: {{ .Values.app.environment }}
+app.kubernetes.io/name: {{ include "community-delegation.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Cron Selector labels
+*/}}
+{{- define "community-delegation-cron.selectorLabels" -}}
+app: {{ .Values.app.name }}
+component: {{ .Values.app.component }}-cron
+environment: {{ .Values.app.environment }}
+app.kubernetes.io/name: {{ include "community-delegation.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Worker Selector labels
+*/}}
+{{- define "community-delegation-worker.selectorLabels" -}}
+app: {{ .Values.app.name }}
+component: {{ .Values.app.component }}-worker
 environment: {{ .Values.app.environment }}
 app.kubernetes.io/name: {{ include "community-delegation.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
