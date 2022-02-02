@@ -24,7 +24,7 @@ export class DelegationTaskService implements OnModuleInit {
   @Cron('0 0 * * *')
   async ensureDelegation() {
     this.logger.debug('Starting delegation worker...');
-    const nodes = await this.nodeService.findNodes({});
+    const nodes = await this.nodeService.findNodes({ type: 'mainnet' });
 
     for (const node of nodes) {
       await this.delegationQueue.add(
@@ -32,11 +32,5 @@ export class DelegationTaskService implements OnModuleInit {
         new EnsureDelegationJob(node.id, node.type, node.address),
       );
     }
-  }
-
-  @Cron('0 0 * * *')
-  async rebalanceTestnet() {
-    this.logger.debug('Starting testnet rebalancing worker...');
-    await this.delegationService.rebalanceTestnet();
   }
 }
