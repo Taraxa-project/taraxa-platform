@@ -38,6 +38,7 @@ export class Delegation {
   createdAt: Date;
 
   isOwnDelegation: boolean;
+  isSelfDelegation: boolean;
 
   static fromDto(dto: CreateDelegationDto): Delegation {
     const delegation = new Delegation();
@@ -45,9 +46,5 @@ export class Delegation {
     delegation.value = dto.value;
 
     return delegation;
-  }
-
-  isUserOwnDelegation(user: number | null): boolean {
-    return user === this.user;
   }
 }
