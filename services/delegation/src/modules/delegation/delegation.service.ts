@@ -1,6 +1,6 @@
 import * as ethUtil from 'ethereumjs-util';
 import moment from 'moment';
-import { FindConditions, Repository } from 'typeorm';
+import { Connection, FindConditions, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +16,9 @@ import { DelegationNonce } from './delegation-nonce.entity';
 import { DELEGATION_CREATED_EVENT } from './delegation.constants';
 import { DelegationCreatedEvent } from './event/delegation-created.event';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
+import { CreateUndelegationDto } from './dto/create-undelegation.dto';
 import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
+import { CreateUndelegationNonceDto } from './dto/create-undelegation-nonce.dto';
 import { BalancesDto } from './dto/balances.dto';
 import { BalancesByNodeDto } from './dto/balances-by-node.dto';
 
@@ -36,6 +38,7 @@ export class DelegationService {
     private httpService: HttpService,
     private nodeService: NodeService,
     private stakingService: StakingService,
+    private connection: Connection,
   ) {
     this.mainnetEndpoint = this.config.get<string>('ethereum.mainnetEndpoint');
     this.testnetEndpoint = this.config.get<string>('ethereum.testnetEndpoint');
@@ -74,59 +77,45 @@ export class DelegationService {
       user,
     });
   }
-  async getNonce(user: number, address: string, node: Node): Promise<string> {
-    const nonce = await this.delegationNonceRepository.findOneOrFail({
-      user,
-      address,
-      node,
-    });
 
-    return `Delegate to ${nonce.node.address}, from ${nonce.address} with nonce #${nonce.value}`;
-  }
-  async getAndUpdateNonce(
+  async getAndUpdateDelegationNonce(
     user: number,
     address: string,
-    node: Node,
+    nodeId: number,
   ): Promise<string> {
-    const nonce = await this.delegationNonceRepository.findOneOrFail({
-      user,
-      address,
-      node,
-    });
-
-    const nonceString = `Delegate to ${nonce.node.address}, from ${nonce.address} with nonce #${nonce.value}`;
-
-    nonce.value = nonce.value + 1;
-    await this.delegationNonceRepository.save(nonce);
+    const nonceString = await this.getDelegationNonce(user, address, nodeId);
+    await this.incrementNonce(user, address, nodeId);
 
     return nonceString;
   }
 
-  async createNonce(
+  async getAndUpdateUndelegationNonce(
+    user: number,
+    address: string,
+    nodeId: number,
+  ): Promise<string> {
+    const nonceString = await this.getUndelegationNonce(user, address, nodeId);
+    await this.incrementNonce(user, address, nodeId);
+
+    return nonceString;
+  }
+
+  async createDelegationNonce(
     user: number,
     delegationNonceDto: CreateDelegationNonceDto,
   ): Promise<string> {
-    const node = await this.nodeService.findNodeByOrFail({
-      id: delegationNonceDto.node,
-      type: NodeType.MAINNET,
-    });
+    const { from, node } = delegationNonceDto;
+    await this.createNonce(user, from, node);
+    return this.getDelegationNonce(user, delegationNonceDto.from, node);
+  }
 
-    const nonceExists = await this.delegationNonceRepository.findOne({
-      user,
-      address: delegationNonceDto.from,
-      node: node,
-    });
-
-    if (!nonceExists) {
-      const nonce = new DelegationNonce();
-      nonce.user = user;
-      nonce.address = delegationNonceDto.from;
-      nonce.node = node;
-      nonce.value = 1;
-      await this.delegationNonceRepository.save(nonce);
-    }
-
-    return this.getNonce(user, delegationNonceDto.from, node);
+  async createUndelegationNonce(
+    user: number,
+    delegationNonceDto: CreateUndelegationNonceDto,
+  ): Promise<string> {
+    const { from, node } = delegationNonceDto;
+    await this.createNonce(user, from, node);
+    return this.getUndelegationNonce(user, delegationNonceDto.from, node);
   }
 
   async create(
@@ -138,14 +127,30 @@ export class DelegationService {
       type: NodeType.MAINNET,
     });
 
-    const nonce = await this.getAndUpdateNonce(user, delegationDto.from, node);
+    let nonce: string;
+
+    try {
+      nonce = await this.getAndUpdateDelegationNonce(
+        user,
+        delegationDto.from,
+        node.id,
+      );
+    } catch (e) {
+      throw new ValidationException('Nonce not found');
+    }
+
     const nonceBuffer = ethUtil.toBuffer(ethUtil.fromUtf8(nonce));
     const nonceHash = ethUtil.hashPersonalMessage(nonceBuffer);
 
-    const { v, r, s } = ethUtil.fromRpcSig(delegationDto.proof);
-    const address = ethUtil.bufferToHex(
-      ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
-    );
+    let address: string;
+    try {
+      const { v, r, s } = ethUtil.fromRpcSig(delegationDto.proof);
+      address = ethUtil.bufferToHex(
+        ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
+      );
+    } catch (e) {
+      throw new ValidationException('Invalid proof');
+    }
 
     if (
       address.toLocaleLowerCase() !== delegationDto.from.toLocaleLowerCase()
@@ -186,6 +191,99 @@ export class DelegationService {
     );
 
     return createdDelegation;
+  }
+
+  async delete(
+    user: number,
+    undelegationDto: CreateUndelegationDto,
+  ): Promise<void> {
+    const node = await this.nodeService.findNodeByOrFail({
+      id: undelegationDto.node,
+      type: NodeType.MAINNET,
+    });
+
+    let nonce: string;
+
+    try {
+      nonce = await this.getAndUpdateUndelegationNonce(
+        user,
+        undelegationDto.from,
+        node.id,
+      );
+    } catch (e) {
+      throw new ValidationException('Nonce not found');
+    }
+
+    const nonceBuffer = ethUtil.toBuffer(ethUtil.fromUtf8(nonce));
+    const nonceHash = ethUtil.hashPersonalMessage(nonceBuffer);
+
+    let address: string;
+    try {
+      const { v, r, s } = ethUtil.fromRpcSig(undelegationDto.proof);
+      address = ethUtil.bufferToHex(
+        ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
+      );
+    } catch (e) {
+      throw new ValidationException('Invalid proof');
+    }
+
+    if (
+      address.toLocaleLowerCase() !== undelegationDto.from.toLocaleLowerCase()
+    ) {
+      throw new ValidationException('Invalid proof');
+    }
+
+    const totalUndelegatable = await this.getUserUndelegatableDelegationsToNode(
+      undelegationDto.from,
+      node.id,
+    );
+    if (undelegationDto.value > totalUndelegatable) {
+      throw new ValidationException(
+        `Can only undelegate ${totalUndelegatable} tokens`,
+      );
+    }
+
+    let delegations: Delegation[];
+
+    await this.connection.transaction(async (manager) => {
+      const delegationRepository =
+        manager.getRepository<Delegation>('Delegation');
+      delegations = await delegationRepository.find({
+        where: {
+          user,
+          node,
+          address: undelegationDto.from,
+        },
+        order: {
+          createdAt: 'ASC',
+        },
+      });
+      let remaining = undelegationDto.value;
+      const now = moment().utc().toDate();
+      for (const delegation of delegations) {
+        if (remaining === 0) {
+          break;
+        }
+
+        if (remaining < delegation.value) {
+          const newDelegation = new Delegation();
+          newDelegation.user = user;
+          newDelegation.node = node;
+          newDelegation.address = undelegationDto.from;
+          newDelegation.value = delegation.value - remaining;
+          newDelegation.startsAt = now;
+          newDelegation.createdAt = delegation.createdAt;
+
+          await delegationRepository.save(newDelegation);
+        }
+
+        delegation.endsAt = now;
+        delegation.deletedAt = now;
+        await delegationRepository.save(delegation);
+
+        remaining -= delegation.value;
+      }
+    });
   }
 
   async findDelegationByOrFail(
@@ -293,6 +391,88 @@ export class DelegationService {
     for (const node of ownNodes) {
       await this.ensureTestnetDelegation(node, newDelegation);
     }
+  }
+
+  private async getDelegationNonce(
+    user: number,
+    address: string,
+    nodeId: number,
+  ): Promise<string> {
+    const node = await this.nodeService.findNodeByOrFail({
+      id: nodeId,
+      type: NodeType.MAINNET,
+    });
+    const nonce = await this.delegationNonceRepository.findOneOrFail({
+      user,
+      address,
+      node,
+    });
+
+    return `Delegate to ${nonce.node.address}, from ${nonce.address} with nonce #${nonce.value}`;
+  }
+
+  private async getUndelegationNonce(
+    user: number,
+    address: string,
+    nodeId: number,
+  ): Promise<string> {
+    const node = await this.nodeService.findNodeByOrFail({
+      id: nodeId,
+      type: NodeType.MAINNET,
+    });
+    const nonce = await this.delegationNonceRepository.findOneOrFail({
+      user,
+      address,
+      node,
+    });
+
+    return `Undelegate from ${nonce.node.address}, using ${nonce.address} with nonce #${nonce.value}`;
+  }
+
+  private async createNonce(
+    user: number,
+    address: string,
+    nodeId: number,
+  ): Promise<void> {
+    const node = await this.nodeService.findNodeByOrFail({
+      id: nodeId,
+      type: NodeType.MAINNET,
+    });
+
+    const nonceExists = await this.delegationNonceRepository.findOne({
+      user,
+      address,
+      node,
+    });
+
+    if (!nonceExists) {
+      const nonce = new DelegationNonce();
+      nonce.user = user;
+      nonce.address = address;
+      nonce.node = node;
+      nonce.value = 1;
+      await this.delegationNonceRepository.save(nonce);
+    }
+  }
+
+  private async incrementNonce(
+    user: number,
+    address: string,
+    nodeId: number,
+  ): Promise<void> {
+    const node = await this.nodeService.findNodeByOrFail({
+      id: nodeId,
+      type: NodeType.MAINNET,
+    });
+
+    const nonce = await this.delegationNonceRepository.findOneOrFail({
+      user,
+      address,
+      node,
+    });
+
+    nonce.value = nonce.value + 1;
+    await this.delegationNonceRepository.save(nonce);
   }
 
   private async ensureMainnetDelegation(

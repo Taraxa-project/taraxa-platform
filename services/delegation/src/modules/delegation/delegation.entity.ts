@@ -4,6 +4,7 @@ import {
   Column,
   Index,
   CreateDateColumn,
+  DeleteDateColumn,
   ManyToOne,
 } from 'typeorm';
 import { Node } from '../node/node.entity';
@@ -32,10 +33,27 @@ export class Delegation {
   @Column()
   value: number;
 
+  @Column({
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
+  startsAt?: Date;
+
+  @Column({
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
+  endsAt?: Date;
+
   @CreateDateColumn({
     type: 'timestamp with time zone',
   })
   createdAt: Date;
+
+  @DeleteDateColumn({
+    type: 'timestamp with time zone',
+  })
+  deletedAt?: Date;
 
   isOwnDelegation: boolean;
   isSelfDelegation: boolean;
