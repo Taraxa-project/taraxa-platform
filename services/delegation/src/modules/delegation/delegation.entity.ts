@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -62,6 +63,7 @@ export class Delegation {
     const delegation = new Delegation();
     delegation.address = dto.from;
     delegation.value = dto.value;
+    delegation.startsAt = moment().utc().toDate();
 
     return delegation;
   }
