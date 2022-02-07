@@ -143,20 +143,20 @@ export class DelegationService {
     const nonceHash = ethUtil.hashPersonalMessage(nonceBuffer);
 
     let address: string;
-    try {
-      const { v, r, s } = ethUtil.fromRpcSig(delegationDto.proof);
-      address = ethUtil.bufferToHex(
-        ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
-      );
-    } catch (e) {
-      throw new ValidationException('Invalid proof');
-    }
+    // try {
+    //   const { v, r, s } = ethUtil.fromRpcSig(delegationDto.proof);
+    //   address = ethUtil.bufferToHex(
+    //     ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
+    //   );
+    // } catch (e) {
+    //   throw new ValidationException('Invalid proof');
+    // }
 
-    if (
-      address.toLocaleLowerCase() !== delegationDto.from.toLocaleLowerCase()
-    ) {
-      throw new ValidationException('Invalid proof');
-    }
+    // if (
+    //   address.toLocaleLowerCase() !== delegationDto.from.toLocaleLowerCase()
+    // ) {
+    //   throw new ValidationException('Invalid proof');
+    // }
 
     const nodeDelegations = await this.getTotalNodeDelegation(node.id);
     if (nodeDelegations + delegationDto.value > this.maxDelegationPerNode) {

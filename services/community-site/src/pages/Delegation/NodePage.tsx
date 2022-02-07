@@ -3,7 +3,10 @@ import { useParams } from 'react-router-dom';
 
 import { toSvg } from 'jdenticon';
 
-import { Button, Checkbox, Icons } from '@taraxa_project/taraxa-ui';
+import { Button, Checkbox, Icons, Modal } from '@taraxa_project/taraxa-ui';
+import { useMetaMask } from 'metamask-react';
+
+import { useAuth } from '../../services/useAuth';
 
 import Title from '../../components/Title/Title';
 import { useDelegationApi } from '../../services/useApi';
@@ -11,16 +14,37 @@ import Delegation from '../../interfaces/Delegation';
 import PublicNode from '../../interfaces/PublicNode';
 
 import './nodePage.scss';
+import Delegate from './Modal/Delegate';
+import Undelegate from './Modal/Undelegate';
+import CloseIcon from '../../assets/icons/close';
 
 const NodePage = () => {
+  const auth = useAuth();
+  const { status, account } = useMetaMask();
+  const [availableBalance, setAvailableBalance] = useState(0);
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [node, setNode] = useState<PublicNode | null>(null);
   const [delegationCount, setDelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<Delegation[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
+  const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
+  const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
   const { nodeId } = useParams<{ nodeId?: string }>();
   const delegationApi = useDelegationApi();
   const nodeIcon = toSvg('Aweesome node 1', 40, { backColor: '#fff' });
+
+  const isLoggedIn = !!auth.user?.id;
+  const canDelegate = isLoggedIn && status === 'connected' && !!account;
+
+  const getBalances = useCallback(async () => {
+    if (!canDelegate) {
+      return;
+    }
+    const data = await delegationApi.get(`/delegations/${account}/balances`);
+    if (data.success) {
+      setAvailableBalance(data.response.remaining);
+    }
+  }, [canDelegate, account]);
 
   const fetchNode = useCallback(async () => {
     const data = await delegationApi.get(`/validators/${nodeId}`);
@@ -45,6 +69,7 @@ const NodePage = () => {
   }, [nodeId, delegationAtTop, delegationPage]);
 
   useEffect(() => {
+    getBalances();
     fetchNode();
     fetchDelegators();
   }, [fetchNode, fetchDelegators]);
@@ -62,6 +87,63 @@ const NodePage = () => {
   }
   return (
     <div className="runnode">
+      {delegateToNode && (
+        <Modal
+          id="delegateModal"
+          title="Delegate to..."
+          show={!!delegateToNode}
+          children={
+            <Delegate
+              validatorId={node.id}
+              validatorName={node.name}
+              validatorAddress={node.address}
+              delegatorAddress={account}
+              remainingDelegation={node.remainingDelegation}
+              availableStakingBalance={availableBalance}
+              onSuccess={() => {
+                getBalances();
+                fetchNode();
+                fetchDelegators();
+              }}
+              onFinish={() => {
+                setDelegateToNode(null);
+              }}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setDelegateToNode(null);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
+      {undelegateFromNode && (
+        <Modal
+          id="delegateModal"
+          title="Undelegate from..."
+          show={!!undelegateFromNode}
+          children={
+            <Undelegate
+              validatorId={node.id}
+              validatorName={node.name}
+              validatorAddress={node.address}
+              onSuccess={() => {
+                getBalances();
+                fetchNode();
+                fetchDelegators();
+              }}
+              onFinish={() => {
+                setUndelegateFromNode(null);
+              }}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setUndelegateFromNode(null);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
       <Title title="Delegation" />
       <div className="nodeInfoWrapper">
         <div className="nodeInfoFlex">
@@ -78,12 +160,20 @@ const NodePage = () => {
             <div className="nodeInfoContent">{node?.yield.toFixed(2)}%</div>
             <div className="nodeInfoTitle">commission</div>
             <div className="nodeInfoContent">{node?.currentCommission?.toFixed(2)}%</div>
-            <div className="nodeInfoTitle">node operator description</div>
-            <div className="nodeInfoContent">{node?.profile?.description}</div>
-            <div className="nodeInfoTitle">node operator Website</div>
-            <div className="nodeInfoContent">
-              <a href="https://t.me/awesome_node">{node?.profile?.website}</a>
-            </div>
+            {node?.profile?.description && (
+              <>
+                <div className="nodeInfoTitle">node operator description</div>
+                <div className="nodeInfoContent">{node?.profile?.description}</div>
+              </>
+            )}
+            {node?.profile?.website && (
+              <>
+                <div className="nodeInfoTitle">node operator Website</div>
+                <div className="nodeInfoContent">
+                  <a href="https://t.me/awesome_node">{node?.profile?.website}</a>
+                </div>
+              </>
+            )}
             <div className="nodeInfoTitle">node active since</div>
             <div className="nodeInfoContent">30 DEC 2021</div>
           </div>
@@ -157,8 +247,18 @@ const NodePage = () => {
               </div>
             </div>
             <div className="delegationButtons">
-              <Button variant="contained" color="secondary" label="Delegate" />
-              <Button variant="contained" color="secondary" label="Un-Delegate" />
+              <Button
+                onClick={() => setDelegateToNode(node)}
+                variant="contained"
+                color="secondary"
+                label="Delegate"
+              />
+              <Button
+                onClick={() => setUndelegateFromNode(node)}
+                variant="contained"
+                color="secondary"
+                label="Un-Delegate"
+              />
             </div>
           </div>
         </div>
@@ -193,7 +293,7 @@ const NodePage = () => {
         </div>
         <div className="delegators">
           {delegations.map((delegator, dIndex) => (
-            <div className="delegatorRow">
+            <div key={dIndex} className="delegatorRow">
               <div className="address">
                 <span>{dIndex + 1 + offsetIndex}.</span> {delegator.address}
               </div>
