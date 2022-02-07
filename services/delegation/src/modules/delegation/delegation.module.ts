@@ -11,6 +11,7 @@ import { Node } from '../node/node.entity';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
 import { DelegationController } from './delegation.controller';
+import { UndelegationController } from './undelegation.controller';
 import { BalanceController } from './balance.controller';
 import { DelegationService } from './delegation.service';
 import { DelegationTaskService } from './delegation-task.service';
@@ -35,7 +36,11 @@ import { NodeDeletedListener } from './listener/node-deleted.listener';
     NodeModule,
     StakingModule,
   ],
-  controllers: [DelegationController, BalanceController],
+  controllers: [
+    DelegationController,
+    UndelegationController,
+    BalanceController,
+  ],
   providers: [DelegationService, NodeCreatedListener, NodeDeletedListener],
   exports: [TypeOrmModule],
 })

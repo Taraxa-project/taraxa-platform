@@ -1,11 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEthereumAddress } from 'class-validator';
+import { CreateNonceDto } from './create-nonce.dto';
 
-export class CreateDelegationNonceDto {
-  @IsEthereumAddress()
-  @ApiProperty()
-  from: string;
-
-  @ApiProperty()
-  node: number;
-}
+export class CreateDelegationNonceDto extends CreateNonceDto {}
