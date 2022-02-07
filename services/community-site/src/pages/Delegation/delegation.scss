@@ -7,20 +7,22 @@
   }
   .nodeName {
     font-weight: bold;
-    font-size: 17px;
-    margin: 2px 0;
+    font-size: 20px;
+    margin: 2px 0 16px 0;
   }
   .nodeAddressWrapper {
     color: #15ac5b;
+    margin-bottom: 25px;
   }
   .nodeAddress {
     background-color: #31364b;
     border-radius: 4px;
     padding: 7px 10px;
+    font-size: 14px;
   }
   .taraContainer {
     float: left;
-    width: 50%;
+    width: 150px;
   }
   .taraContainerAmountDescription {
     text-align: left;
@@ -28,17 +30,19 @@
     margin-top: 0;
   }
   .taraContainerBalance {
-    margin-right: 10px;
+    margin-right: 12px;
   }
   .taraContainerWrapper {
-    padding: 0px 10px;
     overflow: auto;
+    display: flex;
+    justify-content: center;
   }
   .taraContainerAmount {
     text-align: left;
     background-color: #31364b;
     border: 1px solid #4f5368;
     border-radius: 4px;
+    letter-spacing: -0.02em;
   }
   .taraContainerAmountTotal {
     margin: 10px 0 0 10px;
@@ -52,16 +56,17 @@
     font-size: 12px;
   }
   .taraInputWrapper {
-    max-width: 95%;
-    padding: 10px;
+    width: 312px;
+    padding: 20px;
     border: 1px solid #15ac5b;
     border-radius: 6px;
-    margin-top: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 28px auto 0 auto;
+
+    text-align: center;
   }
   .maxDelegatableDescription {
-    margin: 2px 0;
+    margin: 0px 0 26px 0;
+    font-size: 14px;
   }
   .maxDelegatableTotal {
     font-weight: bold;
@@ -74,7 +79,7 @@
     margin: 0;
   }
   .delegatePercentWrapper {
-    margin: 0 0 2px 0;
+    margin: 14px 0 22px 0;
   }
   .delegatePercent {
     color: #fff;
@@ -82,12 +87,24 @@
     border-radius: 20px;
     font-size: 14px;
     margin-right: 5px;
+    line-height: 17px;
+    text-align: center;
+    padding: 0;
+    width: 60px;
+    min-width: 60px;
+    height: 24px;
   }
   .successIcon {
     margin: 30px 0;
   }
   .successText {
     color: #878ca4;
+  }
+}
+
+#delegateModal {
+  @media only screen and (max-width: 476px) {
+    max-width: 95%;
   }
 }
 
