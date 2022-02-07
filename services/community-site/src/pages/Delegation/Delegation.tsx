@@ -136,7 +136,10 @@ const Delegation = () => {
     if (node.isActive) {
       className += ' active';
     }
-    const status = (
+
+    const canUndelegate = isLoggedIn && status === 'connected' && !!account && node.canUndelegate;
+
+    const nodeStatus = (
       <div className="status">
         <div className={className} />
       </div>
@@ -169,7 +172,7 @@ const Delegation = () => {
         <Button
           size="small"
           label="Un-delegate"
-          disabled={!canDelegate}
+          disabled={!canUndelegate}
           className="delete"
           onClick={() => setUndelegateFromNode(node)}
         />
@@ -177,7 +180,7 @@ const Delegation = () => {
     );
 
     return {
-      status,
+      status: nodeStatus,
       name,
       isTopNode,
       expectedYield,
@@ -233,10 +236,17 @@ const Delegation = () => {
           show={!!undelegateFromNode}
           children={
             <Undelegate
+              validatorId={undelegateFromNode.id}
               validatorName={undelegateFromNode.name}
               validatorAddress={undelegateFromNode.address}
-              totalDelegation={undelegateFromNode.totalDelegation}
-              onSuccess={() => setUndelegateFromNode(null)}
+              onSuccess={() => {
+                getBalances();
+                getValidators();
+                getStats();
+              }}
+              onFinish={() => {
+                setUndelegateFromNode(null);
+              }}
             />
           }
           parentElementID="root"
