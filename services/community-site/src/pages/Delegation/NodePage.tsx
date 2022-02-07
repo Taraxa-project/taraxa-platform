@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 
 import { toSvg } from 'jdenticon';
 
-import { Button, Checkbox } from '@taraxa_project/taraxa-ui';
+import { Button, Checkbox, Icons } from '@taraxa_project/taraxa-ui';
 
 import Title from '../../components/Title/Title';
 import { useDelegationApi } from '../../services/useApi';
@@ -13,8 +13,11 @@ import PublicNode from '../../interfaces/PublicNode';
 import './nodePage.scss';
 
 const NodePage = () => {
+  const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [node, setNode] = useState<PublicNode | null>(null);
+  const [delegationCount, setDelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<Delegation[] | []>([]);
+  const [delegationPage, setDelegationPage] = useState<number>(1);
   const { nodeId } = useParams<{ nodeId?: string }>();
   const delegationApi = useDelegationApi();
   const nodeIcon = toSvg('Aweesome node 1', 40, { backColor: '#fff' });
@@ -31,15 +34,15 @@ const NodePage = () => {
   }, [nodeId]);
 
   const fetchDelegators = useCallback(async () => {
-    const data = await delegationApi.get(`/validators/${nodeId}/delegations`);
+    setDelegations([]);
+    const data = await delegationApi.get(
+      `/validators/${nodeId}/delegations?show_my_delegation_at_the_top=${delegationAtTop}&page=${delegationPage}`,
+    );
     if (data.success) {
-      setDelegations(data.response);
-      // eslint-disable-next-line no-console
-      console.log(data.response);
-      // eslint-disable-next-line no-console
-      console.log(delegations);
+      setDelegations(data.response.data);
+      setDelegationCount(data.response.count);
     }
-  }, [nodeId]);
+  }, [nodeId, delegationAtTop, delegationPage]);
 
   useEffect(() => {
     fetchNode();
@@ -51,6 +54,8 @@ const NodePage = () => {
     (((node?.totalDelegation || 0) - (node?.ownDelegation || 0)) / delegationPossible) * 100;
   const selfDelegated = ((node?.ownDelegation || 0) / delegationPossible) * 100;
   const availableDelegation = ((node?.remainingDelegation || 0) / delegationPossible) * 100;
+  const delegationTotalPages = Math.ceil(delegationCount / 20);
+  const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
 
   if (!node) {
     return null;
@@ -161,12 +166,25 @@ const NodePage = () => {
         <div className="delegatorsHeader">
           <span className="delegatorsLegend">Delegators</span>
           <div className="showOwnDelegation">
-            <Checkbox />
+            <Checkbox
+              value={delegationAtTop}
+              onChange={(e) => setDelegationAtTop(e.target.checked)}
+            />
             Show my delegation at the top
           </div>
           <div className="delegatorsPagination">
-            {/* <Button className="paginationButton" Icon={Icons.Left} />
-            <Button className="paginationButton" Icon={Icons.Right} /> */}
+            <Button
+              className="paginationButton"
+              onClick={() => setDelegationPage(delegationPage - 1)}
+              disabled={delegationCount <= 20 || delegationPage === 1}
+              Icon={Icons.Left}
+            />
+            <Button
+              className="paginationButton"
+              onClick={() => setDelegationPage(delegationPage + 1)}
+              disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
+              Icon={Icons.Right}
+            />
           </div>
         </div>
         <div className="tableHeader">
@@ -177,9 +195,12 @@ const NodePage = () => {
           {delegations.map((delegator, dIndex) => (
             <div className="delegatorRow">
               <div className="address">
-                <span>{dIndex + 1}.</span> {delegator.address}
+                <span>{dIndex + 1 + offsetIndex}.</span> {delegator.address}
               </div>
-              <div className="badges">{}</div>
+              <div className="badges">
+                {delegator.isSelfDelegation && <div className="selfStake">self-stake</div>}
+                {delegator.isOwnDelegation && <div className="ownStake">your delegation</div>}
+              </div>
               <div className="amount">{delegator.value}</div>
             </div>
           ))}

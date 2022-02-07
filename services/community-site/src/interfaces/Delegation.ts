@@ -5,4 +5,5 @@ export default interface Delegation {
   value: number;
   createdAt: string;
   isOwnDelegation: boolean;
+  isSelfDelegation: boolean;
 }

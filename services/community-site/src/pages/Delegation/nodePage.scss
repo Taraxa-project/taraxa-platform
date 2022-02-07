@@ -357,6 +357,8 @@
     .delegatorRow {
       display: flex;
       flex-direction: row;
+      align-items: center;
+      margin-top: 2px;
 
       .address {
         span {
@@ -366,6 +368,8 @@
 
       .address,
       .amount {
+        display: flex;
+        align-items: center;
         flex: 0 1 auto;
         /* normal text (inter)/h4 */
         font-family: Inter;
@@ -379,7 +383,31 @@
       }
 
       .badges {
+        display: flex;
         flex: 1 0 auto;
+        align-items: center;
+        margin-left: 7px;
+
+        .selfStake,
+        .ownStake {
+          flex: 0 1 auto;
+          padding: 5px 6px;
+          border-radius: 4px;
+          font-family: Inter;
+          font-weight: 500;
+          font-size: 14px;
+          letter-spacing: -0.03em;
+        }
+
+        .selfStake {
+          background: #40465f;
+          color: #878ca4;
+        }
+
+        .ownStake {
+          background: #15ac5b;
+          color: #ffffff;
+        }
       }
     }
   }
