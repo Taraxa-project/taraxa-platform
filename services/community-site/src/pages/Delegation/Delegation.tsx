@@ -29,6 +29,7 @@ import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
 import CloseIcon from '../../assets/icons/close';
 import Title from '../../components/Title/Title';
 import Delegate from './Modal/Delegate';
+import Undelegate from './Modal/Undelegate';
 
 import './delegation.scss';
 
@@ -48,6 +49,7 @@ const Delegation = () => {
   const [totalValidators, setTotalValidators] = useState(0);
   const [nodes, setNodes] = useState<PublicNode[]>([]);
   const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
+  const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
 
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
 
@@ -136,7 +138,10 @@ const Delegation = () => {
     if (node.isActive) {
       className += ' active';
     }
-    const status = (
+
+    const canUndelegate = isLoggedIn && status === 'connected' && !!account && node.canUndelegate;
+
+    const nodeStatus = (
       <div className="status">
         <div className={className} />
       </div>
@@ -166,12 +171,18 @@ const Delegation = () => {
             setDelegateToNode(node);
           }}
         />
-        <Button size="small" label="Un-delegate" className="delete" disabled />
+        <Button
+          size="small"
+          label="Un-delegate"
+          disabled={!canUndelegate}
+          className="delete"
+          onClick={() => setUndelegateFromNode(node)}
+        />
       </>
     );
 
     return {
-      status,
+      status: nodeStatus,
       name,
       isTopNode,
       expectedYield,
@@ -192,7 +203,7 @@ const Delegation = () => {
     <div className="runnode">
       {delegateToNode && (
         <Modal
-          id="signinModal"
+          id="delegateModal"
           title="Delegate to..."
           show={!!delegateToNode}
           children={
@@ -216,6 +227,33 @@ const Delegation = () => {
           parentElementID="root"
           onRequestClose={() => {
             setDelegateToNode(null);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
+      {undelegateFromNode && (
+        <Modal
+          id="delegateModal"
+          title="Undelegate from..."
+          show={!!undelegateFromNode}
+          children={
+            <Undelegate
+              validatorId={undelegateFromNode.id}
+              validatorName={undelegateFromNode.name}
+              validatorAddress={undelegateFromNode.address}
+              onSuccess={() => {
+                getBalances();
+                getValidators();
+                getStats();
+              }}
+              onFinish={() => {
+                setUndelegateFromNode(null);
+              }}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setUndelegateFromNode(null);
           }}
           closeIcon={CloseIcon}
         />
@@ -322,7 +360,7 @@ const Delegation = () => {
               <TableBody>
                 {delegatableNodes.length > 0 &&
                   delegatableNodes.map((row) => (
-                    <TableRow className="tableRow">
+                    <TableRow className="tableRow" key={row.name}>
                       <TableCell className="tableCell">{row.status}</TableCell>
                       <TableCell
                         className="tableCell"

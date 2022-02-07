@@ -10,4 +10,5 @@ export default interface PublicNode extends Node {
   isTopNode: boolean;
   profile?: OperatorProfile;
   ownDelegation?: number;
+  canUndelegate: boolean;
 }
