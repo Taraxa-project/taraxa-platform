@@ -6,7 +6,7 @@ workflows:
   setup:
     jobs:
       - path-filtering/filter:
-          base-revision: main
+          base-revision: << pipeline.git.branch >>
           mapping: |
             packages/taraxa-ui/.* ui-package-modified true
             services/community-site/.* run-community-site-service-workflow true

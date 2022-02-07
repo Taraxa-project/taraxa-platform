@@ -390,7 +390,16 @@ const Delegation = () => {
                     {fullyDelegatedNodes.map((row) => (
                       <TableRow className="tableRow">
                         <TableCell className="tableCell">{row.status}</TableCell>
-                        <TableCell className="tableCell">{row.name}</TableCell>
+                        <TableCell className="tableCell">
+                          <div className="flexCell">
+                            <div>{row.name}</div>
+                            {row.isTopNode && (
+                              <div>
+                                <Icons.Trophy />
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell className="tableCell">{row.expectedYield}</TableCell>
                         <TableCell className="tableCell">
                           {row.hasPendingCommissionChange ? (

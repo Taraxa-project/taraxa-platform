@@ -34,7 +34,11 @@ export class DelegationCreatedListener {
 
     await this.delegationQueue.add(
       ENSURE_DELEGATION_JOB,
-      new EnsureDelegationJob(delegation.node.id),
+      new EnsureDelegationJob(
+        delegation.node.id,
+        delegation.node.type,
+        delegation.node.address,
+      ),
     );
   }
 }

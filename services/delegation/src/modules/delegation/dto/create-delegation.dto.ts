@@ -1,18 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEthereumAddress, IsHexadecimal, Min } from 'class-validator';
+import { Min } from 'class-validator';
+import { DelegationDto } from './delegation.dto';
 
-export class CreateDelegationDto {
-  @ApiProperty()
-  node: number;
-
-  @IsEthereumAddress()
-  @ApiProperty()
-  from: string;
-
-  @IsHexadecimal()
-  @ApiProperty()
-  proof: string;
-
+export class CreateDelegationDto extends DelegationDto {
   @Min(1000)
   @ApiProperty({
     minimum: 1000,

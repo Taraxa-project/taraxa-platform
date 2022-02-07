@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -7,8 +7,8 @@ import delegationConfig from '../../config/delegation';
 import ethereumConfig from '../../config/ethereum';
 
 import { Delegation } from '../delegation/delegation.entity';
+import { Profile } from '../profile/profile.entity';
 import { ProfileModule } from '../profile/profile.module';
-import { StakingModule } from '../staking/staking.module';
 
 import { Node } from './node.entity';
 import { NodeCommission } from './node-commission.entity';
@@ -29,14 +29,30 @@ import { ValidatorService } from './validator.service';
         maxRedirects: 5,
       }),
     }),
-    TypeOrmModule.forFeature([Node, NodeCommission, Delegation, TopUser]),
+    TypeOrmModule.forFeature([
+      Node,
+      NodeCommission,
+      Delegation,
+      Profile,
+      TopUser,
+    ]),
     ConfigModule.forFeature(delegationConfig),
     ConfigModule.forFeature(ethereumConfig),
     ProfileModule,
-    StakingModule,
   ],
   controllers: [NodeController, ValidatorController],
-  providers: [NodeService, ValidatorService, NodeTaskService],
+  providers: [NodeService, ValidatorService],
   exports: [NodeService],
 })
-export class NodeModule {}
+export class NodeModule {
+  static forRoot(type = 'web'): DynamicModule {
+    let providers = [];
+    if (type === 'cron') {
+      providers = [NodeTaskService];
+    }
+    return {
+      module: NodeModule,
+      providers,
+    };
+  }
+}
