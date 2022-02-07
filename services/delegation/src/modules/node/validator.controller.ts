@@ -57,11 +57,21 @@ export class ValidatorController {
 
   @ApiOkResponse({ description: 'Delegations found' })
   @ApiNotFoundResponse({ description: 'Validator not found' })
+  @ApiQuery({ name: 'show_my_delegation_at_the_top', type: Boolean })
+  @ApiQuery({ name: 'page', type: Number })
   @Get(':id/delegations')
   getDelegations(
     @User() user: JwtUser | false,
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<Partial<Delegation>[]> {
-    return this.validatorService.getDelegations(id, user ? user.id : null);
+    @Query('show_my_delegation_at_the_top', ParseBoolPipe)
+    showMyDelegationAtTheTop: boolean,
+    @Query('page', ParseIntPipe) page: number,
+  ): Promise<{ count: number; data: Partial<Delegation>[] }> {
+    return this.validatorService.getDelegations(
+      id,
+      user ? user.id : null,
+      showMyDelegationAtTheTop,
+      page,
+    );
   }
 }

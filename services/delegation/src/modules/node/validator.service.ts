@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { Equal, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { NodeType } from './node-type.enum';
 import { Node } from './node.entity';
@@ -7,7 +9,11 @@ import { Delegation } from '../delegation/delegation.entity';
 
 @Injectable()
 export class ValidatorService {
-  constructor(private nodeService: NodeService) {}
+  constructor(
+    private nodeService: NodeService,
+    @InjectRepository(Delegation)
+    private delegationRepository: Repository<Delegation>,
+  ) {}
   async find(
     user: number | null,
     showMyValidators: boolean,
@@ -41,15 +47,36 @@ export class ValidatorService {
   async getDelegations(
     id: number,
     user: number | null,
-  ): Promise<Partial<Delegation>[]> {
+    showMyDelegationAtTheTop = false,
+    page = 1,
+  ): Promise<{ count: number; data: Partial<Delegation>[] }> {
     const node = await this.nodeService.findNodeByOrFail({
       id,
       type: NodeType.MAINNET,
     });
-    return node.delegations.map((delegation) => ({
-      ...delegation,
-      isOwnDelegation: delegation.isUserOwnDelegation(user),
-    }));
+
+    const perPage = 20;
+    let q = this.delegationRepository
+      .createQueryBuilder('d')
+      .where('"d"."nodeId" = :node', { node: node.id })
+      .take(perPage)
+      .skip((page - 1) * perPage)
+      .orderBy(`d.user = ${node.user}`, 'DESC');
+
+    if (showMyDelegationAtTheTop && user !== null) {
+      q = q.orderBy(`d.user == ${user}`, 'DESC');
+    }
+
+    const [result, total] = await q.getManyAndCount();
+
+    return {
+      count: total,
+      data: result.map((delegation) => ({
+        ...delegation,
+        isOwnDelegation: delegation.user === user,
+        isSelfDelegation: delegation.user === node.user,
+      })),
+    };
   }
   private decorateNode(node: Node, user: number | null): Partial<Node> {
     return {
