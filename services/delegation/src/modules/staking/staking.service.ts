@@ -63,14 +63,14 @@ export class StakingService {
     return stakeOf[0].div(ethers.BigNumber.from(10).pow(18)).toNumber();
   }
 
-  async delegateMainnetTransaction(address: string, value: number) {
+  async delegateMainnetTransaction(address: string, value: ethers.BigNumber) {
     await this.sendMainnetTransaction(
       this.dposContractAddress,
       this.getDPOSInput(address, value, 'add'),
     );
   }
 
-  async undelegateMainnetTransaction(address: string, value: number) {
+  async undelegateMainnetTransaction(address: string, value: ethers.BigNumber) {
     await this.sendMainnetTransaction(
       this.dposContractAddress,
       this.getDPOSInput(address, value, 'substract'),
@@ -146,11 +146,11 @@ export class StakingService {
 
   private getDPOSInput(
     address: string,
-    value: number,
+    value: ethers.BigNumber,
     type: 'add' | 'substract',
   ): string {
     return `0x${this.bufferToHex(
-      RLP.encode([[address, [value, type === 'add' ? 0 : 1]]]),
+      RLP.encode([[address, [value.toString(), type === 'add' ? 0 : 1]]]),
     )}`;
   }
 

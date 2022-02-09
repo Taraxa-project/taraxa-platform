@@ -79,6 +79,26 @@ async function bootstrap() {
     return Promise.resolve();
   };
 
+  const checkStaking = async () => {
+    const delegators = await delegationService.getDelegators();
+    let cnt = 0;
+    for (const delegator of delegators) {
+      const { address } = delegator;
+      const balances = await delegationService.getBalances(address);
+
+      if (balances.delegated > balances.total) {
+        cnt++;
+        console.log(`Checking ${address}...`);
+        console.log(`currentStake: ${balances.total}`);
+        console.log(`currentDelegated: ${balances.delegated}`);
+        console.log(`------------------------------`);
+      }
+    }
+    console.log(`Total: ${cnt}/${delegators.length}`);
+    console.log(`------------------------------`);
+    return Promise.resolve();
+  };
+
   await yargs(hideBin(process.argv))
     .command('testnet-nodes', 'get all testnet nodes', testnetNodes)
     .command('mainnet-nodes', 'get all mainnets nodes', mainnetNodes)
@@ -96,6 +116,11 @@ async function bootstrap() {
       'rebalance-testnet',
       'rebalances own node delegations for testnet',
       rebalanceTestnet,
+    )
+    .command(
+      'check-staking',
+      'checks staking balances for all addresses',
+      checkStaking,
     ).argv;
   await app.close();
 }
