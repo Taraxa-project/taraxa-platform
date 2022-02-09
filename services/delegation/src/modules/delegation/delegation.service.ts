@@ -393,6 +393,15 @@ export class DelegationService {
     }
   }
 
+  async getDelegators() {
+    const d = this.delegationRepository
+      .createQueryBuilder('d')
+      .select('"d"."address"')
+      .groupBy('"d"."address"')
+      .getRawMany();
+    return d;
+  }
+
   private async getDelegationNonce(
     user: number,
     address: string,
