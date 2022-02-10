@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 import {
   Switch as MSwitch,
   CssBaseline,
@@ -6,6 +7,7 @@ import {
   SwitchProps as MSwitchProps,
   FormControlLabel,
 } from '@material-ui/core';
+import useStyles from './switch-styles';
 import theme from '../theme';
 
 export interface SwitchProps extends MSwitchProps {
@@ -24,28 +26,32 @@ const Switch = ({
   className,
   value,
   labelPlacement,
-}: SwitchProps) => (
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <FormControlLabel
-      value={value}
-      id={id}
-      className={className}
-      control={
-        <MSwitch
-          checked={checked}
-          onChange={onChange}
-          name={name}
-          disabled={disabled}
-          color={color}
-          value={value}
-        />
-      }
-      label={label}
-      labelPlacement={labelPlacement || 'start'}
-      color="white"
-    />
-  </ThemeProvider>
-);
+}: SwitchProps) => {
+  const classes = useStyles();
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <FormControlLabel
+        value={value}
+        id={id}
+        className={clsx(classes.root, className)}
+        control={
+          <MSwitch
+            checked={checked}
+            onChange={onChange}
+            name={name}
+            disabled={disabled}
+            color={color}
+            value={value}
+          />
+        }
+        label={label}
+        labelPlacement={labelPlacement || 'start'}
+        color="white"
+      />
+    </ThemeProvider>
+  );
+};
 
 export default Switch;
