@@ -1,4 +1,5 @@
 replicaCount: 1
+workerReplicaCount: 1
 
 app:
   name: community-delegation

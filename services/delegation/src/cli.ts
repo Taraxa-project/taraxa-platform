@@ -2,10 +2,8 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { NestFactory } from '@nestjs/core';
 
-import { AppModule } from './app.module';
-import { NodeModule } from './modules/node/node.module';
+import { AppCoreModule } from './modules/app-core.module';
 import { NodeService } from './modules/node/node.service';
-import { DelegationModule } from './modules/delegation/delegation.module';
 import { DelegationService } from './modules/delegation/delegation.service';
 
 interface Node {
@@ -19,11 +17,12 @@ interface Delegations {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(AppModule);
-  const nodeService = app.select(NodeModule).get(NodeService, { strict: true });
-  const delegationService = app
-    .select(DelegationModule)
-    .get(DelegationService, { strict: true });
+  const app = await NestFactory.createApplicationContext(
+    AppCoreModule.forRoot(),
+  );
+  await app.init();
+  const nodeService = app.get(NodeService);
+  const delegationService = app.get(DelegationService);
 
   const nodes = async (type: string) => {
     return nodeService.findNodes({ type });
@@ -51,10 +50,12 @@ async function bootstrap() {
 
   const testnetNodes = async () => {
     console.log(await nodes('testnet'));
+    return Promise.resolve();
   };
 
   const mainnetNodes = async () => {
     console.log(await nodes('mainnet'));
+    return Promise.resolve();
   };
 
   const testnetEnsureDelegation = async () => {
@@ -73,6 +74,31 @@ async function bootstrap() {
     await ensureDelegation(n, currentDelegations);
   };
 
+  const rebalanceTestnet = async () => {
+    await delegationService.rebalanceTestnet();
+    return Promise.resolve();
+  };
+
+  const checkStaking = async () => {
+    const delegators = await delegationService.getDelegators();
+    let cnt = 0;
+    for (const delegator of delegators) {
+      const { address } = delegator;
+      const balances = await delegationService.getBalances(address);
+
+      if (balances.delegated > balances.total) {
+        cnt++;
+        console.log(`Checking ${address}...`);
+        console.log(`currentStake: ${balances.total}`);
+        console.log(`currentDelegated: ${balances.delegated}`);
+        console.log(`------------------------------`);
+      }
+    }
+    console.log(`Total: ${cnt}/${delegators.length}`);
+    console.log(`------------------------------`);
+    return Promise.resolve();
+  };
+
   await yargs(hideBin(process.argv))
     .command('testnet-nodes', 'get all testnet nodes', testnetNodes)
     .command('mainnet-nodes', 'get all mainnets nodes', mainnetNodes)
@@ -85,6 +111,16 @@ async function bootstrap() {
       'mainnet-ensure-delegation',
       'ensure delegation for all mainnet nodes',
       mainnetEnsureDelegation,
+    )
+    .command(
+      'rebalance-testnet',
+      'rebalances own node delegations for testnet',
+      rebalanceTestnet,
+    )
+    .command(
+      'check-staking',
+      'checks staking balances for all addresses',
+      checkStaking,
     ).argv;
   await app.close();
 }

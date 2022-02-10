@@ -3,7 +3,6 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
-  ApiOkResponse,
   ApiSecurity,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -11,22 +10,14 @@ import {
 import { User } from '../user/user.decorator';
 import { JwtUser } from '../user/jwt-user.type';
 import { DelegationService } from './delegation.service';
-import { Delegation } from './delegation.entity';
-import { CreateDelegationDto } from './dto/create-delegation.dto';
-import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
+import { CreateUndelegationDto } from './dto/create-undelegation.dto';
+import { CreateUndelegationNonceDto } from './dto/create-undelegation-nonce.dto';
 
-@ApiTags('delegations')
+@ApiTags('undelegations')
 @ApiSecurity('bearer')
-@Controller('delegations')
-export class DelegationController {
+@Controller('undelegations')
+export class UndelegationController {
   constructor(private delegationService: DelegationService) {}
-
-  @ApiOkResponse({ description: 'Delegations found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @Get()
-  find(@User() user: JwtUser): Promise<Delegation[]> {
-    return this.delegationService.find(user.id);
-  }
 
   @ApiCreatedResponse({
     description: 'The nonce has been successfully created',
@@ -36,22 +27,22 @@ export class DelegationController {
   @Post('nonces')
   async createNonce(
     @User() user: JwtUser,
-    @Body() nonceDto: CreateDelegationNonceDto,
+    @Body() nonceDto: CreateUndelegationNonceDto,
   ): Promise<string> {
-    return this.delegationService.createDelegationNonce(user.id, nonceDto);
+    return this.delegationService.createUndelegationNonce(user.id, nonceDto);
   }
 
   @ApiCreatedResponse({
-    description: 'The delegation has been successfully created',
+    description: 'The undelegation has been successfully created',
   })
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post()
-  create(
+  delete(
     @User() user: JwtUser,
-    @Body() delegation: CreateDelegationDto,
-  ): Promise<Delegation> {
-    return this.delegationService.create(user.id, delegation);
+    @Body() delegation: CreateUndelegationDto,
+  ): Promise<void> {
+    return this.delegationService.delete(user.id, delegation);
   }
 }

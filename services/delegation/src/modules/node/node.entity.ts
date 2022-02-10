@@ -8,6 +8,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   AfterLoad,
   getRepository,
 } from 'typeorm';
@@ -16,6 +17,7 @@ import { CreateNodeDto } from './dto/create-node.dto';
 import { NodeCommission } from './node-commission.entity';
 import { NodeType } from './node-type.enum';
 import { TopUser } from './top-user.entity';
+import { Profile } from '../profile/profile.entity';
 
 @Entity({
   name: 'nodes',
@@ -74,7 +76,13 @@ export class Node {
     nullable: true,
     default: null,
   })
-  lastBlockCreatedAt: Date | null;
+  firstBlockCreatedAt?: Date;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  lastBlockCreatedAt?: Date;
 
   @OneToMany(() => NodeCommission, (commission) => commission.node, {
     eager: true,
@@ -97,6 +105,12 @@ export class Node {
   })
   updatedAt: Date;
 
+  @DeleteDateColumn({
+    type: 'timestamp with time zone',
+  })
+  deletedAt?: Date;
+
+  profile: Partial<Profile> | null = null;
   yield = 0;
   currentCommission = 0;
   pendingCommission: number | null = null;
@@ -107,6 +121,8 @@ export class Node {
   isActive = false;
   isTopNode = false;
   canUndelegate = false;
+  canDelete = false;
+  isOwnValidator = false;
 
   @AfterLoad()
   calculateCommission = () => {
@@ -114,28 +130,21 @@ export class Node {
       return;
     }
 
-    let hasPendingCommissionChange = false;
+    const commissions = this.commissions.sort(
+      (a: NodeCommission, b: NodeCommission) => a.id - b.id,
+    );
 
-    const now = moment().utc().toDate().getTime();
-
-    for (const commission of this.commissions) {
-      const startsAt = moment(commission.startsAt).toDate().getTime();
-      if (startsAt > now) {
-        hasPendingCommissionChange = true;
-        this.pendingCommission = commission.value;
-        break;
-      }
-    }
-
-    for (const commission of this.commissions.reverse()) {
-      const startsAt = moment(commission.startsAt).toDate().getTime();
-      if (startsAt < now) {
+    const now = moment().utc();
+    for (const commission of commissions) {
+      const startsAt = moment(commission.startsAt).utc();
+      if (startsAt.isBefore(now)) {
         this.currentCommission = commission.value;
-        break;
+      }
+      if (startsAt.isAfter(now)) {
+        this.hasPendingCommissionChange = true;
+        this.pendingCommission = commission.value;
       }
     }
-
-    this.hasPendingCommissionChange = hasPendingCommissionChange;
   };
 
   @AfterLoad()
@@ -177,6 +186,17 @@ export class Node {
   };
 
   @AfterLoad()
+  getProfile = async () => {
+    if (this.isTestnet()) {
+      return;
+    }
+
+    this.profile = await getRepository(Profile).findOne({
+      user: this.user,
+    });
+  };
+
+  @AfterLoad()
   calculateIsActive = () => {
     if (this.lastBlockCreatedAt === null) {
       return;
@@ -190,6 +210,18 @@ export class Node {
       .getTime();
     this.isActive =
       moment(this.lastBlockCreatedAt).utc().toDate().getTime() > threshold;
+  };
+
+  @AfterLoad()
+  calculateCanDelete = () => {
+    if (this.isTestnet()) {
+      this.canDelete = true;
+      return;
+    }
+
+    if (this.delegations.length === 0) {
+      this.canDelete = true;
+    }
   };
 
   isMainnet(): boolean {
@@ -208,6 +240,10 @@ export class Node {
           .utc()
           .isAfter(moment(delegation.createdAt).utc().add(5, 'days').utc()),
     );
+  }
+
+  isUserOwnValidator(user: number | null): boolean {
+    return this.delegations.some((delegation) => delegation.user === user);
   }
 
   static fromDto(dto: CreateNodeDto): Node {

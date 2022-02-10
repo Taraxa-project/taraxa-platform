@@ -50,6 +50,7 @@ export class NodeService {
       .createQueryBuilder('n')
       .select('COUNT("n"."id")', 'count')
       .where('LOWER("n"."address") = :address', { address })
+      .withDeleted()
       .getRawOne();
     const existingNodeCount = parseInt(existingNode.count, 10);
 
@@ -130,6 +131,18 @@ export class NodeService {
       );
     }
 
+    if (Math.floor(commissionDto.commission) !== commissionDto.commission) {
+      throw new ValidationException(
+        `New commission has to be between 0 and 100.`,
+      );
+    }
+
+    if (node.currentCommission === commissionDto.commission) {
+      throw new ValidationException(
+        `New commission can't be the same as the current commission.`,
+      );
+    }
+
     const commissionChangeThreshold = this.config.get<number>(
       'delegation.commissionChangeThreshold',
     );
@@ -158,9 +171,13 @@ export class NodeService {
     const n = await this.findNodeByOrFail({
       id: node,
       user,
-      type: NodeType.TESTNET,
     });
-    await this.nodeRepository.delete(node);
+
+    if (!n.canDelete) {
+      throw new ValidationException(`Node can't be deleted.`);
+    }
+
+    await this.nodeRepository.softDelete(node);
 
     this.eventEmitter.emit(
       NODE_DELETED_EVENT,

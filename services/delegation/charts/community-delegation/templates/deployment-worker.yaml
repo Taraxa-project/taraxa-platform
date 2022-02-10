@@ -1,19 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "community-delegation.fullname" . }}
+  name: {{ include "community-delegation.fullname" . }}-worker
   labels:
-    {{- include "community-delegation.labels" . | nindent 4 }}
+    {{- include "community-delegation-worker.labels" . | nindent 4 }}
   annotations:
     checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: {{ .Values.workerReplicaCount }}
   selector:
     matchLabels:
-      {{- include "community-delegation.selectorLabels" . | nindent 6 }}
+      {{- include "community-delegation-worker.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -21,7 +19,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "community-delegation.selectorLabels" . | nindent 8 }}
+        {{- include "community-delegation-worker.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -36,15 +34,12 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["yarn", "run", "delegation-worker:prod"]
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}
             - secretRef:
                 name: {{ .Release.Name }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.app.serverPort }}
-              protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

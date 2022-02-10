@@ -29,6 +29,7 @@ import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
 import CloseIcon from '../../assets/icons/close';
 import Title from '../../components/Title/Title';
 import Delegate from './Modal/Delegate';
+import Undelegate from './Modal/Undelegate';
 
 import './delegation.scss';
 
@@ -47,6 +48,7 @@ const Delegation = () => {
   const [totalValidators, setTotalValidators] = useState(0);
   const [nodes, setNodes] = useState<PublicNode[]>([]);
   const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
+  const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
 
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
 
@@ -55,13 +57,19 @@ const Delegation = () => {
       '/validators?show_fully_delegated=true&show_my_validators=false',
     );
     if (data.success) {
+      let ownValidatorHasCommissionChange = false;
       let totalDelegationAcc = 0;
       data.response.forEach((node: any) => {
         if (node.totalDelegation) {
           totalDelegationAcc += node.totalDelegation;
         }
+
+        if (node.hasPendingCommissionChange && node.isOwnValidator) {
+          ownValidatorHasCommissionChange = true;
+        }
       });
 
+      setOwnValidatorsHaveCommissionChange(ownValidatorHasCommissionChange);
       setTotalDelegation(totalDelegationAcc);
       if (data.response.length > 0) {
         setAverageDelegation(Math.round(totalDelegationAcc / data.response.length));
@@ -98,27 +106,7 @@ const Delegation = () => {
       return;
     }
 
-    let validators = data.response;
-
-    if (isLoggedIn) {
-      const ownValidators = await delegationApi.get(
-        '/validators?show_fully_delegated=true&show_my_validators=true',
-        true,
-      );
-      if (data.success) {
-        setOwnValidatorsHaveCommissionChange(
-          ownValidators.response.filter((node: PublicNode) => node.hasPendingCommissionChange)
-            .length > 0,
-        );
-        const ownValidatorsIds = ownValidators.response.map((v: PublicNode) => v.id);
-        validators = validators.map((v: PublicNode) => {
-          v.isUserOwnValidator = ownValidatorsIds.includes(v.id);
-          return v;
-        });
-      }
-    }
-
-    setNodes(validators);
+    setNodes(data.response);
   }, [isLoggedIn, showUserOwnValidators, showFullyDelegatedNodes]);
 
   useEffect(() => {
@@ -137,14 +125,17 @@ const Delegation = () => {
     if (node.isActive) {
       className += ' active';
     }
-    const status = (
+
+    const canUndelegate = isLoggedIn && status === 'connected' && !!account && node.canUndelegate;
+
+    const nodeStatus = (
       <div className="status">
         <div className={className} />
       </div>
     );
 
     const name = formatNodeName(!node.name ? node.address : node.name);
-    const isUserOwnValidator = node.isUserOwnValidator;
+    const isOwnValidator = node.isOwnValidator;
     const isTopNode = node.isTopNode;
     const expectedYield = `${node.yield}%`;
     const currentCommission = `${node.currentCommission}%`;
@@ -158,27 +149,31 @@ const Delegation = () => {
 
     const actions = (
       <>
-        {node.remainingDelegation > 0 && (
-          <Button
-            size="small"
-            variant="contained"
-            color="secondary"
-            label="Delegate"
-            disabled={!canDelegate}
-            onClick={() => {
-              setDelegateToNode(node);
-            }}
-          />
-        )}
-        <Button size="small" label="Un-delegate" className="delete" disabled />
+        <Button
+          size="small"
+          variant="contained"
+          color="secondary"
+          label="Delegate"
+          disabled={!canDelegate}
+          onClick={() => {
+            setDelegateToNode(node);
+          }}
+        />
+        <Button
+          size="small"
+          label="Un-delegate"
+          disabled={!canUndelegate}
+          className="delete"
+          onClick={() => setUndelegateFromNode(node)}
+        />
       </>
     );
 
     return {
-      status,
+      status: nodeStatus,
       name,
       isTopNode,
-      isUserOwnValidator,
+      isOwnValidator,
       expectedYield,
       currentCommission,
       pendingCommission,
@@ -197,7 +192,7 @@ const Delegation = () => {
     <div className="runnode">
       {delegateToNode && (
         <Modal
-          id="signinModal"
+          id="delegateModal"
           title="Delegate to..."
           show={!!delegateToNode}
           children={
@@ -221,6 +216,33 @@ const Delegation = () => {
           parentElementID="root"
           onRequestClose={() => {
             setDelegateToNode(null);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
+      {undelegateFromNode && (
+        <Modal
+          id="delegateModal"
+          title="Undelegate from..."
+          show={!!undelegateFromNode}
+          children={
+            <Undelegate
+              validatorId={undelegateFromNode.id}
+              validatorName={undelegateFromNode.name}
+              validatorAddress={undelegateFromNode.address}
+              onSuccess={() => {
+                getBalances();
+                getValidators();
+                getStats();
+              }}
+              onFinish={() => {
+                setUndelegateFromNode(null);
+              }}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setUndelegateFromNode(null);
           }}
           closeIcon={CloseIcon}
         />
@@ -332,7 +354,8 @@ const Delegation = () => {
                 {delegatableNodes.length > 0 &&
                   delegatableNodes.map((row) => (
                     <TableRow
-                      className={clsx('tableRow', row.isUserOwnValidator && 'userValidator')}
+                      className={clsx('tableRow', row.isOwnValidator && 'userValidator')}
+                      key={row.node.name}
                     >
                       <TableCell className="tableCell statusCell">{row.status}</TableCell>
                       <TableCell className="tableCell nameCell">
@@ -376,7 +399,8 @@ const Delegation = () => {
                     </TableRow>
                     {fullyDelegatedNodes.map((row) => (
                       <TableRow
-                        className={clsx('tableRow', row.isUserOwnValidator && 'userValidator')}
+                        className={clsx('tableRow', row.isOwnValidator && 'userValidator')}
+                        key={row.node.name}
                       >
                         <TableCell className="tableCell statusCell">{row.status}</TableCell>
                         <TableCell className="tableCell nameCell">

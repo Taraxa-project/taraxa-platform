@@ -1,72 +1,67 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useMetaMask } from 'metamask-react';
 import { ethers } from 'ethers';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 import { useDelegationApi } from '../../../services/useApi';
 import useSigning from '../../../services/useSigning';
 
-type DelegateProps = {
+type UndelegateProps = {
   validatorId: number;
   validatorName: string;
   validatorAddress: string;
-  delegatorAddress: string | null;
-  remainingDelegation: number;
-  availableStakingBalance: number;
   onSuccess: () => void;
   onFinish: () => void;
 };
 
-const Delegate = ({
+const Undelegate = ({
   validatorId,
   validatorName,
   validatorAddress,
-  delegatorAddress,
-  remainingDelegation,
-  availableStakingBalance,
   onSuccess,
   onFinish,
-}: DelegateProps) => {
-  const maximumDelegatable = Math.min(remainingDelegation, availableStakingBalance);
+}: UndelegateProps) => {
+  const [undelegationTotal, setUnDelegationTotal] = useState(``);
+  const [totalDelegation, setTotalDelegation] = useState(0);
+  const [step, setStep] = useState(1);
+  const [error, setError] = useState('');
+
   const delegationApi = useDelegationApi();
+  const { account } = useMetaMask();
   const sign = useSigning();
 
-  const [step, setStep] = useState(1);
-  const [delegationTotal, setDelegationTotal] = useState(`${maximumDelegatable}`);
-  const [error, setError] = useState('');
+  const getBalance = async () => {
+    const balance = await delegationApi.get(`/delegations/${account}/balances/${validatorId}`);
+    setTotalDelegation(balance.response.undelegatable);
+  };
+
+  useEffect((): void => {
+    getBalance();
+  }, []);
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
-    const delegationNumber = parseInt(delegationTotal, 10);
-    if (Number.isNaN(delegationNumber) || delegationNumber < 1000) {
-      setError('must be a number greater than 1,000');
-      return;
-    }
-
-    if (delegationNumber > availableStakingBalance) {
+    const delegationNumber = parseInt(undelegationTotal, 10);
+    if (delegationNumber > totalDelegation) {
       setError('cannot exceed TARA available for delegation');
       return;
     }
-    if (delegationNumber > availableStakingBalance) {
-      setError("cannot exceed validator's ability to receive delegation");
-      return;
-    }
-
     setError('');
 
     const nonce = await delegationApi.post(
-      '/delegations/nonces',
-      { from: delegatorAddress, node: validatorId },
+      '/undelegations/nonces',
+      { from: account, node: validatorId },
       true,
     );
 
     const proof = await sign(nonce.response);
 
     const result = await delegationApi.post(
-      '/delegations',
-      { proof, from: delegatorAddress, value: delegationNumber, node: validatorId },
+      '/undelegations',
+      { proof, from: account, value: delegationNumber, node: validatorId },
       true,
     );
 
@@ -82,8 +77,8 @@ const Delegate = ({
         <>
           <Text
             style={{ marginBottom: '32px', fontSize: '18px' }}
+            label="Undelegate from..."
             align="center"
-            label="Delegate to..."
             variant="h6"
             color="primary"
           />
@@ -93,43 +88,21 @@ const Delegate = ({
               <span className="nodeAddress">{validatorAddress}</span>
             </p>
           </div>
-          <div className="taraContainerWrapper">
-            <div className="taraContainer taraContainerBalance">
-              <p className="taraContainerAmountDescription">My available TARA for delegation</p>
-              <div className="taraContainerAmount">
-                <p className="taraContainerAmountTotal">
-                  {ethers.utils.commify(availableStakingBalance)}
-                </p>
-                <p className="taraContainerUnit">TARA</p>
-              </div>
-            </div>
-            <div className="taraContainer">
-              <p className="taraContainerAmountDescription">
-                Validator’s availability to receive delegation
-              </p>
-              <div className="taraContainerAmount">
-                <p className="taraContainerAmountTotal">
-                  {ethers.utils.commify(remainingDelegation)}
-                </p>
-                <p className="taraContainerUnit">TARA</p>
-              </div>
-            </div>
-          </div>
           <div className="taraInputWrapper">
-            <p className="maxDelegatableDescription">Maximum delegate-able</p>
-            <p className="maxDelegatableTotal">{ethers.utils.commify(maximumDelegatable)}</p>
+            <p className="maxDelegatableDescription">Available to undelegate</p>
+            <p className="maxDelegatableTotal">{ethers.utils.commify(totalDelegation)}</p>
             <p className="maxDelegatableUnit">TARA</p>
             <InputField
               error={!!error}
               helperText={error}
               label="Enter amount..."
-              value={delegationTotal}
+              value={undelegationTotal}
               variant="outlined"
               type="text"
               fullWidth
               margin="normal"
               onChange={(event) => {
-                setDelegationTotal(event.target.value);
+                setUnDelegationTotal(event.target.value);
               }}
             />
             <div className="delegatePercentWrapper">
@@ -139,7 +112,7 @@ const Delegate = ({
                 label="25%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(`${Math.round(0.25 * maximumDelegatable)}`);
+                  setUnDelegationTotal(`${Math.round(0.25 * totalDelegation)}`);
                 }}
               />
               <Button
@@ -148,7 +121,7 @@ const Delegate = ({
                 label="50%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(`${Math.round(0.5 * maximumDelegatable)}`);
+                  setUnDelegationTotal(`${Math.round(0.5 * totalDelegation)}`);
                 }}
               />
               <Button
@@ -157,7 +130,7 @@ const Delegate = ({
                 label="75%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(`${Math.round(0.75 * maximumDelegatable)}`);
+                  setUnDelegationTotal(`${Math.round(0.75 * totalDelegation)}`);
                 }}
               />
               <Button
@@ -166,13 +139,13 @@ const Delegate = ({
                 label="100%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(`${maximumDelegatable}`);
+                  setUnDelegationTotal(`${totalDelegation}`);
                 }}
               />
             </div>
             <Button
               type="submit"
-              label="Delegate"
+              label="Un-Delegate"
               color="secondary"
               variant="contained"
               className="marginButton"
@@ -187,7 +160,10 @@ const Delegate = ({
           <div className="successIcon">
             <SuccessIcon />
           </div>
-          <p className="successText">You've successfully delegated to a validator:</p>
+          <p className="successText">
+            You've successfully undelegated {ethers.utils.commify(undelegationTotal)} TARA from
+            validator:
+          </p>
           <div className="nodeDescriptor nodeDescriptorSuccess">
             {validatorName && <p className="nodeName">{validatorName}</p>}
             <p className="nodeAddressWrapper">
@@ -211,4 +187,4 @@ const Delegate = ({
   );
 };
 
-export default Delegate;
+export default Undelegate;

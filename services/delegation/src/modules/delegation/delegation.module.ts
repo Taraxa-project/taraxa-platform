@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
@@ -11,6 +11,7 @@ import { Node } from '../node/node.entity';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
 import { DelegationController } from './delegation.controller';
+import { UndelegationController } from './undelegation.controller';
 import { BalanceController } from './balance.controller';
 import { DelegationService } from './delegation.service';
 import { DelegationTaskService } from './delegation-task.service';
@@ -35,14 +36,26 @@ import { NodeDeletedListener } from './listener/node-deleted.listener';
     NodeModule,
     StakingModule,
   ],
-  controllers: [DelegationController, BalanceController],
-  providers: [
-    DelegationService,
-    DelegationTaskService,
-    DelegationConsumer,
-    NodeCreatedListener,
-    NodeDeletedListener,
+  controllers: [
+    DelegationController,
+    UndelegationController,
+    BalanceController,
   ],
+  providers: [DelegationService, NodeCreatedListener, NodeDeletedListener],
   exports: [TypeOrmModule],
 })
-export class DelegationModule {}
+export class DelegationModule {
+  static forRoot(type = 'web'): DynamicModule {
+    let providers = [];
+    if (type === 'cron') {
+      providers = [DelegationTaskService];
+    }
+    if (type === 'worker') {
+      providers = [DelegationConsumer];
+    }
+    return {
+      module: DelegationModule,
+      providers,
+    };
+  }
+}
