@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 
 import { toSvg } from 'jdenticon';
@@ -13,12 +14,50 @@ import { useDelegationApi } from '../../services/useApi';
 import Delegation from '../../interfaces/Delegation';
 import PublicNode from '../../interfaces/PublicNode';
 
-import './nodePage.scss';
+import './nodeProfilePage.scss';
 import Delegate from './Modal/Delegate';
 import Undelegate from './Modal/Undelegate';
 import CloseIcon from '../../assets/icons/close';
 
-const NodePage = () => {
+interface BarFlexProps {
+  communityDelegated: number;
+  selfDelegated: number;
+  availableDelegation: number;
+}
+
+const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => (
+  <div className="barFlex">
+    <div
+      className="percentageAmount"
+      style={{
+        width: `${communityDelegated}}%`,
+        display: communityDelegated >= 1 ? 'flex' : 'none',
+      }}
+    >
+      <div className="barPercentage" style={{ background: '#15AC5B' }} />
+    </div>
+    <div
+      className="percentageAmount"
+      style={{
+        width: `${selfDelegated}%`,
+        display: selfDelegated >= 1 ? 'flex' : 'none',
+      }}
+    >
+      <div className="barPercentage" style={{ background: '#8E8E8E' }} />
+    </div>
+    <div
+      className="percentageAmount"
+      style={{
+        width: `${availableDelegation}%`,
+        display: availableDelegation >= 1 ? 'flex' : 'none',
+      }}
+    >
+      <div className="barPercentage" style={{ background: '#48BDFF' }} />
+    </div>
+  </div>
+);
+
+const NodeProfilePage = () => {
   const auth = useAuth();
   const { status, account } = useMetaMask();
   const [availableBalance, setAvailableBalance] = useState(0);
@@ -50,10 +89,6 @@ const NodePage = () => {
     const data = await delegationApi.get(`/validators/${nodeId}`);
     if (data.success) {
       setNode(data.response);
-      // eslint-disable-next-line no-console
-      console.log(data.response);
-      // eslint-disable-next-line no-console
-      console.log(node);
     }
   }, [nodeId]);
 
@@ -72,7 +107,7 @@ const NodePage = () => {
     getBalances();
     fetchNode();
     fetchDelegators();
-  }, [fetchNode, fetchDelegators]);
+  }, [fetchNode, fetchDelegators, getBalances]);
 
   const delegationPossible = (node?.totalDelegation || 0) + (node?.remainingDelegation || 0);
   const communityDelegated =
@@ -195,35 +230,11 @@ const NodePage = () => {
               </div>
             </div>
             <div className="nodeDelegationSplit">
-              <div className="barFlex">
-                <div
-                  className="percentageAmount"
-                  style={{
-                    width: `${communityDelegated}}%`,
-                    display: communityDelegated >= 1 ? 'flex' : 'none',
-                  }}
-                >
-                  <div className="barPercentage" style={{ background: '#15AC5B' }} />
-                </div>
-                <div
-                  className="percentageAmount"
-                  style={{
-                    width: `${selfDelegated}%`,
-                    display: selfDelegated >= 1 ? 'flex' : 'none',
-                  }}
-                >
-                  <div className="barPercentage" style={{ background: '#8E8E8E' }} />
-                </div>
-                <div
-                  className="percentageAmount"
-                  style={{
-                    width: `${availableDelegation}%`,
-                    display: availableDelegation >= 1 ? 'flex' : 'none',
-                  }}
-                >
-                  <div className="barPercentage" style={{ background: '#48BDFF' }} />
-                </div>
-              </div>
+              <BarFlex
+                communityDelegated={communityDelegated}
+                selfDelegated={selfDelegated}
+                availableDelegation={availableDelegation}
+              />
               <div className="percentagesBar">
                 <span>0%</span>
                 <span>25%</span>
@@ -292,16 +303,16 @@ const NodePage = () => {
           <span>Amount of TARA delegated</span>
         </div>
         <div className="delegators">
-          {delegations.map((delegator, dIndex) => (
-            <div key={dIndex} className="delegatorRow">
+          {delegations.map((delegator, id) => (
+            <div key={id} className="delegatorRow">
               <div className="address">
-                <span>{dIndex + 1 + offsetIndex}.</span> {delegator.address}
+                <span>{id + 1 + offsetIndex}.</span> {delegator.address}
               </div>
               <div className="badges">
                 {delegator.isSelfDelegation && <div className="selfStake">self-stake</div>}
                 {delegator.isOwnDelegation && <div className="ownStake">your delegation</div>}
               </div>
-              <div className="amount">{delegator.value}</div>
+              <div className="amount">{ethers.utils.commify(delegator.value)} TARA</div>
             </div>
           ))}
         </div>
@@ -310,4 +321,4 @@ const NodePage = () => {
   );
 };
 
-export default NodePage;
+export default NodeProfilePage;

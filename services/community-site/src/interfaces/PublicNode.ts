@@ -8,7 +8,7 @@ interface OperatorProfile {
 export default interface PublicNode extends Node {
   user: number;
   isTopNode: boolean;
-  profile?: OperatorProfile;
-  ownDelegation?: number;
+  profile: OperatorProfile;
+  ownDelegation: number;
   canUndelegate: boolean;
 }
