@@ -620,7 +620,7 @@ function Staking() {
             <Text variant="body2" color="textSecondary">
               Earn rewards and help test &amp; secure the Taraxa’s network
               <a
-                href="https://taraxa.io/faq/staking"
+                href="https://docs.taraxa.io/faq/mainnet-candidate"
                 target="_blank"
                 rel="noreferrer"
                 className="default-link"
@@ -629,6 +629,7 @@ function Staking() {
               </a>
             </Text>
           }
+          tooltip="The Mainnet Candidate is meant to be a candidate network to be able to host native TARA tokens and become a fully-featured decentralized network, the last step to a truly decentralized Taraxa network!"
         />
         <StakingNotifications />
         {false && <StakingTop />}
