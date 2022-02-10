@@ -48,10 +48,17 @@ export class NodeTaskService implements OnModuleInit {
         this.logger.error(`Could not get stats for node ${node.address}`);
       }
 
-      const { totalProduced, lastBlockTimestamp, rank, produced } = stats.data;
+      const {
+        totalProduced,
+        firstBlockTimestamp,
+        lastBlockTimestamp,
+        rank,
+        produced,
+      } = stats.data;
 
       const n = await this.nodeRepository.findOneOrFail(node.id);
       n.blocksProduced = totalProduced;
+      n.firstBlockCreatedAt = firstBlockTimestamp;
       n.lastBlockCreatedAt = lastBlockTimestamp;
       n.weeklyRank = rank;
       n.weeklyBlocksProduced = produced;
