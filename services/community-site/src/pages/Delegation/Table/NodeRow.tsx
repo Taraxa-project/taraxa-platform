@@ -30,22 +30,16 @@ const NodeRow = ({
   setDelegateToNode,
   setUndelegateFromNode,
 }: NodeRowProps) => {
-  let className = 'dot';
-  if (node.isActive) {
-    className += ' active';
-  }
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
   const canUndelegate = isLoggedIn && status === 'connected' && !!account && node.canUndelegate;
 
-  const nodeStatus = (
-    <div className="status">
-      <div className={className} />
-    </div>
-  );
-
   return (
     <TableRow className={clsx('tableRow', node.isOwnValidator && 'userValidator')}>
-      <TableCell className="tableCell statusCell">{nodeStatus}</TableCell>
+      <TableCell className="tableCell statusCell">
+        <div className="status">
+          <div className={clsx('dot', node.isActive && 'active')} />
+        </div>
+      </TableCell>
       <TableCell className="tableCell nameCell">
         <div className="flexCell">
           <div>{formatNodeName(!node.name ? node.address : node.name)}</div>
