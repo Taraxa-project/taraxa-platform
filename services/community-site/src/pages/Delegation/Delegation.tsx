@@ -280,6 +280,7 @@ const Delegation = () => {
                 {delegatableNodes.length > 0 &&
                   delegatableNodes.map((node) => (
                     <NodeRow
+                      key={node.address}
                       node={node}
                       isLoggedIn={isLoggedIn}
                       status={status}
@@ -297,6 +298,7 @@ const Delegation = () => {
                     </TableRow>
                     {fullyDelegatedNodes.map((node) => (
                       <NodeRow
+                        key={node.address}
                         node={node}
                         isLoggedIn={isLoggedIn}
                         status={status}

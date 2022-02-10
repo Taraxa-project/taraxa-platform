@@ -44,7 +44,7 @@ const NodeRow = ({
   );
 
   return (
-    <TableRow className={clsx('tableRow', node.isOwnValidator && 'userValidator')} key={node.name}>
+    <TableRow className={clsx('tableRow', node.isOwnValidator && 'userValidator')}>
       <TableCell className="tableCell statusCell">{nodeStatus}</TableCell>
       <TableCell className="tableCell nameCell">
         <div className="flexCell">
