@@ -200,7 +200,9 @@ const NodeProfilePage = () => {
               <>
                 <div className="nodeInfoTitle">node operator Website</div>
                 <div className="nodeInfoContent">
-                  <a href={node?.profile?.website}>{node?.profile?.website}</a>
+                  <a rel="nofollow" href={node?.profile?.website}>
+                    {node?.profile?.website}
+                  </a>
                 </div>
               </>
             )}
