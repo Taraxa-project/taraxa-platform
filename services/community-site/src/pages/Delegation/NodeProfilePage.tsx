@@ -200,7 +200,7 @@ const NodeProfilePage = () => {
               <>
                 <div className="nodeInfoTitle">node operator Website</div>
                 <div className="nodeInfoContent">
-                  <a href="https://t.me/awesome_node">{node?.profile?.website}</a>
+                  <a href={node?.profile?.website}>{node?.profile?.website}</a>
                 </div>
               </>
             )}
@@ -217,14 +217,18 @@ const NodeProfilePage = () => {
             <div className="taraContainerWrapper">
               <div className="taraContainer">
                 <div className="taraContainerAmount">
-                  <div className="taraContainerAmountTotal">{node?.remainingDelegation}</div>
+                  <div className="taraContainerAmountTotal">
+                    {ethers.utils.commify(node?.remainingDelegation)}
+                  </div>
                   <div className="taraContainerUnit">TARA</div>
                 </div>
                 <div className="taraContainerAmountDescription">Available for delegation</div>
               </div>
               <div className="taraContainer">
                 <div className="taraContainerAmount">
-                  <div className="taraContainerAmountTotal">{node?.totalDelegation}</div>
+                  <div className="taraContainerAmountTotal">
+                    {ethers.utils.commify(node?.totalDelegation)}
+                  </div>
                   <div className="taraContainerUnit">TARA</div>
                 </div>
                 <div className="taraContainerAmountDescription">Total delegated</div>
