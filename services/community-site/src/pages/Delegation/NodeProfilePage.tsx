@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 
-import { toSvg } from 'jdenticon';
-
-import { Button, Checkbox, Icons, Modal } from '@taraxa_project/taraxa-ui';
+import { Button, Checkbox, Icons, Modal, ProfileIcon } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
 import { useAuth } from '../../services/useAuth';
@@ -70,7 +68,6 @@ const NodeProfilePage = () => {
   const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
   const { nodeId } = useParams<{ nodeId?: string }>();
   const delegationApi = useDelegationApi();
-  const nodeIcon = toSvg('Aweesome node 1', 40, { backColor: '#fff' });
 
   const isLoggedIn = !!auth.user?.id;
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
@@ -116,6 +113,7 @@ const NodeProfilePage = () => {
   const availableDelegation = ((node?.remainingDelegation || 0) / delegationPossible) * 100;
   const delegationTotalPages = Math.ceil(delegationCount / 20);
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
+  const nodeActiveSince = new Date(node?.firstBlockCreatedAt || Date.now());
 
   if (!node) {
     return null;
@@ -184,10 +182,7 @@ const NodeProfilePage = () => {
         <div className="nodeInfoFlex">
           <div className="nodeInfoColumn">
             <div className="nodeTitle">
-              <div
-                // eslint-disable-next-line
-                dangerouslySetInnerHTML={{ __html: nodeIcon }}
-              />
+              <ProfileIcon title={node?.name} size={40} />
               {node?.name}
             </div>
             <div className="nodeAddress">{node?.address}</div>
@@ -209,8 +204,14 @@ const NodeProfilePage = () => {
                 </div>
               </>
             )}
-            <div className="nodeInfoTitle">node active since</div>
-            <div className="nodeInfoContent">30 DEC 2021</div>
+            {node?.firstBlockCreatedAt && (
+              <>
+                <div className="nodeInfoTitle">node active since</div>
+                <div className="nodeInfoContent">{`${nodeActiveSince.getDay()} ${nodeActiveSince
+                  .toLocaleString('en-US', { month: 'short' })
+                  .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
+              </>
+            )}
           </div>
           <div className="nodeDelegationColumn">
             <div className="taraContainerWrapper">

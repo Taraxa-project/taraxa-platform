@@ -31,6 +31,7 @@ import Pagination from './components/Pagination';
 import Icons from './components/Icons';
 import File from './components/File';
 import LoadingWidget from './components/LoadingWidget';
+import ProfileIcon from './components/ProfileIcon';
 
 export {
   Button,
@@ -50,6 +51,7 @@ export {
   RewardCard,
   Switch,
   ProfileCard,
+  ProfileIcon,
   ProfileBasicCard,
   ProfileSubmissionsCard,
   LinkedCards,
