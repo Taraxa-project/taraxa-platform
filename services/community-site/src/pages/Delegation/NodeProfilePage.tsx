@@ -12,7 +12,7 @@ import { useDelegationApi } from '../../services/useApi';
 import Delegation from '../../interfaces/Delegation';
 import PublicNode from '../../interfaces/PublicNode';
 
-import './nodeProfilePage.scss';
+import './node-profile-page.scss';
 import Delegate from './Modal/Delegate';
 import Undelegate from './Modal/Undelegate';
 import CloseIcon from '../../assets/icons/close';
