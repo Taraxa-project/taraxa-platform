@@ -283,7 +283,7 @@ const RunNode = () => {
     );
   }
 
-  const rows = nodes.map((node) => {
+  const rows = nodes.map((node: OwnNode) => {
     let className = 'dot';
     if (node.isActive) {
       className += ' active';
@@ -313,13 +313,15 @@ const RunNode = () => {
             setCurrentEditedNode(node);
           }}
         />
-        {node.type === 'testnet' && (
+        {node.canDelete && (
           <Button
             size="small"
             label="Delete"
             className="delete"
             onClick={() => {
-              const confirmation = window.confirm('Are you sure you want to delete this node?');
+              const confirmation = window.confirm(
+                "Are you sure you want to delete this node? You won't be able to add a node with the same wallet address.",
+              );
               if (confirmation) {
                 deleteNode(node);
               }
