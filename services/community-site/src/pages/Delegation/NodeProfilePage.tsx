@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 
-import { AmountCard, Button, Checkbox, Icons, Modal, ProfileIcon } from '@taraxa_project/taraxa-ui';
+import { AmountCard, Button, Checkbox, Icons, ProfileIcon } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
 import { useAuth } from '../../services/useAuth';
@@ -13,9 +13,7 @@ import Delegation from '../../interfaces/Delegation';
 import PublicNode from '../../interfaces/PublicNode';
 
 import './node-profile-page.scss';
-import Delegate from './Modal/Delegate';
-import Undelegate from './Modal/Undelegate';
-import CloseIcon from '../../assets/icons/close';
+import Modals from './Modal/Modals';
 
 interface BarFlexProps {
   communityDelegated: number;
@@ -120,63 +118,26 @@ const NodeProfilePage = () => {
   }
   return (
     <div className="runnode">
-      {delegateToNode && (
-        <Modal
-          id="delegateModal"
-          title="Delegate to..."
-          show={!!delegateToNode}
-          children={
-            <Delegate
-              validatorId={node.id}
-              validatorName={node.name}
-              validatorAddress={node.address}
-              delegatorAddress={account}
-              remainingDelegation={node.remainingDelegation}
-              availableStakingBalance={availableBalance}
-              onSuccess={() => {
-                getBalances();
-                fetchNode();
-                fetchDelegators();
-              }}
-              onFinish={() => {
-                setDelegateToNode(null);
-              }}
-            />
-          }
-          parentElementID="root"
-          onRequestClose={() => {
-            setDelegateToNode(null);
-          }}
-          closeIcon={CloseIcon}
-        />
-      )}
-      {undelegateFromNode && (
-        <Modal
-          id="delegateModal"
-          title="Undelegate from..."
-          show={!!undelegateFromNode}
-          children={
-            <Undelegate
-              validatorId={node.id}
-              validatorName={node.name}
-              validatorAddress={node.address}
-              onSuccess={() => {
-                getBalances();
-                fetchNode();
-                fetchDelegators();
-              }}
-              onFinish={() => {
-                setUndelegateFromNode(null);
-              }}
-            />
-          }
-          parentElementID="root"
-          onRequestClose={() => {
-            setUndelegateFromNode(null);
-          }}
-          closeIcon={CloseIcon}
-        />
-      )}
+      <Modals
+        delegateToNode={delegateToNode}
+        undelegateFromNode={undelegateFromNode}
+        onDelegateSuccess={() => {
+          getBalances();
+          fetchNode();
+          fetchDelegators();
+        }}
+        onUndelegateSuccess={() => {
+          getBalances();
+          fetchNode();
+          fetchDelegators();
+        }}
+        onDelegateClose={() => setDelegateToNode(null)}
+        onDelegateFinish={() => setDelegateToNode(null)}
+        onUndelegateClose={() => setUndelegateFromNode(null)}
+        onUndelegateFinish={() => setUndelegateFromNode(null)}
+        account={account}
+        availableBalance={availableBalance}
+      />
       <Title title="Delegation" />
       <div className="nodeInfoWrapper">
         <div className="nodeInfoFlex">

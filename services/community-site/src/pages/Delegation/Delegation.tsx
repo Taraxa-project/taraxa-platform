@@ -5,7 +5,6 @@ import {
   Notification,
   BaseCard,
   Button,
-  Modal,
   Switch,
   Text,
   Icons,
@@ -26,10 +25,8 @@ import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
 import PublicNode from '../../interfaces/PublicNode';
 import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
-import CloseIcon from '../../assets/icons/close';
 import Title from '../../components/Title/Title';
-import Delegate from './Modal/Delegate';
-import Undelegate from './Modal/Undelegate';
+import Modals from './Modal/Modals';
 
 import './delegation.scss';
 
@@ -201,63 +198,26 @@ const Delegation = () => {
 
   return (
     <div className="runnode">
-      {delegateToNode && (
-        <Modal
-          id="delegateModal"
-          title="Delegate to..."
-          show={!!delegateToNode}
-          children={
-            <Delegate
-              validatorId={delegateToNode.id}
-              validatorName={delegateToNode.name}
-              validatorAddress={delegateToNode.address}
-              delegatorAddress={account}
-              remainingDelegation={delegateToNode.remainingDelegation}
-              availableStakingBalance={availableBalance}
-              onSuccess={() => {
-                getBalances();
-                getValidators();
-                getStats();
-              }}
-              onFinish={() => {
-                setDelegateToNode(null);
-              }}
-            />
-          }
-          parentElementID="root"
-          onRequestClose={() => {
-            setDelegateToNode(null);
-          }}
-          closeIcon={CloseIcon}
-        />
-      )}
-      {undelegateFromNode && (
-        <Modal
-          id="delegateModal"
-          title="Undelegate from..."
-          show={!!undelegateFromNode}
-          children={
-            <Undelegate
-              validatorId={undelegateFromNode.id}
-              validatorName={undelegateFromNode.name}
-              validatorAddress={undelegateFromNode.address}
-              onSuccess={() => {
-                getBalances();
-                getValidators();
-                getStats();
-              }}
-              onFinish={() => {
-                setUndelegateFromNode(null);
-              }}
-            />
-          }
-          parentElementID="root"
-          onRequestClose={() => {
-            setUndelegateFromNode(null);
-          }}
-          closeIcon={CloseIcon}
-        />
-      )}
+      <Modals
+        delegateToNode={delegateToNode}
+        undelegateFromNode={undelegateFromNode}
+        onDelegateSuccess={() => {
+          getBalances();
+          getValidators();
+          getStats();
+        }}
+        onUndelegateSuccess={() => {
+          getBalances();
+          getValidators();
+          getStats();
+        }}
+        onDelegateClose={() => setDelegateToNode(null)}
+        onDelegateFinish={() => setDelegateToNode(null)}
+        onUndelegateClose={() => setUndelegateFromNode(null)}
+        onUndelegateFinish={() => setUndelegateFromNode(null)}
+        account={account}
+        availableBalance={availableBalance}
+      />
       <div className="runnode-content">
         <Title title="Delegation" />
         {isLoggedIn && ownValidatorsHaveCommissionChange && (
