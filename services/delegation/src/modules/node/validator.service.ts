@@ -88,6 +88,7 @@ export class ValidatorService {
         'blocksProduced',
         'weeklyBlocksProduced',
         'weeklyRank',
+        'firstBlockCreatedAt',
         'lastBlockCreatedAt',
         'yield',
         'hasPendingCommissionChange',

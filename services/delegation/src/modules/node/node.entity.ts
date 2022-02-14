@@ -76,7 +76,13 @@ export class Node {
     nullable: true,
     default: null,
   })
-  lastBlockCreatedAt: Date | null;
+  firstBlockCreatedAt?: Date;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  lastBlockCreatedAt?: Date;
 
   @OneToMany(() => NodeCommission, (commission) => commission.node, {
     eager: true,
