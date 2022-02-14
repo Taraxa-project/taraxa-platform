@@ -92,45 +92,6 @@
       display: flex;
       flex-direction: row;
 
-      .taraContainerAmount {
-        background: #31364b;
-        /* grey/200 */
-        border: 1px solid #4f5368;
-        box-sizing: border-box;
-        border-radius: 4px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding-left: 16px;
-        width: 150px;
-        height: 80px;
-
-        .taraContainerAmountTotal {
-          font-family: Poppins;
-          font-weight: bold;
-          font-size: 22px;
-          line-height: 36px;
-
-          /* or 164% */
-          letter-spacing: -0.02em;
-
-          /* neutral/000 */
-          color: #ffffff;
-        }
-
-        .taraContainerUnit {
-          font-family: Inter;
-          font-size: 12px;
-          line-height: 22px;
-
-          /* identical to box height, or 183% */
-          letter-spacing: -0.03em;
-
-          /* grey/50 */
-          color: #878ca4;
-        }
-      }
-
       .taraContainerAmountDescription {
         margin-top: 15px;
         font-family: Inter;

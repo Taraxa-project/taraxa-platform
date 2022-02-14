@@ -32,8 +32,10 @@ import Icons from './components/Icons';
 import File from './components/File';
 import LoadingWidget from './components/LoadingWidget';
 import ProfileIcon from './components/ProfileIcon';
+import AmountCard from './components/AmountCard';
 
 export {
+  AmountCard,
   Button,
   Text,
   Card,

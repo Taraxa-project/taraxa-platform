@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, AmountCard } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 import { useDelegationApi } from '../../../services/useApi';
 import useSigning from '../../../services/useSigning';
@@ -96,23 +96,13 @@ const Delegate = ({
           <div className="taraContainerWrapper">
             <div className="taraContainer taraContainerBalance">
               <p className="taraContainerAmountDescription">My available TARA for delegation</p>
-              <div className="taraContainerAmount">
-                <p className="taraContainerAmountTotal">
-                  {ethers.utils.commify(availableStakingBalance)}
-                </p>
-                <p className="taraContainerUnit">TARA</p>
-              </div>
+              <AmountCard amount={ethers.utils.commify(availableStakingBalance)} unit="TARA" />
             </div>
             <div className="taraContainer">
               <p className="taraContainerAmountDescription">
                 Validator’s availability to receive delegation
               </p>
-              <div className="taraContainerAmount">
-                <p className="taraContainerAmountTotal">
-                  {ethers.utils.commify(remainingDelegation)}
-                </p>
-                <p className="taraContainerUnit">TARA</p>
-              </div>
+              <AmountCard amount={ethers.utils.commify(remainingDelegation)} unit="TARA" />
             </div>
           </div>
           <div className="taraInputWrapper">

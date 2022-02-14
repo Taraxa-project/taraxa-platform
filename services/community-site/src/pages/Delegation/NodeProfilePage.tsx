@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 
-import { Button, Checkbox, Icons, Modal, ProfileIcon } from '@taraxa_project/taraxa-ui';
+import { AmountCard, Button, Checkbox, Icons, Modal, ProfileIcon } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
 import { useAuth } from '../../services/useAuth';
@@ -218,21 +218,11 @@ const NodeProfilePage = () => {
           <div className="nodeDelegationColumn">
             <div className="taraContainerWrapper">
               <div className="taraContainer">
-                <div className="taraContainerAmount">
-                  <div className="taraContainerAmountTotal">
-                    {ethers.utils.commify(node?.remainingDelegation)}
-                  </div>
-                  <div className="taraContainerUnit">TARA</div>
-                </div>
+                <AmountCard amount={ethers.utils.commify(node?.remainingDelegation)} unit="TARA" />
                 <div className="taraContainerAmountDescription">Available for delegation</div>
               </div>
               <div className="taraContainer">
-                <div className="taraContainerAmount">
-                  <div className="taraContainerAmountTotal">
-                    {ethers.utils.commify(node?.totalDelegation)}
-                  </div>
-                  <div className="taraContainerUnit">TARA</div>
-                </div>
+                <AmountCard amount={ethers.utils.commify(node?.totalDelegation)} unit="TARA" />
                 <div className="taraContainerAmountDescription">Total delegated</div>
               </div>
             </div>
