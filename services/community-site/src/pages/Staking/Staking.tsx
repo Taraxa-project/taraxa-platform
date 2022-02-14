@@ -615,12 +615,12 @@ function Staking() {
       />
       <div className="stakingRoot">
         <Title
-          title="Staking: Phase 1 - Pre-staking"
+          title="Staking: Phase 3 - Mainnet candidate"
           subtitle={
             <Text variant="body2" color="textSecondary">
               Earn rewards and help test &amp; secure the Taraxa’s network
               <a
-                href="https://taraxa.io/faq/staking"
+                href="https://docs.taraxa.io/faq/mainnet-candidate"
                 target="_blank"
                 rel="noreferrer"
                 className="default-link"
@@ -629,7 +629,7 @@ function Staking() {
               </a>
             </Text>
           }
-          tooltip="We’re currently in the first phase of staking roll-out, Pre-staking, which enables TARA lockups on the ETH network. The next phase will be Mirrored Staking, which mirrors staking data from the ETH network over to the Taraxa testnet to enable delegation to consensus nodes. The last phase is mainnet launch, in which all tokens, staking, and delegation is migrated to the Taraxa mainnet."
+          tooltip="The Mainnet Candidate is meant to be a candidate network to be able to host native TARA tokens and become a fully-featured decentralized network, the last step to a truly decentralized Taraxa network!"
         />
         <StakingNotifications />
         {false && <StakingTop />}
