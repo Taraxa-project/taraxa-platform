@@ -1,7 +1,12 @@
 import * as ethUtil from 'ethereumjs-util';
 import moment from 'moment';
 import { ethers } from 'ethers';
-import { Connection, FindConditions, Repository } from 'typeorm';
+import {
+  Connection,
+  FindConditions,
+  FindOneOptions,
+  Repository,
+} from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,8 +19,12 @@ import { NodeType } from '../node/node-type.enum';
 import { StakingService } from '../staking/staking.service';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
-import { DELEGATION_CREATED_EVENT } from './delegation.constants';
+import {
+  DELEGATION_CREATED_EVENT,
+  DELEGATION_DELETED_EVENT,
+} from './delegation.constants';
 import { DelegationCreatedEvent } from './event/delegation-created.event';
+import { DelegationDeletedEvent } from './event/delegation-deleted.event';
 import { CreateDelegationDto } from './dto/create-delegation.dto';
 import { CreateUndelegationDto } from './dto/create-undelegation.dto';
 import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
@@ -244,53 +253,19 @@ export class DelegationService {
       );
     }
 
-    let delegations: Delegation[];
-
-    await this.connection.transaction(async (manager) => {
-      const delegationRepository =
-        manager.getRepository<Delegation>('Delegation');
-      delegations = await delegationRepository.find({
-        where: {
-          user,
-          node,
-          address: undelegationDto.from,
-        },
-        order: {
-          createdAt: 'ASC',
-        },
-      });
-      let remaining = undelegationDto.value;
-      const now = moment().utc().toDate();
-      for (const delegation of delegations) {
-        if (remaining === 0) {
-          break;
-        }
-
-        if (remaining < delegation.value) {
-          const newDelegation = new Delegation();
-          newDelegation.user = user;
-          newDelegation.node = node;
-          newDelegation.address = undelegationDto.from;
-          newDelegation.value = delegation.value - remaining;
-          newDelegation.startsAt = now;
-          newDelegation.createdAt = delegation.createdAt;
-
-          await delegationRepository.save(newDelegation);
-        }
-
-        delegation.endsAt = now;
-        delegation.deletedAt = now;
-        await delegationRepository.save(delegation);
-
-        remaining -= delegation.value;
-      }
-    });
+    await this.undelegate(
+      undelegationDto.from,
+      undelegationDto.value,
+      user,
+      node,
+    );
   }
 
   async findDelegationByOrFail(
-    options: FindConditions<Delegation>,
+    conditions: FindConditions<Delegation>,
+    options?: FindOneOptions<Delegation>,
   ): Promise<Delegation> {
-    return this.delegationRepository.findOneOrFail(options);
+    return this.delegationRepository.findOneOrFail(conditions, options);
   }
 
   async ensureDelegation(nodeId: number, type: string, address: string) {
@@ -396,6 +371,93 @@ export class DelegationService {
       .groupBy('"d"."address"')
       .getRawMany();
     return d;
+  }
+
+  async undelegate(
+    from: string,
+    value: number,
+    user?: number,
+    node?: Node,
+  ): Promise<void> {
+    const deleteEvents: number[] = [];
+    const createEvents: number[] = [];
+
+    let delegations: Delegation[];
+    await this.connection.transaction(async (manager) => {
+      const delegationRepository =
+        manager.getRepository<Delegation>('Delegation');
+      let where: {
+        address: string;
+        user?: number;
+        node?: Node;
+      } = {
+        address: from,
+      };
+      if (user) {
+        where = {
+          ...where,
+          user,
+        };
+      }
+      if (node) {
+        where = {
+          ...where,
+          node,
+        };
+      }
+
+      delegations = await delegationRepository.find({
+        where,
+        order: {
+          createdAt: 'ASC',
+        },
+        relations: ['node'],
+      });
+
+      let remaining = value;
+      const now = moment().utc().toDate();
+      for (const delegation of delegations) {
+        if (remaining === 0) {
+          break;
+        }
+
+        if (remaining < delegation.value) {
+          const newDelegation = new Delegation();
+          newDelegation.user = delegation.user;
+          newDelegation.node = delegation.node;
+          newDelegation.address = from;
+          newDelegation.value = delegation.value - remaining;
+          newDelegation.startsAt = now;
+          newDelegation.createdAt = delegation.createdAt;
+
+          const nd = await delegationRepository.save(newDelegation);
+          createEvents.push(nd.id);
+        }
+
+        delegation.endsAt = now;
+        delegation.deletedAt = now;
+        await delegationRepository.save(delegation);
+
+        deleteEvents.push(delegation.id);
+        remaining -= delegation.value;
+      }
+    });
+
+    for (const deleteEvent of deleteEvents) {
+      this.eventEmitter.emit(
+        DELEGATION_DELETED_EVENT,
+        new DelegationDeletedEvent(deleteEvent),
+      );
+      console.log(new DelegationDeletedEvent(deleteEvent));
+    }
+
+    for (const createEvent of createEvents) {
+      this.eventEmitter.emit(
+        DELEGATION_CREATED_EVENT,
+        new DelegationCreatedEvent(createEvent),
+      );
+      console.log(new DelegationCreatedEvent(createEvent));
+    }
   }
 
   private async getDelegationNonce(
