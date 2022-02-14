@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppCoreModule } from './modules/app-core.module';
 import { NodeService } from './modules/node/node.service';
 import { DelegationService } from './modules/delegation/delegation.service';
+import { RewardService } from './modules/reward/reward.service';
 
 interface Node {
   id: number;
@@ -19,10 +20,14 @@ interface Delegations {
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(
     AppCoreModule.forRoot(),
+    {
+      logger: ['error', 'warn'],
+    },
   );
   await app.init();
   const nodeService = app.get(NodeService);
   const delegationService = app.get(DelegationService);
+  const rewardService = app.get(RewardService);
 
   const nodes = async (type: string) => {
     return nodeService.findNodes({ type });
@@ -120,6 +125,11 @@ async function bootstrap() {
     }
     console.log(`Total: ${cnt}/${delegators.length}`);
     console.log(`------------------------------`);
+  };
+
+  const calculateRewards = async () => {
+    const rewards = await rewardService.getRewards();
+    console.log(rewards);
     return Promise.resolve();
   };
 
@@ -150,6 +160,11 @@ async function bootstrap() {
       'rebalance-staking',
       "undelegates from all addresses that don't have enough stake",
       rebalanceStaking,
+    )
+    .command(
+      'calculate-rewards',
+      'calculates rewards for all nodes/delegators',
+      calculateRewards,
     ).argv;
   await app.close();
 }

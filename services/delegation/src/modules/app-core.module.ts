@@ -10,11 +10,12 @@ import generalConfig from '../config/general';
 import databaseConfig from '../config/database';
 import queueConfig from '../config/queue';
 
-import { AuthModule } from '../modules/auth/auth.module';
-import { NodeModule } from '../modules/node/node.module';
-import { ProfileModule } from '../modules/profile/profile.module';
-import { DelegationModule } from '../modules/delegation/delegation.module';
-import { HttpExceptionFilter } from '../modules/utils/http-exception.filter';
+import { AuthModule } from './auth/auth.module';
+import { NodeModule } from './node/node.module';
+import { ProfileModule } from './profile/profile.module';
+import { RewardModule } from './reward/reward.module';
+import { DelegationModule } from './delegation/delegation.module';
+import { HttpExceptionFilter } from './utils/http-exception.filter';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { HttpExceptionFilter } from '../modules/utils/http-exception.filter';
     ScheduleModule.forRoot(),
     AuthModule,
     ProfileModule,
+    RewardModule,
   ],
   providers: [
     {

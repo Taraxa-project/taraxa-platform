@@ -1572,6 +1572,11 @@
     "@ethersproject/properties" "^5.5.0"
     "@ethersproject/strings" "^5.5.0"
 
+"@flatten-js/interval-tree@^1.0.17":
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@flatten-js/interval-tree/-/interval-tree-1.0.17.tgz#8450d42827af9e8b0988cfaf7533404a51330603"
+  integrity sha512-pIv/b+K2Iwo+GxvEtaBKjXOi97gMmxFhd+8+9ZXMaOf9nfoY1OdHebO65EwnKt8SOVHPxiOkBdZMu+/4nq8T2g==
+
 "@gar/promisify@^1.0.1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.2.tgz#30aa825f11d438671d585bd44e7fd564535fc210"

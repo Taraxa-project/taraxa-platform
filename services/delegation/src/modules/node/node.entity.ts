@@ -130,6 +130,10 @@ export class Node {
       return;
     }
 
+    if (!this.commissions) {
+      return;
+    }
+
     const commissions = this.commissions.sort(
       (a: NodeCommission, b: NodeCommission) => a.id - b.id,
     );
@@ -216,6 +220,10 @@ export class Node {
   calculateCanDelete = () => {
     if (this.isTestnet()) {
       this.canDelete = true;
+      return;
+    }
+
+    if (!this.delegations) {
       return;
     }
 

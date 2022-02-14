@@ -18,6 +18,7 @@
     "worker": "node dist/worker.js"
   },
   "dependencies": {
+    "@flatten-js/interval-tree": "^1.0.17",
     "@nestjs/axios": "^0.0.3",
     "@nestjs/bull": "^0.4.2",
     "@nestjs/common": "^8.0.0",
