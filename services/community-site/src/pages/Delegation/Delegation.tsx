@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
-import {
-  Notification,
-  BaseCard,
-  Button,
-  Switch,
-  Text,
-  Icons,
-  Card,
-} from '@taraxa_project/taraxa-ui';
+import { Notification, BaseCard, Switch, Text, Icons, Card } from '@taraxa_project/taraxa-ui';
 
 import {
   Table,
@@ -25,7 +16,6 @@ import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
 import PublicNode from '../../interfaces/PublicNode';
 
-import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
 import Title from '../../components/Title/Title';
 import Modals from './Modal/Modals';
 import NodeRow from './Table/NodeRow';
@@ -35,7 +25,6 @@ import './delegation.scss';
 const Delegation = () => {
   const { status, account } = useMetaMask();
   const auth = useAuth();
-  const history = useHistory();
   const delegationApi = useDelegationApi();
   const isLoggedIn = !!auth.user?.id;
 
