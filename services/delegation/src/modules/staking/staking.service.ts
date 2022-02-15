@@ -150,7 +150,7 @@ export class StakingService {
     type: 'add' | 'substract',
   ): string {
     return `0x${this.bufferToHex(
-      RLP.encode([[address, [value.toString(), type === 'add' ? 0 : 1]]]),
+      RLP.encode([[address, [value.toHexString(), type === 'add' ? 0 : 1]]]),
     )}`;
   }
 

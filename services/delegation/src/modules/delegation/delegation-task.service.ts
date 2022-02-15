@@ -5,7 +5,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { NodeService } from '../node/node.service';
 import { ENSURE_DELEGATION_JOB } from './delegation.constants';
 import { EnsureDelegationJob } from './job/ensure-delegation.job';
-import { DelegationService } from './delegation.service';
 
 @Injectable()
 export class DelegationTaskService implements OnModuleInit {
@@ -15,7 +14,6 @@ export class DelegationTaskService implements OnModuleInit {
     private nodeService: NodeService,
     @InjectQueue('delegation')
     private delegationQueue: Queue,
-    private delegationService: DelegationService,
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${DelegationTaskService.name} cron`);
