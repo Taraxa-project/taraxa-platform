@@ -3,6 +3,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bull';
 import { NodeService } from '../node/node.service';
+import { DelegationService } from './delegation.service';
 import { ENSURE_DELEGATION_JOB } from './delegation.constants';
 import { EnsureDelegationJob } from './job/ensure-delegation.job';
 
@@ -29,6 +30,22 @@ export class DelegationTaskService implements OnModuleInit {
         ENSURE_DELEGATION_JOB,
         new EnsureDelegationJob(node.id, node.type, node.address),
       );
+    }
+  }
+
+  @Cron('0 0 * * *')
+  async rebalanceStaking() {
+    this.logger.debug('Starting rebalance staking worker...');
+
+    const delegators = await this.delegationService.getDelegators();
+    for (const delegator of delegators) {
+      const { address } = delegator;
+      const balances = await this.delegationService.getBalances(address);
+
+      if (balances.delegated > balances.total) {
+        const diff = balances.delegated - balances.total;
+        await this.delegationService.undelegate(address, diff);
+      }
     }
   }
 }

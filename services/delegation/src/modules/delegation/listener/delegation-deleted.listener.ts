@@ -3,25 +3,25 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
-  DELEGATION_CREATED_EVENT,
+  DELEGATION_DELETED_EVENT,
   ENSURE_DELEGATION_JOB,
 } from '../delegation.constants';
 import { DelegationService } from '../delegation.service';
-import { DelegationCreatedEvent } from '../event/delegation-created.event';
+import { DelegationDeletedEvent } from '../event/delegation-deleted.event';
 import { EnsureDelegationJob } from '../job/ensure-delegation.job';
 
 @Injectable()
-export class DelegationCreatedListener {
-  private readonly logger = new Logger(DelegationCreatedListener.name);
+export class DelegationDeletedListener {
+  private readonly logger = new Logger(DelegationDeletedListener.name);
   constructor(
     @InjectQueue('delegation')
     private delegationQueue: Queue,
     private delegationService: DelegationService,
   ) {}
-  @OnEvent(DELEGATION_CREATED_EVENT, { async: true })
-  async handleDelegationCreatedEvent(event: DelegationCreatedEvent) {
+  @OnEvent(DELEGATION_DELETED_EVENT, { async: true })
+  async handleDelegationDeletedEvent(event: DelegationDeletedEvent) {
     this.logger.debug(
-      `Received ${DELEGATION_CREATED_EVENT} event, data: ${JSON.stringify(
+      `Received ${DELEGATION_DELETED_EVENT} event, data: ${JSON.stringify(
         event,
         null,
         2,
@@ -33,6 +33,7 @@ export class DelegationCreatedListener {
         id: event.delegationId,
       },
       {
+        withDeleted: true,
         relations: ['node'],
       },
     );
