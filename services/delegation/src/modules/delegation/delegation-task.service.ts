@@ -15,6 +15,7 @@ export class DelegationTaskService implements OnModuleInit {
     private nodeService: NodeService,
     @InjectQueue('delegation')
     private delegationQueue: Queue,
+    private delegationService: DelegationService,
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${DelegationTaskService.name} cron`);
