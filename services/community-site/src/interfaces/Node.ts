@@ -12,5 +12,6 @@ export default interface Node {
   yield: number;
   blocksProduced: number | null;
   weeklyBlocksProduced: string | null;
-  lastBlockCreatedAt: number | null;
+  lastBlockCreatedAt: string | null;
+  firstBlockCreatedAt: string | null;
 }
