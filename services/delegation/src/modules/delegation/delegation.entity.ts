@@ -26,9 +26,7 @@ export class Delegation {
   @Index()
   address: string;
 
-  @ManyToOne(() => Node, (node) => node.delegations, {
-    cascade: true,
-  })
+  @ManyToOne(() => Node)
   node: Node;
 
   @Column()

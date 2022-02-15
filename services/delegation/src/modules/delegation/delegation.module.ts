@@ -18,6 +18,8 @@ import { DelegationTaskService } from './delegation-task.service';
 import { DelegationConsumer } from './delegation.consumer';
 import { NodeCreatedListener } from './listener/node-created.listener';
 import { NodeDeletedListener } from './listener/node-deleted.listener';
+import { DelegationCreatedListener } from './listener/delegation-created.listener';
+import { DelegationDeletedListener } from './listener/delegation-deleted.listener';
 
 @Module({
   imports: [
@@ -41,7 +43,13 @@ import { NodeDeletedListener } from './listener/node-deleted.listener';
     UndelegationController,
     BalanceController,
   ],
-  providers: [DelegationService, NodeCreatedListener, NodeDeletedListener],
+  providers: [
+    DelegationService,
+    DelegationCreatedListener,
+    DelegationDeletedListener,
+    NodeCreatedListener,
+    NodeDeletedListener,
+  ],
   exports: [TypeOrmModule],
 })
 export class DelegationModule {
