@@ -69,6 +69,7 @@ const NodeProfilePage = () => {
 
   const isLoggedIn = !!auth.user?.id;
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
+  const canUndelegate = isLoggedIn && status === 'connected' && !!account && node?.canUndelegate;
 
   const getBalances = useCallback(async () => {
     if (!canDelegate) {
@@ -221,59 +222,65 @@ const NodeProfilePage = () => {
                 variant="contained"
                 color="secondary"
                 label="Delegate"
+                disabled={!canDelegate}
               />
               <Button
                 onClick={() => setUndelegateFromNode(node)}
                 variant="contained"
                 color="secondary"
                 label="Un-Delegate"
+                disabled={!canUndelegate}
               />
             </div>
           </div>
         </div>
-        <hr className="nodeInfoDivider" />
-        <div className="delegatorsHeader">
-          <span className="delegatorsLegend">Delegators</span>
-          <div className="showOwnDelegation">
-            <Checkbox
-              value={delegationAtTop}
-              onChange={(e) => setDelegationAtTop(e.target.checked)}
-            />
-            Show my delegation at the top
-          </div>
-          <div className="delegatorsPagination">
-            <Button
-              className="paginationButton"
-              onClick={() => setDelegationPage(delegationPage - 1)}
-              disabled={delegationCount <= 20 || delegationPage === 1}
-              Icon={Icons.Left}
-            />
-            <Button
-              className="paginationButton"
-              onClick={() => setDelegationPage(delegationPage + 1)}
-              disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
-              Icon={Icons.Right}
-            />
-          </div>
-        </div>
-        <div className="tableHeader">
-          <span>Address</span>
-          <span>Amount of TARA delegated</span>
-        </div>
-        <div className="delegators">
-          {delegations.map((delegator, id) => (
-            <div key={id} className="delegatorRow">
-              <div className="address">
-                <span>{id + 1 + offsetIndex}.</span> {delegator.address}
+        {delegations.length !== 0 && (
+          <>
+            <hr className="nodeInfoDivider" />
+            <div className="delegatorsHeader">
+              <span className="delegatorsLegend">Delegators</span>
+              <div className="showOwnDelegation">
+                <Checkbox
+                  value={delegationAtTop}
+                  onChange={(e) => setDelegationAtTop(e.target.checked)}
+                />
+                Show my delegation at the top
               </div>
-              <div className="badges">
-                {delegator.isSelfDelegation && <div className="selfStake">self-stake</div>}
-                {delegator.isOwnDelegation && <div className="ownStake">your delegation</div>}
+              <div className="delegatorsPagination">
+                <Button
+                  className="paginationButton"
+                  onClick={() => setDelegationPage(delegationPage - 1)}
+                  disabled={delegationCount <= 20 || delegationPage === 1}
+                  Icon={Icons.Left}
+                />
+                <Button
+                  className="paginationButton"
+                  onClick={() => setDelegationPage(delegationPage + 1)}
+                  disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
+                  Icon={Icons.Right}
+                />
               </div>
-              <div className="amount">{ethers.utils.commify(delegator.value)} TARA</div>
             </div>
-          ))}
-        </div>
+            <div className="tableHeader">
+              <span>Address</span>
+              <span>Amount of TARA delegated</span>
+            </div>
+            <div className="delegators">
+              {delegations.map((delegator, id) => (
+                <div key={id} className="delegatorRow">
+                  <div className="address">
+                    <span>{id + 1 + offsetIndex}.</span> {delegator.address}
+                  </div>
+                  <div className="badges">
+                    {delegator.isSelfDelegation && <div className="selfStake">self-stake</div>}
+                    {delegator.isOwnDelegation && <div className="ownStake">your delegation</div>}
+                  </div>
+                  <div className="amount">{ethers.utils.commify(delegator.value)} TARA</div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
