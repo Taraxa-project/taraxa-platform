@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import clsx from 'clsx';
 import { ethers } from 'ethers';
 import { Button, Icons } from '@taraxa_project/taraxa-ui';
@@ -30,6 +31,7 @@ const NodeRow = ({
   setDelegateToNode,
   setUndelegateFromNode,
 }: NodeRowProps) => {
+  const history = useHistory();
   const canDelegate = isLoggedIn && status === 'connected' && !!account;
   const canUndelegate = isLoggedIn && status === 'connected' && !!account && node.canUndelegate;
 
@@ -41,7 +43,7 @@ const NodeRow = ({
         </div>
       </TableCell>
       <TableCell className="tableCell nameCell">
-        <div className="flexCell">
+        <div className="flexCell" onClick={() => history.push(`/delegation/${node.id}`)}>
           <div>{formatNodeName(!node.name ? node.address : node.name)}</div>
           {node.isTopNode && (
             <div>
