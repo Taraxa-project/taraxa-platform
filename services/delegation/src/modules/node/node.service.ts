@@ -49,7 +49,9 @@ export class NodeService {
     const existingNode = await this.nodeRepository
       .createQueryBuilder('n')
       .select('COUNT("n"."id")', 'count')
-      .where('LOWER("n"."address") = :address', { address })
+      .where('LOWER("n"."address") = :address', {
+        address: address.toLowerCase(),
+      })
       .withDeleted()
       .getRawOne();
     const existingNodeCount = parseInt(existingNode.count, 10);
