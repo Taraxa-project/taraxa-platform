@@ -302,6 +302,7 @@ const RunNode = () => {
     const totalDelegation = ethers.utils.commify(node.totalDelegation);
     const remainingDelegation = ethers.utils.commify(node.remainingDelegation);
     const weeklyRank = node.weeklyRank ? `#${node.weeklyRank}` : 'N/A';
+    const weeklyBlocksProduced = node.weeklyBlocksProduced;
 
     const actions = (
       <>
@@ -342,6 +343,7 @@ const RunNode = () => {
       remainingDelegation,
       weeklyRank,
       actions,
+      weeklyBlocksProduced,
     };
   });
 
@@ -524,37 +526,47 @@ const RunNode = () => {
                   <TableCell className="tableHeadCell">Name</TableCell>
                   <TableCell className="tableHeadCell">Expected Yield</TableCell>
                   {nodeType === 'mainnet' && (
-                    <TableCell className="tableHeadCell">Commission</TableCell>
+                    <>
+                      <TableCell className="tableHeadCell">Commission</TableCell>
+                      <TableCell className="tableHeadCell">Delegation</TableCell>
+                      <TableCell className="tableHeadCell">Available for Delegation</TableCell>
+                    </>
                   )}
-                  <TableCell className="tableHeadCell">Delegation</TableCell>
-                  <TableCell className="tableHeadCell">Available for Delegation</TableCell>
+                  {nodeType === 'testnet' && (
+                    <TableCell className="tableHeadCell">Number of blocks produced</TableCell>
+                  )}
                   <TableCell className="tableHeadCell" colSpan={2}>
                     Ranking
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row) => (
-                  <TableRow className="tableRow">
+                {rows.map((row, id) => (
+                  <TableRow className="tableRow" key={id}>
                     <TableCell className="tableCell">{row.status}</TableCell>
                     <TableCell className="tableCell">{row.name}</TableCell>
                     <TableCell className="tableCell">{row.expectedYield}</TableCell>
                     {nodeType === 'mainnet' && (
-                      <TableCell className="tableCell">
-                        {row.hasPendingCommissionChange ? (
-                          <>
-                            <NodeCommissionChangeIcon />{' '}
-                            <span className="commissionDisplayPendingChange">
-                              {row.currentCommission} ➞ {row.pendingCommission}
-                            </span>
-                          </>
-                        ) : (
-                          row.currentCommission
-                        )}
-                      </TableCell>
+                      <>
+                        <TableCell className="tableCell">
+                          {row.hasPendingCommissionChange ? (
+                            <>
+                              <NodeCommissionChangeIcon />{' '}
+                              <span className="commissionDisplayPendingChange">
+                                {row.currentCommission} ➞ {row.pendingCommission}
+                              </span>
+                            </>
+                          ) : (
+                            row.currentCommission
+                          )}
+                        </TableCell>
+                        <TableCell className="tableCell">{row.totalDelegation}</TableCell>
+                        <TableCell className="tableCell">{row.remainingDelegation}</TableCell>
+                      </>
                     )}
-                    <TableCell className="tableCell">{row.totalDelegation}</TableCell>
-                    <TableCell className="tableCell">{row.remainingDelegation}</TableCell>
+                    {nodeType === 'testnet' && (
+                      <TableCell className="tableCell">{row.weeklyBlocksProduced}</TableCell>
+                    )}
                     <TableCell className="tableCell">{row.weeklyRank}</TableCell>
                     <TableCell className="tableCell" align="right">
                       {row.actions}
