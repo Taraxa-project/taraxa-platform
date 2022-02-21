@@ -89,13 +89,15 @@ const NodeProfilePage = () => {
   }, [nodeId]);
 
   const fetchDelegators = useCallback(async () => {
-    setDelegations([]);
     const data = await delegationApi.get(
       `/validators/${nodeId}/delegations?show_my_delegation_at_the_top=${delegationAtTop}&page=${delegationPage}`,
     );
     if (data.success) {
       setDelegations(data.response.data);
       setDelegationCount(data.response.count);
+    } else {
+      setDelegations([]);
+      setDelegationCount(0);
     }
   }, [nodeId, delegationAtTop, delegationPage]);
 
