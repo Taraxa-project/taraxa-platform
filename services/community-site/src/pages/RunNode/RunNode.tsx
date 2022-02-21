@@ -314,21 +314,20 @@ const RunNode = () => {
             setCurrentEditedNode(node);
           }}
         />
-        {node.canDelete && (
-          <Button
-            size="small"
-            label="Delete"
-            className="delete"
-            onClick={() => {
-              const confirmation = window.confirm(
-                "Are you sure you want to delete this node? You won't be able to add a node with the same wallet address.",
-              );
-              if (confirmation) {
-                deleteNode(node);
-              }
-            }}
-          />
-        )}
+        <Button
+          size="small"
+          label="Delete"
+          className="delete"
+          disabled={!node.canDelete}
+          onClick={() => {
+            const confirmation = window.confirm(
+              "Are you sure you want to delete this node? You won't be able to add a node with the same wallet address.",
+            );
+            if (confirmation) {
+              deleteNode(node);
+            }
+          }}
+        />
       </>
     );
 
