@@ -43,7 +43,7 @@ const NodeRow = ({
         </div>
       </TableCell>
       <TableCell className="tableCell nameCell">
-        <div className="flexCell" onClick={() => history.push(`/delegation/${node.id}`)}>
+        <div className="flexCell nodeLink" onClick={() => history.push(`/delegation/${node.id}`)}>
           <div>{formatNodeName(!node.name ? node.address : node.name)}</div>
           {node.isTopNode && (
             <div>
