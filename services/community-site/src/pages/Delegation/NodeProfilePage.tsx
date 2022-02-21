@@ -26,7 +26,7 @@ const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: Bar
     <div
       className="percentageAmount"
       style={{
-        width: `${communityDelegated}}%`,
+        width: `${communityDelegated}%`,
         display: communityDelegated >= 1 ? 'flex' : 'none',
       }}
     >
@@ -110,6 +110,10 @@ const NodeProfilePage = () => {
     (((node?.totalDelegation || 0) - (node?.ownDelegation || 0)) / delegationPossible) * 100;
   const selfDelegated = ((node?.ownDelegation || 0) / delegationPossible) * 100;
   const availableDelegation = ((node?.remainingDelegation || 0) / delegationPossible) * 100;
+
+  // eslint-disable-next-line no-console
+  console.log(communityDelegated, selfDelegated, availableDelegation);
+
   const delegationTotalPages = Math.ceil(delegationCount / 20);
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
   const nodeActiveSince = new Date(node?.firstBlockCreatedAt || Date.now());
