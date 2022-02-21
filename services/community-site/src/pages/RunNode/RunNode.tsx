@@ -314,7 +314,7 @@ const RunNode = () => {
             setCurrentEditedNode(node);
           }}
         />
-        {node.canDelete && (
+        {(node.canDelete || node.totalDelegation === 0) && (
           <Button
             size="small"
             label="Delete"
