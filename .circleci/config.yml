@@ -1,15 +1,16 @@
 version: 2.1
 setup: true
 orbs:
-  path-filtering: circleci/path-filtering@0.0.2
+  path-filtering: circleci/path-filtering@0.1.1
 workflows:
-  setup:
+  always-run:
     jobs:
       - path-filtering/filter:
-          base-revision: << pipeline.git.branch >>
+          name: check-updated-files
           mapping: |
             packages/taraxa-ui/.* ui-package-modified true
             services/community-site/.* run-community-site-service-workflow true
             services/node-status/.* run-node-status-service-workflow true
             services/delegation/.* run-delegation-service-workflow true
+          base-revision: << pipeline.git.branch >>
           config-path: .circleci/workflows.yml
