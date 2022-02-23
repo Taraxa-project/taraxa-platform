@@ -213,13 +213,20 @@ export class Node {
   };
 
   @AfterLoad()
-  calculateCanDelete = () => {
+  asycalculateCanDelete = async () => {
     if (this.isTestnet()) {
       this.canDelete = true;
       return;
     }
 
-    if (this.delegations.length === 0) {
+    const delegations = await getRepository(Delegation).find({
+      where: {
+        node: this,
+      },
+      withDeleted: true,
+    });
+
+    if (delegations.length === 0) {
       this.canDelete = true;
     }
   };
