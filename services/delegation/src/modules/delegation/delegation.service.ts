@@ -417,7 +417,7 @@ export class DelegationService {
       let remaining = value;
       const now = moment().utc().toDate();
       for (const delegation of delegations) {
-        if (remaining === 0) {
+        if (remaining <= 0) {
           break;
         }
 
