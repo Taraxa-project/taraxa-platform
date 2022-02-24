@@ -29,7 +29,7 @@ const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: Bar
     /**
      * Highest number = 100 - sum of lowest numbers
      */
-    if (cdParsed >= sdParsed && cdParsed >= sdParsed) cdParsed = 100 - (sdParsed + adParsed);
+    if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
     if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
     if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
   }
