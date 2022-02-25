@@ -465,22 +465,12 @@ function Stake({
       <div className="cardContainer">
         <BaseCard
           title={formatEth(roundEth(weiToEth(reward)))}
-          description="TARA rewards"
+          description="Lifetime staking yield"
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
               title="Total number of TARA staking rewards earned for the lifetime of the connected wallet."
               Icon={InfoIcon}
-            />
-          }
-          button={
-            <Button
-              disabled
-              variant="outlined"
-              color="secondary"
-              // onClick={() => {}}
-              label="Redeem"
-              size="small"
             />
           }
         />
@@ -507,7 +497,29 @@ function Stake({
         />
         <BaseCard
           title="20.0%"
-          description="Anualized yield"
+          description="Validators delegated"
+          tooltip={
+            <Tooltip
+              className="staking-icon-tooltip"
+              title="Effective annualized yield, this could be different than the stated expected yields due to special community events. "
+              Icon={InfoIcon}
+            />
+          }
+          button={
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => unstakeTokens()}
+              label="My validators"
+              size="small"
+            />
+          }
+        />
+      </div>
+      <div className="cardContainer">
+        <BaseCard
+          title="20.0%"
+          description="Lifetime annualized staking yield, %"
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
@@ -516,6 +528,20 @@ function Stake({
             />
           }
         />
+        <BaseCard
+          title="20.0%"
+          description="Undelegated stake"
+          button={
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => unstakeTokens()}
+              label="Delegate"
+              size="small"
+            />
+          }
+        />
+        <BaseCard title="20.0%" description="Last week's annualized staking yield" />
       </div>
       <div className="cardContainer">
         <DataCard
