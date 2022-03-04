@@ -169,45 +169,23 @@ export class ClaimService {
   }
   public async createClaim(
     address: string,
-  ): Promise<Partial<AccountClaimEntity>> {
-    let claim = await this.claimRepository.findOne({
-      where: { address, claimed: false },
-    });
+  ): Promise<ClaimEntity> {
+    const {
+      availableToBeClaimed,
+    } = await this.accountRepository.findOneOrFail({ address });
 
-    if (!claim) {
-      const {
-        availableToBeClaimed,
-      } = await this.accountRepository.findOneOrFail({ address });
-
-      if (
-        ethers.BigNumber.from(availableToBeClaimed).lte(
-          ethers.BigNumber.from(0),
-        )
-      ) {
-        throw new Error('No tokens to claim');
-      }
-
-      claim = new ClaimEntity();
-      claim.address = address;
-      claim.numberOfTokens = availableToBeClaimed;
-
-      await this.claimRepository.save(claim);
+    if (
+      ethers.BigNumber.from(availableToBeClaimed).lte(ethers.BigNumber.from(0))
+    ) {
+      throw new Error('No tokens to claim');
     }
 
-    const nonce = claim.id * 13;
-    const encodedPayload = abi.soliditySHA3(
-      ['address', 'uint', 'uint'],
-      [address, claim.numberOfTokens, nonce],
-    );
+    const claim = new ClaimEntity();
+    claim.address = address;
+    claim.numberOfTokens = availableToBeClaimed;
 
-    const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
-    const hash = ethUtil.toRpcSig(v, r, s);
-
-    return {
-      nonce,
-      hash,
-      availableToBeClaimed: claim.numberOfTokens,
-    };
+    const newClaim = await this.claimRepository.save(claim);
+    return newClaim;
   }
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
@@ -238,6 +216,24 @@ export class ClaimService {
 
     await this.accountRepository.save(account);
     return await this.claimRepository.save(claim);
+  }
+  public async patchClaim(id: number): Promise<Partial<AccountClaimEntity>> {
+    const claim = await this.claimRepository.findOneOrFail({ id });
+
+    const nonce = claim.id * 13;
+    const encodedPayload = abi.soliditySHA3(
+      ['address', 'uint', 'uint'],
+      [claim.address, claim.numberOfTokens, nonce],
+    );
+
+    const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
+    const hash = ethUtil.toRpcSig(v, r, s);
+
+    return {
+      nonce,
+      hash,
+      availableToBeClaimed: claim.numberOfTokens,
+    };
   }
   public async deleteClaim(id: number): Promise<ClaimEntity> {
     const claim = await this.claimRepository.findOneOrFail({ id });
