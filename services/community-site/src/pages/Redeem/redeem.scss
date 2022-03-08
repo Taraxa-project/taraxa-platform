@@ -1,3 +1,8 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
 .claim {
   display: flex;
 }
@@ -36,4 +41,35 @@
   fieldset {
     border-color: white !important;
   }
+}
+.table {
+  min-width: 750;
+  color: #ffffff !important;
+}
+
+.tableHeadRow {
+  border-bottom: 1px solid #1e2231 !important;
+}
+
+.tableHeadCell {
+  color: #878ca4 !important;
+  background-color: #1b1e2b;
+  border: none;
+  height: auto;
+  line-height: 8px;
+}
+
+.tableRow {
+  border-bottom: 1px solid #1e2231 !important;
+}
+
+.tableCell {
+  color: #FFFFFF !important;
+  border: none;
+  height: auto;
+  border-bottom: 1px solid #1e2231 !important;
+}
+
+.tableSection {
+  text-align: center;
 }
