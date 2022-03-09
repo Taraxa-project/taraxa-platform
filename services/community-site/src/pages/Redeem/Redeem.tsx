@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { BaseCard, Button, Notification } from '@taraxa_project/taraxa-ui';
+import { BaseCard, Button, Loading, Notification } from '@taraxa_project/taraxa-ui';
 import { useMetaMask } from 'metamask-react';
 
 import {
@@ -12,6 +12,13 @@ import {
   TableRow,
 } from '@material-ui/core';
 import moment from 'moment';
+import {
+  Claim,
+  ClaimData,
+  ClaimResponse,
+  formatClaimsForTable,
+  parseClaim,
+} from '../../utils/claim';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 import useToken from '../../services/useToken';
@@ -21,18 +28,6 @@ import useApi from '../../services/useApi';
 import Title from '../../components/Title/Title';
 
 import './redeem.scss';
-
-interface ClaimData {
-  availableToBeClaimed: string;
-  nonce: number;
-  hash: string;
-}
-interface ClaimResponse {
-  tokens: string;
-  availableToBeClaimed: string;
-  date: string;
-  status: number;
-}
 
 function Redeem() {
   const { status, account } = useMetaMask();
@@ -46,22 +41,37 @@ function Redeem() {
   );
   const [locked, setLocked] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [claimed, setClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [isLoadingClaims, setLoadingClaims] = useState<boolean>(false);
+  const [claims, setClaims] = useState<Claim[]>([]);
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
+      setLoadingClaims(true);
       const data = await api.post(
         `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
         {},
       );
-      if (data.success) {
+      const claimData = await api.get(
+        `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
+        {},
+      );
+      if (data.success && claimData.success) {
         setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
         setLocked(ethers.BigNumber.from(data.response.totalLocked));
         setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
+
+        const finalClaims = formatClaimsForTable(
+          claimData.response.data,
+          account,
+          availableToBeClaimed,
+        );
+        setClaims(finalClaims);
       } else {
         setAvailableToBeClaimed(ethers.BigNumber.from('0'));
         setLocked(ethers.BigNumber.from('0'));
         setClaimed(ethers.BigNumber.from('0'));
       }
+      setLoadingClaims(false);
     };
     if (account) {
       getClaimData(account);
@@ -81,40 +91,49 @@ function Redeem() {
     getTokenBalance();
   }, [account, token]);
 
-  const onClaim = async () => {
+  const onClaim = async (ind: number) => {
     if (!claim) {
       return;
     }
 
     try {
-      const claimData = await api.post<ClaimData>(
-        `${process.env.REACT_APP_API_CLAIM_HOST}/claims/${account}`,
-        {},
-      );
-      if (claimData.success) {
-        const { availableToBeClaimed, nonce, hash } = claimData.response;
-        const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
-
-        await claimTx.wait(1);
-
-        setAvailableToBeClaimed(ethers.BigNumber.from('0'));
-        setClaimed((currentClaimed) =>
-          currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)),
+      let claimObj: Claim;
+      if (ind === 0) {
+        const claimData = await api.post<ClaimResponse>(
+          `${process.env.REACT_APP_API_CLAIM_HOST}/claims/${account}`,
+          {},
         );
-        setTokenBalance((balance) => balance.add(ethers.BigNumber.from(availableToBeClaimed)));
+        if (claimData && claimData.success) {
+          claimObj = parseClaim(claimData.response);
+        } else {
+          return;
+        }
+      } else {
+        const clonedClaim = { ...claims[ind] };
+        claimObj = clonedClaim;
+      }
+      if (claimObj) {
+        const claimPatchData = await api.patch<ClaimData>(
+          `${process.env.REACT_APP_API_CLAIM_HOST}/claims/${claimObj.id}`,
+          {},
+        );
+        if (claimPatchData.success) {
+          const { availableToBeClaimed, nonce, hash } = claimPatchData.response;
+          const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
+
+          await claimTx.wait(1);
+
+          setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+          setClaimed((currentClaimed) =>
+            currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)),
+          );
+          setTokenBalance((balance) => balance.add(ethers.BigNumber.from(availableToBeClaimed)));
+        }
       }
     } catch (e) {}
   };
 
   const columns = ['TARA', 'Lifetime points redeemed', 'Date', 'Status'];
-  const rows = [
-    {
-      tokens: '500',
-      availableToBeClaimed: '1,350,241',
-      date: Date.now().toString(),
-      status: 0,
-    } as ClaimResponse,
-  ];
 
   return (
     <div className="container">
@@ -159,7 +178,7 @@ function Redeem() {
           </div>
         </div>
       </div>
-      {rows.length > 0 && (
+      {claims && claims.length > 0 ? (
         <TableContainer className="table">
           <Table className="table">
             <TableHead>
@@ -172,31 +191,41 @@ function Redeem() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row: ClaimResponse, ind: number) => (
-                <TableRow className="tableRow" key={ind}>
-                  <TableCell className="tableCell">{row.tokens}</TableCell>
-                  <TableCell className="tableCell">{row.availableToBeClaimed}</TableCell>
-                  <TableCell className="tableCell">{moment().format('ll').toUpperCase()}</TableCell>
-                  <TableCell className="tableCell">
-                    {row.status !== 1 ? (
-                      <Button
-                        disabled={availableToBeClaimed.eq('0')}
-                        variant="outlined"
-                        color="secondary"
-                        onClick={onClaim}
-                        label="Redeem"
-                        size="small"
-                      />
-                    ) : (
-                      'Redeemed'
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {claims.map((row: Claim, ind: number) => {
+                return (
+                  <TableRow className="tableRow" key={ind}>
+                    <TableCell className="tableCell">{row.numberOfTokens}</TableCell>
+                    <TableCell className="tableCell">
+                      {row.totalClaimed ? row.totalClaimed : '0'}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {moment().format('ll').toUpperCase()}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {!row.claimed ? (
+                        <Button
+                          disabled={availableToBeClaimed.eq('0')}
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => onClaim(claims.indexOf(row))}
+                          label="Redeem"
+                          size="small"
+                        />
+                      ) : (
+                        'Redeemed'
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
-      )}
+      ) : isLoadingClaims ? (
+        <div className="container-centered">
+          <Loading />
+        </div>
+      ) : null}
     </div>
   );
 }
