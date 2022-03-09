@@ -146,13 +146,11 @@ export class ClaimService {
         ContractTypes.CLAIM,
         this.ethereumConfig.claimContractAddress,
       );
-
       const confirmation = await claimContractInstance.getClaimedAmount(
         address,
         claim.numberOfTokens,
         nonce,
       );
-
       if (
         confirmation.gt(ethers.BigNumber.from('0')) &&
         confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
@@ -160,7 +158,6 @@ export class ClaimService {
         await this.markAsClaimed(claim.id);
       }
     }
-
     const account = JSON.parse(
       JSON.stringify(await this.accountRepository.findOneOrFail({ address })),
     );
