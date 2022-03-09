@@ -6,8 +6,8 @@ const useStyles = makeStyles({
     maxHeight: 160,
     textAlign: 'left',
     backgroundColor: '#181B27 !important',
-    paddingLeft: '2%',
-    paddingRight: '1%',
+    paddingLeft: '1%',
+    paddingRight: '0.5%',
     border: '1px solid #40465F',
   },
   title: {

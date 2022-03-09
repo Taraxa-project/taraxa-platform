@@ -16,10 +16,11 @@ import useStyles from './datacard-styles';
 export interface DataCardProps extends MCardProps {
   description: string;
   label?: string;
-  input: JSX.Element;
+  input?: JSX.Element;
   disabled?: boolean;
   onClickButton?: React.MouseEventHandler<HTMLButtonElement> | undefined;
   onClickText?: string;
+  descriptionLegend?: string;
   dataOptions?: JSX.Element;
   tooltip?: JSX.Element;
 }
@@ -34,6 +35,7 @@ const DataCard = ({
   label,
   dataOptions,
   tooltip,
+  descriptionLegend,
 }: DataCardProps) => {
   const classes = useStyles();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
@@ -62,6 +64,7 @@ const DataCard = ({
           )}
         </CardContent>
         {input && input}
+        {descriptionLegend && <div className={classes.descriptionLegend}>{descriptionLegend}</div>}
         {dataOptions && <div className={classes.chips}>{dataOptions}</div>}
         {onClickButton && onClickText && (
           <CardActions className={classes.actions}>

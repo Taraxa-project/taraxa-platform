@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
+import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { useMetaMask } from 'metamask-react';
 
@@ -15,6 +16,8 @@ import {
   Button,
   Chip,
 } from '@taraxa_project/taraxa-ui';
+import { useDelegationApi } from '../../services/useApi';
+import PublicNode from '../../interfaces/PublicNode';
 
 import CloseIcon from '../../assets/icons/close';
 import InfoIcon from '../../assets/icons/info';
@@ -233,6 +236,9 @@ function Stake({
 }: StakeProps) {
   const { account, status } = useMetaMask();
   const auth = useAuth();
+  const history = useHistory();
+  const delegationApi = useDelegationApi();
+  const isLoggedIn = !!auth.user?.id;
 
   const token = useToken();
   const staking = useStaking();
@@ -244,6 +250,8 @@ function Stake({
   const [reward, setReward] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
 
   const [stakeInputError, setStakeInputError] = useState<string | null>(null);
+
+  const [delegators, setDelegators] = useState<PublicNode[]>([]);
 
   const resetStake = useCallback(() => {
     setHasStake(false);
@@ -269,6 +277,17 @@ function Stake({
     }
     return input;
   };
+
+  useEffect(() => {
+    if (isLoggedIn)
+      delegationApi
+        .get('/validators?show_fully_delegated=true&show_my_validators=true', isLoggedIn)
+        .then((data) => {
+          if (data.success) {
+            setDelegators(data.response);
+          }
+        });
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const getStakedBalance = async () => {
@@ -416,6 +435,10 @@ function Stake({
     resetStake();
   };
 
+  const unDelegatedStake = currentStakeBalance.sub(
+    delegators.reduce((a, d) => a + (d.ownDelegation || 0), 0),
+  );
+
   const stakeInputField = (
     <InputField
       type="text"
@@ -496,20 +519,21 @@ function Stake({
           }
         />
         <BaseCard
-          title="20.0%"
+          title={delegators.length.toString()}
           description="Validators delegated"
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
-              title="Effective annualized yield, this could be different than the stated expected yields due to special community events. "
+              title="Number of validators you delegated TARA to."
               Icon={InfoIcon}
             />
           }
           button={
             <Button
+              disabled={delegators.length === 0}
               variant="outlined"
               color="secondary"
-              onClick={() => unstakeTokens()}
+              onClick={() => history.push('/delegation?show_my_delegators')}
               label="My validators"
               size="small"
             />
@@ -523,25 +547,22 @@ function Stake({
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
-              title="Effective annualized yield, this could be different than the stated expected yields due to special community events. "
+              title="Effective annualized yield, this could be different than the stated expected yields due to special community events."
               Icon={InfoIcon}
             />
           }
         />
         <BaseCard
-          title="20.0%"
-          description="Undelegated stake"
-          button={
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={() => unstakeTokens()}
-              label="Delegate"
-              size="small"
+          title={formatEth(roundEth(weiToEth(unDelegatedStake)))}
+          tooltip={
+            <Tooltip
+              className="staking-icon-tooltip"
+              title="Total number of TARA staked currently that weren't delegated to any validators."
+              Icon={InfoIcon}
             />
           }
+          description="Undelegated stake"
         />
-        <BaseCard title="20.0%" description="Last week's annualized staking yield" />
       </div>
       <div className="cardContainer">
         <DataCard
@@ -559,6 +580,21 @@ function Stake({
           }
           dataOptions={stakingchips}
           disabled={auth.user !== null && auth.user.kyc !== 'APPROVED'}
+        />
+        <DataCard
+          title={status === 'connected' ? formatEth(roundEth(weiToEth(unDelegatedStake))) : 'N/A'}
+          description="Delegate"
+          label="TARA"
+          onClickButton={() => history.push('/delegation')}
+          onClickText="Delegate to validators"
+          descriptionLegend="You MUST delegate your stake to earn yields."
+          tooltip={
+            <Tooltip
+              title="Total number of TARA staked currently that aren't earning any yield."
+              Icon={InfoIcon}
+            />
+          }
+          disabled={unDelegatedStake.isZero()}
         />
         {hasStake && currentStakeEndDate !== null && (
           <BaseCard
