@@ -436,7 +436,7 @@ function Stake({
   };
 
   const unDelegatedStake = currentStakeBalance.sub(
-    delegators.reduce((a, d) => a + (d.ownDelegation || 0), 0),
+    ethers.utils.parseUnits(delegators.reduce((a, d) => a + (d.ownDelegation || 0), 0).toString()),
   );
 
   const stakeInputField = (
