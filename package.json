@@ -21,7 +21,14 @@
     "delegation-worker:prod": "yarn workspace @taraxa_project/delegation worker",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
     "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "watch:community-rebuild": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-build && yarn community-start\"",
+    "watch:community": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-start\"",
+    "watch:status-rebuild": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn status-build && yarn status-start\"",
+    "watch:status": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn status-start\"",
+    "watch:delegation-rebuild": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn delegation-build && yarn delegation-start\"",
+    "watch:delegation": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn delegation-start\"",
+    "watch:ui": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-build \""
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -38,7 +45,8 @@
     "eslint-config-airbnb-typescript-prettier": "^4.2.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.3",
-    "lint-staged": "^11.2.3",
+    "lint-staged": "^12.3.4",
+    "nodemon": "^2.0.15",
     "prettier": "^2.4.1"
   }
 }
