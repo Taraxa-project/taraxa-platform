@@ -561,7 +561,7 @@ function Stake({
               Icon={InfoIcon}
             />
           }
-          description="Undelegated stake"
+          description="Un-Delegated stake"
         />
       </div>
       <div className="cardContainer">
