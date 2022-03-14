@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-has-content */
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { ethers } from 'ethers';
@@ -19,7 +21,7 @@ export default function Home() {
 
   useEffect(() => {
     axios.get(`/api/address`).then((response) => {
-      setNodeAddress(response.data?.value || '');
+      setNodeAddress(response.data.value || '');
     });
   }, []);
 
@@ -30,24 +32,22 @@ export default function Home() {
           return;
         }
         const status = response.data;
-        setIsSynced(status?.synced);
-        setDposNodeVotes(status?.dpos_node_votes);
-        setPbftBlocks(status?.pbft_size);
-        setDagBlocks(status?.blk_executed);
-        setTransactions(status?.trx_executed);
-        setPeers(status?.peer_count);
+        setIsSynced(status.synced);
+        setDposNodeVotes(status.dpos_node_votes);
+        setPbftBlocks(status.pbft_size);
+        setDagBlocks(status.blk_executed);
+        setTransactions(status.trx_executed);
+        setPeers(status.peer_count);
 
         setBlocksHistory((bh) => {
-          let n = [...bh];
-          n.unshift(status?.pbft_size);
+          const n = [...bh];
+          n.unshift(status.pbft_size);
           return n.slice(0, 5);
         });
 
         setPeerPbftBlockCount(
           Math.max(
-            ...status?.network?.peers
-              ?.filter((peer) => peer.dag_synced)
-              .map((peer) => peer.pbft_size),
+            ...status.network.peers.filter((peer) => peer.dag_synced).map((peer) => peer.pbft_size),
           ),
         );
       });
@@ -55,7 +55,7 @@ export default function Home() {
 
     updateStatus();
 
-    let checkInterval = setInterval(() => {
+    const checkInterval = setInterval(() => {
       updateStatus();
     }, 3000);
 
@@ -65,7 +65,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    let uniqueBlocks = [...new Set(blocksHistory)];
+    const uniqueBlocks = [...new Set(blocksHistory)];
     if (uniqueBlocks.length > 1) {
       setIsSyncing(true);
     } else {
@@ -74,7 +74,7 @@ export default function Home() {
   }, [blocksHistory]);
 
   let syncedPercent = Math.round((pbftBlocks / peerPbftBlockCount) * 100);
-  if (isNaN(syncedPercent)) {
+  if (Number.isNaN(syncedPercent)) {
     syncedPercent = 0;
   }
   if (syncedPercent < 0) {
@@ -89,10 +89,12 @@ export default function Home() {
   const copyText = (event) => {
     event.preventDefault();
 
-    var copyText = inputRef.current;
+    // eslint-disable-next-line no-shadow
+    const copyText = inputRef.current;
 
     copyText.select();
     copyText.setSelectionRange(0, 99999);
+    // eslint-disable-next-line no-undef
     document.execCommand('copy');
 
     setCopy('Copied');
@@ -126,7 +128,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header title="Taraxa Node Status" color="primary" position="relative" elevation={0}></Header>
+      <Header title="Taraxa Node Status" color="primary" position="relative" elevation={0} />
 
       <main className="App">
         <Text label="Taraxa Node Status" variant="h1" color="primary" className="title" />
@@ -140,7 +142,7 @@ export default function Home() {
         <Text label={`${status}:`} variant="h2" color="primary" className="status" />
 
         <div className="progress-bar">
-          <div className="progress-bar-inner" style={{ width: `${syncedPercent}%` }}></div>
+          <div className="progress-bar-inner" style={{ width: `${syncedPercent}%` }} />
           <Text
             label={`${syncedPercent}%`}
             variant="body2"
@@ -183,8 +185,8 @@ export default function Home() {
                   ref={inputRef}
                   onClick={(event) => event.target.select()}
                   type="text"
-                  value={'0x' + nodeAddress}
-                  readOnly={true}
+                  value={`0x${nodeAddress}`}
+                  readOnly
                 />
                 <a href="#" onClick={copyText}>
                   {copy}
@@ -196,6 +198,7 @@ export default function Home() {
                   color="secondary"
                   variant="contained"
                   onClick={() =>
+                    // eslint-disable-next-line no-undef
                     window.open('https://community.taraxa.io/node', '_blank', 'noreferrer noopener')
                   }
                 />
@@ -210,15 +213,15 @@ export default function Home() {
           items={[
             {
               label: 'Send',
-              Icon: <a href="https://www.taraxa.io/tg" target="_blank" rel="noreferrer"></a>,
+              Icon: <a href="https://www.taraxa.io/tg" target="_blank" rel="noreferrer" />,
             },
             {
               label: 'Discord',
-              Icon: <a href="https://www.taraxa.io/discord" target="_blank" rel="noreferrer"></a>,
+              Icon: <a href="https://www.taraxa.io/discord" target="_blank" rel="noreferrer" />,
             },
             {
               label: 'Twitter',
-              Icon: <a href="https://www.taraxa.io/twitter" target="_blank" rel="noreferrer"></a>,
+              Icon: <a href="https://www.taraxa.io/twitter" target="_blank" rel="noreferrer" />,
             },
           ]}
         />
