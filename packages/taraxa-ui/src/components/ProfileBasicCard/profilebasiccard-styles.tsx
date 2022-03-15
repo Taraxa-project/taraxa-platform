@@ -26,7 +26,7 @@ const useStyles = makeStyles({
   label: {},
   value: {
     marginTop: '5%',
-    marginBottom: '30%',
+    marginBottom: '5%',
     wordBreak: 'break-word',
     fontWeight: 'bold',
   },

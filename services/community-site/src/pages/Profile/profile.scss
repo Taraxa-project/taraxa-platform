@@ -68,6 +68,20 @@
   }
 }
 
+.flexExpand {
+  flex: 1 0 auto;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+
+  & > .lockedPointsCheckbox {
+    color: #878ca4;
+    font-size: 14px;
+    line-height: 22px;
+    padding-right: 9px;
+  }
+}
+
 .formInputContainer > div {
   display: flex;
   align-items: baseline;
