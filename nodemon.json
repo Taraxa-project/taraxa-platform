@@ -1,0 +1,4 @@
+{
+  "ignore": ["packages/lib/*", "*/node_modules/*", "*/build/*"],
+  "ext": "js, jsx, ts, tsx, json, css, scss"
+}
