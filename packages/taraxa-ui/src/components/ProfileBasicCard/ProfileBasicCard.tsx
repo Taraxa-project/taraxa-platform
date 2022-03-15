@@ -17,7 +17,7 @@ export interface ProfileBasicCardProps extends MCardProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   title: string;
   value?: string;
-  description: string;
+  description?: string;
   buttonOptions?: JSX.Element;
 }
 
