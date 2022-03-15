@@ -12,13 +12,8 @@ import {
   TableRow,
 } from '@material-ui/core';
 import moment from 'moment';
-import {
-  Claim,
-  ClaimData,
-  ClaimResponse,
-  formatClaimsForTable,
-  parseClaim,
-} from '../../utils/claim';
+
+import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 import useToken from '../../services/useToken';
@@ -34,6 +29,7 @@ function Redeem() {
   const token = useToken();
   const claim = useClaim();
   const api = useApi();
+  const redeem = useRedeem();
 
   const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(
@@ -60,7 +56,7 @@ function Redeem() {
         setLocked(ethers.BigNumber.from(data.response.totalLocked));
         setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
 
-        const finalClaims = formatClaimsForTable(
+        const finalClaims = redeem.formatClaimsForTable(
           claimData.response.data,
           account,
           availableToBeClaimed,
@@ -104,7 +100,7 @@ function Redeem() {
           {},
         );
         if (claimData && claimData.success) {
-          claimObj = parseClaim(claimData.response);
+          claimObj = redeem.parseClaim(claimData.response);
         } else {
           return;
         }
