@@ -21,37 +21,47 @@ interface BarFlexProps {
   availableDelegation: number;
 }
 
-const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => (
-  <div className="barFlex">
-    <div
-      className="percentageAmount"
-      style={{
-        width: `${communityDelegated}}%`,
-        display: communityDelegated >= 1 ? 'flex' : 'none',
-      }}
-    >
-      <div className="barPercentage" style={{ background: '#15AC5B' }} />
+const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
+  let cdParsed = communityDelegated;
+  let sdParsed = selfDelegated;
+  let adParsed = availableDelegation;
+  if (cdParsed + sdParsed + adParsed > 100) {
+    /**
+     * Highest number = 100 - sum of lowest numbers
+     */
+    if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
+    if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
+    if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
+  }
+  return (
+    <div className="barFlex">
+      <div
+        className="percentageAmount"
+        style={{
+          width: `${cdParsed}%`,
+        }}
+      >
+        <div className="barPercentage" style={{ background: '#15AC5B' }} />
+      </div>
+      <div
+        className="percentageAmount"
+        style={{
+          width: `${sdParsed}%`,
+        }}
+      >
+        <div className="barPercentage" style={{ background: '#8E8E8E' }} />
+      </div>
+      <div
+        className="percentageAmount"
+        style={{
+          width: `${adParsed}%`,
+        }}
+      >
+        <div className="barPercentage" style={{ background: '#48BDFF' }} />
+      </div>
     </div>
-    <div
-      className="percentageAmount"
-      style={{
-        width: `${selfDelegated}%`,
-        display: selfDelegated >= 1 ? 'flex' : 'none',
-      }}
-    >
-      <div className="barPercentage" style={{ background: '#8E8E8E' }} />
-    </div>
-    <div
-      className="percentageAmount"
-      style={{
-        width: `${availableDelegation}%`,
-        display: availableDelegation >= 1 ? 'flex' : 'none',
-      }}
-    >
-      <div className="barPercentage" style={{ background: '#48BDFF' }} />
-    </div>
-  </div>
-);
+  );
+};
 
 const NodeProfilePage = () => {
   const auth = useAuth();
@@ -108,10 +118,20 @@ const NodeProfilePage = () => {
   }, [fetchNode, fetchDelegators, getBalances]);
 
   const delegationPossible = (node?.totalDelegation || 0) + (node?.remainingDelegation || 0);
-  const communityDelegated =
-    (((node?.totalDelegation || 0) - (node?.ownDelegation || 0)) / delegationPossible) * 100;
-  const selfDelegated = ((node?.ownDelegation || 0) / delegationPossible) * 100;
-  const availableDelegation = ((node?.remainingDelegation || 0) / delegationPossible) * 100;
+  const communityDelegated = Math.max(
+    Math.round(
+      (((node?.totalDelegation || 0) - (node?.ownDelegation || 0)) / delegationPossible) * 100,
+    ),
+    1,
+  );
+  const selfDelegated = Math.max(
+    Math.round(((node?.ownDelegation || 0) / delegationPossible) * 100),
+    1,
+  );
+  const availableDelegation = Math.max(
+    Math.round(((node?.remainingDelegation || 0) / delegationPossible) * 100),
+    1,
+  );
   const delegationTotalPages = Math.ceil(delegationCount / 20);
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
   const nodeActiveSince = new Date(node?.firstBlockCreatedAt || Date.now());
