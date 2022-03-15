@@ -26,8 +26,6 @@
     "watch:community": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-start\"",
     "watch:status-rebuild": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn status-build && yarn status-start\"",
     "watch:status": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn status-start\"",
-    "watch:delegation-rebuild": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn delegation-build && yarn delegation-start\"",
-    "watch:delegation": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn delegation-start\"",
     "watch:ui": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-build \""
   },
   "lint-staged": {
