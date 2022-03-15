@@ -7,6 +7,7 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
+  Box,
 } from '@material-ui/core';
 import Jdenticon from 'jdenticon';
 
@@ -38,12 +39,14 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
               dangerouslySetInnerHTML={{ __html: profileIcon }}
             />
           )}
-          <Typography variant="body1" className={classes.label} color="primary">
-            {username}
-          </Typography>
-          <Typography variant="body2" className={classes.label} color="textSecondary">
-            {email}
-          </Typography>
+          <Box sx={{ flexDirection: 'column' }}>
+            <Typography variant="body1" className={classes.label} color="primary">
+              {username}
+            </Typography>
+            <Typography variant="body2" className={classes.label} color="textSecondary">
+              {email}
+            </Typography>
+          </Box>
         </div>
         <CardContent className={classes.content}>
           {wallet && (

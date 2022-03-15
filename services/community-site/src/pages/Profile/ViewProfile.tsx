@@ -129,7 +129,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
           <Button
             variant="contained"
             color="secondary"
-            label="Claim rewards"
+            label="Go to redeem page"
             disabled={ethers.BigNumber.from(points.toString()).eq('0')}
             fullWidth
             onClick={() => history.push('/redeem')}
