@@ -16,7 +16,7 @@ parameters:
   run-delegation-service-workflow:
     type: boolean
     default: false
-  run-claim-service-workflow:
+  run-claim-backend-service-workflow:
     type: boolean
     default: false
 
