@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  main:
+    build:
+      context: .
+      target: build
+    command: yarn start:dev
+    ports:
+      - ${SERVER_PORT}:3000
+    volumes:
+      - .:/usr/src/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0.23
+    platform: linux/amd64
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    ports:
+      - ${DB_PORT}:3306

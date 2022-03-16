@@ -12,5 +12,6 @@ workflows:
             services/community-site/.* run-community-site-service-workflow true
             services/node-status/.* run-node-status-service-workflow true
             services/delegation/.* run-delegation-service-workflow true
+            services/claim-backend/.* run-claim-service-workflow true
           base-revision: << pipeline.git.branch >>
           config-path: .circleci/workflows.yml

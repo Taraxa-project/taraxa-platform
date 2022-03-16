@@ -19,15 +19,15 @@
     "delegation-cron:prod": "yarn workspace @taraxa_project/delegation cron",
     "delegation-worker": "yarn workspace @taraxa_project/delegation worker:dev",
     "delegation-worker:prod": "yarn workspace @taraxa_project/delegation worker",
-    "claim-backend-build": "yarn workspace @taraxa_project/claim build",
-    "claim-backend-start": "yarn workspace @taraxa_project/claim start:dev",
+    "claim-backend-build": "yarn workspace @taraxa_project/taraxa-claim-backend build",
+    "claim-backend-start": "yarn workspace @taraxa_project/taraxa-claim-backend start:dev",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
-    "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation",
+    "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation && eslint services/claim-backend",
     "postinstall": "husky install"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint",
+      "eslint --fix",
       "prettier --write"
     ]
   },
