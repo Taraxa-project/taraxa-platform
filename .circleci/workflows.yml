@@ -234,7 +234,7 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa/claim-backend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa/claim-backend-develop:latest
             fi
-  deploy-delegation:
+  deploy-claim-backend:
     <<: *config
     steps:
       - *step_install_deps
