@@ -1,4 +1,4 @@
-import * as parse from 'csv-parse/lib/sync';
+import { parse } from 'csv-parse/lib/sync';
 import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
@@ -321,8 +321,8 @@ export class ClaimService {
         castDate: false,
         trim: true,
         skipEmptyLines: true,
-        skipLinesWithEmptyValues: true,
-        skipLinesWithError: true,
+        skipRecordsWithEmptyValues: true,
+        skipRecordsWithError: true,
       }).map((line: string[]) => {
         return line.filter((l: string) => {
           return l !== '';
