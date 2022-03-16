@@ -6,24 +6,23 @@ The Claim application allows users from our community to claim TARA tokens they 
 
 The main part of the application is a [smart contract](https://github.com/Taraxa-project/tara-erc20/blob/main/contracts/Claim.sol) that's currently deployed to the Ethereum network but, in the future, this contract will also be deployed on the Taraxa network.
 
-The smart contract has an allowance from one of our *addresses(1)* to spend TARA tokens.
+The smart contract has an allowance from one of our _addresses(1)_ to spend TARA tokens.
 
-A user, with the help of our frontend application, will call this contract with some valid values and a signature from one of our private *accounts(2)*.
+A user, with the help of our frontend application, will call this contract with some valid values and a signature from one of our private _accounts(2)_.
 
 After the user sends the transaction to the blockchain, a method in the backend app (this app) checks if the claim was succesful and marks it in the database.
 
-The backend app is also responsible for managing the *rewards* that users get. With the help of another frontend app, the [admin panel](https://github.com/Taraxa-project/taraxa-claim-admin), users and their rewards are added to the database.
+The backend app is also responsible for managing the _rewards_ that users get. With the help of another frontend app, the [admin panel](https://github.com/Taraxa-project/taraxa-claim-admin), users and their rewards are added to the database.
 
 The interaction between the apps looks something like this:
 
-Admin app *--adds data-->* Backend App (this) *--reads data-->* Frontend App
-
+Admin app _--adds data-->_ Backend App (this) _--reads data-->_ Frontend App
 
 Notes:
 
-- *addresses(1) - TARA Wallet Address - Internal wallet that holds TARA Tokens*
+- _addresses(1) - TARA Wallet Address - Internal wallet that holds TARA Tokens_
 
-- *addresses(2) - TARA private Signing Wallet - Internal wallet that we use to generate the signatures for the Claim smart contract*
+- _addresses(2) - TARA private Signing Wallet - Internal wallet that we use to generate the signatures for the Claim smart contract_
 
 ## Security
 
