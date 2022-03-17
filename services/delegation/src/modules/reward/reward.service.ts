@@ -2,10 +2,13 @@ import assert from 'assert';
 import moment from 'moment';
 import _ from 'lodash';
 import IntervalTree, { Interval } from '@flatten-js/interval-tree';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+
+import { Reward } from './reward.entity';
+import { RewardType } from './reward-type.enum';
 
 import { Node } from '../node/node.entity';
 import { NodeType } from '../node/node-type.enum';
@@ -21,12 +24,16 @@ interface IntervalValue {
 interface Period {
   startsAt: number;
   endsAt: number;
+  epoch: number;
 }
 
 @Injectable()
 export class RewardService {
   private eligibilityThreshold: number;
   constructor(
+    private connection: Connection,
+    @InjectRepository(Reward)
+    private rewardRepository: Repository<Reward>,
     @InjectRepository(Node)
     private nodeRepository: Repository<Node>,
     @InjectRepository(NodeCommission)
@@ -39,84 +46,94 @@ export class RewardService {
       'delegation.eligibilityThreshold',
     );
   }
-  async getRewards(at = moment().utc().unix()) {
-    const nodeBalances = new Map<number, number>();
-    const accountBalances = new Map<number, number>();
-
+  async calculateRewards(at = moment().utc().unix()) {
+    console.log(`Calculating rewards...`);
+    await this.rewardRepository.delete({});
+    console.log(`Getting nodes...`);
     const nodes = await this.getNodes();
+    let cnt = 0;
     for (const node of nodes) {
-      const { nodeBalance, nodeAccountBalances } = await this.getRewardsForNode(
-        node,
-        at,
+      cnt++;
+      console.group(
+        `${cnt}/${nodes.length}: Calculating rewards for node: ${node.id}`,
       );
-
-      nodeBalances.set(
-        node.user,
-        (nodeBalances.get(node.user) || 0) + nodeBalance,
-      );
-
-      nodeAccountBalances.forEach((balance, user) => {
-        accountBalances.set(user, (accountBalances.get(user) || 0) + balance);
-      });
+      await this.calculateRewardsForNode(node, at);
+      console.groupEnd();
     }
-
-    return {
-      nodeBalances,
-      accountBalances,
-    };
+    console.log(`Done`);
   }
-  async getRewardsForNode(node: Node, at = moment().utc().unix()) {
+  async calculateRewardsForNode(node: Node, at = moment().utc().unix()) {
     const commissionIntervalTree = await this.getCommissionTree(node, at);
     const delegationIntervalTree = await this.getDelegationTree(node, at);
 
+    console.log(`- commissions: `, commissionIntervalTree.size);
+    console.log(`- delegations: `, delegationIntervalTree.size);
+
     const periods: Period[] = this.getPeriods(
+      at,
       ...commissionIntervalTree.items.map((i) => i.value.startsAt),
       ...delegationIntervalTree.items.map((i) => i.value.startsAt),
       ...delegationIntervalTree.items.map((i) => i.value.endsAt),
     );
 
-    const getCurrentCommission = (
-      startsAt: number,
-      endsAt: number,
-    ): IntervalValue => {
+    console.log(`- periods: `, periods.length);
+
+    for (const period of periods) {
+      const { startsAt, endsAt, epoch } = period;
+      console.log(`- period ${startsAt}-${endsAt}...`);
+
       const currentCommissions = commissionIntervalTree.search(
         new Interval(startsAt, endsAt),
       );
       assert(
-        currentCommissions.length === 1,
+        currentCommissions.length <= 1,
         'There should be only one commission in the interval',
       );
-      return currentCommissions[0];
-    };
 
-    const getCurrentDelegations = (
-      startsAt: number,
-      endsAt: number,
-    ): IntervalValue[] => {
-      return [...delegationIntervalTree.search(new Interval(startsAt, endsAt))];
-    };
+      if (currentCommissions.length === 0) {
+        continue;
+      }
 
-    const getTotalDelegationAmount = (delegations: IntervalValue[]): number => {
-      return delegations.reduce((acc: number, cur: IntervalValue) => {
-        const delegation = cur.value as Delegation;
-        return acc + delegation.value;
-      }, 0);
-    };
-
-    let nodeBalance = 0;
-    const nodeAccountBalances = new Map<number, number>();
-
-    for (const period of periods) {
-      const { startsAt, endsAt } = period;
-
-      const currentCommission = getCurrentCommission(startsAt, endsAt);
-      const currentDelegations = getCurrentDelegations(startsAt, endsAt);
-      const totalDelegationAmount =
-        getTotalDelegationAmount(currentDelegations);
+      const currentCommission = currentCommissions[0];
+      const currentDelegations = [
+        ...delegationIntervalTree.search(new Interval(startsAt, endsAt)),
+      ];
+      const totalDelegationAmount = currentDelegations.reduce(
+        (acc: number, cur: IntervalValue) => {
+          const delegation = cur.value as Delegation;
+          return acc + delegation.value;
+        },
+        0,
+      );
 
       if (totalDelegationAmount < this.eligibilityThreshold) {
         continue;
       }
+
+      const getRewardEntity = () => {
+        const reward = new Reward();
+        reward.node = node.id;
+        reward.epoch = epoch;
+        reward.startsAt = moment.unix(startsAt).utc().toDate();
+        reward.endsAt = moment.unix(endsAt).utc().toDate();
+        return reward;
+      };
+
+      const getNodeRewardEntity = (value: number) => {
+        const reward = getRewardEntity();
+        reward.user = node.user;
+        reward.type = RewardType.NODE;
+        reward.value = value;
+        return reward;
+      };
+
+      const getAccountRewardEntity = (user: number, value: number) => {
+        const reward = getRewardEntity();
+        reward.user = user;
+        reward.type = RewardType.DELEGATOR;
+        reward.value = value;
+        return reward;
+      };
 
       const commissionEntity = currentCommission.value as NodeCommission;
       for (const currentDelegation of currentDelegations) {
@@ -125,40 +142,65 @@ export class RewardService {
           delegationEntity.value,
           endsAt - startsAt,
         );
-        const nodePeriodBalance = (totalBalance * commissionEntity.value) / 100;
-        const accountPeriodBalance = totalBalance - nodePeriodBalance;
 
-        nodeBalance += nodePeriodBalance;
-        nodeAccountBalances.set(
-          delegationEntity.user,
-          (nodeAccountBalances.get(delegationEntity.user) || 0) +
-            accountPeriodBalance,
-        );
+        const nodeCommission = (totalBalance * commissionEntity.value) / 100;
+        if (nodeCommission > 0) {
+          await this.rewardRepository.save(
+            getNodeRewardEntity(
+              epoch === 0 ? nodeCommission * 2 : nodeCommission,
+            ),
+          );
+        }
+        if (epoch !== 0) {
+          await this.rewardRepository.save(
+            getAccountRewardEntity(
+              delegationEntity.user,
+              totalBalance - nodeCommission,
+            ),
+          );
+        }
       }
     }
-
-    return {
-      nodeBalance,
-      nodeAccountBalances,
-    };
   }
   private calculateTotalRewards(delegationValue: number, seconds: number) {
     const yearlyReward = (delegationValue * 20) / 100;
     const perSeconds = yearlyReward / (365.2425 * 24 * 60 * 60);
     return seconds * perSeconds;
   }
-  private getPeriods(...points: number[]): Period[] {
+  private getPeriods(endsAt: number, ...points: number[]): Period[] {
+    const epochs = [moment('2022-02-15').utc().unix()];
+    let currentEpoch = 0;
+    do {
+      const nextEpoch = moment
+        .unix(epochs[currentEpoch])
+        .add(1, 'month')
+        .utc()
+        .unix();
+      if (nextEpoch > endsAt) {
+        break;
+      }
+      epochs.push(nextEpoch);
+      currentEpoch++;
+    } while (true);
+
+    points = [...points, ...epochs];
     points = [...new Set(points)];
     points = _.sortBy(points);
 
     const periods: Period[] = [];
+    let epoch = 0;
     for (let i = 1; i < points.length; i++) {
       const startsAt = points[i - 1];
       const endsAt = points[i] - 1;
 
+      if (endsAt >= epochs[epoch]) {
+        epoch++;
+      }
+
       periods.push({
         startsAt,
         endsAt,
+        epoch,
       });
     }
     return periods;
@@ -176,7 +218,7 @@ export class RewardService {
   }
   private async getCommissionTree(
     node: Node,
-    now: number,
+    endTime: number,
   ): Promise<IntervalTree<IntervalValue>> {
     const commissions = await this.nodeCommissionRepository.find({
       where: {
@@ -187,7 +229,7 @@ export class RewardService {
       },
     });
 
-    let lastEndAt = now;
+    let lastEndAt = endTime;
     const tree = new IntervalTree<IntervalValue>();
     for (const commission of commissions) {
       const startsAt = moment(commission.startsAt).utc().unix();
@@ -203,7 +245,7 @@ export class RewardService {
   }
   private async getDelegationTree(
     node: Node,
-    now: number,
+    endTime: number,
   ): Promise<IntervalTree<IntervalValue>> {
     const delegations = await this.delegationRepository.find({
       where: {
@@ -222,7 +264,7 @@ export class RewardService {
         : moment(delegation.createdAt).utc().unix();
       const endsAt = delegation.endsAt
         ? moment(delegation.endsAt).utc().unix()
-        : now;
+        : endTime;
 
       tree.insert(new Interval(startsAt, endsAt - 1), {
         startsAt,

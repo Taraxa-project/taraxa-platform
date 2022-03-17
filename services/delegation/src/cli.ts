@@ -128,8 +128,7 @@ async function bootstrap() {
   };
 
   const calculateRewards = async () => {
-    const rewards = await rewardService.getRewards();
-    console.log(rewards);
+    await rewardService.calculateRewards();
     return Promise.resolve();
   };
 
