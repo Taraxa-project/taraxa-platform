@@ -1,6 +1,7 @@
 import React from 'react';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import Text from '../Text';
+import { Exclamation } from '../Icons';
 
 import theme from '../theme';
 
@@ -20,16 +21,20 @@ const Notification = ({
 }: React.PropsWithChildren<NotificationProps>) => {
   const classes = useStyles();
   let containerStyle = classes.container;
+  let iconColor = '#E96828';
 
   if (variant) {
     if (variant === 'success') {
       containerStyle += ` ${classes.success}`;
+      iconColor = '#15AC5B';
     }
     if (variant === 'danger') {
       containerStyle += ` ${classes.danger}`;
+      iconColor = '#FF515A';
     }
     if (variant === 'info') {
       containerStyle += ` ${classes.info}`;
+      iconColor = '#48BDFF';
     }
   }
 
@@ -37,13 +42,20 @@ const Notification = ({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className={containerStyle}>
-        {title && <Text label={title} variant="body1" color="primary" className={classes.title} />}
-        {text && <Text label={text} variant="body2" color="primary" className={classes.text} />}
-        {children && (
-          <Text variant="body2" color="primary" className={classes.text}>
-            {children}
-          </Text>
-        )}
+        <div className={classes.icon}>
+          <Exclamation color={iconColor} />
+        </div>
+        <div>
+          {title && (
+            <Text label={title} variant="body1" color="primary" className={classes.title} />
+          )}
+          {text && <Text label={text} variant="body2" color="primary" className={classes.text} />}
+          {children && (
+            <Text variant="body2" color="primary" className={classes.text}>
+              {children}
+            </Text>
+          )}
+        </div>
       </div>
     </ThemeProvider>
   );
