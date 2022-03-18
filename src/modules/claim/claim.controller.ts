@@ -89,19 +89,6 @@ export class ClaimController {
   ): Promise<CollectionResponse<ClaimEntity>> {
     return this.claimService.claims(query);
   }
-  @ApiOkResponse({ description: 'List of claims' })
-  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
-  @ApiNotFoundResponse({ description: 'Claim not found' })
-  @Get("/accounts/:account")
-  async getClaimOfAccount(
-    @Param('account') account: string,
-  ): Promise<CollectionResponse<ClaimEntity>> {
-    return this.claimService.claims({
-      filter: {address: account},
-      range: [0,100],
-      sort: ['createdAt', 'DESC'],
-    } as QueryDto);
-  }
   @ApiCreatedResponse({ description: 'Claim details' })
   @ApiNotFoundResponse({ description: 'Claim not found' })
   @ApiBadRequestResponse({ description: 'No tokens to claim' })
