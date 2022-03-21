@@ -37,6 +37,7 @@ export class DelegationService {
   private mainnetEndpoint: string;
   private testnetEndpoint: string;
   private testnetDelegationAmount: ethers.BigNumber;
+  private mainnetDelegationAmount: ethers.BigNumber;
   private maxDelegationPerNode: number;
   constructor(
     @InjectRepository(Delegation)
@@ -54,6 +55,9 @@ export class DelegationService {
     this.testnetEndpoint = this.config.get<string>('ethereum.testnetEndpoint');
     this.testnetDelegationAmount = this.config.get<ethers.BigNumber>(
       'delegation.testnetDelegation',
+    );
+    this.mainnetDelegationAmount = this.config.get<ethers.BigNumber>(
+      'delegation.mainnetDelegation',
     );
     this.maxDelegationPerNode = this.config.get<number>(
       'delegation.maxDelegation',
@@ -276,9 +280,11 @@ export class DelegationService {
       node = null;
     }
 
-    let totalNodeDelegation = 0;
+    let totalNodeDelegation = ethers.BigNumber.from(0);
     if (node && type === NodeType.MAINNET) {
-      totalNodeDelegation = await this.getTotalNodeDelegation(nodeId);
+      totalNodeDelegation = totalNodeDelegation
+        .add(await this.getTotalNodeDelegation(nodeId))
+        .mul(this.mainnetDelegationAmount);
     }
 
     if (type === NodeType.MAINNET) {
@@ -290,7 +296,7 @@ export class DelegationService {
 
   async unDelegateAll(type: string, address: string) {
     if (type === NodeType.MAINNET) {
-      await this.ensureMainnetDelegation(address, 0);
+      await this.ensureMainnetDelegation(address, ethers.BigNumber.from(0));
     } else {
       await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
     }
@@ -552,26 +558,25 @@ export class DelegationService {
 
   private async ensureMainnetDelegation(
     address: string,
-    totalNodeDelegation: number,
+    totalNodeDelegation: ethers.BigNumber,
   ): Promise<void> {
-    const totalDelegation = ethers.BigNumber.from(totalNodeDelegation);
     const currentDelegation = await this.getDelegation(
       address,
       NodeType.MAINNET,
     );
-    if (currentDelegation.eq(totalDelegation)) {
+    if (currentDelegation.eq(totalNodeDelegation)) {
       return;
     }
 
-    if (currentDelegation.gt(totalDelegation)) {
+    if (currentDelegation.gt(totalNodeDelegation)) {
       await this.stakingService.undelegateMainnetTransaction(
         address,
-        currentDelegation.sub(totalDelegation),
+        currentDelegation.sub(totalNodeDelegation),
       );
     } else {
       await this.stakingService.delegateMainnetTransaction(
         address,
-        totalDelegation.sub(currentDelegation),
+        totalNodeDelegation.sub(currentDelegation),
       );
     }
   }
