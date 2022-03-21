@@ -10,4 +10,5 @@ export default registerAs('delegation', () => ({
   testnetDelegation: ethers.BigNumber.from(1000000).mul(
     ethers.BigNumber.from(10).pow(18),
   ),
+  mainnetDelegation: ethers.BigNumber.from(10).pow(18),
 }));
