@@ -288,6 +288,14 @@ export class DelegationService {
     }
   }
 
+  async unDelegateAll(type: string, address: string) {
+    if (type === NodeType.MAINNET) {
+      await this.ensureMainnetDelegation(address, 0);
+    } else {
+      await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
+    }
+  }
+
   async getDelegation(
     address: string,
     type: 'mainnet' | 'testnet',

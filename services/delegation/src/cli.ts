@@ -48,6 +48,23 @@ async function bootstrap() {
     }
   };
 
+  const unDelegate = async (nodes: Node[], currentDelegations: Delegations) => {
+    let count = 0;
+    for (const node of nodes) {
+      count++;
+      const { type, address } = node;
+      const currentDelegation = currentDelegations[address.toLowerCase()]
+        ? parseInt(currentDelegations[address.toLowerCase()], 16)
+        : 0;
+
+      console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
+      console.log(`currentDelegation: ${currentDelegation}`);
+      console.log(`removing delegation...`);
+      await delegationService.unDelegateAll(type, address);
+      console.log(`------------------------------`);
+    }
+  };
+
   const testnetNodes = async () => {
     console.log(await nodes('testnet'));
     return Promise.resolve();
@@ -72,6 +89,22 @@ async function bootstrap() {
       'mainnet',
     );
     await ensureDelegation(n, currentDelegations);
+  };
+
+  const testnetUndelegate = async () => {
+    const n = await nodes('testnet');
+    const currentDelegations = await delegationService.getDelegationsFor(
+      'testnet',
+    );
+    await unDelegate(n, currentDelegations);
+  };
+
+  const mainnetUndelegate = async () => {
+    const n = await nodes('mainnet');
+    const currentDelegations = await delegationService.getDelegationsFor(
+      'mainnet',
+    );
+    await unDelegate(n, currentDelegations);
   };
 
   const rebalanceTestnet = async () => {
@@ -135,6 +168,16 @@ async function bootstrap() {
       'mainnet-ensure-delegation',
       'ensure delegation for all mainnet nodes',
       mainnetEnsureDelegation,
+    )
+    .command(
+      'testnet-undelegate',
+      'remove delegation from all testnet nodes',
+      testnetUndelegate,
+    )
+    .command(
+      'mainnet-undelegate',
+      'remove delegation from all mainnet nodes',
+      mainnetUndelegate,
     )
     .command(
       'rebalance-testnet',
