@@ -32,7 +32,6 @@ const useStyles = makeStyles({
   },
   userDetails: {
     display: 'flex',
-    flex: 1,
     paddingLeft: 10,
   },
   iconContainer: {
