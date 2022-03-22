@@ -10,6 +10,8 @@
     "community-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-community-site start",
     "status-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status build",
     "status-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status dev",
+    "claim-build": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-claim-backend build",
+    "claim-start": "SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-claim-backend start:dev",
     "delegation-build": "yarn workspace @taraxa_project/delegation build",
     "delegation-start": "yarn workspace @taraxa_project/delegation start:dev",
     "delegation-start:prod": "yarn workspace @taraxa_project/delegation start:prod",
@@ -20,7 +22,7 @@
     "delegation-worker": "yarn workspace @taraxa_project/delegation worker:dev",
     "delegation-worker:prod": "yarn workspace @taraxa_project/delegation worker",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
-    "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation",
+    "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation && eslint services/claim-backend",
     "postinstall": "husky install"
   },
   "lint-staged": {
@@ -33,7 +35,6 @@
     "husky": "^7.0.2"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^5.8.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-typescript-prettier": "^4.2.0",
     "eslint-import-resolver-typescript": "^2.5.0",
