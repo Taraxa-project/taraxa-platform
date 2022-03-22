@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  community-site:
+    build:
+      context: .
+      dockerfile: ./services/community-site/Dockerfile
+    image: community-site
+    ports:
+      - 3000:3000
+    volumes:
+      - ./services/community-site:/app
+    env_file:
+      - ./services/community-site/.env.local
+    depends_on:
+      - db
+      - claim-backend
+      - delegation
+  delegation:
+    build:
+      context: .
+      dockerfile: ./services/delegation/Dockerfile
+    image: delegation
+    ports:
+      - 3001:3001
+    volumes:
+      - ./services/delegation:/app
+    env_file:
+      - ./services/delegation/.env.dist
+    depends_on:
+      - db
+  claim-backend:
+    build:
+      context: .
+      dockerfile: ./services/claim-backend/Dockerfile
+    image: claim-backend
+    ports:
+      - 3002:3002
+    volumes:
+      - .:/usr/src/app
+      - /app/node_modules
+    env_file:
+      - ./services/claim-backend/.env.example
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0.23
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    env_file:
+      - ./services/claim-backend/.env.example
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    ports:
+      - 3306:3306

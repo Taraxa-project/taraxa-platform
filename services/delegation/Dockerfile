@@ -1,7 +1,7 @@
 # build environment
 FROM node:14-alpine as build
 
-RUN apk --no-cache add --update \
+RUN apk --no-cache add --update python3 make g++\
     --virtual .build_deps \
     build-base
 
