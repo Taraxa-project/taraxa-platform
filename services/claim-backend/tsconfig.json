@@ -1,5 +1,5 @@
 {
-    "compilerOptions": {
+  "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -11,13 +11,8 @@
     "baseUrl": "./",
     "incremental": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "paths": {
       "@taraxa-claim/config": ["config"],
       "@taraxa-claim/common": ["src/modules/common"],
@@ -27,6 +22,5 @@
       "@taraxa-claim/blockchain": ["src/modules/blockchain"]
     }
   },
-  "include": [".eslintrc.js"],
   "exclude": ["node_modules", "dist"]
 }
