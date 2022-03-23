@@ -35,6 +35,7 @@ WORKDIR /app
 RUN touch .env
 
 COPY package.json /app/package.json
+COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/services/claim-backend/package.json /app/services/claim-backend/
 COPY --from=build /app/services/claim-backend/node_modules /app/services/claim-backend/node_modules
 COPY --from=build /app/services/claim-backend/dist /app/services/claim-backend/dist

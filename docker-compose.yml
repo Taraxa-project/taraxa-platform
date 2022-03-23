@@ -24,7 +24,8 @@ services:
     ports:
       - 3001:3001
     volumes:
-      - ./services/delegation:/app
+      - .:/usr/src/app
+      - ./app/node_modules
     env_file:
       - ./services/delegation/.env.dist
     depends_on:
@@ -38,21 +39,22 @@ services:
       - 3002:3002
     volumes:
       - .:/usr/src/app
-      - /app/node_modules
+      - ./app/node_modules
     env_file:
       - ./services/claim-backend/.env.example
     depends_on:
       - db
   db:
     image: mysql:8.0.23
+    platform: linux/amd64
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     env_file:
-      - ./services/claim-backend/.env.example
+      - .env.compose
     environment:
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: claim
+      MYSQL_PASSWORD: mialc
+      MYSQL_DATABASE: claim
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     ports:
       - 3306:3306
