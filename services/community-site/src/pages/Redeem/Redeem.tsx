@@ -217,11 +217,7 @@ function Redeem() {
                       <TableCell className="tableCell">
                         {!row.claimed ? (
                           <Button
-                            disabled={availableToBeClaimed.lt(
-                              ethers.BigNumber.from(
-                                formatEth(roundEth(weiToEth(row.numberOfTokens))),
-                              ),
-                            )}
+                            disabled={availableToBeClaimed.toNumber() >= +row.numberOfTokens}
                             variant="outlined"
                             color="secondary"
                             onClick={() => onClaim(claims.indexOf(row))}
