@@ -42,23 +42,34 @@ function Redeem() {
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
+      setLoadingClaims(true);
       try {
-        setLoadingClaims(true);
         const data = await api.post(
           `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
           {},
         );
+        if (data.success) {
+          setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
+          setLocked(ethers.BigNumber.from(data.response.totalLocked));
+          setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
+        } else {
+          setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+          setLocked(ethers.BigNumber.from('0'));
+          setClaimed(ethers.BigNumber.from('0'));
+        }
+      } catch (error) {
+        setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+        setLocked(ethers.BigNumber.from('0'));
+        setClaimed(ethers.BigNumber.from('0'));
+      }
+
+      try {
         const claimData = await api.get(
           `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
           {},
         );
-        if (data.success) {
-          setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
-        }
-        if (claimData.success) {
-          setLocked(ethers.BigNumber.from(data.response.totalLocked));
-          setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
 
+        if (claimData.success) {
           const finalClaims = redeem.formatClaimsForTable(
             claimData.response.data,
             account,
@@ -66,12 +77,11 @@ function Redeem() {
           );
           setClaims(finalClaims);
         } else {
-          setAvailableToBeClaimed(ethers.BigNumber.from('0'));
-          setLocked(ethers.BigNumber.from('0'));
-          setClaimed(ethers.BigNumber.from('0'));
+          setClaims([]);
+          setLoadingClaims(false);
         }
-        setLoadingClaims(false);
       } catch (error) {
+        setClaims([]);
         setLoadingClaims(false);
       }
     };
