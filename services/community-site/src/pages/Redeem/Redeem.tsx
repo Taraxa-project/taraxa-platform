@@ -218,7 +218,9 @@ function Redeem() {
                         {!row.claimed ? (
                           <Button
                             disabled={availableToBeClaimed.lt(
-                              ethers.BigNumber.from(row.numberOfTokens),
+                              ethers.BigNumber.from(
+                                row.numberOfTokens === '0.0' ? '0' : row.numberOfTokens,
+                              ),
                             )}
                             variant="outlined"
                             color="secondary"
