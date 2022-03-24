@@ -217,7 +217,7 @@ function Redeem() {
                       <TableCell className="tableCell">
                         {!row.claimed ? (
                           <Button
-                            disabled={availableToBeClaimed.eq('0')}
+                            disabled={availableToBeClaimed.lt(row.numberOfTokens)}
                             variant="outlined"
                             color="secondary"
                             onClick={() => onClaim(claims.indexOf(row))}
