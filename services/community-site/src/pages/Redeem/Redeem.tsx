@@ -42,32 +42,38 @@ function Redeem() {
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
-      setLoadingClaims(true);
-      const data = await api.post(
-        `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
-        {},
-      );
-      const claimData = await api.get(
-        `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
-        {},
-      );
-      if (data.success && claimData.success) {
-        setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
-        setLocked(ethers.BigNumber.from(data.response.totalLocked));
-        setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
-
-        const finalClaims = redeem.formatClaimsForTable(
-          claimData.response.data,
-          account,
-          availableToBeClaimed,
+      try {
+        setLoadingClaims(true);
+        const data = await api.post(
+          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
+          {},
         );
-        setClaims(finalClaims);
-      } else {
-        setAvailableToBeClaimed(ethers.BigNumber.from('0'));
-        setLocked(ethers.BigNumber.from('0'));
-        setClaimed(ethers.BigNumber.from('0'));
+        const claimData = await api.get(
+          `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
+          {},
+        );
+        if (data.success) {
+          setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
+        }
+        if (claimData.success) {
+          setLocked(ethers.BigNumber.from(data.response.totalLocked));
+          setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
+
+          const finalClaims = redeem.formatClaimsForTable(
+            claimData.response.data,
+            account,
+            availableToBeClaimed,
+          );
+          setClaims(finalClaims);
+        } else {
+          setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+          setLocked(ethers.BigNumber.from('0'));
+          setClaimed(ethers.BigNumber.from('0'));
+        }
+        setLoadingClaims(false);
+      } catch (error) {
+        setLoadingClaims(false);
       }
-      setLoadingClaims(false);
     };
     if (account) {
       getClaimData(account);
