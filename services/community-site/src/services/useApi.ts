@@ -103,6 +103,20 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
     [getOptions, getUrl, getErrorResponse],
   );
 
+  const patch = useCallback(
+    async <T>(url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
+      const responseHandler = new TypedResponseHandler<T>();
+      const options = getOptions(includeToken);
+      startLoading!();
+      return axios
+        .patch<T>(getUrl(url), data, options)
+        .then((response) => responseHandler.handleResponse(response))
+        .catch((err) => getErrorResponse(err))
+        .finally(() => finishLoading!());
+    },
+    [getOptions, getUrl, getErrorResponse],
+  );
+
   const put = useCallback(
     async (url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
       const responseHandler = new RawResponseHandler();
@@ -145,11 +159,15 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
     [getOptions, getUrl, getErrorResponse],
   );
 
-  return { post, put, del, get };
+  return { post, put, patch, del, get };
 };
 
 export const useDelegationApi = () => {
   return useApi(process.env.REACT_APP_DELEGATION_API_HOST);
+};
+
+export const useClaimApi = () => {
+  return useApi(process.env.REACT_APP_API_CLAIM_HOST);
 };
 
 export default useApi;
