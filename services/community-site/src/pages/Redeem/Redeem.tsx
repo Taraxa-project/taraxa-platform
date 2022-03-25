@@ -45,7 +45,7 @@ function Redeem() {
       setLoadingClaims(true);
       try {
         const data = await api.post(
-          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
+          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${ethers.utils.getAddress(account)}`,
           {},
         );
         if (data.success) {
