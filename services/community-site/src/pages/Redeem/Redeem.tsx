@@ -43,31 +43,47 @@ function Redeem() {
   useEffect(() => {
     const getClaimData = async (account: string) => {
       setLoadingClaims(true);
-      const data = await api.post(
-        `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
-        {},
-      );
-      const claimData = await api.get(
-        `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
-        {},
-      );
-      if (data.success && claimData.success) {
-        setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
-        setLocked(ethers.BigNumber.from(data.response.totalLocked));
-        setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
-
-        const finalClaims = redeem.formatClaimsForTable(
-          claimData.response.data,
-          account,
-          availableToBeClaimed,
+      try {
+        const data = await api.post(
+          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
+          {},
         );
-        setClaims(finalClaims);
-      } else {
+        if (data.success) {
+          setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
+          setLocked(ethers.BigNumber.from(data.response.totalLocked));
+          setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
+        } else {
+          setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+          setLocked(ethers.BigNumber.from('0'));
+          setClaimed(ethers.BigNumber.from('0'));
+        }
+      } catch (error) {
         setAvailableToBeClaimed(ethers.BigNumber.from('0'));
         setLocked(ethers.BigNumber.from('0'));
         setClaimed(ethers.BigNumber.from('0'));
       }
-      setLoadingClaims(false);
+
+      try {
+        const claimData = await api.get(
+          `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
+          {},
+        );
+
+        if (claimData.success) {
+          const finalClaims = redeem.formatClaimsForTable(
+            claimData.response.data,
+            account,
+            availableToBeClaimed,
+          );
+          setClaims(finalClaims);
+        } else {
+          setClaims([]);
+          setLoadingClaims(false);
+        }
+      } catch (error) {
+        setClaims([]);
+        setLoadingClaims(false);
+      }
     };
     if (account) {
       getClaimData(account);
@@ -201,7 +217,7 @@ function Redeem() {
                       <TableCell className="tableCell">
                         {!row.claimed ? (
                           <Button
-                            disabled={availableToBeClaimed.eq('0')}
+                            disabled={availableToBeClaimed.toNumber() >= +row.numberOfTokens}
                             variant="outlined"
                             color="secondary"
                             onClick={() => onClaim(claims.indexOf(row))}
