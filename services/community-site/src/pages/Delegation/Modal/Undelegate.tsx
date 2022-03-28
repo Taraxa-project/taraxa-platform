@@ -28,10 +28,13 @@ const Undelegate = ({
 
   const delegationApi = useDelegationApi();
   const { account } = useMetaMask();
+  const checksumAccount = ethers.utils.getAddress(account || '');
   const sign = useSigning();
 
   const getBalance = async () => {
-    const balance = await delegationApi.get(`/delegations/${account}/balances/${validatorId}`);
+    const balance = await delegationApi.get(
+      `/delegations/${checksumAccount}/balances/${validatorId}`,
+    );
     setTotalDelegation(balance.response.undelegatable);
   };
 
@@ -53,7 +56,7 @@ const Undelegate = ({
 
     const nonce = await delegationApi.post(
       '/undelegations/nonces',
-      { from: account, node: validatorId },
+      { from: checksumAccount, node: validatorId },
       true,
     );
 
@@ -61,7 +64,7 @@ const Undelegate = ({
 
     const result = await delegationApi.post(
       '/undelegations',
-      { proof, from: account, value: delegationNumber, node: validatorId },
+      { proof, from: checksumAccount, value: delegationNumber, node: validatorId },
       true,
     );
 
