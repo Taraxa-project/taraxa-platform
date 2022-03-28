@@ -186,10 +186,60 @@
 
   .noProfile {
     text-align: center;
+    padding: 40px 0 32px;
+  }
+  .marginButton {
+    margin-top: 16px;
+    width: 250px;
   }
   .nodeProfile {
+    & > div {
+      display: flex;
+    }
+
     a {
       color: #48bdff;
+    }
+
+    .nodeProfileInfo {
+      flex: 1 0 auto;
+    }
+
+    .nodeProfileNodesInfo {
+      flex: 0 1 auto;
+
+      .referenceButton {
+        width: 100%;
+      }
+    }
+
+    .userNodeInfo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 11px 11px;
+
+      .boxLegend {
+        width: 150px;
+        font-family: 'Inter';
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 18px;
+        color: #ffffff;
+      }
+    }
+
+    .userNameIcon {
+      display: flex;
+      align-items: center;
+
+      svg {
+        border-radius: 50%;
+      }
+
+      .profileTitle {
+        margin-left: 24px;
+      }
     }
   }
   .nodeTypes {

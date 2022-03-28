@@ -11,6 +11,8 @@ import {
   Text,
   Button,
   Card,
+  ProfileIcon,
+  AmountCard,
 } from '@taraxa_project/taraxa-ui';
 
 import {
@@ -169,6 +171,8 @@ const RunNode = () => {
   const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
 
   const [nodes, setNodes] = useState<OwnNode[]>([]);
+  const [mainnetNodes, setMainnetNodes] = useState<OwnNode[]>([]);
+  const [testnetNodes, setTestnetNodes] = useState<OwnNode[]>([]);
   const [blocksProduced, setBlocksProduced] = useState('0');
   const [weeklyRating, setWeeklyRating] = useState('N/A');
   const [profile, setProfile] = useState<Profile | undefined>(undefined);
@@ -194,6 +198,13 @@ const RunNode = () => {
     if (!isLoggedIn) {
       return;
     }
+
+    const testnetNodesRequest = await delegationApi.get(`/nodes?type=testnet`, true);
+    const mainnetNodesRequest = await delegationApi.get(`/nodes?type=mainnet`, true);
+    if (testnetNodesRequest.success) setTestnetNodes(testnetNodesRequest.response);
+    else setTestnetNodes([]);
+    if (mainnetNodesRequest.success) setMainnetNodes(mainnetNodesRequest.response);
+    else setMainnetNodes([]);
 
     const data = await delegationApi.get(`/nodes?type=${nodeType}`, true);
     if (!data.success) {
@@ -361,49 +372,75 @@ const RunNode = () => {
         {isLoggedIn &&
           (profile ? (
             <Card className="nodeProfile">
-              <Text
-                label={auth.user!.username}
-                variant="h5"
-                color="primary"
-                className="profileTitle"
-              />
-              {profile.description && (
-                <>
+              <div className="nodeProfileInfo">
+                <div className="userNameIcon">
+                  <ProfileIcon title={auth.user!.username} size={40} />
                   <Text
-                    label="Description"
-                    variant="h6"
+                    label={auth.user!.username}
+                    variant="h5"
                     color="primary"
-                    className="profileSubtitle"
+                    className="profileTitle"
                   />
-                  <p>{profile.description}</p>
-                </>
-              )}
-              {profile.website && (
-                <>
-                  <Text label="Website" variant="h6" color="primary" className="profileSubtitle" />
-                  <p>
-                    <a href={profile.website} rel="noreferrer" target="_blank">
-                      {profile.website}
-                    </a>
-                  </p>
-                </>
-              )}
-              {profile.social && (
-                <>
-                  <Text label="Social" variant="h6" color="primary" className="profileSubtitle" />
-                  <p>
-                    <a href={profile.social} rel="noreferrer" target="_blank">
-                      {profile.social}
-                    </a>
-                  </p>
-                </>
-              )}
-              <Button
-                label="Update profile"
-                className="referenceButton"
-                variant="contained"
-                onClick={() => setIsEditingProfile(true)}
-              />
+                </div>
+                {profile.description && (
+                  <>
+                    <Text
+                      label="Description"
+                      variant="h6"
+                      color="primary"
+                      className="profileSubtitle"
+                    />
+                    <p>{profile.description}</p>
+                  </>
+                )}
+                {profile.website && (
+                  <>
+                    <Text
+                      label="Website"
+                      variant="h6"
+                      color="primary"
+                      className="profileSubtitle"
+                    />
+                    <p>
+                      <a href={profile.website} rel="noreferrer" target="_blank">
+                        {profile.website}
+                      </a>
+                    </p>
+                  </>
+                )}
+                {profile.social && (
+                  <>
+                    <Text label="Social" variant="h6" color="primary" className="profileSubtitle" />
+                    <p>
+                      <a href={profile.social} rel="noreferrer" target="_blank">
+                        {profile.social}
+                      </a>
+                    </p>
+                  </>
+                )}
+              </div>
+              <div className="nodeProfileNodesInfo">
+                <div className="userNodeInfo">
+                  <AmountCard unit="Mainnet nodes" amount={mainnetNodes.length.toString()} />
+                  <AmountCard unit="Testnet nodes" amount={testnetNodes.length.toString()} />
+                  <AmountCard
+                    unit="TARA"
+                    amount={mainnetNodes.reduce((a, b) => a + b.totalDelegation, 0).toString()}
+                  />
+                  <AmountCard
+                    unit="TARA"
+                    amount={mainnetNodes.reduce((a, b) => a + b.remainingDelegation, 0).toString()}
+                  />
+                  <div className="boxLegend">Delegation received on mainnet</div>
+                  <div className="boxLegend">Open delegation on mainnet</div>
+                </div>
+                <Button
+                  label="Update profile"
+                  className="referenceButton"
+                  variant="contained"
+                  onClick={() => setIsEditingProfile(true)}
+                />
+              </div>
             </Card>
           ) : (
             <Card className="noProfile">
