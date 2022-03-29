@@ -191,6 +191,21 @@ const RunNode = () => {
   }, [isLoggedIn]);
 
   useEffect(() => {
+    delegationApi
+      .get(`/nodes?type=testnet`, true)
+      .then((r) => {
+        if (r.success) setTestnetNodes(r.response);
+      })
+      .catch(() => setTestnetNodes([]));
+    delegationApi
+      .get(`/nodes?type=mainnet`, true)
+      .then((r) => {
+        if (r.success) setMainnetNodes(r.response);
+      })
+      .catch(() => setMainnetNodes([]));
+  }, []);
+
+  useEffect(() => {
     getProfile();
   }, [getProfile]);
 
@@ -198,13 +213,6 @@ const RunNode = () => {
     if (!isLoggedIn) {
       return;
     }
-
-    const testnetNodesRequest = await delegationApi.get(`/nodes?type=testnet`, true);
-    const mainnetNodesRequest = await delegationApi.get(`/nodes?type=mainnet`, true);
-    if (testnetNodesRequest.success) setTestnetNodes(testnetNodesRequest.response);
-    else setTestnetNodes([]);
-    if (mainnetNodesRequest.success) setMainnetNodes(mainnetNodesRequest.response);
-    else setMainnetNodes([]);
 
     const data = await delegationApi.get(`/nodes?type=${nodeType}`, true);
     if (!data.success) {
