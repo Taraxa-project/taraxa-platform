@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useMediaQuery } from 'react-responsive';
-import { useMetaMask } from 'metamask-react';
 
 import {
   Modal,
@@ -36,6 +35,7 @@ import { useAuth } from '../../services/useAuth';
 import Title from '../../components/Title/Title';
 
 import './staking.scss';
+import useCMetamask from '../../services/useCMetamask';
 
 interface StakingModalProps {
   isSuccess: boolean;
@@ -131,7 +131,7 @@ function StakingModal({
 }
 
 function StakingNotifications() {
-  const { status } = useMetaMask();
+  const { status } = useCMetamask();
   const auth = useAuth();
   return (
     <>
@@ -231,8 +231,7 @@ function Stake({
   lockingPeriod,
   setTransactionHash,
 }: StakeProps) {
-  const { account, status } = useMetaMask();
-  const checksumAccount = ethers.utils.getAddress(account || '');
+  const { account, status } = useCMetamask();
   const auth = useAuth();
 
   const token = useToken();
@@ -277,7 +276,7 @@ function Stake({
         return;
       }
 
-      const currentStake = await staking.stakeOf(checksumAccount);
+      const currentStake = await staking.stakeOf(account);
 
       const currentStakeBalance = currentStake[0];
       let currentStakeStartDate = currentStake[1].toNumber();
@@ -353,10 +352,7 @@ function Stake({
       return;
     }
 
-    const allowance = await token.allowance(
-      checksumAccount,
-      process.env.REACT_APP_STAKING_ADDRESS!,
-    );
+    const allowance = await token.allowance(account, process.env.REACT_APP_STAKING_ADDRESS!);
 
     if (value.gt(allowance)) {
       setIsApprove(true);
@@ -550,8 +546,7 @@ function Stake({
 }
 
 function Staking() {
-  const { account } = useMetaMask();
-  const checksumAccount = ethers.utils.getAddress(account || '');
+  const { account } = useCMetamask();
   const token = useToken();
   const staking = useStaking();
 
@@ -580,7 +575,7 @@ function Staking() {
         return;
       }
 
-      const balance = await token.balanceOf(checksumAccount);
+      const balance = await token.balanceOf(account);
       setTokenBalance(balance);
       setToStake(balance);
       setStakeInput(formatEth(weiToEth(balance)));

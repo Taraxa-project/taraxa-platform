@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import { useMetaMask } from 'metamask-react';
 import { useMemo } from 'react';
+import useCMetamask from './useCMetamask';
 
 function useChain() {
-  const { chainId, ethereum } = useMetaMask();
+  const { chainId, ethereum } = useCMetamask();
 
   const provider = useMemo(() => {
     let provider;

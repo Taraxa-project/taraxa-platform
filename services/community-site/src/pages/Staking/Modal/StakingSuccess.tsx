@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button, Text } from '@taraxa_project/taraxa-ui';
-import { useMetaMask } from 'metamask-react';
 
 import SuccessIcon from '../../../assets/icons/success';
 import LockIcon from '../../../assets/icons/lock';
+import useCMetamask from '../../../services/useCMetamask';
 
 interface StakingSuccessProps {
   lockingPeriod: string;
@@ -12,7 +12,7 @@ interface StakingSuccessProps {
 }
 
 const StakingSuccess = ({ lockingPeriod, transactionHash, onSuccess }: StakingSuccessProps) => {
-  const { chainId: hexChainId } = useMetaMask();
+  const { chainId: hexChainId } = useCMetamask();
 
   let chainId = 1;
   if (hexChainId !== null) {
