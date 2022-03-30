@@ -23,6 +23,18 @@ const useStyles = makeStyles({
     marginTop: '13px',
     marginBottom: '22px',
   },
+  descriptionLegend: {
+    marginTop: '38px',
+    marginBottom: '38px',
+    fontSize: '16px',
+    lineHeight: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    textAlign: 'center',
+    color: '#878CA4',
+    paddingTop: '12.5px',
+    paddingBottom: '12.5px',
+  },
   title: {
     marginBottom: '5%',
     fontWeight: 700,
