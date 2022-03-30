@@ -12,7 +12,6 @@ import {
   TableRow,
 } from '@material-ui/core';
 
-import { useMetaMask } from 'metamask-react';
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
 import PublicNode from '../../interfaces/PublicNode';
@@ -20,11 +19,12 @@ import PublicNode from '../../interfaces/PublicNode';
 import Title from '../../components/Title/Title';
 import Modals from './Modal/Modals';
 import NodeRow from './Table/NodeRow';
+import useCMetamask from '../../services/useCMetamask';
 
 import './delegation.scss';
 
 const Delegation = () => {
-  const { status, account } = useMetaMask();
+  const { status, account } = useCMetamask();
   const auth = useAuth();
   const location = useLocation();
   const delegationApi = useDelegationApi();

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useMetaMask } from 'metamask-react';
 import { ethers } from 'ethers';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 import { useDelegationApi } from '../../../services/useApi';
 import useSigning from '../../../services/useSigning';
+import useCMetamask from '../../../services/useCMetamask';
 
 type UndelegateProps = {
   validatorId: number;
@@ -27,7 +27,7 @@ const Undelegate = ({
   const [error, setError] = useState('');
 
   const delegationApi = useDelegationApi();
-  const { account } = useMetaMask();
+  const { account } = useCMetamask();
   const sign = useSigning();
 
   const getBalance = async () => {

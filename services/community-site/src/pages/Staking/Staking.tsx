@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
-import { useMetaMask } from 'metamask-react';
 
 import {
   Modal,
@@ -39,6 +38,7 @@ import { useAuth } from '../../services/useAuth';
 import Title from '../../components/Title/Title';
 
 import './staking.scss';
+import useCMetamask from '../../services/useCMetamask';
 
 interface StakingModalProps {
   isSuccess: boolean;
@@ -134,7 +134,7 @@ function StakingModal({
 }
 
 function StakingNotifications() {
-  const { status } = useMetaMask();
+  const { status } = useCMetamask();
   const auth = useAuth();
   return (
     <>
@@ -234,7 +234,7 @@ function Stake({
   lockingPeriod,
   setTransactionHash,
 }: StakeProps) {
-  const { account, status } = useMetaMask();
+  const { account, status } = useCMetamask();
   const auth = useAuth();
   const history = useHistory();
   const delegationApi = useDelegationApi();
@@ -608,7 +608,7 @@ function Stake({
 }
 
 function Staking() {
-  const { account } = useMetaMask();
+  const { account } = useCMetamask();
   const token = useToken();
   const staking = useStaking();
 

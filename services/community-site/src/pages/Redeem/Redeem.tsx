@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { BaseCard, Button, Loading, Notification } from '@taraxa_project/taraxa-ui';
-import { useMetaMask } from 'metamask-react';
 
 import {
   Table,
@@ -23,9 +22,10 @@ import useApi from '../../services/useApi';
 import Title from '../../components/Title/Title';
 
 import './redeem.scss';
+import useCMetamask from '../../services/useCMetamask';
 
 function Redeem() {
-  const { status, account } = useMetaMask();
+  const { status, account } = useCMetamask();
   const token = useToken();
   const claim = useClaim();
   const api = useApi();
