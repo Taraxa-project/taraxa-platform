@@ -324,3 +324,28 @@ workflows:
                 - develop
           context:
             - K8S
+  claim-backend:
+    when:
+      or:
+        - << pipeline.parameters.run-claim-backend-service-workflow >>
+    jobs:
+      - build-claim-backend:
+        filters:
+          branches:
+            only:
+              - main
+              - develop
+        context:
+          - TARAXA
+          - DOCKERHUB
+          - GCR
+    - deploy-claim-backend:
+      requires:
+        - build-claim-backend
+      filters:
+        branches:
+          only:
+            - main
+            - develop
+      context:
+        - K8S
