@@ -339,13 +339,13 @@ workflows:
           - TARAXA
           - DOCKERHUB
           - GCR
-    - deploy-claim-backend:
-      requires:
-        - build-claim-backend
-      filters:
-        branches:
-          only:
-            - main
-            - develop
-      context:
-        - K8S
+      - deploy-claim-backend:
+        requires:
+          - build-claim-backend
+        filters:
+          branches:
+            only:
+              - main
+              - develop
+        context:
+          - K8S
