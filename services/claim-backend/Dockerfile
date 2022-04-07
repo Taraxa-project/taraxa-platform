@@ -7,11 +7,12 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json yarn.lock ./
+COPY services/claim-backend/package.json /app/services/claim-backend/
 
 RUN yarn install --frozen-lockfile \
     && yarn cache clean
 
-COPY . ./
+COPY . /app
 RUN yarn workspace @taraxa_project/taraxa-claim-backend build
 
 # Production image
