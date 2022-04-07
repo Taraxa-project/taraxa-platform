@@ -1,4 +1,4 @@
-FROM node:15.9.0-alpine@sha256:cc297dd721c188677e2aa5cca41986b8ac4b3486b68adcda42b5ae6b3feaea75 AS build
+FROM node:16.10.0-alpine@sha256:428c390cd260634e809865d15706a11274cbebff7002bd9975871132c1454bed AS build
 
 ARG NODE_ENV=prod
 
@@ -21,7 +21,7 @@ RUN ENV=prod yarn build
 # Failure to do this might result in using a different image
 # Tags are not 100% reliable
 
-FROM node:15.9.0-alpine@sha256:cc297dd721c188677e2aa5cca41986b8ac4b3486b68adcda42b5ae6b3feaea75 AS release
+FROM node:16.10.0-alpine@sha256:428c390cd260634e809865d15706a11274cbebff7002bd9975871132c1454bed AS release
 
 ARG NODE_ENV
 ENV NODE_ENV=${NODE_ENV}
