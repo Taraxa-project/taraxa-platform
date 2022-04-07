@@ -65,7 +65,7 @@ function Redeem() {
 
       try {
         const claimData = await api.get(
-          `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
+          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/claims/${account}`,
           {},
         );
 
