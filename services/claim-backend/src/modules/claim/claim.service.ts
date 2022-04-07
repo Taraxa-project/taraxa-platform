@@ -166,7 +166,8 @@ export class ClaimService {
         }
       }
     } catch (error) {
-      throw new InternalServerErrorException();
+      const err = error as Error;
+      throw new InternalServerErrorException(err.message);
     }
     const accountData = await this.accountRepository.findOne({ address });
     if (accountData) {
