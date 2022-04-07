@@ -1,0 +1,21 @@
+app:
+  environment: prod
+  claimContractAddress: '0xf142EB87f0A5C480C8b573c3e5279043822AC10B'
+  provider: 'https://mainnet.infura.io/v3/1c60d8f404244a1fbafdd6131f01f9d2'
+
+  dbHost: 10.39.113.2
+
+image:
+  repository: taraxa/claim-backend
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-prod
+
+ingress:
+  enabled: true
+  hosts:
+    - host: api.claim.taraxa.io
+  tls:
+    - secretName: wild-claim-taraxa-io-tls
+      hosts:
+        - api.claim.taraxa.io
