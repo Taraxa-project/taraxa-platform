@@ -2,12 +2,10 @@ FROM node:16.13.1-alpine@sha256:a7cab437ba7f3cd405cf6d6446a0e944aabd7d5c4573fc24
 
 ARG NODE_ENV=prod
 
-RUN apk --no-cache add --update python3 make g++\
-    --virtual .build_deps \
-    build-base
+RUN apk --no-cache add --update \
+    --virtual python git build-base
 
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json yarn.lock ./
 
@@ -17,8 +15,8 @@ COPY services/claim-backend/package.json /app/services/claim-backend/
 RUN yarn install --frozen-lockfile \
     && yarn cache clean
 
-COPY . /app
-RUN ENV=prod yarn claim-build
+COPY . ./
+RUN yarn workspace @taraxa_project/taraxa-claim-backend build
 
 # Production image
 # Make sure you always lock to the correct sha256
@@ -40,4 +38,4 @@ COPY --from=build /app/services/claim-backend/package.json /app/services/claim-b
 COPY --from=build /app/services/claim-backend/node_modules /app/services/claim-backend/node_modules
 COPY --from=build /app/services/claim-backend/dist /app/services/claim-backend/dist
 
-CMD [ "yarn", "claim-start:prod" ]
+CMD ["yarn", "workspace", "@taraxa_project/taraxa-claim-backend", "start"]

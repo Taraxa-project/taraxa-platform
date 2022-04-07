@@ -253,9 +253,9 @@ jobs:
               export HELM_CONFIG=qa.values.yaml
             fi
 
-            helm upgrade -i ${HELM_NAME} services/claim-backend/charts/claim-api/ \
+            helm upgrade -i ${HELM_NAME} services/claim-backend/charts/claim-backend/ \
               --namespace ${NS} \
-              -f services/claim-backend/charts/claim-api/values.yaml \
+              -f services/claim-backend/charts/claim-backend/values.yaml \
               -f services/claim-backend/charts/${HELM_CONFIG} \
               --set image.tag=${VERSION}
 workflows:
@@ -317,6 +317,31 @@ workflows:
       - deploy-delegation:
           requires:
             - build-delegation
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - K8S
+  claim-backend:
+    when:
+      or:
+        - << pipeline.parameters.run-claim-backend-service-workflow >>
+    jobs:
+      - build-claim-backend:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+      - deploy-claim-backend:
+          requires:
+            - build-claim-backend
           filters:
             branches:
               only:

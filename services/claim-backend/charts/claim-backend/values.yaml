@@ -1,4 +1,4 @@
-# Default values for claim-api.
+# Default values for claim-backend.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -18,7 +18,7 @@ app:
   dbName: claim
 
 image:
-  repository: gcr.io/jovial-meridian-249123/taraxa-claim-api-main
+  repository: taraxa/claim-backend
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ''
