@@ -300,7 +300,7 @@ workflows:
             - TARAXA
             - DOCKERHUB
   delegation:
-    when: 
+    when:
       or:
         - << pipeline.parameters.run-delegation-service-workflow >>
     jobs:
@@ -325,7 +325,7 @@ workflows:
           context:
             - K8S
   claim-backend:
-    when: 
+    when:
       or:
         - << pipeline.parameters.run-claim-backend-service-workflow >>
     jobs:
