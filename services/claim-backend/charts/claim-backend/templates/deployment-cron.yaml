@@ -1,18 +1,17 @@
+{{- $fullName := include "claim-backend.fullname" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "claim-api.fullname" . }}
+  name: {{ $fullName }}-cron
   labels:
-    {{- include "claim-api.labels" . | nindent 4 }}
+    {{- include "claim-backend-cron.labels" . | nindent 4 }}
   annotations:
     checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "claim-api.selectorLabels" . | nindent 6 }}
+      {{- include "claim-backend-cron.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -20,30 +19,27 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "claim-api.selectorLabels" . | nindent 8 }}
+        {{- include "claim-backend-cron.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "claim-api.serviceAccountName" . }}
+      serviceAccountName: {{ include "claim-backend.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-cron
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "claim-api.fullname" . }}
+                name: {{ include "claim-backend.fullname" . }}
             - secretRef:
-                name: {{ include "claim-api.fullname" . }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.app.serverPort }}
-              protocol: TCP
+                name: {{ include "claim-backend.fullname" . }}
+          command: ["yarn", "start-cron:prod"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

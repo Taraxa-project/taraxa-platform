@@ -1,15 +1,15 @@
-{{- $fullName := include "claim-api.fullname" . -}}
+{{- $fullName := include "claim-backend.fullname" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $fullName }}-db-proxy
   labels:
-    {{- include "claim-api-db.labels" . | nindent 4 }}
+    {{- include "claim-backend-db.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "claim-api-db.selectorLabels" . | nindent 6 }}
+      {{- include "claim-backend-db.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -17,9 +17,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "claim-api-db.selectorLabels" . | nindent 8 }}
+        {{- include "claim-backend-db.selectorLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ include "claim-api.serviceAccountName" . }}
+      serviceAccountName: {{ include "claim-backend.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
