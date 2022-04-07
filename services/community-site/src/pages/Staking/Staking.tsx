@@ -247,6 +247,9 @@ function Stake({
   const [canClaimStake, setCanClaimStake] = useState(false);
   const [currentStakeStartDate, setCurrentStakeStartDate] = useState<Date | null>(null);
   const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(null);
+  const [unDelegatedStake, setUndelegatedStake] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from('0'),
+  );
   const [reward, setReward] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
 
   const [stakeInputError, setStakeInputError] = useState<string | null>(null);
@@ -288,6 +291,16 @@ function Stake({
           }
         });
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (account) {
+      delegationApi.get(`/delegations/${account}/balances`, isLoggedIn).then((data) => {
+        if (data.success) {
+          setUndelegatedStake(ethers.BigNumber.from(data.response.remaining));
+        }
+      });
+    }
+  }, [account]);
 
   useEffect(() => {
     const getStakedBalance = async () => {
@@ -438,10 +451,6 @@ function Stake({
 
     resetStake();
   };
-
-  const unDelegatedStake = currentStakeBalance.sub(
-    ethers.utils.parseUnits(delegators.reduce((a, d) => a + (d.ownDelegation || 0), 0).toString()),
-  );
 
   const stakeInputField = (
     <InputField
