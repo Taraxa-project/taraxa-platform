@@ -32,4 +32,4 @@ COPY --from=build /app/services/claim-backend/package.json /app/services/claim-b
 COPY --from=build /app/services/claim-backend/node_modules /app/services/claim-backend/node_modules
 COPY --from=build /app/services/claim-backend/dist /app/services/claim-backend/dist
 
-CMD ["yarn", "workspace", "@taraxa_project/taraxa-claim-backend", "start"]
+CMD ["yarn", "workspace", "@taraxa_project/taraxa-claim-backend", "start:prod"]
