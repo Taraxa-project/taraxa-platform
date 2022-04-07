@@ -18,7 +18,7 @@ app:
   dbName: claim
 
 image:
-  repository: gcr.io/jovial-meridian-249123/taraxa-claim-backend
+  repository: taraxa/claim-backend
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ''

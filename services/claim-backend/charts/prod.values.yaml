@@ -6,7 +6,7 @@ app:
   dbHost: 10.39.113.2
 
 image:
-  repository: gcr.io/jovial-meridian-249123/taraxa-claim-backend
+  repository: taraxa/claim-backend
 
 nodeSelector:
   cloud.google.com/gke-nodepool: taraxa-community-prod
