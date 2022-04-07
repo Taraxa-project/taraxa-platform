@@ -5,6 +5,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
   UseGuards,
   UseInterceptors,
@@ -94,9 +95,28 @@ export class ClaimController {
   @Post(':account')
   async createClaimAccount(
     @Param('account') account: string,
-  ): Promise<Partial<AccountClaimEntity>> {
+  ): Promise<Partial<ClaimEntity>> {
     try {
       return await this.claimService.createClaim(account);
+    } catch (e) {
+      const error = (e || {}).name || '';
+      const message = (e || {}).message || '';
+      if (error === 'EntityNotFound') {
+        throw new NotFoundException();
+      } else {
+        throw new BadRequestException(message);
+      }
+    }
+  }
+  @ApiCreatedResponse({ description: 'Claim details' })
+  @ApiNotFoundResponse({ description: 'Claim not found' })
+  @ApiBadRequestResponse({ description: 'No tokens to claim' })
+  @Patch(':id')
+  async patchClaim(
+    @Param('id') id: number,
+  ): Promise<Partial<AccountClaimEntity>> {
+    try {
+      return await this.claimService.patchClaim(id);
     } catch (e) {
       const error = (e || {}).name || '';
       const message = (e || {}).message || '';
