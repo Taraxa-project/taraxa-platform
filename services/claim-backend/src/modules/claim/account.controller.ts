@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -72,10 +71,6 @@ export class AccountController {
   async getAccount(
     @Param('account') account: string,
   ): Promise<Partial<AccountEntity>> {
-    try {
-      return await this.claimService.account(account);
-    } catch (e) {
-      throw new NotFoundException();
-    }
+    return await this.claimService.account(account);
   }
 }
