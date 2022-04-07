@@ -1,11 +1,10 @@
 FROM node:16.10.0-alpine AS build
 
-ARG NODE_ENV=prod
-
 RUN apk --no-cache add --update \
     --virtual python git build-base
 
 WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json yarn.lock ./
 
@@ -21,9 +20,6 @@ RUN yarn workspace @taraxa_project/taraxa-claim-backend build
 # Tags are not 100% reliable
 
 FROM node:16.10.0-alpine AS release
-
-ARG NODE_ENV
-ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app
 
