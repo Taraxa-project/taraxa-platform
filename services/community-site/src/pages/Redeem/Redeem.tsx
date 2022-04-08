@@ -49,9 +49,9 @@ function Redeem() {
           {},
         );
         if (data.success) {
-          setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
-          setLocked(ethers.BigNumber.from(data.response.totalLocked));
-          setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
+          setAvailableToBeClaimed(ethers.BigNumber.from(`${data.response.availableToBeClaimed}`));
+          setLocked(ethers.BigNumber.from(`${data.response.totalLocked}`));
+          setClaimed(ethers.BigNumber.from(`${data.response.totalClaimed}`));
         } else {
           setAvailableToBeClaimed(ethers.BigNumber.from('0'));
           setLocked(ethers.BigNumber.from('0'));
