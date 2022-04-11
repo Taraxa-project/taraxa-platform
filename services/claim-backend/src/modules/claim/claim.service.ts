@@ -1,6 +1,6 @@
-import parse from 'csv-parse/lib/sync';
-import ethUtil from 'ethereumjs-util';
-import abi from 'ethereumjs-abi';
+import * as parse from 'csv-parse/lib/sync';
+import * as ethUtil from 'ethereumjs-util';
+import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { In, LessThan, Repository } from 'typeorm';
 import {
