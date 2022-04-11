@@ -214,8 +214,6 @@ function Redeem() {
                   return (
                     <TableRow className="tableRow" key={ind}>
                       <TableCell className="tableCell">
-                        {/* eslint-disable-next-line no-console */}
-                        {console.log(row.numberOfTokens)}
                         {formatEth(roundEth(weiToEth(row.numberOfTokens)))}
                       </TableCell>
                       <TableCell className="tableCell">
