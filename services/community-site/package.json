@@ -36,6 +36,7 @@
     "react-scripts": "4.0.3",
     "remark-gfm": "^3.0.0",
     "state-pool": "^0.6.0",
+    "styled-components": "^5.3.5",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1"
   },
@@ -66,6 +67,9 @@
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
     "@types/date-and-time": "^0.13.0"
+  },
+  "resolutions": {
+    "styled-components": "^5"
   },
   "browser": {
     "zlib": false
