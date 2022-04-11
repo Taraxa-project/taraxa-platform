@@ -4,6 +4,7 @@
     "rootDir": ".",
     "outDir": "./build",
     "baseUrl": ".",
+    "target": "es6",
     "sourceMap": true,
     "composite": true,
     "declaration": true,

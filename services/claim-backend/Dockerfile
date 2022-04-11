@@ -9,6 +9,9 @@ ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json yarn.lock ./
 COPY services/claim-backend/package.json /app/services/claim-backend/
 
+COPY package.json yarn.lock /app/
+COPY services/claim-backend/package.json /app/services/claim-backend/
+
 RUN yarn install --frozen-lockfile \
     && yarn cache clean
 
