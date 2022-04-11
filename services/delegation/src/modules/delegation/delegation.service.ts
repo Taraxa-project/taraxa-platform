@@ -378,6 +378,17 @@ export class DelegationService {
     }
   }
 
+  async rebalanceMainnet() {
+    const ownNodes = await this.getOwnNodes('mainnet');
+
+    for (const node of ownNodes) {
+      await this.ensureMainnetDelegation(
+        node,
+        ethers.BigNumber.from(this.maxDelegationPerNode),
+      );
+    }
+  }
+
   async getDelegators() {
     const d = this.delegationRepository
       .createQueryBuilder('d')

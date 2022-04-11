@@ -6,6 +6,7 @@ import Submission from './Submission';
 import Attachment from './Attachment';
 import Submit from './Submit';
 import Trophy from './Trophy';
+import Exclamation from './Exclamation';
 
 export {
   Left,
@@ -16,6 +17,7 @@ export {
   Attachment,
   Submit,
   Trophy,
+  Exclamation,
 };
 export default {
   Left,
@@ -26,4 +28,5 @@ export default {
   Attachment,
   Submit,
   Trophy,
+  Exclamation,
 };

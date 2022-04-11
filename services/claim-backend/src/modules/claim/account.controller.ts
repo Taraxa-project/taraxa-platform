@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -24,6 +23,7 @@ import {
   CollectionResponse,
 } from '@taraxa-claim/common';
 import { AccountEntity } from './entity/account.entity';
+import { ClaimEntity } from './entity/claim.entity';
 
 @ApiTags('accounts')
 @Controller('accounts')
@@ -72,10 +72,19 @@ export class AccountController {
   async getAccount(
     @Param('account') account: string,
   ): Promise<Partial<AccountEntity>> {
-    try {
-      return await this.claimService.account(account);
-    } catch (e) {
-      throw new NotFoundException();
-    }
+    return await this.claimService.account(account);
+  }
+  @ApiOkResponse({ description: 'List of claims' })
+  @ApiUnauthorizedResponse({ description: 'You need a valid token' })
+  @ApiNotFoundResponse({ description: 'Claim not found' })
+  @Get('/claims/:account')
+  async getClaimOfAccount(
+    @Param('account') account: string,
+  ): Promise<CollectionResponse<ClaimEntity>> {
+    return this.claimService.claims({
+      filter: { address: account },
+      range: [0, 100],
+      sort: ['createdAt', 'DESC'],
+    } as QueryDto);
   }
 }

@@ -2,23 +2,30 @@ import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles({
   container: {
-    borderLeft: '3px solid #878CA4',
-    paddingLeft: '24px',
+    padding: '12px 12px 12px 0',
+    borderRadius: '8px',
+    display: 'flex',
+  },
+  icon: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '0 27px',
   },
   success: {
-    borderLeftColor: '#15ac5b',
+    backgroundColor: '#1E2231',
+    color: '#878CA4',
   },
   danger: {
-    borderLeftColor: '#ff515a',
+    backgroundColor: 'rgba(255, 81, 90, 0.1)',
   },
   info: {
-    borderLeftColor: '#48BDFF',
+    backgroundColor: 'rgba(72, 189, 255, 0.1)',
   },
   title: {
-    fontSize: '20px',
+    fontSize: '16px',
     fontWeight: 700,
     lineHeight: '26px',
-    marginBottom: '12px',
   },
   text: {
     fontSize: '16px',

@@ -1,10 +1,10 @@
 import React from 'react';
-import { useMetaMask } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
 import { Button, Text } from '@taraxa_project/taraxa-ui';
+import useCMetamask from '../services/useCMetamask';
 
 const Wallet = () => {
-  const { status, account, connect } = useMetaMask();
+  const { status, account, connect } = useCMetamask();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   if (status === 'notConnected') {

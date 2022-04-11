@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { BaseCard, Button, Loading, Notification } from '@taraxa_project/taraxa-ui';
-import { useMetaMask } from 'metamask-react';
 
 import {
   Table,
@@ -23,9 +22,10 @@ import useApi from '../../services/useApi';
 import Title from '../../components/Title/Title';
 
 import './redeem.scss';
+import useCMetamask from '../../services/useCMetamask';
 
 function Redeem() {
-  const { status, account } = useMetaMask();
+  const { status, account } = useCMetamask();
   const token = useToken();
   const claim = useClaim();
   const api = useApi();
@@ -45,13 +45,13 @@ function Redeem() {
       setLoadingClaims(true);
       try {
         const data = await api.post(
-          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
+          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${ethers.utils.getAddress(account)}`,
           {},
         );
         if (data.success) {
-          setAvailableToBeClaimed(ethers.BigNumber.from(data.response.availableToBeClaimed));
-          setLocked(ethers.BigNumber.from(data.response.totalLocked));
-          setClaimed(ethers.BigNumber.from(data.response.totalClaimed));
+          setAvailableToBeClaimed(ethers.BigNumber.from(`${data.response.availableToBeClaimed}`));
+          setLocked(ethers.BigNumber.from(`${data.response.totalLocked}`));
+          setClaimed(ethers.BigNumber.from(`${data.response.totalClaimed}`));
         } else {
           setAvailableToBeClaimed(ethers.BigNumber.from('0'));
           setLocked(ethers.BigNumber.from('0'));
@@ -65,10 +65,9 @@ function Redeem() {
 
       try {
         const claimData = await api.get(
-          `${process.env.REACT_APP_API_CLAIM_HOST}/claims/accounts/${account}`,
+          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/claims/${account}`,
           {},
         );
-
         if (claimData.success) {
           const finalClaims = redeem.formatClaimsForTable(
             claimData.response.data,
@@ -217,7 +216,9 @@ function Redeem() {
                       <TableCell className="tableCell">
                         {!row.claimed ? (
                           <Button
-                            disabled={availableToBeClaimed.toNumber() >= +row.numberOfTokens}
+                            disabled={availableToBeClaimed.lt(
+                              BigNumber.from(ethers.utils.parseUnits(row.numberOfTokens, 18)),
+                            )}
                             variant="outlined"
                             color="secondary"
                             onClick={() => onClaim(claims.indexOf(row))}

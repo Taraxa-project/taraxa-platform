@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { Notification, BaseCard, Switch, Text, Icons, Card } from '@taraxa_project/taraxa-ui';
 
@@ -11,7 +12,6 @@ import {
   TableRow,
 } from '@material-ui/core';
 
-import { useMetaMask } from 'metamask-react';
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
 import PublicNode from '../../interfaces/PublicNode';
@@ -19,17 +19,24 @@ import PublicNode from '../../interfaces/PublicNode';
 import Title from '../../components/Title/Title';
 import Modals from './Modal/Modals';
 import NodeRow from './Table/NodeRow';
+import useCMetamask from '../../services/useCMetamask';
 
 import './delegation.scss';
 
 const Delegation = () => {
-  const { status, account } = useMetaMask();
+  const { status, account } = useCMetamask();
   const auth = useAuth();
+  const location = useLocation();
   const delegationApi = useDelegationApi();
   const isLoggedIn = !!auth.user?.id;
 
+  const showMyDelegatorsQuery =
+    new URLSearchParams(location.search).get('show_my_delegators') !== null;
+
   const [ownValidatorsHaveCommissionChange, setOwnValidatorsHaveCommissionChange] = useState(false);
-  const [showUserOwnValidators, setShowUserOwnValidators] = useState(false);
+  const [showUserOwnValidators, setShowUserOwnValidators] = useState(
+    showMyDelegatorsQuery || false,
+  );
   const [showFullyDelegatedNodes, setShowFullyDelegatedNodes] = useState(true);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [averageDelegation, setAverageDelegation] = useState(0);

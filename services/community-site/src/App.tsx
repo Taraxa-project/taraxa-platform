@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
-import { MetaMaskProvider, useMetaMask } from 'metamask-react';
+import { MetaMaskProvider } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
 import { Notification } from '@taraxa_project/taraxa-ui';
 
@@ -26,6 +26,7 @@ import Redeem from './pages/Redeem/Redeem';
 import Profile from './pages/Profile/Profile';
 import RunNode from './pages/RunNode/RunNode';
 import Wallet from './pages/Wallet/Wallet';
+import useCMetamask from './services/useCMetamask';
 
 import './App.scss';
 
@@ -38,7 +39,7 @@ declare global {
 const Root = () => {
   const { modal, setIsOpen, setContent } = useModal();
   const auth = useAuth();
-  const { status, account } = useMetaMask();
+  const { status, account } = useCMetamask();
   const location = useLocation();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 

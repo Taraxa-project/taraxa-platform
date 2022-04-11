@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { ethereum } from '@taraxa-claim/config';
-import * as Claim from './contracts/Claim.json';
+import Claim from './contracts/Claim.json';
 
 export enum ContractTypes {
   CLAIM,

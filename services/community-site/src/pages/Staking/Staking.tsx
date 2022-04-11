@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
+import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
-import { useMetaMask } from 'metamask-react';
 
 import {
   Modal,
@@ -15,6 +15,8 @@ import {
   Button,
   Chip,
 } from '@taraxa_project/taraxa-ui';
+import { useDelegationApi } from '../../services/useApi';
+import PublicNode from '../../interfaces/PublicNode';
 
 import CloseIcon from '../../assets/icons/close';
 import InfoIcon from '../../assets/icons/info';
@@ -36,6 +38,7 @@ import { useAuth } from '../../services/useAuth';
 import Title from '../../components/Title/Title';
 
 import './staking.scss';
+import useCMetamask from '../../services/useCMetamask';
 
 interface StakingModalProps {
   isSuccess: boolean;
@@ -131,7 +134,7 @@ function StakingModal({
 }
 
 function StakingNotifications() {
-  const { status } = useMetaMask();
+  const { status } = useCMetamask();
   const auth = useAuth();
   return (
     <>
@@ -231,8 +234,11 @@ function Stake({
   lockingPeriod,
   setTransactionHash,
 }: StakeProps) {
-  const { account, status } = useMetaMask();
+  const { account, status } = useCMetamask();
   const auth = useAuth();
+  const history = useHistory();
+  const delegationApi = useDelegationApi();
+  const isLoggedIn = !!auth.user?.id;
 
   const token = useToken();
   const staking = useStaking();
@@ -244,6 +250,8 @@ function Stake({
   const [reward, setReward] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
 
   const [stakeInputError, setStakeInputError] = useState<string | null>(null);
+
+  const [delegators, setDelegators] = useState<PublicNode[]>([]);
 
   const resetStake = useCallback(() => {
     setHasStake(false);
@@ -271,37 +279,52 @@ function Stake({
   };
 
   useEffect(() => {
+    if (isLoggedIn)
+      delegationApi
+        .get('/validators?show_fully_delegated=true&show_my_validators=true', isLoggedIn)
+        .then((data) => {
+          if (data.success) {
+            setDelegators(data.response);
+          }
+        });
+  }, [isLoggedIn]);
+
+  useEffect(() => {
     const getStakedBalance = async () => {
       if (!staking) {
         return;
       }
 
-      const currentStake = await staking.stakeOf(account);
+      try {
+        const currentStake = await staking.stakeOf(account);
 
-      const currentStakeBalance = currentStake[0];
-      let currentStakeStartDate = currentStake[1].toNumber();
-      let currentStakeEndDate = currentStake[2].toNumber();
+        const currentStakeBalance = currentStake[0];
+        let currentStakeStartDate = currentStake[1].toNumber();
+        let currentStakeEndDate = currentStake[2].toNumber();
 
-      if (
-        currentStakeBalance.toString() === '0' ||
-        currentStakeStartDate === 0 ||
-        currentStakeEndDate === 0
-      ) {
+        if (
+          currentStakeBalance.toString() === '0' ||
+          currentStakeStartDate === 0 ||
+          currentStakeEndDate === 0
+        ) {
+          resetStake();
+          return;
+        }
+
+        const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
+        const canClaimStake = currentTimestamp > currentStakeEndDate;
+
+        currentStakeStartDate = new Date(currentStakeStartDate * 1000);
+        currentStakeEndDate = new Date(currentStakeEndDate * 1000);
+
+        setHasStake(true);
+        setCanClaimStake(canClaimStake);
+        setCurrentStakeBalance(currentStakeBalance);
+        setCurrentStakeStartDate(currentStakeStartDate);
+        setCurrentStakeEndDate(currentStakeEndDate);
+      } catch (e) {
         resetStake();
-        return;
       }
-
-      const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
-      const canClaimStake = currentTimestamp > currentStakeEndDate;
-
-      currentStakeStartDate = new Date(currentStakeStartDate * 1000);
-      currentStakeEndDate = new Date(currentStakeEndDate * 1000);
-
-      setHasStake(true);
-      setCanClaimStake(canClaimStake);
-      setCurrentStakeBalance(currentStakeBalance);
-      setCurrentStakeStartDate(currentStakeStartDate);
-      setCurrentStakeEndDate(currentStakeEndDate);
     };
 
     getStakedBalance();
@@ -416,6 +439,10 @@ function Stake({
     resetStake();
   };
 
+  const unDelegatedStake = currentStakeBalance.sub(
+    ethers.utils.parseUnits(delegators.reduce((a, d) => a + (d.ownDelegation || 0), 0).toString()),
+  );
+
   const stakeInputField = (
     <InputField
       type="text"
@@ -465,22 +492,12 @@ function Stake({
       <div className="cardContainer">
         <BaseCard
           title={formatEth(roundEth(weiToEth(reward)))}
-          description="TARA rewards"
+          description="Lifetime staking yield"
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
               title="Total number of TARA staking rewards earned for the lifetime of the connected wallet."
               Icon={InfoIcon}
-            />
-          }
-          button={
-            <Button
-              disabled
-              variant="outlined"
-              color="secondary"
-              // onClick={() => {}}
-              label="Redeem"
-              size="small"
             />
           }
         />
@@ -506,15 +523,49 @@ function Stake({
           }
         />
         <BaseCard
-          title="20.0%"
-          description="Anualized yield"
+          title={delegators.length.toString()}
+          description="Validators delegated"
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
-              title="Effective annualized yield, this could be different than the stated expected yields due to special community events. "
+              title="Number of validators you delegated TARA to."
               Icon={InfoIcon}
             />
           }
+          button={
+            <Button
+              disabled={delegators.length === 0}
+              variant="outlined"
+              color="secondary"
+              onClick={() => history.push('/delegation?show_my_delegators')}
+              label="My validators"
+              size="small"
+            />
+          }
+        />
+      </div>
+      <div className="cardContainer">
+        <BaseCard
+          title="20.0%"
+          description="Lifetime annualized staking yield, %"
+          tooltip={
+            <Tooltip
+              className="staking-icon-tooltip"
+              title="Effective annualized yield, this could be different than the stated expected yields due to special community events."
+              Icon={InfoIcon}
+            />
+          }
+        />
+        <BaseCard
+          title={formatEth(roundEth(weiToEth(unDelegatedStake)))}
+          tooltip={
+            <Tooltip
+              className="staking-icon-tooltip"
+              title="Total number of TARA staked currently that weren't delegated to any validators."
+              Icon={InfoIcon}
+            />
+          }
+          description="Un-Delegated stake"
         />
       </div>
       <div className="cardContainer">
@@ -534,6 +585,21 @@ function Stake({
           dataOptions={stakingchips}
           disabled={auth.user !== null && auth.user.kyc !== 'APPROVED'}
         />
+        <DataCard
+          title={status === 'connected' ? formatEth(roundEth(weiToEth(unDelegatedStake))) : 'N/A'}
+          description="Delegate"
+          label="TARA"
+          onClickButton={() => history.push('/delegation')}
+          onClickText="Delegate to validators"
+          descriptionLegend="You MUST delegate your stake to earn yields."
+          tooltip={
+            <Tooltip
+              title="Total number of TARA staked currently that aren't earning any yield."
+              Icon={InfoIcon}
+            />
+          }
+          disabled={unDelegatedStake.isZero()}
+        />
         {hasStake && currentStakeEndDate !== null && (
           <BaseCard
             title={formatEth(roundEth(weiToEth(currentStakeBalance)))}
@@ -546,7 +612,7 @@ function Stake({
 }
 
 function Staking() {
-  const { account } = useMetaMask();
+  const { account } = useCMetamask();
   const token = useToken();
   const staking = useStaking();
 
@@ -575,10 +641,16 @@ function Staking() {
         return;
       }
 
-      const balance = await token.balanceOf(account);
-      setTokenBalance(balance);
-      setToStake(balance);
-      setStakeInput(formatEth(weiToEth(balance)));
+      try {
+        const balance = await token.balanceOf(account);
+        setTokenBalance(balance);
+        setToStake(balance);
+        setStakeInput(formatEth(weiToEth(balance)));
+      } catch (e) {
+        setTokenBalance(ethers.BigNumber.from('0'));
+        setToStake(ethers.BigNumber.from('0'));
+        setStakeInput('0.0');
+      }
     };
 
     const getLockingPeriod = async () => {
@@ -586,8 +658,12 @@ function Staking() {
         return;
       }
 
-      const currentLockingPeriod = await staking.lockingPeriod();
-      setLockingPeriod(currentLockingPeriod);
+      try {
+        const currentLockingPeriod = await staking.lockingPeriod();
+        setLockingPeriod(currentLockingPeriod);
+      } catch (e) {
+        setLockingPeriod(ethers.BigNumber.from(30 * 24 * 60 * 60));
+      }
     };
 
     getTokenBalance();

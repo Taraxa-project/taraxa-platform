@@ -3,7 +3,6 @@ import { ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 
 import { AmountCard, Button, Checkbox, Icons, ProfileIcon } from '@taraxa_project/taraxa-ui';
-import { useMetaMask } from 'metamask-react';
 
 import { useAuth } from '../../services/useAuth';
 
@@ -14,6 +13,7 @@ import PublicNode from '../../interfaces/PublicNode';
 
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
+import useCMetamask from '../../services/useCMetamask';
 
 interface BarFlexProps {
   communityDelegated: number;
@@ -65,7 +65,7 @@ const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: Bar
 
 const NodeProfilePage = () => {
   const auth = useAuth();
-  const { status, account } = useMetaMask();
+  const { status, account } = useCMetamask();
   const [availableBalance, setAvailableBalance] = useState(0);
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [node, setNode] = useState<PublicNode | null>(null);

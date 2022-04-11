@@ -3,7 +3,12 @@ import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { In, LessThan, Repository } from 'typeorm';
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum, general } from '@taraxa-claim/config';
@@ -136,77 +141,65 @@ export class ClaimService {
     return accounts;
   }
   public async account(address: string): Promise<Partial<AccountEntity>> {
-    const claim = await this.claimRepository.findOne({
-      where: { address, claimed: false },
-    });
-    if (claim) {
-      const nonce = claim.id * 13;
+    try {
+      const claim = await this.claimRepository.findOne({
+        where: { address, claimed: false },
+      });
+      if (claim) {
+        const nonce = claim.id * 13;
 
-      const claimContractInstance = this.blockchainService.getContractInstance(
-        ContractTypes.CLAIM,
-        this.ethereumConfig.claimContractAddress,
-      );
-
-      const confirmation = await claimContractInstance.getClaimedAmount(
-        address,
-        claim.numberOfTokens,
-        nonce,
-      );
-
-      if (
-        confirmation.gt(ethers.BigNumber.from('0')) &&
-        confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
-      ) {
-        await this.markAsClaimed(claim.id);
+        const claimContractInstance =
+          this.blockchainService.getContractInstance(
+            ContractTypes.CLAIM,
+            this.ethereumConfig.claimContractAddress,
+          );
+        const confirmation = await claimContractInstance.getClaimedAmount(
+          address,
+          claim.numberOfTokens,
+          nonce,
+        );
+        if (
+          confirmation.gt(ethers.BigNumber.from('0')) &&
+          confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
+        ) {
+          await this.markAsClaimed(claim.id);
+        }
       }
+    } catch (error) {
+      const err = error as Error;
+      throw new InternalServerErrorException(err.message);
     }
-
-    const account = JSON.parse(
-      JSON.stringify(await this.accountRepository.findOneOrFail({ address })),
-    );
-    delete account.id;
-    return account;
+    const accountData = await this.accountRepository.findOne({ address });
+    if (accountData) {
+      const account = JSON.parse(JSON.stringify(accountData));
+      delete account.id;
+      return account;
+    } else throw new NotFoundException();
   }
-  public async createClaim(
-    address: string,
-  ): Promise<Partial<AccountClaimEntity>> {
-    let claim = await this.claimRepository.findOne({
-      where: { address, claimed: false },
+  public async createClaim(address: string): Promise<ClaimEntity> {
+    const unclaimed = await this.claimRepository.findOne({
+      address,
+      claimed: false,
     });
 
-    if (!claim) {
-      const { availableToBeClaimed } =
-        await this.accountRepository.findOneOrFail({ address });
+    if (unclaimed) return unclaimed;
 
-      if (
-        ethers.BigNumber.from(availableToBeClaimed).lte(
-          ethers.BigNumber.from(0),
-        )
-      ) {
-        throw new Error('No tokens to claim');
-      }
-
-      claim = new ClaimEntity();
-      claim.address = address;
-      claim.numberOfTokens = availableToBeClaimed;
-
-      await this.claimRepository.save(claim);
-    }
-
-    const nonce = claim.id * 13;
-    const encodedPayload = abi.soliditySHA3(
-      ['address', 'uint', 'uint'],
-      [address, claim.numberOfTokens, nonce],
+    const { availableToBeClaimed } = await this.accountRepository.findOneOrFail(
+      { address },
     );
 
-    const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
-    const hash = ethUtil.toRpcSig(v, r, s);
+    if (
+      ethers.BigNumber.from(availableToBeClaimed).lte(ethers.BigNumber.from(0))
+    ) {
+      throw new Error('No tokens to claim');
+    }
 
-    return {
-      nonce,
-      hash,
-      availableToBeClaimed: claim.numberOfTokens,
-    };
+    const claim = new ClaimEntity();
+    claim.address = address;
+    claim.numberOfTokens = availableToBeClaimed;
+
+    const newClaim = await this.claimRepository.save(claim);
+    return newClaim;
   }
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
@@ -237,6 +230,24 @@ export class ClaimService {
 
     await this.accountRepository.save(account);
     return await this.claimRepository.save(claim);
+  }
+  public async patchClaim(id: number): Promise<Partial<AccountClaimEntity>> {
+    const claim = await this.claimRepository.findOneOrFail({ id });
+
+    const nonce = claim.id * 13;
+    const encodedPayload = abi.soliditySHA3(
+      ['address', 'uint', 'uint'],
+      [claim.address, claim.numberOfTokens, nonce],
+    );
+
+    const { v, r, s } = ethUtil.ecsign(encodedPayload, this.privateKey);
+    const hash = ethUtil.toRpcSig(v, r, s);
+
+    return {
+      nonce,
+      hash,
+      availableToBeClaimed: claim.numberOfTokens,
+    };
   }
   public async deleteClaim(id: number): Promise<ClaimEntity> {
     const claim = await this.claimRepository.findOneOrFail({ id });

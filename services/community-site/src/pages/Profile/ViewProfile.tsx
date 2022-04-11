@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { BigNumber, ethers } from 'ethers';
-import { useMetaMask } from 'metamask-react';
 
 import {
   ProfileBasicCard,
@@ -26,6 +25,7 @@ import { formatTime } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import useSubmissions from '../../services/useSubmissions';
 import Title from '../../components/Title/Title';
+import useCMetamask from '../../services/useCMetamask';
 
 interface ViewProfileDetailsKYCProps {
   openKYCModal: () => void;
@@ -89,7 +89,8 @@ interface ViewProfileDetailsProps {
 
 function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfileDetailsProps) {
   const auth = useAuth();
-  const { account } = useMetaMask();
+  const { account } = useCMetamask();
+  const checksumAccount = ethers.utils.getAddress(account || '');
   const history = useHistory();
   const claimApi = useClaimApi();
   const [lockedPoints, setLockedPoints] = useState(false);
@@ -100,7 +101,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
   useEffect(() => {
     if (account) {
       claimApi
-        .post(`/accounts/${account}`, {})
+        .post(`/accounts/${checksumAccount}`, {})
         .then((response) => {
           const { totalClaimed, totalLocked } = response.response;
           const calculated = ethers.BigNumber.from(totalClaimed)

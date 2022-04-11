@@ -3,7 +3,7 @@
     "incremental": true,
     "rootDir": ".",
     "baseUrl": ".",
-    "target": "es5",
+    "target": "es6",
     "outDir": "./lib",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": false,
