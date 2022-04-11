@@ -1,0 +1,21 @@
+app:
+  environment: qa
+  claimContractAddress: '0x11D846A8314fBdFcFc8C5f18c5031Bf7a7711938'
+  provider: 'https://goerli.infura.io/v3/1c60d8f404244a1fbafdd6131f01f9d2'
+
+  dbHost: 10.39.113.3
+
+image:
+  repository: gcr.io/jovial-meridian-249123/taraxa/claim-backend-develop
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-qa
+
+ingress:
+  enabled: true
+  hosts:
+    - host: api.qa.claim.taraxa.io
+  tls:
+    - secretName: wild-qa-claim-taraxa-io-tls
+      hosts:
+        - api.qa.claim.taraxa.io

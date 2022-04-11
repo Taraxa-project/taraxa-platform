@@ -145,7 +145,6 @@ function useProvideAuth() {
         setUser(user);
       }
     }
-    return result;
   };
 
   const setSessionExpired = () => {

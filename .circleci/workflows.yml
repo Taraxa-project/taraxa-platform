@@ -16,6 +16,9 @@ parameters:
   run-delegation-service-workflow:
     type: boolean
     default: false
+  run-claim-backend-service-workflow:
+    type: boolean
+    default: false
 
 aliases:
   - &config
@@ -198,6 +201,63 @@ jobs:
               -f services/delegation/charts/community-delegation/values.yaml \
               -f services/delegation/charts/${HELM_CONFIG} \
               --set image.tag=${VERSION}
+  build-claim-backend:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/claim-backend:${VERSION} -f services/claim-backend/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa/claim-backend:${VERSION} taraxa/claim-backend:latest
+              docker push taraxa/claim-backend:${VERSION}
+              docker push taraxa/claim-backend:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa/claim-backend:${VERSION} ${GCP_REGISTRY}/taraxa/claim-backend-develop:${VERSION}
+              docker tag taraxa/claim-backend:${VERSION} ${GCP_REGISTRY}/taraxa/claim-backend-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa/claim-backend-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa/claim-backend-develop:latest
+            fi
+  deploy-claim-backend:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_install_deploy_deps
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Deploy
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              export NS=taraxa-community-prod
+              export HELM_NAME=community-claim-backend
+              export HELM_CONFIG=prod.values.yaml
+            else
+              export NS=taraxa-community-qa
+              export HELM_NAME=qa-community-claim-backend
+              export HELM_CONFIG=qa.values.yaml
+            fi
+
+            helm upgrade -i ${HELM_NAME} services/claim-backend/charts/claim-backend/ \
+              --namespace ${NS} \
+              -f services/claim-backend/charts/claim-backend/values.yaml \
+              -f services/claim-backend/charts/${HELM_CONFIG} \
+              --set image.tag=${VERSION}
 workflows:
   community-site:
     when:
@@ -257,6 +317,31 @@ workflows:
       - deploy-delegation:
           requires:
             - build-delegation
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - K8S
+  claim-backend:
+    when:
+      or:
+        - << pipeline.parameters.run-claim-backend-service-workflow >>
+    jobs:
+      - build-claim-backend:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+      - deploy-claim-backend:
+          requires:
+            - build-claim-backend
           filters:
             branches:
               only:

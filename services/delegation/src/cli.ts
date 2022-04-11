@@ -112,6 +112,11 @@ async function bootstrap() {
     return Promise.resolve();
   };
 
+  const rebalanceMainnet = async () => {
+    await delegationService.rebalanceMainnet();
+    return Promise.resolve();
+  };
+
   const checkStaking = async () => {
     const delegators = await delegationService.getDelegators();
     let cnt = 0;
@@ -183,6 +188,11 @@ async function bootstrap() {
       'rebalance-testnet',
       'rebalances own node delegations for testnet',
       rebalanceTestnet,
+    )
+    .command(
+      'rebalance-mainnet',
+      'rebalances own node delegations for mainnet',
+      rebalanceMainnet,
     )
     .command(
       'check-staking',

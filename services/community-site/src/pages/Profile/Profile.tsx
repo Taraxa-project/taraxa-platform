@@ -73,7 +73,7 @@ const Profile = () => {
   const [modalContent, setModalContent] = useState('kyc');
 
   useEffect(() => {
-    const getUser = async () => await auth.refreshUser!();
+    const getUser = () => auth.refreshUser!();
     getUser();
   }, []);
 

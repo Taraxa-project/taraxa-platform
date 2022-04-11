@@ -247,6 +247,9 @@ function Stake({
   const [canClaimStake, setCanClaimStake] = useState(false);
   const [currentStakeStartDate, setCurrentStakeStartDate] = useState<Date | null>(null);
   const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(null);
+  const [unDelegatedStake, setUndelegatedStake] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from('0'),
+  );
   const [reward, setReward] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
 
   const [stakeInputError, setStakeInputError] = useState<string | null>(null);
@@ -290,37 +293,51 @@ function Stake({
   }, [isLoggedIn]);
 
   useEffect(() => {
+    if (account) {
+      delegationApi.get(`/delegations/${account}/balances`, isLoggedIn).then((data) => {
+        if (data.success) {
+          setUndelegatedStake(ethers.BigNumber.from(data.response.remaining));
+        }
+      });
+    }
+  }, [account]);
+
+  useEffect(() => {
     const getStakedBalance = async () => {
       if (!staking) {
         return;
       }
 
-      const currentStake = await staking.stakeOf(account);
+      try {
+        const currentStake = await staking.stakeOf(account);
 
-      const currentStakeBalance = currentStake[0];
-      let currentStakeStartDate = currentStake[1].toNumber();
-      let currentStakeEndDate = currentStake[2].toNumber();
+        const currentStakeBalance = currentStake[0];
+        let currentStakeStartDate = currentStake[1].toNumber();
+        let currentStakeEndDate = currentStake[2].toNumber();
 
-      if (
-        currentStakeBalance.toString() === '0' ||
-        currentStakeStartDate === 0 ||
-        currentStakeEndDate === 0
-      ) {
+        if (
+          currentStakeBalance.toString() === '0' ||
+          currentStakeStartDate === 0 ||
+          currentStakeEndDate === 0
+        ) {
+          resetStake();
+          return;
+        }
+
+        const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
+        const canClaimStake = currentTimestamp > currentStakeEndDate;
+
+        currentStakeStartDate = new Date(currentStakeStartDate * 1000);
+        currentStakeEndDate = new Date(currentStakeEndDate * 1000);
+
+        setHasStake(true);
+        setCanClaimStake(canClaimStake);
+        setCurrentStakeBalance(currentStakeBalance);
+        setCurrentStakeStartDate(currentStakeStartDate);
+        setCurrentStakeEndDate(currentStakeEndDate);
+      } catch (e) {
         resetStake();
-        return;
       }
-
-      const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
-      const canClaimStake = currentTimestamp > currentStakeEndDate;
-
-      currentStakeStartDate = new Date(currentStakeStartDate * 1000);
-      currentStakeEndDate = new Date(currentStakeEndDate * 1000);
-
-      setHasStake(true);
-      setCanClaimStake(canClaimStake);
-      setCurrentStakeBalance(currentStakeBalance);
-      setCurrentStakeStartDate(currentStakeStartDate);
-      setCurrentStakeEndDate(currentStakeEndDate);
     };
 
     getStakedBalance();
@@ -434,10 +451,6 @@ function Stake({
 
     resetStake();
   };
-
-  const unDelegatedStake = currentStakeBalance.sub(
-    ethers.utils.parseUnits(delegators.reduce((a, d) => a + (d.ownDelegation || 0), 0).toString()),
-  );
 
   const stakeInputField = (
     <InputField
@@ -637,10 +650,16 @@ function Staking() {
         return;
       }
 
-      const balance = await token.balanceOf(account);
-      setTokenBalance(balance);
-      setToStake(balance);
-      setStakeInput(formatEth(weiToEth(balance)));
+      try {
+        const balance = await token.balanceOf(account);
+        setTokenBalance(balance);
+        setToStake(balance);
+        setStakeInput(formatEth(weiToEth(balance)));
+      } catch (e) {
+        setTokenBalance(ethers.BigNumber.from('0'));
+        setToStake(ethers.BigNumber.from('0'));
+        setStakeInput('0.0');
+      }
     };
 
     const getLockingPeriod = async () => {
@@ -648,8 +667,12 @@ function Staking() {
         return;
       }
 
-      const currentLockingPeriod = await staking.lockingPeriod();
-      setLockingPeriod(currentLockingPeriod);
+      try {
+        const currentLockingPeriod = await staking.lockingPeriod();
+        setLockingPeriod(currentLockingPeriod);
+      } catch (e) {
+        setLockingPeriod(ethers.BigNumber.from(30 * 24 * 60 * 60));
+      }
     };
 
     getTokenBalance();
