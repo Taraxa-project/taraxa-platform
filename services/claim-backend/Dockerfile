@@ -1,7 +1,7 @@
 FROM node:16.10.0-alpine AS build
 
 RUN apk --no-cache add --update \
-    --virtual python git build-base
+    python3 git build-base
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
