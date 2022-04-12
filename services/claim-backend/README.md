@@ -31,7 +31,7 @@ The backend app stores the [private key](https://github.com/Taraxa-project/tarax
 ## Installation
 
 ```bash
-$ yarn
+yarn
 ```
 
 ## Running the app
