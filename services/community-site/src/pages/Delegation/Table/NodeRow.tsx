@@ -80,6 +80,7 @@ const NodeRow = ({
             variant="contained"
             color="secondary"
             label="Delegate"
+            className={!canDelegate ? 'disabledButton' : ''}
             disabled={!canDelegate}
             onClick={() => {
               setDelegateToNode(node);
@@ -89,7 +90,7 @@ const NodeRow = ({
             size="small"
             label="Un-delegate"
             disabled={!canUndelegate}
-            className="delete"
+            className={`delete ${!canUndelegate ? 'disabledButton' : ''}`}
             onClick={() => setUndelegateFromNode(node)}
           />
         </div>
