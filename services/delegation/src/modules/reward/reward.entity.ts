@@ -8,13 +8,24 @@ export class Reward {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   @Index()
-  user: number;
+  user?: number;
 
-  @Column()
+  @Column({
+    name: 'user_address',
+    nullable: true,
+  })
   @Index()
-  node: number;
+  userAddress?: string;
+
+  @Column({
+    nullable: true,
+  })
+  @Index()
+  node?: number | null;
 
   @Column({
     type: 'enum',
@@ -40,6 +51,10 @@ export class Reward {
     type: 'timestamp with time zone',
   })
   endsAt: Date;
+
+  isStaking(): boolean {
+    return this.type === RewardType.STAKING;
+  }
 
   isNode(): boolean {
     return this.type === RewardType.NODE;
