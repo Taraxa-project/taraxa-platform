@@ -11,6 +11,7 @@ app:
   testnetEndpoint: "https://rpc.testnet.taraxa.io"
   mainnetExplorerUrl: "https://explorer.mainnet.taraxa.io"
   testnetExplorerUrl: "https://explorer.testnet.taraxa.io"
+  indexerStakingUrl: http://qa-taraxa-indexer:8000/subgraphs/name/taraxa_project/staking
 
 image:
   repository: gcr.io/jovial-meridian-249123/taraxa/delegation-develop

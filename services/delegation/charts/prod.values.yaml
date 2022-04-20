@@ -12,6 +12,7 @@ app:
   testnetEndpoint: "https://rpc.testnet.taraxa.io"
   mainnetExplorerUrl: "https://explorer.mainnet.taraxa.io"
   testnetExplorerUrl: "https://explorer.testnet.taraxa.io"
+  indexerStakingUrl: http://prod-taraxa-indexer:8000/subgraphs/name/taraxa_project/staking
 
 image:
   repository: taraxa/delegation
