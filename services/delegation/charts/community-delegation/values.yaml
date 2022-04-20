@@ -7,7 +7,8 @@ app:
 
   environment: default
   dbHost: default-db.address
-  dbName: taraxa-community-default
+  dbDelegationName: taraxa-delegation-default
+  dbCommunityName: taraxa-community-default
   queueHost: default-queue.address
 
   serverPort: 3000
