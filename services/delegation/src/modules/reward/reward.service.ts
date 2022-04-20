@@ -1,10 +1,12 @@
 import assert from 'assert';
 import moment from 'moment';
+import * as ethers from 'ethers';
 import { Repository } from 'typeorm';
 import { Interval } from '@flatten-js/interval-tree';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { UserService } from '../user/user.service';
 import { StakingDataService } from './data/staking-data.service';
 import {
   DelegationIntervalValue,
@@ -23,26 +25,24 @@ import { RewardType } from './reward-type.enum';
 export class RewardService {
   private eligibilityThreshold: number;
   constructor(
-    @InjectRepository(Reward)
-    private rewardRepository: Repository<Reward>,
     private stakingDataService: StakingDataService,
     private delegationDataService: DelegationDataService,
+    @InjectRepository(Reward)
+    private rewardRepository: Repository<Reward>,
     private config: ConfigService,
+    private userService: UserService,
   ) {
     this.eligibilityThreshold = this.config.get<number>(
       'delegation.eligibilityThreshold',
     );
   }
   async calculateRewards(endTime = moment().utc().unix()) {
-    const epochs: Epoch[] = getEpochs(endTime);
-    console.log(epochs);
+    await this.rewardRepository.delete({});
     const stakingData = await this.stakingDataService.getData(endTime);
     const delegationData = await this.delegationDataService.getData(endTime);
 
+    const epochs: Epoch[] = getEpochs(endTime);
     for (const epoch of epochs) {
-      if (epoch.epoch < 4) {
-        continue;
-      }
       console.group(`Calculating rewards for epoch`, {
         epoch: epoch.epoch,
         now: endTime,
@@ -55,7 +55,7 @@ export class RewardService {
         i >= epoch.startDate && i <= epoch.endDate;
 
       // Calculate Staking Rewards
-      if (epoch.epoch <= 3) {
+      if (epoch.epoch <= 4) {
         for (const stake of stakingData) {
           const periods: Period[] = getPeriods(
             epoch.startDate,
@@ -68,7 +68,6 @@ export class RewardService {
               .filter(filterInEpoch),
           );
 
-          let currentReward = 0;
           for (const period of periods) {
             const currentStake = stake.events.search(
               new Interval(period.startsAt, period.endsAt),
@@ -81,26 +80,24 @@ export class RewardService {
               continue;
             }
             const currentEvent = currentStake[0].value;
-            currentReward += calculateYieldFor(
+            const stakingReward = calculateYieldFor(
               currentEvent.amount,
               period.endsAt - period.startsAt,
             );
+
+            if (stakingReward > 0) {
+              const reward = this.getNewStakingRewardEntity(epoch, period);
+              reward.userAddress = stake.user;
+              reward.value = stakingReward;
+              reward.user = await this.getUserIdByAddress(stake.user);
+              await this.rewardRepository.save(reward);
+            }
           }
-
-          const reward = new Reward();
-          reward.userAddress = stake.user;
-          reward.epoch = epoch.epoch;
-          reward.startsAt = moment.unix(epoch.startDate).utc().toDate();
-          reward.endsAt = moment.unix(epoch.endDate).utc().toDate();
-          reward.type = RewardType.STAKING;
-          reward.value = currentReward;
-
-          await this.rewardRepository.save(reward);
         }
       }
 
       // Calculate Delegation Rewards
-      if (epoch.epoch > 3) {
+      if (epoch.epoch >= 3) {
         for (const node of delegationData) {
           const periods: Period[] = getPeriods(
             epoch.startDate,
@@ -116,7 +113,6 @@ export class RewardService {
               .filter(filterInEpoch),
           );
 
-          let currentReward = 0;
           for (const period of periods) {
             const currentCommissions = node.commissions.search(
               new Interval(period.startsAt, period.endsAt),
@@ -157,37 +153,77 @@ export class RewardService {
 
               const nodeCommission =
                 (totalBalance * commissionEntity.value) / 100;
-              currentReward +=
-                epoch.epoch === 4 ? nodeCommission * 2 : nodeCommission;
+              const nodeRewards =
+                epoch.epoch === 3 ? nodeCommission * 2 : nodeCommission;
 
-              if (epoch.epoch !== 4) {
-                const reward = new Reward();
+              if (nodeRewards > 0) {
+                const reward = this.getNewNodeRewardEntity(epoch, period);
+                reward.node = node.node.id;
+                reward.user = node.node.user;
+                reward.userAddress = await this.getUserAddressById(
+                  node.node.user,
+                );
+                reward.value = nodeRewards;
+                await this.rewardRepository.save(reward);
+              }
+
+              if (epoch.epoch > 3) {
+                const reward = this.getNewDelegatorRewardEntity(epoch, period);
                 reward.node = node.node.id;
                 reward.user = delegationEntity.user;
-                reward.epoch = epoch.epoch;
-                reward.startsAt = moment.unix(epoch.startDate).utc().toDate();
-                reward.endsAt = moment.unix(epoch.endDate).utc().toDate();
-                reward.type = RewardType.DELEGATOR;
+                reward.userAddress = await this.getUserAddressById(
+                  delegationEntity.user,
+                );
                 reward.value = totalBalance - nodeCommission;
                 await this.rewardRepository.save(reward);
               }
             }
           }
-
-          if (currentReward > 0) {
-            const reward = new Reward();
-            reward.node = node.node.id;
-            reward.user = node.node.user;
-            reward.epoch = epoch.epoch;
-            reward.startsAt = moment.unix(epoch.startDate).utc().toDate();
-            reward.endsAt = moment.unix(epoch.endDate).utc().toDate();
-            reward.type = RewardType.NODE;
-            reward.value = currentReward;
-            await this.rewardRepository.save(reward);
-          }
         }
       }
       console.groupEnd();
     }
+  }
+  private getNewStakingRewardEntity(epoch: Epoch, period: Period) {
+    const reward = this.getNewRewardEntity(epoch, period);
+    reward.type = RewardType.STAKING;
+    return reward;
+  }
+  private getNewNodeRewardEntity(epoch: Epoch, period: Period) {
+    const reward = this.getNewRewardEntity(epoch, period);
+    reward.type = RewardType.NODE;
+    return reward;
+  }
+  private getNewDelegatorRewardEntity(epoch: Epoch, period: Period) {
+    const reward = this.getNewRewardEntity(epoch, period);
+    reward.type = RewardType.DELEGATOR;
+    return reward;
+  }
+  private getNewRewardEntity(epoch: Epoch, period: Period) {
+    const reward = new Reward();
+    reward.epoch = epoch.epoch;
+    reward.startsAt = moment.unix(period.startsAt).utc().toDate();
+    reward.endsAt = moment.unix(period.endsAt).utc().toDate();
+    return reward;
+  }
+  private async getUserIdByAddress(address: string): Promise<number | null> {
+    try {
+      const user = await this.userService.getUserByAddress(address);
+      return user.id;
+    } catch (e) {
+      return null;
+    }
+  }
+  private async getUserAddressById(id: number): Promise<string | null> {
+    let address = null;
+    try {
+      const user = await this.userService.getUserById(id);
+      if (user.ethWallet) {
+        address = ethers.utils.getAddress(user.ethWallet);
+      }
+    } catch (e) {
+      return null;
+    }
+    return address;
   }
 }

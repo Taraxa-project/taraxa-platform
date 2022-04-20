@@ -13,6 +13,7 @@ import queueConfig from '../config/queue';
 import { AuthModule } from './auth/auth.module';
 import { NodeModule } from './node/node.module';
 import { ProfileModule } from './profile/profile.module';
+import { UserModule } from './user/user.module';
 import { RewardModule } from './reward/reward.module';
 import { DelegationModule } from './delegation/delegation.module';
 import { HttpExceptionFilter } from './utils/http-exception.filter';
@@ -38,9 +39,9 @@ import { HttpExceptionFilter } from './utils/http-exception.filter';
       inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
+      name: 'communityConnection',
       imports: [ConfigModule.forFeature(databaseConfig)],
       useFactory: (config: ConfigService) => ({
-        name: 'communityConnection',
         type: 'postgres',
         host: config.get('database.host'),
         port: config.get<number>('database.port'),
@@ -68,6 +69,7 @@ import { HttpExceptionFilter } from './utils/http-exception.filter';
     ScheduleModule.forRoot(),
     AuthModule,
     ProfileModule,
+    UserModule,
     RewardModule,
   ],
   providers: [

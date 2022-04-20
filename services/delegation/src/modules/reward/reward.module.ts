@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from '../user/user.module';
 import { Node } from '../node/node.entity';
 import { NodeCommission } from '../node/node-commission.entity';
 import { Delegation } from '../delegation/delegation.entity';
@@ -14,6 +15,7 @@ import delegationConfig from '../../config/delegation';
 
 @Module({
   imports: [
+    UserModule,
     ConfigModule.forFeature(indexerConfig),
     ConfigModule.forFeature(delegationConfig),
     TypeOrmModule.forFeature([Reward, Node, NodeCommission, Delegation]),
