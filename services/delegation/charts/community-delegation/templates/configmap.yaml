@@ -16,4 +16,5 @@ data:
   TESTNET_ENDPOINT: {{ .Values.app.testnetEndpoint | quote }}
   MAINNET_EXPLORER_URL: {{ .Values.app.mainnetExplorerUrl | quote }}
   TESTNET_EXPLORER_URL: {{ .Values.app.testnetExplorerUrl | quote }}
+  INDEXER_STAKING_URL: {{ .Values.app.indexerStakingUrl | quote }}
   NODE_ENV: {{ .Values.app.environment | quote }}

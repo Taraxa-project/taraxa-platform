@@ -43,19 +43,21 @@ export class RewardService {
 
     const epochs: Epoch[] = getEpochs(endTime);
     for (const epoch of epochs) {
-      console.group(`Calculating rewards for epoch`, {
-        epoch: epoch.epoch,
-        now: endTime,
-        startDate: epoch.startDate,
-        endDate: epoch.endDate,
-        start: moment.unix(epoch.startDate).utc(),
-        end: moment.unix(epoch.endDate).utc(),
-      });
+      console.group(
+        `Calculating rewards for epoch ${epoch.epoch} (${moment
+          .unix(epoch.startDate)
+          .utc()} - ${moment.unix(epoch.endDate).utc()})`,
+      );
       const filterInEpoch = (i: number) =>
         i >= epoch.startDate && i <= epoch.endDate;
 
+      const isStakingRewardsActive = epoch.epoch <= 3;
+      const isDelegationRewardsActive = epoch.epoch >= 2;
+      const isDoubleNodeRewardsActive = epoch.epoch === 3;
+      const isDelegationDelegatorsRewardsActive = epoch.epoch > 3;
+
       // Calculate Staking Rewards
-      if (epoch.epoch <= 4) {
+      if (isStakingRewardsActive) {
         for (const stake of stakingData) {
           const periods: Period[] = getPeriods(
             epoch.startDate,
@@ -97,7 +99,7 @@ export class RewardService {
       }
 
       // Calculate Delegation Rewards
-      if (epoch.epoch >= 3) {
+      if (isDelegationRewardsActive) {
         for (const node of delegationData) {
           const periods: Period[] = getPeriods(
             epoch.startDate,
@@ -153,8 +155,9 @@ export class RewardService {
 
               const nodeCommission =
                 (totalBalance * commissionEntity.value) / 100;
-              const nodeRewards =
-                epoch.epoch === 3 ? nodeCommission * 2 : nodeCommission;
+              const nodeRewards = isDoubleNodeRewardsActive
+                ? nodeCommission * 2
+                : nodeCommission;
 
               if (nodeRewards > 0) {
                 const reward = this.getNewNodeRewardEntity(epoch, period);
@@ -167,7 +170,7 @@ export class RewardService {
                 await this.rewardRepository.save(reward);
               }
 
-              if (epoch.epoch > 3) {
+              if (isDelegationDelegatorsRewardsActive) {
                 const reward = this.getNewDelegatorRewardEntity(epoch, period);
                 reward.node = node.node.id;
                 reward.user = delegationEntity.user;
@@ -183,6 +186,7 @@ export class RewardService {
       }
       console.groupEnd();
     }
+    console.log('done');
   }
   private getNewStakingRewardEntity(epoch: Epoch, period: Period) {
     const reward = this.getNewRewardEntity(epoch, period);
