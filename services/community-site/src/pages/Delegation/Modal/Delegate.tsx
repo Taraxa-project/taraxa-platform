@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import { Button, Text, InputField, AmountCard } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, AmountCard, ProfileIcon } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 import { useDelegationApi } from '../../../services/useApi';
 import useSigning from '../../../services/useSigning';
@@ -88,7 +88,12 @@ const Delegate = ({
             color="primary"
           />
           <div className="nodeDescriptor">
-            {validatorName && <p className="nodeName">{validatorName}</p>}
+            {validatorName && (
+              <div className="flexTitle">
+                <ProfileIcon title={validatorAddress} backgroundColor="#ffffff" size={20} />
+                <p className="nodeName">{validatorName}</p>
+              </div>
+            )}
             <p className="nodeAddressWrapper">
               <span className="nodeAddress">{validatorAddress}</span>
             </p>

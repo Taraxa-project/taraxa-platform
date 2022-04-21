@@ -5,10 +5,27 @@
   .nodeDescriptorSuccess {
     margin: 20px 0 40px 0;
   }
+
+  .flexTitle {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+
+    & > div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+      svg {
+        border-radius: 50%;
+      }
+    }
+  }
+
   .nodeName {
+    margin: 0 0 0 16px;
     font-weight: bold;
     font-size: 20px;
-    margin: 2px 0 16px 0;
   }
   .nodeAddressWrapper {
     color: #15ac5b;
