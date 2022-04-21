@@ -57,8 +57,12 @@ export class RewardService {
       const isDelegationDelegatorsRewardsActive = epoch.epoch > 3;
 
       // Calculate Staking Rewards
+      console.group(`Calculating staking rewards`);
       if (isStakingRewardsActive) {
+        let i = 0;
         for (const stake of stakingData) {
+          i++;
+          console.log(`- ${i}/${stakingData.length} ${stake.user}`);
           const periods: Period[] = getPeriods(
             epoch.startDate,
             epoch.endDate,
@@ -97,10 +101,15 @@ export class RewardService {
           }
         }
       }
+      console.groupEnd();
 
       // Calculate Delegation Rewards
+      console.group(`Calculating delegation rewards`);
       if (isDelegationRewardsActive) {
+        let i = 0;
         for (const node of delegationData) {
+          i++;
+          console.log(`- ${i}/${delegationData.length} ${node.node.address}`);
           const periods: Period[] = getPeriods(
             epoch.startDate,
             epoch.endDate,
@@ -184,6 +193,7 @@ export class RewardService {
           }
         }
       }
+      console.groupEnd();
       console.groupEnd();
     }
     console.log('done');
