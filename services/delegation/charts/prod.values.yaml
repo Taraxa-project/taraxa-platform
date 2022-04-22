@@ -26,10 +26,10 @@ ingress:
 
 resources:
   limits:
-    cpu: 940m
+    cpu: 540m
     memory: 2048Mi
   requests:
-    cpu: 470m
+    cpu: 270m
     memory: 750Mi
 
 autoscaling:
