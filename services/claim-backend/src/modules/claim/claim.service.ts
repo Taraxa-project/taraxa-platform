@@ -70,6 +70,14 @@ export class ClaimService {
     });
     return batches;
   }
+  public async importCommunityRewards(id: number): Promise<BatchEntity> {
+    const batch = await this.batchRepository.findOneOrFail({ id });
+    return batch;
+  }
+  public async importDelegationRewards(id: number): Promise<BatchEntity> {
+    const batch = await this.batchRepository.findOneOrFail({ id });
+    return batch;
+  }
   public async reward(id: number): Promise<RewardEntity> {
     return this.rewardRepository.findOneOrFail({ id });
   }
