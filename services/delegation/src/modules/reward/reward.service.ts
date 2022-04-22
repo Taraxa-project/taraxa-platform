@@ -123,11 +123,11 @@ export class RewardService {
               .map((i) => i.value.endsAt)
               .filter(filterInEpoch),
           );
-
           for (const period of periods) {
             const currentCommissions = node.commissions.search(
               new Interval(period.startsAt, period.endsAt),
             );
+
             assert(
               currentCommissions.length <= 1,
               'There should be only one commission in the interval',
@@ -159,7 +159,7 @@ export class RewardService {
               const delegationEntity = currentDelegation.value as Delegation;
               const totalBalance = calculateYieldFor(
                 delegationEntity.value,
-                epoch.endDate - epoch.startDate,
+                period.endsAt - period.startsAt,
               );
 
               const nodeCommission =
