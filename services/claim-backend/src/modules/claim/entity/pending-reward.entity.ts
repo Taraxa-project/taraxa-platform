@@ -1,21 +1,19 @@
 import {
   Entity,
   Column,
-  CreateDateColumn,
   PrimaryGeneratedColumn,
   ManyToOne,
   Index,
-  UpdateDateColumn,
 } from 'typeorm';
 import { BatchEntity } from './batch.entity';
 import { AccountEntity } from './account.entity';
 
-@Entity('reward')
-export class RewardEntity {
+@Entity('pending_reward')
+export class PendingRewardEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => BatchEntity, (batch: BatchEntity) => batch.rewards, {
+  @ManyToOne(() => BatchEntity, (batch: BatchEntity) => batch.pendingRewards, {
     onDelete: 'CASCADE',
   })
   batch: BatchEntity;
@@ -29,16 +27,4 @@ export class RewardEntity {
 
   @Column()
   numberOfTokens: string;
-
-  @Column({ default: false })
-  isUnlocked: boolean;
-
-  @Column()
-  unlockDate: Date;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

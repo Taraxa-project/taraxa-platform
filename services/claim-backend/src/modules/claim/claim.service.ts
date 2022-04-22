@@ -1,4 +1,3 @@
-import parse from 'csv-parse/lib/sync';
 import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
@@ -14,12 +13,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ethereum, general } from '@taraxa-claim/config';
 import { CollectionResponse, QueryDto } from '@taraxa-claim/common';
 import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
-import { BatchEntity, BatchTypes } from './entity/batch.entity';
+import { BatchTypes } from './type/batch-type';
+import { BatchEntity } from './entity/batch.entity';
 import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
 import { ClaimEntity } from './entity/claim.entity';
-import { FileDto } from './dto/file.dto';
 import { CreateBatchDto } from './dto/create-batch.dto';
 
 @Injectable()
@@ -42,19 +41,14 @@ export class ClaimService {
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
-  public async createBatch(
-    file: FileDto,
-    batchDto: CreateBatchDto,
-  ): Promise<RewardEntity[]> {
+  public async createBatch(batchDto: CreateBatchDto): Promise<BatchEntity> {
     const batch = new BatchEntity();
     batch.type = BatchTypes[batchDto.type];
     batch.name = batchDto.name;
-
-    const rewards = await this.updateAccounts(this.parseCsv(file.buffer));
-    batch.rewards = rewards;
+    batch.isDraft = true;
 
     await this.batchRepository.save(batch);
-    return batch.rewards;
+    return batch;
   }
   public async batch(id: number): Promise<BatchEntity> {
     return this.batchRepository.findOneOrFail({ id });
@@ -294,93 +288,6 @@ export class ClaimService {
       await this.accountRepository.save(reward.account);
     }
   }
-  private async updateAccounts(
-    rewards: RewardEntity[],
-  ): Promise<RewardEntity[]> {
-    const nRewards = [];
-
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    for (const reward of rewards) {
-      const { address, unlockDate, numberOfTokens } = reward;
-      let account = await this.accountRepository.findOne({
-        address,
-      });
-      const availableToBeClaimed =
-        unlockDate <= now ? numberOfTokens : ethers.BigNumber.from(0);
-      const totalLocked =
-        unlockDate > now ? numberOfTokens : ethers.BigNumber.from(0);
-      if (account) {
-        account.availableToBeClaimed = ethers.BigNumber.from(
-          account.availableToBeClaimed,
-        )
-          .add(availableToBeClaimed)
-          .toString();
-        account.totalLocked = ethers.BigNumber.from(account.totalLocked)
-          .add(totalLocked)
-          .toString();
-      } else {
-        account = new AccountEntity();
-        account.address = address;
-        account.availableToBeClaimed = availableToBeClaimed.toString();
-        account.totalLocked = totalLocked.toString();
-      }
-      await this.accountRepository.save(account);
-      reward.account = account;
-      nRewards.push(reward);
-    }
-    return nRewards;
-  }
-  private parseCsv(buffer: Buffer) {
-    let rewards: string[][];
-    for (const delimiter of [';', ',']) {
-      rewards = parse(buffer, {
-        delimiter,
-        cast: false,
-        castDate: false,
-        trim: true,
-        skipEmptyLines: true,
-        skipLinesWithEmptyValues: true,
-        skipLinesWithError: true,
-      }).map((line: string[]) => {
-        return line.filter((l: string) => {
-          return l !== '';
-        });
-      });
-      rewards = rewards.filter((line: string[]) => line.length === 3);
-      rewards = rewards.filter((line: string[], index: number) => index !== 0);
-      if (rewards.length > 0) {
-        break;
-      }
-    }
-
-    if (rewards.length === 0) {
-      throw new Error('No valid rewards in the CSV file');
-    }
-
-    const now = new Date();
-    return rewards.map((line: string[]) => {
-      const reward = new RewardEntity();
-      reward.address = line[0].toString();
-      reward.numberOfTokens = this.stringToBNString(line[1]);
-      reward.unlockDate = new Date(line[2]);
-      reward.isUnlocked = reward.unlockDate < now;
-      return reward;
-    });
-  }
-
-  private stringToBNString(f: string): string {
-    const precision = this.generalConfig.precision;
-    const numberOfTokens = ethers.BigNumber.from(
-      parseFloat(f.replace(',', '')) *
-        ethers.BigNumber.from(10).pow(precision).toNumber(),
-    )
-      .mul(ethers.BigNumber.from(10).pow(18 - precision))
-      .toString();
-
-    return numberOfTokens;
-  }
-
   private bNStringToString(i: string): string {
     const precision = this.generalConfig.precision;
     const numberOfTokens =

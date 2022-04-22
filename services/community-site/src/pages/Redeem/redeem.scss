@@ -1,84 +1,84 @@
 .redeem {
-.container {
-  display: flex;
-  flex-direction: column;
-}
-
-.container-centered {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.claim {
-  display: flex;
-}
-
-.claim-content {
-  height: 100%;
-  width: 100%;
-  text-align: left;
-
-  .notification {
-    margin-bottom: 40px;
-  }
-}
-
-.chip {
-  margin-right: 3% !important;
-  color: white !important;
-  background-color: #282c3e !important;
-}
-
-.chipSelected {
-  margin-right: 3% !important;
-  color: white !important;
-  background-color: #15ac5b !important;
-}
-
-.whiteInput {
-  input {
-    color: rgba(255, 255, 255, 1) !important;
-  }
-  div {
-    width: 95% !important;
-    margin-left: 2% !important;
+  .container {
+    display: flex;
+    flex-direction: column;
   }
 
-  fieldset {
-    border-color: white !important;
+  .container-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
-}
-.table {
-  min-width: 750;
-  color: #ffffff !important;
-}
 
-.tableHeadRow {
-  border-bottom: 1px solid #1e2231 !important;
-}
+  .claim {
+    display: flex;
+  }
 
-.tableHeadCell {
-  color: #878ca4 !important;
-  background-color: #1b1e2b;
-  border: none;
-  height: auto;
-  line-height: 8px;
-}
+  .claim-content {
+    height: 100%;
+    width: 100%;
+    text-align: left;
 
-.tableRow {
-  border-bottom: 1px solid #1e2231 !important;
-}
+    .notification {
+      margin-bottom: 40px;
+    }
+  }
 
-.tableCell {
-  color: #FFFFFF !important;
-  border: none;
-  height: auto;
-  border-bottom: 1px solid #1e2231 !important;
-}
+  .chip {
+    margin-right: 3% !important;
+    color: white !important;
+    background-color: #282c3e !important;
+  }
 
-.tableSection {
-  text-align: center;
-}
+  .chipSelected {
+    margin-right: 3% !important;
+    color: white !important;
+    background-color: #15ac5b !important;
+  }
+
+  .whiteInput {
+    input {
+      color: rgba(255, 255, 255, 1) !important;
+    }
+    div {
+      width: 95% !important;
+      margin-left: 2% !important;
+    }
+
+    fieldset {
+      border-color: white !important;
+    }
+  }
+  .table {
+    min-width: 750;
+    color: #ffffff !important;
+  }
+
+  .tableHeadRow {
+    border-bottom: 1px solid #1e2231 !important;
+  }
+
+  .tableHeadCell {
+    color: #878ca4 !important;
+    background-color: #1b1e2b;
+    border: none;
+    height: auto;
+    line-height: 8px;
+  }
+
+  .tableRow {
+    border-bottom: 1px solid #1e2231 !important;
+  }
+
+  .tableCell {
+    color: #ffffff !important;
+    border: none;
+    height: auto;
+    border-bottom: 1px solid #1e2231 !important;
+  }
+
+  .tableSection {
+    text-align: center;
+  }
 }

@@ -55,6 +55,6 @@ services:
       MYSQL_USER: claim
       MYSQL_PASSWORD: mialc
       MYSQL_DATABASE: claim
-      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
     ports:
       - 3306:3306
