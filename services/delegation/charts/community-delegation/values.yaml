@@ -7,8 +7,10 @@ app:
 
   environment: default
   dbHost: default-db.address
-  dbName: taraxa-community-default
+  dbDelegationName: taraxa-delegation-default
+  dbCommunityName: taraxa-community-default
   queueHost: default-queue.address
+  indexerStakingUrl: http://default-taraxa-indexer:8000/subgraphs/name/taraxa_project/staking
 
   serverPort: 3000
   dbPort: 5432

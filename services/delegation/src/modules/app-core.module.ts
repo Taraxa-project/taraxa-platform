@@ -10,11 +10,13 @@ import generalConfig from '../config/general';
 import databaseConfig from '../config/database';
 import queueConfig from '../config/queue';
 
-import { AuthModule } from '../modules/auth/auth.module';
-import { NodeModule } from '../modules/node/node.module';
-import { ProfileModule } from '../modules/profile/profile.module';
-import { DelegationModule } from '../modules/delegation/delegation.module';
-import { HttpExceptionFilter } from '../modules/utils/http-exception.filter';
+import { AuthModule } from './auth/auth.module';
+import { NodeModule } from './node/node.module';
+import { ProfileModule } from './profile/profile.module';
+import { UserModule } from './user/user.module';
+import { RewardModule } from './reward/reward.module';
+import { DelegationModule } from './delegation/delegation.module';
+import { HttpExceptionFilter } from './utils/http-exception.filter';
 
 @Module({
   imports: [
@@ -30,9 +32,24 @@ import { HttpExceptionFilter } from '../modules/utils/http-exception.filter';
         port: config.get<number>('database.port'),
         username: config.get('database.user'),
         password: config.get('database.pass'),
-        database: config.get('database.name'),
+        database: config.get('database.nameDelegation'),
         autoLoadEntities: true,
         synchronize: !config.get<boolean>('isProd'),
+      }),
+      inject: [ConfigService],
+    }),
+    TypeOrmModule.forRootAsync({
+      name: 'communityConnection',
+      imports: [ConfigModule.forFeature(databaseConfig)],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get('database.host'),
+        port: config.get<number>('database.port'),
+        username: config.get('database.user'),
+        password: config.get('database.pass'),
+        database: config.get('database.nameCommunity'),
+        autoLoadEntities: true,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
@@ -52,6 +69,8 @@ import { HttpExceptionFilter } from '../modules/utils/http-exception.filter';
     ScheduleModule.forRoot(),
     AuthModule,
     ProfileModule,
+    UserModule,
+    RewardModule,
   ],
   providers: [
     {

@@ -8,11 +8,13 @@ data:
   PORT: {{ .Values.app.serverPort | quote }}
   DATABASE_HOST: {{ .Values.app.dbHost | quote }}
   DATABASE_PORT: {{ .Values.app.dbPort | quote }}
-  DATABASE_NAME: {{ .Values.app.dbName | quote }}
+  DATABASE_DELEGATION_NAME: {{ .Values.app.dbDelegationName | quote }}
+  DATABASE_COMMUNITY_NAME: {{ .Values.app.dbCommunityName | quote }}
   QUEUE_HOST: {{ .Values.app.queueHost | quote }}
   STAKING_CONTRACT_ADDRESS: {{ .Values.app.stakingContractAddress | quote }}
   MAINNET_ENDPOINT: {{ .Values.app.mainnetEndpoint | quote }}
   TESTNET_ENDPOINT: {{ .Values.app.testnetEndpoint | quote }}
   MAINNET_EXPLORER_URL: {{ .Values.app.mainnetExplorerUrl | quote }}
   TESTNET_EXPLORER_URL: {{ .Values.app.testnetExplorerUrl | quote }}
+  INDEXER_STAKING_URL: {{ .Values.app.indexerStakingUrl | quote }}
   NODE_ENV: {{ .Values.app.environment | quote }}

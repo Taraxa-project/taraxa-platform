@@ -7,6 +7,7 @@ export default registerAs('delegation', () => ({
   commissionChangeThreshold: 5,
   minDelegation: 1000,
   maxDelegation: 10000000,
+  eligibilityThreshold: 1000000,
   testnetDelegation: ethers.BigNumber.from(1000000).mul(
     ethers.BigNumber.from(10).pow(18),
   ),
