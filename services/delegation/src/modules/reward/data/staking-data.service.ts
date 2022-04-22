@@ -1,13 +1,6 @@
 import _ from 'lodash';
 import * as ethers from 'ethers';
-import fetch from 'cross-fetch';
-import {
-  ApolloClient,
-  NormalizedCacheObject,
-  HttpLink,
-  InMemoryCache,
-  gql,
-} from '@apollo/client';
+import { request, gql } from 'graphql-request';
 import IntervalTree, { Interval } from '@flatten-js/interval-tree';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -28,12 +21,9 @@ export interface StakingIntervalValue {
 
 @Injectable()
 export class StakingDataService {
-  private indexerClient: ApolloClient<NormalizedCacheObject>;
+  private stakingUrl: string;
   constructor(config: ConfigService) {
-    this.indexerClient = new ApolloClient({
-      link: new HttpLink({ uri: config.get('indexer.stakingUrl'), fetch }),
-      cache: new InMemoryCache(),
-    });
+    this.stakingUrl = config.get('indexer.stakingUrl');
   }
   async getData(endTime: number) {
     const events = await this.getEvents();
@@ -92,7 +82,7 @@ export class StakingDataService {
   private async getPaginatedEvents(page = 1, limit: number) {
     const skip = (page - 1) * limit;
     try {
-      const query = gql(`
+      const query = gql`
         query {
           stakingEvents(first: ${limit}, skip: ${skip}, orderBy: timestamp, orderDirection: asc) {
             id
@@ -102,11 +92,9 @@ export class StakingDataService {
             timestamp
           }
         }
-      `);
-      const response = await this.indexerClient.query({
-        query,
-      });
-      return response.data.stakingEvents.map((e) => ({
+      `;
+      const response = await request(this.stakingUrl, query);
+      return response.stakingEvents.map((e) => ({
         ...e,
         amount: ethers.BigNumber.from(e.amount)
           .div(ethers.BigNumber.from(10).pow(18))
