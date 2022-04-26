@@ -15,15 +15,12 @@ export class RewardEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne((type) => BatchEntity, (batch: BatchEntity) => batch.rewards, {
+  @ManyToOne(() => BatchEntity, (batch: BatchEntity) => batch.rewards, {
     onDelete: 'CASCADE',
   })
   batch: BatchEntity;
 
-  @ManyToOne(
-    (type) => AccountEntity,
-    (account: AccountEntity) => account.address,
-  )
+  @ManyToOne(() => AccountEntity, (account: AccountEntity) => account.address)
   account: AccountEntity;
 
   @Column()

@@ -90,7 +90,6 @@ interface ViewProfileDetailsProps {
 function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfileDetailsProps) {
   const auth = useAuth();
   const { account } = useCMetamask();
-  const checksumAccount = ethers.utils.getAddress(account || '');
   const history = useHistory();
   const claimApi = useClaimApi();
   const [lockedPoints, setLockedPoints] = useState(false);
@@ -101,7 +100,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
   useEffect(() => {
     if (account) {
       claimApi
-        .post(`/accounts/${checksumAccount}`, {})
+        .post(`/accounts/${account}`, {})
         .then((response) => {
           const { totalClaimed, totalLocked } = response.response;
           const calculated = ethers.BigNumber.from(totalClaimed)

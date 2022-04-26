@@ -40,7 +40,7 @@
     "file-loader": "^6.2.0",
     "jdenticon": "^3.1.1",
     "material-ui-icons": "^1.0.0-beta.36",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "node-sass": "^7.0.0",
     "postcss": "^8.2.1",
     "react-modal": "^3.14.3",
@@ -52,5 +52,8 @@
     "sass": "^1.38.0",
     "sass-loader": "^10",
     "typescript": "^4.1.2"
+  },
+  "devDependencies": {
+    "tslib": "^2.3.1"
   }
 }

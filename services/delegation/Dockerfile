@@ -1,7 +1,7 @@
 # build environment
 FROM node:14-alpine as build
 
-RUN apk --no-cache add --update \
+RUN apk --no-cache add --update python3 make g++\
     --virtual .build_deps \
     build-base
 
@@ -17,7 +17,7 @@ RUN yarn install --frozen-lockfile \
     && yarn cache clean
 
 COPY . /app
-RUN yarn run delegation-build
+RUN yarn delegation-build
 
 FROM node:14-alpine AS release
 
@@ -31,4 +31,4 @@ COPY --from=build /app/services/delegation/package.json /app/services/delegation
 COPY --from=build /app/services/delegation/node_modules /app/services/delegation/node_modules
 COPY --from=build /app/services/delegation/dist /app/services/delegation/dist
 
-CMD [ "yarn", "run", "delegation-start:prod"]
+CMD [ "yarn", "delegation-start:prod"]

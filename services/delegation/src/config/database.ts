@@ -5,5 +5,6 @@ export default registerAs('database', () => ({
   pass: process.env.DATABASE_PASS,
   host: process.env.DATABASE_HOST,
   port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
-  name: process.env.DATABASE_NAME,
+  nameDelegation: process.env.DATABASE_DELEGATION_NAME,
+  nameCommunity: process.env.DATABASE_COMMUNITY_NAME,
 }));

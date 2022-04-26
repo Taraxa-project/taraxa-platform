@@ -1,13 +1,11 @@
-import { Express } from 'express';
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,9 +15,6 @@ import {
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
-  ApiConsumes,
-  ApiBody,
   ApiNoContentResponse,
   ApiUnauthorizedResponse,
   ApiQuery,
@@ -33,8 +28,6 @@ import {
   CollectionResponse,
 } from '@taraxa-claim/common';
 import { BatchEntity } from './entity/batch.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { RewardEntity } from './entity/reward.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
 
 @ApiBearerAuth()
@@ -47,33 +40,21 @@ export class BatchController {
     description: 'Batch created',
   })
   @ApiForbiddenResponse({ description: 'You need a valid token' })
-  @ApiInternalServerErrorResponse({ description: 'Invalid CSV file' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'CSV file',
-    type: CreateBatchDto,
-  })
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
-  async createBatch(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() batchDto: CreateBatchDto,
-  ): Promise<RewardEntity[]> {
-    const { originalname, mimetype, buffer, size } = file;
-    try {
-      return await this.claimService.createBatch(
-        {
-          originalname,
-          mimetype,
-          buffer,
-          size,
-        },
-        batchDto,
-      );
-    } catch (e) {
-      const message = (e || {}).message || '';
-      throw new BadRequestException(message);
-    }
+  async createBatch(@Body() batchDto: CreateBatchDto): Promise<BatchEntity> {
+    return await this.claimService.createBatch(batchDto);
+  }
+  @ApiOkResponse()
+  @ApiForbiddenResponse({ description: 'You need a valid token' })
+  @Patch('/:id/import-community-rewards')
+  async importCommunityRewards(@Param('id') id: number): Promise<BatchEntity> {
+    return await this.claimService.importCommunityRewards(id);
+  }
+  @ApiOkResponse()
+  @ApiForbiddenResponse({ description: 'You need a valid token' })
+  @Patch('/:id/import-delegation-rewards')
+  async importDelegationRewards(@Param('id') id: number): Promise<BatchEntity> {
+    return await this.claimService.importDelegationRewards(id);
   }
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
@@ -110,7 +91,7 @@ export class BatchController {
     type: 'String',
   })
   async getBatches(
-    @Query(['id', 'type', 'name', 'createdAt'])
+    @Query(['id', 'type', 'name', 'createdAt', 'isDraft'])
     query: QueryDto,
   ): Promise<CollectionResponse<BatchEntity>> {
     return await this.claimService.batches(query);

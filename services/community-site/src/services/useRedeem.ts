@@ -1,6 +1,5 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import moment from 'moment';
-import { formatEth, roundEth, weiToEth } from '../utils/eth';
 
 export interface ClaimData {
   availableToBeClaimed: string;
@@ -19,17 +18,17 @@ export interface ClaimResponse {
 export interface Claim {
   id: number;
   address: string;
-  numberOfTokens: string;
-  totalClaimed?: string;
+  numberOfTokens: BigNumber;
+  totalClaimed?: BigNumber;
   claimed: boolean;
-  claimedAt: Date;
+  claimedAt: Date | null;
   createdAt: Date;
 }
 function useRedeem() {
   const parseClaim = (claimData: ClaimResponse): Claim => ({
     id: claimData.id,
     address: claimData.address,
-    numberOfTokens: claimData.numberOfTokens,
+    numberOfTokens: BigNumber.from(ethers.utils.parseUnits(claimData.numberOfTokens, 18)),
     claimedAt: moment(claimData.claimedAt).toDate(),
     createdAt: moment(claimData.createdAt).toDate(),
     claimed: claimData.claimed,
@@ -44,11 +43,11 @@ function useRedeem() {
       return {
         id: claim.id,
         address: claim.address,
-        numberOfTokens: claim.numberOfTokens,
+        numberOfTokens: BigNumber.from(ethers.utils.parseUnits(claim.numberOfTokens, 18)),
         claimedAt: moment(claim.claimedAt).toDate(),
         createdAt: moment(claim.createdAt).toDate(),
         claimed: claim.claimed,
-        totalClaimed: '0',
+        totalClaimed: BigNumber.from('0'),
       } as Claim;
     });
     transformedClaims.sort(
@@ -57,23 +56,23 @@ function useRedeem() {
     const finalClaims = transformedClaims.map((_claim, ind) => {
       const prevElement = ind > 0 ? transformedClaims[ind - 1] : undefined;
       if (prevElement && prevElement.totalClaimed) {
-        const newClaimed = _claim.claimed
-          ? +prevElement.totalClaimed + +_claim.numberOfTokens
-          : +prevElement.totalClaimed;
-        _claim.totalClaimed = `${newClaimed}`;
+        _claim.totalClaimed = prevElement.totalClaimed.add(_claim.numberOfTokens);
       } else {
-        _claim.totalClaimed = `${_claim.claimed ? _claim.numberOfTokens : '0'}`;
+        _claim.totalClaimed = _claim.numberOfTokens;
       }
       return _claim;
     });
-    finalClaims.reverse();
-    finalClaims.unshift({
+    const reversedClaims = finalClaims.reverse();
+    reversedClaims.unshift({
       id: 999,
       address: account || '',
-      numberOfTokens: formatEth(roundEth(weiToEth(availableToBeClaimed.toString()))),
-      totalClaimed: finalClaims[0].totalClaimed,
+      numberOfTokens:
+        finalClaims[0] && finalClaims[0].totalClaimed
+          ? availableToBeClaimed.sub(finalClaims[0].totalClaimed)
+          : availableToBeClaimed,
+      totalClaimed: finalClaims[0] ? finalClaims[0].totalClaimed : BigNumber.from('0'),
       claimed: false,
-      claimedAt: new Date(),
+      claimedAt: null,
       createdAt: new Date(),
     });
     return finalClaims;

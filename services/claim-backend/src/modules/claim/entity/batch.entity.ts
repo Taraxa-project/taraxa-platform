@@ -6,12 +6,8 @@ import {
   Column,
 } from 'typeorm';
 import { RewardEntity } from './reward.entity';
-
-export enum BatchTypes {
-  PRIVATE_SALE = 'PRIVATE_SALE',
-  PUBLIC_SALE = 'PUBLIC_SALE',
-  COMMUNITY_ACTIVITY = 'COMMUNITY_ACTIVITY',
-}
+import { BatchTypes } from '../type/batch-type';
+import { PendingRewardEntity } from './pending-reward.entity';
 
 @Entity('batch')
 export class BatchEntity {
@@ -24,11 +20,24 @@ export class BatchEntity {
   @Column()
   name: string;
 
-  @OneToMany((type) => RewardEntity, (reward: RewardEntity) => reward.batch, {
+  @OneToMany(() => RewardEntity, (reward: RewardEntity) => reward.batch, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   rewards: RewardEntity[];
+
+  @OneToMany(
+    () => PendingRewardEntity,
+    (pendingReward: PendingRewardEntity) => pendingReward.batch,
+    {
+      cascade: true,
+      onDelete: 'CASCADE',
+    },
+  )
+  pendingRewards: PendingRewardEntity[];
+
+  @Column()
+  isDraft: boolean = true;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { BaseCard, Button, Loading, Notification } from '@taraxa_project/taraxa-ui';
 
 import {
@@ -62,7 +62,14 @@ function Redeem() {
         setLocked(ethers.BigNumber.from('0'));
         setClaimed(ethers.BigNumber.from('0'));
       }
+    };
+    if (account) {
+      getClaimData(account);
+    }
+  }, [account]);
 
+  useEffect(() => {
+    const loadClaims = async (account: string) => {
       try {
         const claimData = await api.get(
           `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/claims/${account}`,
@@ -85,9 +92,9 @@ function Redeem() {
       }
     };
     if (account) {
-      getClaimData(account);
+      loadClaims(account);
     }
-  }, [account]);
+  }, [account, availableToBeClaimed]);
 
   useEffect(() => {
     const getTokenBalance = async () => {
@@ -206,9 +213,11 @@ function Redeem() {
                 {claims.map((row: Claim, ind: number) => {
                   return (
                     <TableRow className="tableRow" key={ind}>
-                      <TableCell className="tableCell">{row.numberOfTokens}</TableCell>
                       <TableCell className="tableCell">
-                        {row.totalClaimed ? row.totalClaimed : '0'}
+                        {formatEth(roundEth(weiToEth(row.numberOfTokens)))}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {row.totalClaimed ? formatEth(roundEth(weiToEth(row.totalClaimed))) : '0'}
                       </TableCell>
                       <TableCell className="tableCell">
                         {moment().format('ll').toUpperCase()}
@@ -216,9 +225,12 @@ function Redeem() {
                       <TableCell className="tableCell">
                         {!row.claimed ? (
                           <Button
-                            disabled={availableToBeClaimed.lt(
-                              BigNumber.from(ethers.utils.parseUnits(row.numberOfTokens, 18)),
-                            )}
+                            disabled={
+                              availableToBeClaimed.lt(row.numberOfTokens) ||
+                              availableToBeClaimed.eq(0) ||
+                              row.numberOfTokens.eq(0) ||
+                              row.claimed
+                            }
                             variant="outlined"
                             color="secondary"
                             onClick={() => onClaim(claims.indexOf(row))}

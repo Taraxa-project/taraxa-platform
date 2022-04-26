@@ -1,16 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
+import { BatchTypes } from '../type/batch-type';
 
 export class CreateBatchDto {
-  @ApiProperty({ type: 'string', format: 'binary' })
-  file: any;
-
   @IsNotEmpty()
   @ApiProperty()
   name: string;
 
   @IsNotEmpty()
-  @IsIn(['PRIVATE_SALE', 'PUBLIC_SALE', 'COMMUNITY_ACTIVITY'])
-  @ApiProperty()
-  type: 'PRIVATE_SALE' | 'PUBLIC_SALE' | 'COMMUNITY_ACTIVITY';
+  @IsEnum(BatchTypes)
+  @ApiProperty({
+    enum: BatchTypes,
+  })
+  type: BatchTypes;
 }

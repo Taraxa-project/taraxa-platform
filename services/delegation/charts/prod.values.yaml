@@ -4,13 +4,15 @@ workerReplicaCount: 3
 app:
   environment: prod
   dbHost: 10.39.112.4
-  dbName: delegation
+  dbDelegationName: delegation
+  dbCommunityName: taraxa-community-prod
   queueHost: 10.39.114.21
   stakingContractAddress: "0x7Af59Ea121a8Da8e49d2d44856feB7761561995b"
   mainnetEndpoint: "https://rpc.mainnet.taraxa.io"
   testnetEndpoint: "https://rpc.testnet.taraxa.io"
   mainnetExplorerUrl: "https://explorer.mainnet.taraxa.io"
   testnetExplorerUrl: "https://explorer.testnet.taraxa.io"
+  indexerStakingUrl: http://prod-taraxa-indexer:8000/subgraphs/name/taraxa_project/staking
 
 image:
   repository: taraxa/delegation
@@ -26,10 +28,10 @@ ingress:
 
 resources:
   limits:
-    cpu: 2000m
+    cpu: 540m
     memory: 2048Mi
   requests:
-    cpu: 400m
+    cpu: 270m
     memory: 750Mi
 
 autoscaling:
