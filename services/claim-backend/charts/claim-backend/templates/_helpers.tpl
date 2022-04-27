@@ -78,17 +78,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-DB Selector labels
-*/}}
-{{- define "claim-backend-db.selectorLabels" -}}
-app: {{ .Values.app.name }}
-component: {{ .Values.app.component }}
-environment: {{ .Values.app.environment }}
-app.kubernetes.io/name: {{ include "claim-backend.name" . }}-db-proxy
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
 Cron Selector labels
 */}}
 {{- define "claim-backend-cron.selectorLabels" -}}
