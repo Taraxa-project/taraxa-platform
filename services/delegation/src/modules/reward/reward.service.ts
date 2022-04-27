@@ -183,9 +183,7 @@ export class RewardService {
                 const reward = this.getNewDelegatorRewardEntity(epoch, period);
                 reward.node = node.node.id;
                 reward.user = delegationEntity.user;
-                reward.userAddress = await this.getUserAddressById(
-                  delegationEntity.user,
-                );
+                reward.userAddress = delegationEntity.address;
                 reward.value = totalBalance - nodeCommission;
                 await this.rewardRepository.save(reward);
               }
