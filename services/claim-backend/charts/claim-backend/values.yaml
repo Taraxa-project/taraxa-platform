@@ -14,7 +14,7 @@ app:
 
   serverPort: 3001
   dbHost: ''
-  dbPort: 3306
+  dbPort: 5432
   dbName: claim
 
 image:
