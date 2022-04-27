@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
   UseGuards,
   UseInterceptors,
@@ -43,18 +42,6 @@ export class BatchController {
   @Post()
   async createBatch(@Body() batchDto: CreateBatchDto): Promise<BatchEntity> {
     return await this.claimService.createBatch(batchDto);
-  }
-  @ApiOkResponse()
-  @ApiForbiddenResponse({ description: 'You need a valid token' })
-  @Patch('/:id/import-community-rewards')
-  async importCommunityRewards(@Param('id') id: number): Promise<BatchEntity> {
-    return await this.claimService.importCommunityRewards(id);
-  }
-  @ApiOkResponse()
-  @ApiForbiddenResponse({ description: 'You need a valid token' })
-  @Patch('/:id/import-delegation-rewards')
-  async importDelegationRewards(@Param('id') id: number): Promise<BatchEntity> {
-    return await this.claimService.importDelegationRewards(id);
   }
   @ApiOkResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })

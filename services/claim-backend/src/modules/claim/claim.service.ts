@@ -303,10 +303,12 @@ export class ClaimService {
       await this.accountRepository.save(reward.account);
     }
   }
-  private async getCommunityRewards(): Promise<{
-    address: string;
-    total: number;
-  }> {
+  private async getCommunityRewards(): Promise<
+    {
+      address: string;
+      total: ethers.BigNumber;
+    }[]
+  > {
     const response = await this.httpService
       .get(`${this.rewardConfig.communitySiteApiUrl}/reward`)
       .toPromise();
@@ -321,10 +323,12 @@ export class ClaimService {
       total: this.floatToBn(reward.total),
     }));
   }
-  private async getDelegationRewards(): Promise<{
-    address: string;
-    total: number;
-  }> {
+  private async getDelegationRewards(): Promise<
+    {
+      address: string;
+      total: ethers.BigNumber;
+    }[]
+  > {
     const response = await this.httpService
       .get(`${this.rewardConfig.delegationApiUrl}/rewards/total`)
       .toPromise();
