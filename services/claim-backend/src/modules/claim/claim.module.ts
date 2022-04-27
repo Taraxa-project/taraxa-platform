@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
 import { BatchEntity } from './entity/batch.entity';
+import { PendingRewardEntity } from './entity/pending-reward.entity';
 import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
 import { ClaimEntity } from './entity/claim.entity';
@@ -15,10 +17,17 @@ import { BlockchainModule } from '@taraxa-claim/blockchain';
   imports: [
     TypeOrmModule.forFeature([
       BatchEntity,
+      PendingRewardEntity,
       RewardEntity,
       AccountEntity,
       ClaimEntity,
     ]),
+    HttpModule.registerAsync({
+      useFactory: () => ({
+        timeout: 5000,
+        maxRedirects: 5,
+      }),
+    }),
     BlockchainModule,
   ],
   controllers: [

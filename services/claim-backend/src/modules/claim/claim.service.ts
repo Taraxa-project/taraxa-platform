@@ -1,6 +1,6 @@
 import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { In, LessThan, Repository } from 'typeorm';
 import {
   Inject,
@@ -10,11 +10,13 @@ import {
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ethereum, general } from '@taraxa-claim/config';
+import { HttpService } from '@nestjs/axios';
+import { ethereum, general, reward } from '@taraxa-claim/config';
 import { CollectionResponse, QueryDto } from '@taraxa-claim/common';
 import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
 import { BatchTypes } from './type/batch-type';
 import { BatchEntity } from './entity/batch.entity';
+import { PendingRewardEntity } from './entity/pending-reward.entity';
 import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
@@ -25,8 +27,11 @@ import { CreateBatchDto } from './dto/create-batch.dto';
 export class ClaimService {
   privateKey: Buffer;
   constructor(
+    private httpService: HttpService,
     @InjectRepository(BatchEntity)
     private readonly batchRepository: Repository<BatchEntity>,
+    @InjectRepository(PendingRewardEntity)
+    private readonly pendingRewardRepository: Repository<PendingRewardEntity>,
     @InjectRepository(RewardEntity)
     private readonly rewardRepository: Repository<RewardEntity>,
     @InjectRepository(AccountEntity)
@@ -37,6 +42,8 @@ export class ClaimService {
     private readonly generalConfig: ConfigType<typeof general>,
     @Inject(ethereum.KEY)
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
+    @Inject(reward.KEY)
+    private readonly rewardConfig: ConfigType<typeof reward>,
     private readonly blockchainService: BlockchainService,
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
@@ -46,6 +53,14 @@ export class ClaimService {
     batch.type = BatchTypes[batchDto.type];
     batch.name = batchDto.name;
     batch.isDraft = true;
+
+    if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
+      await this.savePendingRewards(await this.getCommunityRewards(), batch);
+      await this.savePendingRewards(await this.getDelegationRewards(), batch);
+    }
+
+    console.log(batch);
+    return;
 
     await this.batchRepository.save(batch);
     return batch;
@@ -69,14 +84,6 @@ export class ClaimService {
       take: range[1] - range[0] + 1,
     });
     return batches;
-  }
-  public async importCommunityRewards(id: number): Promise<BatchEntity> {
-    const batch = await this.batchRepository.findOneOrFail({ id });
-    return batch;
-  }
-  public async importDelegationRewards(id: number): Promise<BatchEntity> {
-    const batch = await this.batchRepository.findOneOrFail({ id });
-    return batch;
   }
   public async reward(id: number): Promise<RewardEntity> {
     return this.rewardRepository.findOneOrFail({ id });
@@ -295,6 +302,79 @@ export class ClaimService {
       await this.rewardRepository.save(reward);
       await this.accountRepository.save(reward.account);
     }
+  }
+  private async getCommunityRewards(): Promise<
+    {
+      address: string;
+      total: ethers.BigNumber;
+    }[]
+  > {
+    const response = await this.httpService
+      .get(`${this.rewardConfig.communitySiteApiUrl}/reward`)
+      .toPromise();
+
+    if (response.status !== 200) {
+      throw new Error('Failed to get community rewards');
+    }
+
+    const rewards = response.data;
+    return rewards.map((reward: any) => ({
+      address: reward.address,
+      total: this.floatToBn(reward.total),
+    }));
+  }
+  private async getDelegationRewards(): Promise<
+    {
+      address: string;
+      total: ethers.BigNumber;
+    }[]
+  > {
+    const response = await this.httpService
+      .get(`${this.rewardConfig.delegationApiUrl}/rewards/total`)
+      .toPromise();
+
+    const rewards = response.data;
+    return rewards.map((reward: any) => ({
+      address: reward.address,
+      total: this.floatToBn(reward.amount),
+    }));
+  }
+  private async savePendingRewards(
+    rewards: { address: string; total: BigNumber }[],
+    batch: BatchEntity,
+  ): Promise<BatchEntity> {
+    for (const reward of rewards) {
+      let pendingReward = await this.pendingRewardRepository.findOne({
+        relations: ['batch'],
+        where: {
+          batch: batch,
+          address: ethUtil.toChecksumAddress(reward.address),
+        },
+      });
+      if (pendingReward) {
+        pendingReward.numberOfTokens = ethers.BigNumber.from(
+          pendingReward.numberOfTokens,
+        )
+          .add(reward.total)
+          .toString();
+      } else {
+        pendingReward = new PendingRewardEntity();
+        pendingReward.address = ethUtil.toChecksumAddress(reward.address);
+        pendingReward.batch = batch;
+        pendingReward.numberOfTokens = reward.total.toString();
+      }
+      await this.pendingRewardRepository.save(pendingReward);
+    }
+
+    return batch;
+  }
+  private floatToBn(i: number): ethers.BigNumber {
+    const precision = this.generalConfig.precision;
+    return ethers.BigNumber.from(
+      ethers.BigNumber.from(
+        ethers.BigNumber.from(10).pow(precision).toNumber() * i,
+      ),
+    ).mul(ethers.BigNumber.from(10).pow(18 - precision));
   }
   private bNStringToString(i: string): string {
     const precision = this.generalConfig.precision;
