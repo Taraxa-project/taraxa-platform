@@ -3,9 +3,10 @@ version: '3.8'
 services:
   main:
     build:
-      context: .
+      context: ../../
       target: build
-    command: yarn start:dev
+      dockerfile: services/claim-backend/Dockerfile
+    command: yarn workspace @taraxa_project/taraxa-claim-backend start:prod
     ports:
       - ${SERVER_PORT}:3000
     volumes:
@@ -15,16 +16,17 @@ services:
       - .env
     depends_on:
       - db
+    links:
+     - db
   db:
-    image: mysql:8.0.23
-    command: --default-authentication-plugin=mysql_native_password
+    image: postgres
     restart: always
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
     env_file:
       - .env
     environment:
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - ${DB_PORT}:3306
+      - ${DB_PORT}:5432

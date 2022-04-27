@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import { compare } from 'bcryptjs';
 import { Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -27,8 +27,8 @@ export class AuthService {
       throw new Error('Invalid credential');
     }
 
-    const compare = await bcrypt.compare(password, auth.password);
-    if (!compare) {
+    const compared = await compare(password, auth.password);
+    if (!compared) {
       throw new Error('Invalid credential');
     }
 

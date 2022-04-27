@@ -5,7 +5,7 @@ app:
   communitySiteApiUrl: 'https://api.community.taraxa.io'
   delegationApiUrl: 'https://api-delegation.community.taraxa.io'
 
-  dbHost: 10.39.113.3
+  dbHost: 10.39.112.3
 
 image:
   repository: gcr.io/jovial-meridian-249123/taraxa/claim-backend-develop
