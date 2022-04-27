@@ -7,6 +7,8 @@ metadata:
 data:
   CLAIM_CONTRACT_ADDRESS: {{ .Values.app.claimContractAddress | quote }}
   PROVIDER: {{ .Values.app.provider | quote }}
+  COMMUNITY_SITE_API_URL: {{ .Values.app.communitySiteApiUrl | quote }}
+  DELEGATION_API_URL: {{ .Values.app.delegationApiUrl | quote }}
   SERVER_PORT: {{ .Values.app.serverPort | quote }}
   DB_HOST: {{ .Values.app.dbHost | quote }}
   DB_PORT: {{ .Values.app.dbPort | quote }}

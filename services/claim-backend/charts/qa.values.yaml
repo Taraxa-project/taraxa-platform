@@ -2,6 +2,8 @@ app:
   environment: qa
   claimContractAddress: '0x11D846A8314fBdFcFc8C5f18c5031Bf7a7711938'
   provider: 'https://goerli.infura.io/v3/1c60d8f404244a1fbafdd6131f01f9d2'
+  communitySiteApiUrl: 'https://api.community.taraxa.io'
+  delegationApiUrl: 'https://api-delegation.community.taraxa.io'
 
   dbHost: 10.39.113.3
 
