@@ -280,6 +280,15 @@ a.commissionChangeCheck {
 
     .validatorActions {
       float: right;
+
+      button {
+        border-radius: 8px;
+      }
+
+      button:disabled, button[disabled] {
+        background: #202534;
+        border: 1px solid #282C3E;
+      }
     }
   }
 
