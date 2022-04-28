@@ -268,7 +268,7 @@ a.commissionChangeCheck {
         border-radius: 8px;
       }
 
-      .disabledButton {
+      button:disabled, button[disabled] {
         background: #202534;
         border: 1px solid #282C3E;
       }
