@@ -46,7 +46,7 @@ function Redeem() {
       try {
         const data = await api.post(
           `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${ethers.utils.getAddress(account)}`,
-          {},
+          undefined,
         );
         if (data.success) {
           setAvailableToBeClaimed(ethers.BigNumber.from(`${data.response.availableToBeClaimed}`));
