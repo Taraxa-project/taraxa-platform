@@ -73,7 +73,7 @@ function Redeem() {
       try {
         const claimData = await api.get(
           `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/claims/${account}`,
-          {},
+          undefined,
         );
         if (claimData.success) {
           const finalClaims = redeem.formatClaimsForTable(
