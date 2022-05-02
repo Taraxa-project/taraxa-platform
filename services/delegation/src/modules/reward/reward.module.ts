@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
@@ -8,6 +8,7 @@ import { Delegation } from '../delegation/delegation.entity';
 import { DelegationDataService } from './data/delegation-data.service';
 import { StakingDataService } from './data/staking-data.service';
 import { RewardService } from './reward.service';
+import { RewardTaskService } from './reward-task.service';
 import { Reward } from './reward.entity';
 import { RewardRepository } from './reward.repository';
 import { RewardsController } from './reward.controller';
@@ -31,4 +32,15 @@ import delegationConfig from '../../config/delegation';
   controllers: [RewardsController],
   providers: [StakingDataService, DelegationDataService, RewardService],
 })
-export class RewardModule {}
+export class RewardModule {
+  static forRoot(type = 'web'): DynamicModule {
+    let providers = [];
+    if (type === 'cron') {
+      providers = [RewardTaskService];
+    }
+    return {
+      module: RewardModule,
+      providers,
+    };
+  }
+}

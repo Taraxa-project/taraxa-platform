@@ -36,6 +36,45 @@ export class RewardService {
       'delegation.eligibilityThreshold',
     );
   }
+  async calculateRewardsForNextEpoch(endTime = moment().utc().unix()) {
+    const e = await this.rewardRepository
+      .createQueryBuilder('r')
+      .select('MAX("r"."epoch")', 'epoch')
+      .getRawOne();
+    const epoch = parseInt(e.epoch, 10) + 1 || 0;
+
+    await this.rewardRepository.delete({
+      epoch,
+    });
+
+    const epochs: Epoch[] = getEpochs(endTime).filter((e) => e.epoch === epoch);
+    if (epochs.length === 0) {
+      throw new Error(`Next epoch (${epoch}) not found.`);
+    }
+
+    const stakingData = await this.stakingDataService.getData(endTime);
+    const delegationData = await this.delegationDataService.getData(endTime);
+
+    await this.calculateForEpoch(epochs[0], stakingData, delegationData);
+  }
+  async calculateRewardsForEpoch(
+    epoch: number,
+    endTime = moment().utc().unix(),
+  ) {
+    await this.rewardRepository.delete({
+      epoch,
+    });
+
+    const epochs: Epoch[] = getEpochs(endTime).filter((e) => e.epoch === epoch);
+    if (epochs.length === 0) {
+      throw new Error(`Epoch ${epoch} not found.`);
+    }
+
+    const stakingData = await this.stakingDataService.getData(endTime);
+    const delegationData = await this.delegationDataService.getData(endTime);
+
+    await this.calculateForEpoch(epochs[0], stakingData, delegationData);
+  }
   async calculateRewards(endTime = moment().utc().unix()) {
     await this.rewardRepository.delete({});
     const stakingData = await this.stakingDataService.getData(endTime);
@@ -43,158 +82,161 @@ export class RewardService {
 
     const epochs: Epoch[] = getEpochs(endTime);
     for (const epoch of epochs) {
-      console.group(
-        `Calculating rewards for epoch ${epoch.epoch} (${moment
-          .unix(epoch.startDate)
-          .utc()} - ${moment.unix(epoch.endDate).utc()})`,
-      );
-      const filterInEpoch = (i: number) =>
-        i >= epoch.startDate && i <= epoch.endDate;
+      await this.calculateForEpoch(epoch, stakingData, delegationData);
+    }
+    console.log('done');
+  }
+  private async calculateForEpoch(epoch: Epoch, stakingData, delegationData) {
+    console.group(
+      `Calculating rewards for epoch ${epoch.epoch} (${moment
+        .unix(epoch.startDate)
+        .utc()} - ${moment.unix(epoch.endDate).utc()})`,
+    );
+    const filterInEpoch = (i: number) =>
+      i >= epoch.startDate && i <= epoch.endDate;
 
-      const isStakingRewardsActive = epoch.epoch <= 3;
-      const isDelegationRewardsActive = epoch.epoch >= 2;
-      const isDoubleNodeRewardsActive = epoch.epoch === 3;
-      const isDelegationDelegatorsRewardsActive = epoch.epoch > 3;
+    const isStakingRewardsActive = epoch.epoch <= 3;
+    const isDelegationRewardsActive = epoch.epoch >= 2;
+    const isDoubleNodeRewardsActive = epoch.epoch === 3;
+    const isDelegationDelegatorsRewardsActive = epoch.epoch > 3;
 
-      // Calculate Staking Rewards
-      console.group(`Calculating staking rewards`);
-      if (isStakingRewardsActive) {
-        let i = 0;
-        for (const stake of stakingData) {
-          i++;
-          console.log(`- ${i}/${stakingData.length} ${stake.user}`);
-          const periods: Period[] = getPeriods(
-            epoch.startDate,
-            epoch.endDate,
-            ...stake.events.items
-              .map((i) => i.value.startsAt)
-              .filter(filterInEpoch),
-            ...stake.events.items
-              .map((i) => i.value.endsAt)
-              .filter(filterInEpoch),
+    // Calculate Staking Rewards
+    console.group(`Calculating staking rewards`);
+    if (isStakingRewardsActive) {
+      let i = 0;
+      for (const stake of stakingData) {
+        i++;
+        console.log(`- ${i}/${stakingData.length} ${stake.user}`);
+        const periods: Period[] = getPeriods(
+          epoch.startDate,
+          epoch.endDate,
+          ...stake.events.items
+            .map((i) => i.value.startsAt)
+            .filter(filterInEpoch),
+          ...stake.events.items
+            .map((i) => i.value.endsAt)
+            .filter(filterInEpoch),
+        );
+
+        for (const period of periods) {
+          const currentStake = stake.events.search(
+            new Interval(period.startsAt, period.endsAt),
+          );
+          assert(
+            currentStake.length <= 1,
+            'There should be only one event in the interval',
+          );
+          if (currentStake.length === 0) {
+            continue;
+          }
+          const currentEvent = currentStake[0].value;
+          const stakingReward = calculateYieldFor(
+            currentEvent.amount,
+            period.endsAt - period.startsAt,
           );
 
-          for (const period of periods) {
-            const currentStake = stake.events.search(
+          if (stakingReward > 0) {
+            const reward = this.getNewStakingRewardEntity(epoch, period);
+            reward.userAddress = stake.user;
+            reward.value = stakingReward;
+            reward.user = await this.getUserIdByAddress(stake.user);
+            await this.rewardRepository.save(reward);
+          }
+        }
+      }
+    }
+    console.groupEnd();
+
+    // Calculate Delegation Rewards
+    console.group(`Calculating delegation rewards`);
+    if (isDelegationRewardsActive) {
+      let i = 0;
+      for (const node of delegationData) {
+        i++;
+        console.log(`- ${i}/${delegationData.length} ${node.node.address}`);
+        const periods: Period[] = getPeriods(
+          epoch.startDate,
+          epoch.endDate,
+          ...node.commissions.items
+            .map((i) => i.value.startsAt)
+            .filter(filterInEpoch),
+          ...node.delegations.items
+            .map((i) => i.value.startsAt)
+            .filter(filterInEpoch),
+          ...node.delegations.items
+            .map((i) => i.value.endsAt)
+            .filter(filterInEpoch),
+        );
+        for (const period of periods) {
+          const currentCommissions = node.commissions.search(
+            new Interval(period.startsAt, period.endsAt),
+          );
+
+          assert(
+            currentCommissions.length <= 1,
+            'There should be only one commission in the interval',
+          );
+          if (currentCommissions.length === 0) {
+            continue;
+          }
+
+          const currentCommission = currentCommissions[0];
+          const currentDelegations: DelegationIntervalValue[] = [
+            ...node.delegations.search(
               new Interval(period.startsAt, period.endsAt),
-            );
-            assert(
-              currentStake.length <= 1,
-              'There should be only one event in the interval',
-            );
-            if (currentStake.length === 0) {
-              continue;
-            }
-            const currentEvent = currentStake[0].value;
-            const stakingReward = calculateYieldFor(
-              currentEvent.amount,
+            ),
+          ];
+          const totalDelegationAmount = currentDelegations.reduce(
+            (acc: number, cur: DelegationIntervalValue) => {
+              const delegation = cur.value as Delegation;
+              return acc + delegation.value;
+            },
+            0,
+          );
+
+          if (totalDelegationAmount < this.eligibilityThreshold) {
+            continue;
+          }
+
+          const commissionEntity = currentCommission.value as NodeCommission;
+          for (const currentDelegation of currentDelegations) {
+            const delegationEntity = currentDelegation.value as Delegation;
+            const totalBalance = calculateYieldFor(
+              delegationEntity.value,
               period.endsAt - period.startsAt,
             );
 
-            if (stakingReward > 0) {
-              const reward = this.getNewStakingRewardEntity(epoch, period);
-              reward.userAddress = stake.user;
-              reward.value = stakingReward;
-              reward.user = await this.getUserIdByAddress(stake.user);
+            const nodeCommission =
+              (totalBalance * commissionEntity.value) / 100;
+            const nodeRewards = isDoubleNodeRewardsActive
+              ? nodeCommission * 2
+              : nodeCommission;
+
+            if (nodeRewards > 0) {
+              const reward = this.getNewNodeRewardEntity(epoch, period);
+              reward.node = node.node.id;
+              reward.user = node.node.user;
+              reward.userAddress = await this.getUserAddressById(
+                node.node.user,
+              );
+              reward.value = nodeRewards;
+              await this.rewardRepository.save(reward);
+            }
+
+            if (isDelegationDelegatorsRewardsActive) {
+              const reward = this.getNewDelegatorRewardEntity(epoch, period);
+              reward.node = node.node.id;
+              reward.user = delegationEntity.user;
+              reward.userAddress = delegationEntity.address;
+              reward.value = totalBalance - nodeCommission;
               await this.rewardRepository.save(reward);
             }
           }
         }
       }
-      console.groupEnd();
-
-      // Calculate Delegation Rewards
-      console.group(`Calculating delegation rewards`);
-      if (isDelegationRewardsActive) {
-        let i = 0;
-        for (const node of delegationData) {
-          i++;
-          console.log(`- ${i}/${delegationData.length} ${node.node.address}`);
-          const periods: Period[] = getPeriods(
-            epoch.startDate,
-            epoch.endDate,
-            ...node.commissions.items
-              .map((i) => i.value.startsAt)
-              .filter(filterInEpoch),
-            ...node.delegations.items
-              .map((i) => i.value.startsAt)
-              .filter(filterInEpoch),
-            ...node.delegations.items
-              .map((i) => i.value.endsAt)
-              .filter(filterInEpoch),
-          );
-          for (const period of periods) {
-            const currentCommissions = node.commissions.search(
-              new Interval(period.startsAt, period.endsAt),
-            );
-
-            assert(
-              currentCommissions.length <= 1,
-              'There should be only one commission in the interval',
-            );
-            if (currentCommissions.length === 0) {
-              continue;
-            }
-
-            const currentCommission = currentCommissions[0];
-            const currentDelegations: DelegationIntervalValue[] = [
-              ...node.delegations.search(
-                new Interval(period.startsAt, period.endsAt),
-              ),
-            ];
-            const totalDelegationAmount = currentDelegations.reduce(
-              (acc: number, cur: DelegationIntervalValue) => {
-                const delegation = cur.value as Delegation;
-                return acc + delegation.value;
-              },
-              0,
-            );
-
-            if (totalDelegationAmount < this.eligibilityThreshold) {
-              continue;
-            }
-
-            const commissionEntity = currentCommission.value as NodeCommission;
-            for (const currentDelegation of currentDelegations) {
-              const delegationEntity = currentDelegation.value as Delegation;
-              const totalBalance = calculateYieldFor(
-                delegationEntity.value,
-                period.endsAt - period.startsAt,
-              );
-
-              const nodeCommission =
-                (totalBalance * commissionEntity.value) / 100;
-              const nodeRewards = isDoubleNodeRewardsActive
-                ? nodeCommission * 2
-                : nodeCommission;
-
-              if (nodeRewards > 0) {
-                const reward = this.getNewNodeRewardEntity(epoch, period);
-                reward.node = node.node.id;
-                reward.user = node.node.user;
-                reward.userAddress = await this.getUserAddressById(
-                  node.node.user,
-                );
-                reward.value = nodeRewards;
-                await this.rewardRepository.save(reward);
-              }
-
-              if (isDelegationDelegatorsRewardsActive) {
-                const reward = this.getNewDelegatorRewardEntity(epoch, period);
-                reward.node = node.node.id;
-                reward.user = delegationEntity.user;
-                reward.userAddress = delegationEntity.address;
-                reward.value = totalBalance - nodeCommission;
-                await this.rewardRepository.save(reward);
-              }
-            }
-          }
-        }
-      }
-      console.groupEnd();
-      console.groupEnd();
     }
-    console.log('done');
+    console.groupEnd();
+    console.groupEnd();
   }
   private getNewStakingRewardEntity(epoch: Epoch, period: Period) {
     const reward = this.getNewRewardEntity(epoch, period);

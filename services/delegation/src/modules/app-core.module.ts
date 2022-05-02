@@ -70,7 +70,6 @@ import { HttpExceptionFilter } from './utils/http-exception.filter';
     AuthModule,
     ProfileModule,
     UserModule,
-    RewardModule,
   ],
   providers: [
     {
@@ -87,7 +86,11 @@ export class AppCoreModule {
   static forRoot(type = 'web'): DynamicModule {
     return {
       module: AppCoreModule,
-      imports: [NodeModule.forRoot(type), DelegationModule.forRoot(type)],
+      imports: [
+        NodeModule.forRoot(type),
+        DelegationModule.forRoot(type),
+        RewardModule.forRoot(type),
+      ],
     };
   }
 }

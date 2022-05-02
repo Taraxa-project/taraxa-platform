@@ -1,4 +1,4 @@
-import yargs from 'yargs';
+import yargs, { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { NestFactory } from '@nestjs/core';
 
@@ -170,6 +170,11 @@ async function bootstrap() {
     return Promise.resolve();
   };
 
+  const calculateRewardsForEpoch = async (epoch: number) => {
+    await rewardService.calculateRewardsForEpoch(epoch);
+    return Promise.resolve();
+  };
+
   await yargs(hideBin(process.argv))
     .command('testnet-nodes', 'get all testnet nodes', testnetNodes)
     .command('mainnet-nodes', 'get all mainnets nodes', mainnetNodes)
@@ -217,6 +222,19 @@ async function bootstrap() {
       'calculate-rewards',
       'calculates rewards for all nodes/delegators',
       calculateRewards,
+    )
+    .command(
+      'calculate-rewards-for-epoch [epoch]',
+      'calculates rewards for all nodes/delegators for a specific epoch',
+      (yargs: Argv) => {
+        yargs.positional('epoch', {
+          type: 'number',
+          describe: 'epoch',
+        });
+      },
+      async (argv) => {
+        return await calculateRewardsForEpoch(argv.epoch as number);
+      },
     ).argv;
   await app.close();
 }
