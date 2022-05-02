@@ -6,7 +6,6 @@ import {
   Index,
 } from 'typeorm';
 import { BatchEntity } from './batch.entity';
-import { AccountEntity } from './account.entity';
 
 @Entity('pending_reward')
 export class PendingRewardEntity {
@@ -17,9 +16,6 @@ export class PendingRewardEntity {
     onDelete: 'CASCADE',
   })
   batch: BatchEntity;
-
-  @ManyToOne(() => AccountEntity, (account: AccountEntity) => account.address)
-  account: AccountEntity;
 
   @Column()
   @Index()

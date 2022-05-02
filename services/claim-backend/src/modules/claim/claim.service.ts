@@ -1,6 +1,7 @@
 import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
+import { BigNumber } from 'bignumber.js';
 import { In, LessThan, Repository } from 'typeorm';
 import {
   Inject,
@@ -22,6 +23,26 @@ import { AccountEntity } from './entity/account.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
 import { ClaimEntity } from './entity/claim.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
+
+interface CommunityRewardResponse {
+  address: string;
+  total: number;
+}
+
+interface DelegationRewardResponse {
+  address: string;
+  amount: number;
+}
+
+interface Reward {
+  address: string;
+  total: number;
+}
+
+interface FilteredReward {
+  address: string;
+  total: BigNumber;
+}
 
 @Injectable()
 export class ClaimService {
@@ -49,20 +70,24 @@ export class ClaimService {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
   public async createBatch(batchDto: CreateBatchDto): Promise<BatchEntity> {
-    const batch = new BatchEntity();
+    let batch = new BatchEntity();
     batch.type = BatchTypes[batchDto.type];
     batch.name = batchDto.name;
     batch.isDraft = true;
 
+    batch = await this.batchRepository.save(batch);
+
     if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
-      await this.savePendingRewards(await this.getCommunityRewards(), batch);
-      await this.savePendingRewards(await this.getDelegationRewards(), batch);
+      await this.savePendingRewards(
+        this.filterRewards(await this.getCommunityRewards()),
+        batch,
+      );
+      await this.savePendingRewards(
+        this.filterRewards(await this.getDelegationRewards()),
+        batch,
+      );
     }
 
-    console.log(batch);
-    return;
-
-    await this.batchRepository.save(batch);
     return batch;
   }
   public async batch(id: number): Promise<BatchEntity> {
@@ -303,14 +328,11 @@ export class ClaimService {
       await this.accountRepository.save(reward.account);
     }
   }
-  private async getCommunityRewards(): Promise<
-    {
-      address: string;
-      total: ethers.BigNumber;
-    }[]
-  > {
+  private async getCommunityRewards(): Promise<Reward[]> {
     const response = await this.httpService
-      .get(`${this.rewardConfig.communitySiteApiUrl}/reward`)
+      .get<CommunityRewardResponse[]>(
+        `${this.rewardConfig.communitySiteApiUrl}/reward`,
+      )
       .toPromise();
 
     if (response.status !== 200) {
@@ -318,29 +340,35 @@ export class ClaimService {
     }
 
     const rewards = response.data;
-    return rewards.map((reward: any) => ({
-      address: reward.address,
-      total: this.floatToBn(reward.total),
-    }));
+    return rewards;
   }
-  private async getDelegationRewards(): Promise<
-    {
-      address: string;
-      total: ethers.BigNumber;
-    }[]
-  > {
+  private async getDelegationRewards(): Promise<Reward[]> {
     const response = await this.httpService
-      .get(`${this.rewardConfig.delegationApiUrl}/rewards/total`)
+      .get<DelegationRewardResponse[]>(
+        `${this.rewardConfig.delegationApiUrl}/rewards/total`,
+      )
       .toPromise();
 
+    if (response.status !== 200) {
+      throw new Error('Failed to get delegation rewards');
+    }
+
     const rewards = response.data;
-    return rewards.map((reward: any) => ({
-      address: reward.address,
-      total: this.floatToBn(reward.amount),
+    return rewards.map((reward: DelegationRewardResponse) => ({
+      ...reward,
+      total: reward.amount,
     }));
   }
+  private filterRewards(rewards: Reward[]): FilteredReward[] {
+    return rewards
+      .filter((reward: Reward) => ethUtil.isValidAddress(reward.address))
+      .map((reward: Reward) => ({
+        address: ethUtil.toChecksumAddress(reward.address.trim()),
+        total: this.floatToBn(reward.total),
+      }));
+  }
   private async savePendingRewards(
-    rewards: { address: string; total: BigNumber }[],
+    rewards: FilteredReward[],
     batch: BatchEntity,
   ): Promise<BatchEntity> {
     for (const reward of rewards) {
@@ -348,33 +376,30 @@ export class ClaimService {
         relations: ['batch'],
         where: {
           batch: batch,
-          address: ethUtil.toChecksumAddress(reward.address),
+          address: reward.address,
         },
       });
       if (pendingReward) {
-        pendingReward.numberOfTokens = ethers.BigNumber.from(
+        pendingReward.numberOfTokens = new BigNumber(
           pendingReward.numberOfTokens,
         )
-          .add(reward.total)
-          .toString();
+          .plus(reward.total)
+          .toString(10);
       } else {
         pendingReward = new PendingRewardEntity();
-        pendingReward.address = ethUtil.toChecksumAddress(reward.address);
+        pendingReward.address = reward.address;
+        pendingReward.numberOfTokens = reward.total.toString(10);
         pendingReward.batch = batch;
-        pendingReward.numberOfTokens = reward.total.toString();
       }
+
       await this.pendingRewardRepository.save(pendingReward);
     }
 
     return batch;
   }
-  private floatToBn(i: number): ethers.BigNumber {
-    const precision = this.generalConfig.precision;
-    return ethers.BigNumber.from(
-      ethers.BigNumber.from(
-        ethers.BigNumber.from(10).pow(precision).toNumber() * i,
-      ),
-    ).mul(ethers.BigNumber.from(10).pow(18 - precision));
+  private floatToBn(i: number): BigNumber {
+    const num = new BigNumber(parseFloat(i.toFixed(3)));
+    return num.times(new BigNumber(10).pow(18));
   }
   private bNStringToString(i: string): string {
     const precision = this.generalConfig.precision;

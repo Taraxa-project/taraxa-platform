@@ -25,7 +25,7 @@ import {
         password: configService.get<string>('database.pass'),
         database: configService.get<string>('database.name'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
