@@ -107,7 +107,18 @@ function BountyDetails() {
           <Text variant="body2" label={(submission.user || {}).username || '-'} />
         </div>
         <div className="submission-row-content">
-          <Text variant="body2" label={submission.hashed_content || '-'} />
+          <Text className="wide-hash" variant="body2" label={submission.hashed_content || '-'} />
+          <Text
+            title={submission.hashed_content || '-'}
+            variant="body2"
+            label={
+              submission.hashed_content
+                ? `${submission?.hashed_content?.slice(0, 8)}...${submission?.hashed_content?.slice(
+                    -5,
+                  )}`
+                : '-'
+            }
+          />
         </div>
         <div className="submission-row-date">
           <Text
