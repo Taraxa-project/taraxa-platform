@@ -12,6 +12,8 @@ import {
 } from '@material-ui/core';
 import moment from 'moment';
 
+import GreyChechIcon from '../../assets/icons/greyChech';
+import GreenCircledCheckIcon from '../../assets/icons/greenCircledCheck';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
@@ -23,6 +25,7 @@ import Title from '../../components/Title/Title';
 
 import './redeem.scss';
 import useCMetamask from '../../services/useCMetamask';
+import RedeemModals from './Modal/Modals';
 
 function Redeem() {
   const { status, account } = useCMetamask();
@@ -40,12 +43,15 @@ function Redeem() {
   const [isLoadingClaims, setLoadingClaims] = useState<boolean>(false);
   const [claims, setClaims] = useState<Claim[]>([]);
 
+  const [isWarnOpen, setWarnOpen] = useState<boolean>(false);
+  const [underClaim, setUnderClaim] = useState<number>(0);
+
   useEffect(() => {
     const getClaimData = async (account: string) => {
       setLoadingClaims(true);
       try {
         const data = await api.post(
-          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${ethers.utils.getAddress(account)}`,
+          `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
           {},
         );
         if (data.success) {
@@ -98,12 +104,15 @@ function Redeem() {
 
   useEffect(() => {
     const getTokenBalance = async () => {
-      if (!token) {
+      if (!token || !account) {
         return;
       }
-
-      const balance = await token.balanceOf(account);
-      setTokenBalance(balance);
+      try {
+        const balance = await token.balanceOf(account);
+        setTokenBalance(balance);
+      } catch (error) {
+        setTokenBalance(ethers.BigNumber.from('0'));
+      }
     };
 
     getTokenBalance();
@@ -155,6 +164,14 @@ function Redeem() {
 
   return (
     <div className="redeem">
+      {isWarnOpen && (
+        <RedeemModals
+          taraAmount={claims[underClaim].numberOfTokens}
+          warningModal={isWarnOpen}
+          onWarningModalClose={() => setWarnOpen(false)}
+          onWarningModalAccept={() => onClaim(underClaim)}
+        />
+      )}
       <div className="container">
         <div className="claim">
           <div className="claim-content">
@@ -224,21 +241,37 @@ function Redeem() {
                       </TableCell>
                       <TableCell className="tableCell">
                         {!row.claimed ? (
-                          <Button
-                            disabled={
-                              availableToBeClaimed.lt(row.numberOfTokens) ||
-                              availableToBeClaimed.eq(0) ||
-                              row.numberOfTokens.eq(0) ||
-                              row.claimed
-                            }
-                            variant="outlined"
-                            color="secondary"
-                            onClick={() => onClaim(claims.indexOf(row))}
-                            label="Redeem"
-                            size="small"
-                          />
+                          <div className="container-row">
+                            <GreyChechIcon />
+
+                            <Button
+                              disabled={row.numberOfTokens.eq(0) || row.claimed}
+                              variant="outlined"
+                              color="secondary"
+                              className="redeemable"
+                              onClick={() => {
+                                setWarnOpen(true);
+                                setUnderClaim(claims.indexOf(row));
+                              }}
+                              label="Redeem"
+                            />
+                          </div>
                         ) : (
-                          'Redeemed'
+                          <div className="container-row">
+                            <GreenCircledCheckIcon />
+
+                            <Button
+                              disabled
+                              variant="outlined"
+                              className="redeemed"
+                              style={{
+                                color: '#3DF99A',
+                                backgroundColor: '#15362E',
+                              }}
+                              color="inherit"
+                              label="Redeemed"
+                            />
+                          </div>
                         )}
                       </TableCell>
                     </TableRow>
