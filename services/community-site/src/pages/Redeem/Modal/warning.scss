@@ -1,0 +1,49 @@
+.redeem-warning {
+  max-width: 22vw;
+
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 5px;
+
+  .wide-title {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 22px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #ffffff;
+  }
+
+  .central-container {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 24px;
+    justify-content: space-evenly;
+    white-space: pre-line;
+    /* or 133% */
+
+    text-align: center;
+
+    /* neutral/000 */
+
+    color: #ffffff;
+  }
+
+  .cancel {
+    min-width: 100%;
+  }
+
+  .redeemable {
+    background-color: #15ac5b;
+    border-radius: 2px;
+    color: #ffffff;
+    min-width: 100%;
+  }
+}
