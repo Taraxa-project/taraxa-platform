@@ -120,6 +120,23 @@
           padding: 0 5px;
           flex: 2;
           text-align: left;
+
+          @media screen and (min-width: 1700px) {
+            p {
+              display: none;
+            }
+            p.wide-hash {
+              display: block;
+            }
+          }
+          @media screen and (max-width: 1699px) {
+            p {
+              display: block;
+            }
+            p.wide-hash {
+              display: none;
+            }
+          }
         }
         .submission-row-date {
           text-align: right;
