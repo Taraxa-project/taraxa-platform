@@ -94,36 +94,22 @@
   .redeemed {
     color: #3df99a;
     display: flex;
-    align-items: center;
-    text-align: center;
-    letter-spacing: -0.03em;
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    max-height: 24px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-    margin: 0px 10px;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 1px 8px;
+    background-color: #15362e;
+    border-radius: 8px;
+    margin-left: 3%;
   }
 
   .redeemable {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
     display: flex;
-    align-items: center;
-    max-height: 24px;
-    text-align: center;
-    letter-spacing: -0.03em;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 1px 8px;
+    border-radius: 8px;
+    margin-left: 3%;
     color: #878ca4;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-    margin: 0px 10px;
+    background-color: #202534;
   }
 }

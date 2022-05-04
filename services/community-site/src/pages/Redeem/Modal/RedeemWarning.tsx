@@ -30,10 +30,11 @@ const RedeemWarning = (props: RedeemWarningProps) => {
       </div>
       <br />
       <Button
+        disableElevation
         size="medium"
-        variant="outlined"
+        variant="contained"
         className="redeemable"
-        color="primary"
+        color="secondary"
         onClick={() => onAccept()}
         label={`Redeem ${amount} TARA`}
       />

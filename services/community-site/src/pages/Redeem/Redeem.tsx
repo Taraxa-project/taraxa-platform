@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import moment from 'moment';
 
-import GreyChechIcon from '../../assets/icons/greyChech';
+import RedeemSidebar from '../../assets/icons/redeemSidebar';
 import GreenCircledCheckIcon from '../../assets/icons/greenCircledCheck';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
@@ -160,7 +160,7 @@ function Redeem() {
     } catch (e) {}
   };
 
-  const columns = ['TARA', 'Lifetime points redeemed', 'Date', 'Status'];
+  const columns = ['TARA', 'Lifetime points redeemed', 'Date', 'Status', ''];
 
   return (
     <div className="redeem">
@@ -242,36 +242,29 @@ function Redeem() {
                       <TableCell className="tableCell">
                         {!row.claimed ? (
                           <div className="container-row">
-                            <GreyChechIcon />
-
-                            <Button
-                              disabled={row.numberOfTokens.eq(0) || row.claimed}
-                              variant="outlined"
-                              color="secondary"
-                              className="redeemable"
-                              onClick={() => {
-                                setWarnOpen(true);
-                                setUnderClaim(claims.indexOf(row));
-                              }}
-                              label="Redeem"
-                            />
+                            <RedeemSidebar />
+                            <div className="redeemable">Not redeemed</div>
                           </div>
                         ) : (
                           <div className="container-row">
                             <GreenCircledCheckIcon />
-
-                            <Button
-                              disabled
-                              variant="outlined"
-                              className="redeemed"
-                              style={{
-                                color: '#3DF99A',
-                                backgroundColor: '#15362E',
-                              }}
-                              color="inherit"
-                              label="Redeemed"
-                            />
+                            <div className="redeemed">Redeemed</div>
                           </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {!row.claimed && (
+                          <Button
+                            size="small"
+                            variant="contained"
+                            color="secondary"
+                            label="Redeem"
+                            disabled={row.numberOfTokens.eq(0) || row.claimed}
+                            onClick={() => {
+                              setWarnOpen(true);
+                              setUnderClaim(claims.indexOf(row));
+                            }}
+                          />
                         )}
                       </TableCell>
                     </TableRow>
