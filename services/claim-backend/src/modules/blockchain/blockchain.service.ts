@@ -18,9 +18,10 @@ export class BlockchainService {
     @Inject(ethereum.KEY)
     ethereumConfig: ConfigType<typeof ethereum>,
   ) {
-    this.provider = new ethers.providers.JsonRpcProvider(
-      ethereumConfig.provider,
-    );
+    this.provider = new ethers.providers.JsonRpcProvider({
+      url: ethereumConfig.provider,
+      timeout: 5000,
+    });
   }
   getProvider() {
     return this.provider;
