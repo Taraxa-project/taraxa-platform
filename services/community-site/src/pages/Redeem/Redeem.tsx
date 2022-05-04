@@ -237,7 +237,15 @@ function Redeem() {
                         {row.totalClaimed ? formatEth(roundEth(weiToEth(row.totalClaimed))) : '0.0'}
                       </TableCell>
                       <TableCell className="tableCell">
-                        {moment(row.createdAt).format('ll').toUpperCase()}
+                        {moment(
+                          row.claimedAt
+                            ? row.claimedAt
+                            : row.createdAt
+                            ? row.createdAt
+                            : Date.now(),
+                        )
+                          .format('ll')
+                          .toUpperCase()}
                       </TableCell>
                       <TableCell className="tableCell">
                         {!row.claimed ? (

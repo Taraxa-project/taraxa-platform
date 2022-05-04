@@ -44,7 +44,7 @@ function useRedeem() {
         id: claim.id,
         address: claim.address,
         numberOfTokens: BigNumber.from(ethers.utils.parseUnits(claim.numberOfTokens, 18)),
-        claimedAt: moment(claim.claimedAt).toDate(),
+        claimedAt: claim.claimedAt ? moment(claim.claimedAt).toDate() : null,
         createdAt: moment(claim.createdAt).toDate(),
         claimed: claim.claimed,
         totalClaimed: BigNumber.from('0'),
