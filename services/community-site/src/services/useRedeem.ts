@@ -63,12 +63,20 @@ function useRedeem() {
       return _claim;
     });
     const reversedClaims = finalClaims.reverse();
+    const totalUnclaimed = finalClaims
+      .map((c) => {
+        if (!c.claimed && c.numberOfTokens.gt('0')) {
+          return c.numberOfTokens;
+        }
+        return BigNumber.from('0');
+      })
+      .reduce((a, b) => a.add(b), BigNumber.from('0'));
     reversedClaims.unshift({
       id: 999,
       address: account || '',
       numberOfTokens:
-        finalClaims[0] && finalClaims[0].totalClaimed
-          ? availableToBeClaimed.sub(finalClaims[0].totalClaimed)
+        totalUnclaimed.gt(0) && availableToBeClaimed.gt(totalUnclaimed)
+          ? availableToBeClaimed.sub(totalUnclaimed)
           : availableToBeClaimed,
       totalClaimed: finalClaims[0] ? finalClaims[0].totalClaimed : BigNumber.from('0'),
       claimed: false,

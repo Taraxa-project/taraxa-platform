@@ -81,4 +81,35 @@
   .tableSection {
     text-align: center;
   }
+
+  .container-row {
+    max-height: 15px !important;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    height: 50%;
+  }
+
+  .redeemed {
+    color: #3df99a;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 1px 8px;
+    background-color: #15362e;
+    border-radius: 8px;
+    margin-left: 3%;
+  }
+
+  .redeemable {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 1px 8px;
+    border-radius: 8px;
+    margin-left: 3%;
+    color: #878ca4;
+    background-color: #202534;
+  }
 }
