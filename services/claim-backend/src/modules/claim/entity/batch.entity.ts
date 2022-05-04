@@ -36,8 +36,10 @@ export class BatchEntity {
   )
   pendingRewards: PendingRewardEntity[];
 
-  @Column()
-  isDraft: boolean = true;
+  @Column({
+    default: true,
+  })
+  isDraft: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
