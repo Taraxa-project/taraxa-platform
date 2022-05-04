@@ -2,7 +2,7 @@ import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
-import { In, LessThan, Repository } from 'typeorm';
+import { In, LessThan, Raw, Repository } from 'typeorm';
 import {
   Inject,
   Injectable,
@@ -23,15 +23,25 @@ import { AccountEntity } from './entity/account.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
 import { ClaimEntity } from './entity/claim.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
+import { PendingRewardDto } from './dto/pending-reward.dto';
 
 interface CommunityRewardResponse {
   address: string;
   total: number;
 }
 
+interface CommunityKycResponse {
+  address: string;
+  kyc: string;
+}
+
 interface DelegationRewardResponse {
   address: string;
   amount: number;
+}
+
+interface KycStatus {
+  [address: string]: string;
 }
 
 interface Reward {
@@ -77,13 +87,15 @@ export class ClaimService {
 
     batch = await this.batchRepository.save(batch);
 
+    const kycStatus = await this.getKycStatus();
+
     if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
       await this.savePendingRewards(
-        this.filterRewards(await this.getCommunityRewards()),
+        this.filterRewards(await this.getCommunityRewards(), kycStatus),
         batch,
       );
       await this.savePendingRewards(
-        this.filterRewards(await this.getDelegationRewards()),
+        this.filterRewards(await this.getDelegationRewards(), kycStatus),
         batch,
       );
     }
@@ -92,6 +104,58 @@ export class ClaimService {
   }
   public async batch(id: number): Promise<BatchEntity> {
     return this.batchRepository.findOneOrFail({ id });
+  }
+  public async getPendingRewardsForBatch(
+    id: number,
+  ): Promise<PendingRewardDto[]> {
+    const batch = await this.batchRepository.findOneOrFail({ id });
+    const pendingRewards = await this.pendingRewardRepository.find({ batch });
+
+    return Promise.all(
+      pendingRewards.map(async (pendingReward) => {
+        const { address } = pendingReward;
+
+        const account = await this.accountRepository.findOne({
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+        });
+
+        const bnStringToNumber = (s: string) => {
+          const ten = new BigNumber(10);
+          return new BigNumber(s).div(ten.pow(18)).toNumber();
+        };
+
+        let current = 0;
+        let claimed = 0;
+        let locked = 0;
+        let availableToBeClaimed = 0;
+        const total = bnStringToNumber(pendingReward.numberOfTokens);
+
+        if (account) {
+          const totalBefore = new BigNumber(account.totalClaimed)
+            .plus(new BigNumber(account.totalLocked))
+            .plus(new BigNumber(account.availableToBeClaimed));
+          current = new BigNumber(pendingReward.numberOfTokens)
+            .minus(totalBefore)
+            .div(new BigNumber(10).pow(18))
+            .toNumber();
+          claimed = bnStringToNumber(account.totalClaimed);
+          locked = bnStringToNumber(account.totalLocked);
+          availableToBeClaimed = bnStringToNumber(account.availableToBeClaimed);
+        }
+
+        return {
+          current,
+          claimed,
+          locked,
+          total,
+          availableToBeClaimed,
+          id: pendingReward.id,
+          address: pendingReward.address,
+        };
+      }),
+    );
   }
   public async deleteBatch(id: number): Promise<BatchEntity> {
     const batch = await this.batchRepository.findOneOrFail({ id });
@@ -328,6 +392,35 @@ export class ClaimService {
       await this.accountRepository.save(reward.account);
     }
   }
+  private async getKycStatus(): Promise<KycStatus> {
+    const response = await this.httpService
+      .get<CommunityKycResponse[]>(
+        `${this.rewardConfig.communitySiteApiUrl}/kyc`,
+      )
+      .toPromise();
+
+    if (response.status !== 200) {
+      throw new Error('Failed to get kyc statuses');
+    }
+
+    const kyc = response.data;
+    const kycStatus: KycStatus = {};
+
+    for (const k of kyc) {
+      if (!ethUtil.isValidAddress(k.address)) {
+        continue;
+      }
+
+      if (k.kyc !== 'APPROVED') {
+        continue;
+      }
+
+      const address = ethUtil.toChecksumAddress(k.address.trim());
+      kycStatus[address] = k.kyc;
+    }
+
+    return kycStatus;
+  }
   private async getCommunityRewards(): Promise<Reward[]> {
     const response = await this.httpService
       .get<CommunityRewardResponse[]>(
@@ -359,9 +452,13 @@ export class ClaimService {
       total: reward.amount,
     }));
   }
-  private filterRewards(rewards: Reward[]): FilteredReward[] {
+  private filterRewards(
+    rewards: Reward[],
+    kycStatus: KycStatus,
+  ): FilteredReward[] {
     return rewards
       .filter((reward: Reward) => ethUtil.isValidAddress(reward.address))
+      .filter((reward: Reward) => kycStatus[reward.address] === 'APPROVED')
       .map((reward: Reward) => ({
         address: ethUtil.toChecksumAddress(reward.address.trim()),
         total: this.floatToBn(reward.total),
