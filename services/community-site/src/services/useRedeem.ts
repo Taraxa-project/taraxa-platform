@@ -55,6 +55,7 @@ function useRedeem() {
     );
     const finalClaims = transformedClaims.map((_claim, ind) => {
       const prevElement = ind > 0 ? transformedClaims[ind - 1] : undefined;
+      if (!_claim.claimed) return _claim;
       if (prevElement && prevElement.totalClaimed) {
         _claim.totalClaimed = prevElement.totalClaimed.add(_claim.numberOfTokens);
       } else {
