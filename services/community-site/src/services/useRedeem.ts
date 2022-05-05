@@ -72,6 +72,7 @@ function useRedeem() {
         return BigNumber.from('0');
       })
       .reduce((a, b) => a.add(b), BigNumber.from('0'));
+    if (availableToBeClaimed.lte(totalUnclaimed)) return finalClaims;
     reversedClaims.unshift({
       id: 999,
       address: account || '',

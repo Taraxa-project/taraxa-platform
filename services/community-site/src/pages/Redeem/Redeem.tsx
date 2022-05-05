@@ -12,6 +12,8 @@ import {
 } from '@material-ui/core';
 import moment from 'moment';
 
+import WhiteCheckIcon from '../../assets/icons/checkWhite';
+import NotFoundIcon from '../../assets/icons/notFound';
 import RedeemSidebar from '../../assets/icons/redeemSidebar';
 import GreenCircledCheckIcon from '../../assets/icons/greenCircledCheck';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
@@ -26,6 +28,20 @@ import Title from '../../components/Title/Title';
 import './redeem.scss';
 import useCMetamask from '../../services/useCMetamask';
 import RedeemModals from './Modal/Modals';
+
+const EmptyRewards = () => (
+  <TableRow className="tableRow">
+    <TableCell colSpan={5} className="tableCell">
+      <div className="noRewardContainer">
+        <span className="noRewardText">
+          <NotFoundIcon />
+          <br />
+          Looks like you haven’t received any rewards yet...
+        </span>
+      </div>
+    </TableCell>
+  </TableRow>
+);
 
 function Redeem() {
   const { status, account } = useCMetamask();
@@ -214,7 +230,10 @@ function Redeem() {
             </div>
           </div>
         </div>
-        {claims && claims.length > 0 ? (
+        <div className="tableHeader">
+          <WhiteCheckIcon /> <span style={{ marginLeft: '10px' }}>Rewards Description</span>
+        </div>
+        {claims ? (
           <TableContainer className="table">
             <Table className="table">
               <TableHead>
@@ -227,57 +246,63 @@ function Redeem() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {claims.map((row: Claim, ind: number) => {
-                  return (
-                    <TableRow className="tableRow" key={ind}>
-                      <TableCell className="tableCell">
-                        {formatEth(roundEth(weiToEth(row.numberOfTokens)))}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {row.totalClaimed ? formatEth(roundEth(weiToEth(row.totalClaimed))) : '0.0'}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {moment(
-                          row.claimedAt
-                            ? row.claimedAt
-                            : row.createdAt
-                            ? row.createdAt
-                            : Date.now(),
-                        )
-                          .format('ll')
-                          .toUpperCase()}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {!row.claimed ? (
-                          <div className="container-row">
-                            <RedeemSidebar />
-                            <div className="redeemable">Not redeemed</div>
-                          </div>
-                        ) : (
-                          <div className="container-row">
-                            <GreenCircledCheckIcon />
-                            <div className="redeemed">Redeemed</div>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {!row.claimed && (
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="secondary"
-                            label="Redeem"
-                            disabled={row.numberOfTokens.eq(0) || row.claimed}
-                            onClick={() => {
-                              setWarnOpen(true);
-                              setUnderClaim(claims.indexOf(row));
-                            }}
-                          />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {claims && claims.length > 0 ? (
+                  claims.map((row: Claim, ind: number) => {
+                    return (
+                      <TableRow className="tableRow" key={ind}>
+                        <TableCell className="tableCell">
+                          {formatEth(roundEth(weiToEth(row.numberOfTokens)))}
+                        </TableCell>
+                        <TableCell className="tableCell">
+                          {row.totalClaimed
+                            ? formatEth(roundEth(weiToEth(row.totalClaimed)))
+                            : '0.0'}
+                        </TableCell>
+                        <TableCell className="tableCellGrey">
+                          {moment(
+                            row.claimedAt
+                              ? row.claimedAt
+                              : row.createdAt
+                              ? row.createdAt
+                              : Date.now(),
+                          )
+                            .format('ll')
+                            .toUpperCase()}
+                        </TableCell>
+                        <TableCell className="tableCell">
+                          {!row.claimed ? (
+                            <div className="container-row">
+                              <RedeemSidebar />
+                              <div className="redeemable">Not redeemed</div>
+                            </div>
+                          ) : (
+                            <div className="container-row">
+                              <GreenCircledCheckIcon />
+                              <div className="redeemed">Redeemed</div>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="tableCell">
+                          {!row.claimed && (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="secondary"
+                              label="Redeem"
+                              disabled={row.numberOfTokens.eq(0) || row.claimed}
+                              onClick={() => {
+                                setWarnOpen(true);
+                                setUnderClaim(claims.indexOf(row));
+                              }}
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <EmptyRewards />
+                )}
               </TableBody>
             </Table>
           </TableContainer>
