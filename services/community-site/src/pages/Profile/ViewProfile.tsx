@@ -26,6 +26,7 @@ import { useAuth } from '../../services/useAuth';
 import useSubmissions from '../../services/useSubmissions';
 import Title from '../../components/Title/Title';
 import useCMetamask from '../../services/useCMetamask';
+import { ethToWei, weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 interface ViewProfileDetailsKYCProps {
   openKYCModal: () => void;
@@ -92,27 +93,41 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
   const { account } = useCMetamask();
   const history = useHistory();
   const claimApi = useClaimApi();
-  const [lockedPoints, setLockedPoints] = useState(false);
-  const [calculatedPoints, setCalculatedPoints] = useState<BigNumber>(
-    ethers.BigNumber.from(points),
-  );
+  const [showLockedPoints, setShowLockedPoints] = useState(false);
+  const [availableToBeClaimed, setAvailableToBeClaimed] = useState(ethers.BigNumber.from(0));
+  const [lockedPoints, setLockedPoints] = useState(ethers.BigNumber.from(0));
+  const [calculatedPoints, setCalculatedPoints] = useState<BigNumber>(ethers.BigNumber.from(0));
 
   useEffect(() => {
-    if (account) {
-      claimApi
-        .post(`/accounts/${account}`, {})
-        .then((response) => {
-          const { totalClaimed, totalLocked } = response.response;
-          const calculated = ethers.BigNumber.from(totalClaimed)
-            .sub(ethers.BigNumber.from(totalLocked))
-            .add(ethers.BigNumber.from(points));
-          setCalculatedPoints(calculated);
-        })
-        .catch(() => {
-          setCalculatedPoints(ethers.BigNumber.from(points));
-        });
+    if (!account) {
+      return;
     }
+
+    claimApi
+      .post(`/accounts/${account}`, {})
+      .then((data) => {
+        const { availableToBeClaimed, totalLocked } = data.response;
+
+        setAvailableToBeClaimed(ethers.BigNumber.from(availableToBeClaimed));
+        setLockedPoints(ethers.BigNumber.from(totalLocked));
+      })
+      .catch(() => {
+        setAvailableToBeClaimed(ethers.BigNumber.from(0));
+        setLockedPoints(ethers.BigNumber.from(0));
+      });
   }, [account]);
+
+  useEffect(() => {
+    if (!account) {
+      setCalculatedPoints(ethToWei(points.toString()));
+    } else {
+      let calculated = ethers.BigNumber.from(availableToBeClaimed);
+      if (showLockedPoints) {
+        calculated = calculated.add(lockedPoints);
+      }
+      setCalculatedPoints(calculated);
+    }
+  }, [account, points, availableToBeClaimed, lockedPoints, showLockedPoints]);
 
   const buttons = (
     <>
@@ -136,6 +151,8 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
     </>
   );
 
+  const isLockedPointsChecked = !account || showLockedPoints;
+
   return (
     <div className="cardContainer">
       <ProfileCard
@@ -150,25 +167,27 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
       <ViewProfileDetailsKYC openKYCModal={openKYCModal} />
       <ProfileBasicCard
         title="My Rewards"
-        value={ethers.utils.commify(calculatedPoints.toString())}
+        value={formatEth(roundEth(weiToEth(calculatedPoints)))}
         buttonOptions={
           <Button
             variant="contained"
             color="secondary"
             label="Go to redeem page"
-            disabled={ethers.BigNumber.from(points.toString()).eq('0')}
+            disabled={calculatedPoints.eq('0')}
             fullWidth
             onClick={() => history.push('/redeem')}
           />
         }
       >
         <div className="flexExpand">
-          Redeemable TARA Points
+          {!account && 'TARA'}
+          {account && isLockedPointsChecked && 'Total TARA'}
+          {account && !isLockedPointsChecked && 'Redeemable TARA'}
           <div className="lockedPointsCheckbox">
             <Checkbox
-              checked={!account || lockedPoints}
+              checked={isLockedPointsChecked}
               disabled={!account}
-              onChange={(e) => setLockedPoints(e.target.checked)}
+              onChange={(e) => setShowLockedPoints(e.target.checked)}
             />
             Show locked points
           </div>
