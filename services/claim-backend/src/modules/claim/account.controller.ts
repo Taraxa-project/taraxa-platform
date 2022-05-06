@@ -79,17 +79,9 @@ export class AccountController {
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })
   @ApiNotFoundResponse({ description: 'Claim not found' })
   @Get('/claims/:account')
-  async getClaimOfAccount(
+  async getClaimsOfAccount(
     @Param('account') account: string,
   ): Promise<CollectionResponse<ClaimEntity>> {
-    return this.claimService.claims({
-      filter: {
-        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:account)`, {
-          account,
-        }),
-      },
-      range: [0, 100],
-      sort: ['createdAt', 'DESC'],
-    } as QueryDto);
+    return this.claimService.getClaimsFor(account);
   }
 }

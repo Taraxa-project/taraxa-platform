@@ -368,6 +368,19 @@ export class ClaimService {
     }));
     return claims;
   }
+  public async getClaimsFor(
+    address: string,
+  ): Promise<CollectionResponse<ClaimEntity>> {
+    const claims = new CollectionResponse<ClaimEntity>();
+    [claims.data, claims.count] = await this.claimRepository.findAndCount({
+      where: { address },
+    });
+    claims.data = claims.data.map((claim: ClaimEntity) => ({
+      ...claim,
+      numberOfTokens: this.bNStringToString(claim.numberOfTokens),
+    }));
+    return claims;
+  }
   public async unlockRewards(): Promise<void> {
     const now = new Date();
     const rewards = await this.rewardRepository.find({
