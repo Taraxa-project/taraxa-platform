@@ -53,11 +53,8 @@ function useRedeem() {
     transformedClaims.sort(
       (claimA, claimB) => claimA.createdAt.getTime() - claimB.createdAt.getTime(),
     );
-    const finalClaims = transformedClaims.map((_claim) => {
-      return _claim;
-    });
-    const reversedClaims = finalClaims.reverse();
-    const totalUnclaimed = finalClaims
+    transformedClaims.reverse();
+    const totalUnclaimed = transformedClaims
       .map((c) => {
         if (!c.claimed && c.numberOfTokens.gt('0')) {
           return c.numberOfTokens;
@@ -65,20 +62,20 @@ function useRedeem() {
         return BigNumber.from('0');
       })
       .reduce((a, b) => a.add(b), BigNumber.from('0'));
-    if (availableToBeClaimed.lte(totalUnclaimed)) return finalClaims;
-    reversedClaims.unshift({
+    if (availableToBeClaimed.lte(totalUnclaimed)) return transformedClaims;
+    transformedClaims.unshift({
       id: 999,
       address: account || '',
       numberOfTokens:
         totalUnclaimed.gt(0) && availableToBeClaimed.gt(totalUnclaimed)
           ? availableToBeClaimed.sub(totalUnclaimed)
           : availableToBeClaimed,
-      totalClaimed: finalClaims[0].totalClaimed,
+      totalClaimed: transformedClaims[0].totalClaimed,
       claimed: false,
       claimedAt: null,
       createdAt: new Date(),
     });
-    return finalClaims;
+    return transformedClaims;
   };
 
   return { parseClaim, formatClaimsForTable };
