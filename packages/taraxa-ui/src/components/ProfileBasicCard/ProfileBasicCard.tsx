@@ -35,14 +35,14 @@ const ProfileBasicCard = ({
       <CssBaseline />
       <MCard className={classes.root} elevation={0} variant="outlined">
         {Icon && (
-          <Typography variant="body1" className={classes.label} color="primary">
-            <div className={classes.iconContainer}>
-              <div className={classes.icon}>
-                <Icon />
-              </div>
-              {title}
+          <div className={classes.iconContainer}>
+            <div className={classes.icon}>
+              <Icon />
             </div>
-          </Typography>
+            <Typography variant="body1" className={classes.label} color="primary">
+              {title}
+            </Typography>
+          </div>
         )}
         {!Icon && (
           <Typography variant="body1" className={classes.label} color="primary">
