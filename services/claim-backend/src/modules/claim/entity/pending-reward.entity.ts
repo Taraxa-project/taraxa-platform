@@ -23,4 +23,14 @@ export class PendingRewardEntity {
 
   @Column()
   numberOfTokens: string;
+
+  @Column({
+    default: false,
+  })
+  isValid: boolean;
+
+  @Column({
+    nullable: true,
+  })
+  invalidReason: string | null;
 }

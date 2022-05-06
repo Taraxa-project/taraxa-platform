@@ -41,17 +41,12 @@ interface DelegationRewardResponse {
 }
 
 interface KycStatus {
-  [address: string]: string;
+  [address: string]: boolean;
 }
 
 interface Reward {
   address: string;
   total: number;
-}
-
-interface FilteredReward {
-  address: string;
-  total: BigNumber;
 }
 
 @Injectable()
@@ -91,12 +86,14 @@ export class ClaimService {
 
     if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
       await this.savePendingRewards(
-        this.filterRewards(await this.getCommunityRewards(), kycStatus),
+        await this.getCommunityRewards(),
         batch,
+        kycStatus,
       );
       await this.savePendingRewards(
-        this.filterRewards(await this.getDelegationRewards(), kycStatus),
+        await this.getDelegationRewards(),
         batch,
+        kycStatus,
       );
     }
 
@@ -109,7 +106,10 @@ export class ClaimService {
     id: number,
   ): Promise<PendingRewardDto[]> {
     const batch = await this.batchRepository.findOneOrFail({ id });
-    const pendingRewards = await this.pendingRewardRepository.find({ batch });
+    const pendingRewards = await this.pendingRewardRepository.find({
+      where: { batch },
+      order: { isValid: 'ASC', invalidReason: 'ASC' },
+    });
 
     return Promise.all(
       pendingRewards.map(async (pendingReward) => {
@@ -153,6 +153,8 @@ export class ClaimService {
           availableToBeClaimed,
           id: pendingReward.id,
           address: pendingReward.address,
+          isValid: pendingReward.isValid,
+          invalidReason: pendingReward.invalidReason,
         };
       }),
     );
@@ -407,16 +409,11 @@ export class ClaimService {
     const kycStatus: KycStatus = {};
 
     for (const k of kyc) {
-      if (!ethUtil.isValidAddress(k.address)) {
-        continue;
-      }
-
-      if (k.kyc !== 'APPROVED') {
-        continue;
-      }
-
-      const address = ethUtil.toChecksumAddress(k.address.trim());
-      kycStatus[address] = k.kyc;
+      const trimmedAddress = k.address.trim();
+      const address = ethUtil.isValidAddress(trimmedAddress)
+        ? ethUtil.toChecksumAddress(trimmedAddress)
+        : trimmedAddress;
+      kycStatus[address] = k.kyc === 'APPROVED';
     }
 
     return kycStatus;
@@ -452,41 +449,74 @@ export class ClaimService {
       total: reward.amount,
     }));
   }
-  private filterRewards(
-    rewards: Reward[],
-    kycStatus: KycStatus,
-  ): FilteredReward[] {
-    return rewards
-      .filter((reward: Reward) => ethUtil.isValidAddress(reward.address))
-      .filter((reward: Reward) => kycStatus[reward.address] === 'APPROVED')
-      .map((reward: Reward) => ({
-        address: ethUtil.toChecksumAddress(reward.address.trim()),
-        total: this.floatToBn(reward.total),
-      }));
-  }
   private async savePendingRewards(
-    rewards: FilteredReward[],
+    rewards: Reward[],
     batch: BatchEntity,
+    kyc: KycStatus,
   ): Promise<BatchEntity> {
     for (const reward of rewards) {
+      const trimmedAddress = reward.address.trim();
+      const address = ethUtil.isValidAddress(trimmedAddress)
+        ? ethUtil.toChecksumAddress(trimmedAddress)
+        : trimmedAddress;
+      const total = this.floatToBn(reward.total);
+
       let pendingReward = await this.pendingRewardRepository.findOne({
         relations: ['batch'],
         where: {
-          batch: batch,
-          address: reward.address,
+          batch,
+          address,
         },
       });
       if (pendingReward) {
         pendingReward.numberOfTokens = new BigNumber(
           pendingReward.numberOfTokens,
         )
-          .plus(reward.total)
+          .plus(total)
           .toString(10);
       } else {
+        let isValid = true;
+        let invalidReason = null;
+
+        if (!ethUtil.isValidAddress(address)) {
+          isValid = false;
+          invalidReason = 'Invalid address';
+        }
+
+        if (!kyc[address]) {
+          isValid = false;
+          invalidReason = 'KYC not approved';
+        }
+
+        const account = await this.accountRepository.findOne({
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+        });
+
+        if (account) {
+          const totalBefore = new BigNumber(account.totalClaimed)
+            .plus(new BigNumber(account.totalLocked))
+            .plus(new BigNumber(account.availableToBeClaimed));
+
+          const current = total.minus(totalBefore);
+          if (current.isNegative()) {
+            isValid = false;
+            invalidReason = 'Negative balance';
+          }
+
+          if (current.div(new BigNumber(10).pow(18)).toNumber() === 0) {
+            isValid = false;
+            invalidReason = 'No new tokens';
+          }
+        }
+
         pendingReward = new PendingRewardEntity();
-        pendingReward.address = reward.address;
-        pendingReward.numberOfTokens = reward.total.toString(10);
+        pendingReward.address = address;
+        pendingReward.numberOfTokens = total.toString(10);
         pendingReward.batch = batch;
+        pendingReward.isValid = isValid;
+        pendingReward.invalidReason = invalidReason;
       }
 
       await this.pendingRewardRepository.save(pendingReward);

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -29,6 +30,7 @@ import {
 import { BatchEntity } from './entity/batch.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { PendingRewardDto } from './dto/pending-reward.dto';
+import { EntityNotFoundError } from 'typeorm';
 
 @ApiBearerAuth()
 @ApiTags('batches')
@@ -56,7 +58,15 @@ export class BatchController {
   async getPendingRewardsForBatch(
     @Param('id') id: number,
   ): Promise<PendingRewardDto[]> {
-    return await this.claimService.getPendingRewardsForBatch(id);
+    try {
+      return await this.claimService.getPendingRewardsForBatch(id);
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new NotFoundException(`Batch with id ${id} not found`);
+      } else {
+        throw e;
+      }
+    }
   }
   @ApiNoContentResponse()
   @ApiUnauthorizedResponse({ description: 'You need a valid token' })

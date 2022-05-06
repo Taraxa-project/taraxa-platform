@@ -21,4 +21,10 @@ export class PendingRewardDto {
 
   @ApiProperty()
   total: number;
+
+  @ApiProperty()
+  isValid: boolean;
+
+  @ApiProperty()
+  invalidReason: string;
 }
