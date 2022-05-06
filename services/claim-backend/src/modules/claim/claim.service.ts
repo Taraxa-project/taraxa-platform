@@ -373,7 +373,11 @@ export class ClaimService {
   ): Promise<CollectionResponse<ClaimEntity>> {
     const claims = new CollectionResponse<ClaimEntity>();
     [claims.data, claims.count] = await this.claimRepository.findAndCount({
-      where: { address },
+      where: {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      },
     });
     claims.data = claims.data.map((claim: ClaimEntity) => ({
       ...claim,

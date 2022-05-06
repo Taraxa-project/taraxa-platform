@@ -24,7 +24,6 @@ import {
 } from '@taraxa-claim/common';
 import { AccountEntity } from './entity/account.entity';
 import { ClaimEntity } from './entity/claim.entity';
-import { Raw } from 'typeorm';
 
 @ApiTags('accounts')
 @Controller('accounts')
