@@ -53,14 +53,7 @@ function useRedeem() {
     transformedClaims.sort(
       (claimA, claimB) => claimA.createdAt.getTime() - claimB.createdAt.getTime(),
     );
-    const finalClaims = transformedClaims.map((_claim, ind) => {
-      const prevElement = ind > 0 ? transformedClaims[ind - 1] : undefined;
-      if (!_claim.claimed) return _claim;
-      if (prevElement && prevElement.totalClaimed) {
-        _claim.totalClaimed = prevElement.totalClaimed.add(_claim.numberOfTokens);
-      } else {
-        _claim.totalClaimed = _claim.numberOfTokens;
-      }
+    const finalClaims = transformedClaims.map((_claim) => {
       return _claim;
     });
     const reversedClaims = finalClaims.reverse();
@@ -80,7 +73,7 @@ function useRedeem() {
         totalUnclaimed.gt(0) && availableToBeClaimed.gt(totalUnclaimed)
           ? availableToBeClaimed.sub(totalUnclaimed)
           : availableToBeClaimed,
-      totalClaimed: finalClaims[0] ? finalClaims[0].totalClaimed : BigNumber.from('0'),
+      totalClaimed: finalClaims[0].totalClaimed,
       claimed: false,
       claimedAt: null,
       createdAt: new Date(),

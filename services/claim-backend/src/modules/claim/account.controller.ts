@@ -24,6 +24,7 @@ import {
 } from '@taraxa-claim/common';
 import { AccountEntity } from './entity/account.entity';
 import { ClaimEntity } from './entity/claim.entity';
+import { Raw } from 'typeorm';
 
 @ApiTags('accounts')
 @Controller('accounts')
@@ -82,7 +83,11 @@ export class AccountController {
     @Param('account') account: string,
   ): Promise<CollectionResponse<ClaimEntity>> {
     return this.claimService.claims({
-      filter: { address: account },
+      filter: {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:account)`, {
+          account,
+        }),
+      },
       range: [0, 100],
       sort: ['createdAt', 'DESC'],
     } as QueryDto);

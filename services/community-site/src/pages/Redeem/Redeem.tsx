@@ -31,7 +31,7 @@ import RedeemModals from './Modal/Modals';
 
 const EmptyRewards = () => (
   <TableRow className="tableRow">
-    <TableCell colSpan={5} className="tableCell">
+    <TableCell colSpan={4} className="tableCell">
       <div className="noRewardContainer">
         <span className="noRewardText">
           <NotFoundIcon />
@@ -176,7 +176,7 @@ function Redeem() {
     } catch (e) {}
   };
 
-  const columns = ['TARA', 'Lifetime points redeemed', 'Date', 'Status', ''];
+  const columns = ['TARA', 'Date', 'Status', ''];
 
   return (
     <div className="redeem">
@@ -231,7 +231,7 @@ function Redeem() {
           </div>
         </div>
         <div className="tableHeader">
-          <WhiteCheckIcon /> <span style={{ marginLeft: '10px' }}>Rewards Description</span>
+          <WhiteCheckIcon /> <span style={{ marginLeft: '10px' }}>Redemption History</span>
         </div>
         {claims ? (
           <TableContainer className="table">
@@ -252,11 +252,6 @@ function Redeem() {
                       <TableRow className="tableRow" key={ind}>
                         <TableCell className="tableCell">
                           {formatEth(roundEth(weiToEth(row.numberOfTokens)))}
-                        </TableCell>
-                        <TableCell className="tableCell">
-                          {row.totalClaimed
-                            ? formatEth(roundEth(weiToEth(row.totalClaimed)))
-                            : '0.0'}
                         </TableCell>
                         <TableCell className="tableCellGrey">
                           {moment(
