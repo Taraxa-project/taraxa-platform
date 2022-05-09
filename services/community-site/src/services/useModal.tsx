@@ -2,6 +2,8 @@ import React, { useState, useContext, createContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { Modal } from '@taraxa_project/taraxa-ui';
+import WalletSignIn from '../components/Modal/WalletSignIn';
+import Preset from '../components/Modal/Preset';
 import { useAuth } from './useAuth';
 import SignIn from '../components/Modal/SignIn';
 import EmailConfirmed from '../components/Modal/EmailConfirmed';
@@ -13,11 +15,22 @@ import ResetPassword from '../components/Modal/ResetPassword';
 
 import CloseIcon from '../assets/icons/close';
 
+type LoginContentTypes =
+  | 'preset'
+  | 'mm-sign-in'
+  | 'sign-in'
+  | 'sign-up'
+  | 'sign-up-success'
+  | 'forgot-password'
+  | 'forgot-password-success'
+  | 'email-confirmed'
+  | 'reset-password';
+
 type Context = {
   isOpen: boolean;
   setIsOpen?: (isOpen: boolean) => void;
-  content: string;
-  setContent?: (content: string) => void;
+  content: LoginContentTypes;
+  setContent?: (content: LoginContentTypes) => void;
   signIn?: () => void;
   reset?: () => void;
   code: string | undefined;
@@ -27,7 +40,7 @@ type Context = {
 
 const initialState: Context = {
   isOpen: false,
-  content: 'sign-in',
+  content: 'preset',
   code: undefined,
   modal: null,
 };
@@ -40,11 +53,11 @@ function useProvideModal() {
   const isSessionExpired = auth.isSessionExpired!();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   const [isOpen, setIsOpen] = useState(isSessionExpired);
-  const [content, setContent] = useState('sign-in');
+  const [content, setContent] = useState<LoginContentTypes>('preset');
   const [code, setCode] = useState<undefined | string>();
 
   const signIn = () => {
-    setContent('sign-in');
+    setContent('preset');
     setIsOpen(true);
   };
 
@@ -52,7 +65,7 @@ function useProvideModal() {
     if (isSessionExpired) {
       auth.clearSessionExpired!();
     }
-    setContent('sign-in');
+    setContent('preset');
     setIsOpen(false);
     setCode(undefined);
     history.push('/');
@@ -62,6 +75,20 @@ function useProvideModal() {
   let title: string;
 
   switch (content) {
+    case 'preset':
+      title = 'Sign in / Sign up';
+      modal = (
+        <Preset
+          onMM={() => setContent!('mm-sign-in')}
+          onClassic={() => setContent!('sign-in')}
+          onRegister={() => setContent!('sign-up')}
+        />
+      );
+      break;
+    case 'mm-sign-in':
+      title = 'Sign in / Sign up';
+      modal = <WalletSignIn isSigning />;
+      break;
     case 'email-confirmed':
       title = 'Create an account';
       modal = (
