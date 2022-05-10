@@ -287,14 +287,20 @@ export class ClaimService {
   }
   public async createClaim(address: string): Promise<ClaimEntity> {
     const unclaimed = await this.claimRepository.findOne({
-      address,
+      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        address,
+      }),
       claimed: false,
     });
 
     if (unclaimed) return unclaimed;
 
     const { availableToBeClaimed } = await this.accountRepository.findOneOrFail(
-      { address },
+      {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      },
     );
 
     if (
