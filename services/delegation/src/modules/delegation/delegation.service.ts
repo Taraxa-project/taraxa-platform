@@ -5,6 +5,7 @@ import {
   Connection,
   FindConditions,
   FindOneOptions,
+  Raw,
   Repository,
 } from 'typeorm';
 import { Injectable } from '@nestjs/common';
@@ -412,12 +413,9 @@ export class DelegationService {
       const delegationRepository =
         manager.getRepository<Delegation>('Delegation');
       let where: {
-        address: string;
         user?: number;
         node?: Node;
-      } = {
-        address: from,
-      };
+      } = {};
       if (user) {
         where = {
           ...where,
@@ -432,7 +430,12 @@ export class DelegationService {
       }
 
       delegations = await delegationRepository.find({
-        where,
+        where: {
+          ...where,
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address: from,
+          }),
+        },
         order: {
           createdAt: 'ASC',
         },
