@@ -659,7 +659,7 @@ export class DelegationService {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
-      .where('"d"."address" = :address', { address })
+      .where('LOWER("d"."address") = LOWER(:address)', { address })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
   }
@@ -668,7 +668,7 @@ export class DelegationService {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
-      .where('"d"."address" = :address', { address })
+      .where('LOWER("d"."address") = LOWER(:address)', { address })
       .andWhere('"d"."nodeId" = :node', { node })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
@@ -681,7 +681,7 @@ export class DelegationService {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
-      .where('"d"."address" = :address', { address })
+      .where('LOWER("d"."address") = LOWER(:address)', { address })
       .andWhere('"d"."nodeId" = :node', { node })
       .andWhere('"d"."createdAt" < :date', {
         date: moment().utc().subtract(5, 'days').utc().toDate(),
