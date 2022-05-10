@@ -243,7 +243,12 @@ export class ClaimService {
   public async account(address: string): Promise<Partial<AccountEntity>> {
     try {
       const claim = await this.claimRepository.findOne({
-        where: { address, claimed: false },
+        where: {
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+          claimed: false,
+        },
       });
       if (claim) {
         const nonce = claim.id * 13;
@@ -269,7 +274,11 @@ export class ClaimService {
       const err = error as Error;
       throw new InternalServerErrorException(err.message);
     }
-    const accountData = await this.accountRepository.findOne({ address });
+    const accountData = await this.accountRepository.findOne({
+      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        address,
+      }),
+    });
     if (accountData) {
       const account = JSON.parse(JSON.stringify(accountData));
       delete account.id;
