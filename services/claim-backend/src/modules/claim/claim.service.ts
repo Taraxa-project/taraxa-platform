@@ -271,8 +271,7 @@ export class ClaimService {
         }
       }
     } catch (error) {
-      const err = error as Error;
-      throw new InternalServerErrorException(err.message);
+      console.log('Could not mark current claims', error.message);
     }
     const accountData = await this.accountRepository.findOne({
       address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {

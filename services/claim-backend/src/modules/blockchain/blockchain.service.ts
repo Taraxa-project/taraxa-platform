@@ -20,7 +20,7 @@ export class BlockchainService {
   ) {
     this.provider = new ethers.providers.JsonRpcProvider({
       url: ethereumConfig.provider,
-      timeout: 5000,
+      timeout: 2000,
     });
   }
   getProvider() {
