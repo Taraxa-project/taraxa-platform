@@ -279,6 +279,7 @@ export class ClaimService {
         address,
       }),
     });
+
     if (accountData) {
       const account = JSON.parse(JSON.stringify(accountData));
       delete account.id;
@@ -332,7 +333,9 @@ export class ClaimService {
     claim.claimedAt = new Date();
 
     const account = await this.accountRepository.findOneOrFail({
-      address: claim.address,
+      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        address: claim.address,
+      }),
     });
     account.availableToBeClaimed = ethers.BigNumber.from(
       account.availableToBeClaimed,
