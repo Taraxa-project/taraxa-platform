@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import useApi from './useApi';
+import { useWalletAuthorizationApi } from './useApi';
 import useCMetamask from './useCMetamask';
 import useSigning from './useSigning';
 
@@ -7,7 +7,7 @@ export default function useWalletAuth() {
   const [isLogged, setLogged] = useState(false);
   const { account } = useCMetamask();
   const sign = useSigning();
-  const api = useApi('http://localhost:3006');
+  const api = useWalletAuthorizationApi();
 
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
@@ -30,8 +30,6 @@ export default function useWalletAuth() {
 
   const getNonce = async () => {
     let nonce = '-1';
-    // eslint-disable-next-line no-console
-    console.log(account);
     if (account) {
       const nonceRes = await api.get(`/auth/${account}`);
       if (nonceRes.success) {

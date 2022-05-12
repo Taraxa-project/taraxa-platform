@@ -170,4 +170,8 @@ export const useClaimApi = () => {
   return useApi(process.env.REACT_APP_API_CLAIM_HOST);
 };
 
+export const useWalletAuthorizationApi = () => {
+  return useApi(process.env.REACT_APP_API_WALLET_AUTHORIZATION_HOST);
+};
+
 export default useApi;
