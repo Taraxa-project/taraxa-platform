@@ -2,6 +2,7 @@ import React, { useState, useContext, createContext, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { Modal } from '@taraxa_project/taraxa-ui';
+import VerifyWallet from '../components/Modal/VerifyWallet';
 import WalletSignIn from '../components/Modal/WalletSignIn';
 import Preset from '../components/Modal/Preset';
 import { useAuth } from './useAuth';
@@ -24,7 +25,8 @@ type LoginContentTypes =
   | 'forgot-password'
   | 'forgot-password-success'
   | 'email-confirmed'
-  | 'reset-password';
+  | 'reset-password'
+  | 'verify-wallet';
 
 type Context = {
   isOpen: boolean;
@@ -32,6 +34,7 @@ type Context = {
   content: LoginContentTypes;
   setContent?: (content: LoginContentTypes) => void;
   signIn?: () => void;
+  authorizeWallet?: () => void;
   reset?: () => void;
   code: string | undefined;
   setCode?: (code: string | undefined) => void;
@@ -59,10 +62,16 @@ function useProvideModal() {
     <Preset
       onMM={() => setContent!('mm-sign-in')}
       onClassic={() => setContent!('sign-in')}
-      onRegister={() => setContent!('sign-up')}
+      onSuccess={() => setIsOpen(false)}
     />,
   );
   const [code, setCode] = useState<undefined | string>();
+
+  const authorizeWallet = () => {
+    setContent('verify-wallet');
+    setTitle('IMPORTANT NOTICE');
+    setIsOpen(true);
+  };
 
   const signIn = () => {
     setContent('preset');
@@ -89,13 +98,17 @@ function useProvideModal() {
           <Preset
             onMM={() => setContent!('mm-sign-in')}
             onClassic={() => setContent!('sign-in')}
-            onRegister={() => setContent!('mm-sign-in')}
+            onSuccess={() => setIsOpen(false)}
           />,
         );
         break;
       case 'mm-sign-in':
         setTitle('Sign in / Sign up');
         setModal(<WalletSignIn isSigning onClassic={() => setContent!('sign-in')} />);
+        break;
+      case 'verify-wallet':
+        setTitle('IMPORTANT NOTICE');
+        setModal(<VerifyWallet onSuccess={() => setIsOpen(false)} />);
         break;
       case 'email-confirmed':
         setTitle('Create an account');
@@ -164,13 +177,10 @@ function useProvideModal() {
         setModal(
           <SignIn
             onSuccess={() => {
-              setIsOpen!(false);
+              setIsOpen(false);
             }}
             onForgotPassword={() => {
               setContent!('forgot-password');
-            }}
-            onCreateAccount={() => {
-              setContent!('sign-up');
             }}
             isSessionExpired={isSessionExpired}
           />,
@@ -186,6 +196,7 @@ function useProvideModal() {
     code,
     setCode,
     signIn,
+    authorizeWallet,
     reset,
     modal: (
       <Modal
