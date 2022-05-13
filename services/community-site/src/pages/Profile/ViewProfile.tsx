@@ -12,10 +12,11 @@ import {
   Checkbox,
 } from '@taraxa_project/taraxa-ui';
 
-import { Typography } from '@material-ui/core';
-import { GreenCircledCheckIconBig } from '../../assets/icons/greenCircledCheck';
+import { useModal } from '../../services/useModal';
+import useWalletAuth from '../../services/useWalletAuth';
+import { GreenCircledCheckIconBig } from '../../assets/icons/greenCircularCheck';
 import WalletIcon from '../../assets/icons/wallet';
-import { useClaimApi, useWalletAuthorizationApi } from '../../services/useApi';
+import { useClaimApi } from '../../services/useApi';
 import BountyIcon from '../../assets/icons/bounties';
 import TaraxaIcon from '../../assets/icons/taraxaIcon';
 import InfoIcon from '../../assets/icons/info';
@@ -96,45 +97,12 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
   const { account } = useCMetamask();
   const history = useHistory();
   const claimApi = useClaimApi();
-  const authorizationApi = useWalletAuthorizationApi();
+  const { authorizeWallet } = useModal();
+  const { isAuthorized } = useWalletAuth();
   const [showLockedPoints, setShowLockedPoints] = useState(false);
   const [availableToBeClaimed, setAvailableToBeClaimed] = useState(ethers.BigNumber.from(0));
   const [lockedPoints, setLockedPoints] = useState(ethers.BigNumber.from(0));
   const [calculatedPoints, setCalculatedPoints] = useState<BigNumber>(ethers.BigNumber.from(0));
-  const [addressAuthorized, setAddressAuthorized] = useState<boolean>(false);
-
-  const authorizeAddress = async () => {
-    if (!account) return;
-    try {
-      const authorizationProm = await authorizationApi.post(`/${account}`, {});
-      if (authorizationProm.success) {
-        const result = authorizationProm.response;
-        setAddressAuthorized(result);
-      }
-    } catch (error) {
-      setAddressAuthorized(false);
-    }
-  };
-
-  useEffect(() => {
-    const checkAuhorizationStatus = async () => {
-      if (!account) return;
-      try {
-        const authorizationAddressProm = await authorizationApi.get(`/${account}`);
-        if (authorizationAddressProm && authorizationAddressProm.success) {
-          const returnedAddress = authorizationAddressProm.response;
-          if (account === ethers.utils.getAddress(returnedAddress)) {
-            setAddressAuthorized(true);
-          } else {
-            setAddressAuthorized(false);
-          }
-        }
-      } catch (error) {
-        setAddressAuthorized(false);
-      }
-    };
-    checkAuhorizationStatus();
-  }, [account]);
 
   useEffect(() => {
     if (!account) {
@@ -200,7 +168,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
           wallet={
             auth.user!.eth_wallet ? auth.user!.eth_wallet : 'No Ethereum Wallet Address was set'
           }
-          addressWarning={!addressAuthorized}
+          addressWarning={!isAuthorized}
           Icon={TaraxaIcon}
           buttonOptions={buttons}
         />
@@ -236,7 +204,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         <br />
       </div>
       <div className="cardContainer">
-        {addressAuthorized ? (
+        {isAuthorized ? (
           <ProfileBasicCard title="Wallet" Icon={WalletIcon}>
             <div
               className="flexExpand"
@@ -246,10 +214,10 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
                 justifyContent: 'space-evenly',
                 alignItems: 'center',
                 textAlign: 'center',
+                wordBreak: 'break-word',
               }}
             >
               <GreenCircledCheckIconBig />
-              <Typography variant="h6" />
               <span style={{ color: '#878CA4' }}>{account}</span>
             </div>
           </ProfileBasicCard>
@@ -264,7 +232,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
                 label="Authorize via MetaMask"
                 disabled={calculatedPoints.eq('0')}
                 fullWidth
-                onClick={() => authorizeAddress()}
+                onClick={authorizeWallet}
               />
             }
           >
@@ -276,6 +244,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
                 justifyContent: 'space-evenly',
                 alignItems: 'center',
                 textAlign: 'center',
+                wordBreak: 'break-word',
               }}
             >
               <span>Not authorized</span>
