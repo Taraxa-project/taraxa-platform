@@ -6,6 +6,7 @@ import { PendingRewardEntity } from './entity/pending-reward.entity';
 import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
 import { ClaimEntity } from './entity/claim.entity';
+import { AddressChangesEntity } from './entity/address-changes.entity';
 import { BatchController } from './batch.controller';
 import { RewardController } from './reward.controller';
 import { AccountController } from './account.controller';
@@ -21,6 +22,7 @@ import { BlockchainModule } from '@taraxa-claim/blockchain';
       RewardEntity,
       AccountEntity,
       ClaimEntity,
+      AddressChangesEntity,
     ]),
     HttpModule.registerAsync({
       useFactory: () => ({

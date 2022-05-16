@@ -22,7 +22,10 @@ export class PendingRewardEntity {
   address: string;
 
   @Column()
-  numberOfTokens: string;
+  availableNumberOfTokens: string;
+
+  @Column()
+  totalNumberOfTokens: string;
 
   @Column({
     default: false,

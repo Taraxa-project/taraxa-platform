@@ -3,12 +3,7 @@ import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
 import { In, LessThan, Raw, Repository } from 'typeorm';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
@@ -22,6 +17,7 @@ import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
 import { ClaimEntity } from './entity/claim.entity';
+import { AddressChangesEntity } from './entity/address-changes.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { PendingRewardDto } from './dto/pending-reward.dto';
 
@@ -64,6 +60,8 @@ export class ClaimService {
     private readonly accountRepository: Repository<AccountEntity>,
     @InjectRepository(ClaimEntity)
     private readonly claimRepository: Repository<ClaimEntity>,
+    @InjectRepository(AddressChangesEntity)
+    private readonly addressChangeRepository: Repository<AddressChangesEntity>,
     @Inject(general.KEY)
     private readonly generalConfig: ConfigType<typeof general>,
     @Inject(ethereum.KEY)
@@ -130,13 +128,13 @@ export class ClaimService {
         let claimed = 0;
         let locked = 0;
         let availableToBeClaimed = 0;
-        const total = bnStringToNumber(pendingReward.numberOfTokens);
+        const total = bnStringToNumber(pendingReward.totalNumberOfTokens);
 
         if (account) {
           const totalBefore = new BigNumber(account.totalClaimed)
             .plus(new BigNumber(account.totalLocked))
             .plus(new BigNumber(account.availableToBeClaimed));
-          current = new BigNumber(pendingReward.numberOfTokens)
+          current = new BigNumber(pendingReward.totalNumberOfTokens)
             .minus(totalBefore)
             .div(new BigNumber(10).pow(18))
             .toNumber();
@@ -488,12 +486,19 @@ export class ClaimService {
     batch: BatchEntity,
     kyc: KycStatus,
   ): Promise<BatchEntity> {
+    console.log(`Saving ${rewards.length} pending rewards...`);
+    let count = 0;
     for (const reward of rewards) {
+      count++;
+
       const trimmedAddress = reward.address.trim();
       const address = ethUtil.isValidAddress(trimmedAddress)
         ? ethUtil.toChecksumAddress(trimmedAddress)
         : trimmedAddress;
-      const total = this.floatToBn(reward.total);
+      let total = this.floatToBn(reward.total);
+      let current = new BigNumber(total.toString(10));
+
+      console.log(`- ${count}/${rewards.length} reward for ${address}`);
 
       let pendingReward = await this.pendingRewardRepository.findOne({
         relations: ['batch'],
@@ -502,15 +507,15 @@ export class ClaimService {
           address,
         },
       });
-      if (pendingReward) {
-        pendingReward.numberOfTokens = new BigNumber(
-          pendingReward.numberOfTokens,
-        )
-          .plus(total)
-          .toString(10);
-      } else {
-        let isValid = true;
-        let invalidReason = null;
+
+      let isValid = true;
+      let invalidReason = null;
+
+      if (!pendingReward) {
+        pendingReward = new PendingRewardEntity();
+        pendingReward.batch = batch;
+        pendingReward.address = address;
+        pendingReward.totalNumberOfTokens = total.toString(10);
 
         if (!ethUtil.isValidAddress(address)) {
           isValid = false;
@@ -522,36 +527,71 @@ export class ClaimService {
           invalidReason = 'KYC not approved';
         }
 
-        const account = await this.accountRepository.findOne({
-          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        const oldAddress = await this.addressChangeRepository.findOne({
+          oldAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
             address,
           }),
         });
 
-        if (account) {
-          const totalBefore = new BigNumber(account.totalClaimed)
-            .plus(new BigNumber(account.totalLocked))
-            .plus(new BigNumber(account.availableToBeClaimed));
+        if (oldAddress) {
+          isValid = false;
+          invalidReason = 'Changed Address';
+        }
+      } else {
+        total = new BigNumber(pendingReward.totalNumberOfTokens).plus(total);
+        current = new BigNumber(pendingReward.availableNumberOfTokens).plus(
+          current,
+        );
 
-          const current = total.minus(totalBefore);
-          if (current.isNegative()) {
-            isValid = false;
-            invalidReason = 'Negative balance';
-          }
+        pendingReward.totalNumberOfTokens = total.toString(10);
+      }
 
-          if (current.div(new BigNumber(10).pow(18)).toNumber() === 0) {
-            isValid = false;
-            invalidReason = 'No new tokens';
-          }
+      const newAddress = await this.addressChangeRepository.findOne({
+        newAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      });
+
+      if (newAddress) {
+        const oldAccount = await this.accountRepository.findOne({
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address: newAddress.oldAddress,
+          }),
+        });
+
+        if (oldAccount) {
+          const totalOldAccount = new BigNumber(oldAccount.totalClaimed)
+            .plus(new BigNumber(oldAccount.totalLocked))
+            .plus(new BigNumber(oldAccount.availableToBeClaimed));
+          current = current.minus(totalOldAccount);
+        }
+      }
+
+      const account = await this.accountRepository.findOne({
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      });
+
+      if (account) {
+        const totalBefore = new BigNumber(account.totalClaimed)
+          .plus(new BigNumber(account.totalLocked))
+          .plus(new BigNumber(account.availableToBeClaimed));
+
+        current = current.minus(totalBefore);
+        if (current.isNegative()) {
+          isValid = false;
+          invalidReason = 'Negative balance';
         }
 
-        pendingReward = new PendingRewardEntity();
-        pendingReward.address = address;
-        pendingReward.numberOfTokens = total.toString(10);
-        pendingReward.batch = batch;
-        pendingReward.isValid = isValid;
-        pendingReward.invalidReason = invalidReason;
+        if (current.div(new BigNumber(10).pow(18)).toNumber() === 0) {
+          continue;
+        }
       }
+
+      pendingReward.availableNumberOfTokens = current.toString(10);
+      pendingReward.isValid = isValid;
+      pendingReward.invalidReason = invalidReason;
 
       await this.pendingRewardRepository.save(pendingReward);
     }
