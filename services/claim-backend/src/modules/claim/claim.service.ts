@@ -36,10 +36,6 @@ interface DelegationRewardResponse {
   amount: number;
 }
 
-interface KycStatus {
-  [address: string]: boolean;
-}
-
 interface Reward {
   address: string;
   total: number;
@@ -80,19 +76,31 @@ export class ClaimService {
 
     batch = await this.batchRepository.save(batch);
 
-    const kycStatus = await this.getKycStatus();
-
     if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
-      await this.savePendingRewards(
-        await this.getCommunityRewards(),
-        batch,
-        kycStatus,
+      const allRewards: Reward[] = [
+        ...(await this.getCommunityRewards()),
+        ...(await this.getDelegationRewards()),
+      ];
+
+      const uniqueRewards = allRewards.reduce(
+        (prev: Map<string, number>, curr: Reward) => {
+          const trimmedAddress = curr.address.trim();
+          const address = ethUtil.isValidAddress(trimmedAddress)
+            ? ethUtil.toChecksumAddress(trimmedAddress)
+            : trimmedAddress;
+
+          let total = curr.total;
+          if (prev.has(address)) {
+            const prevReward = prev.get(address);
+            total += prevReward;
+          }
+          prev.set(address, total);
+          return prev;
+        },
+        new Map<string, number>(),
       );
-      await this.savePendingRewards(
-        await this.getDelegationRewards(),
-        batch,
-        kycStatus,
-      );
+
+      await this.savePendingRewards(uniqueRewards, batch);
     }
 
     return batch;
@@ -426,7 +434,7 @@ export class ClaimService {
       await this.accountRepository.save(reward.account);
     }
   }
-  private async getKycStatus(): Promise<KycStatus> {
+  private async getKycStatus(): Promise<Map<string, boolean>> {
     const response = await this.httpService
       .get<CommunityKycResponse[]>(
         `${this.rewardConfig.communitySiteApiUrl}/kyc`,
@@ -438,14 +446,13 @@ export class ClaimService {
     }
 
     const kyc = response.data;
-    const kycStatus: KycStatus = {};
-
+    const kycStatus = new Map<string, boolean>();
     for (const k of kyc) {
       const trimmedAddress = k.address.trim();
       const address = ethUtil.isValidAddress(trimmedAddress)
         ? ethUtil.toChecksumAddress(trimmedAddress)
         : trimmedAddress;
-      kycStatus[address] = k.kyc === 'APPROVED';
+      kycStatus.set(address, k.kyc === 'APPROVED');
     }
 
     return kycStatus;
@@ -482,23 +489,14 @@ export class ClaimService {
     }));
   }
   private async savePendingRewards(
-    rewards: Reward[],
+    rewards: Map<string, number>,
     batch: BatchEntity,
-    kyc: KycStatus,
   ): Promise<BatchEntity> {
-    console.log(`Saving ${rewards.length} pending rewards...`);
-    let count = 0;
-    for (const reward of rewards) {
-      count++;
+    const kyc = await this.getKycStatus();
 
-      const trimmedAddress = reward.address.trim();
-      const address = ethUtil.isValidAddress(trimmedAddress)
-        ? ethUtil.toChecksumAddress(trimmedAddress)
-        : trimmedAddress;
-      let total = this.floatToBn(reward.total);
+    for (const [address, rewardTotal] of rewards.entries()) {
+      let total = this.floatToBn(rewardTotal);
       let current = new BigNumber(total.toString(10));
-
-      console.log(`- ${count}/${rewards.length} reward for ${address}`);
 
       let pendingReward = await this.pendingRewardRepository.findOne({
         relations: ['batch'],
@@ -522,7 +520,7 @@ export class ClaimService {
           invalidReason = 'Invalid address';
         }
 
-        if (!kyc[address]) {
+        if (!kyc.has(address)) {
           isValid = false;
           invalidReason = 'KYC not approved';
         }
