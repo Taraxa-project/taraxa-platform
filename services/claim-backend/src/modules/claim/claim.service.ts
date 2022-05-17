@@ -20,7 +20,7 @@ import { ClaimEntity } from './entity/claim.entity';
 import { AddressChangesEntity } from './entity/address-changes.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
-import { PendingRewardDto } from './dto/pending-reward.dto';
+import { PendingRewardsDto } from './dto/pending-rewards.dto';
 
 interface CommunityRewardResponse {
   address: string;
@@ -92,14 +92,17 @@ export class ClaimService {
   }
   public async getPendingRewardsForBatch(
     id: number,
-  ): Promise<PendingRewardDto[]> {
+  ): Promise<PendingRewardsDto> {
     const batch = await this.batchRepository.findOneOrFail({ id });
     const pendingRewards = await this.pendingRewardRepository.find({
       where: { batch },
       order: { invalidReason: 'DESC' },
     });
 
-    return Promise.all(
+    let total = 0;
+    let totalValid = 0;
+
+    const rewards = await Promise.all(
       pendingRewards.map(async (pendingReward) => {
         const { address } = pendingReward;
 
@@ -112,7 +115,14 @@ export class ClaimService {
         let locked = 0;
         let availableToBeClaimed = 0;
         const current = bnStringToNumber(pendingReward.availableNumberOfTokens);
-        const total = bnStringToNumber(pendingReward.totalNumberOfTokens);
+        const totalNumberOfTokens = bnStringToNumber(
+          pendingReward.totalNumberOfTokens,
+        );
+
+        total += current;
+        if (pendingReward.isValid) {
+          totalValid += current;
+        }
 
         const account = await this.accountRepository.findOne({
           address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
@@ -130,7 +140,7 @@ export class ClaimService {
           claimed,
           locked,
           availableToBeClaimed,
-          total,
+          total: totalNumberOfTokens,
           id: pendingReward.id,
           address: pendingReward.address,
           isValid: pendingReward.isValid,
@@ -138,6 +148,12 @@ export class ClaimService {
         };
       }),
     );
+
+    return {
+      rewards,
+      total,
+      totalValid,
+    };
   }
   public async patchBatch(
     id: number,

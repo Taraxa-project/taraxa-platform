@@ -34,7 +34,7 @@ import {
 import { BatchEntity } from './entity/batch.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
-import { PendingRewardDto } from './dto/pending-reward.dto';
+import { PendingRewardsDto } from './dto/pending-rewards.dto';
 import { EntityNotFoundError } from 'typeorm';
 
 @ApiBearerAuth()
@@ -62,7 +62,7 @@ export class BatchController {
   @Get(':id/pending-rewards')
   async getPendingRewardsForBatch(
     @Param('id') id: number,
-  ): Promise<PendingRewardDto[]> {
+  ): Promise<PendingRewardsDto> {
     try {
       return await this.claimService.getPendingRewardsForBatch(id);
     } catch (e) {
