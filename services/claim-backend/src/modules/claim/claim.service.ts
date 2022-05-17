@@ -19,6 +19,7 @@ import { AccountClaimEntity } from './entity/account-claim.entity';
 import { ClaimEntity } from './entity/claim.entity';
 import { AddressChangesEntity } from './entity/address-changes.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
+import { UpdateBatchDto } from './dto/update-batch.dto';
 import { PendingRewardDto } from './dto/pending-reward.dto';
 
 interface CommunityRewardResponse {
@@ -95,38 +96,30 @@ export class ClaimService {
     const batch = await this.batchRepository.findOneOrFail({ id });
     const pendingRewards = await this.pendingRewardRepository.find({
       where: { batch },
-      order: { isValid: 'ASC', invalidReason: 'ASC' },
+      order: { invalidReason: 'DESC' },
     });
 
     return Promise.all(
       pendingRewards.map(async (pendingReward) => {
         const { address } = pendingReward;
 
-        const account = await this.accountRepository.findOne({
-          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-            address,
-          }),
-        });
-
         const bnStringToNumber = (s: string) => {
           const ten = new BigNumber(10);
           return new BigNumber(s).div(ten.pow(18)).toNumber();
         };
 
-        let current = 0;
         let claimed = 0;
         let locked = 0;
         let availableToBeClaimed = 0;
+        const current = bnStringToNumber(pendingReward.availableNumberOfTokens);
         const total = bnStringToNumber(pendingReward.totalNumberOfTokens);
 
+        const account = await this.accountRepository.findOne({
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+        });
         if (account) {
-          const totalBefore = new BigNumber(account.totalClaimed)
-            .plus(new BigNumber(account.totalLocked))
-            .plus(new BigNumber(account.availableToBeClaimed));
-          current = new BigNumber(pendingReward.totalNumberOfTokens)
-            .minus(totalBefore)
-            .div(new BigNumber(10).pow(18))
-            .toNumber();
           claimed = bnStringToNumber(account.totalClaimed);
           locked = bnStringToNumber(account.totalLocked);
           availableToBeClaimed = bnStringToNumber(account.availableToBeClaimed);
@@ -136,8 +129,8 @@ export class ClaimService {
           current,
           claimed,
           locked,
-          total,
           availableToBeClaimed,
+          total,
           id: pendingReward.id,
           address: pendingReward.address,
           isValid: pendingReward.isValid,
@@ -145,6 +138,60 @@ export class ClaimService {
         };
       }),
     );
+  }
+  public async patchBatch(
+    id: number,
+    batchDto: UpdateBatchDto,
+  ): Promise<BatchEntity> {
+    let batch = await this.batchRepository.findOneOrFail({ id });
+    if (!batch.isDraft) {
+      return batch;
+    }
+    if (batchDto.isDraft) {
+      return batch;
+    }
+    batch.isDraft = batchDto.isDraft;
+    batch = await this.batchRepository.save(batch);
+
+    const pendingRewards = await this.pendingRewardRepository.find({
+      isValid: true,
+    });
+
+    const now = new Date();
+    const rewards: RewardEntity[] = [];
+    for (const pendingReward of pendingRewards) {
+      const reward = new RewardEntity();
+      reward.batch = batch;
+      reward.address = pendingReward.address;
+      reward.numberOfTokens = pendingReward.availableNumberOfTokens;
+      reward.isUnlocked = true;
+      reward.unlockDate = now;
+
+      let account = await this.accountRepository.findOne({
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address: pendingReward.address,
+        }),
+      });
+      if (account) {
+        const availableToBeClaimed = new BigNumber(
+          account.availableToBeClaimed,
+        ).plus(new BigNumber(pendingReward.availableNumberOfTokens));
+        account.availableToBeClaimed = availableToBeClaimed.toString(10);
+      } else {
+        account = new AccountEntity();
+        account.address = pendingReward.address;
+        account.availableToBeClaimed = pendingReward.availableNumberOfTokens;
+        account.totalLocked = '0';
+        account.totalClaimed = '0';
+      }
+
+      account = await this.accountRepository.save(account);
+      reward.account = account;
+      rewards.push(reward);
+    }
+
+    await this.rewardRepository.save(rewards);
+    return batch;
   }
   public async deleteBatch(id: number): Promise<BatchEntity> {
     const batch = await this.batchRepository.findOneOrFail({ id });
