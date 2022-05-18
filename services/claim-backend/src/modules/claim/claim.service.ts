@@ -628,13 +628,13 @@ export class ClaimService {
         pendingReward.communityTotal = new BigNumber(
           pendingReward.communityTotal,
         )
-          .plus(total)
+          .plus(this.floatToBn(rewardTotal))
           .toString(10);
       } else {
         pendingReward.delegationTotal = new BigNumber(
           pendingReward.delegationTotal,
         )
-          .plus(total)
+          .plus(this.floatToBn(rewardTotal))
           .toString(10);
       }
 
