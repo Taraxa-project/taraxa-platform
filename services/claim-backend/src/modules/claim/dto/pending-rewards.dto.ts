@@ -6,8 +6,26 @@ export class PendingRewardsDto {
   rewards: PendingRewardDto[];
 
   @ApiProperty({ type: Number })
-  totalValid: number;
+  total: number;
 
   @ApiProperty({ type: Number })
-  total: number;
+  validTotal: number;
+
+  @ApiProperty({ type: Number })
+  claimable: number;
+
+  @ApiProperty({ type: Number })
+  validClaimable: number;
+
+  @ApiProperty({ type: Number })
+  communityTotal: number;
+
+  @ApiProperty({ type: Number })
+  validCommunityTotal: number;
+
+  @ApiProperty({ type: Number })
+  delegationTotal: number;
+
+  @ApiProperty({ type: Number })
+  validDelegationTotal: number;
 }

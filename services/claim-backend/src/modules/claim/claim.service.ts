@@ -78,11 +78,24 @@ export class ClaimService {
     batch = await this.batchRepository.save(batch);
 
     if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
-      const pendingRewards = await this.getPendingRewardsFor(batch, [
-        ...(await this.getCommunityRewards()),
-        ...(await this.getDelegationRewards()),
-      ]);
-      await this.pendingRewardRepository.save(pendingRewards);
+      const kyc = await this.getKycStatus();
+      await this.pendingRewardRepository.save(
+        await this.getPendingRewardsFor(
+          batch,
+          await this.getCommunityRewards(),
+          kyc,
+          'community',
+        ),
+      );
+
+      await this.pendingRewardRepository.save(
+        await this.getPendingRewardsFor(
+          batch,
+          await this.getDelegationRewards(),
+          kyc,
+          'delegation',
+        ),
+      );
     }
 
     return batch;
@@ -99,30 +112,38 @@ export class ClaimService {
       order: { invalidReason: 'DESC' },
     });
 
-    let total = 0;
-    let totalValid = 0;
-
+    let total = 0,
+      validTotal = 0,
+      claimable = 0,
+      validClaimable = 0,
+      communityTotal = 0,
+      validCommunityTotal = 0,
+      delegationTotal = 0,
+      validDelegationTotal = 0;
     const rewards = await Promise.all(
       pendingRewards.map(async (pendingReward) => {
         const { address } = pendingReward;
 
         const bnStringToNumber = (s: string) => {
-          const ten = new BigNumber(10);
-          return new BigNumber(s).div(ten.pow(18)).toNumber();
+          return new BigNumber(s).div(new BigNumber(10).pow(18)).toNumber();
         };
 
-        let claimed = 0;
-        let locked = 0;
-        let availableToBeClaimed = 0;
-        const current = bnStringToNumber(pendingReward.availableNumberOfTokens);
-        const totalNumberOfTokens = bnStringToNumber(
-          pendingReward.totalNumberOfTokens,
-        );
-
-        total += current;
+        total += bnStringToNumber(pendingReward.total);
+        claimable += bnStringToNumber(pendingReward.claimable);
+        communityTotal += bnStringToNumber(pendingReward.communityTotal);
+        delegationTotal += bnStringToNumber(pendingReward.delegationTotal);
         if (pendingReward.isValid) {
-          totalValid += current;
+          validTotal += bnStringToNumber(pendingReward.total);
+          validClaimable += bnStringToNumber(pendingReward.claimable);
+          validCommunityTotal += bnStringToNumber(pendingReward.communityTotal);
+          validDelegationTotal += bnStringToNumber(
+            pendingReward.delegationTotal,
+          );
         }
+
+        let availableToBeClaimed = 0;
+        let locked = 0;
+        let claimed = 0;
 
         const account = await this.accountRepository.findOne({
           address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
@@ -130,17 +151,18 @@ export class ClaimService {
           }),
         });
         if (account) {
-          claimed = bnStringToNumber(account.totalClaimed);
-          locked = bnStringToNumber(account.totalLocked);
           availableToBeClaimed = bnStringToNumber(account.availableToBeClaimed);
+          locked = bnStringToNumber(account.totalLocked);
+          claimed = bnStringToNumber(account.totalClaimed);
         }
-
         return {
-          current,
-          claimed,
-          locked,
           availableToBeClaimed,
-          total: totalNumberOfTokens,
+          locked,
+          claimed,
+          newAvailableToBeClaimed:
+            availableToBeClaimed + bnStringToNumber(pendingReward.claimable),
+          newClaimable: bnStringToNumber(pendingReward.claimable),
+          total: bnStringToNumber(pendingReward.total),
           id: pendingReward.id,
           address: pendingReward.address,
           isValid: pendingReward.isValid,
@@ -152,7 +174,13 @@ export class ClaimService {
     return {
       rewards,
       total,
-      totalValid,
+      validTotal,
+      claimable,
+      validClaimable,
+      communityTotal,
+      validCommunityTotal,
+      delegationTotal,
+      validDelegationTotal,
     };
   }
   public async patchBatch(
@@ -179,7 +207,7 @@ export class ClaimService {
       const reward = new RewardEntity();
       reward.batch = batch;
       reward.address = pendingReward.address;
-      reward.numberOfTokens = pendingReward.availableNumberOfTokens;
+      reward.numberOfTokens = pendingReward.claimable;
       reward.isUnlocked = true;
       reward.unlockDate = now;
 
@@ -191,12 +219,12 @@ export class ClaimService {
       if (account) {
         const availableToBeClaimed = new BigNumber(
           account.availableToBeClaimed,
-        ).plus(new BigNumber(pendingReward.availableNumberOfTokens));
+        ).plus(new BigNumber(pendingReward.claimable));
         account.availableToBeClaimed = availableToBeClaimed.toString(10);
       } else {
         account = new AccountEntity();
         account.address = pendingReward.address;
-        account.availableToBeClaimed = pendingReward.availableNumberOfTokens;
+        account.availableToBeClaimed = pendingReward.claimable;
         account.totalLocked = '0';
         account.totalClaimed = '0';
       }
@@ -531,6 +559,8 @@ export class ClaimService {
   private async getPendingRewardsFor(
     batch: BatchEntity,
     rewards: Reward[],
+    kyc: Map<string, boolean>,
+    type: 'community' | 'delegation',
   ): Promise<PendingRewardEntity[]> {
     const uniqueUsers = rewards.reduce(
       (prev: Map<string, number>, curr: Reward) => {
@@ -548,39 +578,67 @@ export class ClaimService {
     );
 
     const pendingRewards: PendingRewardEntity[] = [];
-    const kyc = await this.getKycStatus();
     for (const [address, rewardTotal] of uniqueUsers.entries()) {
-      const total = this.floatToBn(rewardTotal);
-      let current = new BigNumber(total.toString(10));
+      let pendingReward = await this.pendingRewardRepository.findOne({
+        address,
+        batch,
+      });
 
+      let total = new BigNumber(0);
       let isValid = true;
       let invalidReason = null;
 
-      const pendingReward = new PendingRewardEntity();
-      pendingReward.batch = batch;
-      pendingReward.address = address;
-      pendingReward.totalNumberOfTokens = total.toString(10);
+      if (pendingReward) {
+        total = total
+          .plus(new BigNumber(pendingReward.total))
+          .plus(this.floatToBn(rewardTotal));
+        pendingReward.total = total.toString(10);
+      } else {
+        total = total.plus(this.floatToBn(rewardTotal));
+        pendingReward = new PendingRewardEntity();
+        pendingReward.batch = batch;
+        pendingReward.address = address;
+        pendingReward.total = total.toString(10);
+        pendingReward.communityTotal = '0';
+        pendingReward.delegationTotal = '0';
 
-      if (!ethUtil.isValidAddress(address)) {
-        isValid = false;
-        invalidReason = 'Invalid address';
+        if (!ethUtil.isValidAddress(address)) {
+          isValid = false;
+          invalidReason = 'Invalid address';
+        }
+
+        if (!kyc.has(address)) {
+          isValid = false;
+          invalidReason = 'KYC not approved';
+        }
+
+        const oldAddress = await this.addressChangeRepository.findOne({
+          oldAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+        });
+
+        if (oldAddress) {
+          isValid = false;
+          invalidReason = 'Changed Address';
+        }
       }
 
-      if (!kyc.has(address)) {
-        isValid = false;
-        invalidReason = 'KYC not approved';
+      if (type === 'community') {
+        pendingReward.communityTotal = new BigNumber(
+          pendingReward.communityTotal,
+        )
+          .plus(total)
+          .toString(10);
+      } else {
+        pendingReward.delegationTotal = new BigNumber(
+          pendingReward.delegationTotal,
+        )
+          .plus(total)
+          .toString(10);
       }
 
-      const oldAddress = await this.addressChangeRepository.findOne({
-        oldAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          address,
-        }),
-      });
-
-      if (oldAddress) {
-        isValid = false;
-        invalidReason = 'Changed Address';
-      }
+      let claimable = new BigNumber(total.toString(10));
 
       const newAddress = await this.addressChangeRepository.findOne({
         newAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
@@ -588,10 +646,20 @@ export class ClaimService {
         }),
       });
 
+      const calculateTotalAccount = (a: AccountEntity) =>
+        new BigNumber(a.availableToBeClaimed)
+          .plus(new BigNumber(a.totalLocked))
+          .plus(new BigNumber(a.totalClaimed));
+
       if (newAddress) {
-        if (uniqueUsers.has(newAddress.oldAddress)) {
-          const oldAccountReward = uniqueUsers.get(newAddress.oldAddress);
-          current = current.minus(this.floatToBn(oldAccountReward));
+        const oldAccount = await this.accountRepository.findOne({
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address: newAddress.oldAddress,
+          }),
+        });
+        if (oldAccount) {
+          const oldAccountTotal = calculateTotalAccount(oldAccount);
+          claimable = claimable.minus(oldAccountTotal);
         }
       }
 
@@ -600,24 +668,24 @@ export class ClaimService {
           address,
         }),
       });
-
       if (account) {
-        const totalBefore = new BigNumber(account.totalClaimed)
-          .plus(new BigNumber(account.totalLocked))
-          .plus(new BigNumber(account.availableToBeClaimed));
-        current = current.minus(totalBefore);
+        const totalBefore = calculateTotalAccount(account);
+        claimable = claimable.minus(totalBefore);
       }
 
-      if (current.isNegative()) {
+      if (claimable.isNegative()) {
         isValid = false;
         invalidReason = 'Negative balance';
+      } else if (isValid && claimable.isPositive()) {
+        isValid = true;
+        invalidReason = null;
       }
 
-      if (current.div(new BigNumber(10).pow(18)).toNumber() === 0) {
+      if (claimable.div(new BigNumber(10).pow(18)).toNumber() === 0) {
         continue;
       }
 
-      pendingReward.availableNumberOfTokens = current.toString(10);
+      pendingReward.claimable = claimable.toString(10);
       pendingReward.isValid = isValid;
       pendingReward.invalidReason = invalidReason;
       pendingRewards.push(pendingReward);
