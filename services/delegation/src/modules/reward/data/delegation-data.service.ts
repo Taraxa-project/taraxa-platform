@@ -34,6 +34,7 @@ export class DelegationDataService {
         createdAt: 'ASC',
       },
       loadEagerRelations: false,
+      withDeleted: true,
     });
     return Promise.all(
       nodes.map(async (node) => ({
