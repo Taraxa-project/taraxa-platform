@@ -139,9 +139,9 @@ export class RewardService {
             const reward = this.getNewStakingRewardEntity(
               epoch,
               period,
-              `${ethers.utils.getAddress(currentEvent.user)} ${
-                currentEvent.type === 'WITHDRAWAL' ? 'withdraws' : 'deposits'
-              } ${currentEvent.amount} TARA`,
+              `reward for staking ${
+                currentEvent.amount
+              } TARA from ${ethers.utils.getAddress(currentEvent.user)}`,
             );
             reward.userAddress = stake.user;
             reward.value = stakingReward;
@@ -224,9 +224,9 @@ export class RewardService {
                 period,
                 `${
                   commissionEntity.value
-                }% commission for delegator ${ethers.utils.getAddress(
+                }% commission from delegator ${ethers.utils.getAddress(
                   delegationEntity.address,
-                )} ${delegationEntity.value} TARA`,
+                )} - ${delegationEntity.value} TARA`,
               );
               reward.node = node.node.id;
               reward.user = node.node.user;
@@ -241,9 +241,11 @@ export class RewardService {
               const reward = this.getNewDelegatorRewardEntity(
                 epoch,
                 period,
-                `reward from node ${ethers.utils.getAddress(
-                  node.node.address,
-                )} for delegating ${delegationEntity.value} TARA`,
+                `reward from node "${node.node.name}" (id: ${
+                  node.node.id
+                }, address: ${ethers.utils.getAddress(node.node.address)}) - ${
+                  delegationEntity.value
+                } TARA`,
               );
               reward.node = node.node.id;
               reward.user = delegationEntity.user;
