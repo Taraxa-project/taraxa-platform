@@ -43,6 +43,12 @@ export class Reward {
   value: number;
 
   @Column({
+    type: 'text',
+    nullable: true,
+  })
+  description: string;
+
+  @Column({
     type: 'timestamp with time zone',
   })
   startsAt: Date;

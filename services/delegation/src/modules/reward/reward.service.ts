@@ -136,7 +136,13 @@ export class RewardService {
           );
 
           if (stakingReward > 0) {
-            const reward = this.getNewStakingRewardEntity(epoch, period);
+            const reward = this.getNewStakingRewardEntity(
+              epoch,
+              period,
+              `${ethers.utils.getAddress(currentEvent.user)} ${
+                currentEvent.type === 'WITHDRAWAL' ? 'withdraws' : 'deposits'
+              } ${currentEvent.amount} TARA`,
+            );
             reward.userAddress = stake.user;
             reward.value = stakingReward;
             reward.user = await this.getUserIdByAddress(stake.user);
@@ -213,7 +219,15 @@ export class RewardService {
               : nodeCommission;
 
             if (nodeRewards > 0) {
-              const reward = this.getNewNodeRewardEntity(epoch, period);
+              const reward = this.getNewNodeRewardEntity(
+                epoch,
+                period,
+                `${
+                  commissionEntity.value
+                }% commission for delegator ${ethers.utils.getAddress(
+                  delegationEntity.address,
+                )} ${delegationEntity.value} TARA`,
+              );
               reward.node = node.node.id;
               reward.user = node.node.user;
               reward.userAddress = await this.getUserAddressById(
@@ -224,7 +238,13 @@ export class RewardService {
             }
 
             if (isDelegationDelegatorsRewardsActive) {
-              const reward = this.getNewDelegatorRewardEntity(epoch, period);
+              const reward = this.getNewDelegatorRewardEntity(
+                epoch,
+                period,
+                `reward from node ${ethers.utils.getAddress(
+                  node.node.address,
+                )} for delegating ${delegationEntity.value} TARA`,
+              );
               reward.node = node.node.id;
               reward.user = delegationEntity.user;
               reward.userAddress = delegationEntity.address;
@@ -238,24 +258,41 @@ export class RewardService {
     console.groupEnd();
     console.groupEnd();
   }
-  private getNewStakingRewardEntity(epoch: Epoch, period: Period) {
-    const reward = this.getNewRewardEntity(epoch, period);
+  private getNewStakingRewardEntity(
+    epoch: Epoch,
+    period: Period,
+    description?: string,
+  ) {
+    const reward = this.getNewRewardEntity(epoch, period, description);
     reward.type = RewardType.STAKING;
     return reward;
   }
-  private getNewNodeRewardEntity(epoch: Epoch, period: Period) {
-    const reward = this.getNewRewardEntity(epoch, period);
+  private getNewNodeRewardEntity(
+    epoch: Epoch,
+    period: Period,
+    description?: string,
+  ) {
+    const reward = this.getNewRewardEntity(epoch, period, description);
     reward.type = RewardType.NODE;
     return reward;
   }
-  private getNewDelegatorRewardEntity(epoch: Epoch, period: Period) {
-    const reward = this.getNewRewardEntity(epoch, period);
+  private getNewDelegatorRewardEntity(
+    epoch: Epoch,
+    period: Period,
+    description?: string,
+  ) {
+    const reward = this.getNewRewardEntity(epoch, period, description);
     reward.type = RewardType.DELEGATOR;
     return reward;
   }
-  private getNewRewardEntity(epoch: Epoch, period: Period) {
+  private getNewRewardEntity(
+    epoch: Epoch,
+    period: Period,
+    description?: string,
+  ) {
     const reward = new Reward();
     reward.epoch = epoch.epoch;
+    reward.description = description;
     reward.startsAt = moment.unix(period.startsAt).utc().toDate();
     reward.endsAt = moment.unix(period.endsAt).utc().toDate();
     return reward;
