@@ -22,8 +22,10 @@ export class RewardsController {
   }
   @Get('total')
   @Public()
-  async getTotalRewards(): Promise<TotalReward[]> {
-    return this.rewardRepository.groupByAddress();
+  async getTotalRewards(
+    @Query() query: RewardQueryDto,
+  ): Promise<TotalReward[]> {
+    return this.rewardRepository.groupByAddress(query);
   }
   @ApiOkResponse({ description: 'Epochs found' })
   @Get('epochs')
