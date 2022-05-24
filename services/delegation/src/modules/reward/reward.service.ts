@@ -136,16 +136,12 @@ export class RewardService {
           );
 
           if (stakingReward > 0) {
-            const reward = this.getNewStakingRewardEntity(
-              epoch,
-              period,
-              `reward for staking ${
-                currentEvent.amount
-              } TARA from ${ethers.utils.getAddress(currentEvent.user)}`,
-            );
+            const reward = this.getNewStakingRewardEntity(epoch, period);
             reward.userAddress = stake.user;
             reward.value = stakingReward;
             reward.user = await this.getUserIdByAddress(stake.user);
+            reward.commission = 0;
+            reward.originalAmount = currentEvent.amount;
             await this.rewardRepository.save(reward);
           }
         }
@@ -219,38 +215,26 @@ export class RewardService {
               : nodeCommission;
 
             if (nodeRewards > 0) {
-              const reward = this.getNewNodeRewardEntity(
-                epoch,
-                period,
-                `${
-                  commissionEntity.value
-                }% commission from delegator ${ethers.utils.getAddress(
-                  delegationEntity.address,
-                )} - ${delegationEntity.value} TARA`,
-              );
+              const reward = this.getNewNodeRewardEntity(epoch, period);
               reward.node = node.node.id;
               reward.user = node.node.user;
               reward.userAddress = await this.getUserAddressById(
                 node.node.user,
               );
               reward.value = nodeRewards;
+              reward.commission = commissionEntity.value;
+              reward.originalAmount = delegationEntity.value;
               await this.rewardRepository.save(reward);
             }
 
             if (isDelegationDelegatorsRewardsActive) {
-              const reward = this.getNewDelegatorRewardEntity(
-                epoch,
-                period,
-                `reward from node "${node.node.name}" (id: ${
-                  node.node.id
-                }, address: ${ethers.utils.getAddress(node.node.address)}) - ${
-                  delegationEntity.value
-                } TARA`,
-              );
+              const reward = this.getNewDelegatorRewardEntity(epoch, period);
               reward.node = node.node.id;
               reward.user = delegationEntity.user;
               reward.userAddress = delegationEntity.address;
               reward.value = totalBalance - nodeCommission;
+              reward.commission = commissionEntity.value;
+              reward.originalAmount = delegationEntity.value;
               await this.rewardRepository.save(reward);
             }
           }
@@ -260,41 +244,24 @@ export class RewardService {
     console.groupEnd();
     console.groupEnd();
   }
-  private getNewStakingRewardEntity(
-    epoch: Epoch,
-    period: Period,
-    description?: string,
-  ) {
-    const reward = this.getNewRewardEntity(epoch, period, description);
+  private getNewStakingRewardEntity(epoch: Epoch, period: Period) {
+    const reward = this.getNewRewardEntity(epoch, period);
     reward.type = RewardType.STAKING;
     return reward;
   }
-  private getNewNodeRewardEntity(
-    epoch: Epoch,
-    period: Period,
-    description?: string,
-  ) {
-    const reward = this.getNewRewardEntity(epoch, period, description);
+  private getNewNodeRewardEntity(epoch: Epoch, period: Period) {
+    const reward = this.getNewRewardEntity(epoch, period);
     reward.type = RewardType.NODE;
     return reward;
   }
-  private getNewDelegatorRewardEntity(
-    epoch: Epoch,
-    period: Period,
-    description?: string,
-  ) {
-    const reward = this.getNewRewardEntity(epoch, period, description);
+  private getNewDelegatorRewardEntity(epoch: Epoch, period: Period) {
+    const reward = this.getNewRewardEntity(epoch, period);
     reward.type = RewardType.DELEGATOR;
     return reward;
   }
-  private getNewRewardEntity(
-    epoch: Epoch,
-    period: Period,
-    description?: string,
-  ) {
+  private getNewRewardEntity(epoch: Epoch, period: Period) {
     const reward = new Reward();
     reward.epoch = epoch.epoch;
-    reward.description = description;
     reward.startsAt = moment.unix(period.startsAt).utc().toDate();
     reward.endsAt = moment.unix(period.endsAt).utc().toDate();
     return reward;
