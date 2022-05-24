@@ -17,6 +17,7 @@ import {
 } from '@taraxa_project/taraxa-ui';
 import { useDelegationApi } from '../../services/useApi';
 import PublicNode from '../../interfaces/PublicNode';
+import Reward from '../../interfaces/Reward';
 
 import CloseIcon from '../../assets/icons/close';
 import InfoIcon from '../../assets/icons/info';
@@ -452,6 +453,53 @@ function Stake({
     resetStake();
   };
 
+  const downloadRewards = async () => {
+    delegationApi.get(`/rewards?address=${account}`).then((data) => {
+      if (data.success) {
+        const header = [
+          'Type',
+          'Epoch',
+          'Start Date',
+          'End Date',
+          'Reward',
+          'Node ID',
+          'Node Name',
+          'Node Address',
+          'Node Commission',
+          'Original Amount',
+        ];
+
+        const csv: string[] = [];
+        csv.push(header.join(','));
+
+        data.response.forEach((reward: Reward) => {
+          const startsAt = new Date(reward.startsAt).toLocaleString();
+          const endsAt = new Date(reward.endsAt).toLocaleString();
+          const row = [
+            reward.type,
+            reward.epoch,
+            ['"', startsAt, '"'].join(''),
+            ['"', endsAt, '"'].join(''),
+            reward.value,
+            reward.node ? reward.node.id : '',
+            reward.node ? ['"', reward.node.name.replace(/[\r\n",]+/gm, ''), '"'].join('') : '',
+            reward.node ? reward.node.address : '',
+            reward.commission,
+            reward.originalAmount,
+          ];
+          csv.push(row.join(','));
+        });
+
+        const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `rewards-${account}.csv`);
+        a.click();
+      }
+    });
+  };
+
   const stakeInputField = (
     <InputField
       type="text"
@@ -501,12 +549,22 @@ function Stake({
       <div className="cardContainer">
         <BaseCard
           title={formatEth(roundEth(weiToEth(reward)))}
-          description="Lifetime staking yield"
+          description="Lifetime yield"
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
               title="Total number of TARA staking rewards earned for the lifetime of the connected wallet."
               Icon={InfoIcon}
+            />
+          }
+          button={
+            <Button
+              disabled={!account}
+              variant="outlined"
+              color="secondary"
+              onClick={() => downloadRewards()}
+              label="Download rewards"
+              size="small"
             />
           }
         />
