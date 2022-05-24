@@ -1,12 +1,13 @@
 import assert from 'assert';
 import moment from 'moment';
 import * as ethers from 'ethers';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { Interval } from '@flatten-js/interval-tree';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
+import { RewardQueryDto } from './dto/reward-query.dto';
 import { StakingDataService } from './data/staking-data.service';
 import {
   DelegationIntervalValue,
@@ -17,6 +18,7 @@ import { Period, getPeriods } from './helper/period';
 import { calculateYieldFor } from './helper/yield';
 
 import { Delegation } from '../delegation/delegation.entity';
+import { Node } from '../node/node.entity';
 import { NodeCommission } from '../node/node-commission.entity';
 import { Reward } from './reward.entity';
 import { RewardType } from './reward-type.enum';
@@ -85,6 +87,51 @@ export class RewardService {
       await this.calculateForEpoch(epoch, stakingData, delegationData);
     }
     console.log('done');
+  }
+  async getRewards(query: RewardQueryDto) {
+    const { type, epoch, user, address } = query;
+
+    let rewardsQuery = this.rewardRepository
+      .createQueryBuilder('r')
+      .leftJoinAndMapOne('r.node', Node, 'n', 'r.node = n.id')
+      .orderBy('r.epoch', 'ASC')
+      .addOrderBy('r.startsAt', 'ASC')
+      .withDeleted();
+
+    if (type) {
+      rewardsQuery = rewardsQuery.andWhere('r.type = :type', { type });
+    }
+    if (epoch) {
+      rewardsQuery = rewardsQuery.andWhere('r.epoch = :epoch', { epoch });
+    }
+    if (user) {
+      rewardsQuery = rewardsQuery.andWhere('r.user = :user', { user });
+    }
+
+    if (address) {
+      rewardsQuery = rewardsQuery.andWhere({
+        userAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      });
+    }
+
+    const rewards = JSON.parse(JSON.stringify(await rewardsQuery.getMany()));
+    const rewardResponse = rewards.map((r) => {
+      const n = r.node;
+      if (n) {
+        r.node = {
+          id: n.id,
+          name: n.name,
+          address: n.address,
+        };
+      } else {
+        r.node = null;
+      }
+      return r;
+    });
+
+    return rewardResponse;
   }
   private async calculateForEpoch(epoch: Epoch, stakingData, delegationData) {
     console.group(

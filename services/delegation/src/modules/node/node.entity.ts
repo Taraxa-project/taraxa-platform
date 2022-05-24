@@ -217,7 +217,7 @@ export class Node {
   };
 
   @AfterLoad()
-  asycalculateCanDelete = async () => {
+  calculateCanDelete = async () => {
     if (this.isTestnet()) {
       this.canDelete = true;
       return;
