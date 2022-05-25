@@ -173,23 +173,23 @@ export class DelegationService {
       throw new ValidationException('Invalid proof');
     }
 
+    const totalUserStake = await this.stakingService.getStakingAmount(
+      delegationDto.from,
+    );
+    const userDelegations = await this.getUserDelegations(delegationDto.from);
+    if (userDelegations + delegationDto.value > totalUserStake) {
+      throw new ValidationException(
+        'Maximum stake exceeded. User can only delegate ' +
+          (totalUserStake - userDelegations) +
+          ' more tokens.',
+      );
+    }
+
     const nodeDelegations = await this.getTotalNodeDelegation(node.id);
     if (nodeDelegations + delegationDto.value > this.maxDelegationPerNode) {
       throw new ValidationException(
         'Maximum delegation exceeded. Node can only be delegated ' +
           (this.maxDelegationPerNode - nodeDelegations) +
-          ' more tokens.',
-      );
-    }
-
-    const userDelegations = await this.getUserDelegations(delegationDto.from);
-    const totalUserStake = await this.stakingService.getStakingAmount(
-      delegationDto.from,
-    );
-    if (userDelegations + delegationDto.value > totalUserStake) {
-      throw new ValidationException(
-        'Maximum stake exceeded. User can only delegate ' +
-          (totalUserStake - userDelegations) +
           ' more tokens.',
       );
     }
