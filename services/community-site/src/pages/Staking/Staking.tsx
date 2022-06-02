@@ -158,6 +158,13 @@ function StakingNotifications() {
           />
         </div>
       )}
+      <div className="notification">
+        <Notification
+          title="Info:"
+          text="Please Note: Lifetime yield is now updated monthly after 15th of each month, including both staking yields and node commissions."
+          variant="info"
+        />
+      </div>
     </>
   );
 }
