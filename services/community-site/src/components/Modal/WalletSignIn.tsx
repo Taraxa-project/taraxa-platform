@@ -2,11 +2,13 @@ import { Button, Loading, Text } from '@taraxa_project/taraxa-ui';
 import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { EmailIconSmall } from '../../assets/icons/email';
-import RedWarningCircularIcon from '../../assets/icons/RedWarningCircular';
+import WarningCircularIcon from '../../assets/icons/WarningCircular';
 import { useDelegationApi } from '../../services/useApi';
-import { GreenCircledCheckIconBig } from '../../assets/icons/greenCircledCheck';
+import { GreenCircledCheckIconBig } from '../../assets/icons/greenCircularCheck';
 import useCMetamask from '../../services/useCMetamask';
 import useWalletAuth from '../../services/useWalletAuth';
+import ModalContainer from './subcomponents/ModalContainer';
+import ModalText from './subcomponents/ModalText';
 
 interface WalletSigninProps {
   isSigning: boolean;
@@ -65,17 +67,10 @@ const WalletSignIn = (props: WalletSigninProps) => {
   }, [account]);
 
   return (
-    <div>
+    <ModalContainer>
       {isLoading ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-evenly',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
+        <>
+          {' '}
           <Text
             label="Sign in / Sign up"
             variant="h6"
@@ -83,25 +78,21 @@ const WalletSignIn = (props: WalletSigninProps) => {
             style={{ marginBottom: '12%' }}
           />
           <Loading />
-          <span style={{ marginTop: '7%', marginBottom: '12%' }}>
-            Check your wallet and sign the message...
-          </span>
-        </div>
+          <ModalText
+            marginTop="7%"
+            marginBottom="12%"
+            text="Check your wallet and sign the message..."
+          />
+        </>
       ) : isRegistered ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-evenly',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
-          <Text label="Success" variant="h6" color="primary" style={{ marginBottom: '12%' }} />
+        <>
+          <Text label="Success!" variant="h6" color="primary" style={{ marginBottom: '12%' }} />
           <GreenCircledCheckIconBig />
-          <span style={{ marginTop: '7%', marginBottom: '7%' }}>
-            Your account is successfully created / logged in.
-          </span>
+          <ModalText
+            marginTop="7%"
+            marginBottom="7%"
+            text="Your account is successfully created / logged in."
+          />
           <Button
             type="submit"
             label="Go to my account"
@@ -111,34 +102,29 @@ const WalletSignIn = (props: WalletSigninProps) => {
             onClick={() => history.push('/profile')}
             fullWidth
           />
-        </div>
+        </>
       ) : (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-evenly',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
+        <>
           <Text
             label="Sign in / Sign up"
             variant="h6"
             color="primary"
             style={{ marginBottom: '12%' }}
           />
-          <RedWarningCircularIcon />
-          <span style={{ marginTop: '7%', marginBottom: '7%', color: '#FF515A' }}>
-            We haven’t found an account associated with this ETH address.
-          </span>
-          <span style={{ marginTop: '7%', marginBottom: '7%' }}>
-            If you have an account, please login with your email & password, and then verify your
-            ETH wallet in your profile.
-          </span>
-          <span style={{ marginTop: '7%', marginBottom: '7%' }}>
-            Email logins will be retired soon.
-          </span>
+          <WarningCircularIcon color="#FF515A" />
+          <ModalText
+            marginTop="7%"
+            marginBottom="7%"
+            color="#FF515A"
+            text="We haven’t found an account associated with this ETH address."
+          />
+          <ModalText
+            marginTop="7%"
+            marginBottom="7%"
+            text="If you have an account, please login with your email & password, and then verify your
+          ETH wallet in your profile."
+          />
+          <ModalText marginTop="7%" marginBottom="7%" text="Email logins will be retired soon." />
           <Button
             type="submit"
             label="Sign in using E-mail & password"
@@ -149,9 +135,9 @@ const WalletSignIn = (props: WalletSigninProps) => {
             disableElevation
             fullWidth
           />
-        </div>
+        </>
       )}
-    </div>
+    </ModalContainer>
   );
 };
 
