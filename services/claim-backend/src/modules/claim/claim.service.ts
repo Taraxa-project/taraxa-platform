@@ -681,16 +681,11 @@ export class ClaimService {
         invalidReason = null;
       }
 
-      if (claimable.div(new BigNumber(10).pow(18)).toNumber() === 0) {
-        continue;
-      }
-
       pendingReward.claimable = claimable.toString(10);
       pendingReward.isValid = isValid;
       pendingReward.invalidReason = invalidReason;
       pendingRewards.push(pendingReward);
     }
-
     return pendingRewards;
   }
   private toChecksumAddress(address: string): string {
