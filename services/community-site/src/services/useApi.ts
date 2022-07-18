@@ -73,7 +73,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
     }
 
     if (err.response!.status === 401) {
-      auth.setSessionExpired!();
+      if (auth && auth.setSessionExpired) auth.setSessionExpired();
       return {
         success: false,
         response: 'Session expired',

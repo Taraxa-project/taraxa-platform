@@ -261,7 +261,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
                 variant="contained"
                 color="secondary"
                 label="Authorize via MetaMask"
-                disabled={calculatedPoints === 0}
+                disabled={!account}
                 fullWidth
                 onClick={authorizeWallet}
               />

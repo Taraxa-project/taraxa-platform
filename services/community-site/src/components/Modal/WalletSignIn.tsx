@@ -43,7 +43,7 @@ const WalletSignIn = (props: WalletSigninProps) => {
               try {
                 const nonce = await getNonce();
                 if (nonce) {
-                  await login(nonce);
+                  await login(nonce.toString());
                   setLoading(false);
                 }
               } catch (error) {

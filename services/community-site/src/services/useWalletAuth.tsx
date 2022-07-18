@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useWalletAuthorizationApi } from './useApi';
@@ -19,47 +20,47 @@ export default function useWalletAuth() {
   useEffect(() => {
     const isAccountAuthorized = async () => {
       if (!account) return;
-      const result = await api.get(`/auth/${account}`);
-      if (result.success && result.response) {
-        setAuthorized(ethers.utils.getAddress(result.response) === account);
+      const result = await axios.get('http://localhost:3006/auth/me', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` },
+      });
+      if (result.status === 200 && result.data) {
+        setAuthorized(ethers.utils.getAddress(result.data.publicAddress) === account);
       } else {
         setAuthorized(false);
       }
     };
     isAccountAuthorized();
-  }, [account]);
+  }, [account, isLogged]);
 
   const login = async (message: string) => {
     if (account) {
-      const signedMessage = await sign(message);
-      const result = await api.post('/auth/', {
-        address: account,
-        signature: signedMessage,
+      const signature = await sign(message);
+      const result = await api.post('/auth/login', {
+        publicAddress: account,
+        signature,
       });
       if (result.success) {
         setLogged(true);
-        localStorage.setItem('jwt', result.response.token.accessToken);
+        localStorage.setItem('jwt', result.response.accessToken);
       }
     }
   };
 
   const getNonce = async () => {
-    let nonce = '-1';
+    let nonce = -1;
     if (account) {
-      const nonceRes = await api.get(`/auth/nonce/${account}`);
+      const nonceRes = await api.get(`/auth?publicAddress=${account}`);
       if (nonceRes.success) {
-        nonce = nonceRes.response;
+        nonce = nonceRes.response.nonce;
       } else throw new Error(nonceRes.response);
     }
     return nonce;
   };
 
   const authorizeAddress = async () => {
-    const result = await api.post(`/auth/${account}`, {});
-    if (result.success) {
-      setAuthorized(true);
-    } else {
-      setAuthorized(false);
+    const nonce = await getNonce();
+    if (nonce && account) {
+      await login(nonce.toString());
     }
   };
 

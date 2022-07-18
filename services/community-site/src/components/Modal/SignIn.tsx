@@ -90,7 +90,6 @@ const SignIn = ({
         return;
       }
     }
-
     setErrors(
       result.response[0].messages.map((message: any) => ({
         key: message.id.split('.')[3],
