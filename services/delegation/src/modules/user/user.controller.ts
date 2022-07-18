@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { Public } from './public.decorator';
 import { User } from './user.entity';
 import { UserService } from './user.service';
@@ -9,9 +9,12 @@ import { UserService } from './user.service';
 export default class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('/:address')
+  @ApiOkResponse({ description: 'User found' })
+  @Get(':address')
   @Public()
-  public async getUserByAddress(@Param() address: string): Promise<User> {
+  public async getUserByAddress(
+    @Param('address') address: string,
+  ): Promise<User> {
     return await this.userService.getUserByAddress(address);
   }
 }
