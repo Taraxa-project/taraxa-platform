@@ -3,8 +3,10 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
+  Patch,
   Post,
   UseGuards,
   UseInterceptors,
@@ -18,6 +20,8 @@ import {
   ApiNoContentResponse,
   ApiUnauthorizedResponse,
   ApiQuery,
+  ApiNotFoundResponse,
+  ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@taraxa-claim/auth';
 import { ClaimService } from './claim.service';
@@ -29,7 +33,8 @@ import {
 } from '@taraxa-claim/common';
 import { BatchEntity } from './entity/batch.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
-import { PendingRewardDto } from './dto/pending-reward.dto';
+import { UpdateBatchDto } from './dto/update-batch.dto';
+import { PendingRewardsDto } from './dto/pending-rewards.dto';
 import { EntityNotFoundError } from 'typeorm';
 
 @ApiBearerAuth()
@@ -57,7 +62,7 @@ export class BatchController {
   @Get(':id/pending-rewards')
   async getPendingRewardsForBatch(
     @Param('id') id: number,
-  ): Promise<PendingRewardDto[]> {
+  ): Promise<PendingRewardsDto> {
     try {
       return await this.claimService.getPendingRewardsForBatch(id);
     } catch (e) {
@@ -65,6 +70,28 @@ export class BatchController {
         throw new NotFoundException(`Batch with id ${id} not found`);
       } else {
         throw e;
+      }
+    }
+  }
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ description: 'Batch not found' })
+  @ApiInternalServerErrorResponse({
+    description: 'Could not change batch status',
+  })
+  @Patch(':id')
+  async patchBatch(
+    @Param('id') id: number,
+    @Body() batch: UpdateBatchDto,
+  ): Promise<BatchEntity> {
+    try {
+      return await this.claimService.patchBatch(id, batch);
+    } catch (e) {
+      const error = (e || {}).name || '';
+      const message = (e || {}).message || '';
+      if (error === 'EntityNotFound') {
+        throw new NotFoundException();
+      } else {
+        throw new InternalServerErrorException(message);
       }
     }
   }

@@ -19,7 +19,6 @@ export interface Claim {
   id: number;
   address: string;
   numberOfTokens: BigNumber;
-  totalClaimed?: BigNumber;
   claimed: boolean;
   claimedAt: Date | null;
   createdAt: Date;
@@ -47,7 +46,6 @@ function useRedeem() {
         claimedAt: claim.claimedAt ? moment(claim.claimedAt).toDate() : null,
         createdAt: moment(claim.createdAt).toDate(),
         claimed: claim.claimed,
-        totalClaimed: BigNumber.from('0'),
       } as Claim;
     });
     transformedClaims.sort(
@@ -62,7 +60,9 @@ function useRedeem() {
         return BigNumber.from('0');
       })
       .reduce((a, b) => a.add(b), BigNumber.from('0'));
+
     if (availableToBeClaimed.lte(totalUnclaimed)) return transformedClaims;
+
     transformedClaims.unshift({
       id: 999,
       address: account || '',
@@ -70,11 +70,11 @@ function useRedeem() {
         totalUnclaimed.gt(0) && availableToBeClaimed.gt(totalUnclaimed)
           ? availableToBeClaimed.sub(totalUnclaimed)
           : availableToBeClaimed,
-      totalClaimed: transformedClaims[0].totalClaimed,
       claimed: false,
       claimedAt: null,
       createdAt: new Date(),
     });
+
     return transformedClaims;
   };
 

@@ -8,16 +8,19 @@ export class PendingRewardDto {
   address: string;
 
   @ApiProperty()
-  current: number;
+  newClaimable: number;
 
   @ApiProperty()
-  claimed: number;
+  newAvailableToBeClaimed: number;
+
+  @ApiProperty()
+  availableToBeClaimed: number;
 
   @ApiProperty()
   locked: number;
 
   @ApiProperty()
-  availableToBeClaimed: number;
+  claimed: number;
 
   @ApiProperty()
   total: number;

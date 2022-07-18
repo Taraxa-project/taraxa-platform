@@ -51,7 +51,7 @@ export class StakingDataService {
       let lastEndAt = endTime;
       const tree = new IntervalTree<StakingIntervalValue>();
       for (const event of sortedEvents) {
-        const startsAt = parseInt(event.timestamp, 10);
+        const startsAt = event.timestamp;
         const endsAt = lastEndAt;
         tree.insert(new Interval(startsAt, endsAt), {
           startsAt,
@@ -99,6 +99,7 @@ export class StakingDataService {
         amount: ethers.BigNumber.from(e.amount)
           .div(ethers.BigNumber.from(10).pow(18))
           .toNumber(),
+        timestamp: parseInt(e.timestamp, 10),
       }));
     } catch (e) {
       return [];

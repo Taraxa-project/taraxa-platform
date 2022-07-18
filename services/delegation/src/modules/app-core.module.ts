@@ -42,6 +42,7 @@ import { HttpExceptionFilter } from './utils/http-exception.filter';
       name: 'communityConnection',
       imports: [ConfigModule.forFeature(databaseConfig)],
       useFactory: (config: ConfigService) => ({
+        name: 'communityConnection',
         type: 'postgres',
         host: config.get('database.host'),
         port: config.get<number>('database.port'),

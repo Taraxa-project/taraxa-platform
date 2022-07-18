@@ -3,12 +3,7 @@ import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
 import { In, LessThan, Raw, Repository } from 'typeorm';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
@@ -22,8 +17,10 @@ import { RewardEntity } from './entity/reward.entity';
 import { AccountEntity } from './entity/account.entity';
 import { AccountClaimEntity } from './entity/account-claim.entity';
 import { ClaimEntity } from './entity/claim.entity';
+import { AddressChangesEntity } from './entity/address-changes.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
-import { PendingRewardDto } from './dto/pending-reward.dto';
+import { UpdateBatchDto } from './dto/update-batch.dto';
+import { PendingRewardsDto } from './dto/pending-rewards.dto';
 
 interface CommunityRewardResponse {
   address: string;
@@ -38,10 +35,6 @@ interface CommunityKycResponse {
 interface DelegationRewardResponse {
   address: string;
   amount: number;
-}
-
-interface KycStatus {
-  [address: string]: boolean;
 }
 
 interface Reward {
@@ -64,6 +57,8 @@ export class ClaimService {
     private readonly accountRepository: Repository<AccountEntity>,
     @InjectRepository(ClaimEntity)
     private readonly claimRepository: Repository<ClaimEntity>,
+    @InjectRepository(AddressChangesEntity)
+    private readonly addressChangeRepository: Repository<AddressChangesEntity>,
     @Inject(general.KEY)
     private readonly generalConfig: ConfigType<typeof general>,
     @Inject(ethereum.KEY)
@@ -82,18 +77,24 @@ export class ClaimService {
 
     batch = await this.batchRepository.save(batch);
 
-    const kycStatus = await this.getKycStatus();
-
     if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
-      await this.savePendingRewards(
-        await this.getCommunityRewards(),
-        batch,
-        kycStatus,
+      const kyc = await this.getKycStatus();
+      await this.pendingRewardRepository.save(
+        await this.getPendingRewardsFor(
+          batch,
+          await this.getCommunityRewards(),
+          kyc,
+          'community',
+        ),
       );
-      await this.savePendingRewards(
-        await this.getDelegationRewards(),
-        batch,
-        kycStatus,
+
+      await this.pendingRewardRepository.save(
+        await this.getPendingRewardsFor(
+          batch,
+          await this.getDelegationRewards(),
+          kyc,
+          'delegation',
+        ),
       );
     }
 
@@ -104,53 +105,64 @@ export class ClaimService {
   }
   public async getPendingRewardsForBatch(
     id: number,
-  ): Promise<PendingRewardDto[]> {
+  ): Promise<PendingRewardsDto> {
     const batch = await this.batchRepository.findOneOrFail({ id });
     const pendingRewards = await this.pendingRewardRepository.find({
       where: { batch },
-      order: { isValid: 'ASC', invalidReason: 'ASC' },
+      order: { invalidReason: 'DESC' },
     });
 
-    return Promise.all(
+    let total = 0,
+      validTotal = 0,
+      claimable = 0,
+      validClaimable = 0,
+      communityTotal = 0,
+      validCommunityTotal = 0,
+      delegationTotal = 0,
+      validDelegationTotal = 0;
+    const rewards = await Promise.all(
       pendingRewards.map(async (pendingReward) => {
         const { address } = pendingReward;
+
+        const bnStringToNumber = (s: string) => {
+          return new BigNumber(s).div(new BigNumber(10).pow(18)).toNumber();
+        };
+
+        total += bnStringToNumber(pendingReward.total);
+        claimable += bnStringToNumber(pendingReward.claimable);
+        communityTotal += bnStringToNumber(pendingReward.communityTotal);
+        delegationTotal += bnStringToNumber(pendingReward.delegationTotal);
+        if (pendingReward.isValid) {
+          validTotal += bnStringToNumber(pendingReward.total);
+          validClaimable += bnStringToNumber(pendingReward.claimable);
+          validCommunityTotal += bnStringToNumber(pendingReward.communityTotal);
+          validDelegationTotal += bnStringToNumber(
+            pendingReward.delegationTotal,
+          );
+        }
+
+        let availableToBeClaimed = 0;
+        let locked = 0;
+        let claimed = 0;
 
         const account = await this.accountRepository.findOne({
           address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
             address,
           }),
         });
-
-        const bnStringToNumber = (s: string) => {
-          const ten = new BigNumber(10);
-          return new BigNumber(s).div(ten.pow(18)).toNumber();
-        };
-
-        let current = 0;
-        let claimed = 0;
-        let locked = 0;
-        let availableToBeClaimed = 0;
-        const total = bnStringToNumber(pendingReward.numberOfTokens);
-
         if (account) {
-          const totalBefore = new BigNumber(account.totalClaimed)
-            .plus(new BigNumber(account.totalLocked))
-            .plus(new BigNumber(account.availableToBeClaimed));
-          current = new BigNumber(pendingReward.numberOfTokens)
-            .minus(totalBefore)
-            .div(new BigNumber(10).pow(18))
-            .toNumber();
-          claimed = bnStringToNumber(account.totalClaimed);
-          locked = bnStringToNumber(account.totalLocked);
           availableToBeClaimed = bnStringToNumber(account.availableToBeClaimed);
+          locked = bnStringToNumber(account.totalLocked);
+          claimed = bnStringToNumber(account.totalClaimed);
         }
-
         return {
-          current,
-          claimed,
-          locked,
-          total,
           availableToBeClaimed,
+          locked,
+          claimed,
+          newAvailableToBeClaimed:
+            availableToBeClaimed + bnStringToNumber(pendingReward.claimable),
+          newClaimable: bnStringToNumber(pendingReward.claimable),
+          total: bnStringToNumber(pendingReward.total),
           id: pendingReward.id,
           address: pendingReward.address,
           isValid: pendingReward.isValid,
@@ -158,6 +170,72 @@ export class ClaimService {
         };
       }),
     );
+
+    return {
+      rewards,
+      total,
+      validTotal,
+      claimable,
+      validClaimable,
+      communityTotal,
+      validCommunityTotal,
+      delegationTotal,
+      validDelegationTotal,
+    };
+  }
+  public async patchBatch(
+    id: number,
+    batchDto: UpdateBatchDto,
+  ): Promise<BatchEntity> {
+    let batch = await this.batchRepository.findOneOrFail({ id });
+    if (!batch.isDraft) {
+      return batch;
+    }
+    if (batchDto.isDraft) {
+      return batch;
+    }
+    batch.isDraft = batchDto.isDraft;
+    batch = await this.batchRepository.save(batch);
+
+    const pendingRewards = await this.pendingRewardRepository.find({
+      isValid: true,
+    });
+
+    const now = new Date();
+    const rewards: RewardEntity[] = [];
+    for (const pendingReward of pendingRewards) {
+      const reward = new RewardEntity();
+      reward.batch = batch;
+      reward.address = pendingReward.address;
+      reward.numberOfTokens = pendingReward.claimable;
+      reward.isUnlocked = true;
+      reward.unlockDate = now;
+
+      let account = await this.accountRepository.findOne({
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address: pendingReward.address,
+        }),
+      });
+      if (account) {
+        const availableToBeClaimed = new BigNumber(
+          account.availableToBeClaimed,
+        ).plus(new BigNumber(pendingReward.claimable));
+        account.availableToBeClaimed = availableToBeClaimed.toString(10);
+      } else {
+        account = new AccountEntity();
+        account.address = pendingReward.address;
+        account.availableToBeClaimed = pendingReward.claimable;
+        account.totalLocked = '0';
+        account.totalClaimed = '0';
+      }
+
+      account = await this.accountRepository.save(account);
+      reward.account = account;
+      rewards.push(reward);
+    }
+
+    await this.rewardRepository.save(rewards);
+    return batch;
   }
   public async deleteBatch(id: number): Promise<BatchEntity> {
     const batch = await this.batchRepository.findOneOrFail({ id });
@@ -243,7 +321,12 @@ export class ClaimService {
   public async account(address: string): Promise<Partial<AccountEntity>> {
     try {
       const claim = await this.claimRepository.findOne({
-        where: { address, claimed: false },
+        where: {
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+          claimed: false,
+        },
       });
       if (claim) {
         const nonce = claim.id * 13;
@@ -266,10 +349,14 @@ export class ClaimService {
         }
       }
     } catch (error) {
-      const err = error as Error;
-      throw new InternalServerErrorException(err.message);
+      console.log('Could not mark current claims', error.message);
     }
-    const accountData = await this.accountRepository.findOne({ address });
+    const accountData = await this.accountRepository.findOne({
+      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        address,
+      }),
+    });
+
     if (accountData) {
       const account = JSON.parse(JSON.stringify(accountData));
       delete account.id;
@@ -278,14 +365,20 @@ export class ClaimService {
   }
   public async createClaim(address: string): Promise<ClaimEntity> {
     const unclaimed = await this.claimRepository.findOne({
-      address,
+      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        address,
+      }),
       claimed: false,
     });
 
     if (unclaimed) return unclaimed;
 
     const { availableToBeClaimed } = await this.accountRepository.findOneOrFail(
-      { address },
+      {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      },
     );
 
     if (
@@ -317,7 +410,9 @@ export class ClaimService {
     claim.claimedAt = new Date();
 
     const account = await this.accountRepository.findOneOrFail({
-      address: claim.address,
+      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        address: claim.address,
+      }),
     });
     account.availableToBeClaimed = ethers.BigNumber.from(
       account.availableToBeClaimed,
@@ -411,7 +506,7 @@ export class ClaimService {
       await this.accountRepository.save(reward.account);
     }
   }
-  private async getKycStatus(): Promise<KycStatus> {
+  private async getKycStatus(): Promise<Map<string, boolean>> {
     const response = await this.httpService
       .get<CommunityKycResponse[]>(
         `${this.rewardConfig.communitySiteApiUrl}/kyc`,
@@ -423,14 +518,9 @@ export class ClaimService {
     }
 
     const kyc = response.data;
-    const kycStatus: KycStatus = {};
-
+    const kycStatus = new Map<string, boolean>();
     for (const k of kyc) {
-      const trimmedAddress = k.address.trim();
-      const address = ethUtil.isValidAddress(trimmedAddress)
-        ? ethUtil.toChecksumAddress(trimmedAddress)
-        : trimmedAddress;
-      kycStatus[address] = k.kyc === 'APPROVED';
+      kycStatus.set(this.toChecksumAddress(k.address), k.kyc === 'APPROVED');
     }
 
     return kycStatus;
@@ -466,80 +556,143 @@ export class ClaimService {
       total: reward.amount,
     }));
   }
-  private async savePendingRewards(
-    rewards: Reward[],
+  private async getPendingRewardsFor(
     batch: BatchEntity,
-    kyc: KycStatus,
-  ): Promise<BatchEntity> {
-    for (const reward of rewards) {
-      const trimmedAddress = reward.address.trim();
-      const address = ethUtil.isValidAddress(trimmedAddress)
-        ? ethUtil.toChecksumAddress(trimmedAddress)
-        : trimmedAddress;
-      const total = this.floatToBn(reward.total);
+    rewards: Reward[],
+    kyc: Map<string, boolean>,
+    type: 'community' | 'delegation',
+  ): Promise<PendingRewardEntity[]> {
+    const uniqueUsers = rewards.reduce(
+      (prev: Map<string, number>, curr: Reward) => {
+        const address = this.toChecksumAddress(curr.address);
 
+        let total = curr.total;
+        if (prev.has(address)) {
+          const prevReward = prev.get(address);
+          total += prevReward;
+        }
+        prev.set(address, total);
+        return prev;
+      },
+      new Map<string, number>(),
+    );
+
+    const pendingRewards: PendingRewardEntity[] = [];
+    for (const [address, rewardTotal] of uniqueUsers.entries()) {
       let pendingReward = await this.pendingRewardRepository.findOne({
-        relations: ['batch'],
-        where: {
-          batch,
-          address,
-        },
+        address,
+        batch,
       });
+
+      let total = new BigNumber(0);
+      let isValid = true;
+      let invalidReason = null;
+
       if (pendingReward) {
-        pendingReward.numberOfTokens = new BigNumber(
-          pendingReward.numberOfTokens,
-        )
-          .plus(total)
-          .toString(10);
+        total = total
+          .plus(new BigNumber(pendingReward.total))
+          .plus(this.floatToBn(rewardTotal));
+        pendingReward.total = total.toString(10);
       } else {
-        let isValid = true;
-        let invalidReason = null;
+        total = total.plus(this.floatToBn(rewardTotal));
+        pendingReward = new PendingRewardEntity();
+        pendingReward.batch = batch;
+        pendingReward.address = address;
+        pendingReward.total = total.toString(10);
+        pendingReward.communityTotal = '0';
+        pendingReward.delegationTotal = '0';
 
         if (!ethUtil.isValidAddress(address)) {
           isValid = false;
           invalidReason = 'Invalid address';
         }
 
-        if (!kyc[address]) {
+        if (!kyc.has(address)) {
           isValid = false;
           invalidReason = 'KYC not approved';
         }
 
-        const account = await this.accountRepository.findOne({
-          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+        const oldAddress = await this.addressChangeRepository.findOne({
+          oldAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
             address,
           }),
         });
 
-        if (account) {
-          const totalBefore = new BigNumber(account.totalClaimed)
-            .plus(new BigNumber(account.totalLocked))
-            .plus(new BigNumber(account.availableToBeClaimed));
-
-          const current = total.minus(totalBefore);
-          if (current.isNegative()) {
-            isValid = false;
-            invalidReason = 'Negative balance';
-          }
-
-          if (current.div(new BigNumber(10).pow(18)).toNumber() === 0) {
-            isValid = false;
-            invalidReason = 'No new tokens';
-          }
+        if (oldAddress) {
+          isValid = false;
+          invalidReason = 'Changed Address';
         }
-
-        pendingReward = new PendingRewardEntity();
-        pendingReward.address = address;
-        pendingReward.numberOfTokens = total.toString(10);
-        pendingReward.batch = batch;
-        pendingReward.isValid = isValid;
-        pendingReward.invalidReason = invalidReason;
       }
 
-      await this.pendingRewardRepository.save(pendingReward);
-    }
+      if (type === 'community') {
+        pendingReward.communityTotal = new BigNumber(
+          pendingReward.communityTotal,
+        )
+          .plus(this.floatToBn(rewardTotal))
+          .toString(10);
+      } else {
+        pendingReward.delegationTotal = new BigNumber(
+          pendingReward.delegationTotal,
+        )
+          .plus(this.floatToBn(rewardTotal))
+          .toString(10);
+      }
 
-    return batch;
+      let claimable = new BigNumber(total.toString(10));
+
+      const newAddress = await this.addressChangeRepository.findOne({
+        newAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      });
+
+      const calculateTotalAccount = (a: AccountEntity) =>
+        new BigNumber(a.availableToBeClaimed)
+          .plus(new BigNumber(a.totalLocked))
+          .plus(new BigNumber(a.totalClaimed));
+
+      if (newAddress) {
+        const oldAccount = await this.accountRepository.findOne({
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address: newAddress.oldAddress,
+          }),
+        });
+        if (oldAccount) {
+          const oldAccountTotal = calculateTotalAccount(oldAccount);
+          claimable = claimable.minus(oldAccountTotal);
+        }
+      }
+
+      const account = await this.accountRepository.findOne({
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      });
+      if (account) {
+        const totalBefore = calculateTotalAccount(account);
+        claimable = claimable.minus(totalBefore);
+      }
+
+      if (claimable.isNegative()) {
+        isValid = false;
+        invalidReason = 'Negative balance';
+      } else if (isValid && claimable.isPositive()) {
+        isValid = true;
+        invalidReason = null;
+      }
+
+      pendingReward.claimable = claimable.toString(10);
+      pendingReward.isValid = isValid;
+      pendingReward.invalidReason = invalidReason;
+      pendingRewards.push(pendingReward);
+    }
+    return pendingRewards;
+  }
+  private toChecksumAddress(address: string): string {
+    const trimmedAddress = address.trim();
+    return ethUtil.isValidAddress(trimmedAddress)
+      ? ethUtil.toChecksumAddress(trimmedAddress)
+      : trimmedAddress;
   }
   private floatToBn(i: number): BigNumber {
     const num = new BigNumber(parseFloat(i.toFixed(3)));

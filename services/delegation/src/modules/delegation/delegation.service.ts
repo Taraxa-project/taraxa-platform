@@ -5,6 +5,7 @@ import {
   Connection,
   FindConditions,
   FindOneOptions,
+  Raw,
   Repository,
 } from 'typeorm';
 import { Injectable } from '@nestjs/common';
@@ -172,23 +173,23 @@ export class DelegationService {
       throw new ValidationException('Invalid proof');
     }
 
+    const totalUserStake = await this.stakingService.getStakingAmount(
+      delegationDto.from,
+    );
+    const userDelegations = await this.getUserDelegations(delegationDto.from);
+    if (userDelegations + delegationDto.value > totalUserStake) {
+      throw new ValidationException(
+        'Maximum stake exceeded. User can only delegate ' +
+          (totalUserStake - userDelegations) +
+          ' more tokens.',
+      );
+    }
+
     const nodeDelegations = await this.getTotalNodeDelegation(node.id);
     if (nodeDelegations + delegationDto.value > this.maxDelegationPerNode) {
       throw new ValidationException(
         'Maximum delegation exceeded. Node can only be delegated ' +
           (this.maxDelegationPerNode - nodeDelegations) +
-          ' more tokens.',
-      );
-    }
-
-    const userDelegations = await this.getUserDelegations(delegationDto.from);
-    const totalUserStake = await this.stakingService.getStakingAmount(
-      delegationDto.from,
-    );
-    if (userDelegations + delegationDto.value > totalUserStake) {
-      throw new ValidationException(
-        'Maximum stake exceeded. User can only delegate ' +
-          (totalUserStake - userDelegations) +
           ' more tokens.',
       );
     }
@@ -412,12 +413,9 @@ export class DelegationService {
       const delegationRepository =
         manager.getRepository<Delegation>('Delegation');
       let where: {
-        address: string;
         user?: number;
         node?: Node;
-      } = {
-        address: from,
-      };
+      } = {};
       if (user) {
         where = {
           ...where,
@@ -432,7 +430,12 @@ export class DelegationService {
       }
 
       delegations = await delegationRepository.find({
-        where,
+        where: {
+          ...where,
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address: from,
+          }),
+        },
         order: {
           createdAt: 'ASC',
         },
@@ -659,7 +662,7 @@ export class DelegationService {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
-      .where('"d"."address" = :address', { address })
+      .where('LOWER("d"."address") = LOWER(:address)', { address })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
   }
@@ -668,7 +671,7 @@ export class DelegationService {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
-      .where('"d"."address" = :address', { address })
+      .where('LOWER("d"."address") = LOWER(:address)', { address })
       .andWhere('"d"."nodeId" = :node', { node })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
@@ -681,7 +684,7 @@ export class DelegationService {
     const d = await this.delegationRepository
       .createQueryBuilder('d')
       .select('SUM("d"."value")', 'total')
-      .where('"d"."address" = :address', { address })
+      .where('LOWER("d"."address") = LOWER(:address)', { address })
       .andWhere('"d"."nodeId" = :node', { node })
       .andWhere('"d"."createdAt" < :date', {
         date: moment().utc().subtract(5, 'days').utc().toDate(),

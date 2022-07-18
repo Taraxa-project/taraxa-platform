@@ -17,6 +17,7 @@ import {
 } from '@taraxa_project/taraxa-ui';
 import { useDelegationApi } from '../../services/useApi';
 import PublicNode from '../../interfaces/PublicNode';
+import Reward from '../../interfaces/Reward';
 
 import CloseIcon from '../../assets/icons/close';
 import InfoIcon from '../../assets/icons/info';
@@ -28,7 +29,7 @@ import Approve from './Modal/Approve';
 import IsStaking from './Modal/IsStaking';
 import IsUnstaking from './Modal/IsUnstaking';
 
-import { formatTime, secondsInYear } from '../../utils/time';
+import { formatTime } from '../../utils/time';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
 import useToken from '../../services/useToken';
@@ -157,6 +158,13 @@ function StakingNotifications() {
           />
         </div>
       )}
+      <div className="notification">
+        <Notification
+          title="Info:"
+          text="Please Note: Lifetime yield is now updated monthly after 15th of each month, including both staking yields and node commissions."
+          variant="info"
+        />
+      </div>
     </>
   );
 }
@@ -245,12 +253,11 @@ function Stake({
 
   const [hasStake, setHasStake] = useState(false);
   const [canClaimStake, setCanClaimStake] = useState(false);
-  const [currentStakeStartDate, setCurrentStakeStartDate] = useState<Date | null>(null);
   const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(null);
   const [unDelegatedStake, setUndelegatedStake] = useState<ethers.BigNumber>(
     ethers.BigNumber.from('0'),
   );
-  const [reward, setReward] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [reward, setReward] = useState('0');
 
   const [stakeInputError, setStakeInputError] = useState<string | null>(null);
 
@@ -260,15 +267,8 @@ function Stake({
     setHasStake(false);
     setCanClaimStake(false);
     setCurrentStakeBalance(ethers.BigNumber.from('0'));
-    setCurrentStakeStartDate(null);
     setCurrentStakeEndDate(null);
-  }, [
-    setHasStake,
-    setCanClaimStake,
-    setCurrentStakeBalance,
-    setCurrentStakeStartDate,
-    setCurrentStakeEndDate,
-  ]);
+  }, [setHasStake, setCanClaimStake, setCurrentStakeBalance, setCurrentStakeEndDate]);
 
   const formatStakeInputValue = (value: string) => {
     const stakeInputValue = value.replace(/[^\d.]/g, '');
@@ -312,7 +312,7 @@ function Stake({
         const currentStake = await staking.stakeOf(account);
 
         const currentStakeBalance = currentStake[0];
-        let currentStakeStartDate = currentStake[1].toNumber();
+        const currentStakeStartDate = currentStake[1].toNumber();
         let currentStakeEndDate = currentStake[2].toNumber();
 
         if (
@@ -327,13 +327,11 @@ function Stake({
         const currentTimestamp = Math.ceil(new Date().getTime() / 1000);
         const canClaimStake = currentTimestamp > currentStakeEndDate;
 
-        currentStakeStartDate = new Date(currentStakeStartDate * 1000);
         currentStakeEndDate = new Date(currentStakeEndDate * 1000);
 
         setHasStake(true);
         setCanClaimStake(canClaimStake);
         setCurrentStakeBalance(currentStakeBalance);
-        setCurrentStakeStartDate(currentStakeStartDate);
         setCurrentStakeEndDate(currentStakeEndDate);
       } catch (e) {
         resetStake();
@@ -344,29 +342,18 @@ function Stake({
   }, [account, token, staking, resetStake, setCurrentStakeBalance]);
 
   useEffect(() => {
-    const getReward = () => {
-      let r = ethers.BigNumber.from('0');
-      const yearlyReward = currentStakeBalance.mul(ethers.BigNumber.from('20')).div(100);
-      const perSeconds = yearlyReward.div(ethers.BigNumber.from(secondsInYear()));
-
-      const startDate = Math.ceil(currentStakeStartDate!.getTime() / 1000);
-      const now = Math.ceil(new Date().getTime() / 1000);
-
-      r = perSeconds.mul(now - startDate);
-
-      return r;
-    };
-
-    if (currentStakeBalance.gt(ethers.BigNumber.from('0')) && currentStakeStartDate) {
-      setReward(getReward());
-      const interval = setInterval(() => setReward(getReward()), 1000);
-      return () => {
-        clearInterval(interval);
-      };
+    if (account) {
+      delegationApi.get(`/rewards/total?address=${account}`).then((data) => {
+        if (data.success) {
+          const rewards = data.response;
+          if (rewards.length > 0) {
+            const reward = rewards[0];
+            setReward(reward.amount.toFixed(3));
+          }
+        }
+      });
     }
-    setReward(ethers.BigNumber.from('0'));
-    return undefined;
-  }, [currentStakeBalance, currentStakeStartDate]);
+  }, [account]);
 
   const stakeTokens = async () => {
     setStakeInputError(null);
@@ -452,6 +439,53 @@ function Stake({
     resetStake();
   };
 
+  const downloadRewards = useCallback(async () => {
+    delegationApi.get(`/rewards?address=${account}`).then((data) => {
+      if (data.success) {
+        const header = [
+          'Type',
+          'Epoch',
+          'Start Date',
+          'End Date',
+          'Reward',
+          'Node ID',
+          'Node Name',
+          'Node Address',
+          'Node Commission',
+          'Original Amount',
+        ];
+
+        const csv: string[] = [];
+        csv.push(header.join(','));
+
+        data.response.forEach((reward: Reward) => {
+          const startsAt = new Date(reward.startsAt).toLocaleString();
+          const endsAt = new Date(reward.endsAt).toLocaleString();
+          const row = [
+            reward.type,
+            reward.epoch,
+            ['"', startsAt, '"'].join(''),
+            ['"', endsAt, '"'].join(''),
+            reward.value,
+            reward.node ? reward.node.id : '',
+            reward.node ? ['"', reward.node.name.replace(/[\r\n",]+/gm, ''), '"'].join('') : '',
+            reward.node ? reward.node.address : '',
+            reward.commission,
+            reward.originalAmount,
+          ];
+          csv.push(row.join(','));
+        });
+
+        const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `rewards-${account}.csv`);
+        a.click();
+      }
+    });
+  }, [account]);
+
   const stakeInputField = (
     <InputField
       type="text"
@@ -500,13 +534,23 @@ function Stake({
     <>
       <div className="cardContainer">
         <BaseCard
-          title={formatEth(roundEth(weiToEth(reward)))}
-          description="Lifetime staking yield"
+          title={formatEth(reward)}
+          description="Lifetime yield"
           tooltip={
             <Tooltip
               className="staking-icon-tooltip"
               title="Total number of TARA staking rewards earned for the lifetime of the connected wallet."
               Icon={InfoIcon}
+            />
+          }
+          button={
+            <Button
+              disabled={!account}
+              variant="outlined"
+              color="secondary"
+              onClick={() => downloadRewards()}
+              label="Download rewards"
+              size="small"
             />
           }
         />

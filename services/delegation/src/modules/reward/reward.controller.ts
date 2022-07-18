@@ -2,47 +2,30 @@ import moment from 'moment';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../user/public.decorator';
-import { Reward } from './reward.entity';
 import { TotalReward, RewardRepository } from './reward.repository';
+import { RewardService } from './reward.service';
 import { Epoch, getEpochs } from './helper/epoch';
 import { RewardQueryDto } from './dto/reward-query.dto';
 
 @ApiTags('rewards')
 @Controller('rewards')
 export class RewardsController {
-  constructor(private rewardRepository: RewardRepository) {}
+  constructor(
+    private rewardRepository: RewardRepository,
+    private rewardService: RewardService,
+  ) {}
   @ApiOkResponse({ description: 'Rewards found' })
   @Get()
   @Public()
-  async getRewards(@Query() query: RewardQueryDto): Promise<Reward[]> {
-    const { type, epoch, user, address } = query;
-    let filter = {};
-    if (type) {
-      filter = {
-        type,
-      };
-    }
-    if (epoch) {
-      filter = {
-        ...filter,
-        epoch,
-      };
-    }
-    if (user) {
-      filter = {
-        ...filter,
-        user,
-      };
-    }
-    if (address) {
-      return this.rewardRepository.filterByAddress(address, filter);
-    }
-    return this.rewardRepository.find(filter);
+  async getRewards(@Query() query: RewardQueryDto) {
+    return this.rewardService.getRewards(query);
   }
   @Get('total')
   @Public()
-  async getTotalRewards(): Promise<TotalReward[]> {
-    return this.rewardRepository.groupByAddress();
+  async getTotalRewards(
+    @Query() query: RewardQueryDto,
+  ): Promise<TotalReward[]> {
+    return this.rewardRepository.groupByAddress(query);
   }
   @ApiOkResponse({ description: 'Epochs found' })
   @Get('epochs')

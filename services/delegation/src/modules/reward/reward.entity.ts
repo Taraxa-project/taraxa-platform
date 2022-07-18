@@ -25,7 +25,7 @@ export class Reward {
     nullable: true,
   })
   @Index()
-  node?: number | null;
+  node?: number;
 
   @Column({
     type: 'enum',
@@ -41,6 +41,16 @@ export class Reward {
     type: 'double precision',
   })
   value: number;
+
+  @Column({
+    nullable: true,
+  })
+  commission?: number;
+
+  @Column({
+    nullable: true,
+  })
+  originalAmount?: number;
 
   @Column({
     type: 'timestamp with time zone',

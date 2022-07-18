@@ -21,8 +21,27 @@ export class PendingRewardEntity {
   @Index()
   address: string;
 
-  @Column()
-  numberOfTokens: string;
+  @Column({
+    default: '0',
+  })
+  claimable: string;
+
+  @Column({
+    default: '0',
+  })
+  total: string;
+
+  @Column({
+    name: 'community_total',
+    default: '0',
+  })
+  communityTotal: string;
+
+  @Column({
+    name: 'delegation_total',
+    default: '0',
+  })
+  delegationTotal: string;
 
   @Column({
     default: false,

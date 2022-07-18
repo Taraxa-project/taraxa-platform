@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
-import { BigNumber, ethers } from 'ethers';
 
 import {
   ProfileBasicCard,
@@ -16,7 +16,7 @@ import { useModal } from '../../services/useModal';
 import useWalletAuth from '../../services/useWalletAuth';
 import { GreenCircledCheckIconBig } from '../../assets/icons/greenCircularCheck';
 import WalletIcon from '../../assets/icons/wallet';
-import { useClaimApi } from '../../services/useApi';
+import { useDelegationApi, useClaimApi } from '../../services/useApi';
 import BountyIcon from '../../assets/icons/bounties';
 import TaraxaIcon from '../../assets/icons/taraxaIcon';
 import InfoIcon from '../../assets/icons/info';
@@ -30,7 +30,7 @@ import { useAuth } from '../../services/useAuth';
 import useSubmissions from '../../services/useSubmissions';
 import Title from '../../components/Title/Title';
 import useCMetamask from '../../services/useCMetamask';
-import { ethToWei, weiToEth, formatEth, roundEth } from '../../utils/eth';
+import { formatEth, weiToEth } from '../../utils/eth';
 
 interface ViewProfileDetailsKYCProps {
   openKYCModal: () => void;
@@ -96,44 +96,76 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
   const auth = useAuth();
   const { account } = useCMetamask();
   const history = useHistory();
+  const delegationApi = useDelegationApi();
   const claimApi = useClaimApi();
+  const [showTotalPoints, setShowTotalPoints] = useState(false);
+  const [rewards, setRewards] = useState(0);
+  const [availableToBeClaimed, setAvailableToBeClaimed] = useState(0);
+  const [calculatedPoints, setCalculatedPoints] = useState(0);
   const { authorizeWallet } = useModal();
   const { isAuthorized } = useWalletAuth();
-  const [showLockedPoints, setShowLockedPoints] = useState(false);
-  const [availableToBeClaimed, setAvailableToBeClaimed] = useState(ethers.BigNumber.from(0));
-  const [lockedPoints, setLockedPoints] = useState(ethers.BigNumber.from(0));
-  const [calculatedPoints, setCalculatedPoints] = useState<BigNumber>(ethers.BigNumber.from(0));
 
   useEffect(() => {
-    if (!account) {
-      return;
+    if (account) {
+      claimApi
+        .post(`/accounts/${account}`, {})
+        .then((data) => {
+          if (data.success) {
+            const { availableToBeClaimed } = data.response;
+            setAvailableToBeClaimed(
+              parseFloat(weiToEth(ethers.BigNumber.from(availableToBeClaimed))),
+            );
+          } else {
+            setAvailableToBeClaimed(0);
+          }
+        })
+        .catch(() => {
+          setAvailableToBeClaimed(0);
+        });
+    } else {
+      setAvailableToBeClaimed(0);
     }
-
-    claimApi
-      .post(`/accounts/${account}`, {})
-      .then((data) => {
-        const { availableToBeClaimed, totalLocked } = data.response;
-
-        setAvailableToBeClaimed(ethers.BigNumber.from(availableToBeClaimed));
-        setLockedPoints(ethers.BigNumber.from(totalLocked));
-      })
-      .catch(() => {
-        setAvailableToBeClaimed(ethers.BigNumber.from(0));
-        setLockedPoints(ethers.BigNumber.from(0));
-      });
   }, [account]);
 
   useEffect(() => {
-    if (!account) {
-      setCalculatedPoints(ethToWei(points.toString()));
+    if (account) {
+      delegationApi
+        .get(`/rewards/total?address=${account}`)
+        .then((data) => {
+          if (data.success) {
+            const rewards = data.response;
+            if (rewards.length > 0) {
+              const reward = rewards[0];
+              setRewards(parseFloat(reward.amount.toFixed(3)));
+            } else {
+              setRewards(0);
+            }
+          } else {
+            setRewards(0);
+          }
+        })
+        .catch(() => {
+          setRewards(0);
+        });
     } else {
-      let calculated = ethers.BigNumber.from(availableToBeClaimed);
-      if (showLockedPoints) {
-        calculated = calculated.add(lockedPoints);
-      }
-      setCalculatedPoints(calculated);
+      setRewards(0);
     }
-  }, [account, points, availableToBeClaimed, lockedPoints, showLockedPoints]);
+  }, [account]);
+
+  useEffect(() => {
+    if (account) {
+      let calculatedPoints = 0;
+      if (showTotalPoints) {
+        calculatedPoints += points;
+        calculatedPoints += rewards;
+      } else {
+        calculatedPoints += availableToBeClaimed;
+      }
+      setCalculatedPoints(calculatedPoints);
+    } else {
+      setCalculatedPoints(points);
+    }
+  }, [account, showTotalPoints, points, availableToBeClaimed, rewards]);
 
   const buttons = (
     <>
@@ -157,7 +189,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
     </>
   );
 
-  const isLockedPointsChecked = !account || showLockedPoints;
+  const isTotalPointsChecked = !account || showTotalPoints;
 
   return (
     <>
@@ -168,20 +200,19 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
           wallet={
             auth.user!.eth_wallet ? auth.user!.eth_wallet : 'No Ethereum Wallet Address was set'
           }
-          addressWarning={!isAuthorized}
           Icon={TaraxaIcon}
           buttonOptions={buttons}
         />
         <ViewProfileDetailsKYC openKYCModal={openKYCModal} />
         <ProfileBasicCard
           title="My Rewards"
-          value={formatEth(roundEth(weiToEth(calculatedPoints)))}
+          value={formatEth(calculatedPoints)}
           buttonOptions={
             <Button
               variant="contained"
               color="secondary"
               label="Go to redeem page"
-              disabled={calculatedPoints.eq('0')}
+              disabled={calculatedPoints === 0}
               fullWidth
               onClick={() => history.push('/redeem')}
             />
@@ -189,19 +220,19 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         >
           <div className="flexExpand">
             {!account && 'TARA'}
-            {account && isLockedPointsChecked && 'Total TARA'}
-            {account && !isLockedPointsChecked && 'Redeemable TARA'}
+            {account && isTotalPointsChecked && 'Total TARA'}
+            {account && !isTotalPointsChecked && 'Redeemable TARA'}
             <div className="lockedPointsCheckbox">
               <Checkbox
-                checked={isLockedPointsChecked}
+                checked={isTotalPointsChecked}
                 disabled={!account}
-                onChange={(e) => setShowLockedPoints(e.target.checked)}
+                onChange={(e) => setShowTotalPoints(e.target.checked)}
               />
-              Show locked points
+              Show total TARA
             </div>
+            <br />
           </div>
         </ProfileBasicCard>
-        <br />
       </div>
       <div className="cardContainer">
         {isAuthorized ? (
@@ -230,7 +261,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
                 variant="contained"
                 color="secondary"
                 label="Authorize via MetaMask"
-                disabled={calculatedPoints.eq('0')}
+                disabled={calculatedPoints === 0}
                 fullWidth
                 onClick={authorizeWallet}
               />
