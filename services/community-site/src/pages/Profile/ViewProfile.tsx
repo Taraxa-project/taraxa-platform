@@ -12,6 +12,10 @@ import {
   Checkbox,
 } from '@taraxa_project/taraxa-ui';
 
+import { useModal } from '../../services/useModal';
+import useWalletAuth from '../../services/useWalletAuth';
+import { GreenCircledCheckIconBig } from '../../assets/icons/greenCircularCheck';
+import WalletIcon from '../../assets/icons/wallet';
 import { useDelegationApi, useClaimApi } from '../../services/useApi';
 import BountyIcon from '../../assets/icons/bounties';
 import TaraxaIcon from '../../assets/icons/taraxaIcon';
@@ -98,6 +102,8 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
   const [rewards, setRewards] = useState(0);
   const [availableToBeClaimed, setAvailableToBeClaimed] = useState(0);
   const [calculatedPoints, setCalculatedPoints] = useState(0);
+  const { authorizeWallet } = useModal();
+  const { isAuthorized } = useWalletAuth();
 
   useEffect(() => {
     if (account) {
@@ -186,46 +192,101 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
   const isTotalPointsChecked = !account || showTotalPoints;
 
   return (
-    <div className="cardContainer">
-      <ProfileCard
-        username={auth.user!.username}
-        email={auth.user!.email}
-        wallet={
-          auth.user!.eth_wallet ? auth.user!.eth_wallet : 'No Ethereum Wallet Address was set'
-        }
-        Icon={TaraxaIcon}
-        buttonOptions={buttons}
-      />
-      <ViewProfileDetailsKYC openKYCModal={openKYCModal} />
-      <ProfileBasicCard
-        title="My Rewards"
-        value={formatEth(calculatedPoints)}
-        buttonOptions={
-          <Button
-            variant="contained"
-            color="secondary"
-            label="Go to redeem page"
-            disabled={calculatedPoints === 0}
-            fullWidth
-            onClick={() => history.push('/redeem')}
-          />
-        }
-      >
-        <div className="flexExpand">
-          {!account && 'TARA'}
-          {account && isTotalPointsChecked && 'Total TARA'}
-          {account && !isTotalPointsChecked && 'Redeemable TARA'}
-          <div className="lockedPointsCheckbox">
-            <Checkbox
-              checked={isTotalPointsChecked}
-              disabled={!account}
-              onChange={(e) => setShowTotalPoints(e.target.checked)}
+    <>
+      <div className="cardContainer">
+        <ProfileCard
+          username={auth.user!.username}
+          email={auth.user!.email}
+          wallet={
+            auth.user!.eth_wallet ? auth.user!.eth_wallet : 'No Ethereum Wallet Address was set'
+          }
+          Icon={TaraxaIcon}
+          buttonOptions={buttons}
+        />
+        <ViewProfileDetailsKYC openKYCModal={openKYCModal} />
+        <ProfileBasicCard
+          title="My Rewards"
+          value={formatEth(calculatedPoints)}
+          buttonOptions={
+            <Button
+              variant="contained"
+              color="secondary"
+              label="Go to redeem page"
+              disabled={calculatedPoints === 0}
+              fullWidth
+              onClick={() => history.push('/redeem')}
             />
-            Show total TARA
+          }
+        >
+          <div className="flexExpand">
+            {!account && 'TARA'}
+            {account && isTotalPointsChecked && 'Total TARA'}
+            {account && !isTotalPointsChecked && 'Redeemable TARA'}
+            <div className="lockedPointsCheckbox">
+              <Checkbox
+                checked={isTotalPointsChecked}
+                disabled={!account}
+                onChange={(e) => setShowTotalPoints(e.target.checked)}
+              />
+              Show total TARA
+            </div>
+            <br />
           </div>
-        </div>
-      </ProfileBasicCard>
-    </div>
+        </ProfileBasicCard>
+      </div>
+      <div className="cardContainer">
+        {isAuthorized ? (
+          <ProfileBasicCard title="Wallet" Icon={WalletIcon}>
+            <div
+              className="flexExpand"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-evenly',
+                alignItems: 'center',
+                textAlign: 'center',
+                wordBreak: 'break-word',
+              }}
+            >
+              <GreenCircledCheckIconBig />
+              <span style={{ color: '#878CA4' }}>{account}</span>
+            </div>
+          </ProfileBasicCard>
+        ) : (
+          <ProfileBasicCard
+            title="Wallet"
+            Icon={WalletIcon}
+            buttonOptions={
+              <Button
+                variant="contained"
+                color="secondary"
+                label="Authorize via MetaMask"
+                disabled={!account}
+                fullWidth
+                onClick={authorizeWallet}
+              />
+            }
+          >
+            <div
+              className="flexExpand"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-evenly',
+                alignItems: 'center',
+                textAlign: 'center',
+                wordBreak: 'break-word',
+              }}
+            >
+              <span>Not authorized</span>
+              <span style={{ color: '#878CA4' }}>
+                Click “Authorize via MetaMask” to be able to login via MetaMask.
+              </span>
+            </div>
+          </ProfileBasicCard>
+        )}
+      </div>
+    </>
   );
 }
 

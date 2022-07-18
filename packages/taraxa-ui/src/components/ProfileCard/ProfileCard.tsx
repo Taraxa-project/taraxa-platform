@@ -14,16 +14,25 @@ import Jdenticon from 'jdenticon';
 import theme from '../theme';
 
 import useStyles from './profilecard-styles';
+import ExcalamtionTriangle from '../Icons/ExclamationTriangle';
 
 export interface ProfileCardProps extends MCardProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   username: string;
   email: string;
   wallet?: string;
+  addressWarning?: boolean;
   buttonOptions?: JSX.Element;
 }
 
-const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCardProps) => {
+const ProfileCard = ({
+  Icon,
+  username,
+  email,
+  wallet,
+  addressWarning,
+  buttonOptions,
+}: ProfileCardProps) => {
   const classes = useStyles();
   const profileIcon = Jdenticon.toSvg(email, 47, { backColor: '#fff' });
 
@@ -52,10 +61,23 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
           {wallet && (
             <>
               <Typography variant="body2" className={classes.label} color="textSecondary">
-                TARA address (ERC20):
+                {addressWarning ? (
+                  <>
+                    TARA address (ERC20): <ExcalamtionTriangle color="#E96828" />{' '}
+                  </>
+                ) : (
+                  `TARA address (ERC20):`
+                )}
               </Typography>
               <Typography variant="body1" className={classes.label} color="primary">
-                {wallet}
+                {addressWarning ? (
+                  <>
+                    {wallet}
+                    <span style={{ color: '#E96828' }}>(not authorized)</span>
+                  </>
+                ) : (
+                  wallet
+                )}
               </Typography>
             </>
           )}

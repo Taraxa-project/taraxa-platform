@@ -15,7 +15,7 @@ import moment from 'moment';
 import WhiteCheckIcon from '../../assets/icons/checkWhite';
 import NotFoundIcon from '../../assets/icons/notFound';
 import RedeemSidebar from '../../assets/icons/redeemSidebar';
-import GreenCircledCheckIcon from '../../assets/icons/greenCircledCheck';
+import GreenCircledCheckIcon from '../../assets/icons/greenCircularCheck';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
