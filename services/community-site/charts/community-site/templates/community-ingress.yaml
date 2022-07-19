@@ -1,9 +1,10 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "community.fullname" . -}}
 {{- $fullNameFrontend := include "community.frontend.fullname" . -}}
+{{- $pathType := .Values.ingress.pathType | default "ImplementationSpecific" -}}
 {{- $svcPortFrontend := .Values.frontend.service.port -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
 {{- else -}}
 apiVersion: extensions/v1beta1
 {{- end }}
@@ -22,6 +23,9 @@ metadata:
     nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - Taraxa Community"
   {{- end }}
 spec:
+{{- if .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+{{- end }}
   {{- if .Values.ingress.tls }}
   tls:
     {{- range .Values.ingress.tls }}
@@ -38,8 +42,11 @@ spec:
       http:
         paths:
           - path: /
+            pathType: {{ $pathType }}
             backend:
-              serviceName: {{ $fullNameFrontend }}
-              servicePort: {{ $svcPortFrontend }}
+              service:
+                name: {{ $fullNameFrontend }}
+                port:
+                  number: {{ $svcPortFrontend }}
     {{- end }}
   {{- end }}
