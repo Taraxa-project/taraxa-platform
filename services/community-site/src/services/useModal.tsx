@@ -37,7 +37,7 @@ const ModalContext = createContext<Context>(initialState);
 function useProvideModal() {
   const history = useHistory();
   const auth = useAuth();
-  const isSessionExpired = auth.isSessionExpired!();
+  const isSessionExpired = auth.isSessionExpired!;
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   const [isOpen, setIsOpen] = useState(isSessionExpired);
   const [content, setContent] = useState('sign-in');

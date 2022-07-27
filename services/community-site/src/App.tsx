@@ -37,7 +37,7 @@ declare global {
 }
 
 const Root = () => {
-  const { modal, setIsOpen, setContent } = useModal();
+  const { modal, setIsOpen, setContent, signIn } = useModal();
   const auth = useAuth();
   const { status, account } = useCMetamask();
   const location = useLocation();
@@ -49,6 +49,12 @@ const Root = () => {
       page_path: location.pathname,
     });
   }, [location]);
+
+  useEffect(() => {
+    if (auth.isSessionExpired) {
+      signIn!();
+    }
+  }, [auth.isSessionExpired]);
 
   let appClassName = 'App';
 
