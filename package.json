@@ -30,7 +30,8 @@
     "watch:status": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn status-start\"",
     "watch:ui": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-build \"",
     "start:platform": "concurrently \"yarn community-start\" \"yarn status-start\" \"yarn claim-start\" \"yarn delegation-start\"",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "ui-storybook": "yarn workspace @taraxa_project/taraxa-ui storybook"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

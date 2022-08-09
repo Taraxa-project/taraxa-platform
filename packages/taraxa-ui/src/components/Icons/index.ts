@@ -7,6 +7,10 @@ import Attachment from './Attachment';
 import Submit from './Submit';
 import Trophy from './Trophy';
 import Exclamation from './Exclamation';
+import Taraxa from './Taraxa';
+import Search from './Search';
+import MenuDots from './MenuDots';
+import Check from './Check';
 
 export {
   Left,
@@ -18,6 +22,10 @@ export {
   Submit,
   Trophy,
   Exclamation,
+  Check,
+  Taraxa,
+  Search,
+  MenuDots,
 };
 export default {
   Left,
@@ -29,4 +37,7 @@ export default {
   Submit,
   Trophy,
   Exclamation,
+  Search,
+  MenuDots,
+  Check,
 };
