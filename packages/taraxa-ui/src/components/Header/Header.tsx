@@ -6,13 +6,23 @@ import { CssBaseline, AppBarProps, AppBar } from '@material-ui/core';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import useStyles from './header-styles';
+import SearchInput from '../SearchInput';
 
 export interface HeaderProps extends AppBarProps {
   title: string;
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  searchPlaceholder?: string;
+  withSearch?: boolean;
 }
 
-function Header({ title, Icon, children, ...props }: HeaderProps) {
+function Header({
+  title,
+  Icon,
+  children,
+  withSearch = false,
+  searchPlaceholder = 'Address, hash or number...',
+  ...props
+}: HeaderProps) {
   const classes = useStyles();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
@@ -24,7 +34,6 @@ function Header({ title, Icon, children, ...props }: HeaderProps) {
           {Icon && (
             <a className={classes.headerIconContainer} href="/">
               <Icon />
-              <div style={{ width: '20px' }} />
             </a>
           )}
 
@@ -33,19 +42,13 @@ function Header({ title, Icon, children, ...props }: HeaderProps) {
               <>{title}</>
             </Typography>
           </a>
-          {/* <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </div> */}
+          {withSearch && (
+            <SearchInput
+              className={classes.searchInput}
+              fullWidth
+              placeholder={searchPlaceholder}
+            />
+          )}
           <div
             className={
               isMobile

@@ -13,7 +13,7 @@ import theme from '../theme';
 
 import useStyles from './card-styles';
 
-interface CardProps extends MCardProps {
+export interface CardProps extends MCardProps {
   actions?: JSX.Element;
   className?: string;
 }

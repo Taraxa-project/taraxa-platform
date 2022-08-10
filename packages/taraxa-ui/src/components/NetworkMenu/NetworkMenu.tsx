@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { CssBaseline, IconButton, Menu, MenuItem, ThemeProvider, Tooltip } from '@material-ui/core';
-import { MenuDots, Check } from '../../Icons';
+import { MenuDots, Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
-import theme from '../../theme';
+import theme from '../theme';
 
 enum Network {
   TESTNET = 'Californicum Testnet',

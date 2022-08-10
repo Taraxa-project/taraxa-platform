@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InputAdornment, InputBase } from '@material-ui/core';
 import useStyles from './SearchInput.styles';
-import { Search } from '../../Icons';
+import { Search } from '../Icons';
 
 export interface SearchInputProps {
   placeholder?: string;
