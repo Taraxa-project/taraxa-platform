@@ -11,6 +11,8 @@ import Taraxa from './Taraxa';
 import Search from './Search';
 import MenuDots from './MenuDots';
 import Check from './Check';
+import RightArrow from './RightArrow';
+import NotFound from './NotFound';
 
 export {
   Left,
@@ -26,6 +28,8 @@ export {
   Taraxa,
   Search,
   MenuDots,
+  RightArrow,
+  NotFound,
 };
 export default {
   Left,
@@ -40,4 +44,6 @@ export default {
   Search,
   MenuDots,
   Check,
+  RightArrow,
+  NotFound,
 };

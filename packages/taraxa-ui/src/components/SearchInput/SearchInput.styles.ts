@@ -33,6 +33,73 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: 'transparent !important',
       border: 'unset !important',
     },
+    paper: {
+      border: '1px solid #40465F',
+      borderRadius: theme.spacing(1),
+      backgroundColor: '#31364B',
+    },
+    option: {
+      padding: 0,
+    },
+    noOptions: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: theme.spacing(1.75),
+      lineHeight: `${theme.spacing(3.25)}px`,
+      justifyContent: 'center',
+      padding: theme.spacing(4.5, 0, 4.5, 0),
+      color: '#878CA4',
+      textTransform: 'uppercase',
+    },
+    listBox: {
+      padding: theme.spacing(2.5, 1.75),
+    },
+    loading: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing(2),
+      // borderRadius: theme.spacing(1),
+    },
+    listItem: {
+      padding: theme.spacing(0.5, 0, 1.5, 1.5),
+      '&:hover': {
+        backgroundColor: 'unset',
+      },
+    },
+    listItemContainer: {
+      flex: '1 0 auto',
+      display: 'flex',
+      flexDirection: 'row',
+      paddingRight: theme.spacing(3),
+      borderRadius: theme.spacing(0.75),
+      '&:hover': {
+        backgroundColor: '#40465F',
+      },
+    },
+    listItemTextRoot: {
+      padding: '0 !important',
+      margin: 0,
+    },
+    listItemPrimary: {
+      fontSize: theme.spacing(1.75),
+      lineHeight: `${theme.spacing(3.25)}px`,
+      textTransform: 'uppercase',
+      color: '#878CA4',
+      marginBottom: theme.spacing(1),
+    },
+    listItemSecondary: {
+      color: '#FFFFFF',
+    },
+    listItemSecondaryRoot: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      top: 'unset',
+      right: 'unset',
+      position: 'unset',
+      transform: 'unset',
+    },
   }),
 );
 

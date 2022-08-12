@@ -3,11 +3,16 @@ import { CssBaseline, ThemeProvider, CircularProgress } from '@material-ui/core'
 import theme from '../theme';
 import '../app.scss';
 
-const Loading = () => {
+export interface LoadingProps {
+  size?: number;
+  color?: string;
+}
+
+const Loading = ({ size, color }: LoadingProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <CircularProgress />
+      <CircularProgress size={size} style={{ color }} />
     </ThemeProvider>
   );
 };
