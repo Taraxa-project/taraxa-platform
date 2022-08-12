@@ -20,7 +20,7 @@ export interface Option {
 export interface SearchInputProps {
   placeholder?: string;
   fullWidth?: boolean;
-  onChange?: (value: Option) => any;
+  onChange?: (value: Option) => void;
   className?: string;
   open?: boolean;
   options?: Option[];

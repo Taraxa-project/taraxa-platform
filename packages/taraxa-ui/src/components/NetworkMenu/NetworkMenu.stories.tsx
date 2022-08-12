@@ -3,7 +3,7 @@ import { Story, Meta } from '@storybook/react';
 import NetworkMenu from './NetworkMenu';
 
 export default {
-  title: 'v1/Network Selection Menu',
+  title: 'Components/Network Selection Menu',
   component: NetworkMenu,
 } as Meta;
 

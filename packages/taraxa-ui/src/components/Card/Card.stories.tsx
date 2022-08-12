@@ -3,7 +3,7 @@ import { Story, Meta } from '@storybook/react';
 import Card, { CardProps } from './Card';
 
 export default {
-  title: 'v1/Card',
+  title: 'Components/Card',
   component: Card,
   argTypes: {
     actions: { control: 'string' },

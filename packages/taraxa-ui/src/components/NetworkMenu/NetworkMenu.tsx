@@ -10,7 +10,7 @@ enum Network {
 }
 
 export interface NetworkMenuProps {
-  onNetworkChange?: (network: Network) => any;
+  onNetworkChange?: (network: Network) => void;
   verticalPosition?: 'top' | 'bottom';
   horizontalPosition?: 'left' | 'right';
 }

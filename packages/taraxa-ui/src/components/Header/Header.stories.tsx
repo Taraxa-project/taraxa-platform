@@ -6,7 +6,7 @@ import Button from '../Button';
 import NetworkMenu from '../NetworkMenu/NetworkMenu';
 
 export default {
-  title: 'v1/Header',
+  title: 'Components/Header',
   component: Header,
   argTypes: {
     title: { control: 'string' },

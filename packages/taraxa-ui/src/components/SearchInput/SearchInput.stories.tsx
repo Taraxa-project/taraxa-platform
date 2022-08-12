@@ -3,7 +3,7 @@ import { Story, Meta } from '@storybook/react';
 import SearchInput, { SearchInputProps } from './SearchInput';
 
 export default {
-  title: 'v1/Search Input',
+  title: 'Components/Search Input',
   component: SearchInput,
 } as Meta;
 
