@@ -24,7 +24,6 @@ NoResults.args = {
   placeholder: 'Search',
   open: true,
   options: [],
-  onChange: (v) => alert(`You clicked ${v.value}`),
 };
 
 export const WithResults = Template.bind({});
@@ -36,7 +35,6 @@ WithResults.args = {
     { type: 'Address', label: 'Test 2', value: 'test2' },
     { type: 'Address', label: 'Test 3', value: 'test3' },
   ],
-  onChange: (v) => alert(`You clicked ${v.value}`),
 };
 
 export const FullWidth = Template.bind({});

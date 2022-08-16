@@ -1,3 +1,7 @@
+import React from 'react';
+import ThemeProvider, { CssBaseline } from '@material-ui/core';
+import theme from '../src/components/theme';
+
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
   controls: {
@@ -7,4 +11,12 @@ export const parameters = {
     },
     expanded: true,
   },
+  decorators: [
+    (Story, context) => (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Story {...context} />
+      </ThemeProvider>
+    ),
+  ],
 };

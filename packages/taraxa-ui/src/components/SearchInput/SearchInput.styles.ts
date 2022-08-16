@@ -1,4 +1,4 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     inputRoot: {
       color: 'inherit',
-      backgroundColor: '#31364B',
+      backgroundColor: theme.palette.grey.A100,
       padding: theme.spacing(1.5, 2.25, 1.5, 2.25),
       borderRadius: theme.spacing(0.75),
     },
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
     paper: {
       border: '1px solid #40465F',
       borderRadius: theme.spacing(1),
-      backgroundColor: '#31364B',
+      backgroundColor: theme.palette.grey.A100,
     },
     option: {
       padding: 0,

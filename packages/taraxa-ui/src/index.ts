@@ -33,6 +33,8 @@ import File from './components/File';
 import LoadingWidget from './components/LoadingWidget';
 import ProfileIcon from './components/ProfileIcon';
 import AmountCard from './components/AmountCard';
+import NetworkMenu from './components/NetworkMenu';
+import SearchInput from './components/SearchInput';
 
 export {
   AmountCard,
@@ -70,4 +72,6 @@ export {
   Icons,
   File,
   LoadingWidget,
+  SearchInput,
+  NetworkMenu,
 };

@@ -51,6 +51,9 @@ const theme = createTheme({
       disabled: '#FFF',
       disabledOpacity: 50,
     },
+    grey: {
+      A100: '#31364B',
+    },
   },
   overrides: {
     MuiAppBar: {
