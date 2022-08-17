@@ -135,6 +135,49 @@ const theme: Theme = createTheme({
         },
       },
     },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          width: '100%',
+          color: '#ffffff',
+          tableLayout: 'fixed',
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid #40465F',
+          background: '#1B1E2B',
+          color: '#878CA4',
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid #282C3E',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          textAlign: 'left',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+          overflow: 'hidden',
+        },
+        head: {
+          color: '#878CA4',
+          background: '#1B1E2B',
+        },
+        body: {
+          border: 'none',
+          height: 'auto',
+        },
+      },
+    },
   },
 } as ThemeOptions);
 

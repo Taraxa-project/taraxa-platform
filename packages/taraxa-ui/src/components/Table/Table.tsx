@@ -9,6 +9,7 @@ import {
   TableRow,
   Paper,
   Table as MTable,
+  TableHead,
 } from '@mui/material';
 
 import moment from 'moment';
@@ -54,7 +55,7 @@ export default function Table({ columns, rows }: TableProps) {
             }}
             classes={{
               root: classes.tablePagination,
-              caption: classes.tablePaginationCaption,
+              selectLabel: classes.tablePaginationCaption,
               selectIcon: classes.tablePaginationSelectIcon,
               select: classes.tablePaginationSelect,
               actions: classes.tablePaginationActions,
@@ -68,31 +69,42 @@ export default function Table({ columns, rows }: TableProps) {
               size="medium"
               aria-label="enhanced table"
             >
+              <TableHead>
+                <TableRow tabIndex={-1} key="index">
+                  {columns.map((column, index) => (
+                    <TableCell key={`${index}-${index}-head`}>{column.name}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
               <TableBody>
                 {rows
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) =>
                     row.data.map((rowData: any) =>
                       isMobile ? (
-                        <TableRow
-                          // onClick={(event) => handleClick(event, row.username)}
-                          tabIndex={-1}
-                          key={index}
-                        >
+                        <TableRow tabIndex={-1} key={index}>
                           {row.Icon && (
-                            <TableCell className={classes.mobileTableCell} align="left">
+                            <TableCell
+                              className={classes.mobileTableCell}
+                              align="left"
+                              key={`${index}-${index}`}
+                            >
                               <row.Icon />
                             </TableCell>
                           )}
-                          {columns.map(({ path }) =>
+                          {columns.map(({ path }, j) =>
                             rowData[path] instanceof Date ? (
-                              <TableCell className={classes.mobileDateTableCell}>
+                              <TableCell
+                                className={classes.mobileDateTableCell}
+                                key={`${index}-${j}`}
+                              >
                                 {moment(rowData[path]).fromNow()}
                               </TableCell>
                             ) : (
                               <TableCell
                                 className={classes.mobileTableCell}
                                 align={!row.Icon ? 'center' : 'right'}
+                                key={`${index}-${j}`}
                               >
                                 {rowData[path]}
                               </TableCell>
@@ -100,21 +112,22 @@ export default function Table({ columns, rows }: TableProps) {
                           )}
                         </TableRow>
                       ) : (
-                        <TableRow
-                          // onClick={(event) => handleClick(event, row.username)}
-                          tabIndex={-1}
-                          key={index}
-                        >
+                        <TableRow tabIndex={-1} key={index}>
                           {row.Icon && (
-                            <TableCell className={classes.tableCell} align="left">
+                            <TableCell
+                              className={classes.tableCell}
+                              align="left"
+                              key={`${index}-${index}-icon`}
+                            >
                               <row.Icon />
                             </TableCell>
                           )}
-                          {columns.map(({ path }) =>
+                          {columns.map(({ path }, i) =>
                             rowData[path] instanceof Date ? (
                               <TableCell
                                 className={classes.dateTableCell}
                                 align={!row.Icon ? 'center' : 'right'}
+                                key={`${index}-${index}-date`}
                               >
                                 {moment(rowData[path]).fromNow()}
                               </TableCell>
@@ -122,6 +135,7 @@ export default function Table({ columns, rows }: TableProps) {
                               <TableCell
                                 className={classes.tableCell}
                                 align={!row.Icon ? 'center' : 'right'}
+                                key={`${index}-${i}`}
                               >
                                 {rowData[path]}
                               </TableCell>
