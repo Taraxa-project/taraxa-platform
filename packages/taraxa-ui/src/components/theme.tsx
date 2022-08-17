@@ -1,4 +1,3 @@
-import React, { FC } from 'react';
 import { createTheme, Theme, ThemeOptions } from '@mui/material/styles';
 
 const theme: Theme = createTheme({
@@ -18,11 +17,11 @@ const theme: Theme = createTheme({
     },
     grey: {
       A100: '#31364B',
-      100: '#6A7085'
+      100: '#6A7085',
     },
     background: {
       default: '#151823',
-      paper: '#6A7085',
+      paper: '#1E2231',
     },
   },
   typography: {

@@ -9,7 +9,7 @@ import {
   Typography,
   Box,
 } from '@mui/material';
-import Jdenticon from 'jdenticon';
+import { toSvg } from 'jdenticon';
 
 import theme from '../theme';
 
@@ -25,7 +25,7 @@ export interface ProfileCardProps extends MCardProps {
 
 const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCardProps) => {
   const classes = useStyles();
-  const profileIcon = Jdenticon.toSvg(email, 47, { backColor: '#fff' });
+  const profileIcon = toSvg(email, 47, { backColor: '#fff' });
 
   return (
     <ThemeProvider theme={theme}>
