@@ -6,11 +6,11 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import theme from '../theme';
 import Button from '../Button';
 import { ExpirationExpired, ExpirationNotExpired, Submission } from '../Icons';
-import useStyles from './rewardcard-styles';
+import useStyles from './RewardCard.styles';
 
 export interface RewardCardProps extends CardProps {
   description: React.ReactNode;

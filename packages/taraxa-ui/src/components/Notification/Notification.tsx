@@ -1,11 +1,11 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import Text from '../Text';
 import { Exclamation } from '../Icons';
 
 import theme from '../theme';
 
-import useStyles from './notification-styles';
+import useStyles from './Notification.styles';
 
 export interface NotificationProps {
   title?: string;

@@ -7,11 +7,10 @@ import {
   CardActions,
   CssBaseline,
   ThemeProvider,
-} from '@material-ui/core';
-
+} from '@mui/material';
 import theme from '../theme';
 
-import useStyles from './card-styles';
+import useStyles from './Card.styles';
 
 export interface CardProps extends MCardProps {
   actions?: JSX.Element;

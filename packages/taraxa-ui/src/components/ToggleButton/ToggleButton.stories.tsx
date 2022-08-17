@@ -17,6 +17,6 @@ export const Primary = Template.bind({});
 Primary.args = {
   data: [
     { value: '1', label: '2' },
-    { value: '1', label: '2' },
+    { value: '2', label: '3' },
   ],
 };

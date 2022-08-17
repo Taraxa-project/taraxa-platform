@@ -9,7 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-} from '@material-ui/core';
+} from '@mui/material';
 import moment from 'moment';
 
 import WhiteCheckIcon from '../../assets/icons/checkWhite';

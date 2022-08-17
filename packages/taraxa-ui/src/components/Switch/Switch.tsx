@@ -6,8 +6,8 @@ import {
   ThemeProvider,
   SwitchProps as MSwitchProps,
   FormControlLabel,
-} from '@material-ui/core';
-import useStyles from './switch-styles';
+} from '@mui/material';
+import useStyles from './Switch.styles';
 import theme from '../theme';
 
 export interface SwitchProps extends MSwitchProps {

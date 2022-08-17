@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  CssBaseline,
-  ThemeProvider,
-  Menu as MMenu,
-  MenuItem as MMenuItem,
-} from '@material-ui/core';
+import { CssBaseline, ThemeProvider, Menu as MMenu, MenuItem as MMenuItem } from '@mui/material';
 
 import theme from '../theme';
 

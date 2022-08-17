@@ -1,5 +1,5 @@
 import React from 'react';
-import ThemeProvider, { CssBaseline } from '@material-ui/core';
+import ThemeProvider, { CssBaseline } from '@mui/material';
 import theme from '../src/components/theme';
 
 export const parameters = {

@@ -1,66 +1,15 @@
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
-import {
-  createStyles,
-  CssBaseline,
-  Drawer,
-  DrawerProps,
-  List,
-  makeStyles,
-  Theme,
-  ThemeProvider,
-} from '@material-ui/core';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import { CssBaseline, Drawer, DrawerProps, List, ThemeProvider } from '@mui/material';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 
 import Text from '../Text';
 
 import theme from '../theme';
 
 import '../app.scss';
-
-const drawerWidth = 240;
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-      height: '100%',
-    },
-    appBar: {
-      zIndex: theme.zIndex.drawer + 1,
-    },
-    drawer: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-    drawerPaper: {
-      display: 'flex',
-      width: drawerWidth,
-      position: 'inherit',
-      backgroundColor: '#151823 !important',
-      '& > div:first-child': {
-        flex: 1,
-      },
-      '& > div:last-child': {
-        padding: '64px 0',
-      },
-    },
-    drawerPaperMobile: {
-      '& > div:last-child': {
-        display: 'none',
-      },
-    },
-    drawerContainer: {
-      overflow: 'auto',
-      backgroundColor: '#151823',
-    },
-    content: {
-      flexGrow: 1,
-      padding: theme.spacing(3),
-      backgroundColor: '#151823',
-    },
-  }),
-);
+import useStyles from './Sidebar.styles';
 
 interface SidebarItemProps {
   label?: string;
@@ -169,10 +118,10 @@ const Sidebar = ({
 }: SidebarProps) => {
   const classes = useStyles();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  let paperClasses = [classes.drawerPaper];
+  let paperClasses = [(classes as any).drawerPaper];
 
   if (isMobile) {
-    paperClasses = [...paperClasses, classes.drawerPaperMobile];
+    paperClasses = [...paperClasses, (classes as any).drawerPaperMobile];
   }
 
   return (

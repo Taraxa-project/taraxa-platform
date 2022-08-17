@@ -1,11 +1,16 @@
 import React from 'react';
-import { ThemeProvider } from '@material-ui/core/styles';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import { CssBaseline, AppBarProps, AppBar } from '@material-ui/core';
+import {
+  AppBar,
+  AppBarProps,
+  Container,
+  CssBaseline,
+  Toolbar,
+  Typography,
+  ThemeProvider,
+} from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
-import useStyles from './header-styles';
+import useStyles from './Header.styles';
 import SearchInput from '../SearchInput';
 
 export interface HeaderProps extends AppBarProps {
@@ -30,35 +35,37 @@ function Header({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar {...props}>
-        <Toolbar>
-          {Icon && (
-            <a className={classes.headerIconContainer} href="/">
-              <Icon />
-            </a>
-          )}
+        <Container maxWidth="xl">
+          <Toolbar>
+            {Icon && (
+              <a className={classes.headerIconContainer} href="/">
+                <Icon />
+              </a>
+            )}
 
-          <a className={classes.titleContainer} href="/">
-            <Typography variant="h2" noWrap className={classes.title}>
-              <>{title}</>
-            </Typography>
-          </a>
-          {withSearch && (
-            <SearchInput
-              className={classes.searchInput}
-              fullWidth
-              placeholder={searchPlaceholder}
-            />
-          )}
-          <div
-            className={
-              isMobile
-                ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(' ')
-                : classes.sectionDesktop
-            }
-          >
-            {children}
-          </div>
-        </Toolbar>
+            <a className={classes.titleContainer} href="/">
+              <Typography variant="h2" noWrap className={classes.title}>
+                <>{title}</>
+              </Typography>
+            </a>
+            {withSearch && (
+              <SearchInput
+                className={classes.searchInput}
+                fullWidth
+                placeholder={searchPlaceholder}
+              />
+            )}
+            <div
+              className={
+                isMobile
+                  ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(' ')
+                  : classes.sectionDesktop
+              }
+            >
+              {children}
+            </div>
+          </Toolbar>
+        </Container>
       </AppBar>
     </ThemeProvider>
   );

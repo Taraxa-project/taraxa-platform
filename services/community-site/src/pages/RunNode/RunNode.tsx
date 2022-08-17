@@ -22,7 +22,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import CloseIcon from '../../assets/icons/close';
 import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';

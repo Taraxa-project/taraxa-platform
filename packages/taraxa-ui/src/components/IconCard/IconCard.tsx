@@ -7,10 +7,10 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import theme from '../theme';
 import Button from '../Button';
-import useStyles from './iconcard-styles';
+import useStyles from './IconCard.styles';
 
 export interface IconCardProps extends MCardProps {
   description: string;

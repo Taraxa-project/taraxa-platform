@@ -1,5 +1,5 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider, CircularProgress } from '@material-ui/core';
+import { CssBaseline, ThemeProvider, CircularProgress } from '@mui/material';
 import theme from '../theme';
 import '../app.scss';
 

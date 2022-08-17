@@ -1,7 +1,8 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
+import theme from '../theme';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles(() => {
+  return {
     titleContainer: {
       display: 'none',
       color: '#fff',
@@ -43,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
     profileButton: {
       marginBottom: '5%',
     },
-  }),
-);
+  };
+});
 
 export default useStyles;

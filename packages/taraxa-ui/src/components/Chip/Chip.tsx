@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Chip as MChip,
-  CssBaseline,
-  ThemeProvider,
-  ChipProps as MChipProps,
-} from '@material-ui/core';
+import { Chip as MChip, CssBaseline, ThemeProvider, ChipProps as MChipProps } from '@mui/material';
 import theme from '../theme';
 
 export type ChipProps = MChipProps;

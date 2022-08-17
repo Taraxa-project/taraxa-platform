@@ -1,5 +1,5 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider, MenuItem as MMenuItem } from '@material-ui/core';
+import { CssBaseline, ThemeProvider, MenuItem as MMenuItem } from '@mui/material';
 
 import theme from '../theme';
 

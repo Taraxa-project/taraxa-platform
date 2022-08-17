@@ -8,12 +8,12 @@ import {
   ThemeProvider,
   Typography,
   Box,
-} from '@material-ui/core';
-import Jdenticon from 'jdenticon';
+} from '@mui/material';
+import { toSvg } from 'jdenticon';
 
 import theme from '../theme';
 
-import useStyles from './profilecard-styles';
+import useStyles from './ProfileCard.styles';
 
 export interface ProfileCardProps extends MCardProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
@@ -25,7 +25,7 @@ export interface ProfileCardProps extends MCardProps {
 
 const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCardProps) => {
   const classes = useStyles();
-  const profileIcon = Jdenticon.toSvg(email, 47, { backColor: '#fff' });
+  const profileIcon = toSvg(email, 47, { backColor: '#fff' });
 
   return (
     <ThemeProvider theme={theme}>
