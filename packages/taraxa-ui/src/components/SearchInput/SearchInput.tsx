@@ -40,7 +40,6 @@ const SearchOption = ({ type, label }: { type: string; label: string }) => {
         ContainerComponent="div"
         disableGutters
         classes={{ container: classes.listItemContainer, root: classes.listItem }}
-        dense
       >
         <ListItemText
           inset
@@ -103,7 +102,9 @@ const SearchInput = ({
             <NotFound /> Nothing found...
           </>
         }
-        renderOption={(option) => <SearchOption type={option.type} label={option.label} />}
+        renderOption={(props, option) => (
+          <SearchOption type={option.type} label={option.label} {...props} />
+        )}
         getOptionLabel={(option) => option.label}
         renderInput={(params) => {
           return (
