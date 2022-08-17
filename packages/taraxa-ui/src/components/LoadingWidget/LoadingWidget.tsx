@@ -23,9 +23,16 @@ const LoadingWidget = ({ isLoading, widgetId, progressId }: LoadingWidgetProps) 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box id={widgetId} className={rootClasses}>
+      <Box
+        id={widgetId}
+        className={rootClasses}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        alignContent="center"
+      >
         <CircularProgress id={progressId} size={35} thickness={4.5} className={classes.progress} />{' '}
-        Loading...
+        <p style={{ marginLeft: '1rem' }}>Loading...</p>
       </Box>
     </ThemeProvider>
   );

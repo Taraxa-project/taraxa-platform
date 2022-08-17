@@ -6,10 +6,10 @@ import {
   Drawer,
   DrawerProps,
   List,
-  makeStyles,
   Theme,
   ThemeProvider,
 } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
