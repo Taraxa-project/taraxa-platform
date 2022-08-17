@@ -2,9 +2,9 @@ import React from 'react';
 import {
   Button as MButton,
   CssBaseline,
-  ThemeProvider,
   ButtonProps as MButtonProps,
-} from '@material-ui/core';
+  ThemeProvider,
+} from '@mui/material';
 import theme from '../theme';
 
 export interface ButtonProps extends MButtonProps {

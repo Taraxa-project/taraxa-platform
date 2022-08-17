@@ -1,8 +1,8 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider, Tooltip as MTooltip } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
+import { CssBaseline, ThemeProvider, Tooltip as MTooltip } from '@mui/material';
+import { withStyles } from '@mui/styles';
 import theme from '../theme';
-import useStyles from './tooltip-styles';
+import useStyles from './Tooltip.styles';
 import Text from '../Text';
 
 const HtmlTooltip = withStyles((theme) => ({

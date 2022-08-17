@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CssBaseline, IconButton, Menu, MenuItem, ThemeProvider, Tooltip } from '@material-ui/core';
+import { CssBaseline, IconButton, Menu, MenuItem, ThemeProvider, Tooltip } from '@mui/material';
 import { MenuDots, Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
 import theme from '../theme';

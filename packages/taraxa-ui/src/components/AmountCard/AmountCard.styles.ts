@@ -1,7 +1,8 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { makeStyles } from '@mui/styles';
+import theme from '../theme';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles(() => {
+  return {
     container: {
       textAlign: 'left',
       backgroundColor: theme.palette.grey['100'],
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
       textAlign: 'left',
       fontSize: '12px',
     },
-  }),
-);
+  };
+});
 
 export default useStyles;

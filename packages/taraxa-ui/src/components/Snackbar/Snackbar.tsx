@@ -1,6 +1,6 @@
 import React from 'react';
-import MSnackbar, { SnackbarProps as MSnackbarProps } from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
+import MSnackbar, { SnackbarProps as MSnackbarProps } from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import './snackbar-styles.scss';
 
 export interface SnackbarProps extends MSnackbarProps {

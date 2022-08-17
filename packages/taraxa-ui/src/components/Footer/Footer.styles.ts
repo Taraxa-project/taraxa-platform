@@ -1,7 +1,7 @@
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
 
-const useStyles = makeStyles(() =>
-  createStyles({
+const useStyles = makeStyles(() => {
+  return {
     grow: {
       flexGrow: 1,
     },
@@ -92,7 +92,7 @@ const useStyles = makeStyles(() =>
       gridColumn: 1,
       gridRow: 1,
     },
-  }),
-);
+  };
+});
 
 export default useStyles;

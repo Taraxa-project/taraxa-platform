@@ -1,12 +1,12 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 
 import Text from '../Text';
 import Button from '../Button';
 import { Left, Right } from '../Icons';
 import theme from '../theme';
 
-import useStyles from './pagination-styles';
+import useStyles from './Pagination.styles';
 
 export interface PaginationProps {
   page: number;

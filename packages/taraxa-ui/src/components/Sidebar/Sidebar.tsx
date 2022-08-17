@@ -9,9 +9,9 @@ import {
   makeStyles,
   Theme,
   ThemeProvider,
-} from '@material-ui/core';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+} from '@mui/material';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 
 import Text from '../Text';
 

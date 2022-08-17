@@ -7,11 +7,11 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import theme from '../theme';
 
-import useStyles from './profilebasiccard-styles';
+import useStyles from './ProfileBasicCard.styles';
 
 export interface ProfileBasicCardProps extends MCardProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;

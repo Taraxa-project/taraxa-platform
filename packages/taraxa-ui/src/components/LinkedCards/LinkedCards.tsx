@@ -5,10 +5,10 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
-import useStyles from './linkedCards-styles';
+import useStyles from './LinkedCards.styles';
 
 export interface LinkedCardsProps extends MCardProps {
   approvedContent: JSX.Element;

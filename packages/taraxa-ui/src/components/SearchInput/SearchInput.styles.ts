@@ -1,7 +1,8 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
+import theme from '../theme';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles(() => {
+  return {
     iconRoot: {
       pointerEvents: 'none',
       display: 'flex',
@@ -100,7 +101,7 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'unset',
       transform: 'unset',
     },
-  }),
-);
+  };
+});
 
 export default useStyles;

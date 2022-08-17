@@ -1,10 +1,13 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import MToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import { ToggleButtonGroupProps } from '@material-ui/lab';
+import {
+  CssBaseline,
+  ThemeProvider,
+  ToggleButton as MToggleButton,
+  ToggleButtonGroup,
+  ToggleButtonGroupProps,
+} from '@mui/material';
 import theme from '../theme';
-import useStyles from './togglebutton-styles';
+import useStyles from './ToggleButton.styles';
 
 export interface ToggleButtonProps extends ToggleButtonGroupProps {
   currentValue: string;

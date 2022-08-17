@@ -8,12 +8,12 @@ import {
   ThemeProvider,
   Typography,
   Box,
-} from '@material-ui/core';
+} from '@mui/material';
 import Jdenticon from 'jdenticon';
 
 import theme from '../theme';
 
-import useStyles from './profilecard-styles';
+import useStyles from './ProfileCard.styles';
 
 export interface ProfileCardProps extends MCardProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;

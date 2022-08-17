@@ -1,15 +1,19 @@
 import React from 'react';
-import MTable from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import {
+  CssBaseline,
+  ThemeProvider,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TablePagination,
+  TableRow,
+  Paper,
+  Table as MTable,
+} from '@mui/material';
+
 import moment from 'moment';
 import { useMediaQuery } from 'react-responsive';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import useStyles from './table-styles';
+import useStyles from './Table.styles';
 import theme from '../theme';
 
 export interface TableProps {

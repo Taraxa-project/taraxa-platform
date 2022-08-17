@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import clsx from 'clsx';
 import { ethers } from 'ethers';
 import { Button, Icons } from '@taraxa_project/taraxa-ui';
-import { TableCell, TableRow } from '@material-ui/core';
+import { TableCell, TableRow } from '@mui/material';
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import PublicNode from '../../../interfaces/PublicNode';
 

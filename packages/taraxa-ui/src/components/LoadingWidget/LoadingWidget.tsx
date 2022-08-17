@@ -1,9 +1,9 @@
 import React, { useMediaQuery } from 'react-responsive';
 import clsx from 'clsx';
-import { Box, CircularProgress, CssBaseline, ThemeProvider } from '@material-ui/core';
+import { Box, CircularProgress, CssBaseline, ThemeProvider } from '@mui/material';
 import theme from '../theme';
 
-import useStyles from './loading-widget-styles';
+import useStyles from './LoadingWidget.styles';
 
 export interface LoadingWidgetProps {
   isLoading: boolean;

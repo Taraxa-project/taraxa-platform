@@ -7,8 +7,8 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   ThemeProvider,
-} from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
+} from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import useStyles from './SearchInput.styles';
 import { Search, RightArrow, NotFound } from '../Icons';
 import Loading from '../Loading';

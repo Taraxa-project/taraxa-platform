@@ -1,7 +1,8 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
+import theme from '../theme';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles(() => {
+  return {
     iconButtonRoot: {
       padding: theme.spacing(1.625, 0.875),
       backgroundColor: '#282C3E',
@@ -43,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
         visibility: 'visible',
       },
     },
-  }),
-);
+  };
+});
 
 export default useStyles;

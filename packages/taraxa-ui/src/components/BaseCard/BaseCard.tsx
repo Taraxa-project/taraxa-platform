@@ -4,11 +4,11 @@ import {
   CardProps as MCardProps,
   CardContent,
   CssBaseline,
-  ThemeProvider,
   Typography,
-} from '@material-ui/core';
+  ThemeProvider,
+} from '@mui/material';
 import theme from '../theme';
-import useStyles from './basecard-styles';
+import useStyles from './BaseCard.styles';
 
 export interface BaseCardProps extends MCardProps {
   title: string;

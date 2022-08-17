@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-  Card as MCard,
-  CardContent,
-  CssBaseline,
-  ThemeProvider,
-  Typography,
-} from '@material-ui/core';
+import { Card as MCard, CardContent, CssBaseline, ThemeProvider, Typography } from '@mui/material';
 import theme from '../theme';
-import useStyles from './topcard-styles';
+import useStyles from './TopCard.styles';
 
 export interface TopCardProps {
   title: string;

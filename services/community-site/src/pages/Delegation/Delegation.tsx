@@ -10,7 +10,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
