@@ -33,9 +33,7 @@ import File from './components/File';
 import LoadingWidget from './components/LoadingWidget';
 import ProfileIcon from './components/ProfileIcon';
 import AmountCard from './components/AmountCard';
-import NetworkMenu from './components/NetworkMenu';
 import SearchInput from './components/SearchInput';
-import Label from './components/Label';
 
 export {
   AmountCard,
