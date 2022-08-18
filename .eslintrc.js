@@ -35,6 +35,7 @@ module.exports = {
         'no-return-await': 'off',
         'no-param-reassign': 'off',
         'no-plusplus': 'off',
+        'no-restricted-exports': 'off',
         'no-underscore-dangle': 'off',
         'react/prop-types': 'off',
         'react/function-component-definition': 'off',
