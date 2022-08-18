@@ -34,7 +34,8 @@ import LoadingWidget from './components/LoadingWidget';
 import ProfileIcon from './components/ProfileIcon';
 import AmountCard from './components/AmountCard';
 import SearchInput from './components/SearchInput';
-import NetworkMenu from './components/NetworkMenu/NetworkMenu';
+import NetworkMenu from './components/NetworkMenu';
+import Label from './components/Label';
 
 export {
   AmountCard,
@@ -74,4 +75,5 @@ export {
   LoadingWidget,
   SearchInput,
   NetworkMenu,
+  Label,
 };

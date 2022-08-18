@@ -1,8 +1,8 @@
 import React from 'react';
 
-type ExclamationProps = {
+export interface ExclamationProps {
   color: string;
-};
+}
 
 const Exclamation = ({ color }: ExclamationProps) => {
   return (

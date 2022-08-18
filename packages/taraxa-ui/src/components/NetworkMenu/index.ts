@@ -1,1 +1,1 @@
-export * from './NetworkMenu';
+export { default } from './NetworkMenu';
