@@ -7,7 +7,7 @@ export default {
   title: 'Components/Label',
   component: Label,
   argTypes: {
-    Icon: { control: HTMLElement },
+    icon: { control: HTMLElement },
     variant: { control: 'string' },
     label: { control: 'string' },
   },
@@ -16,8 +16,8 @@ export default {
 const Template: Story<LabelProps> = (args) => <Label {...args} />;
 
 export const Primary = Template.bind({});
-Primary.args = { variant: 'success', label: 'Success', Icon: <GreenCircledCheck /> };
+Primary.args = { variant: 'success', label: 'Success', icon: <GreenCircledCheck /> };
 export const Secondary = Template.bind({});
-Secondary.args = { variant: 'secondary', label: 'Info', Icon: <NotFound /> };
+Secondary.args = { variant: 'secondary', label: 'Info', icon: <NotFound /> };
 export const Error = Template.bind({});
-Error.args = { variant: 'error', label: 'Failure', Icon: <RedCircledCancel /> };
+Error.args = { variant: 'error', label: 'Failure', icon: <RedCircledCancel /> };
