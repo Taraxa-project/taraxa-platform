@@ -13,6 +13,8 @@ import MenuDots from './MenuDots';
 import Check from './Check';
 import RightArrow from './RightArrow';
 import NotFound from './NotFound';
+import GreenCircledCheck from './GreenCircledCheck';
+import RedCircledCancel from './RedCircledCancel';
 
 export {
   Left,
@@ -30,6 +32,8 @@ export {
   MenuDots,
   RightArrow,
   NotFound,
+  GreenCircledCheck,
+  RedCircledCancel,
 };
 export default {
   Left,
@@ -46,4 +50,6 @@ export default {
   Check,
   RightArrow,
   NotFound,
+  GreenCircledCheck,
+  RedCircledCancel,
 };
