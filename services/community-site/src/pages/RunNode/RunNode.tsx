@@ -15,14 +15,7 @@ import {
   AmountCard,
 } from '@taraxa_project/taraxa-ui';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 import CloseIcon from '../../assets/icons/close';
 import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
