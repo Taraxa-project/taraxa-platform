@@ -7,8 +7,8 @@ const useStyles = makeStyles(() => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'left',
-      color: '#FFFFFF',
-      backgroundColor: '#151823',
+      color: theme.palette.text.primary,
+      backgroundColor: theme.palette.grey.A700,
     },
     title: {
       letterSpacing: '-0.02em',
