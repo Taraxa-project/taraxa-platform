@@ -21,6 +21,7 @@ const theme: Theme = createTheme({
       A200: '#40465F',
       800: '#202534',
       900: '#282C3E',
+      A700: '#151823',
     },
     background: {
       default: '#151823',
