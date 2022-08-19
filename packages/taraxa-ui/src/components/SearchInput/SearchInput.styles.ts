@@ -27,15 +27,15 @@ const useStyles = makeStyles(() => {
       lineHeight: theme.spacing(2.375),
       fontSize: theme.spacing(2),
       [theme.breakpoints.up('md')]: {},
-      color: '#ffffff',
+      color: theme.palette.text.primary,
       '&::placeholder': {
-        color: '#878CA4',
+        color: theme.palette.text.secondary,
       },
       backgroundColor: 'transparent !important',
       border: 'unset !important',
     },
     paper: {
-      border: '1px solid #40465F',
+      border: `1px solid ${theme.palette.grey.A200}`,
       borderRadius: theme.spacing(1),
       backgroundColor: theme.palette.grey.A100,
     },
@@ -46,10 +46,10 @@ const useStyles = makeStyles(() => {
       display: 'flex',
       alignItems: 'center',
       fontSize: theme.spacing(1.75),
-      lineHeight: `${theme.spacing(3.25)}px`,
+      lineHeight: theme.spacing(3.25),
       justifyContent: 'center',
       padding: theme.spacing(4.5, 0, 4.5, 0),
-      color: '#878CA4',
+      color: theme.palette.text.secondary,
       textTransform: 'uppercase',
     },
     listBox: {
@@ -63,19 +63,20 @@ const useStyles = makeStyles(() => {
       // borderRadius: theme.spacing(1),
     },
     listItem: {
-      padding: theme.spacing(0.5, 0, 1.5, 1.5),
-      '&:hover': {
-        backgroundColor: 'unset',
-      },
-    },
-    listItemContainer: {
-      flex: '1 0 auto',
       display: 'flex',
-      flexDirection: 'row',
-      paddingRight: theme.spacing(3),
+      padding: theme.spacing(0.5, 0, 1.5, 1.5),
       borderRadius: theme.spacing(0.75),
+      '&.Mui-focused': {
+        backgroundColor: `${theme.palette.grey.A200} !important`,
+      },
+      '&[aria-selected="true"]': {
+        backgroundColor: `${theme.palette.grey.A200} !important`,
+      },
+      '&[aria-selected="true"].Mui-focused': {
+        backgroundColor: `${theme.palette.grey.A200} !important`,
+      },
       '&:hover': {
-        backgroundColor: '#40465F',
+        backgroundColor: theme.palette.grey.A200,
       },
     },
     listItemTextRoot: {
@@ -84,13 +85,13 @@ const useStyles = makeStyles(() => {
     },
     listItemPrimary: {
       fontSize: theme.spacing(1.75),
-      lineHeight: `${theme.spacing(3.25)}px`,
+      lineHeight: theme.spacing(3.25),
       textTransform: 'uppercase',
-      color: '#878CA4',
+      color: theme.palette.text.secondary,
       marginBottom: theme.spacing(1),
     },
     listItemSecondary: {
-      color: '#FFFFFF',
+      color: theme.palette.text.primary,
     },
     listItemSecondaryRoot: {
       display: 'flex',
@@ -100,6 +101,7 @@ const useStyles = makeStyles(() => {
       right: 'unset',
       position: 'unset',
       transform: 'unset',
+      minWidth: 'unset',
     },
   };
 });

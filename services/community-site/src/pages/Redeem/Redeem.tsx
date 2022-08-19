@@ -2,14 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { BaseCard, Button, Loading, Notification } from '@taraxa_project/taraxa-ui';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import moment from 'moment';
 
 import WhiteCheckIcon from '../../assets/icons/checkWhite';
