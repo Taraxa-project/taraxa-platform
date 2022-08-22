@@ -519,7 +519,7 @@ function Stake({
         key={percentage}
         label={`${percentage}%`}
         onClick={() => chipsTrigger(percentage)}
-        variant="default"
+        variant="filled"
         clickable
         className={
           value.gt(ethers.BigNumber.from('0')) && value.eq(input) ? 'chipSelected' : 'chip'

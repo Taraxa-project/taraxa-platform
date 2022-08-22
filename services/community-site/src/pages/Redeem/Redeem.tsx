@@ -261,13 +261,13 @@ function Redeem() {
                             <Label
                               variant="secondary"
                               label="Not redeemed"
-                              Icon={<RedeemSidebar />}
+                              icon={<RedeemSidebar />}
                             />
                           ) : (
                             <Label
                               variant="success"
                               label="Redeemed"
-                              Icon={<Icons.GreenCircledCheck />}
+                              icon={<Icons.GreenCircledCheck />}
                             />
                           )}
                         </TableCell>
