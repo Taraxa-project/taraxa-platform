@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => {
       backgroundColor: '#151823',
       paddingLeft: '24px',
       paddingRight: '24px',
-      border: '1px solid #15AC5B',
+      border: '1px solid #15AC5B !important',
     },
     mobileRoot: {
       width: '85%',
@@ -18,7 +18,7 @@ const useStyles = makeStyles(() => {
       backgroundColor: '#151823',
       paddingLeft: '24px',
       paddingRight: '24px',
-      border: '1px solid #15AC5B',
+      border: '1px solid #15AC5B !important',
     },
     chips: {
       marginTop: '13px',

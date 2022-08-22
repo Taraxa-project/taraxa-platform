@@ -91,10 +91,15 @@ const theme: Theme = createTheme({
       styleOverrides: {
         root: {
           height: '52px',
+          whiteSpace: 'nowrap',
         },
         outlinedSizeSmall: {
           height: '32px',
           padding: '8px 16px',
+        },
+        sizeMedium: {
+          minWidth: '4rem',
+          width: '100%',
         },
         outlinedSecondary: {
           backgroundColor: '#31364B',
