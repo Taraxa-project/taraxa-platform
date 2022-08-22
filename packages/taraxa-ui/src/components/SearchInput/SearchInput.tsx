@@ -4,7 +4,7 @@ import {
   InputAdornment,
   InputBase,
   ListItem,
-  ListItemSecondaryAction,
+  ListItemIcon,
   ListItemText,
   ThemeProvider,
 } from '@mui/material';
@@ -31,15 +31,25 @@ export interface SearchInputProps {
   loading?: boolean;
 }
 
-const SearchOption = ({ type, label }: { type: string; label: string }) => {
+const SearchOption = ({
+  type,
+  label,
+  ...props
+}: {
+  type: string;
+  label: string;
+  props?: React.HTMLAttributes<HTMLLIElement>;
+}) => {
   const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ListItem
-        ContainerComponent="div"
         disableGutters
-        classes={{ container: classes.listItemContainer, root: classes.listItem }}
+        classes={{
+          root: classes.listItem,
+        }}
+        {...props}
       >
         <ListItemText
           inset
@@ -51,9 +61,9 @@ const SearchOption = ({ type, label }: { type: string; label: string }) => {
           primary={`${type}:`}
           secondary={label}
         />
-        <ListItemSecondaryAction classes={{ root: classes.listItemSecondaryRoot }}>
+        <ListItemIcon classes={{ root: classes.listItemSecondaryRoot }}>
           <RightArrow />
-        </ListItemSecondaryAction>
+        </ListItemIcon>
       </ListItem>
     </ThemeProvider>
   );
@@ -72,7 +82,6 @@ const SearchInput = ({
   const classes = useStyles();
 
   const handleOptionSelect = (event: ChangeEvent<any>, value: Option | null) => {
-    event.preventDefault();
     if (typeof onChange === 'function') onChange(value);
   };
 

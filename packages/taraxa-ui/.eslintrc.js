@@ -8,6 +8,7 @@ module.exports = {
         tsconfigRootDir: __dirname,
       },
       rules: {
+        'ro-restricted-exports': 'off',
         'import/no-extraneous-dependencies': [
           'error',
           {

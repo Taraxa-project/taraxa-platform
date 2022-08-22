@@ -5,11 +5,11 @@ const useStyles = makeStyles(() => {
   return {
     iconButtonRoot: {
       padding: theme.spacing(1.625, 0.875),
-      backgroundColor: '#282C3E',
-      border: '1px solid #878CA4',
+      backgroundColor: theme.palette.grey[900],
+      border: `1px solid ${theme.palette.text.secondary}`,
       borderRadius: theme.spacing(1),
       '&:hover': {
-        backgroundColor: '#40465F',
+        backgroundColor: theme.palette.grey.A200,
       },
     },
     menuRoot: {
@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => {
     },
     menuPaper: {
       marginTop: theme.spacing(8),
-      border: '1px solid #40465F',
+      border: `1px solid ${theme.palette.grey.A200}`,
       borderRadius: theme.spacing(1),
       padding: 0,
     },
@@ -29,9 +29,9 @@ const useStyles = makeStyles(() => {
       lineHeight: `${theme.spacing(3)}px`,
       fontSize: theme.spacing(2),
       display: 'flex',
-      backgroundColor: '#202534',
+      backgroundColor: theme.palette.grey[800],
       '&:hover': {
-        backgroundColor: '#40465F',
+        backgroundColor: theme.palette.grey.A200,
       },
       '&>svg': {
         marginRight: theme.spacing(1.5),
@@ -39,7 +39,7 @@ const useStyles = makeStyles(() => {
       },
     },
     menuItemSelected: {
-      backgroundColor: '#40465F !important',
+      backgroundColor: `${theme.palette.grey.A200} !important`,
       '&>svg': {
         visibility: 'visible',
       },
