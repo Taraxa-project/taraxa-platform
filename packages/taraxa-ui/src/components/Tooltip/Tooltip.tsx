@@ -1,18 +1,8 @@
 import React from 'react';
 import { CssBaseline, ThemeProvider, Tooltip as MTooltip } from '@mui/material';
-import { withStyles } from '@mui/styles';
 import theme from '../theme';
 import useStyles from './Tooltip.styles';
 import Text from '../Text';
-
-const HtmlTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: '#40465F',
-    color: 'white',
-    minWidth: 400,
-    fontSize: theme.typography.pxToRem(10),
-  },
-}))(MTooltip);
 
 export interface TooltipProps {
   title: string;
@@ -26,7 +16,7 @@ const Tooltip = ({ title, Icon, className, id }: TooltipProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <HtmlTooltip
+      <MTooltip
         className={className}
         id={id}
         title={
@@ -39,7 +29,7 @@ const Tooltip = ({ title, Icon, className, id }: TooltipProps) => {
         <span>
           <Icon />
         </span>
-      </HtmlTooltip>
+      </MTooltip>
     </ThemeProvider>
   );
 };
