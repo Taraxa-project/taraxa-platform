@@ -22,7 +22,8 @@
     "jsx": "react-jsx",
     "paths": {
       "@taraxa_project/taraxa-ui": ["packages/taraxa-ui/src/index.ts"],
-      "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"]
+      "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"],
+      "@taraxa_project/explorer": ["services/explorer/src/index.ts"]
     }
   },
   "references": [
@@ -31,6 +32,9 @@
     },
     {
       "path": "services/community-site"
+    },
+    {
+      "path": "services/explorer"
     }
   ],
   "exclude": ["node_modules", "lib", "*.d.ts"]
