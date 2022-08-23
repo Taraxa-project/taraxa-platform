@@ -1,9 +1,9 @@
 {
-  "name": "@taraxa_project/taraxa-community-site",
-  "description": "Taraxa Community Site",
+  "name": "@taraxa_project/explorer",
+  "description": "Taraxa Explorer",
   "version": "0.0.1",
   "main": "template.json",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "dependencies": {
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
