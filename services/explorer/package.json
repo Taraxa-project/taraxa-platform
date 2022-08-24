@@ -1,0 +1,95 @@
+{
+  "name": "@taraxa_project/explorer",
+  "description": "Taraxa Explorer",
+  "version": "0.0.1",
+  "main": "template.json",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "cross-env SKIP_PREFLIGHT_CHECK=true react-scripts start",
+    "build": "cross-env SKIP_PREFLIGHT_CHECK=true react-scripts build",
+    "test": "cross-env SKIP_PREFLIGHT_CHECK=true react-scripts test",
+    "eject": "react-scripts eject",
+    "format": "prettier --write src/**/*.ts{,x}",
+    "lint": "tsc --noEmit && eslint src/**/*.ts{,x}"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "resolutions": {
+    "styled-components": "^5"
+  },
+  "browser": {
+    "zlib": false
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/lab": "^5.0.0-alpha.95",
+    "@mui/material": "^5.10.1",
+    "@mui/styles": "^5.9.3",
+    "@taraxa_project/taraxa-ui": "^0.0.1",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^27.0.0",
+    "@types/node": "^12.0.0",
+    "@types/react": "^18.0.8",
+    "@types/react-dom": "^18.0.3",
+    "@types/react-router-dom": "^5.1.8",
+    "axios": "^0.21.4",
+    "clsx": "^1.1.1",
+    "cross-env": "^7.0.3",
+    "crypto-js": "^4.1.1",
+    "ethers": "^5.4.7",
+    "jdenticon": "^3.1.1",
+    "metamask-react": "^2.0.2",
+    "moment": "^2.29.2",
+    "node-sass": "^6.0.1",
+    "qs-stringify": "^1.2.1",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-google-recaptcha-v3": "^1.9.5",
+    "react-markdown": "^7.1.0",
+    "react-responsive": "^9.0.0-beta.4",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.3",
+    "remark-gfm": "^3.0.0",
+    "state-pool": "^0.6.0",
+    "styled-components": "^5.3.5",
+    "typescript": "^4.1.2",
+    "web-vitals": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
+    "@types/date-and-time": "^0.13.0",
+    "@typescript-eslint/eslint-plugin": "^5.34.0",
+    "@typescript-eslint/parser": "^5.34.0",
+    "eslint": "^8.2.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jest": "^26.8.7",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "prettier": "^2.7.1"
+  }
+}

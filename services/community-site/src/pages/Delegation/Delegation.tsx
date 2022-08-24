@@ -3,14 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { Notification, BaseCard, Switch, Text, Icons, Card } from '@taraxa_project/taraxa-ui';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@material-ui/core';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';

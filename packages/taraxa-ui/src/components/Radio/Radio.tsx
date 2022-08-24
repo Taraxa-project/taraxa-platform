@@ -4,7 +4,7 @@ import {
   RadioProps as MRadioProps,
   CssBaseline,
   ThemeProvider,
-} from '@material-ui/core';
+} from '@mui/material';
 import theme from '../theme';
 
 export type RadioProps = MRadioProps;

@@ -7,11 +7,11 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import Button from '../Button';
-import useStyles from './datacard-styles';
+import useStyles from './DataCard.styles';
 
 export interface DataCardProps extends MCardProps {
   description: string;

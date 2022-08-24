@@ -3,11 +3,11 @@ import {
   BottomNavigationActionProps as MBottomNavigationActionProps,
   CssBaseline,
   ThemeProvider,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import Text from '../Text';
-import useStyles from './footer-styles';
+import useStyles from './Footer.styles';
 import logo from '../../images/logo.svg';
 
 export interface FooterProps extends MBottomNavigationActionProps {

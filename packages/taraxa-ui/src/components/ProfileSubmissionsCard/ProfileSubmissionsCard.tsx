@@ -5,9 +5,9 @@ import {
   ThemeProvider,
   CardContent,
   CssBaseline,
-} from '@material-ui/core';
+} from '@mui/material';
 import theme from '../theme';
-import useStyles from './profilesubmissionscard-styles';
+import useStyles from './ProfileSubmissionsCard.styles';
 
 export interface ProfileSubmissionsCardProps extends MCardProps {
   title: string;
