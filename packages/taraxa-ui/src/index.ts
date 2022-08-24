@@ -37,6 +37,7 @@ import SearchInput from './components/SearchInput';
 import NetworkMenu from './components/NetworkMenu';
 import Label from './components/Label';
 import PageTitle from './components/PageTitle';
+import theme from './components/theme';
 
 export {
   AmountCard,
@@ -78,4 +79,5 @@ export {
   NetworkMenu,
   Label,
   PageTitle,
+  theme,
 };
