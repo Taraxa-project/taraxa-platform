@@ -77,7 +77,10 @@ const theme: Theme = createTheme({
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          minHeight: '72px !important',
+          minHeight: '72px',
+          '@media (min-width: 600px)': {
+            minHeight: '4.5rem',
+          },
         },
         regular: {
           minHeight: '72px',
