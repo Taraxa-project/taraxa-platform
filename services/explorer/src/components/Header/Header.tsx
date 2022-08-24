@@ -38,9 +38,9 @@ export const Header = () => {
   const hamburger = (
     <IconButton
       onClick={() => console.log('open!')}
-      color="primary"
-      aria-label="upload picture"
-      component="label"
+      color='primary'
+      aria-label='upload picture'
+      component='label'
     >
       <MenuIcon />
     </IconButton>
@@ -48,11 +48,12 @@ export const Header = () => {
 
   return (
     <THeader
-      title="Taraxa Community"
-      className="header"
-      color="primary"
-      position="relative"
+      title='Taraxa Explorer'
+      className='header'
+      color='primary'
+      position='relative'
       withSearch
+      maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
     >

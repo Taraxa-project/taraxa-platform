@@ -7,6 +7,8 @@ import {
   Toolbar,
   Typography,
   ThemeProvider,
+  Box,
+  Breakpoint,
 } from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
@@ -18,12 +20,14 @@ export interface HeaderProps extends AppBarProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   searchPlaceholder?: string;
   withSearch?: boolean;
+  maxWidth?: Breakpoint;
 }
 
 function Header({
   title,
   Icon,
   children,
+  maxWidth,
   withSearch = false,
   searchPlaceholder = 'Address, hash or number...',
   ...props
@@ -35,19 +39,27 @@ function Header({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar {...props} variant='elevation'>
-        <Container maxWidth={false}>
+        <Container maxWidth={maxWidth || false}>
           <Toolbar variant='regular'>
-            {Icon && (
-              <a className={classes.headerIconContainer} href='/'>
-                <Icon />
-              </a>
-            )}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {Icon && (
+                <a className={classes.headerIconContainer} href='/'>
+                  <Icon />
+                </a>
+              )}
 
-            <a className={classes.titleContainer} href='/'>
-              <Typography variant='h2' noWrap className={classes.title}>
-                <>{title}</>
-              </Typography>
-            </a>
+              <a className={classes.titleContainer} href='/'>
+                <Typography variant='h2' noWrap className={classes.title}>
+                  <>{title}</>
+                </Typography>
+              </a>
+            </Box>
             {withSearch && (
               <SearchInput
                 className={classes.searchInput}
