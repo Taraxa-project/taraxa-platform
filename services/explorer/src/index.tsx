@@ -1,18 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ThemeProvider } from '@mui/material';
-import { theme } from '@taraxa_project/taraxa-ui';
+import { CssBaseline } from '@mui/material';
+// import { theme } from '@taraxa_project/taraxa-ui';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ExplorerThemeProvider } from './theme-provider';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
+    <ExplorerThemeProvider>
+      <CssBaseline />
       <App />
-    </ThemeProvider>
+    </ExplorerThemeProvider>
   </React.StrictMode>,
 );
 
