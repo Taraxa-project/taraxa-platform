@@ -37,17 +37,19 @@ function Header({
       <AppBar {...props} variant='elevation'>
         <Container maxWidth={false}>
           <Toolbar variant='regular'>
-            {Icon && (
-              <a className={classes.headerIconContainer} href='/'>
-                <Icon />
-              </a>
-            )}
+            <div className={classes.flexContainer}>
+              {Icon && (
+                <a className={classes.headerIconContainer} href='/'>
+                  <Icon />
+                </a>
+              )}
 
-            <a className={classes.titleContainer} href='/'>
-              <Typography variant='h2' noWrap className={classes.title}>
-                <>{title}</>
-              </Typography>
-            </a>
+              <a className={classes.titleContainer} href='/'>
+                <Typography variant='h2' noWrap className={classes.title}>
+                  <>{title}</>
+                </Typography>
+              </a>
+            </div>
             {withSearch && (
               <SearchInput
                 className={classes.searchInput}

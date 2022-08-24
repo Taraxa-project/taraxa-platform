@@ -3,6 +3,12 @@ import theme from '../theme';
 
 const useStyles = makeStyles(() => {
   return {
+    flexContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignContent: 'center',
+      alignItems: 'center',
+    },
     headerIconContainer: {
       backgroundColor: '#202534',
       border: '1px solid #40465F',

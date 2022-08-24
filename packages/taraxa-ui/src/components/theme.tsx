@@ -81,7 +81,7 @@ const theme: Theme = createTheme({
           '@media (min-width: 600px)': {
             minHeight: '4.5rem',
           },
-          gap: '0.5rem',
+          gap: '2rem',
         },
         regular: {
           minHeight: '72px',
