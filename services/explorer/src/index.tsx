@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { CssBaseline } from '@mui/material';
 // import { theme } from '@taraxa_project/taraxa-ui';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -12,7 +11,6 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ExplorerThemeProvider>
-      <CssBaseline />
       <App />
     </ExplorerThemeProvider>
   </React.StrictMode>,

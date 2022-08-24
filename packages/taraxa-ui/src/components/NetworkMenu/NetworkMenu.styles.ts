@@ -3,14 +3,9 @@ import theme from '../theme';
 
 const useStyles = makeStyles(() => {
   return {
-    iconButton: {
-      padding: theme.spacing(1.625, 0.875),
-      backgroundColor: theme.palette.grey[900],
-      border: `1px solid ${theme.palette.text.secondary}`,
-      borderRadius: theme.spacing(1),
-      '&:hover': {
-        backgroundColor: theme.palette.grey.A200,
-      },
+    networkButton: {
+      border: `1px solid ${theme.palette.text.secondary} !important`,
+      borderRadius: `${theme.spacing(1)} !important`,
     },
     menuRoot: {
       right: theme.spacing(2),

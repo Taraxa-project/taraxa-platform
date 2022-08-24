@@ -6,9 +6,9 @@ import {
   Header as THeader,
   NetworkMenu,
 } from '@taraxa_project/taraxa-ui';
-import { Box } from '@mui/material';
-
-import { HamburgerIcon, TaraxaIcon } from '../icons';
+import { Box, IconButton } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { TaraxaIcon } from '../icons';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
 
 export const Header = () => {
@@ -24,16 +24,26 @@ export const Header = () => {
             color={button.color}
             variant={button.variant}
             onClick={button.onAction}
+            sx={{ mr: 1 }}
           />
         ))}
-      <NetworkMenu horizontalPosition="right" />
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <NetworkMenu />
+      </Box>
     </Box>
   );
 
   const hamburger = (
-    <div style={{ cursor: 'pointer' }} onClick={() => console.log('open!')}>
-      <HamburgerIcon />
-    </div>
+    <IconButton
+      onClick={() => console.log('open!')}
+      color="primary"
+      aria-label="upload picture"
+      component="label"
+    >
+      <MenuIcon />
+    </IconButton>
   );
 
   return (
