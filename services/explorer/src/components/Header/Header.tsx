@@ -1,44 +1,33 @@
 /* eslint-disable no-console */
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { Button, Header as THeader, NetworkMenu } from '@taraxa_project/taraxa-ui';
-// import { Container } from '@mui/material';
+import {
+  Button,
+  Header as THeader,
+  NetworkMenu,
+} from '@taraxa_project/taraxa-ui';
+import { Box } from '@mui/material';
 
 import { HamburgerIcon, TaraxaIcon } from '../icons';
+import { HeaderBtn, useHeaderEffects } from './Header.effects';
 
-import './header.scss';
-
-const Header = () => {
+export const Header = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const { headerButtons } = useHeaderEffects();
   const buttons = (
-    <div className="buttonsContainer">
-      <Button label="DAG" color="primary" variant="text" onClick={() => console.log('DAG data')} />
-      <Button
-        label="Blocks"
-        color="primary"
-        variant="text"
-        onClick={() => console.log('Blocks data')}
-      />
-      <Button
-        label="Transactions"
-        color="primary"
-        variant="text"
-        onClick={() => console.log('Transactions data')}
-      />
-      <Button
-        label="Nodes"
-        color="primary"
-        variant="text"
-        onClick={() => console.log('Nodes data')}
-      />
-      <Button
-        label="Faucet"
-        color="primary"
-        variant="text"
-        onClick={() => console.log('Faucet data')}
-      />
+    <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+      {headerButtons?.length &&
+        headerButtons.map((button: HeaderBtn) => (
+          <Button
+            key={`${button.label}-${button.color}-${button.variant}`}
+            label={button.label}
+            color={button.color}
+            variant={button.variant}
+            onClick={button.onAction}
+          />
+        ))}
       <NetworkMenu horizontalPosition="right" />
-    </div>
+    </Box>
   );
 
   const hamburger = (
@@ -61,5 +50,3 @@ const Header = () => {
     </THeader>
   );
 };
-
-export default Header;

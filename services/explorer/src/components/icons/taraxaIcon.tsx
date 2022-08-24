@@ -2,7 +2,13 @@ import React from 'react';
 
 const TaraxaIcon = () => {
   return (
-    <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="29"
+      height="29"
+      viewBox="0 0 29 29"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <g clipPath="url(#clip0)">
         <path
           d="M10.545 27.9845C10.328 28.2029 9.93045 28.2476 9.44923 28.145C8.78494 27.9871 8.29849 27.6189 8.23834 27.1953C8.2247 27.1101 8.23212 27.0228 8.25994 26.9412C8.28776 26.8595 8.33513 26.786 8.39787 26.7271C8.44185 26.6816 8.49204 26.6426 8.54694 26.6113C8.66887 26.5472 8.80218 26.5078 8.93924 26.4956C9.25051 26.47 9.56325 26.5224 9.84943 26.6482C10.1356 26.774 10.3863 26.9692 10.579 27.2164C10.6559 27.3151 10.6995 27.4358 10.7038 27.5611C10.708 27.6864 10.6726 27.8098 10.6026 27.9135C10.5863 27.9394 10.567 27.9633 10.545 27.9845Z"
@@ -63,7 +69,12 @@ const TaraxaIcon = () => {
       </g>
       <defs>
         <clipPath id="clip0">
-          <rect width="28.5" height="28.5" fill="white" transform="translate(0.083252 0.5)" />
+          <rect
+            width="28.5"
+            height="28.5"
+            fill="white"
+            transform="translate(0.083252 0.5)"
+          />
         </clipPath>
       </defs>
     </svg>

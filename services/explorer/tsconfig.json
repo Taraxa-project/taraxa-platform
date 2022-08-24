@@ -1,16 +1,34 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "target": "es6",
     "rootDir": ".",
     "outDir": "./build",
     "baseUrl": ".",
-    "target": "es6",
     "sourceMap": true,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "./build",
-    "noEmit": true
+    "declarationDir": "./dist",
+    "noEmit": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strictNullChecks": false,
+    "isolatedModules": true,
+    "jsx": "react-jsx"
   },
   "references": [
     {

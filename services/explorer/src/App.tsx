@@ -1,6 +1,5 @@
 import React from 'react';
-import Footer from './components/Footer';
-import Header from './components/Header/Header';
+import { Header, Footer } from './components';
 import logo from './logo.svg';
 
 declare global {
