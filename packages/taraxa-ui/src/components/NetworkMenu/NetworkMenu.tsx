@@ -59,12 +59,21 @@ const NetworkMenu = ({
         open={open}
         onClose={handleClose}
         onClick={handleClose}
-        anchorOrigin={{ vertical: verticalPosition, horizontal: horizontalPosition }}
-        transformOrigin={{ vertical: verticalPosition, horizontal: horizontalPosition }}
+        anchorOrigin={{
+          vertical: verticalPosition,
+          horizontal: horizontalPosition,
+        }}
+        transformOrigin={{
+          vertical: verticalPosition,
+          horizontal: horizontalPosition,
+        }}
       >
         {Object.keys(Network).map((network) => (
           <MenuItem
-            classes={{ root: classes.menuItemRoot, selected: classes.menuItemSelected }}
+            classes={{
+              root: classes.menuItemRoot,
+              selected: classes.menuItemSelected,
+            }}
             key={Network[network as keyof typeof Network]}
             selected={Network[network as keyof typeof Network] === selectedNetwork}
             onClick={() => onNetworkClick(Network[network as keyof typeof Network])}

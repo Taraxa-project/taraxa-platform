@@ -9,6 +9,20 @@ module.exports = {
       },
       rules: {
         'no-restricted-exports': 'off',
+        'prettier/prettier': [
+          'error',
+          {
+            endOfLine: 'auto',
+            printWidth: 80,
+            trailingComma: 'es5',
+            semi: true,
+            doubleQuote: true,
+            jsxSingleQuote: true,
+            singleQuote: false,
+            useTabs: false,
+            tabWidth: 2,
+          },
+        ],
       },
     },
   ],
