@@ -19,7 +19,10 @@ import theme from '../theme';
 
 export interface TableProps {
   columns: { path: string; name: string }[];
-  rows: { Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>; data: any[] }[];
+  rows: {
+    Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+    data: any[];
+  }[];
 }
 
 export default function Table({ columns, rows }: TableProps) {

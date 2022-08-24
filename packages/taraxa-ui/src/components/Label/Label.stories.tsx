@@ -16,7 +16,11 @@ export default {
 const Template: Story<LabelProps> = (args) => <Label {...args} />;
 
 export const Primary = Template.bind({});
-Primary.args = { variant: 'success', label: 'Success', icon: <GreenCircledCheck /> };
+Primary.args = {
+  variant: 'success',
+  label: 'Success',
+  icon: <GreenCircledCheck />,
+};
 export const Secondary = Template.bind({});
 Secondary.args = { variant: 'secondary', label: 'Info', icon: <NotFound /> };
 export const Error = Template.bind({});
