@@ -9,8 +9,12 @@ export default {
 
 const Template: Story<SearchInputProps> = (args) => <SearchInput {...args} />;
 
+const onInputChange = (searchStr: string) => {
+  // eslint-disable-next-line no-console
+  console.log('onInputChange search value: ', searchStr);
+};
 export const Primary = Template.bind({});
-Primary.args = { placeholder: 'Search' };
+Primary.args = { placeholder: 'Search', onInputChange };
 
 export const Loading = Template.bind({});
 Loading.args = {

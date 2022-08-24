@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useEffect, useMemo } from 'react';
 import {
   CssBaseline,
   InputAdornment,
@@ -9,6 +9,7 @@ import {
   ThemeProvider,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
+import debounce from 'lodash.debounce';
 import useStyles from './SearchInput.styles';
 import { Search, RightArrow, NotFound } from '../Icons';
 import Loading from '../Loading';
@@ -82,12 +83,26 @@ const SearchInput = ({
   const classes = useStyles();
 
   const handleOptionSelect = (event: ChangeEvent<any>, value: Option | null) => {
+    // eslint-disable-next-line no-console
+    console.log('handleOptionSelect : ', event, value);
     if (typeof onChange === 'function') onChange(value);
   };
 
   const handleInputChange = (value: string) => {
+    // eslint-disable-next-line no-console
+    console.log('handleInputChange : ', value);
     if (typeof onInputChange === 'function') onInputChange(value);
   };
+
+  const debouncedResults = useMemo(() => {
+    return debounce(handleInputChange, 300);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      debouncedResults.cancel();
+    };
+  }, [debouncedResults]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -123,7 +138,9 @@ const SearchInput = ({
               fullWidth={fullWidth}
               className={className}
               placeholder={placeholder}
-              onChange={(e) => handleInputChange(e.target.value)}
+              // onChange={debouncedResults}
+              // onChange={(e) => handleInputChange(e.target.value)}
+              onChange={(e) => debouncedResults(e.target.value)}
               startAdornment={
                 <InputAdornment classes={{ root: classes.iconRoot }} position="start">
                   <Search />
