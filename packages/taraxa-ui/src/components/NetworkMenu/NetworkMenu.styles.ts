@@ -3,7 +3,7 @@ import theme from '../theme';
 
 const useStyles = makeStyles(() => {
   return {
-    iconButtonRoot: {
+    iconButton: {
       padding: theme.spacing(1.625, 0.875),
       backgroundColor: theme.palette.grey[900],
       border: `1px solid ${theme.palette.text.secondary}`,

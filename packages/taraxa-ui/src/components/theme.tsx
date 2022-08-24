@@ -81,6 +81,7 @@ const theme: Theme = createTheme({
           '@media (min-width: 600px)': {
             minHeight: '4.5rem',
           },
+          gap: '0.5rem',
         },
         regular: {
           minHeight: '72px',
@@ -109,8 +110,8 @@ const theme: Theme = createTheme({
         },
         sizeMedium: {
           height: '52px',
-          minWidth: '4rem',
-          width: '100%',
+          // minWidth: '4rem',
+          // width: '100%',
         },
         outlinedSecondary: {
           height: '52px',

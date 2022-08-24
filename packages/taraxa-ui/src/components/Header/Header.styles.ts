@@ -3,6 +3,17 @@ import theme from '../theme';
 
 const useStyles = makeStyles(() => {
   return {
+    headerIconContainer: {
+      backgroundColor: '#202534',
+      border: '1px solid #40465F',
+      borderRadius: '12px',
+      padding: theme.spacing(1.375),
+      display: 'flex',
+      marginRight: theme.spacing(1.75),
+      justifyContent: 'center',
+      alignContent: 'center',
+      textDecoration: 'none',
+    },
     titleContainer: {
       display: 'none',
       color: '#fff',
@@ -29,17 +40,6 @@ const useStyles = makeStyles(() => {
     },
     searchInput: {
       marginRight: theme.spacing(8),
-    },
-    headerIconContainer: {
-      backgroundColor: '#202534',
-      border: '1px solid #40465F',
-      borderRadius: '12px',
-      padding: theme.spacing(1.375),
-      display: 'flex',
-      marginRight: theme.spacing(1.75),
-      justifyContent: 'center',
-      alignContent: 'center',
-      textDecoration: 'none',
     },
     profileButton: {
       marginBottom: '5%',

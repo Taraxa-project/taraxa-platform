@@ -42,9 +42,7 @@ const NetworkMenu = ({
       <CssBaseline />
       <Tooltip title="Network">
         <IconButton
-          classes={{
-            root: classes.iconButtonRoot,
-          }}
+          className={classes.iconButton}
           onClick={handleClick}
           size="small"
           aria-controls={open ? 'account-menu' : undefined}
