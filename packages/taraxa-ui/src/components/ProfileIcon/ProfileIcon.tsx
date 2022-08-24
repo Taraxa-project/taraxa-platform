@@ -8,7 +8,11 @@ interface ProfileIconProps {
   backgroundColor?: string;
 }
 
-const ProfileIcon = ({ title, size = 40, backgroundColor = '#fff' }: ProfileIconProps) => {
+const ProfileIcon = ({
+  title,
+  size = 40,
+  backgroundColor = '#fff',
+}: ProfileIconProps) => {
   const nodeIcon = toSvg(title, size, { backColor: backgroundColor });
   return (
     <div

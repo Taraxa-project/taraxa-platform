@@ -26,7 +26,7 @@ export const Header = () => {
             onClick={button.onAction}
           />
         ))}
-      <NetworkMenu horizontalPosition="right" />
+      <NetworkMenu horizontalPosition='right' />
     </Box>
   );
 
@@ -38,10 +38,10 @@ export const Header = () => {
 
   return (
     <THeader
-      title="Taraxa Community"
-      className="header"
-      color="primary"
-      position="relative"
+      title='Taraxa Community'
+      className='header'
+      color='primary'
+      position='relative'
       withSearch
       Icon={TaraxaIcon}
       elevation={0}

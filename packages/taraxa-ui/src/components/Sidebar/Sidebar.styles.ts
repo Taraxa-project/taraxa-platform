@@ -41,7 +41,7 @@ const useStyles = makeStyles(() =>
       padding: theme.spacing(3),
       backgroundColor: '#151823',
     },
-  }),
+  })
 );
 
 export default useStyles;

@@ -18,22 +18,37 @@ export interface BaseCardProps extends MCardProps {
   button?: React.ReactNode;
 }
 
-const BaseCard = ({ title, description, tooltip, id, button }: BaseCardProps) => {
+const BaseCard = ({
+  title,
+  description,
+  tooltip,
+  id,
+  button,
+}: BaseCardProps) => {
   const classes = useStyles();
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={classes.root} id={id} elevation={0} variant="outlined">
+      <MCard className={classes.root} id={id} elevation={0} variant='outlined'>
         <CardContent>
           <div className={classes.iconContainer}>
-            <Typography color="primary" variant="h4" component="h4" className={classes.title}>
+            <Typography
+              color='primary'
+              variant='h4'
+              component='h4'
+              className={classes.title}
+            >
               {title}
             </Typography>
             {tooltip && <div className={classes.icon}>{tooltip}</div>}
           </div>
           <div className={classes.actionContainer}>
-            <Typography className={classes.label} variant="body1" color="primary">
+            <Typography
+              className={classes.label}
+              variant='body1'
+              color='primary'
+            >
               {description}
             </Typography>
             {button && button}

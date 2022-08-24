@@ -10,7 +10,9 @@ export interface ModalProps {
   children: JSX.Element;
   show: boolean;
   parentElementID: string;
-  onRequestClose: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  onRequestClose: (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void;
   id?: string;
   closeIcon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 }
@@ -24,7 +26,9 @@ function getWindowDimensions() {
 }
 
 function useWindowDimensions() {
-  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions()
+  );
 
   useEffect(() => {
     function handleResize() {
@@ -83,7 +87,11 @@ const Modal = ({
         contentLabel={title}
         id={id}
       >
-        <Button Icon={closeIcon} onClick={onRequestClose} className="modalClose" />
+        <Button
+          Icon={closeIcon}
+          onClick={onRequestClose}
+          className='modalClose'
+        />
         {children}
       </RModal>
     </ThemeProvider>

@@ -48,7 +48,7 @@ const Switch = ({
         }
         label={label}
         labelPlacement={labelPlacement || 'start'}
-        color="white"
+        color='white'
       />
     </ThemeProvider>
   );

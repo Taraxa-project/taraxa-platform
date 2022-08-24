@@ -30,14 +30,14 @@ const File = ({ onChange }: FileProps) => {
       <input
         className={classes.input}
         ref={uploadRef}
-        accept="*"
+        accept='*'
         onChange={onChangeField}
-        type="file"
+        type='file'
       />
       <Button
         className={classes.button}
-        color="primary"
-        variant="text"
+        color='primary'
+        variant='text'
         startIcon={<Attachment />}
         label={filename || `Attach file`}
         onClick={() => uploadRef.current?.click()}

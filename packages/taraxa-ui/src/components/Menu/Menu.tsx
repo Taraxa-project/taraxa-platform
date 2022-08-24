@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { CssBaseline, ThemeProvider, Menu as MMenu, MenuItem as MMenuItem } from '@mui/material';
+import {
+  CssBaseline,
+  ThemeProvider,
+  Menu as MMenu,
+  MenuItem as MMenuItem,
+} from '@mui/material';
 
 import theme from '../theme';
 

@@ -12,7 +12,9 @@ export default {
   },
 } as Meta;
 
-const Template: Story<LoadingWidgetProps> = (args) => <LoadingWidget {...args} />;
+const Template: Story<LoadingWidgetProps> = (args) => (
+  <LoadingWidget {...args} />
+);
 
 export const Primary = Template.bind({});
 Primary.args = {

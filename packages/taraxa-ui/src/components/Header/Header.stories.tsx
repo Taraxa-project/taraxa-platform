@@ -28,12 +28,12 @@ WithNav.args = {
   Icon: Taraxa,
   children: (
     <>
-      <Button label="DAG" />
-      <Button label="Blocks" />
-      <Button label="Transactions" />
-      <Button label="Nodes" />
-      <Button label="Faucet" />
-      <NetworkMenu horizontalPosition="right" />
+      <Button label='DAG' />
+      <Button label='Blocks' />
+      <Button label='Transactions' />
+      <Button label='Nodes' />
+      <Button label='Faucet' />
+      <NetworkMenu horizontalPosition='right' />
     </>
   ),
 };

@@ -1,5 +1,10 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider, Typography, TypographyProps } from '@mui/material';
+import {
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+  TypographyProps,
+} from '@mui/material';
 import theme from '../theme';
 
 export interface TextProps extends TypographyProps {

@@ -27,7 +27,7 @@ Primary.args = {
       }}
     >
       <h3>Sample Modal</h3>
-      <Input placeholder="Sample input" />
+      <Input placeholder='Sample input' />
       <div>Sample Text. Taraxa.</div>
     </div>
   ),
