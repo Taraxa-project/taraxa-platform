@@ -1,5 +1,6 @@
 import React from 'react';
 import Footer from './components/Footer';
+import Header from './components/Header/Header';
 import logo from './logo.svg';
 
 declare global {
@@ -12,6 +13,7 @@ const Root = () => {
   return (
     <>
       <div className="App">
+        <Header />
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <p>
