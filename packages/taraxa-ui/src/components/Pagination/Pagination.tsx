@@ -26,14 +26,14 @@ const Pagination = ({ page, totalPages, prev, next }: PaginationProps) => {
         </div>
         <div>
           <Button
-            size="small"
+            size='small'
             Icon={Left}
             className={classes.button}
             disabled={page === 1}
             onClick={prev}
           />
           <Button
-            size="small"
+            size='small'
             Icon={Right}
             className={classes.button}
             disabled={page >= totalPages}

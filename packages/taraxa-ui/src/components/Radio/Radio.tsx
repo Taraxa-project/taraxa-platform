@@ -9,7 +9,16 @@ import theme from '../theme';
 
 export type RadioProps = MRadioProps;
 
-const Radio = ({ checked, name, color, disabled, onChange, id, className, value }: RadioProps) => {
+const Radio = ({
+  checked,
+  name,
+  color,
+  disabled,
+  onChange,
+  id,
+  className,
+  value,
+}: RadioProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

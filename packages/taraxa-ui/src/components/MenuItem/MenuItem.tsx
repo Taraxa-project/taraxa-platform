@@ -1,11 +1,21 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider, MenuItem as MMenuItem } from '@mui/material';
+import {
+  CssBaseline,
+  ThemeProvider,
+  MenuItem as MMenuItem,
+} from '@mui/material';
 
 import theme from '../theme';
 
 import '../app.scss';
 
-const MenuItem = ({ label, onClick }: { label: string; onClick: () => void }) => {
+const MenuItem = ({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

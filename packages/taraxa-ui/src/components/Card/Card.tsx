@@ -22,7 +22,11 @@ const Card = ({ children, actions, className }: CardProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={clsx(classes.root, className)} elevation={0} variant="outlined">
+      <MCard
+        className={clsx(classes.root, className)}
+        elevation={0}
+        variant='outlined'
+      >
         <CardContent className={classes.content}>{children}</CardContent>
         {actions && (
           <CardActions className={classes.actions} disableSpacing>

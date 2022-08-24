@@ -1,6 +1,12 @@
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { CssBaseline, Drawer, DrawerProps, List, ThemeProvider } from '@mui/material';
+import {
+  CssBaseline,
+  Drawer,
+  DrawerProps,
+  List,
+  ThemeProvider,
+} from '@mui/material';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
@@ -26,7 +32,15 @@ interface SidebarItemProps {
   Link?: JSX.Element;
 }
 
-const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: SidebarItemProps) => {
+const SidebarItem = ({
+  label,
+  items,
+  depthStep,
+  depth,
+  subItem,
+  Link,
+  name,
+}: SidebarItemProps) => {
   const pathname =
     window.location.pathname.length > 1
       ? window.location.pathname.substring(1)
@@ -40,7 +54,10 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
     isOpen = true;
   }
 
-  if (name === pathname || pathname.substring(0, name?.length || 0) === name?.toLocaleLowerCase()) {
+  if (
+    name === pathname ||
+    pathname.substring(0, name?.length || 0) === name?.toLocaleLowerCase()
+  ) {
     isOpen = true;
   }
 
@@ -57,7 +74,11 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
           <ListItemText
             primary={Link}
             style={{
-              paddingLeft: subItem ? depth * depthStep : !items ? (depth + 2) * depthStep : 15,
+              paddingLeft: subItem
+                ? depth * depthStep
+                : !items
+                ? (depth + 2) * depthStep
+                : 15,
               marginTop: 0,
               marginBottom: 0,
             }}
@@ -65,7 +86,7 @@ const SidebarItem = ({ label, items, depthStep, depth, subItem, Link, name }: Si
         ) : (
           <>
             <ListItemText
-              primary={<div className="label">{label}</div>}
+              primary={<div className='label'>{label}</div>}
               style={{ paddingLeft: subItem ? depth * depthStep : 15 }}
             />
           </>
@@ -128,7 +149,7 @@ const Sidebar = ({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Drawer
-        className="sidebar"
+        className='sidebar'
         variant={!isMobile ? 'permanent' : 'temporary'}
         classes={{ paper: paperClasses.join(' ') }}
         anchor={isMobile ? 'right' : 'left'}
@@ -139,7 +160,7 @@ const Sidebar = ({
           <List
             disablePadding={disablePadding}
             dense={dense}
-            id="sidebarList"
+            id='sidebarList'
             className={className || ''}
           >
             {items.map((sidebarItem, index) => (
@@ -160,8 +181,8 @@ const Sidebar = ({
         <div>
           <Text
             label={`© Taraxa ${new Date().getFullYear()}`}
-            variant="body1"
-            color="textSecondary"
+            variant='body1'
+            color='textSecondary'
           />
         </div>
       </Drawer>

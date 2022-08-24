@@ -23,7 +23,9 @@ const ToggleButton = ({ currentValue, data, ...props }: ToggleButtonProps) => {
         {data.map((button) => (
           <MToggleButton
             key={button.value}
-            className={button.value === currentValue ? classes.selected : classes.button}
+            className={
+              button.value === currentValue ? classes.selected : classes.button
+            }
             value={button.value}
           >
             {button.label}

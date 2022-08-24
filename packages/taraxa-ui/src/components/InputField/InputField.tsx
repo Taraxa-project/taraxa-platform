@@ -1,5 +1,10 @@
 import React, { ChangeEventHandler } from 'react';
-import { TextField, TextFieldProps, CssBaseline, ThemeProvider } from '@mui/material';
+import {
+  TextField,
+  TextFieldProps,
+  CssBaseline,
+  ThemeProvider,
+} from '@mui/material';
 import theme from '../theme';
 import './inputfield.scss';
 
@@ -12,7 +17,9 @@ export type InputFieldProps = {
   fullWidth?: boolean;
   margin?: 'dense' | 'none' | 'normal';
   multiline?: boolean;
-  onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined;
+  onChange?:
+    | ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
+    | undefined;
   required?: boolean;
   placeholder?: string;
   size?: 'medium' | 'small';

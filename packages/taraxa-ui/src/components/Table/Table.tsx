@@ -35,7 +35,9 @@ export default function Table({ columns, rows }: TableProps) {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -44,10 +46,13 @@ export default function Table({ columns, rows }: TableProps) {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className={classes.root}>
-        <Paper className={isMobile ? classes.mobilePaper : classes.paper} elevation={0}>
+        <Paper
+          className={isMobile ? classes.mobilePaper : classes.paper}
+          elevation={0}
+        >
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
-            component="div"
+            component='div'
             count={rows.length}
             rowsPerPage={rowsPerPage}
             page={page}
@@ -68,14 +73,16 @@ export default function Table({ columns, rows }: TableProps) {
           <TableContainer>
             <MTable
               className={classes.table}
-              aria-labelledby="tableTitle"
-              size="medium"
-              aria-label="enhanced table"
+              aria-labelledby='tableTitle'
+              size='medium'
+              aria-label='enhanced table'
             >
               <TableHead>
-                <TableRow tabIndex={-1} key="index">
+                <TableRow tabIndex={-1} key='index'>
                   {columns.map((column, index) => (
-                    <TableCell key={`${index}-${index}-head`}>{column.name}</TableCell>
+                    <TableCell key={`${index}-${index}-head`}>
+                      {column.name}
+                    </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -89,7 +96,7 @@ export default function Table({ columns, rows }: TableProps) {
                           {row.Icon && (
                             <TableCell
                               className={classes.mobileTableCell}
-                              align="left"
+                              align='left'
                               key={`${index}-${index}`}
                             >
                               <row.Icon />
@@ -111,7 +118,7 @@ export default function Table({ columns, rows }: TableProps) {
                               >
                                 {rowData[path]}
                               </TableCell>
-                            ),
+                            )
                           )}
                         </TableRow>
                       ) : (
@@ -119,7 +126,7 @@ export default function Table({ columns, rows }: TableProps) {
                           {row.Icon && (
                             <TableCell
                               className={classes.tableCell}
-                              align="left"
+                              align='left'
                               key={`${index}-${index}-icon`}
                             >
                               <row.Icon />
@@ -142,11 +149,11 @@ export default function Table({ columns, rows }: TableProps) {
                               >
                                 {rowData[path]}
                               </TableCell>
-                            ),
+                            )
                           )}
                         </TableRow>
-                      ),
-                    ),
+                      )
+                    )
                   )}
               </TableBody>
             </MTable>

@@ -47,11 +47,23 @@ const Notification = ({
         </div>
         <div>
           {title && (
-            <Text label={title} variant="body1" color="primary" className={classes.title} />
+            <Text
+              label={title}
+              variant='body1'
+              color='primary'
+              className={classes.title}
+            />
           )}
-          {text && <Text label={text} variant="body2" color="primary" className={classes.text} />}
+          {text && (
+            <Text
+              label={text}
+              variant='body2'
+              color='primary'
+              className={classes.text}
+            />
+          )}
           {children && (
-            <Text variant="body2" color="primary" className={classes.text}>
+            <Text variant='body2' color='primary' className={classes.text}>
               {children}
             </Text>
           )}

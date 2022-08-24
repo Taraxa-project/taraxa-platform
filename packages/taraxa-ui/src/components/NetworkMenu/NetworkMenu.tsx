@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { CssBaseline, IconButton, Menu, MenuItem, ThemeProvider, Tooltip } from '@mui/material';
+import {
+  CssBaseline,
+  IconButton,
+  Menu,
+  MenuItem,
+  ThemeProvider,
+  Tooltip,
+} from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
@@ -22,7 +29,9 @@ const NetworkMenu = ({
   horizontalPosition = 'left',
 }: NetworkMenuProps) => {
   const classes = useStyles();
-  const [selectedNetwork, setSelectedNetwork] = useState<Network>(Network.TESTNET);
+  const [selectedNetwork, setSelectedNetwork] = useState<Network>(
+    Network.TESTNET
+  );
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -41,16 +50,16 @@ const NetworkMenu = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Tooltip title="Network">
+      <Tooltip title='Network'>
         <IconButton
           className={classes.networkButton}
           onClick={handleClick}
-          size="medium"
+          size='medium'
           aria-controls={open ? 'account-menu' : undefined}
-          aria-haspopup="true"
+          aria-haspopup='true'
           aria-expanded={open ? 'true' : undefined}
         >
-          <MoreHorizIcon fontSize="inherit" />
+          <MoreHorizIcon fontSize='inherit' />
         </IconButton>
       </Tooltip>
       <Menu
@@ -76,8 +85,12 @@ const NetworkMenu = ({
               selected: classes.menuItemSelected,
             }}
             key={Network[network as keyof typeof Network]}
-            selected={Network[network as keyof typeof Network] === selectedNetwork}
-            onClick={() => onNetworkClick(Network[network as keyof typeof Network])}
+            selected={
+              Network[network as keyof typeof Network] === selectedNetwork
+            }
+            onClick={() =>
+              onNetworkClick(Network[network as keyof typeof Network])
+            }
           >
             <Check />
             {Network[network as keyof typeof Network]}

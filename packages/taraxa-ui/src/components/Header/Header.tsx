@@ -34,17 +34,17 @@ function Header({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar {...props} variant="elevation">
+      <AppBar {...props} variant='elevation'>
         <Container maxWidth={false}>
-          <Toolbar variant="regular">
+          <Toolbar variant='regular'>
             {Icon && (
-              <a className={classes.headerIconContainer} href="/">
+              <a className={classes.headerIconContainer} href='/'>
                 <Icon />
               </a>
             )}
 
-            <a className={classes.titleContainer} href="/">
-              <Typography variant="h2" noWrap className={classes.title}>
+            <a className={classes.titleContainer} href='/'>
+              <Typography variant='h2' noWrap className={classes.title}>
                 <>{title}</>
               </Typography>
             </a>
@@ -58,7 +58,9 @@ function Header({
             <div
               className={
                 isMobile
-                  ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(' ')
+                  ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(
+                      ' '
+                    )
                   : classes.sectionDesktop
               }
             >

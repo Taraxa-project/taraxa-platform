@@ -11,7 +11,7 @@ export const useFooterEffects = () => {
     {
       label: 'Send',
       Icon: (
-        <a href="https://www.taraxa.io/tg" target="_blank" rel="noreferrer">
+        <a href='https://www.taraxa.io/tg' target='_blank' rel='noreferrer'>
           <SendIcon />
         </a>
       ),
@@ -20,9 +20,9 @@ export const useFooterEffects = () => {
       label: 'Discord',
       Icon: (
         <a
-          href="https://www.taraxa.io/discord"
-          target="_blank"
-          rel="noreferrer"
+          href='https://www.taraxa.io/discord'
+          target='_blank'
+          rel='noreferrer'
         >
           <DiscordIcon />
         </a>
@@ -32,9 +32,9 @@ export const useFooterEffects = () => {
       label: 'Twitter',
       Icon: (
         <a
-          href="https://www.taraxa.io/twitter"
-          target="_blank"
-          rel="noreferrer"
+          href='https://www.taraxa.io/twitter'
+          target='_blank'
+          rel='noreferrer'
         >
           <TwitterIcon />
         </a>

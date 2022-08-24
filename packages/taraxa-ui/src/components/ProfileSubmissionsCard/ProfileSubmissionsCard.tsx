@@ -15,13 +15,17 @@ export interface ProfileSubmissionsCardProps extends MCardProps {
   itemsContent: JSX.Element;
 }
 
-const ProfileSubmissionsCard = ({ title, tooltip, itemsContent }: ProfileSubmissionsCardProps) => {
+const ProfileSubmissionsCard = ({
+  title,
+  tooltip,
+  itemsContent,
+}: ProfileSubmissionsCardProps) => {
   const classes = useStyles();
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={classes.root} elevation={0} variant="outlined">
+      <MCard className={classes.root} elevation={0} variant='outlined'>
         <CardContent className={classes.content}>
           <h3 className={classes.title}>
             {title}
