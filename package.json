@@ -24,6 +24,7 @@
     "explorer-start": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer start",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
     "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation && eslint services/claim-backend && eslint services/explorer",
+    "lint:fix": "eslint services/community-site --fix && eslint packages/taraxa-ui --fix && eslint services/delegation --fix && eslint services/claim-backend --fix && eslint services/explorer --fix",
     "postinstall": "husky install",
     "start:platform": "concurrently \"yarn community-start\" \"yarn status-start\" \"yarn claim-start\" \"yarn delegation-start\"",
     "status-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status build",
