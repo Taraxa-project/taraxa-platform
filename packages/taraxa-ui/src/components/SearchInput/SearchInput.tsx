@@ -82,7 +82,10 @@ const SearchInput = ({
 }: SearchInputProps) => {
   const classes = useStyles();
 
-  const handleOptionSelect = (event: ChangeEvent<any>, value: Option | null) => {
+  const handleOptionSelect = (
+    event: ChangeEvent<any>,
+    value: Option | null
+  ) => {
     // eslint-disable-next-line no-console
     console.log('handleOptionSelect : ', event, value);
     if (typeof onChange === 'function') onChange(value);
@@ -120,7 +123,7 @@ const SearchInput = ({
           option: classes.option,
           noOptions: classes.noOptions,
         }}
-        loadingText={<Loading size={28} color="#6A7085" />}
+        loadingText={<Loading size={28} color='#6A7085' />}
         noOptionsText={
           <>
             <NotFound /> Nothing found...
@@ -142,7 +145,10 @@ const SearchInput = ({
               // onChange={(e) => handleInputChange(e.target.value)}
               onChange={(e) => debouncedResults(e.target.value)}
               startAdornment={
-                <InputAdornment classes={{ root: classes.iconRoot }} position="start">
+                <InputAdornment
+                  classes={{ root: classes.iconRoot }}
+                  position='start'
+                >
                   <Search />
                 </InputAdornment>
               }

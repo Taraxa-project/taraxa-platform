@@ -12,11 +12,21 @@ const PageTitle = (props: PageTitleProps) => {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Typography className={classes.title} color="primary" variant="h2" component="h2">
+      <Typography
+        className={classes.title}
+        color='primary'
+        variant='h2'
+        component='h2'
+      >
         {title}
       </Typography>
       {subtitle && (
-        <Typography className={classes.subtitle} color="primary" variant="h4" component="h4">
+        <Typography
+          className={classes.subtitle}
+          color='primary'
+          variant='h4'
+          component='h4'
+        >
           {subtitle}
         </Typography>
       )}

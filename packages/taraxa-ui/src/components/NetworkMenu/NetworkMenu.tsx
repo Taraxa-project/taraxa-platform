@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { CssBaseline, IconButton, Menu, MenuItem, ThemeProvider, Tooltip } from '@mui/material';
+import {
+  CssBaseline,
+  IconButton,
+  Menu,
+  MenuItem,
+  ThemeProvider,
+  Tooltip,
+} from '@mui/material';
 import { MenuDots, Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
 import theme from '../theme';
@@ -21,7 +28,9 @@ const NetworkMenu = ({
   horizontalPosition = 'left',
 }: NetworkMenuProps) => {
   const classes = useStyles();
-  const [selectedNetwork, setSelectedNetwork] = useState<Network>(Network.TESTNET);
+  const [selectedNetwork, setSelectedNetwork] = useState<Network>(
+    Network.TESTNET
+  );
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -40,13 +49,13 @@ const NetworkMenu = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Tooltip title="Network">
+      <Tooltip title='Network'>
         <IconButton
           className={classes.iconButton}
           onClick={handleClick}
-          size="small"
+          size='small'
           aria-controls={open ? 'account-menu' : undefined}
-          aria-haspopup="true"
+          aria-haspopup='true'
           aria-expanded={open ? 'true' : undefined}
         >
           <MenuDots />
@@ -75,8 +84,12 @@ const NetworkMenu = ({
               selected: classes.menuItemSelected,
             }}
             key={Network[network as keyof typeof Network]}
-            selected={Network[network as keyof typeof Network] === selectedNetwork}
-            onClick={() => onNetworkClick(Network[network as keyof typeof Network])}
+            selected={
+              Network[network as keyof typeof Network] === selectedNetwork
+            }
+            onClick={() =>
+              onNetworkClick(Network[network as keyof typeof Network])
+            }
           >
             <Check />
             {Network[network as keyof typeof Network]}

@@ -21,16 +21,16 @@ Primary.args = {
   buttonOptions: (
     <>
       <Button
-        color="primary"
-        variant="outlined"
-        label="Edit Profile"
+        color='primary'
+        variant='outlined'
+        label='Edit Profile'
         fullWidth
         onClick={() => console.log('Edit Profile')}
       />
       <Button
-        color="primary"
-        variant="text"
-        label="Log out"
+        color='primary'
+        variant='text'
+        label='Log out'
         fullWidth
         onClick={() => {
           console.log('Log out');

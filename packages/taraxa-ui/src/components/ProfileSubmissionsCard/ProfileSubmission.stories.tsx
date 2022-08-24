@@ -1,6 +1,8 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
-import ProfileSubmissionsCard, { ProfileSubmissionsCardProps } from './ProfileSubmissionsCard';
+import ProfileSubmissionsCard, {
+  ProfileSubmissionsCardProps,
+} from './ProfileSubmissionsCard';
 import Close from '../Icons/Close';
 
 export default {
@@ -13,7 +15,9 @@ export default {
   },
 } as Meta;
 
-const Template: Story<ProfileSubmissionsCardProps> = (args) => <ProfileSubmissionsCard {...args} />;
+const Template: Story<ProfileSubmissionsCardProps> = (args) => (
+  <ProfileSubmissionsCard {...args} />
+);
 
 export const Primary = Template.bind({});
 Primary.args = {

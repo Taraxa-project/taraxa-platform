@@ -7,7 +7,7 @@ export const Footer = () => {
 
   return (
     <TFooter
-      description="Taraxa is a public ledger platform purpose-built for audit logging of informal transactions."
+      description='Taraxa is a public ledger platform purpose-built for audit logging of informal transactions.'
       links={[{ label: 'Privacy Policy', link: 'https://taraxa.io/privacy' }]}
       items={items}
     />

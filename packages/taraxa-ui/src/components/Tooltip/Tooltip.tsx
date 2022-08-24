@@ -21,7 +21,7 @@ const Tooltip = ({ title, Icon, className, id }: TooltipProps) => {
         id={id}
         title={
           <div className={classes.tooltip}>
-            <Text label={title} variant="body1" color="primary" />
+            <Text label={title} variant='body1' color='primary' />
           </div>
         }
         enterTouchDelay={100}
