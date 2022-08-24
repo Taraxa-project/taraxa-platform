@@ -67,11 +67,18 @@ const theme: Theme = createTheme({
           fontFamily: 'Inter',
           backgroundColor: '#282C3E',
           color: '#FFF',
+          minHeight: '4.5rem',
         },
       },
     },
     MuiToolbar: {
       styleOverrides: {
+        root: {
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          minHeight: '72px !important',
+        },
         regular: {
           minHeight: '72px',
           fontFamily: 'Inter',
@@ -98,10 +105,12 @@ const theme: Theme = createTheme({
           padding: '8px 16px',
         },
         sizeMedium: {
+          height: '52px',
           minWidth: '4rem',
           width: '100%',
         },
         outlinedSecondary: {
+          height: '52px',
           backgroundColor: '#31364B',
           borderColor: '#6A7085',
           color: '#FFF',
@@ -121,6 +130,7 @@ const theme: Theme = createTheme({
         },
         textSizeSmall: {
           height: '32px',
+          fontSize: '1rem',
           padding: '8px 16px',
         },
       },

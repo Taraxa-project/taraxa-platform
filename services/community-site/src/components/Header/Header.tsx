@@ -75,7 +75,15 @@ const Header = () => {
       </div>
     );
   } else {
-    button = <Button label="Sign in / Sign up" color="primary" variant="text" onClick={signIn} />;
+    button = (
+      <Button
+        label="Sign in / Sign up"
+        color="primary"
+        variant="text"
+        onClick={signIn}
+        size="small"
+      />
+    );
   }
 
   const hamburger = (

@@ -34,9 +34,9 @@ function Header({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar {...props}>
-        <Container maxWidth="xl">
-          <Toolbar>
+      <AppBar {...props} variant="elevation">
+        <Container maxWidth={false}>
+          <Toolbar variant="regular">
             {Icon && (
               <a className={classes.headerIconContainer} href="/">
                 <Icon />
