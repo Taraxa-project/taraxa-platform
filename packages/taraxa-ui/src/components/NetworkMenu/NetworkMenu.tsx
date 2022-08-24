@@ -7,7 +7,8 @@ import {
   ThemeProvider,
   Tooltip,
 } from '@mui/material';
-import { MenuDots, Check } from '../Icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
 import theme from '../theme';
 
@@ -51,14 +52,14 @@ const NetworkMenu = ({
       <CssBaseline />
       <Tooltip title='Network'>
         <IconButton
-          className={classes.iconButton}
+          className={classes.networkButton}
           onClick={handleClick}
-          size='small'
+          size='medium'
           aria-controls={open ? 'account-menu' : undefined}
           aria-haspopup='true'
           aria-expanded={open ? 'true' : undefined}
         >
-          <MenuDots />
+          <MoreHorizIcon fontSize='inherit' />
         </IconButton>
       </Tooltip>
       <Menu

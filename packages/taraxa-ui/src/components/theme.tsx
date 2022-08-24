@@ -101,39 +101,9 @@ const theme: Theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          height: '52px',
-          whiteSpace: 'nowrap',
-        },
-        outlinedSizeSmall: {
-          height: '32px',
-          padding: '8px 16px',
-        },
-        sizeMedium: {
-          height: '52px',
-          // minWidth: '4rem',
-          // width: '100%',
-        },
-        outlinedSecondary: {
-          height: '52px',
-          backgroundColor: '#31364B',
-          borderColor: '#6A7085',
-          color: '#FFF',
-          borderRadius: '8px',
-          '&:hover': {
-            borderColor: '#6A7085',
-          },
-          '&.Mui-disabled': {
-            backgroundColor: '#202534',
-            borderColor: '#282C3E',
-            color: '#40465F',
-          },
-        },
-        containedSizeSmall: {
-          height: '32px',
-          padding: '8px 16px',
+          padding: '12px 16px',
         },
         textSizeSmall: {
-          height: '32px',
           fontSize: '1rem',
           padding: '8px 16px',
         },
