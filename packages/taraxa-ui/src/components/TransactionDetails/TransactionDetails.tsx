@@ -11,8 +11,8 @@ export interface TransactionDetailsProps {
   timeSince: string;
 }
 
-export const shortenHash = (text: string, visibleLength = 32): string => {
-  if (!text || text.length <= 32) {
+export const shortenHash = (text: string, visibleLength = 44): string => {
+  if (!text || text.length <= 44) {
     return text;
   }
   return `${text.substring(0, visibleLength).replace(/\s+$/, '')}...`;

@@ -17,6 +17,7 @@ import GreenCircledCheck from './GreenCircledCheck';
 import RedCircledCancel from './RedCircledCancel';
 import Block from './Block';
 import Route from './Route';
+import Award from './Award';
 
 export {
   Left,
@@ -38,6 +39,7 @@ export {
   RedCircledCancel,
   Block,
   Route,
+  Award,
 };
 export default {
   Left,
@@ -58,4 +60,5 @@ export default {
   RedCircledCancel,
   Block,
   Route,
+  Award,
 };
