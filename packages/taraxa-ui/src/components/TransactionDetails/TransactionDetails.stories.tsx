@@ -8,11 +8,6 @@ import {
 export default {
   title: 'Components/TransactionDetails',
   component: TransactionDetails,
-  argTypes: {
-    title: { control: 'string' },
-    description: { control: 'string' },
-    onClickText: { control: 'string' },
-  },
 } as Meta;
 
 const Template: Story<TransactionDetailsProps> = (args) => (
