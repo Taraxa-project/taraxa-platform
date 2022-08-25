@@ -1,6 +1,6 @@
-import { Container } from '@mui/material';
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Container, Box } from '@mui/material';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Header, Footer } from './components';
 import HomePage from './pages/Home/Home';
 import TransactionsPage from './pages/Transactions/Transactions';
@@ -16,11 +16,15 @@ const Root = () => {
     <>
       <Header />
       <Container maxWidth='xl'>
-        <Routes>
-          <Route path='/' element={<HomePage />} />
-          <Route path='/transactions' element={<TransactionsPage />} />
-        </Routes>
-        <Footer />
+        <Box sx={{ px: 4 }}>
+          <Routes>
+            <Route path='/' element={<HomePage />} />
+            <Route path='/dag' element={<HomePage />} />
+            <Route path='/transactions' element={<TransactionsPage />} />
+            <Route path='*' element={<Navigate to='/' replace />} />
+          </Routes>
+          <Footer />
+        </Box>
       </Container>
     </>
   );

@@ -14,7 +14,13 @@ import { HeaderBtn, useHeaderEffects } from './Header.effects';
 
 export const Header = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  const { buttons: headerButtons, networks } = useHeaderEffects();
+  const {
+    buttons: headerButtons,
+    networks,
+    currentNetwork,
+    setCurrentNetwork,
+    searchInputProps,
+  } = useHeaderEffects();
 
   const buttons = (
     <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -39,7 +45,11 @@ export const Header = () => {
       <Box
         sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
       >
-        <NetworkMenu networks={networks} />
+        <NetworkMenu
+          networks={networks}
+          currentNetwork={currentNetwork}
+          onNetworkChange={setCurrentNetwork}
+        />
       </Box>
     </Box>
   );
@@ -65,6 +75,7 @@ export const Header = () => {
       maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
+      searchInputProps={searchInputProps}
     >
       {isMobile ? hamburger : buttons}
     </THeader>
