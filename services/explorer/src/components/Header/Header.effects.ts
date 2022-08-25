@@ -18,6 +18,11 @@ export type HeaderBtn = {
     | 'warning';
 };
 
+export enum Network {
+  TESTNET = 'Californicum Testnet',
+  MAINNET = 'Mainnet Candidate',
+}
+
 export const useHeaderEffects = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,5 +74,6 @@ export const useHeaderEffects = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
-  return { headerButtons, buttons };
+  const networks = Object.values(Network);
+  return { headerButtons, buttons, networks };
 };

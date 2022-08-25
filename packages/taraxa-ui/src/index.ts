@@ -37,6 +37,12 @@ import SearchInput from './components/SearchInput';
 import NetworkMenu from './components/NetworkMenu';
 import Label from './components/Label';
 import PageTitle from './components/PageTitle';
+import {
+  TransactionDetails,
+  shortenHash,
+} from './components/TransactionDetails';
+import { BlockCard } from './components/BlockCard';
+import { AwardCard } from './components/AwardCard';
 import theme from './components/theme';
 
 export {
@@ -79,5 +85,9 @@ export {
   NetworkMenu,
   Label,
   PageTitle,
+  TransactionDetails,
+  shortenHash,
+  BlockCard,
+  AwardCard,
   theme,
 };
