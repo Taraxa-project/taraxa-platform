@@ -15,6 +15,8 @@ import RightArrow from './RightArrow';
 import NotFound from './NotFound';
 import GreenCircledCheck from './GreenCircledCheck';
 import RedCircledCancel from './RedCircledCancel';
+import Block from './Block';
+import Route from './Route';
 
 export {
   Left,
@@ -34,6 +36,8 @@ export {
   NotFound,
   GreenCircledCheck,
   RedCircledCancel,
+  Block,
+  Route,
 };
 export default {
   Left,
@@ -52,4 +56,6 @@ export default {
   NotFound,
   GreenCircledCheck,
   RedCircledCancel,
+  Block,
+  Route,
 };
