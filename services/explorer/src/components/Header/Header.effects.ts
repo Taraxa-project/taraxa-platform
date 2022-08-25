@@ -13,6 +13,11 @@ export type HeaderBtn = {
     | 'warning';
 };
 
+export enum Network {
+  TESTNET = 'Californicum Testnet',
+  MAINNET = 'Mainnet Candidate',
+}
+
 export const useHeaderEffects = () => {
   const headerButtons: HeaderBtn[] = [
     {
@@ -40,5 +45,7 @@ export const useHeaderEffects = () => {
       onAction: () => console.log('Faucet data'),
     },
   ];
-  return { headerButtons };
+
+  const networks = Object.values(Network);
+  return { headerButtons, networks };
 };

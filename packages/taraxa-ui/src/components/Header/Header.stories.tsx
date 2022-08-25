@@ -15,6 +15,11 @@ export default {
 
 const Template: Story<HeaderProps> = (args) => <Header {...args} />;
 
+enum Network {
+  TESTNET = 'Californicum Testnet',
+  MAINNET = 'Mainnet Candidate',
+}
+
 export const Primary = Template.bind({});
 Primary.args = {
   title: 'Taraxa Explorer',
@@ -33,7 +38,10 @@ WithNav.args = {
       <Button label='Transactions' />
       <Button label='Nodes' />
       <Button label='Faucet' />
-      <NetworkMenu horizontalPosition='right' />
+      <NetworkMenu
+        networks={Object.values(Network)}
+        horizontalPosition='right'
+      />
     </>
   ),
 };

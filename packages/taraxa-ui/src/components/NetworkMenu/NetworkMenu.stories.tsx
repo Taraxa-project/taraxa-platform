@@ -7,7 +7,14 @@ export default {
   component: NetworkMenu,
 } as Meta;
 
+enum Network {
+  TESTNET = 'Californicum Testnet',
+  MAINNET = 'Mainnet Candidate',
+}
+
 const Template: Story<any> = (args) => <NetworkMenu {...args} />;
 
 export const Primary = Template.bind({});
-Primary.args = {};
+Primary.args = {
+  networks: Object.values(Network),
+};
