@@ -11,7 +11,11 @@
     "declarationMap": true,
     "declarationDir": "./dist",
     "noEmit": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -31,6 +35,12 @@
       "path": "../../packages/taraxa-ui"
     }
   ],
-  "include": ["**/src/**/*"],
-  "exclude": ["node_modules", "build", "*.d.ts"]
+  "include": [
+    "**/src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "*.d.ts"
+  ]
 }
