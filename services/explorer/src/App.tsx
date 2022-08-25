@@ -14,8 +14,8 @@ declare global {
 const Root = () => {
   return (
     <>
+      <Header />
       <Container maxWidth='xl'>
-        <Header />
         <Routes>
           <Route path='/' element={<HomePage />} />
           <Route path='/transactions' element={<TransactionsPage />} />
