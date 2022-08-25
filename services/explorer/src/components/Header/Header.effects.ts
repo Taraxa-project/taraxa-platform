@@ -56,20 +56,18 @@ export const useHeaderEffects = () => {
       onAction: () => onClick('faucet'),
     },
   ];
-  const [selected, setSelected] = useState<HeaderBtn>(
-    headerButtons.find(
-      (value) => value.label.toLowerCase() === location.pathname
-    )
-  );
+  const [buttons, setButtons] = useState<HeaderBtn[]>(headerButtons);
 
   useEffect(() => {
-    setSelected(
-      headerButtons.find(
-        (value) => `/${value.label.toLowerCase()}` === location.pathname
-      )
+    setButtons(
+      headerButtons.map((btn) => {
+        if (`/${btn.label.toLowerCase()}` === location.pathname)
+          btn.selected = true;
+        return btn;
+      })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
-  return { headerButtons, selected };
+  return { headerButtons, buttons };
 };

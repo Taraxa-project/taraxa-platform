@@ -14,20 +14,12 @@ import { HeaderBtn, useHeaderEffects } from './Header.effects';
 
 export const Header = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  const { headerButtons, selected } = useHeaderEffects();
-  const buttonRow = selected
-    ? headerButtons.map((b) => {
-        if (b.label !== selected.label) {
-          b.selected = true;
-        }
-        return b;
-      })
-    : headerButtons;
+  const { buttons: headerButtons } = useHeaderEffects();
 
   const buttons = (
     <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-      {buttonRow?.length &&
-        buttonRow.map((button: HeaderBtn) => {
+      {headerButtons?.length &&
+        headerButtons.map((button: HeaderBtn) => {
           return (
             <Button
               key={`${button.label}-${button.color}-${button.variant}`}
@@ -38,8 +30,8 @@ export const Header = () => {
               sx={{
                 mr: 1,
                 backgroundColor: button.selected
-                  ? 'none'
-                  : theme.palette.grey.A200,
+                  ? theme.palette.grey.A200
+                  : 'none',
               }}
             />
           );

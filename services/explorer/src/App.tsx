@@ -1,3 +1,4 @@
+import { Container } from '@mui/material';
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Header, Footer } from './components';
@@ -13,12 +14,14 @@ declare global {
 const Root = () => {
   return (
     <>
-      <Header />
-      <Routes>
-        <Route path='/' element={<HomePage />} />
-        <Route path='/transactions' element={<TransactionsPage />} />
-      </Routes>
-      <Footer />
+      <Container maxWidth='xl'>
+        <Header />
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/transactions' element={<TransactionsPage />} />
+        </Routes>
+        <Footer />
+      </Container>
     </>
   );
 };

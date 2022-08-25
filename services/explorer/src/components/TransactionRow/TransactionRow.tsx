@@ -1,6 +1,7 @@
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import React from 'react';
+import { theme } from '../../theme-provider';
 import {
   TransactionData,
   TransactionStatus,
@@ -8,7 +9,7 @@ import {
 
 export const toTableRow = (props: TransactionData) => {
   const { timestamp, block, status: state, txHash, value, token } = props;
-  const txDate = moment(timestamp).format('dddd, MMMM Do, YYYY h:mm:ss A');
+  const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
   let labelType: JSX.Element;
   if (state === TransactionStatus.SUCCESS) {
     labelType = (
@@ -39,7 +40,7 @@ export const toTableRow = (props: TransactionData) => {
   const txHashContainer = (
     <p
       style={{
-        color: '#15AC5B',
+        color: theme.palette.secondary.main,
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
@@ -52,7 +53,7 @@ export const toTableRow = (props: TransactionData) => {
   return {
     data: [
       {
-        txDate,
+        timestamp: txDate,
         block,
         status: labelType,
         txHash: txHashContainer,
