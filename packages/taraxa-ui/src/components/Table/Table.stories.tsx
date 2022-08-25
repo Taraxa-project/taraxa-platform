@@ -1,7 +1,8 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
 import Table, { TableProps } from './Table';
-import { Check } from '../Icons';
+import { GreenCircledCheck, RedCircledCancel } from '../Icons';
+import Label from '../Label';
 
 export default {
   title: 'Components/Table',
@@ -22,7 +23,13 @@ const rows = [
       {
         timestamp: '15/02/2022',
         block: '529133',
-        status: <Check />,
+        status: (
+          <Label
+            variant='success'
+            label='Success'
+            icon={<GreenCircledCheck />}
+          />
+        ),
         txHash: (
           <p
             style={{
@@ -44,7 +51,13 @@ const rows = [
       {
         timestamp: '15/02/2022',
         block: '529132',
-        status: <Check />,
+        status: (
+          <Label
+            variant='success'
+            label='Success'
+            icon={<GreenCircledCheck />}
+          />
+        ),
         txHash: (
           <p
             style={{
@@ -66,7 +79,9 @@ const rows = [
       {
         timestamp: '15/02/2022',
         block: '529131',
-        status: <Check />,
+        status: (
+          <Label variant='error' label='Failure' icon={<RedCircledCancel />} />
+        ),
         txHash: (
           <p
             style={{
@@ -88,7 +103,9 @@ const rows = [
       {
         timestamp: '15/02/2022',
         block: '529131',
-        status: <Check />,
+        status: (
+          <Label variant='error' label='Failure' icon={<RedCircledCancel />} />
+        ),
         txHash: (
           <p style={{ color: '#15AC5B' }}>
             '0x00e193a15486909eba3fb36c81scb8a331180cc97a27ffb69b8122de02e5ea18'
@@ -103,7 +120,9 @@ const rows = [
       {
         timestamp: '15/02/2022',
         block: '529132',
-        status: <Check />,
+        status: (
+          <Label variant='error' label='Failure' icon={<RedCircledCancel />} />
+        ),
         txHash: (
           <p
             style={{
@@ -125,7 +144,9 @@ const rows = [
       {
         timestamp: '15/02/2022',
         block: '529132',
-        status: <Check />,
+        status: (
+          <Label variant='error' label='Failure' icon={<RedCircledCancel />} />
+        ),
         txHash: (
           <p style={{ color: '#15AC5B' }}>
             '0x00e193a15486909eba3fb36c81scb8a331180cc97a27ffb69b8122de02e5ea18'

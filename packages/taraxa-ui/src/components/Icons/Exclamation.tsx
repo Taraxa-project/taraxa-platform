@@ -1,10 +1,6 @@
 import React from 'react';
 
-export interface ExclamationProps {
-  color: string;
-}
-
-const Exclamation = ({ color }: ExclamationProps) => {
+const Exclamation: React.FC<{ color: string }> = ({ color }) => {
   return (
     <svg
       width='18'
