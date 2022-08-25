@@ -5,7 +5,7 @@ import { theme } from '../../theme-provider';
 import {
   TransactionData,
   TransactionStatus,
-} from '../../pages/Transactions/Transactions.effect';
+} from '../../pages/Transactions/Transactions.effects';
 
 export const toTableRow = (props: TransactionData) => {
   const { timestamp, block, status: state, txHash, value, token } = props;

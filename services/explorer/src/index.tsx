@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import { ExplorerNetworkProvider } from './hooks/useExplorerNetwork';
 import reportWebVitals from './reportWebVitals';
 import { ExplorerThemeProvider } from './theme-provider';
 
@@ -11,9 +12,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ExplorerThemeProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <ExplorerNetworkProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ExplorerNetworkProvider>
     </ExplorerThemeProvider>
   </React.StrictMode>
 );

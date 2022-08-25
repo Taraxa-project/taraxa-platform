@@ -4,7 +4,7 @@ import theme from '../theme';
 const useStyles = makeStyles(() => {
   return {
     card: {
-      width: 'auto',
+      width: '100%',
       background: `${theme.palette.background.default} !important`,
       borderRadius: '4px',
     },

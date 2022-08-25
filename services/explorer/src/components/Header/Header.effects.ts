@@ -1,6 +1,8 @@
 /* eslint-disable no-restricted-globals */
+import { SearchInputProps } from '@taraxa_project/taraxa-ui/src/components/SearchInput/SearchInput';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 
 /* eslint-disable no-console */
 export type HeaderBtn = {
@@ -18,20 +20,23 @@ export type HeaderBtn = {
     | 'warning';
 };
 
-export enum Network {
-  TESTNET = 'Californicum Testnet',
-  MAINNET = 'Mainnet Candidate',
-}
-
 export const useHeaderEffects = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { networks, currentNetwork, setCurrentNetwork } = useExplorerNetwork();
 
   const onClick = (route: string) => {
     navigate(`/${route}`);
   };
 
   const headerButtons: HeaderBtn[] = [
+    {
+      label: 'DAG',
+      color: 'primary',
+      variant: 'text',
+      selected: false,
+      onAction: () => onClick('dag'),
+    },
     {
       label: 'Blocks',
       color: 'primary',
@@ -63,6 +68,10 @@ export const useHeaderEffects = () => {
   ];
   const [buttons, setButtons] = useState<HeaderBtn[]>(headerButtons);
 
+  const onInputChange = (searchString: string) => {
+    console.log('Searching for: ', searchString);
+  };
+
   useEffect(() => {
     setButtons(
       headerButtons.map((btn) => {
@@ -74,6 +83,16 @@ export const useHeaderEffects = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
-  const networks = Object.values(Network);
-  return { headerButtons, buttons, networks };
+  const searchInputProps: SearchInputProps = {
+    onInputChange,
+  };
+
+  return {
+    headerButtons,
+    buttons,
+    networks,
+    currentNetwork,
+    setCurrentNetwork,
+    searchInputProps,
+  };
 };

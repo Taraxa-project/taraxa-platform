@@ -28,7 +28,7 @@ module.exports = {
         'prefer-spread': 'off',
         'no-alert': 'off',
         'no-await-in-loop': 'off',
-        'no-console': 'error',
+        'no-console': 'warn',
         'no-empty': 'off',
         'no-nested-ternary': 'off',
         'no-return-await': 'off',

@@ -14,12 +14,14 @@ import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import useStyles from './Header.styles';
 import SearchInput from '../SearchInput';
+import { SearchInputProps } from '../SearchInput/SearchInput';
 
 export interface HeaderProps extends AppBarProps {
   title: string;
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   searchPlaceholder?: string;
   withSearch?: boolean;
+  searchInputProps?: SearchInputProps;
   maxWidth?: Breakpoint;
 }
 
@@ -29,6 +31,7 @@ function Header({
   children,
   maxWidth,
   withSearch = false,
+  searchInputProps,
   searchPlaceholder = 'Address, hash or number...',
   ...props
 }: HeaderProps) {
@@ -64,6 +67,7 @@ function Header({
               <SearchInput
                 className={classes.searchInput}
                 fullWidth
+                {...searchInputProps}
                 placeholder={searchPlaceholder}
               />
             )}

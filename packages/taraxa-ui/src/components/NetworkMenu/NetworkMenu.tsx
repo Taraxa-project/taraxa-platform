@@ -14,6 +14,7 @@ import theme from '../theme';
 
 export interface NetworkMenuProps {
   networks: string[];
+  currentNetwork: string;
   onNetworkChange?: (network: string) => void;
   verticalPosition?: 'top' | 'bottom';
   horizontalPosition?: 'left' | 'right';
@@ -21,12 +22,13 @@ export interface NetworkMenuProps {
 
 const NetworkMenu = ({
   networks,
+  currentNetwork,
   onNetworkChange,
   verticalPosition = 'top',
   horizontalPosition = 'left',
 }: NetworkMenuProps) => {
   const classes = useStyles();
-  const [selectedNetwork, setSelectedNetwork] = useState(networks[0]);
+  const [selectedNetwork, setSelectedNetwork] = useState(currentNetwork);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 

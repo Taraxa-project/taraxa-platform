@@ -40,6 +40,7 @@ WithNav.args = {
       <Button label='Faucet' />
       <NetworkMenu
         networks={Object.values(Network)}
+        currentNetwork={Network.TESTNET}
         horizontalPosition='right'
       />
     </>

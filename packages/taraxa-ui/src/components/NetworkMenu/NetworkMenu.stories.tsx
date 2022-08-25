@@ -17,4 +17,5 @@ const Template: Story<any> = (args) => <NetworkMenu {...args} />;
 export const Primary = Template.bind({});
 Primary.args = {
   networks: Object.values(Network),
+  currentNetwork: Network.TESTNET,
 };

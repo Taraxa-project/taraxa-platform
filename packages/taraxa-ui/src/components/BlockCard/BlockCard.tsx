@@ -18,24 +18,15 @@ import {
 export interface BlockCardProps {
   title: string;
   transactions: TransactionDetailsProps[];
-  maxWidth?: number;
 }
 
-export const BlockCard: FC<BlockCardProps> = ({
-  title,
-  transactions,
-  maxWidth,
-}) => {
+export const BlockCard: FC<BlockCardProps> = ({ title, transactions }) => {
   const classes = useStyles();
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Card
-        className={classes.card}
-        variant='outlined'
-        sx={{ maxWidth: maxWidth || 646 }}
-      >
+      <Card className={classes.card} variant='outlined'>
         <CardHeader
           title={title}
           disableTypography
