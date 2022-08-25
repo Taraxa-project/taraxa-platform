@@ -12,26 +12,21 @@ import { Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
 import theme from '../theme';
 
-enum Network {
-  TESTNET = 'Californicum Testnet',
-  MAINNET = 'Mainnet Candidate',
-}
-
 export interface NetworkMenuProps {
-  onNetworkChange?: (network: Network) => void;
+  networks: string[];
+  onNetworkChange?: (network: string) => void;
   verticalPosition?: 'top' | 'bottom';
   horizontalPosition?: 'left' | 'right';
 }
 
 const NetworkMenu = ({
+  networks,
   onNetworkChange,
   verticalPosition = 'top',
   horizontalPosition = 'left',
 }: NetworkMenuProps) => {
   const classes = useStyles();
-  const [selectedNetwork, setSelectedNetwork] = useState<Network>(
-    Network.TESTNET
-  );
+  const [selectedNetwork, setSelectedNetwork] = useState(networks[0]);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -42,7 +37,7 @@ const NetworkMenu = ({
     setAnchorEl(null);
   };
 
-  const onNetworkClick = (network: Network) => {
+  const onNetworkClick = (network: string) => {
     setSelectedNetwork(network);
     if (typeof onNetworkChange === 'function') onNetworkChange(network);
   };
@@ -78,22 +73,18 @@ const NetworkMenu = ({
           horizontal: horizontalPosition,
         }}
       >
-        {Object.keys(Network).map((network) => (
+        {networks?.map((network) => (
           <MenuItem
             classes={{
               root: classes.menuItemRoot,
               selected: classes.menuItemSelected,
             }}
-            key={Network[network as keyof typeof Network]}
-            selected={
-              Network[network as keyof typeof Network] === selectedNetwork
-            }
-            onClick={() =>
-              onNetworkClick(Network[network as keyof typeof Network])
-            }
+            key={`${network}-${Date.now()}`}
+            selected={network === selectedNetwork}
+            onClick={() => onNetworkClick(network)}
           >
             <Check />
-            {Network[network as keyof typeof Network]}
+            {network}
           </MenuItem>
         ))}
       </Menu>

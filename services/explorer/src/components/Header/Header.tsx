@@ -13,7 +13,7 @@ import { HeaderBtn, useHeaderEffects } from './Header.effects';
 
 export const Header = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  const { headerButtons } = useHeaderEffects();
+  const { headerButtons, networks } = useHeaderEffects();
   const buttons = (
     <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
       {headerButtons?.length &&
@@ -30,7 +30,7 @@ export const Header = () => {
       <Box
         sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
       >
-        <NetworkMenu />
+        <NetworkMenu networks={networks} />
       </Box>
     </Box>
   );
