@@ -1,19 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 
-export enum TransactionStatus {
-  SUCCESS = '0x0',
-  FAILURE = '0x1',
-  IN_PROGRESS = '0x',
-}
-
-export interface TransactionData {
+export interface BlockData {
   timestamp: string;
   block: string;
-  status: TransactionStatus;
   txHash: string;
-  value: string;
-  token: string;
+  transactionCount: number;
 }
 
 export interface ColumnData {
@@ -22,144 +14,115 @@ export interface ColumnData {
 }
 
 const cols = [
-  { path: 'timestamp', name: 'Timestamp' },
+  { path: 'timestamp', name: 'Age' },
   { path: 'block', name: 'Block' },
-  { path: 'status', name: 'Status' },
-  { path: 'txHash', name: 'TxHash' },
-  { path: 'value', name: 'Value' },
+  { path: 'txHash', name: 'Tx Hash' },
+  { path: 'transactionCount', name: 'Transactions' },
 ];
 
 const rows = [
   {
-    timestamp: '1661429700',
+    timestamp: `${Date.now()}`,
     block: '529133',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '0.00000023',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
-    timestamp: '1661429100',
+    timestamp: '1661416929',
     block: '529131',
-    status: TransactionStatus.FAILURE,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '0.0023',
-    token: 'TARA',
+    transactionCount: 70,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 79,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 101,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 109,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 55,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
   {
     timestamp: '1661429710',
     block: '529134',
-    status: TransactionStatus.SUCCESS,
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '23',
-    token: 'TARA',
+    transactionCount: 72,
   },
 ];
 
-export const useTransactionEffects = () => {
-  const [data, setData] = useState<TransactionData[]>();
+export const useBlockEffects = () => {
+  const [data, setData] = useState<BlockData[]>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [columns, setColumns] = useState<ColumnData[]>(cols);
   const { currentNetwork } = useExplorerNetwork();

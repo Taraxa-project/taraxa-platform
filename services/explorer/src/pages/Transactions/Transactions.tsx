@@ -1,18 +1,20 @@
 import React from 'react';
 import { Table } from '@taraxa_project/taraxa-ui';
-import { toTableRow } from '../../components/TransactionRow/TransactionRow';
-import { useTransactionsEffects } from './Transactions.effects';
+import { toTransactionTableRow } from '../../components/TransactionRow/TransactionRow';
+import { useTransactionEffects } from './Transactions.effects';
 import { PageTitle } from '../../components';
 
 const TransactionsPage = () => {
-  const { data, columns } = useTransactionsEffects();
-  const rows = data ? data.map((row) => toTableRow(row)) : [];
+  const { data, columns, currentNetwork } = useTransactionEffects();
+  const rows = data ? data.map((row) => toTransactionTableRow(row)) : [];
   return (
     <>
       <PageTitle
         title='Transactions'
-        subtitle='Transactions list on the Californicum Testnet: showing the last 500k
-          records.'
+        subtitle={`Transactions list on the ${currentNetwork}: showing the last ${
+          data ? data.length : 0
+        }
+          records.`}
       />
       <Table rows={rows} columns={columns} />
     </>
