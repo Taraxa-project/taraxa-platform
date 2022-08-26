@@ -5,6 +5,7 @@ import { Header, Footer } from './components';
 import HomePage from './pages/Home/Home';
 import TransactionsPage from './pages/Transactions/Transactions';
 import BlocksPage from './pages/Blocks/Blocks';
+import NodesPage from './pages/Nodes/Nodes';
 
 declare global {
   interface Window {
@@ -23,6 +24,7 @@ const Root = () => {
             <Route path='/blocks' element={<BlocksPage />} />
             <Route path='/dag' element={<HomePage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
+            <Route path='/nodes' element={<NodesPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
           <Footer />
