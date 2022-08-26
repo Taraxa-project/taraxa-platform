@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Header, Footer } from './components';
 import HomePage from './pages/Home/Home';
 import TransactionsPage from './pages/Transactions/Transactions';
+import BlocksPage from './pages/Blocks/Blocks';
 import NodesPage from './pages/Nodes/Nodes';
 
 declare global {
@@ -20,6 +21,7 @@ const Root = () => {
         <Box sx={{ px: 4 }}>
           <Routes>
             <Route path='/' element={<HomePage />} />
+            <Route path='/blocks' element={<BlocksPage />} />
             <Route path='/dag' element={<HomePage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
             <Route path='/nodes' element={<NodesPage />} />
