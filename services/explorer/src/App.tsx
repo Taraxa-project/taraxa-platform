@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Header, Footer } from './components';
 import HomePage from './pages/Home/Home';
 import TransactionsPage from './pages/Transactions/Transactions';
+import NodesPage from './pages/Nodes/Nodes';
 
 declare global {
   interface Window {
@@ -21,6 +22,7 @@ const Root = () => {
             <Route path='/' element={<HomePage />} />
             <Route path='/dag' element={<HomePage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
+            <Route path='/nodes' element={<NodesPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
           <Footer />
