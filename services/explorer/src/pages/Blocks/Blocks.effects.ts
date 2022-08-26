@@ -1,17 +1,6 @@
 import { useEffect, useState } from 'react';
+import { BlockData, ColumnData } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-
-export interface BlockData {
-  timestamp: string;
-  block: string;
-  txHash: string;
-  transactionCount: number;
-}
-
-export interface ColumnData {
-  path: string;
-  name: string;
-}
 
 const cols = [
   { path: 'timestamp', name: 'Age' },

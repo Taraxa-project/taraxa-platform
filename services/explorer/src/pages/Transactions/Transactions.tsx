@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table } from '@taraxa_project/taraxa-ui';
-import { toTransactionTableRow } from '../../components/TransactionRow/TransactionRow';
+import { toTransactionTableRow } from '../../utils/TransactionRow';
 import { useTransactionEffects } from './Transactions.effects';
 import { PageTitle } from '../../components';
 

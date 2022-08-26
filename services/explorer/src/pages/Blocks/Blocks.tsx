@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table } from '@taraxa_project/taraxa-ui';
-import { toBlockTableRow } from '../../components/TransactionRow/TransactionRow';
+import { toBlockTableRow } from '../../utils/TransactionRow';
 import { useBlockEffects } from './Blocks.effects';
 import { PageTitle } from '../../components';
 

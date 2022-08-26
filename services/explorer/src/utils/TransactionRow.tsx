@@ -1,12 +1,12 @@
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import React from 'react';
-import { BlockData } from '../../pages/Blocks/Blocks.effects';
-import { theme } from '../../theme-provider';
 import {
+  BlockData,
   TransactionData,
   TransactionStatus,
-} from '../../pages/Transactions/Transactions.effects';
+} from '../models/TableData';
+import { theme } from '../theme-provider';
 
 export const toTransactionTableRow = (props: TransactionData) => {
   const { timestamp, block, status: state, txHash, value, token } = props;
