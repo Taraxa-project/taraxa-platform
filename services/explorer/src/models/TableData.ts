@@ -4,7 +4,7 @@ export enum TransactionStatus {
   IN_PROGRESS = '0x',
 }
 
-export interface TransactionData {
+export interface TransactionTableData {
   timestamp: string;
   block: string;
   status: TransactionStatus;
@@ -21,6 +21,7 @@ export interface ColumnData {
 export interface BlockData {
   timestamp: string;
   block: string;
+  level?: string;
   txHash: string;
   transactionCount: number;
 }

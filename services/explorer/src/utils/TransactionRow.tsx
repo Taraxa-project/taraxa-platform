@@ -1,55 +1,51 @@
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import React from 'react';
+import { TransactionLink } from '../components/Links';
 import {
   BlockData,
-  TransactionData,
+  TransactionTableData,
   TransactionStatus,
 } from '../models/TableData';
 import { theme } from '../theme-provider';
 
-export const toTransactionTableRow = (props: TransactionData) => {
-  const { timestamp, block, status: state, txHash, value, token } = props;
-  const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
-  let labelType: JSX.Element;
+export const statusToLabel = (state: TransactionStatus) => {
   if (state === TransactionStatus.SUCCESS) {
-    labelType = (
+    return (
       <Label
         variant='success'
         label='Success'
+        gap
         icon={<Icons.GreenCircledCheck />}
       />
     );
-  } else if (state === TransactionStatus.FAILURE) {
-    labelType = (
+  }
+  if (state === TransactionStatus.FAILURE) {
+    return (
       <Label
         variant='error'
         label='Failure'
-        icon={<Icons.RedCircledCancel />}
-      />
-    );
-  } else {
-    labelType = (
-      <Label
-        variant='error'
-        label='Failure'
+        gap
         icon={<Icons.RedCircledCancel />}
       />
     );
   }
-
-  const txHashContainer = (
-    <p
-      style={{
-        color: theme.palette.secondary.main,
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-      }}
-    >
-      {txHash}
-    </p>
+  return (
+    <Label
+      variant='error'
+      label='Failure'
+      gap
+      icon={<Icons.RedCircledCancel />}
+    />
   );
+};
+
+export const toTransactionTableRow = (props: TransactionTableData) => {
+  const { timestamp, block, status: state, txHash, value, token } = props;
+  const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
+  const labelType = statusToLabel(state);
+
+  const txHashContainer = <TransactionLink txHash={txHash} />;
 
   return {
     data: [
@@ -64,8 +60,7 @@ export const toTransactionTableRow = (props: TransactionData) => {
   };
 };
 
-export const toBlockTableRow = (props: BlockData) => {
-  const { timestamp, block, txHash, transactionCount } = props;
+export const timestampToAge = (timestamp: string) => {
   let age = Math.floor(+new Date() / 1000 - +timestamp);
   const days = Math.floor(age / 86400);
   age -= Math.floor(86400 * days);
@@ -77,6 +72,13 @@ export const toBlockTableRow = (props: BlockData) => {
   const ageString = `${days > 0 ? `${days} day(s), ` : ''}${
     hours > 0 ? `${hours} hour(s), ` : ''
   } ${minutes ? `${minutes} minute(s), ` : ''} ${age ? `${age}s ago` : 'ago'}`;
+  return ageString;
+};
+
+export const toBlockTableRow = (props: BlockData) => {
+  const { timestamp, block, txHash, transactionCount } = props;
+
+  const ageString = timestampToAge(timestamp);
   const txHashContainer = (
     <p
       style={{
