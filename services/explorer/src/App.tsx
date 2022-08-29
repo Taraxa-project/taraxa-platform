@@ -6,6 +6,7 @@ import HomePage from './pages/Home/Home';
 import TransactionsPage from './pages/Transactions/Transactions';
 import BlocksPage from './pages/Blocks/Blocks';
 import NodesPage from './pages/Nodes/Nodes';
+import TransactionDataContainer from './pages/TransactionData/TransactionData';
 
 declare global {
   interface Window {
@@ -24,6 +25,10 @@ const Root = () => {
             <Route path='/blocks' element={<BlocksPage />} />
             <Route path='/dag' element={<HomePage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
+            <Route
+              path='/transactions/:txHash'
+              element={<TransactionDataContainer />}
+            />
             <Route path='/nodes' element={<NodesPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
