@@ -38,6 +38,12 @@ import NetworkMenu from './components/NetworkMenu';
 import Label from './components/Label';
 import PageTitle from './components/PageTitle';
 import BarChart from './components/BarChart';
+import {
+  TransactionDetails,
+  shortenHash,
+} from './components/TransactionDetails';
+import { BlockCard } from './components/BlockCard';
+import { AwardCard } from './components/AwardCard';
 import theme from './components/theme';
 
 export {
@@ -81,5 +87,9 @@ export {
   Label,
   PageTitle,
   BarChart,
+  TransactionDetails,
+  shortenHash,
+  BlockCard,
+  AwardCard,
   theme,
 };

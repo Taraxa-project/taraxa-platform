@@ -2,7 +2,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - feat/159
+      - design-v2
       - develop
 jobs:
   build-and-deploy:

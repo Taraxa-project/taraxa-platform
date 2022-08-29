@@ -23,9 +23,14 @@ export interface TableProps {
     Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
     data: any[];
   }[];
+  fixedLayout?: boolean;
 }
 
-export default function Table({ columns, rows }: TableProps) {
+export default function Table({
+  columns,
+  rows,
+  fixedLayout = true,
+}: TableProps) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -76,6 +81,9 @@ export default function Table({ columns, rows }: TableProps) {
               aria-labelledby='tableTitle'
               size='medium'
               aria-label='enhanced table'
+              style={
+                fixedLayout ? { tableLayout: 'fixed' } : { tableLayout: 'auto' }
+              }
             >
               <TableHead>
                 <TableRow tabIndex={-1} key='index'>
