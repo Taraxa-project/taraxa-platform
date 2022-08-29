@@ -37,6 +37,7 @@ import SearchInput from './components/SearchInput';
 import NetworkMenu from './components/NetworkMenu';
 import Label from './components/Label';
 import PageTitle from './components/PageTitle';
+import BarChart from './components/BarChart';
 import theme from './components/theme';
 
 export {
@@ -79,5 +80,6 @@ export {
   NetworkMenu,
   Label,
   PageTitle,
+  BarChart,
   theme,
 };
