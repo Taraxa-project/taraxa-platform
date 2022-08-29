@@ -48,6 +48,15 @@ const useStyles = makeStyles(() => {
       justifyContent: 'flex-start',
       height: '50%',
     },
+    gappedContainer: {
+      maxHeight: '0.938rem',
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      height: '50%',
+      gap: '1rem',
+    },
   };
 });
 
