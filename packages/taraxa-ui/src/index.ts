@@ -37,6 +37,7 @@ import SearchInput from './components/SearchInput';
 import NetworkMenu from './components/NetworkMenu';
 import Label from './components/Label';
 import PageTitle from './components/PageTitle';
+import BarChart from './components/BarChart';
 import {
   TransactionDetails,
   shortenHash,
@@ -85,6 +86,7 @@ export {
   NetworkMenu,
   Label,
   PageTitle,
+  BarChart,
   TransactionDetails,
   shortenHash,
   BlockCard,
