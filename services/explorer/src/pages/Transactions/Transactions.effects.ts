@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   ColumnData,
-  TransactionData,
+  TransactionTableData,
   TransactionStatus,
 } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
@@ -144,7 +144,7 @@ const rows = [
 ];
 
 export const useTransactionEffects = () => {
-  const [data, setData] = useState<TransactionData[]>();
+  const [data, setData] = useState<TransactionTableData[]>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [columns, setColumns] = useState<ColumnData[]>(cols);
   const { currentNetwork } = useExplorerNetwork();
