@@ -1,61 +1,55 @@
-import { BlockCardProps } from '@taraxa_project/taraxa-ui/src/components/BlockCard';
 import { useEffect, useState } from 'react';
+import { BlockData } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 
-const transactions = [
+const transactions: BlockData[] = [
   {
-    level: 525299,
+    level: '525299',
     hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionsCount: 3,
-    timeSince: '44 seconds',
+    transactionCount: 3,
+    timestamp: '1661776098',
   },
   {
-    level: 525299,
+    level: '525299',
     hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionsCount: 3,
-    timeSince: '44 seconds',
+    transactionCount: 33,
+    timestamp: '1661776098',
   },
   {
-    level: 525299,
+    level: '525299',
     hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionsCount: 3,
-    timeSince: '44 seconds',
+    transactionCount: 23,
+    timestamp: '1661776098',
   },
   {
-    level: 525299,
+    level: '525299',
     hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionsCount: 3,
-    timeSince: '44 seconds',
+    transactionCount: 13,
+    timestamp: '1661776098',
   },
   {
-    level: 525299,
+    level: '525299',
     hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionsCount: 3,
-    timeSince: '44 seconds',
+    transactionCount: 9,
+    timestamp: '1661776098',
   },
   {
-    level: 525299,
+    level: '525299',
     hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionsCount: 3,
-    timeSince: '44 seconds',
+    transactionCount: 7,
+    timestamp: '1661776098',
   },
 ];
 
 export const useHomeEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
-  const [dagBlocks, setDagBlocks] = useState<BlockCardProps>();
-  const [pbftBlocks, setPbftBlocks] = useState<BlockCardProps>();
+  const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
+  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
 
   useEffect(() => {
-    setDagBlocks({
-      title: 'DAG Blocks',
-      transactions,
-    });
-    setPbftBlocks({
-      title: 'PBFT Blocks',
-      transactions,
-    });
-  }, []);
+    setDagBlocks(transactions);
+    setPbftBlocks(transactions);
+  }, [currentNetwork]);
 
   return { currentNetwork, dagBlocks, pbftBlocks };
 };
