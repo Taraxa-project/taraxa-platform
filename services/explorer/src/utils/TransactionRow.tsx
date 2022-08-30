@@ -7,7 +7,6 @@ import {
   TransactionTableData,
   TransactionStatus,
 } from '../models/TableData';
-import { theme } from '../theme-provider';
 
 export const statusToLabel = (state: TransactionStatus) => {
   if (state === TransactionStatus.SUCCESS) {
@@ -76,28 +75,17 @@ export const timestampToAge = (timestamp: string) => {
 };
 
 export const toBlockTableRow = (props: BlockData) => {
-  const { timestamp, block, txHash, transactionCount } = props;
+  const { timestamp, block, hash, transactionCount } = props;
 
   const ageString = timestampToAge(timestamp);
-  const txHashContainer = (
-    <p
-      style={{
-        color: theme.palette.secondary.main,
-        // whiteSpace: 'nowrap',
-        // textOverflow: 'ellipsis',
-        // overflow: 'hidden',
-      }}
-    >
-      {txHash}
-    </p>
-  );
+  const txHashContainer = <TransactionLink txHash={hash} />;
 
   return {
     data: [
       {
         timestamp: ageString,
         block,
-        txHash: txHashContainer,
+        hash: txHashContainer,
         transactionCount,
       },
     ],

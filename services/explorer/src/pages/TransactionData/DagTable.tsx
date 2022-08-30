@@ -51,7 +51,7 @@ export const DagTable: React.FC<{ dagData: BlockData }> = (props) => {
             </TableCell>
             <TableCell variant='body'>{dagData.level}</TableCell>
             <TableCell variant='body'>
-              <TransactionLink txHash={dagData.txHash} />
+              <TransactionLink txHash={dagData.hash} />
             </TableCell>
             <TableCell variant='body'>{dagData.transactionCount}</TableCell>
           </TableRow>
