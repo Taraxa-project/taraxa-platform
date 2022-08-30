@@ -15,10 +15,14 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   useEffect(() => {
     setTimeout(() => {
       const txData: TransactionData = {
+        txHash:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
         status: TransactionStatus.SUCCESS,
         timestamp: '1661776098',
         pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-        dagBlock: '529133',
+        dagLevel: '529133',
+        dagHash:
+          '0x00ACD3a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
         value: '1000000',
         from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
         to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
@@ -45,14 +49,14 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     setTimeout(() => {
       const dag: BlockData = {
         timestamp: '1661776098',
-        block: transactionData.dagBlock,
+        block: transactionData.dagLevel,
         level: '23213123213',
         hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
         transactionCount: 105,
       };
       setDagData(dag);
     }, 500);
-  }, [transactionData.dagBlock]);
+  }, [transactionData.dagLevel]);
 
   return { transactionData, dagData, events, currentNetwork };
 };
