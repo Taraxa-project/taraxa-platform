@@ -2,7 +2,13 @@ import { theme } from '@taraxa_project/taraxa-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export const TransactionLink = ({ txHash }: { txHash: string }) => {
+export const TransactionLink = ({
+  txHash,
+  wrap,
+}: {
+  txHash: string;
+  wrap?: boolean;
+}) => {
   return (
     <Link
       to={`/transactions/${txHash}`}
@@ -14,7 +20,7 @@ export const TransactionLink = ({ txHash }: { txHash: string }) => {
         overflow: 'hidden',
       }}
     >
-      {txHash}
+      {wrap && txHash ? `${txHash.slice(0, 8)}...` : txHash}
     </Link>
   );
 };

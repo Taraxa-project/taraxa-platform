@@ -25,3 +25,11 @@ export interface BlockData {
   hash: string;
   transactionCount: number;
 }
+
+export interface BlockDetails extends BlockData {
+  period: string;
+  pivot: string;
+  sender: string;
+  signature: string;
+  verifiableDelay: number;
+}
