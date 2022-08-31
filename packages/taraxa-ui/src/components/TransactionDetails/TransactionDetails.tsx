@@ -5,9 +5,9 @@ import theme from '../theme';
 import { Block, Route } from '../Icons';
 
 export interface TransactionDetailsProps {
-  level: number;
+  level: string;
   hash: string;
-  transactionsCount: number;
+  transactionCount: number;
   timeSince: string;
 }
 
@@ -21,7 +21,7 @@ export const shortenHash = (text: string, visibleLength = 44): string => {
 export const TransactionDetails: FC<TransactionDetailsProps> = ({
   level,
   hash,
-  transactionsCount,
+  transactionCount,
   timeSince,
 }) => {
   const classes = useStyles();
@@ -42,7 +42,7 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
         <Box className={classes.details}>
           <Route />
           <Typography variant='body2' color='grey.100'>
-            {transactionsCount} transactions - {timeSince} ago
+            {transactionCount} transactions - {timeSince} ago
           </Typography>
         </Box>
       </Box>

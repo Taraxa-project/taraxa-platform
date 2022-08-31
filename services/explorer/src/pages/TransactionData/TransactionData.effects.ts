@@ -47,8 +47,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
         timestamp: '1661776098',
         block: transactionData.dagBlock,
         level: '23213123213',
-        txHash:
-          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
         transactionCount: 105,
       };
       setDagData(dag);
