@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TransactionIcon = () => (
+const TransactionIcon = (): JSX.Element => (
   <svg
     width='24'
     height='24'
