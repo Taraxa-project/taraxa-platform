@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 import App from './App';
 import { ExplorerNetworkProvider } from './hooks/useExplorerNetwork';
 import reportWebVitals from './reportWebVitals';
@@ -14,7 +15,9 @@ root.render(
     <ExplorerThemeProvider>
       <ExplorerNetworkProvider>
         <BrowserRouter>
-          <App />
+          <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+            <App />
+          </SnackbarProvider>
         </BrowserRouter>
       </ExplorerNetworkProvider>
     </ExplorerThemeProvider>
