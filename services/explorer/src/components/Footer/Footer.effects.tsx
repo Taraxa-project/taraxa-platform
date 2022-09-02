@@ -6,7 +6,7 @@ export type FooterItem = {
   Icon: JSX.Element;
 };
 
-export const useFooterEffects = () => {
+export const useFooterEffects = (): { items: FooterItem[] } => {
   const items: FooterItem[] = [
     {
       label: 'Send',
