@@ -25,13 +25,19 @@ export class FaucetService {
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
     private readonly blockchainService: BlockchainService
   ) {
-    this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
+    this.privateKey = Buffer.from(
+      this.ethereumConfig.privateSigningKey!,
+      'hex'
+    );
   }
-  public async registerRequest(requestDto: CreateRequestDto) {
+  public async registerRequest(
+    requestDto: CreateRequestDto
+  ): Promise<RequestEntity> {
     if (!(requestDto.amount in RequestLimit))
       throw new Error(
         `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.FIVE}; ${RequestLimit.TEN} or ${RequestLimit.FIFTY}`
       );
+    requestDto.address = ethers.utils.getAddress(requestDto.address);
     const requestsForAddress = await this.requestRepository.find({
       address: requestDto.address,
     });
@@ -41,12 +47,12 @@ export class FaucetService {
       const total = requestsOfThisWeek
         .map((r) => r.amount)
         .reduce((curr, next) => curr + next);
-      if (total >= +this.generalConfig.maxRewardPerWeek)
+      if (total >= +this.generalConfig.maxRewardPerWeek!)
         throw new Error(
           `You have exceeded the ${this.generalConfig.maxRewardPerWeek} TARA for this week. Please return nexgt week. Until then, happy hacking!`
         );
       const remainder =
-        +this.generalConfig.maxRewardPerWeek - requestDto.amount;
+        +this.generalConfig.maxRewardPerWeek! - requestDto.amount;
       if (remainder < requestDto.amount)
         throw new Error(
           `You can withdraw ${remainder} TARA tokens for the current week only. Please choose an amount smaller or equal to it.`
@@ -60,7 +66,7 @@ export class FaucetService {
     if (request) {
       const taraContract = this.blockchainService.getContractInstance(
         ContractTypes.TARA,
-        this.ethereumConfig.contractAddress
+        this.ethereumConfig.contractAddress!
       );
       if (!taraContract)
         throw new Error(
@@ -78,5 +84,8 @@ export class FaucetService {
         return registered;
       } else throw new Error(`${transfer} was unsuccessful.`);
     }
+    throw new Error(
+      'Databse connection cannot be initialized. Please try again later.'
+    );
   }
 }

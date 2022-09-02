@@ -1,7 +1,7 @@
 enum RequestLimit {
   ONE = 1,
+  TWO = 2,
   FIVE = 5,
-  TEN = 10,
-  FIFTY = 50,
+  SEVEN = 7,
 }
 export default RequestLimit;
