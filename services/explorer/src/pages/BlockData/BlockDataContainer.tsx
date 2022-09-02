@@ -12,7 +12,7 @@ import {
 import { useBlockDataContainerEffects } from './BlockDataContainer.effects';
 import { BlockTable } from './BlockTable';
 
-const BlockDataContainer = () => {
+const BlockDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const { blockData, transactions, currentNetwork, onClickTransactions } =
     useBlockDataContainerEffects(txHash);
