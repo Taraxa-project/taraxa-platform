@@ -26,10 +26,10 @@ export const filterRequestsOfThisWeek = (
     date.setSeconds(0);
     date.setMilliseconds(0);
   };
-  const maxDate = new Date();
+  const maxDate = toUTCDate(new Date());
   maxDate.setDate(monthDay + daysToSunday);
   setDateToMidnight(maxDate);
-  const minDate = new Date();
+  const minDate = toUTCDate(new Date());
   minDate.setDate(monthDay - daysFromSunday);
   setDateToMidnight(minDate);
 
