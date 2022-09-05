@@ -1,7 +1,7 @@
 import { ToastData } from '../utils';
 import { faucetUri } from '../config';
 
-export async function getTokens(
+export async function sendRequestTokens(
   address: string,
   amount: number,
   currentNetwork: string,

@@ -1,1 +1,1 @@
-export * from './tokenRequest.faucet';
+export * from './sendRequestTokens.faucet';

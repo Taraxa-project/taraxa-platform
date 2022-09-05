@@ -4,7 +4,7 @@ import { useSnackbar } from 'notistack';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { getTokens } from '../../api';
+import { sendRequestTokens } from '../../api';
 import { RequestLimit, ToastData } from '../../utils';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
@@ -57,7 +57,12 @@ export const useFaucetEffects = () => {
 
   const requestTokens = async (data: { address: string; amount: number }) => {
     initLoading();
-    await getTokens(data.address, data.amount, currentNetwork, setDisplayToast);
+    await sendRequestTokens(
+      data.address,
+      data.amount,
+      currentNetwork,
+      setDisplayToast
+    );
     finishLoading();
   };
 
