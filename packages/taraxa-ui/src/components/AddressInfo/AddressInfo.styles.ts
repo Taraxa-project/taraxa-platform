@@ -10,6 +10,7 @@ const useStyles = makeStyles(() => {
       border: `1px solid ${theme.palette.grey[100]}`,
       padding: theme.spacing(3),
       flexDirection: 'column',
+      width: '100%',
     },
     address: {
       display: 'flex',

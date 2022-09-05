@@ -44,10 +44,12 @@ import {
 } from './components/TransactionDetails';
 import { BlockCard } from './components/BlockCard';
 import { AwardCard } from './components/AwardCard';
+import AddressInfo from './components/AddressInfo';
 import theme from './components/theme';
 
 export {
   AmountCard,
+  AddressInfo,
   Button,
   Text,
   Card,
