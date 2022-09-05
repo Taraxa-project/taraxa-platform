@@ -18,6 +18,10 @@ export class RequestEntity {
   @Column()
   amount: number;
 
+  @Column()
+  @Index()
+  txHash: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

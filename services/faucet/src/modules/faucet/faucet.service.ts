@@ -1,13 +1,15 @@
 import { ethereum, general } from '@faucet/config';
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethers } from 'ethers';
 import { Repository } from 'typeorm';
-import {
-  BlockchainService,
-  ContractTypes,
-} from '../blockchain/blockchain.service';
+import { BlockchainService } from '../blockchain/blockchain.service';
 import { CreateRequestDto } from './dto';
 import { RequestEntity } from './entity';
 import RequestLimit from './types/RequestLimit.enum';
@@ -35,7 +37,7 @@ export class FaucetService {
     requestDto: CreateRequestDto
   ): Promise<RequestEntity> {
     if (!(requestDto.amount in RequestLimit))
-      throw new Error(
+      throw new BadRequestException(
         `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.TWO}; ${RequestLimit.FIVE} or ${RequestLimit.SEVEN}`
       );
     requestDto.address = ethers.utils.getAddress(requestDto.address);
@@ -49,44 +51,53 @@ export class FaucetService {
         .map((r) => r.amount)
         .reduce((curr, next) => curr + next);
       if (total >= +this.generalConfig.maxRewardPerWeek!)
-        throw new Error(
+        throw new BadRequestException(
           `You have exceeded the ${this.generalConfig.maxRewardPerWeek} TARA for this week. Please return nexgt week. Until then, happy hacking!`
         );
-      const remainder =
-        +this.generalConfig.maxRewardPerWeek! - requestDto.amount;
+      const remainder = +this.generalConfig.maxRewardPerWeek! - total;
       if (remainder < requestDto.amount)
-        throw new Error(
+        throw new BadRequestException(
           `You can withdraw ${remainder} TARA tokens for the current week only. Please choose an amount smaller or equal to it.`
         );
     }
     const request = new RequestEntity();
     request.address = requestDto.address;
     request.amount = requestDto.amount;
-    request.createdAt = toUTCDate(requestDto.timestamp);
+    request.createdAt = toUTCDate(new Date(requestDto.timestamp));
 
     if (request) {
-      const taraContract = this.blockchainService.getContractInstance(
-        ContractTypes.TARA,
-        this.ethereumConfig.contractAddress!
-      );
-      if (!taraContract)
-        throw new Error(
-          'TARA contract cannot be initialized. Please try again later.'
+      const taraWallet = this.blockchainService.getWallet();
+      if (!taraWallet)
+        throw new InternalServerErrorException(
+          'TARA wallet cannot be initialized. Please try again later.'
         );
-      const transfer = await taraContract
-        .connect(this.blockchainService.wallet)
-        .transfer(
-          this.ethereumConfig.contractAddress,
-          request.address,
-          ethers.utils.parseEther(`${request.amount}`)
-        );
-      if (transfer) {
+      const sendTx: ethers.providers.TransactionRequest = {
+        to: request.address,
+        value: ethers.utils.parseEther(`${request.amount}`),
+        gasPrice: 0,
+        gasLimit: 100000000,
+      };
+      const transfer = await taraWallet.sendTransaction(sendTx);
+      while (!transfer.hash) {
+        console.log('waiting for confirmation');
+      }
+      if (transfer && transfer.hash) {
+        request.txHash = transfer.hash;
         const registered = await this.requestRepository.save(request);
         return registered;
-      } else throw new Error(`${transfer} was unsuccessful.`);
+      } else
+        throw new InternalServerErrorException(
+          `${transfer.hash} was unsuccessful.`
+        );
     }
-    throw new Error(
-      'Databse connection cannot be initialized. Please try again later.'
+    throw new InternalServerErrorException(
+      'Database connection cannot be initialized. Please try again later.'
     );
   }
+  public getAllRequests = (): Promise<RequestEntity[]> => {
+    return this.requestRepository.find({});
+  };
+  public getByHash = (txHash: string): Promise<RequestEntity> => {
+    return this.requestRepository.findOne({ txHash });
+  };
 }

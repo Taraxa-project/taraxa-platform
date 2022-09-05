@@ -11,7 +11,7 @@ export enum ContractTypes {
 @Injectable()
 export class BlockchainService {
   private provider: ethers.providers.JsonRpcProvider;
-  public wallet: ethers.Wallet;
+  private wallet: ethers.Wallet;
 
   private contractInstances = {};
 
@@ -28,8 +28,11 @@ export class BlockchainService {
       this.provider
     );
   }
-  getProvider() {
+  public getProvider(): ethers.providers.Provider {
     return this.provider;
+  }
+  public getWallet(): ethers.Wallet {
+    return this.wallet;
   }
   getContractInstance(type: ContractTypes, address: string): ethers.Contract {
     if (this.contractInstances[address]) {
