@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Box,
   FormControl,
@@ -7,23 +8,16 @@ import {
   Typography,
 } from '@mui/material';
 import { Button, InputField } from '@taraxa_project/taraxa-ui';
-import React from 'react';
 import AccessAlarmSharpIcon from '@mui/icons-material/AccessAlarmSharp';
 import moment from 'moment';
+import { Controller } from 'react-hook-form';
 import { RequestLimit } from '../../utils';
 import { PageTitle } from '../../components';
 import { useFaucetEffects } from './Faucet.effects';
 
 const FaucetPage = (): JSX.Element => {
-  const {
-    amount,
-    setAmount,
-    currentNetwork,
-    onSubmit,
-    handleSubmit,
-    register,
-    errors,
-  } = useFaucetEffects();
+  const { amount, setAmount, control, currentNetwork, onSubmit, handleSubmit } =
+    useFaucetEffects();
 
   return (
     <Box display='flex' flexDirection='column' alignItems='center'>
@@ -64,52 +58,56 @@ const FaucetPage = (): JSX.Element => {
             gap: '2rem',
           }}
         >
-          <FormControl>
-            <InputField
-              label={`Your address on ${currentNetwork}`}
-              placeholder='0x00000000000000000000000000'
-              name='address'
-              style={{ width: '30rem' }}
-              {...register('address')}
-            />
-            {errors.address && (
-              <FormHelperText color='danger'>
-                {errors.address.message}
-              </FormHelperText>
+          <Controller
+            name='address'
+            control={control}
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <InputField
+                label={`Your address on ${currentNetwork}`}
+                value={value}
+                type='text'
+                name='address'
+                style={{ width: '30rem' }}
+                error={!!error}
+                onChange={onChange}
+                helperText={error ? error.message : null}
+              />
             )}
-          </FormControl>
-          <FormControl>
-            <Select
-              name='amount'
-              value={amount}
-              {...register('amount')}
-              onChange={(e) => setAmount(+e.target.value)}
-            >
-              {Object.keys(RequestLimit)
-                .map((k) => Number(k))
-                .filter(Number)
-                .map((key) => (
-                  <MenuItem key={key} value={key}>
-                    {key}
-                  </MenuItem>
-                ))}
-            </Select>
-            {errors.amount && (
-              <FormHelperText color='danger'>
-                {errors.amount.message}
-              </FormHelperText>
+          />
+          <Controller
+            name='amount'
+            control={control}
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <FormControl error={!!error}>
+                <Select
+                  name='amount'
+                  value={value}
+                  error={!!error}
+                  onChange={(e: any) => {
+                    onChange(e);
+                    setAmount(+e.target.value);
+                  }}
+                >
+                  {Object.keys(RequestLimit)
+                    .map((k) => Number(k))
+                    .filter(Number)
+                    .map((key) => (
+                      <MenuItem key={key} value={key}>
+                        {key}
+                      </MenuItem>
+                    ))}
+                </Select>
+                <FormHelperText>{error ? error.message : null}</FormHelperText>
+                <FormHelperText>{`You are requesting ${amount} TARA tokens`}</FormHelperText>
+              </FormControl>
             )}
-            <FormHelperText>{`You are requesting ${amount} TARA tokens`}</FormHelperText>
-          </FormControl>
+          />
           <Button
             variant='contained'
             color='secondary'
             size='medium'
             type='submit'
             label={`Request ${amount} TARA`}
-            disabled={
-              errors.address !== undefined || errors.amount !== undefined
-            }
           />
         </form>
       </Box>

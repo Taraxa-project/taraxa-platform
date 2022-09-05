@@ -1,5 +1,6 @@
-import { useSnackbar } from 'notistack';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -12,7 +13,7 @@ export const useFaucetEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
   const { isLoading, initLoading, finishLoading } = useExplorerLoader();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(RequestLimit.ONE);
   const [displayToast, setDisplayToast] = useState<ToastData>({
     display: false,
     variant: undefined,
@@ -21,21 +22,23 @@ export const useFaucetEffects = () => {
 
   const defaultValues = {
     address: '',
-    amount: 1,
+    amount: RequestLimit.ONE,
   };
 
   const validationSchema = yup
     .object({
       address: yup
         .string()
-        .length(40)
+        .min(42)
+        .max(42)
+        .notOneOf(['0x0'])
         .required('Please specify the recipient address')
         .label('Recipient Address'),
       amount: yup
         .number()
         .min(RequestLimit.ONE)
         .max(RequestLimit.SEVEN)
-        .required('Please specifyt the requested amount')
+        .required('Please specify the requested amount')
         .label('TARA amount'),
     })
     .required();
@@ -52,19 +55,15 @@ export const useFaucetEffects = () => {
     resolver: yupResolver(validationSchema),
   });
 
+  const requestTokens = async (data: { address: string; amount: number }) => {
+    initLoading();
+    await getTokens(data.address, data.amount, currentNetwork, setDisplayToast);
+    finishLoading();
+  };
+
   const onSubmit = async (data: { address: string; amount: number }) => {
-    console.log(data);
-    const requestTokens = async () => {
-      initLoading();
-      await getTokens(
-        data.address,
-        data.amount,
-        currentNetwork,
-        setDisplayToast
-      );
-      finishLoading();
-    };
-    requestTokens();
+    await requestTokens(data);
+    setAmount(RequestLimit.ONE);
     reset();
   };
 
