@@ -27,8 +27,8 @@ export type InputFieldProps = {
   variant?: 'filled' | 'outlined' | 'standard';
   className?: string;
   type?: string;
-  min?: number;
-  max?: number;
+  min?: string | number;
+  max?: string | number;
   error?: boolean;
   helperText?: string;
 } & TextFieldProps;
