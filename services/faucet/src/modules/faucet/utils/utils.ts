@@ -1,10 +1,22 @@
 import { RequestEntity } from '../entity';
 
+export const toUTCDate = (date: Date): Date => {
+  return new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+    date.getUTCSeconds()
+  );
+};
+
 export const filterRequestsOfThisWeek = (
   requests: RequestEntity[]
 ): RequestEntity[] => {
-  const monthDay = new Date().getDate();
-  const weekDay = new Date().getDay();
+  const utcDate = toUTCDate(new Date());
+  const monthDay = utcDate.getDate();
+  const weekDay = utcDate.getDay();
   const daysToSunday = 7 - weekDay;
   const daysFromSunday = weekDay;
 
@@ -22,9 +34,10 @@ export const filterRequestsOfThisWeek = (
   setDateToMidnight(minDate);
 
   return requests.filter((req) => {
+    const utcReq = toUTCDate(req.createdAt);
     if (
-      req.createdAt.getTime() < maxDate.getTime() &&
-      req.createdAt.getTime() >= minDate.getTime()
+      utcReq.getTime() < maxDate.getTime() &&
+      utcReq.getTime() >= minDate.getTime()
     ) {
       return true;
     } else {

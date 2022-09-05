@@ -12,6 +12,7 @@ import { CreateRequestDto } from './dto';
 import { RequestEntity } from './entity';
 import RequestLimit from './types/RequestLimit.enum';
 import { filterRequestsOfThisWeek } from './utils';
+import { toUTCDate } from './utils/utils';
 
 @Injectable()
 export class FaucetService {
@@ -35,7 +36,7 @@ export class FaucetService {
   ): Promise<RequestEntity> {
     if (!(requestDto.amount in RequestLimit))
       throw new Error(
-        `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.FIVE}; ${RequestLimit.TEN} or ${RequestLimit.FIFTY}`
+        `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.TWO}; ${RequestLimit.FIVE} or ${RequestLimit.SEVEN}`
       );
     requestDto.address = ethers.utils.getAddress(requestDto.address);
     const requestsForAddress = await this.requestRepository.find({
@@ -61,7 +62,7 @@ export class FaucetService {
     const request = new RequestEntity();
     request.address = requestDto.address;
     request.amount = requestDto.amount;
-    request.createdAt = requestDto.timestamp;
+    request.createdAt = toUTCDate(requestDto.timestamp);
 
     if (request) {
       const taraContract = this.blockchainService.getContractInstance(
