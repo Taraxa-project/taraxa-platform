@@ -6,7 +6,7 @@ import { PageTitle } from '../../components';
 import { useHomeEffects } from './Home.effects';
 import ChartContainer from './ChartContainer';
 
-const HomePage = () => {
+const HomePage = (): JSX.Element => {
   const { currentNetwork, dagBlocks, pbftBlocks } = useHomeEffects();
 
   const dagToDisplay = () => {

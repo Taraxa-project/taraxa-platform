@@ -39,6 +39,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
+    "@hookform/resolvers": "^2.9.7",
     "@mui/icons-material": "^5.8.4",
     "@mui/lab": "^5.0.0-alpha.95",
     "@mui/material": "^5.10.1",
@@ -61,11 +62,13 @@
     "metamask-react": "^2.0.2",
     "moment": "^2.29.2",
     "node-sass": "^6.0.1",
+    "notistack": "^2.0.5",
     "qs-stringify": "^1.2.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-error-overlay": "6.0.9",
     "react-google-recaptcha-v3": "^1.9.5",
+    "react-hook-form": "^7.34.2",
     "react-markdown": "^7.1.0",
     "react-responsive": "^9.0.0-beta.4",
     "react-router-dom": "6.3.0",
@@ -74,23 +77,11 @@
     "state-pool": "^0.6.0",
     "styled-components": "^5.3.5",
     "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
-    "@types/date-and-time": "^0.13.0",
-    "@typescript-eslint/eslint-plugin": "^5.34.0",
-    "@typescript-eslint/parser": "^5.34.0",
-    "eslint": "^8.2.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-jest": "^26.8.7",
-    "eslint-plugin-jsx-a11y": "^6.5.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.28.0",
-    "eslint-plugin-react-hooks": "^4.3.0",
-    "prettier": "^2.7.1"
+    "@types/date-and-time": "^0.13.0"
   }
 }

@@ -2,7 +2,7 @@ import { theme } from '@taraxa_project/taraxa-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export const AddressLink = ({ address }: { address: string }) => {
+export const AddressLink = ({ address }: { address: string }): JSX.Element => {
   return (
     <Link
       to={`/addresses/${address}`}

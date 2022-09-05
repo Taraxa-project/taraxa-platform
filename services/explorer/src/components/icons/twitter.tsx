@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TwitterIcon = () => {
+const TwitterIcon = (): JSX.Element => {
   return (
     <svg
       width='30'

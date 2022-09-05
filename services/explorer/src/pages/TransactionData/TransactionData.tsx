@@ -12,7 +12,7 @@ import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { DagTable } from './DagTable';
 
-const TransactionDataContainer = () => {
+const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const { transactionData, dagData, events, currentNetwork } =
     useTransactionDataContainerEffects(txHash);

@@ -8,7 +8,7 @@ export const TransactionLink = ({
 }: {
   txHash: string;
   wrap?: boolean;
-}) => {
+}): JSX.Element => {
   return (
     <Link
       to={`/transactions/${txHash}`}

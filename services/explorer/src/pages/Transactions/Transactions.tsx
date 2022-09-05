@@ -4,7 +4,7 @@ import { toTransactionTableRow } from '../../utils/TransactionRow';
 import { useTransactionEffects } from './Transactions.effects';
 import { PageTitle } from '../../components';
 
-const TransactionsPage = () => {
+const TransactionsPage = (): JSX.Element => {
   const { data, columns, currentNetwork } = useTransactionEffects();
   const rows = data ? data.map((row) => toTransactionTableRow(row)) : [];
   return (
