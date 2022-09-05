@@ -10,9 +10,9 @@ import { Button, InputField } from '@taraxa_project/taraxa-ui';
 import React from 'react';
 import AccessAlarmSharpIcon from '@mui/icons-material/AccessAlarmSharp';
 import moment from 'moment';
-import { PageTitle, TaraxaIcon } from '../../components';
-import { theme } from '../../theme-provider';
-import { RequestLimit, useFaucetEffects } from './Faucet.effects';
+import { RequestLimit } from '../../utils';
+import { PageTitle } from '../../components';
+import { useFaucetEffects } from './Faucet.effects';
 
 const FaucetPage = (): JSX.Element => {
   const {
@@ -81,16 +81,9 @@ const FaucetPage = (): JSX.Element => {
         </FormControl>
         <Button
           variant='contained'
-          style={{
-            backgroundColor: theme.palette.background.paper,
-            color: theme.palette.text.secondary,
-            height: '3.5rem',
-            width: 'fit-content',
-          }}
-          sx={{ gap: '1rem' }}
+          color='secondary'
           size='medium'
           label={`Request ${amount} TARA`}
-          Icon={TaraxaIcon}
           onClick={sendTokenRequest}
           disabled={!address && address.length < 1}
         />

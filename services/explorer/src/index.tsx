@@ -6,6 +6,7 @@ import App from './App';
 import { ExplorerNetworkProvider } from './hooks/useExplorerNetwork';
 import reportWebVitals from './reportWebVitals';
 import { ExplorerThemeProvider } from './theme-provider';
+import { ExplorerLoaderProvider } from './hooks/useLoader';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -14,11 +15,13 @@ root.render(
   <React.StrictMode>
     <ExplorerThemeProvider>
       <ExplorerNetworkProvider>
-        <BrowserRouter>
-          <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-            <App />
-          </SnackbarProvider>
-        </BrowserRouter>
+        <ExplorerLoaderProvider>
+          <BrowserRouter>
+            <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+              <App />
+            </SnackbarProvider>
+          </BrowserRouter>
+        </ExplorerLoaderProvider>
       </ExplorerNetworkProvider>
     </ExplorerThemeProvider>
   </React.StrictMode>
