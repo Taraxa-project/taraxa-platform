@@ -14,10 +14,12 @@ import { Controller } from 'react-hook-form';
 import { RequestLimit } from '../../utils';
 import { PageTitle } from '../../components';
 import { useFaucetEffects } from './Faucet.effects';
+import useStyles from './Faucet.styles';
 
 const FaucetPage = (): JSX.Element => {
   const { amount, setAmount, control, currentNetwork, onSubmit, handleSubmit } =
     useFaucetEffects();
+  const classes = useStyles();
 
   return (
     <Box display='flex' flexDirection='column' alignItems='center'>
@@ -46,28 +48,20 @@ const FaucetPage = (): JSX.Element => {
         gap='2rem'
       >
         <form
+          className={classes.form}
           autoComplete='off'
           onSubmit={handleSubmit(onSubmit)}
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            marginBottom: '6rem',
-            gap: '2rem',
-          }}
         >
           <Controller
             name='address'
             control={control}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <InputField
+                className={classes.address}
                 label={`Your address on ${currentNetwork}`}
                 value={value}
                 type='text'
                 name='address'
-                style={{ width: '30rem' }}
                 error={!!error}
                 onChange={onChange}
                 helperText={error ? error.message : null}
@@ -78,7 +72,7 @@ const FaucetPage = (): JSX.Element => {
             name='amount'
             control={control}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
-              <FormControl error={!!error}>
+              <FormControl error={!!error} className={classes.amount}>
                 <Select
                   name='amount'
                   value={value}
@@ -103,6 +97,7 @@ const FaucetPage = (): JSX.Element => {
             )}
           />
           <Button
+            className={classes.button}
             variant='contained'
             color='secondary'
             size='medium'
