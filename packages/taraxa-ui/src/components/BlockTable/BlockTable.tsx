@@ -71,10 +71,17 @@ export const statusToLabel = (state: TransactionStatus) => {
 export interface BlockTableProps {
   blockData: TransactionData[];
   onFilter?: () => void;
+  onDAGFilter?: () => void;
+  onPBFTFilter?: () => void;
 }
 
 const BlockTable: React.FC<BlockTableProps> = (props) => {
-  const { blockData = [], onFilter } = props;
+  const {
+    blockData = [],
+    onFilter = () => ({}),
+    onDAGFilter = () => ({}),
+    onPBFTFilter = () => ({}),
+  } = props;
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [page, setPage] = React.useState(0);
 
@@ -103,28 +110,31 @@ const BlockTable: React.FC<BlockTableProps> = (props) => {
               style={{
                 backgroundColor: theme.palette.grey.A200,
                 color: theme.palette.text.primary,
+                gap: theme.spacing(1),
               }}
             />
             <Button
               Icon={TransactionBlock}
               label='DAG Blocks'
-              onClick={onFilter}
+              onClick={onDAGFilter}
               size='medium'
               variant='contained'
               style={{
                 backgroundColor: theme.palette.grey.A200,
                 color: theme.palette.text.primary,
+                gap: theme.spacing(1),
               }}
             />
             <Button
               Icon={TransactionBlock}
               label='PBFT Blocks'
-              onClick={onFilter}
+              onClick={onPBFTFilter}
               size='medium'
               variant='contained'
               style={{
                 backgroundColor: theme.palette.grey.A200,
                 color: theme.palette.text.primary,
+                gap: theme.spacing(1),
               }}
             />
           </Box>
