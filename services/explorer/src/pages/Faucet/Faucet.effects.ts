@@ -1,5 +1,8 @@
 import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import * as yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { getTokens } from '../../api';
 import { RequestLimit, ToastData } from '../../utils';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
@@ -9,22 +12,61 @@ export const useFaucetEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
   const { isLoading, initLoading, finishLoading } = useExplorerLoader();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const [address, setAddress] = useState<string>('');
-  const [amount, setAmount] = useState<RequestLimit>(1);
+  const [amount, setAmount] = useState(0);
   const [displayToast, setDisplayToast] = useState<ToastData>({
     display: false,
     variant: undefined,
     text: '',
   });
 
-  const sendTokenRequest = useCallback(() => {
+  const defaultValues = {
+    address: '',
+    amount: 1,
+  };
+
+  const validationSchema = yup
+    .object({
+      address: yup
+        .string()
+        .length(40)
+        .required('Please specify the recipient address')
+        .label('Recipient Address'),
+      amount: yup
+        .number()
+        .min(RequestLimit.ONE)
+        .max(RequestLimit.SEVEN)
+        .required('Please specifyt the requested amount')
+        .label('TARA amount'),
+    })
+    .required();
+
+  const {
+    handleSubmit,
+    register,
+    reset,
+    control,
+    formState: { isSubmitSuccessful, errors },
+  } = useForm({
+    reValidateMode: 'onChange',
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
+
+  const onSubmit = async (data: { address: string; amount: number }) => {
+    console.log(data);
     const requestTokens = async () => {
       initLoading();
-      await getTokens(address, amount, currentNetwork, setDisplayToast);
+      await getTokens(
+        data.address,
+        data.amount,
+        currentNetwork,
+        setDisplayToast
+      );
       finishLoading();
     };
     requestTokens();
-  }, [address]);
+    reset();
+  };
 
   useEffect(() => {
     if (displayToast.display) {
@@ -35,14 +77,22 @@ export const useFaucetEffects = () => {
     }
   }, [displayToast]);
 
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset();
+    }
+  }, [isSubmitSuccessful, reset]);
+
   return {
-    address,
-    setAddress,
     amount,
     setAmount,
     isLoading,
     currentNetwork,
-    sendTokenRequest,
+    onSubmit,
     closeSnackbar,
+    handleSubmit,
+    register,
+    control,
+    errors,
   };
 };

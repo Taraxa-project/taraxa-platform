@@ -16,12 +16,13 @@ import { useFaucetEffects } from './Faucet.effects';
 
 const FaucetPage = (): JSX.Element => {
   const {
-    address,
-    setAddress,
     amount,
     setAmount,
     currentNetwork,
-    sendTokenRequest,
+    onSubmit,
+    handleSubmit,
+    register,
+    errors,
   } = useFaucetEffects();
 
   return (
@@ -50,43 +51,67 @@ const FaucetPage = (): JSX.Element => {
         marginBottom='6rem'
         gap='2rem'
       >
-        <FormControl>
-          <InputField
-            label={`Your address on ${currentNetwork}`}
-            placeholder='0x00000000000000000000000000'
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            style={{ width: '30rem' }}
-          />
-        </FormControl>
-        <FormControl>
-          <Select
-            value={amount}
-            onChange={(e) =>
-              setAmount(
-                e.target.value in RequestLimit ? Number(e.target.value) : 0
-              )
+        <form
+          autoComplete='off'
+          onSubmit={handleSubmit(onSubmit)}
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            marginBottom: '6rem',
+            gap: '2rem',
+          }}
+        >
+          <FormControl>
+            <InputField
+              label={`Your address on ${currentNetwork}`}
+              placeholder='0x00000000000000000000000000'
+              name='address'
+              style={{ width: '30rem' }}
+              {...register('address')}
+            />
+            {errors.address && (
+              <FormHelperText color='danger'>
+                {errors.address.message}
+              </FormHelperText>
+            )}
+          </FormControl>
+          <FormControl>
+            <Select
+              name='amount'
+              value={amount}
+              {...register('amount')}
+              onChange={(e) => setAmount(+e.target.value)}
+            >
+              {Object.keys(RequestLimit)
+                .map((k) => Number(k))
+                .filter(Number)
+                .map((key) => (
+                  <MenuItem key={key} value={key}>
+                    {key}
+                  </MenuItem>
+                ))}
+            </Select>
+            {errors.amount && (
+              <FormHelperText color='danger'>
+                {errors.amount.message}
+              </FormHelperText>
+            )}
+            <FormHelperText>{`You are requesting ${amount} TARA tokens`}</FormHelperText>
+          </FormControl>
+          <Button
+            variant='contained'
+            color='secondary'
+            size='medium'
+            type='submit'
+            label={`Request ${amount} TARA`}
+            disabled={
+              errors.address !== undefined || errors.amount !== undefined
             }
-          >
-            {Object.keys(RequestLimit)
-              .map((k) => Number(k))
-              .filter(Number)
-              .map((key) => (
-                <MenuItem key={key} value={key}>
-                  {key}
-                </MenuItem>
-              ))}
-          </Select>
-          <FormHelperText>{`You are requesting ${amount} TARA tokens`}</FormHelperText>
-        </FormControl>
-        <Button
-          variant='contained'
-          color='secondary'
-          size='medium'
-          label={`Request ${amount} TARA`}
-          onClick={sendTokenRequest}
-          disabled={!address && address.length < 1}
-        />
+          />
+        </form>
       </Box>
     </Box>
   );

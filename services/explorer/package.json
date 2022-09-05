@@ -39,6 +39,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
+    "@hookform/resolvers": "^2.9.7",
     "@mui/icons-material": "^5.8.4",
     "@mui/lab": "^5.0.0-alpha.95",
     "@mui/material": "^5.10.1",
@@ -67,6 +68,7 @@
     "react-dom": "^18.1.0",
     "react-error-overlay": "6.0.9",
     "react-google-recaptcha-v3": "^1.9.5",
+    "react-hook-form": "^7.34.2",
     "react-markdown": "^7.1.0",
     "react-responsive": "^9.0.0-beta.4",
     "react-router-dom": "6.3.0",
@@ -75,7 +77,8 @@
     "state-pool": "^0.6.0",
     "styled-components": "^5.3.5",
     "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
