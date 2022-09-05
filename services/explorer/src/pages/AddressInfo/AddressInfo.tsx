@@ -2,8 +2,10 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { AddressInfo } from '@taraxa_project/taraxa-ui';
 import { PageTitle } from '../../components';
+import { useAddressInfoEffects } from './AddressInfo.effects';
 
 const AddressInfoPage = () => {
+  const { transactions } = useAddressInfoEffects();
   return (
     <>
       <PageTitle
@@ -13,7 +15,7 @@ const AddressInfoPage = () => {
       <Box sx={{ display: 'flex', gap: '24px', width: '100%' }}>
         <AddressInfo
           address='test'
-          blockData={[]}
+          blockData={transactions}
           balance='123'
           value='123'
           transactionCount={240}
