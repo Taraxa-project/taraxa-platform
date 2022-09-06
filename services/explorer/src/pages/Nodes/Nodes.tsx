@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
 
-const NodesPage = () => {
+const NodesPage = (): JSX.Element => {
   const { blocks, title, subtitle, description, cols, tableData } =
     useNodesEffects();
   return (

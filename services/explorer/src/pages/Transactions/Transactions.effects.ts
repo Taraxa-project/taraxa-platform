@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useExplorerLoader } from '../../hooks/useLoader';
 import {
   ColumnData,
   TransactionTableData,
@@ -148,12 +149,15 @@ export const useTransactionEffects = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [columns, setColumns] = useState<ColumnData[]>(cols);
   const { currentNetwork } = useExplorerNetwork();
+  const { initLoading, finishLoading } = useExplorerLoader();
 
   useEffect(() => {
+    initLoading();
     setTimeout(() => {
       setData(rows);
+      finishLoading();
     }, 3000);
-  }, [data]);
+  }, []);
 
   return { data, columns, currentNetwork };
 };

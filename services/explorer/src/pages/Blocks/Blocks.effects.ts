@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useExplorerLoader } from '../../hooks/useLoader';
 import { BlockData, ColumnData } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 
@@ -101,11 +102,14 @@ export const useBlockEffects = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [columns, setColumns] = useState<ColumnData[]>(cols);
   const { currentNetwork } = useExplorerNetwork();
+  const { initLoading, finishLoading } = useExplorerLoader();
 
   useEffect(() => {
+    initLoading();
     setTimeout(() => {
       setData(rows);
     }, 3000);
+    finishLoading();
   }, [data]);
 
   return { data, columns, currentNetwork };

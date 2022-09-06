@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useExplorerLoader } from '../../hooks/useLoader';
 import { BlockData } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
@@ -44,12 +45,15 @@ const transactions: BlockData[] = [
 
 export const useHomeEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
+  const { initLoading, finishLoading } = useExplorerLoader();
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
   const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
 
   useEffect(() => {
+    initLoading();
     setDagBlocks(transactions);
     setPbftBlocks(transactions);
+    finishLoading();
   }, [currentNetwork]);
 
   const dagToDisplay = (dagBlocks: BlockData[]) => {

@@ -4,7 +4,7 @@ import { BarChart } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
 import { useHomeEffects } from './Home.effects';
 
-const ChartContainer = () => {
+const ChartContainer = (): JSX.Element => {
   const { dagBlocks, pbftBlocks } = useHomeEffects();
 
   return (
