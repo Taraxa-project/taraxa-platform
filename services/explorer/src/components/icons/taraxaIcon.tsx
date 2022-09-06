@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TaraxaIcon = () => {
+const TaraxaIcon = (): JSX.Element => {
   return (
     <svg
       width='29'

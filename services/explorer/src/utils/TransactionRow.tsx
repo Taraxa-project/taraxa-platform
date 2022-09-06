@@ -8,7 +8,7 @@ import {
   TransactionStatus,
 } from '../models/TableData';
 
-export const statusToLabel = (state: TransactionStatus) => {
+export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
     return (
       <Label

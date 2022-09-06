@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CopyIcon = () => (
+const CopyIcon = (): JSX.Element => (
   <svg
     width='48'
     height='32'

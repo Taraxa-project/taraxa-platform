@@ -1,0 +1,22 @@
+frontend:
+  image:
+    repository: gcr.io/jovial-meridian-249123/taraxa-explorer-develop
+    pullPolicy: Always
+    tag: "latest"
+
+  nodeSelector:
+    cloud.google.com/gke-nodepool: taraxa-explorer-qa
+
+ingress:
+  enabled: true
+  auth:
+    enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+  hosts:
+    - host: qa.explorer.taraxa.io
+  tls:
+    - secretName: wild-qa-explorer-taraxa-io-tls
+      hosts:
+        - qa.explorer.taraxa.io

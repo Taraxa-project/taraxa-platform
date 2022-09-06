@@ -1,6 +1,6 @@
 import React from 'react';
 
-const HamburgerIcon = () => {
+const HamburgerIcon = (): JSX.Element => {
   return (
     <svg
       width='18'

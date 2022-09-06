@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DiscordIcon = () => {
+const DiscordIcon = (): JSX.Element => {
   return (
     <svg
       width='28'

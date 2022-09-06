@@ -80,7 +80,6 @@ export const useHeaderEffects = () => {
         return btn;
       })
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const searchInputProps: SearchInputProps = {
