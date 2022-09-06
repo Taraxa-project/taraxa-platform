@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BlockData } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
+import { timestampToAge } from '../../utils/TransactionRow';
 
 const transactions: BlockData[] = [
   {
@@ -51,5 +52,35 @@ export const useHomeEffects = () => {
     setPbftBlocks(transactions);
   }, [currentNetwork]);
 
-  return { currentNetwork, dagBlocks, pbftBlocks };
+  const dagToDisplay = (dagBlocks: BlockData[]) => {
+    const _tx = dagBlocks?.map((tx) => {
+      return {
+        level: tx.level,
+        hash: tx.hash,
+        transactionCount: tx.transactionCount,
+        timeSince: timestampToAge(tx.timestamp),
+      };
+    });
+    return {
+      title: 'DAG Blocks',
+      transactions: _tx,
+    };
+  };
+
+  const pbftToDisplay = (pbftBlocks: BlockData[]) => {
+    const _tx = pbftBlocks?.map((tx) => {
+      return {
+        level: tx.level,
+        hash: tx.hash,
+        transactionCount: tx.transactionCount,
+        timeSince: timestampToAge(tx.timestamp),
+      };
+    });
+    return {
+      title: 'PBFT Blocks',
+      transactions: _tx,
+    };
+  };
+
+  return { currentNetwork, dagBlocks, pbftBlocks, dagToDisplay, pbftToDisplay };
 };
