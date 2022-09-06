@@ -12,9 +12,11 @@ const ChartContainer = (): JSX.Element => {
     pbftBlocks && (
       <Grid
         container
-        display='flex'
-        justifyContent='space-between'
-        alignItems='center'
+        display='grid'
+        justifyContent='start'
+        alignItems='start'
+        gridTemplateColumns='repeat(auto-fill, minmax(19rem, max-content))'
+        gap='2rem'
         style={{ marginBottom: '2rem' }}
       >
         <BarChart

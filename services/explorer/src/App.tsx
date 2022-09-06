@@ -2,7 +2,6 @@ import React from 'react';
 import { Container, Box } from '@mui/material';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Header, Footer } from './components';
-import HomePage from './pages/Home/Home';
 import TransactionsPage from './pages/Transactions/Transactions';
 import BlocksPage from './pages/Blocks/Blocks';
 import NodesPage from './pages/Nodes/Nodes';
@@ -10,6 +9,7 @@ import TransactionDataContainer from './pages/TransactionData/TransactionData';
 import BlockDataContainer from './pages/BlockData/BlockDataContainer';
 import FaucetPage from './pages/Faucet/Faucet';
 import LoadingWidget from './components/LoadingWidget/LoadingWidget';
+import HomePage from './pages/Home/Home';
 
 declare global {
   interface Window {
