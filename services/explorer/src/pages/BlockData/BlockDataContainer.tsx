@@ -1,17 +1,20 @@
 import React from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
-import { Icons } from '@taraxa_project/taraxa-ui';
+import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import { useParams } from 'react-router-dom';
 import { DataRow, HashLink, PageTitle } from '../../components';
 import { useBlockDataContainerEffects } from './BlockDataContainer.effects';
 import { BlockTable } from './BlockTable';
 import { HashLinkType } from '../../utils';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 
 const BlockDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const { blockData, transactions, currentNetwork, onClickTransactions } =
     useBlockDataContainerEffects(txHash);
+  const onCopy = useCopyToClipboard();
+
   return (
     <>
       <PageTitle
@@ -42,6 +45,7 @@ const BlockDataContainer = (): JSX.Element => {
             >
               {txHash}
             </Typography>
+            <CopyTo text={txHash} onCopy={onCopy} />
           </Box>
           <DataRow title='Level' data={blockData.block} />
           <DataRow title='Period' data={blockData.period} />

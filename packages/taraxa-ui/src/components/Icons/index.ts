@@ -18,6 +18,7 @@ import RedCircledCancel from './RedCircledCancel';
 import Block from './Block';
 import Route from './Route';
 import Award from './Award';
+import Copy from './Copy';
 
 export {
   Left,
@@ -40,6 +41,7 @@ export {
   Block,
   Route,
   Award,
+  Copy,
 };
 export default {
   Left,
@@ -61,4 +63,5 @@ export default {
   Block,
   Route,
   Award,
+  Copy,
 };

@@ -43,10 +43,7 @@ export const BlockTable: React.FC<{
           onClick={onFilter}
           size='medium'
           variant='contained'
-          style={{
-            backgroundColor: theme.palette.grey.A200,
-            color: theme.palette.text.primary,
-          }}
+          color='info'
         />
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}

@@ -17,7 +17,7 @@ const Button = ({ label, Icon, ...props }: ButtonProps) => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <MButton {...props}>
-        {Icon && <Icon />}
+        {Icon && <Icon style={{ marginRight: '0.5rem' }} />}
         {label && label}
       </MButton>
     </ThemeProvider>

@@ -16,7 +16,8 @@ const theme: Theme = createTheme({
       secondary: '#878CA4',
     },
     info: {
-      main: '#878CA4',
+      main: '#40465F',
+      contrastText: '#FFFFFF',
     },
     grey: {
       A100: '#31364B',

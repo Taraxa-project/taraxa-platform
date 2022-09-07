@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
-import { Icons } from '@taraxa_project/taraxa-ui';
+import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
 import {
   AddressLink,
@@ -13,11 +13,14 @@ import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { DagTable } from './DagTable';
 import { HashLinkType } from '../../utils';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const { transactionData, dagData, events, currentNetwork } =
     useTransactionDataContainerEffects(txHash);
+  const onCopy = useCopyToClipboard();
+
   return (
     <>
       <PageTitle
@@ -32,21 +35,30 @@ const TransactionDataContainer = (): JSX.Element => {
           margin='2rem 2rem 2rem'
           gap='1.5rem'
         >
-          <Typography
-            variant='h6'
-            component='h6'
-            style={{
-              fontWeight: 'bold',
-              marginTop: '1.5rem',
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
-              width: 'auto',
-            }}
+          <Box
+            display='flex'
+            flexDirection='row'
+            alignItems='center'
+            justifyContent='flex-start'
+            gap='2rem'
+            mt={3}
           >
-            Tx {txHash}
-          </Typography>
+            <Typography
+              variant='h6'
+              component='h6'
+              style={{
+                fontWeight: 'bold',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                width: 'auto',
+              }}
+            >
+              Tx {txHash}
+            </Typography>
+            <CopyTo text={txHash} onCopy={onCopy} />
+          </Box>
           <DataRow
             title='Status'
             data={statusToLabel(transactionData?.status)}
