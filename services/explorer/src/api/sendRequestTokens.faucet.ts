@@ -32,7 +32,7 @@ export async function sendRequestTokens(
         address,
         amount,
         ipv4: data.IPv4,
-        timestamp: Math.floor(Date.now() / 1000),
+        timestamp: Date.now(),
       }),
     });
     if (!response)
