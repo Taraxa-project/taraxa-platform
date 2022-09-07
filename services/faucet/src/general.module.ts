@@ -3,13 +3,19 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [general, database, ethereum],
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 60 * 60 * 24, // 7 requests for a day
+      limit: 7,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -38,6 +44,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       inject: [ConfigService],
     }),
     EventEmitterModule.forRoot(),
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class GeneralModule {}
