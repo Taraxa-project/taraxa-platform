@@ -40,6 +40,16 @@ const useStyles = makeStyles(() => {
       color: '#878ca4',
       backgroundColor: '#202534',
     },
+    loading: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      padding: '0.063rem 0.5rem',
+      borderRadius: '0.5rem',
+      marginLeft: '1%',
+      color: '#878CA4',
+      backgroundColor: '#31364B',
+    },
     container: {
       maxHeight: '0.938rem',
       display: 'flex',

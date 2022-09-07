@@ -108,9 +108,9 @@ export const useBlockEffects = () => {
     initLoading();
     setTimeout(() => {
       setData(rows);
+      finishLoading();
     }, 3000);
-    finishLoading();
-  }, [data]);
+  }, []);
 
   return { data, columns, currentNetwork };
 };

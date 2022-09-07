@@ -4,7 +4,7 @@ import theme from '../theme';
 import useStyles from './Label.styles';
 
 export interface LabelProps {
-  variant: 'success' | 'error' | 'secondary';
+  variant: 'success' | 'error' | 'secondary' | 'loading';
   label: string;
   icon: JSX.Element;
   gap?: boolean;

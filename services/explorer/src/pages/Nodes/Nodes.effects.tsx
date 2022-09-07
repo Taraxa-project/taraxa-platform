@@ -1,15 +1,18 @@
 /* eslint-disable no-console */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import moment from 'moment';
-import { theme } from '@taraxa_project/taraxa-ui';
+import { ColumnData, NodesTableData } from '../../models/TableData';
+import { useExplorerLoader } from '../../hooks/useLoader';
+import { HashLink } from '../../components';
+import { HashLinkType } from '../../utils';
 
-const cols = [
+const cols: ColumnData[] = [
   { path: 'rank', name: 'Rank' },
   { path: 'nodeAddress', name: 'Node Address' },
   { path: 'blocksProduced', name: '# blocks produced' },
 ];
 
-const rows = [
+const rows: NodesTableData[] = [
   {
     rank: 1,
     nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
@@ -83,6 +86,7 @@ const rows = [
 ];
 
 export const useNodesEffects = () => {
+  const { initLoading, finishLoading } = useExplorerLoader();
   const blocks = 3214; // We will get this from GraphQL
   const weekNo = 8; // We will get this from GraphQL
   const now = moment();
@@ -92,29 +96,46 @@ export const useNodesEffects = () => {
   const title = `Top nodes for Week ${weekNo} ${year}`;
   const subtitle = `Top block producers for Week ${weekNo} (${monday} - ${sunday})`;
   const description = 'Total blocks produced this week';
+  const [tableData, setTableData] = useState<NodesTableData[]>();
 
-  const tableData = rows.map((row) => {
-    return {
-      data: [
-        {
-          rank: row.rank,
-          nodeAddress: (
-            <p
-              style={{
-                color: theme.palette.secondary.main,
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
-              }}
-            >
-              {row.nodeAddress}
-            </p>
-          ),
-          blocksProduced: row.blocksProduced.toLocaleString('en-US'),
-        },
-      ],
-    };
-  });
+  const formatTableData = (
+    rows: NodesTableData[]
+  ): {
+    data: {
+      rank: number;
+      nodeAddress: JSX.Element;
+      blocksProduced: string;
+    }[];
+  }[] => {
+    if (!rows?.length) {
+      return [];
+    }
+    return rows.map((row) => {
+      return {
+        data: [
+          {
+            rank: row.rank,
+            nodeAddress: (
+              <HashLink
+                linkType={HashLinkType.ADDRESSES}
+                width='auto'
+                hash={row.nodeAddress}
+              />
+            ),
+            blocksProduced: row.blocksProduced.toLocaleString('en-US'),
+          },
+        ],
+      };
+    });
+  };
+
+  useEffect(() => {
+    initLoading();
+    setTimeout(() => {
+      setTableData(rows);
+      finishLoading();
+    }, 3000);
+  }, []);
 
   return {
     blocks,
@@ -123,5 +144,6 @@ export const useNodesEffects = () => {
     description,
     cols,
     tableData,
+    formatTableData,
   };
 };

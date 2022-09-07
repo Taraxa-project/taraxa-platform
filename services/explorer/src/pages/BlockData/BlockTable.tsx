@@ -12,8 +12,9 @@ import { Button, theme } from '@taraxa_project/taraxa-ui';
 import React from 'react';
 import { GreenRightArrow, TransactionIcon } from '../../components';
 import { TransactionData } from '../../models/TransactionData';
-import { AddressLink, TransactionLink } from '../../components/Links';
+import { AddressLink, HashLink } from '../../components/Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
+import { HashLinkType } from '../../utils';
 
 export const BlockTable: React.FC<{
   blockData: TransactionData[];
@@ -34,7 +35,7 @@ export const BlockTable: React.FC<{
     setPage(0);
   };
   return (
-    <Box display='flex' flexDirection='column'>
+    <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
       <Box display='flex' flexDirection='row' justifyContent='space-between'>
         <Button
           Icon={TransactionIcon}
@@ -57,7 +58,7 @@ export const BlockTable: React.FC<{
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Box>
-      <TableContainer>
+      <TableContainer sx={{ marginBottom: '2rem' }}>
         <Table
           style={{
             tableLayout: 'auto',
@@ -125,7 +126,11 @@ export const BlockTable: React.FC<{
                 .map((block, i) => (
                   <TableRow key={`${block.txHash}-${i}`}>
                     <TableCell variant='body'>
-                      <TransactionLink txHash={block.txHash} wrap />
+                      <HashLink
+                        linkType={HashLinkType.TRANSACTIONS}
+                        hash={block.txHash}
+                        wrap
+                      />
                     </TableCell>
                     <TableCell variant='body'>{block.dagLevel}</TableCell>
                     <TableCell variant='body'>Transfer</TableCell>

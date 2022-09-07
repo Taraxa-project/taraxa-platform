@@ -1,5 +1,5 @@
-import { TransactionLink } from './TransactionLink';
 import { AddressLink } from './AddressLink';
+import { HashLink } from './HashLink';
 
-export { TransactionLink, AddressLink };
-export default { TransactionLink, AddressLink };
+export { AddressLink, HashLink };
+export default { AddressLink, HashLink };

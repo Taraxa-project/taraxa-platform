@@ -1,25 +1,22 @@
 import { makeStyles } from '@mui/styles';
-import theme from '../theme';
+import { theme } from '@taraxa_project/taraxa-ui';
 
 const useStyles = makeStyles(() => {
   return {
     wrapper: {
-      width: '100%',
-      display: 'flex',
-      gap: '10px',
-      flexDirection: 'column',
-    },
-    hashContainer: {
-      width: 'calc(100% - 5rem)',
-    },
-    details: {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
-      gap: '1rem',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         flexDirection: 'column',
         alignItems: 'start',
+        gap: '0.5rem',
+      },
+    },
+    dataContainer: {
+      width: 'calc(100% - 14rem)',
+      [theme.breakpoints.down('md')]: {
+        width: '100%',
       },
     },
   };

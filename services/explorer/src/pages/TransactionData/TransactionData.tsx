@@ -1,16 +1,18 @@
+import React from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { Icons } from '@taraxa_project/taraxa-ui';
-import React from 'react';
 import { useParams } from 'react-router-dom';
 import {
   AddressLink,
   DataRow,
   GreenRightArrow,
+  HashLink,
   PageTitle,
 } from '../../components';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { DagTable } from './DagTable';
+import { HashLinkType } from '../../utils';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
@@ -33,19 +35,36 @@ const TransactionDataContainer = (): JSX.Element => {
           <Typography
             variant='h6'
             component='h6'
-            style={{ fontWeight: 'bold', marginTop: '1.5rem' }}
+            style={{
+              fontWeight: 'bold',
+              marginTop: '1.5rem',
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              width: 'auto',
+            }}
           >
             Tx {txHash}
           </Typography>
           <DataRow
             title='Status'
-            data={statusToLabel(transactionData.status)}
+            data={statusToLabel(transactionData?.status)}
           />
           <DataRow
             title='Timestamp'
-            data={timestampToAge(transactionData.timestamp)}
+            data={timestampToAge(transactionData?.timestamp)}
           />
-          <DataRow title='Block' data={transactionData.pbftBlock} />
+          <DataRow
+            title='Block'
+            data={
+              <HashLink
+                linkType={HashLinkType.BLOCKS}
+                width='auto'
+                hash={transactionData?.pbftBlock}
+              />
+            }
+          />
           <Divider light />
           <DataRow
             title='Transaction action'
@@ -53,36 +72,40 @@ const TransactionDataContainer = (): JSX.Element => {
           />
           <DataRow
             title='Value'
-            data={(+transactionData.value).toLocaleString()}
+            data={(+transactionData.value)?.toLocaleString()}
           />
           <DataRow
             title='FROM/TO'
             data={
               <Box
                 display='flex'
-                flexDirection='row'
-                alignItems='center'
-                alignContent='center'
-                justifyContent='flex-start'
-                width='83%'
+                flexDirection={{
+                  xs: 'column',
+                  md: 'column',
+                  lg: 'row',
+                  xl: 'row',
+                }}
                 gap='1rem'
+                width='100%'
               >
-                <AddressLink address={transactionData.from} />
-                <GreenRightArrow />
-                <AddressLink address={transactionData.to} />
+                <AddressLink width='auto' address={transactionData.from} />
+                <Box>
+                  <GreenRightArrow />
+                </Box>
+                <AddressLink width='auto' address={transactionData.to} />
               </Box>
             }
           />
           <DataRow
             title='Gas Limit/ Gas Used'
-            data={`${(+transactionData.gas).toLocaleString()} /
-            ${(+transactionData.gasLimit).toLocaleString()}`}
+            data={`${(+transactionData.gas)?.toLocaleString()} /
+            ${(+transactionData.gasLimit)?.toLocaleString()}`}
           />
           <DataRow
             title='Gas Price'
-            data={`${(+transactionData.gasPrice).toLocaleString()} TARA`}
+            data={`${(+transactionData.gasPrice)?.toLocaleString()} TARA`}
           />
-          <DataRow title='Nonce' data={`${transactionData.nonce}`} />
+          <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
           <Divider light />
           <Box
             display='flex'

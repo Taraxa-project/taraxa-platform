@@ -5,8 +5,15 @@ import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
 
 const NodesPage = (): JSX.Element => {
-  const { blocks, title, subtitle, description, cols, tableData } =
-    useNodesEffects();
+  const {
+    blocks,
+    title,
+    subtitle,
+    description,
+    cols,
+    tableData,
+    formatTableData,
+  } = useNodesEffects();
   return (
     <>
       <PageTitle
@@ -20,7 +27,7 @@ const NodesPage = (): JSX.Element => {
           description={description}
           total={blocks}
         />
-        <Table rows={tableData} columns={cols} />
+        <Table rows={formatTableData(tableData)} columns={cols} />
       </Box>
     </>
   );
