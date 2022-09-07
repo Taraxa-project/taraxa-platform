@@ -11,9 +11,7 @@ export class FaucetController {
 
   @ApiOkResponse({ description: 'Faucet fund request' })
   @Post('/')
-  async registerClaim(
-    @Body() requestDto: CreateRequestDto
-  ): Promise<RequestEntity> {
+  async registerClaim(@Body() requestDto: CreateRequestDto): Promise<void> {
     return await this.faucetService.registerRequest(requestDto);
   }
 
