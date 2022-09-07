@@ -1,7 +1,9 @@
-import { database, ethereum, general } from '@faucet/config';
+import { database, ethereum, general, queue } from '@faucet/config';
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -23,6 +25,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule.forFeature(queue)],
+      useFactory: (config: ConfigService) => ({
+        redis: {
+          host: config.get('queue.host'),
+          port: config.get('queue.port'),
+          password: config.get('queue.pass'),
+          prefix: config.get('queue.prefix'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    EventEmitterModule.forRoot(),
   ],
 })
 export class GeneralModule {}

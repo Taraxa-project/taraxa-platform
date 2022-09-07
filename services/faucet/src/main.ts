@@ -20,6 +20,6 @@ async function bootstrap() {
     origin: '*',
     exposedHeaders: ['Content-Type', 'Content-Range'],
   });
-  await app.listen(process.env.SERVER_PORT);
+  await app.listen(process.env.SERVER_PORT || 3002);
 }
 bootstrap();
