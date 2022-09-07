@@ -3,7 +3,9 @@ import SendIcon from './send';
 import TwitterIcon from './twitter';
 import HamburgerIcon from './hamburger';
 import TaraxaIcon from './taraxaIcon';
-import { GreenRightArrow } from './greenRightArrow';
+import GreenRightArrow from './greenRightArrow';
+import TransactionIcon from './transaction';
+import CopyIcon from './copy';
 
 export {
   DiscordIcon,
@@ -12,6 +14,8 @@ export {
   HamburgerIcon,
   TaraxaIcon,
   GreenRightArrow,
+  TransactionIcon,
+  CopyIcon,
 };
 export default {
   DiscordIcon,
@@ -20,4 +24,6 @@ export default {
   HamburgerIcon,
   TaraxaIcon,
   GreenRightArrow,
+  TransactionIcon,
+  CopyIcon,
 };

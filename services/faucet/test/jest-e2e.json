@@ -1,0 +1,14 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "@faucet/faucet": "<rootDir>/../src/modules/faucet",
+    "@faucet/blockchain": "<rootDir>/../src/modules/blockchain",
+    "@faucet/config": "<rootDir>/../config"
+  }
+}

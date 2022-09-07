@@ -4,7 +4,7 @@ import { toBlockTableRow } from '../../utils/TransactionRow';
 import { useBlockEffects } from './Blocks.effects';
 import { PageTitle } from '../../components';
 
-const BlocksPage = () => {
+const BlocksPage = (): JSX.Element => {
   const { data, columns, currentNetwork } = useBlockEffects();
   const rows = data ? data.map((row) => toBlockTableRow(row)) : [];
   return (

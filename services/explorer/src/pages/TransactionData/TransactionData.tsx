@@ -2,38 +2,17 @@ import { Box, Divider, Paper, Typography } from '@mui/material';
 import { Icons } from '@taraxa_project/taraxa-ui';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import {
+  AddressLink,
+  DataRow,
+  GreenRightArrow,
+  PageTitle,
+} from '../../components';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
-import { GreenRightArrow } from '../../components/icons';
-import { AddressLink } from '../../components/Links';
-import { PageTitle } from '../../components/PageTitle';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { DagTable } from './DagTable';
 
-const DataRow: React.FC<{ title: string; data: JSX.Element | string }> = (
-  props
-) => {
-  const { title, data } = props;
-  return (
-    <Box
-      display='flex'
-      flexDirection='row'
-      alignItems='center'
-      alignContent='center'
-    >
-      <Typography
-        color='text.secondary'
-        variant='subtitle1'
-        component='p'
-        width='14rem'
-      >
-        {title}:
-      </Typography>
-      {data}
-    </Box>
-  );
-};
-
-const TransactionDataContainer = () => {
+const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const { transactionData, dagData, events, currentNetwork } =
     useTransactionDataContainerEffects(txHash);
@@ -41,7 +20,7 @@ const TransactionDataContainer = () => {
     <>
       <PageTitle
         title='Transactions'
-        subtitle={`Detailed information about this transaction hash on ther ${currentNetwork}.`}
+        subtitle={`Detailed information about this transaction hash on the ${currentNetwork}.`}
       />
       <Paper elevation={1}>
         <Box

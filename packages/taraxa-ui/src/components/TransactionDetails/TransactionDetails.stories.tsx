@@ -16,8 +16,8 @@ const Template: Story<TransactionDetailsProps> = (args) => (
 
 export const Primary = Template.bind({});
 Primary.args = {
-  level: 525299,
+  level: '525299',
   hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-  transactionsCount: 3,
+  transactionCount: 3,
   timeSince: '44 seconds',
 };

@@ -23,7 +23,8 @@
     "paths": {
       "@taraxa_project/taraxa-ui": ["packages/taraxa-ui/src/index.ts"],
       "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"],
-      "@taraxa_project/explorer": ["services/explorer/src/index.ts"]
+      "@taraxa_project/explorer": ["services/explorer/src/index.ts"],
+      "@taraxa_project/faucet": ["services/faucet/src/index.ts"]
     }
   },
   "references": [

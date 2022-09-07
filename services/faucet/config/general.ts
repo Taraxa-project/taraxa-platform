@@ -1,0 +1,8 @@
+import { registerAs } from '@nestjs/config';
+
+export default registerAs('general', () => ({
+  env: process.env.NODE_ENV || 'development',
+  unlockerInterval: '0 * * * *',
+  precision: 3,
+  maxRewardPerWeek: process.env.MAX_DRIP_PER_WEEK,
+}));

@@ -20,8 +20,16 @@ export interface ColumnData {
 
 export interface BlockData {
   timestamp: string;
-  block: string;
+  block?: string;
   level?: string;
-  txHash: string;
+  hash: string;
   transactionCount: number;
+}
+
+export interface BlockDetails extends BlockData {
+  period: string;
+  pivot: string;
+  sender: string;
+  signature: string;
+  verifiableDelay: number;
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const GreenRightArrow = () => (
+const GreenRightArrow = (): JSX.Element => (
   <svg
     width='32'
     height='24'
@@ -22,3 +22,4 @@ export const GreenRightArrow = () => (
     </defs>
   </svg>
 );
+export default GreenRightArrow;
