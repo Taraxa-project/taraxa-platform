@@ -8,7 +8,22 @@ export async function sendRequestTokens(
   cb: (data: ToastData) => void
 ) {
   try {
-    const response = await fetch(faucetUri, {
+    const res = await fetch('https://geolocation-db.com/json/');
+    if (!res)
+      cb({
+        display: true,
+        variant: 'error',
+        text: 'The Faucet is not able to get your IP. Please come back later!',
+      });
+    const data = await res.json();
+    console.log(data);
+    if (!data.IPv4)
+      cb({
+        display: true,
+        variant: 'error',
+        text: 'The Faucet is not able to get your IP. Please come back later!',
+      });
+    const response = await fetch(`${faucetUri}/faucet`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -16,7 +31,8 @@ export async function sendRequestTokens(
       body: JSON.stringify({
         address,
         amount,
-        timestamp: Date.now() / 1000,
+        ipv4: data.IPv4,
+        timestamp: Math.floor(Date.now() / 1000),
       }),
     });
     if (!response)
@@ -38,22 +54,14 @@ export async function sendRequestTokens(
         text: 'Your request was invalid. Please consider retrying with valid inputs!',
       });
     } else {
-      const data = await response.json();
-      if (data.id) {
-        cb({
-          display: true,
-          variant: 'success',
-          text: `Your request has been processed successfully. Please check your wallet connected to the ${currentNetwork} !`,
-        });
-      } else {
-        cb({
-          display: true,
-          variant: 'warning',
-          text: 'Your request did not register successfully. Please come back later!',
-        });
-      }
+      cb({
+        display: true,
+        variant: 'success',
+        text: `Your request has been queued successfully. Please check your wallet connected to the ${currentNetwork} in a few seconds!`,
+      });
     }
   } catch (error) {
+    console.error(error);
     cb({
       display: true,
       variant: 'error',
