@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { TransactionDataItem } from '../../components/BlockTable';
 
-const blockData: any[] = Array(20).fill({
+const blockData: TransactionDataItem[] = Array(20).fill({
   txHash: '0x00e193a154...',
   status: 'SUCCESS',
   timestamp: 'string',
@@ -14,13 +15,10 @@ const blockData: any[] = Array(20).fill({
   gasPrice: 'string',
   to: '0xc3r17b31a5...',
   nonce: 153,
-  transactionLink: <span>0x00e193a154...</span>,
-  addressLinkFrom: <span>0xc26f6b31a5...</span>,
-  addressLinkTo: <span>0xc3r17b31a5...</span>,
 });
 
 export const useAddressInfoEffects = () => {
-  const [transactions, setTransactions] = useState<any[]>();
+  const [transactions, setTransactions] = useState<TransactionDataItem[]>();
 
   useEffect(() => {
     setTransactions(blockData);
