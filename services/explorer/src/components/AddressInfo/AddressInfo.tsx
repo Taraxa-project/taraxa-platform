@@ -2,28 +2,14 @@ import React from 'react';
 import clsx from 'clsx';
 import { Box, CssBaseline, Grid, ThemeProvider } from '@mui/material';
 import { toSvg } from 'jdenticon';
+import { Button, Icons } from '@taraxa_project/taraxa-ui';
 import useStyles from './AddressInfo.styles';
-import theme from '../theme';
-import Button from '../Button';
-import { Clipboard } from '../Icons';
-import BlockTable from '../BlockTable';
-import { TransactionData } from '../BlockTable/BlockTable';
-
-export interface Transaction {
-  hash: string;
-  block: number;
-  action: 'Transfer' | 'Delegation';
-  from: string;
-  to: string;
-  status: 'Success' | 'Failed' | 'In Progress';
-  age: Date;
-  value: string;
-  fee: string;
-}
+import { theme } from '../../theme-provider';
+import { BlockTable, TransactionDataItem } from '../BlockTable/BlockTable';
 
 export interface AddressInfoProps {
   address: string;
-  blockData: TransactionData[];
+  blockData: TransactionDataItem[];
   balance: string;
   value: string;
   transactionCount: number;
@@ -34,7 +20,7 @@ export interface AddressInfoProps {
   pbftBlocks: number;
 }
 
-const AddressInfo = ({
+export const AddressInfo = ({
   address,
   balance,
   blockData,
@@ -65,7 +51,8 @@ const AddressInfo = ({
           <Button
             className={classes.clipboard}
             variant='contained'
-            Icon={Clipboard}
+            Icon={Icons.Clipboard}
+            onClick={() => navigator.clipboard.writeText(address)}
           />
         </Box>
         <Box className={classes.twoColumnFlex}>
@@ -140,5 +127,3 @@ const AddressInfo = ({
     </ThemeProvider>
   );
 };
-
-export default AddressInfo;

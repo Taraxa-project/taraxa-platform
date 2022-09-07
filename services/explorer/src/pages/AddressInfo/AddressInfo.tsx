@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { AddressInfo } from '@taraxa_project/taraxa-ui';
-import { PageTitle } from '../../components';
+import { AddressInfo, PageTitle } from '../../components';
 import { useAddressInfoEffects } from './AddressInfo.effects';
 
 const AddressInfoPage = () => {

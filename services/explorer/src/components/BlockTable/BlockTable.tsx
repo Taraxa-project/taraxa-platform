@@ -11,40 +11,16 @@ import {
   ThemeProvider,
   CssBaseline,
 } from '@mui/material';
-import Label from '../Label';
-import Button from '../Button';
-import {
-  TransactionIcon,
-  GreenRightArrow,
-  GreenCircledCheck,
-  RedCircledCancel,
-  TransactionBlock,
-} from '../Icons';
-import theme from '../theme';
+import { Label, Button, Icons } from '@taraxa_project/taraxa-ui';
+import type { TransactionData } from '../../models/TransactionData';
+import { TransactionStatus } from '../../models/TableData';
+import { theme } from '../../theme-provider';
+import { AddressLink } from '../Links';
 
-export enum TransactionStatus {
-  SUCCESS = '0x0',
-  FAILURE = '0x1',
-  IN_PROGRESS = '0x',
-}
-
-export interface TransactionData {
+export interface TransactionDataItem extends TransactionData {
   txHash: string;
-  status: TransactionStatus;
-  timestamp: string;
-  pbftBlock: string;
   dagLevel: string;
   dagHash: string;
-  value: string;
-  from: string;
-  gasLimit: string;
-  gas: string;
-  gasPrice: string;
-  to: string;
-  nonce: number;
-  transactionLink: JSX.Element;
-  addressLinkFrom: JSX.Element;
-  addressLinkTo: JSX.Element;
 }
 
 export const statusToLabel = (state: TransactionStatus) => {
@@ -54,28 +30,38 @@ export const statusToLabel = (state: TransactionStatus) => {
         variant='success'
         label='Success'
         gap
-        icon={<GreenCircledCheck />}
+        icon={<Icons.GreenCircledCheck />}
       />
     );
   }
   if (state === TransactionStatus.FAILURE) {
     return (
-      <Label variant='error' label='Failure' gap icon={<RedCircledCancel />} />
+      <Label
+        variant='error'
+        label='Failure'
+        gap
+        icon={<Icons.RedCircledCancel />}
+      />
     );
   }
   return (
-    <Label variant='error' label='Failure' gap icon={<RedCircledCancel />} />
+    <Label
+      variant='error'
+      label='Failure'
+      gap
+      icon={<Icons.RedCircledCancel />}
+    />
   );
 };
 
 export interface BlockTableProps {
-  blockData: TransactionData[];
+  blockData: TransactionDataItem[];
   onFilter?: () => void;
   onDAGFilter?: () => void;
   onPBFTFilter?: () => void;
 }
 
-const BlockTable: React.FC<BlockTableProps> = (props) => {
+export const BlockTable: React.FC<BlockTableProps> = (props) => {
   const {
     blockData = [],
     onFilter = () => ({}),
@@ -102,7 +88,7 @@ const BlockTable: React.FC<BlockTableProps> = (props) => {
         <Box display='flex' flexDirection='row' justifyContent='space-between'>
           <Box display='flex' gap={2}>
             <Button
-              Icon={TransactionIcon}
+              Icon={Icons.TransactionIcon}
               label='Transactions'
               onClick={onFilter}
               size='medium'
@@ -114,7 +100,7 @@ const BlockTable: React.FC<BlockTableProps> = (props) => {
               }}
             />
             <Button
-              Icon={TransactionBlock}
+              Icon={Icons.TransactionBlock}
               label='DAG Blocks'
               onClick={onDAGFilter}
               size='medium'
@@ -126,7 +112,7 @@ const BlockTable: React.FC<BlockTableProps> = (props) => {
               }}
             />
             <Button
-              Icon={TransactionBlock}
+              Icon={Icons.TransactionBlock}
               label='PBFT Blocks'
               onClick={onPBFTFilter}
               size='medium'
@@ -215,9 +201,7 @@ const BlockTable: React.FC<BlockTableProps> = (props) => {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((block, i) => (
                     <TableRow key={`${block.txHash}-${i}`}>
-                      <TableCell variant='body'>
-                        {block.transactionLink}
-                      </TableCell>
+                      <TableCell variant='body'>{block.txHash}</TableCell>
                       <TableCell variant='body'>{block.dagLevel}</TableCell>
                       <TableCell variant='body'>Transfer</TableCell>
                       <TableCell variant='body'>
@@ -230,9 +214,9 @@ const BlockTable: React.FC<BlockTableProps> = (props) => {
                           maxWidth='30rem'
                           gap='0.2rem'
                         >
-                          {block.addressLinkFrom}
-                          <GreenRightArrow />
-                          {block.addressLinkTo}
+                          <AddressLink address={block.from} />
+                          <Icons.GreenRightArrow />
+                          <AddressLink address={block.to} />
                         </Box>
                       </TableCell>
                       <TableCell variant='body' width='5rem !important'>
@@ -256,5 +240,3 @@ const BlockTable: React.FC<BlockTableProps> = (props) => {
     </ThemeProvider>
   );
 };
-
-export default BlockTable;
