@@ -39,16 +39,10 @@ export class FaucetService {
         `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.TWO}; ${RequestLimit.FIVE} or ${RequestLimit.SEVEN}`
       );
     requestDto.address = ethers.utils.getAddress(requestDto.address);
-    const requestsForAddress = await this.requestRepository.find({
-      address: requestDto.address,
+    const requestsForAddressOrIp = await this.requestRepository.find({
+      where: [{ address: requestDto.address }, { ipv4: requestDto.ipv4 }],
     });
-    const requestsForIp = await this.requestRepository.find({
-      ipv4: requestDto.ipv4,
-    });
-
-    const requestsOfThisWeek = filterRequestsOfThisWeek(
-      requestsForAddress.concat(requestsForIp)
-    );
+    const requestsOfThisWeek = filterRequestsOfThisWeek(requestsForAddressOrIp);
     if (requestsOfThisWeek && requestsOfThisWeek.length > 0) {
       const total = requestsOfThisWeek
         .map((r) => r.amount)
