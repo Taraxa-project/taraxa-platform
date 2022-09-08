@@ -44,6 +44,7 @@ import {
 } from './components/TransactionDetails';
 import { BlockCard } from './components/BlockCard';
 import { AwardCard } from './components/AwardCard';
+import CopyTo from './components/CopyTo';
 import theme from './components/theme';
 
 export {
@@ -91,5 +92,6 @@ export {
   shortenHash,
   BlockCard,
   AwardCard,
+  CopyTo,
   theme,
 };

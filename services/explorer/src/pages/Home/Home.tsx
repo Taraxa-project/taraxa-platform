@@ -1,43 +1,15 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { BlockCard } from '@taraxa_project/taraxa-ui';
-import { timestampToAge } from '../../utils/TransactionRow';
 import { PageTitle } from '../../components';
 import { useHomeEffects } from './Home.effects';
 import ChartContainer from './ChartContainer';
+import useStyles from './Home.styles';
 
-const HomePage = (): JSX.Element => {
-  const { currentNetwork, dagBlocks, pbftBlocks } = useHomeEffects();
-
-  const dagToDisplay = () => {
-    const _tx = dagBlocks?.map((tx) => {
-      return {
-        level: tx.level,
-        hash: tx.hash,
-        transactionCount: tx.transactionCount,
-        timeSince: timestampToAge(tx.timestamp),
-      };
-    });
-    return {
-      title: 'DAG Blocks',
-      transactions: _tx,
-    };
-  };
-
-  const pbftToDisplay = () => {
-    const _tx = pbftBlocks?.map((tx) => {
-      return {
-        level: tx.level,
-        hash: tx.hash,
-        transactionCount: tx.transactionCount,
-        timeSince: timestampToAge(tx.timestamp),
-      };
-    });
-    return {
-      title: 'PBFT Blocks',
-      transactions: _tx,
-    };
-  };
+const HomePage = () => {
+  const { currentNetwork, dagBlocks, pbftBlocks, dagToDisplay, pbftToDisplay } =
+    useHomeEffects();
+  const classes = useStyles();
 
   return (
     <>
@@ -46,9 +18,9 @@ const HomePage = (): JSX.Element => {
         subtitle='Search for addresses, block hashes, transactions...'
       />
       <ChartContainer />
-      <Box sx={{ display: 'flex', gap: '24px', width: '100%' }}>
-        <BlockCard {...dagToDisplay()} />
-        <BlockCard {...pbftToDisplay()} />
+      <Box className={classes.blocksWrapper}>
+        <BlockCard {...dagToDisplay(dagBlocks)} />
+        <BlockCard {...pbftToDisplay(pbftBlocks)} />
       </Box>
     </>
   );

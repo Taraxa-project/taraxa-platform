@@ -1,21 +1,20 @@
 import React from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
-import { Icons } from '@taraxa_project/taraxa-ui';
+import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import { useParams } from 'react-router-dom';
-import {
-  AddressLink,
-  DataRow,
-  PageTitle,
-  TransactionLink,
-} from '../../components';
+import { DataRow, HashLink, PageTitle } from '../../components';
 import { useBlockDataContainerEffects } from './BlockDataContainer.effects';
 import { BlockTable } from './BlockTable';
+import { HashLinkType } from '../../utils';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 
 const BlockDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const { blockData, transactions, currentNetwork, onClickTransactions } =
     useBlockDataContainerEffects(txHash);
+  const onCopy = useCopyToClipboard();
+
   return (
     <>
       <PageTitle
@@ -34,18 +33,19 @@ const BlockDataContainer = (): JSX.Element => {
             display='flex'
             flexDirection='row'
             alignItems='center'
-            alignContent='center'
             justifyContent='flex-start'
             gap='2rem'
+            mt={3}
           >
             <Icons.Block />
             <Typography
               variant='h6'
               component='h6'
-              style={{ fontWeight: 'bold', marginTop: '1.5rem' }}
+              style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
             >
               {txHash}
             </Typography>
+            <CopyTo text={txHash} onCopy={onCopy} />
           </Box>
           <DataRow title='Level' data={blockData.block} />
           <DataRow title='Period' data={blockData.period} />
@@ -58,15 +58,31 @@ const BlockDataContainer = (): JSX.Element => {
           <Divider light />
           <DataRow
             title='Pivot'
-            data={<TransactionLink txHash={blockData.pivot} />}
+            data={
+              <HashLink
+                linkType={HashLinkType.TRANSACTIONS}
+                width='auto'
+                hash={blockData?.pivot}
+              />
+            }
           />
           <DataRow
             title='Sender'
-            data={<AddressLink address={blockData.sender} />}
+            data={
+              <HashLink
+                linkType={HashLinkType.ADDRESSES}
+                width='auto'
+                hash={blockData?.sender}
+              />
+            }
           />
           <DataRow
             title='Signature'
-            data={<TransactionLink txHash={blockData.signature} />}
+            data={
+              <Typography style={{ wordBreak: 'break-all' }}>
+                {blockData.signature}
+              </Typography>
+            }
           />
           <DataRow
             title='Verifiable Delay Function'

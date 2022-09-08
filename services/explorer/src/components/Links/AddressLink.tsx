@@ -1,8 +1,14 @@
-import { theme } from '@taraxa_project/taraxa-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { theme } from '@taraxa_project/taraxa-ui';
 
-export const AddressLink = ({ address }: { address: string }): JSX.Element => {
+export const AddressLink = ({
+  address,
+  width = '30%',
+}: {
+  address: string;
+  width?: string;
+}): JSX.Element => {
   return (
     <Link
       to={`/addresses/${address}`}
@@ -12,7 +18,7 @@ export const AddressLink = ({ address }: { address: string }): JSX.Element => {
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
-        width: '30%',
+        width,
       }}
     >
       {address}

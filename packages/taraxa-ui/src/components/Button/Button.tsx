@@ -4,6 +4,7 @@ import {
   CssBaseline,
   ButtonProps as MButtonProps,
   ThemeProvider,
+  Typography,
 } from '@mui/material';
 import theme from '../theme';
 
@@ -18,7 +19,7 @@ const Button = ({ label, Icon, ...props }: ButtonProps) => {
       <CssBaseline />
       <MButton {...props}>
         {Icon && <Icon />}
-        {label && label}
+        {label && <Typography ml={1}>{label}</Typography>}
       </MButton>
     </ThemeProvider>
   );

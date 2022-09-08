@@ -13,6 +13,12 @@ export interface TransactionTableData {
   token: string;
 }
 
+export interface NodesTableData {
+  rank: number;
+  nodeAddress: string;
+  blocksProduced: number;
+}
+
 export interface ColumnData {
   path: string;
   name: string;
