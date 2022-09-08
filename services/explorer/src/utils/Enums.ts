@@ -4,3 +4,9 @@ export enum RequestLimit {
   FIVE = 5,
   SEVEN = 7,
 }
+
+export enum HashLinkType {
+  TRANSACTIONS = 'transactions',
+  BLOCKS = 'blocks',
+  ADDRESSES = 'addresses',
+}

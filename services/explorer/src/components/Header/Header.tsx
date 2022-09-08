@@ -13,7 +13,7 @@ import { TaraxaIcon } from '../icons';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
 
 export const Header = (): JSX.Element => {
-  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const isMobile = useMediaQuery({ query: `(max-width: 1200px)` });
   const {
     buttons: headerButtons,
     networks,

@@ -12,6 +12,7 @@ export const useBlockDataContainerEffects = (txHash: string) => {
 
   const onClickTransactions = useCallback(() => {
     const click = async () => {
+      // eslint-disable-next-line no-console
       console.log('click click click');
     };
     click();

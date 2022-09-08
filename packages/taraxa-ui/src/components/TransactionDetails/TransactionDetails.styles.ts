@@ -9,12 +9,18 @@ const useStyles = makeStyles(() => {
       gap: '10px',
       flexDirection: 'column',
     },
+    hashContainer: {
+      width: 'calc(100% - 10rem)',
+      [theme.breakpoints.down('sm')]: {
+        width: '100%',
+      },
+    },
     details: {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       gap: '1rem',
-      [theme.breakpoints.down('md')]: {
+      [theme.breakpoints.down('sm')]: {
         flexDirection: 'column',
         alignItems: 'start',
       },

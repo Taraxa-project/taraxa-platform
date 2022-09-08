@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { BlockData } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
+import { HashLink } from '../../components';
+import { HashLinkType } from '../../utils';
 
 const transactions: BlockData[] = [
   {
@@ -63,6 +65,13 @@ export const useHomeEffects = () => {
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
+        hashElement: (
+          <HashLink
+            width='auto'
+            linkType={HashLinkType.TRANSACTIONS}
+            hash={tx.hash}
+          />
+        ),
       };
     });
     return {
@@ -78,6 +87,13 @@ export const useHomeEffects = () => {
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
+        hashElement: (
+          <HashLink
+            width='auto'
+            linkType={HashLinkType.TRANSACTIONS}
+            hash={tx.hash}
+          />
+        ),
       };
     });
     return {

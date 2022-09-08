@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useExplorerLoader } from '../../hooks/useLoader';
+import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import {
   ColumnData,
   TransactionTableData,
   TransactionStatus,
 } from '../../models/TableData';
-import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 
 const cols = [
   { path: 'timestamp', name: 'Timestamp' },

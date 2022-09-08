@@ -12,8 +12,10 @@ import {
 import { Button, Icons } from '@taraxa_project/taraxa-ui';
 import type { TransactionData } from '../../models/TransactionData';
 import { theme } from '../../theme-provider';
-import { AddressLink } from '../Links';
-import { statusToLabel } from '../../utils/TransactionRow';
+import { AddressLink, HashLink } from '../Links';
+import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
+import { HashLinkType } from '../../utils';
+import { TransactionIcon } from '../icons';
 
 export interface TransactionDataItem extends TransactionData {
   txHash: string;
@@ -21,14 +23,14 @@ export interface TransactionDataItem extends TransactionData {
   dagHash: string;
 }
 
-export interface BlockTableProps {
+export interface AddressInfoTableProps {
   blockData: TransactionDataItem[];
   onFilter?: () => void;
   onDAGFilter?: () => void;
   onPBFTFilter?: () => void;
 }
 
-export const BlockTable: React.FC<BlockTableProps> = ({
+export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
   blockData = [],
   onFilter = () => ({}),
   onDAGFilter = () => ({}),
@@ -48,44 +50,40 @@ export const BlockTable: React.FC<BlockTableProps> = ({
     setPage(0);
   };
   return (
-    <Box display='flex' flexDirection='column'>
-      <Box display='flex' flexDirection='row' justifyContent='space-between'>
-        <Box display='flex' gap={2}>
+    <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
+      <Box
+        display='flex'
+        flexDirection={{ xs: 'column', md: 'row', lg: 'row', xl: 'row' }}
+        justifyContent='space-between'
+      >
+        <Box
+          display='flex'
+          gap={2}
+          flexDirection={{ xs: 'column', md: 'column', lg: 'row', xl: 'row' }}
+        >
           <Button
-            Icon={Icons.TransactionIcon}
+            Icon={TransactionIcon}
             label='Transactions'
             onClick={onFilter}
             size='medium'
             variant='contained'
-            style={{
-              backgroundColor: theme.palette.grey.A200,
-              color: theme.palette.text.primary,
-              gap: theme.spacing(1),
-            }}
+            color='info'
           />
           <Button
             Icon={Icons.TransactionBlock}
-            label='DAG Blocks'
+            label='Transactions'
             onClick={onDAGFilter}
             size='medium'
             variant='contained'
-            style={{
-              backgroundColor: theme.palette.grey.A200,
-              color: theme.palette.text.primary,
-              gap: theme.spacing(1),
-            }}
+            color='info'
           />
           <Button
             Icon={Icons.TransactionBlock}
-            label='PBFT Blocks'
+            label='Transactions'
             onClick={onPBFTFilter}
             size='medium'
             variant='contained'
-            style={{
-              backgroundColor: theme.palette.grey.A200,
-              color: theme.palette.text.primary,
-              gap: theme.spacing(1),
-            }}
+            color='info'
           />
         </Box>
         <TablePagination
@@ -98,7 +96,7 @@ export const BlockTable: React.FC<BlockTableProps> = ({
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Box>
-      <TableContainer>
+      <TableContainer sx={{ marginBottom: '2rem' }}>
         <Table
           style={{
             tableLayout: 'auto',
@@ -155,7 +153,7 @@ export const BlockTable: React.FC<BlockTableProps> = ({
                 variant='head'
                 style={{ backgroundColor: theme.palette.grey.A100 }}
               >
-                Fee
+                Fee (TARA)
               </TableCell>
             </TableRow>
           </TableHead>
@@ -165,7 +163,13 @@ export const BlockTable: React.FC<BlockTableProps> = ({
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((block, i) => (
                   <TableRow key={`${block.txHash}-${i}`}>
-                    <TableCell variant='body'>{block.txHash}</TableCell>
+                    <TableCell variant='body'>
+                      <HashLink
+                        linkType={HashLinkType.TRANSACTIONS}
+                        hash={block.txHash}
+                        wrap
+                      />
+                    </TableCell>
                     <TableCell variant='body'>{block.dagLevel}</TableCell>
                     <TableCell variant='body'>Transfer</TableCell>
                     <TableCell variant='body'>
@@ -175,7 +179,7 @@ export const BlockTable: React.FC<BlockTableProps> = ({
                         alignItems='center'
                         alignContent='center'
                         justifyContent='space-evenly'
-                        maxWidth='30rem'
+                        maxWidth='20rem'
                         gap='0.2rem'
                       >
                         <AddressLink address={block.from} />
@@ -187,7 +191,7 @@ export const BlockTable: React.FC<BlockTableProps> = ({
                       {statusToLabel(block.status)}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {block.timestamp}
+                      {timestampToAge(block.timestamp)}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
                       {block.value}

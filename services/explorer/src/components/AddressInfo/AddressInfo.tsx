@@ -1,10 +1,12 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Box, Grid } from '@mui/material';
+import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { toSvg } from 'jdenticon';
-import { Button, Icons } from '@taraxa_project/taraxa-ui';
+import { CopyTo } from '@taraxa_project/taraxa-ui';
 import useStyles from './AddressInfo.styles';
-import { BlockTable, TransactionDataItem } from '../BlockTable/BlockTable';
+import { AddressInfoTable, TransactionDataItem } from './AddressInfoTable';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { DataRow } from '../DataRow';
 
 export interface AddressInfoProps {
   address: string;
@@ -33,93 +35,91 @@ export const AddressInfo = ({
 }: AddressInfoProps) => {
   const classes = useStyles();
   const addressIcon = toSvg(address, 40, { backColor: '#fff' });
+  const onCopy = useCopyToClipboard();
 
   const pricePerTara = parseFloat(balance) / parseFloat(value);
 
   return (
-    <Box className={classes.container}>
-      <Box className={classes.address}>
-        <div
-          className={classes.iconContainer}
-          // eslint-disable-next-line
-          dangerouslySetInnerHTML={{ __html: addressIcon }}
-        />
-        {address}
-        <Button
-          className={classes.clipboard}
-          variant='contained'
-          Icon={Icons.Clipboard}
-          onClick={() => navigator.clipboard.writeText(address)}
-        />
+    <Paper elevation={1}>
+      <Box
+        display='flex'
+        flexDirection='column'
+        alignItems='left'
+        margin='2rem 2rem 2rem'
+        gap='1.5rem'
+      >
+        <Box
+          display='flex'
+          flexDirection='row'
+          alignItems='center'
+          justifyContent='flex-start'
+          gap='2rem'
+          mt={3}
+        >
+          <div
+            className={classes.iconContainer}
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{ __html: addressIcon }}
+          />
+          <Typography
+            variant='h6'
+            component='h6'
+            style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
+          >
+            {address}
+          </Typography>
+          <CopyTo text={address} onCopy={onCopy} />
+        </Box>
+        <Box className={classes.twoColumnFlex}>
+          <Box
+            display='flex'
+            flexDirection='column'
+            alignItems='left'
+            gap='1.5rem'
+          >
+            <DataRow title='Balance' data={`${balance} TARA`} />
+            <DataRow
+              title='Value'
+              data={`$${value} ( ${pricePerTara} / TARA )`}
+            />
+            <DataRow title='Transaction count' data={`${transactionCount}`} />
+          </Box>
+          <div style={{ maxWidth: '320px' }}>
+            <Grid container gap={1}>
+              <Grid
+                item
+                xs={12}
+                className={clsx(classes.gridHeader, classes.fullWidthHeader)}
+              >
+                BLOCKS PRODUCED:
+              </Grid>
+              <Grid className={classes.blocksBox} item>
+                <div>{dagBlocks}</div>
+                <span>#DAG Blocks</span>
+              </Grid>
+              <Grid className={classes.blocksBox} item>
+                <div>{pbftBlocks}</div>
+                <span>#PBFT Blocks</span>
+              </Grid>
+            </Grid>
+          </div>
+        </Box>
+        <Divider light />
+        <DataRow title='Total received' data={`${totalReceived} TARA`} />
+        <DataRow title='Total sent' data={`${totalSent} TARA`} />
+        <DataRow title='Fees' data={`${fees} TARA`} />
+        <Divider light />
       </Box>
-      <Box className={classes.twoColumnFlex}>
-        <div>
-          <Grid container rowGap={2}>
-            <Grid className={classes.gridHeader} item xs={6}>
-              BALANCE:
-            </Grid>
-            <Grid className={classes.gridValue} item xs={6}>
-              {balance} TARA
-            </Grid>
-            <Grid className={classes.gridHeader} item xs={6}>
-              VALUE:
-            </Grid>
-            <Grid className={classes.gridValue} item xs={6}>
-              ${value} ( ${pricePerTara} / TARA )
-            </Grid>
-            <Grid className={classes.gridHeader} item xs={6}>
-              TRANSACTION COUNT:
-            </Grid>
-            <Grid className={classes.gridValue} item xs={6}>
-              {transactionCount}
-            </Grid>
-          </Grid>
-        </div>
-        <div>
-          <Grid container gap={1}>
-            <Grid
-              item
-              xs={12}
-              className={clsx(classes.gridHeader, classes.fullWidthHeader)}
-            >
-              BLOCKS PRODUCED:
-            </Grid>
-            <Grid className={classes.blocksBox} item>
-              <div>{dagBlocks}</div>
-              <span>#DAG Blocks</span>
-            </Grid>
-            <Grid className={classes.blocksBox} item>
-              <div>{pbftBlocks}</div>
-              <span>#PBFT Blocks</span>
-            </Grid>
-          </Grid>
-        </div>
+      <Box
+        display='flex'
+        flexDirection='column'
+        alignItems='flex-start'
+        alignContent='center'
+        margin='1rem 1rem 1rem'
+        style={{ overflowWrap: 'anywhere' }}
+      >
+        <AddressInfoTable blockData={blockData} />
       </Box>
-      <Box className={classes.twoColumnFlex}>
-        <div>
-          <Grid container rowGap={2}>
-            <Grid className={classes.gridHeader} item xs={6}>
-              TOTAL RECEIVED:
-            </Grid>
-            <Grid className={classes.gridValue} item xs={6}>
-              {totalReceived} TARA
-            </Grid>
-            <Grid className={classes.gridHeader} item xs={6}>
-              TOTAL SENT:
-            </Grid>
-            <Grid className={classes.gridValue} item xs={6}>
-              {totalSent} TARA
-            </Grid>
-            <Grid className={classes.gridHeader} item xs={6}>
-              FEES:
-            </Grid>
-            <Grid className={classes.gridValue} item xs={6}>
-              {fees} TARA
-            </Grid>
-          </Grid>
-        </div>
-      </Box>
-      <BlockTable blockData={blockData} />
-    </Box>
+    </Paper>
   );
 };

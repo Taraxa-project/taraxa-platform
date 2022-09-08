@@ -3,22 +3,6 @@ import { theme } from '../../theme-provider';
 
 const useStyles = makeStyles(() => {
   return {
-    container: {
-      display: 'flex',
-      borderRadius: theme.spacing(0.5),
-      backgroundColor: theme.palette.grey[900],
-      border: `1px solid ${theme.palette.grey[100]}`,
-      padding: theme.spacing(3),
-      flexDirection: 'column',
-      width: '100%',
-    },
-    address: {
-      display: 'flex',
-      alignItems: 'center',
-      fontSize: theme.spacing(2.75),
-      lineHeight: theme.spacing(4.125),
-      marginBottom: theme.spacing(3),
-    },
     iconContainer: {
       display: 'flex',
       alignItems: 'center',
@@ -36,10 +20,13 @@ const useStyles = makeStyles(() => {
     },
     twoColumnFlex: {
       display: 'flex',
+      flexDirection: 'row',
       padding: theme.spacing(0, 0, 3, 0),
-      marginBottom: theme.spacing(3),
-      borderBottom: `1px solid ${theme.palette.grey.A200}`,
       justifyContent: 'space-between',
+      [theme.breakpoints.down(1000)]: {
+        flexDirection: 'column',
+        gap: '2rem',
+      },
     },
     gridHeader: {
       letterSpacing: '-0.03rem',
@@ -60,6 +47,7 @@ const useStyles = makeStyles(() => {
       border: `1px solid ${theme.palette.grey[700]}`,
       backgroundColor: theme.palette.grey.A100,
       padding: theme.spacing(1, 2),
+      minWidth: '150px',
       '&>div': {
         fontWeight: 700,
         fontSize: theme.spacing(2.75),

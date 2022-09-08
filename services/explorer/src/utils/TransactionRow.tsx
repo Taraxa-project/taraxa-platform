@@ -1,12 +1,14 @@
+import React from 'react';
+import { CircularProgress } from '@mui/material';
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
-import React from 'react';
-import { TransactionLink } from '../components/Links';
+import { HashLink } from '../components/Links';
 import {
   BlockData,
   TransactionTableData,
   TransactionStatus,
 } from '../models/TableData';
+import { HashLinkType } from './Enums';
 
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
@@ -31,10 +33,10 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   }
   return (
     <Label
-      variant='error'
-      label='Failure'
+      variant='loading'
+      label='Loading'
       gap
-      icon={<Icons.RedCircledCancel />}
+      icon={<CircularProgress size={25} color='inherit' />}
     />
   );
 };
@@ -44,7 +46,9 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
   const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
   const labelType = statusToLabel(state);
 
-  const txHashContainer = <TransactionLink txHash={txHash} />;
+  const txHashContainer = (
+    <HashLink linkType={HashLinkType.TRANSACTIONS} hash={txHash} />
+  );
 
   return {
     data: [
@@ -78,7 +82,9 @@ export const toBlockTableRow = (props: BlockData) => {
   const { timestamp, block, hash, transactionCount } = props;
 
   const ageString = timestampToAge(timestamp);
-  const txHashContainer = <TransactionLink txHash={hash} />;
+  const txHashContainer = (
+    <HashLink linkType={HashLinkType.TRANSACTIONS} hash={hash} />
+  );
 
   return {
     data: [

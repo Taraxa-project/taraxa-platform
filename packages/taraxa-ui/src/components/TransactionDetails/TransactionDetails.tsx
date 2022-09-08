@@ -9,6 +9,7 @@ export interface TransactionDetailsProps {
   hash: string;
   transactionCount: number;
   timeSince: string;
+  hashElement?: React.ReactNode;
 }
 
 export const shortenHash = (text: string, visibleLength = 44): string => {
@@ -23,6 +24,7 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
   hash,
   transactionCount,
   timeSince,
+  hashElement,
 }) => {
   const classes = useStyles();
 
@@ -35,9 +37,13 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
           <Typography variant='body2' color='common.white'>
             <strong>Level: </strong> {level}
           </Typography>
-          <Typography variant='body2' color='secondary'>
-            {shortenHash(hash)}
-          </Typography>
+          {hashElement ? (
+            <Box className={classes.hashContainer}>{hashElement}</Box>
+          ) : (
+            <Typography variant='body2' color='secondary'>
+              {shortenHash(hash)}
+            </Typography>
+          )}
         </Box>
         <Box className={classes.details}>
           <Route />
