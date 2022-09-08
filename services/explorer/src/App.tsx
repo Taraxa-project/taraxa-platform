@@ -6,6 +6,7 @@ import TransactionsPage from './pages/Transactions/Transactions';
 import BlocksPage from './pages/Blocks/Blocks';
 import NodesPage from './pages/Nodes/Nodes';
 import TransactionDataContainer from './pages/TransactionData/TransactionData';
+import AddressInfoPage from './pages/AddressInfo/AddressInfo';
 import BlockDataContainer from './pages/BlockData/BlockDataContainer';
 import FaucetPage from './pages/Faucet/Faucet';
 import LoadingWidget from './components/LoadingWidget/LoadingWidget';
@@ -36,6 +37,7 @@ const Root = (): JSX.Element => {
               path='/transactions/:txHash'
               element={<TransactionDataContainer />}
             />
+            <Route path='/address/:address' element={<AddressInfoPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
           <Footer />

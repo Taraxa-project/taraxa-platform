@@ -18,7 +18,10 @@ import RedCircledCancel from './RedCircledCancel';
 import Block from './Block';
 import Route from './Route';
 import Award from './Award';
-import Copy from './Copy';
+import Clipboard from './Clipboard';
+import GreenRightArrow from './GreenRightArrow';
+import TransactionIcon from './TransactionIcon';
+import TransactionBlock from './TransactionBlock';
 
 export {
   Left,
@@ -41,8 +44,12 @@ export {
   Block,
   Route,
   Award,
-  Copy,
+  Clipboard,
+  GreenRightArrow,
+  TransactionIcon,
+  TransactionBlock,
 };
+
 export default {
   Left,
   Right,
@@ -63,5 +70,8 @@ export default {
   Block,
   Route,
   Award,
-  Copy,
+  Clipboard,
+  GreenRightArrow,
+  TransactionIcon,
+  TransactionBlock,
 };

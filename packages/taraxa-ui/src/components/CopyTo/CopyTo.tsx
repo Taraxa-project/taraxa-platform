@@ -2,7 +2,7 @@ import React from 'react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import theme from '../theme';
-import { Copy } from '../Icons';
+import { Clipboard } from '../Icons';
 import Button from '../Button';
 
 export interface CopyToProps {
@@ -17,7 +17,7 @@ const CopyTo = ({ text, onCopy }: CopyToProps) => {
       <CopyToClipboard text={text} onCopy={onCopy}>
         <Button
           style={{ borderRadius: '8px' }}
-          Icon={Copy}
+          Icon={Clipboard}
           size='small'
           variant='contained'
           color='info'

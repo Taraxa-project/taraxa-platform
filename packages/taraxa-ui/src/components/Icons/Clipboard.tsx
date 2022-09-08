@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const Copy = () => (
+const Clipboard = () => (
   <svg
     width='20'
     height='20'
@@ -22,4 +22,4 @@ const Copy = () => (
   </svg>
 );
 
-export default Copy;
+export default Clipboard;
