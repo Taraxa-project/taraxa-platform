@@ -51,8 +51,16 @@ export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
   };
   return (
     <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
-      <Box display='flex' flexDirection='row' justifyContent='space-between'>
-        <Box display='flex' gap={2}>
+      <Box
+        display='flex'
+        flexDirection={{ xs: 'column', md: 'row', lg: 'row', xl: 'row' }}
+        justifyContent='space-between'
+      >
+        <Box
+          display='flex'
+          gap={2}
+          flexDirection={{ xs: 'column', md: 'column', lg: 'row', xl: 'row' }}
+        >
           <Button
             Icon={TransactionIcon}
             label='Transactions'
