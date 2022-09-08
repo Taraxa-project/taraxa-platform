@@ -84,7 +84,7 @@ export const AddressInfo = ({
             />
             <DataRow title='Transaction count' data={`${transactionCount}`} />
           </Box>
-          <div>
+          <div style={{ maxWidth: '320px' }}>
             <Grid container gap={1}>
               <Grid
                 item
