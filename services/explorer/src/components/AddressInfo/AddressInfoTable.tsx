@@ -9,13 +9,12 @@ import {
   TablePagination,
   TableContainer,
 } from '@mui/material';
-import { Button, Icons } from '@taraxa_project/taraxa-ui';
+import { Icons } from '@taraxa_project/taraxa-ui';
 import type { TransactionData } from '../../models/TransactionData';
 import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { HashLinkType } from '../../utils';
-import { TransactionIcon } from '../icons';
 
 export interface TransactionDataItem extends TransactionData {
   txHash: string;
@@ -25,16 +24,10 @@ export interface TransactionDataItem extends TransactionData {
 
 export interface AddressInfoTableProps {
   blockData: TransactionDataItem[];
-  onFilter?: () => void;
-  onDAGFilter?: () => void;
-  onPBFTFilter?: () => void;
 }
 
 export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
   blockData = [],
-  onFilter = () => ({}),
-  onDAGFilter = () => ({}),
-  onPBFTFilter = () => ({}),
 }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [page, setPage] = React.useState(0);
@@ -54,9 +47,9 @@ export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
       <Box
         display='flex'
         flexDirection={{ xs: 'column', md: 'row', lg: 'row', xl: 'row' }}
-        justifyContent='space-between'
+        justifyContent='flex-end'
       >
-        <Box
+        {/* <Box
           display='flex'
           gap={2}
           flexDirection={{ xs: 'column', md: 'column', lg: 'row', xl: 'row' }}
@@ -85,7 +78,7 @@ export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
             variant='contained'
             color='info'
           />
-        </Box>
+        </Box> */}
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'

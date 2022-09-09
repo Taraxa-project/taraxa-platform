@@ -8,7 +8,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   const [events, setEvents] = useState<
     { name?: string; from?: string; to?: string; value?: string }[]
   >([{}]);
-  const [dagData, setDagData] = useState<BlockData>({} as BlockData);
+  const [dagData, setDagData] = useState<BlockData[]>();
   const [transactionData, setTransactionData] = useState<TransactionData>(
     {} as TransactionData
   );
@@ -47,16 +47,16 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   useEffect(() => {
     setTimeout(() => {
-      const dag: BlockData = {
+      const dag: BlockData[] = Array(20).fill({
         timestamp: '1661776098',
         block: transactionData.dagLevel,
         level: '23213123213',
         hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
         transactionCount: 105,
-      };
+      });
       setDagData(dag);
     }, 500);
-  }, [transactionData.dagLevel]);
+  }, [transactionData]);
 
   return { transactionData, dagData, events, currentNetwork };
 };

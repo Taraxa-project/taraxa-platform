@@ -8,9 +8,9 @@ import {
   TablePagination,
   TableContainer,
 } from '@mui/material';
-import { Button, theme } from '@taraxa_project/taraxa-ui';
+import { theme } from '@taraxa_project/taraxa-ui';
 import React from 'react';
-import { GreenRightArrow, TransactionIcon } from '../../components';
+import { GreenRightArrow } from '../../components';
 import { TransactionData } from '../../models/TransactionData';
 import { AddressLink, HashLink } from '../../components/Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
@@ -18,8 +18,7 @@ import { HashLinkType } from '../../utils';
 
 export const BlockTable: React.FC<{
   blockData: TransactionData[];
-  onFilter: () => void;
-}> = ({ blockData, onFilter }) => {
+}> = ({ blockData }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [page, setPage] = React.useState(0);
 
@@ -35,15 +34,7 @@ export const BlockTable: React.FC<{
   };
   return (
     <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
-      <Box display='flex' flexDirection='row' justifyContent='space-between'>
-        <Button
-          Icon={TransactionIcon}
-          label='Transactions'
-          onClick={onFilter}
-          size='medium'
-          variant='contained'
-          color='info'
-        />
+      <Box display='flex' flexDirection='row' justifyContent='flex-end'>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'

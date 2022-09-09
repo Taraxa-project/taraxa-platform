@@ -3,17 +3,43 @@ import { Box, Divider, Paper, Typography } from '@mui/material';
 import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import { useParams } from 'react-router-dom';
-import { DataRow, HashLink, PageTitle } from '../../components';
+import {
+  DataRow,
+  HashLink,
+  PageTitle,
+  TableTabs,
+  TransactionIcon,
+} from '../../components';
 import { useBlockDataContainerEffects } from './BlockDataContainer.effects';
 import { BlockTable } from './BlockTable';
 import { HashLinkType } from '../../utils';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { TableTabsProps } from '../../models/TableTabs';
+import useStyles from './BlockDataContainer.styles';
 
 const BlockDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
-  const { blockData, transactions, currentNetwork, onClickTransactions } =
+  const classes = useStyles();
+  const { blockData, transactions, currentNetwork } =
     useBlockDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
+
+  const tableTabs: TableTabsProps = {
+    tabs: [
+      {
+        label: 'Transactions',
+        index: 0,
+        icon: (
+          <Box className={classes.tabIconContainer}>
+            <TransactionIcon />
+          </Box>
+        ),
+        iconPosition: 'start',
+        children: <BlockTable blockData={transactions} />,
+      },
+    ],
+    initialValue: 0,
+  };
 
   return (
     <>
@@ -89,16 +115,15 @@ const BlockDataContainer = (): JSX.Element => {
             data={`${blockData.verifiableDelay}`}
           />
           <Divider light />
-        </Box>
-        <Box
-          display='flex'
-          flexDirection='column'
-          alignItems='flex-start'
-          alignContent='center'
-          margin='1rem 1rem 1rem'
-          style={{ overflowWrap: 'anywhere' }}
-        >
-          <BlockTable blockData={transactions} onFilter={onClickTransactions} />
+          <Box
+            display='flex'
+            flexDirection='column'
+            alignItems='flex-start'
+            alignContent='center'
+            style={{ overflowWrap: 'anywhere' }}
+          >
+            <TableTabs {...tableTabs} />
+          </Box>
         </Box>
       </Paper>
     </>

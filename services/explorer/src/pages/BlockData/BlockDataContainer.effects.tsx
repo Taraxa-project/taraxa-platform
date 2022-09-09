@@ -10,14 +10,6 @@ export const useBlockDataContainerEffects = (txHash: string) => {
     {} as TransactionData,
   ]);
 
-  const onClickTransactions = useCallback(() => {
-    const click = async () => {
-      // eslint-disable-next-line no-console
-      console.log('click click click');
-    };
-    click();
-  }, []);
-
   const fetchBlockDetails = useCallback(() => {
     setTimeout(() => {
       const blockDetails: BlockDetails = {
@@ -154,5 +146,5 @@ export const useBlockDataContainerEffects = (txHash: string) => {
     fetchTransactions();
   }, [blockData]);
 
-  return { blockData, transactions, currentNetwork, onClickTransactions };
+  return { blockData, transactions, currentNetwork };
 };

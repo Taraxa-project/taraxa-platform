@@ -2,11 +2,14 @@ import React from 'react';
 import clsx from 'clsx';
 import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { toSvg } from 'jdenticon';
-import { CopyTo } from '@taraxa_project/taraxa-ui';
+import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
 import useStyles from './AddressInfo.styles';
 import { AddressInfoTable, TransactionDataItem } from './AddressInfoTable';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { DataRow } from '../DataRow';
+import { TransactionIcon } from '../icons';
+import { TableTabsProps } from '../../models/TableTabs';
+import { TableTabs } from '../TableTabs';
 
 export interface AddressInfoProps {
   address: string;
@@ -38,6 +41,45 @@ export const AddressInfo = ({
   const onCopy = useCopyToClipboard();
 
   const pricePerTara = parseFloat(balance) / parseFloat(value);
+
+  const tableTabs: TableTabsProps = {
+    tabs: [
+      {
+        label: 'Transactions',
+        index: 0,
+        icon: (
+          <Box className={classes.tabIconContainer}>
+            <TransactionIcon />
+          </Box>
+        ),
+        iconPosition: 'start',
+        children: <AddressInfoTable blockData={blockData} />,
+      },
+      {
+        label: 'DAG Blocks',
+        index: 1,
+        icon: (
+          <Box className={classes.tabIconContainer}>
+            <Icons.Block />
+          </Box>
+        ),
+        iconPosition: 'start',
+        children: <Typography>Dag Blocks</Typography>,
+      },
+      {
+        label: 'PBFT Blocks',
+        index: 2,
+        icon: (
+          <Box className={classes.tabIconContainer}>
+            <Icons.Block />
+          </Box>
+        ),
+        iconPosition: 'start',
+        children: <Typography>PBFT Blocks</Typography>,
+      },
+    ],
+    initialValue: 0,
+  };
 
   return (
     <Paper elevation={1}>
@@ -109,16 +151,15 @@ export const AddressInfo = ({
         <DataRow title='Total sent' data={`${totalSent} TARA`} />
         <DataRow title='Fees' data={`${fees} TARA`} />
         <Divider light />
-      </Box>
-      <Box
-        display='flex'
-        flexDirection='column'
-        alignItems='flex-start'
-        alignContent='center'
-        margin='1rem 1rem 1rem'
-        style={{ overflowWrap: 'anywhere' }}
-      >
-        <AddressInfoTable blockData={blockData} />
+        <Box
+          display='flex'
+          flexDirection='column'
+          alignItems='flex-start'
+          alignContent='center'
+          style={{ overflowWrap: 'anywhere' }}
+        >
+          <TableTabs {...tableTabs} />
+        </Box>
       </Box>
     </Paper>
   );
