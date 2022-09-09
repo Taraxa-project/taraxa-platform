@@ -2,11 +2,7 @@
 import React, { FC, SyntheticEvent, useState } from 'react';
 import { Box, Tab } from '@mui/material';
 import Tabs from '@mui/material/Tabs';
-import {
-  TableTabsProps,
-  TabPanelProps,
-  TabModel,
-} from '../../models/TableTabs';
+import { TableTabsProps, TabPanelProps, TabModel } from '../../models';
 
 const TabPanel: FC<TabPanelProps> = ({
   index,

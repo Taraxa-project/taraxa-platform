@@ -10,13 +10,12 @@ import {
   PageTitle,
   TableTabs,
 } from '../../components';
-import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
+import { HashLinkType, statusToLabel, timestampToAge } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
-import { DagTable } from './DagTable';
-import { HashLinkType } from '../../utils';
+import { BlocksTable } from '../../components/Tables';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import useStyles from './TransactionData.styles';
-import { TableTabsProps } from '../../models/TableTabs';
+import { TableTabsProps } from '../../models';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
@@ -36,7 +35,7 @@ const TransactionDataContainer = (): JSX.Element => {
           </Box>
         ),
         iconPosition: 'start',
-        children: <DagTable dagData={dagData} />,
+        children: <BlocksTable blocksData={dagData} />,
       },
     ],
     initialValue: 0,

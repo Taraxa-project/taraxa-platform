@@ -37,7 +37,7 @@ const Root = (): JSX.Element => {
               path='/transactions/:txHash'
               element={<TransactionDataContainer />}
             />
-            <Route path='/address/:address' element={<AddressInfoPage />} />
+            <Route path='/address/:txHash' element={<AddressInfoPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
           <Footer />

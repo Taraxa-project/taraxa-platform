@@ -10,12 +10,14 @@ import {
 } from '@mui/material';
 import { theme } from '@taraxa_project/taraxa-ui';
 import React from 'react';
-import { HashLink } from '../../components';
-import { BlockData } from '../../models/TableData';
+import { HashLink } from '..';
+import { BlockData } from '../../models';
 import { HashLinkType } from '../../utils';
 import { timestampToAge } from '../../utils/TransactionRow';
 
-export const DagTable: React.FC<{ dagData: BlockData[] }> = ({ dagData }) => {
+export const BlocksTable: React.FC<{ blocksData: BlockData[] }> = ({
+  blocksData,
+}) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [page, setPage] = React.useState(0);
 
@@ -36,7 +38,7 @@ export const DagTable: React.FC<{ dagData: BlockData[] }> = ({ dagData }) => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'
-          count={dagData?.length}
+          count={blocksData?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -74,8 +76,8 @@ export const DagTable: React.FC<{ dagData: BlockData[] }> = ({ dagData }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {dagData &&
-              dagData
+            {blocksData &&
+              blocksData
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((block, i) => (
                   <TableRow key={`${block.hash}-${i}`}>

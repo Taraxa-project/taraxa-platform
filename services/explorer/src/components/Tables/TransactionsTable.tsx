@@ -10,24 +10,18 @@ import {
   TableContainer,
 } from '@mui/material';
 import { Icons } from '@taraxa_project/taraxa-ui';
-import type { TransactionData } from '../../models/TransactionData';
 import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { HashLinkType } from '../../utils';
+import { TransactionData } from '../../models';
 
-export interface TransactionDataItem extends TransactionData {
-  txHash: string;
-  dagLevel: string;
-  dagHash: string;
+export interface TransactionsTableProps {
+  transactionsData: TransactionData[];
 }
 
-export interface AddressInfoTableProps {
-  blockData: TransactionDataItem[];
-}
-
-export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
-  blockData = [],
+export const TransactionsTable: React.FC<TransactionsTableProps> = ({
+  transactionsData,
 }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [page, setPage] = React.useState(0);
@@ -82,7 +76,7 @@ export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'
-          count={blockData.length}
+          count={transactionsData?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -151,8 +145,8 @@ export const AddressInfoTable: React.FC<AddressInfoTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {blockData &&
-              blockData
+            {transactionsData &&
+              transactionsData
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((block, i) => (
                   <TableRow key={`${block.txHash}-${i}`}>

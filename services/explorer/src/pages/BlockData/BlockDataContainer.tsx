@@ -11,11 +11,11 @@ import {
   TransactionIcon,
 } from '../../components';
 import { useBlockDataContainerEffects } from './BlockDataContainer.effects';
-import { BlockTable } from './BlockTable';
 import { HashLinkType } from '../../utils';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
-import { TableTabsProps } from '../../models/TableTabs';
+import { TableTabsProps } from '../../models';
 import useStyles from './BlockDataContainer.styles';
+import { TransactionsTable } from '../../components/Tables';
 
 const BlockDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
@@ -35,7 +35,7 @@ const BlockDataContainer = (): JSX.Element => {
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlockTable blockData={transactions} />,
+        children: <TransactionsTable transactionsData={transactions} />,
       },
     ],
     initialValue: 0,
