@@ -18,9 +18,11 @@ export const useHomeEffects = () => {
 
   useEffect(() => {
     initLoading();
-    setDagBlocks(getMockedDagBlocksCard());
-    setPbftBlocks(getMockedPbftBlocksCard());
-    finishLoading();
+    setTimeout(() => {
+      setDagBlocks(getMockedDagBlocksCard());
+      setPbftBlocks(getMockedPbftBlocksCard());
+      finishLoading();
+    }, 1500);
   }, [currentNetwork]);
 
   const dagToDisplay = (dagBlocks: BlockData[]) => {

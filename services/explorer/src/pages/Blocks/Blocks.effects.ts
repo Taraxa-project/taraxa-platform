@@ -17,7 +17,7 @@ export const useBlockEffects = () => {
     setTimeout(() => {
       setData(rows);
       finishLoading();
-    }, 3000);
+    }, 1500);
   }, []);
 
   return { data, columns, currentNetwork };

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getMockedBlockDetails, getMockedTransactions } from '../../api/mocks';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
+import { useExplorerLoader } from '../../hooks/useLoader';
 import { TransactionData, BlockDetails } from '../../models';
 
 export const useBlockDataContainerEffects = (txHash: string) => {
@@ -9,6 +10,7 @@ export const useBlockDataContainerEffects = (txHash: string) => {
   const [transactions, setTransactions] = useState<TransactionData[]>([
     {} as TransactionData,
   ]);
+  const { initLoading, finishLoading } = useExplorerLoader();
 
   const fetchBlockDetails = useCallback(() => {
     setTimeout(() => {
@@ -18,19 +20,18 @@ export const useBlockDataContainerEffects = (txHash: string) => {
   }, []);
 
   const fetchTransactions = useCallback(() => {
+    initLoading();
     setTimeout(() => {
       const transactions: TransactionData[] = getMockedTransactions(txHash);
       setTransactions(transactions);
+      finishLoading();
     }, 1000);
   }, []);
 
   useEffect(() => {
     fetchBlockDetails();
-  }, [currentNetwork]);
-
-  useEffect(() => {
     fetchTransactions();
-  }, [blockData]);
+  }, [currentNetwork]);
 
   return { blockData, transactions, currentNetwork };
 };

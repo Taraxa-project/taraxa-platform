@@ -13,7 +13,7 @@ export const useDagEffects = () => {
     setTimeout(() => {
       setDagBlocks(dagBlocks);
       finishLoading();
-    }, 3000);
+    }, 1500);
   }, []);
 
   return {

@@ -5,6 +5,7 @@ import {
   getMockedTransactions,
   getMockPbftBlocks,
 } from '../../api/mocks';
+import { useExplorerLoader } from '../../hooks/useLoader';
 import { AddressInfoDetails, BlockData, TransactionData } from '../../models';
 
 export const useAddressInfoEffects = (txHash: string) => {
@@ -13,6 +14,7 @@ export const useAddressInfoEffects = (txHash: string) => {
   const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
   const [addressInfoDetails, setAddressInfoDetails] =
     useState<AddressInfoDetails>();
+  const { initLoading, finishLoading } = useExplorerLoader();
 
   const fetchAddressInfoDetails = useCallback(() => {
     setTimeout(() => {
@@ -22,16 +24,17 @@ export const useAddressInfoEffects = (txHash: string) => {
   }, []);
 
   useEffect(() => {
+    initLoading();
     const transactions: TransactionData[] = getMockedTransactions(txHash);
     const dagBlocks: BlockData[] = getMockedDagBlocks(txHash);
     const pbftBlocks: BlockData[] = getMockPbftBlocks(txHash);
-    setTransactions(transactions);
-    setDagBlocks(dagBlocks);
-    setPbftBlocks(pbftBlocks);
-  }, []);
-
-  useEffect(() => {
-    fetchAddressInfoDetails();
+    setTimeout(() => {
+      fetchAddressInfoDetails();
+      setTransactions(transactions);
+      setDagBlocks(dagBlocks);
+      setPbftBlocks(pbftBlocks);
+      finishLoading();
+    }, 1500);
   }, []);
 
   return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };

@@ -58,7 +58,7 @@ export const useNodesEffects = () => {
     setTimeout(() => {
       setTableData(rows);
       finishLoading();
-    }, 3000);
+    }, 1500);
   }, []);
 
   return {

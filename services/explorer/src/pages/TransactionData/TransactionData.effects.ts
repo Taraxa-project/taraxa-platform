@@ -6,6 +6,7 @@ import {
   getMockedDagBlocks,
   getMockedEvent,
 } from '../../api/mocks';
+import { useExplorerLoader } from '../../hooks/useLoader';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
@@ -16,13 +17,16 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   const [transactionData, setTransactionData] = useState<TransactionData>(
     {} as TransactionData
   );
+  const { initLoading, finishLoading } = useExplorerLoader();
+
   useEffect(() => {
+    initLoading();
     setTimeout(() => {
       const txData: TransactionData = getMockedCurrentTransaction();
       setTransactionData(txData);
-
       const event = getMockedEvent();
       setEvents(event);
+      finishLoading();
     }, 1000);
   }, [txHash]);
 
