@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Table,
   TableHead,
@@ -8,18 +9,20 @@ import {
   TablePagination,
   TableContainer,
 } from '@mui/material';
-import { Button, theme } from '@taraxa_project/taraxa-ui';
-import React from 'react';
-import { GreenRightArrow, TransactionIcon } from '../../components';
-import { TransactionData } from '../../models/TransactionData';
-import { AddressLink, HashLink } from '../../components/Links';
+import { Icons } from '@taraxa_project/taraxa-ui';
+import { theme } from '../../theme-provider';
+import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { HashLinkType } from '../../utils';
+import { TransactionData } from '../../models';
 
-export const BlockTable: React.FC<{
-  blockData: TransactionData[];
-  onFilter: () => void;
-}> = ({ blockData, onFilter }) => {
+export interface TransactionsTableProps {
+  transactionsData: TransactionData[];
+}
+
+export const TransactionsTable: React.FC<TransactionsTableProps> = ({
+  transactionsData,
+}) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [page, setPage] = React.useState(0);
 
@@ -35,19 +38,45 @@ export const BlockTable: React.FC<{
   };
   return (
     <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
-      <Box display='flex' flexDirection='row' justifyContent='space-between'>
-        <Button
-          Icon={TransactionIcon}
-          label='Transactions'
-          onClick={onFilter}
-          size='medium'
-          variant='contained'
-          color='info'
-        />
+      <Box
+        display='flex'
+        flexDirection={{ xs: 'column', md: 'row', lg: 'row', xl: 'row' }}
+        justifyContent='flex-end'
+      >
+        {/* <Box
+          display='flex'
+          gap={2}
+          flexDirection={{ xs: 'column', md: 'column', lg: 'row', xl: 'row' }}
+        >
+          <Button
+            Icon={TransactionIcon}
+            label='Transactions'
+            onClick={onFilter}
+            size='medium'
+            variant='contained'
+            color='info'
+          />
+          <Button
+            Icon={Icons.TransactionBlock}
+            label='Transactions'
+            onClick={onDAGFilter}
+            size='medium'
+            variant='contained'
+            color='info'
+          />
+          <Button
+            Icon={Icons.TransactionBlock}
+            label='Transactions'
+            onClick={onPBFTFilter}
+            size='medium'
+            variant='contained'
+            color='info'
+          />
+        </Box> */}
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'
-          count={blockData.length}
+          count={transactionsData?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -116,8 +145,8 @@ export const BlockTable: React.FC<{
             </TableRow>
           </TableHead>
           <TableBody>
-            {blockData &&
-              blockData
+            {transactionsData &&
+              transactionsData
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((block, i) => (
                   <TableRow key={`${block.txHash}-${i}`}>
@@ -141,7 +170,7 @@ export const BlockTable: React.FC<{
                         gap='0.2rem'
                       >
                         <AddressLink address={block.from} />
-                        <GreenRightArrow />
+                        <Icons.GreenRightArrow />
                         <AddressLink address={block.to} />
                       </Box>
                     </TableCell>

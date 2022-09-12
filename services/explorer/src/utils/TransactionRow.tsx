@@ -3,11 +3,7 @@ import { CircularProgress } from '@mui/material';
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import { HashLink } from '../components/Links';
-import {
-  BlockData,
-  TransactionTableData,
-  TransactionStatus,
-} from '../models/TableData';
+import { BlockData, TransactionTableData, TransactionStatus } from '../models';
 import { HashLinkType } from './Enums';
 
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {

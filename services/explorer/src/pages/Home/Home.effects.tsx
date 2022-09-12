@@ -1,49 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { BlockData } from '../../models/TableData';
+import { BlockData } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
-
-const transactions: BlockData[] = [
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 3,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 33,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 23,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 13,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 9,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 7,
-    timestamp: '1661776098',
-  },
-];
+import {
+  getMockedDagBlocksCard,
+  getMockedPbftBlocksCard,
+} from '../../api/mocks';
 
 export const useHomeEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
@@ -53,9 +18,11 @@ export const useHomeEffects = () => {
 
   useEffect(() => {
     initLoading();
-    setDagBlocks(transactions);
-    setPbftBlocks(transactions);
-    finishLoading();
+    setTimeout(() => {
+      setDagBlocks(getMockedDagBlocksCard());
+      setPbftBlocks(getMockedPbftBlocksCard());
+      finishLoading();
+    }, 1500);
   }, [currentNetwork]);
 
   const dagToDisplay = (dagBlocks: BlockData[]) => {
