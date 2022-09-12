@@ -11,6 +11,7 @@ import BlockDataContainer from './pages/BlockData/BlockDataContainer';
 import FaucetPage from './pages/Faucet/Faucet';
 import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import HomePage from './pages/Home/Home';
+import { DagPage } from './pages/Dag/Dag';
 
 declare global {
   interface Window {
@@ -29,10 +30,10 @@ const Root = (): JSX.Element => {
             <Route path='/' element={<HomePage />} />
             <Route path='/blocks' element={<BlocksPage />} />
             <Route path='/blocks/:txHash' element={<BlockDataContainer />} />
-            <Route path='/dag' element={<HomePage />} />
             <Route path='/faucet' element={<FaucetPage />} />
             <Route path='/nodes' element={<NodesPage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
+            <Route path='/dag' element={<DagPage />} />
             <Route
               path='/transactions/:txHash'
               element={<TransactionDataContainer />}

@@ -11,6 +11,16 @@ export const getMockedDagBlocks = (dagLevel: string): BlockData[] => {
   return dag;
 };
 
+export const getMockedDagTable = (): BlockData[] => {
+  const dag: BlockData[] = Array(20).fill({
+    timestamp: '1661776098',
+    level: '23213123213',
+    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+    transactionCount: 105,
+  });
+  return dag;
+};
+
 export const getMockPbftBlocks = (dagLevel: string): BlockData[] => {
   const pbft: BlockData[] = Array(20).fill({
     timestamp: '1661416098',
