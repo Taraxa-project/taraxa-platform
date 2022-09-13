@@ -4,7 +4,7 @@ import theme from '../theme';
 const useStyles = makeStyles(() => {
   return {
     headerIconContainer: {
-      backgroundColor: '#202534',
+      backgroundColor: theme.palette.grey[800],
       border: '1px solid #40465F',
       borderRadius: '12px',
       padding: theme.spacing(1.375),

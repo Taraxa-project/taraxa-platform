@@ -1,16 +1,18 @@
-import { Box } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import React, { FC } from 'react';
 import { Button, NetworkMenu, theme } from '@taraxa_project/taraxa-ui';
+import CloseIcon from '@mui/icons-material/Close';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { HeaderBtn } from './Header.effects';
 
 export interface DrawerElementsProps {
-  toggleDrawer: (toggle: boolean) => void;
+  toggleDrawer: (
+    toggle: boolean
+  ) => (event: React.KeyboardEvent | React.MouseEvent) => void;
   headerButtons: HeaderBtn[];
 }
 
 export const DrawerElements: FC<DrawerElementsProps> = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   toggleDrawer,
   headerButtons,
 }) => {
@@ -18,6 +20,28 @@ export const DrawerElements: FC<DrawerElementsProps> = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '300px' }}>
+      <Box
+        p={2}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <IconButton
+          onClick={toggleDrawer(true)}
+          color='primary'
+          aria-label='upload picture'
+          component='label'
+        >
+          <CloseIcon />
+        </IconButton>
+        <NetworkMenu
+          networks={networks}
+          currentNetwork={currentNetwork}
+          onNetworkChange={setCurrentNetwork}
+        />
+      </Box>
       {headerButtons?.length &&
         headerButtons.map((button: HeaderBtn) => {
           return (
@@ -36,19 +60,6 @@ export const DrawerElements: FC<DrawerElementsProps> = ({
             />
           );
         })}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <NetworkMenu
-          networks={networks}
-          currentNetwork={currentNetwork}
-          onNetworkChange={setCurrentNetwork}
-        />
-      </Box>
     </Box>
   );
 };

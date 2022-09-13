@@ -26,8 +26,22 @@ export const useHeaderEffects = () => {
   const { networks, currentNetwork, setCurrentNetwork } = useExplorerNetwork();
   const [drawerState, setDrawerState] = useState<boolean>(false);
 
+  const toggleDrawer =
+    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' ||
+          (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return;
+      }
+
+      setDrawerState(open);
+    };
+
   const onClick = (route: string) => {
     navigate(`/${route}`);
+    setDrawerState(false);
   };
 
   const headerButtons: HeaderBtn[] = [
@@ -86,19 +100,6 @@ export const useHeaderEffects = () => {
   const searchInputProps: SearchInputProps = {
     onInputChange,
   };
-
-  const toggleDrawer =
-    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-      if (
-        event.type === 'keydown' &&
-        ((event as React.KeyboardEvent).key === 'Tab' ||
-          (event as React.KeyboardEvent).key === 'Shift')
-      ) {
-        return;
-      }
-
-      setDrawerState(open);
-    };
 
   return {
     headerButtons,
