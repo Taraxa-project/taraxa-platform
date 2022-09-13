@@ -21,6 +21,21 @@ export const useNodesEffects = () => {
   const [tableData, setTableData] = useState<NodesTableData[]>();
 
   const { cols, rows } = getMockedNodesColsAndRows();
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = React.useState(0);
+
+  const handleChangePage = (newPage: number) => {
+    console.log('New page: ', newPage);
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    console.log('Rows per page changed');
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const formatTableData = (
     rows: NodesTableData[]
@@ -69,5 +84,9 @@ export const useNodesEffects = () => {
     cols,
     tableData,
     formatTableData,
+    rowsPerPage,
+    page,
+    handleChangePage,
+    handleChangeRowsPerPage,
   };
 };

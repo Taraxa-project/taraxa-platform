@@ -12,6 +12,10 @@ const NodesPage = (): JSX.Element => {
     description,
     cols,
     tableData,
+    rowsPerPage,
+    page,
+    handleChangePage,
+    handleChangeRowsPerPage,
     formatTableData,
   } = useNodesEffects();
   return (
@@ -27,7 +31,14 @@ const NodesPage = (): JSX.Element => {
           description={description}
           total={blocks}
         />
-        <Table rows={formatTableData(tableData)} columns={cols} />
+        <Table
+          rows={formatTableData(tableData)}
+          columns={cols}
+          currentPage={page}
+          initialRowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
     </>
   );

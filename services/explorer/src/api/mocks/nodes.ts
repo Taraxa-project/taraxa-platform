@@ -78,6 +78,56 @@ export const getMockedNodesColsAndRows = () => {
       nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
       blocksProduced: 3213,
     },
+    {
+      rank: 15,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 16,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 17,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 18,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 19,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 20,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 21,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 22,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 23,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
+    {
+      rank: 24,
+      nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
+      blocksProduced: 3213,
+    },
   ];
   return { cols, rows };
 };
