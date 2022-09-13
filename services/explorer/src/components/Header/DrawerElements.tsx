@@ -29,7 +29,7 @@ export const DrawerElements: FC<DrawerElementsProps> = ({
         }}
       >
         <IconButton
-          onClick={toggleDrawer(true)}
+          onClick={toggleDrawer(false)}
           color='primary'
           aria-label='upload picture'
           component='label'
@@ -52,7 +52,6 @@ export const DrawerElements: FC<DrawerElementsProps> = ({
               variant={button.variant}
               onClick={button.onAction}
               sx={{
-                mr: 1,
                 backgroundColor: button.selected
                   ? theme.palette.grey.A200
                   : 'none',

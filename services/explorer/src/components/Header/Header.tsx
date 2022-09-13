@@ -81,7 +81,16 @@ export const Header = (): JSX.Element => {
       searchInputProps={searchInputProps}
     >
       {isMobile ? hamburger : buttons}
-      <Drawer anchor='right' open={drawerState} onClose={toggleDrawer(false)}>
+      <Drawer
+        anchor='right'
+        open={drawerState}
+        onClose={toggleDrawer(false)}
+        sx={{
+          '& .MuiPaper-root': {
+            background: theme.palette.grey[800],
+          },
+        }}
+      >
         <DrawerElements
           toggleDrawer={toggleDrawer}
           headerButtons={headerButtons}

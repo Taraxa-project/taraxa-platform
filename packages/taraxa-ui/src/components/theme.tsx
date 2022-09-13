@@ -180,7 +180,7 @@ const theme: Theme = createTheme({
     MuiDrawerPaper: {
       styleOverrides: {
         root: {
-          background: '#202534',
+          background: '#202534 !important',
         },
       },
     },
