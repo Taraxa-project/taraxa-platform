@@ -5,7 +5,7 @@ const useStyles = makeStyles(() => {
   return {
     headerIconContainer: {
       backgroundColor: theme.palette.grey[800],
-      border: '1px solid #40465F',
+      border: `1px solid ${theme.palette.info.main}`,
       borderRadius: '12px',
       padding: theme.spacing(1.375),
       display: 'flex',
