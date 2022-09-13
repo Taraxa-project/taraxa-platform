@@ -24,27 +24,43 @@ export interface TableProps {
     data: any[];
   }[];
   fixedLayout?: boolean;
+  initialRowsPerPage?: number;
+  currentPage?: number;
+  onPageChange?: (newPage: number) => void;
+  onRowsPerPageChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function Table({
   columns,
   rows,
   fixedLayout = true,
+  initialRowsPerPage = 5,
+  onPageChange,
+  onRowsPerPageChange,
+  currentPage,
 }: TableProps) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
+    if (typeof onPageChange === 'function') {
+      onPageChange(newPage);
+    } else {
+      setPage(newPage);
+    }
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    if (typeof onRowsPerPageChange === 'function') {
+      onRowsPerPageChange(event);
+    } else {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+    }
   };
 
   return (
@@ -56,11 +72,11 @@ export default function Table({
           elevation={0}
         >
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 15, 20, 25]}
             component='div'
             count={rows.length}
             rowsPerPage={rowsPerPage}
-            page={page}
+            page={currentPage || page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             SelectProps={{
@@ -96,7 +112,10 @@ export default function Table({
               </TableHead>
               <TableBody>
                 {rows
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .slice(
+                    (currentPage || page) * rowsPerPage,
+                    (currentPage || page) * rowsPerPage + rowsPerPage
+                  )
                   .map((row, index) =>
                     row.data.map((rowData: any) =>
                       isMobile ? (

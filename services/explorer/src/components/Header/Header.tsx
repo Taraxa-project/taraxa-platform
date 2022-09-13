@@ -6,11 +6,12 @@ import {
   Header as THeader,
   NetworkMenu,
 } from '@taraxa_project/taraxa-ui';
-import { Box, IconButton } from '@mui/material';
+import { Box, Drawer, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { theme } from '../../theme-provider';
 import { TaraxaIcon } from '../icons';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
+import { DrawerElements } from './DrawerElements';
 
 export const Header = (): JSX.Element => {
   const isMobile = useMediaQuery({ query: `(max-width: 1200px)` });
@@ -20,6 +21,8 @@ export const Header = (): JSX.Element => {
     currentNetwork,
     setCurrentNetwork,
     searchInputProps,
+    drawerState,
+    toggleDrawer,
   } = useHeaderEffects();
 
   const buttons = (
@@ -56,7 +59,7 @@ export const Header = (): JSX.Element => {
 
   const hamburger = (
     <IconButton
-      onClick={() => console.log('open!')}
+      onClick={toggleDrawer(true)}
       color='primary'
       aria-label='upload picture'
       component='label'
@@ -78,6 +81,12 @@ export const Header = (): JSX.Element => {
       searchInputProps={searchInputProps}
     >
       {isMobile ? hamburger : buttons}
+      <Drawer anchor='right' open={drawerState} onClose={toggleDrawer(false)}>
+        <DrawerElements
+          toggleDrawer={toggleDrawer}
+          headerButtons={headerButtons}
+        />
+      </Drawer>
     </THeader>
   );
 };

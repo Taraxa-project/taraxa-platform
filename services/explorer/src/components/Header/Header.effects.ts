@@ -24,6 +24,7 @@ export const useHeaderEffects = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { networks, currentNetwork, setCurrentNetwork } = useExplorerNetwork();
+  const [drawerState, setDrawerState] = useState<boolean>(false);
 
   const onClick = (route: string) => {
     navigate(`/${route}`);
@@ -86,6 +87,19 @@ export const useHeaderEffects = () => {
     onInputChange,
   };
 
+  const toggleDrawer =
+    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' ||
+          (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return;
+      }
+
+      setDrawerState(open);
+    };
+
   return {
     headerButtons,
     buttons,
@@ -93,5 +107,7 @@ export const useHeaderEffects = () => {
     currentNetwork,
     setCurrentNetwork,
     searchInputProps,
+    drawerState,
+    toggleDrawer,
   };
 };
