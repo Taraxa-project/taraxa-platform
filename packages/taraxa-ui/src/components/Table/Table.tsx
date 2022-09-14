@@ -75,7 +75,7 @@ export default function Table({
             rowsPerPageOptions={[5, 10, 15, 20, 25]}
             component='div'
             count={rows.length}
-            rowsPerPage={rowsPerPage}
+            rowsPerPage={initialRowsPerPage || rowsPerPage}
             page={currentPage || page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
@@ -113,8 +113,10 @@ export default function Table({
               <TableBody>
                 {rows
                   .slice(
-                    (currentPage || page) * rowsPerPage,
-                    (currentPage || page) * rowsPerPage + rowsPerPage
+                    (currentPage || page) * (initialRowsPerPage || rowsPerPage),
+                    (currentPage || page) *
+                      (initialRowsPerPage || rowsPerPage) +
+                      (initialRowsPerPage || rowsPerPage)
                   )
                   .map((row, index) =>
                     row.data.map((rowData: any) =>
