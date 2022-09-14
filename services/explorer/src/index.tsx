@@ -7,11 +7,14 @@ import {
   Provider as UrqlProvider,
 } from 'urql';
 import App from './App';
-import { ExplorerNetworkProvider } from './hooks/useExplorerNetwork';
 import reportWebVitals from './reportWebVitals';
 import { ExplorerThemeProvider } from './theme-provider';
-import { ExplorerLoaderProvider } from './hooks/useLoader';
 import { GRAPHQL_API } from './api';
+import {
+  ExplorerNetworkProvider,
+  ExplorerLoaderProvider,
+  NodeStateProvider,
+} from './hooks';
 
 export const graphQLClient = urqlCreatClient({
   url: GRAPHQL_API,
@@ -24,15 +27,17 @@ root.render(
   <React.StrictMode>
     <ExplorerThemeProvider>
       <ExplorerNetworkProvider>
-        <ExplorerLoaderProvider>
-          <UrqlProvider value={graphQLClient}>
-            <BrowserRouter>
-              <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-                <App />
-              </SnackbarProvider>
-            </BrowserRouter>
-          </UrqlProvider>
-        </ExplorerLoaderProvider>
+        <UrqlProvider value={graphQLClient}>
+          <NodeStateProvider>
+            <ExplorerLoaderProvider>
+              <BrowserRouter>
+                <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+                  <App />
+                </SnackbarProvider>
+              </BrowserRouter>
+            </ExplorerLoaderProvider>
+          </NodeStateProvider>
+        </UrqlProvider>
       </ExplorerNetworkProvider>
     </ExplorerThemeProvider>
   </React.StrictMode>

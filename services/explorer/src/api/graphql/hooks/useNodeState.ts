@@ -5,11 +5,5 @@ export const useNodeState = async () => {
   const [result] = useQuery({
     query: nodeStateQuery,
   });
-  const { data, fetching, error } = result;
-
-  return {
-    data,
-    fetching,
-    error,
-  };
+  return result;
 };

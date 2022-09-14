@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { BlockData } from '../../models';
@@ -9,12 +10,18 @@ import {
   getMockedDagBlocksCard,
   getMockedPbftBlocksCard,
 } from '../../api/mocks';
+import { useNoteStateContext } from '../../hooks';
 
 export const useHomeEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
   const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
+  const { finalBlock, dagBlockLevel, dagBlockPeriod } = useNoteStateContext();
+
+  console.log('finalBlock: ', finalBlock);
+  console.log('dagBlockPeriod: ', dagBlockLevel);
+  console.log('dagBlockPeriod: ', dagBlockPeriod);
 
   useEffect(() => {
     initLoading();
