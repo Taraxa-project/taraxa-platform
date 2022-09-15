@@ -1,17 +1,13 @@
 export const blockQuery = `
   query block_query($number: Long, hash: Bytes32) {
-    blocks (number: $number, hash: $hash) {
+    block (number: $number, hash: $hash) {
       number,
       hash,
       stateRoot,
       gasLimit,
       gasUsed,
       timestamp,
-      transactions {
-        status, hash, gas
-      },
-      account,
-      estimateGas,
+      transactionCount,
     }
   }
 `;
@@ -28,8 +24,6 @@ export const blocksQuery = `
       transactions {
         status, hash, gas
       },
-      account,
-      estimateGas,
     }
   }
 `;

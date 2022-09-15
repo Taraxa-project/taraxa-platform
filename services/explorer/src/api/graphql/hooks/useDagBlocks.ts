@@ -1,14 +1,18 @@
 import { useQuery } from 'urql';
+import cleanDeep from 'clean-deep';
+import { DagBlockFilters } from '../../types';
 import { dagBlocksQuery, dagBlockQuery } from '../queries';
 
-export const useDagBlocks = async (
-  dagLevel: number,
-  count: number,
-  reverse?: boolean
-) => {
+export const useDagBlocks = async ({
+  dagLevel,
+  count,
+  reverse,
+}: DagBlockFilters) => {
+  const variables = cleanDeep({ dagLevel, count, reverse });
+
   const [result] = useQuery({
     query: dagBlocksQuery,
-    variables: { dagLevel, count, reverse },
+    variables,
   });
   const { data, fetching, error } = result;
 

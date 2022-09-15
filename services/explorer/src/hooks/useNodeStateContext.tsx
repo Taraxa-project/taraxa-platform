@@ -28,11 +28,16 @@ export const NodeStateProvider = ({
   });
 
   useEffect(() => {
-    resultNodeState.then((response) => {
-      if (response?.data) {
-        setCurrentNodeState(response?.data?.nodeState);
-      }
-    });
+    resultNodeState
+      .then((response) => {
+        if (response?.data) {
+          setCurrentNodeState(response?.data?.nodeState);
+        }
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log('Err: ', err);
+      });
   }, [resultNodeState]);
 
   return (

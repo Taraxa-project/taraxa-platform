@@ -1,44 +1,56 @@
-/* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { BlockData } from '../../models';
+import { DagBlock, PbftBlock } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
-import {
-  getMockedDagBlocksCard,
-  getMockedPbftBlocksCard,
-} from '../../api/mocks';
 import { useNoteStateContext } from '../../hooks';
+import { useBlocks, useDagBlocks } from '../../api';
 
 export const useHomeEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
-  const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
-  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
-  const { finalBlock, dagBlockLevel, dagBlockPeriod } = useNoteStateContext();
-
-  console.log('finalBlock: ', finalBlock);
-  console.log('dagBlockPeriod: ', dagBlockLevel);
-  console.log('dagBlockPeriod: ', dagBlockPeriod);
+  const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();
+  const [pbftBlocks, setPbftBlocks] = useState<PbftBlock[]>();
+  const { finalBlock } = useNoteStateContext();
+  const blocksResult = useBlocks({
+    from: Number(finalBlock) - 9,
+    to: Number(finalBlock),
+  });
+  const dagBlocksResult = useDagBlocks({ count: 10, reverse: true });
 
   useEffect(() => {
     initLoading();
-    setTimeout(() => {
-      setDagBlocks(getMockedDagBlocksCard());
-      setPbftBlocks(getMockedPbftBlocksCard());
-      finishLoading();
-    }, 1500);
-  }, [currentNetwork]);
+  }, []);
 
-  const dagToDisplay = (dagBlocks: BlockData[]) => {
+  useEffect(() => {
+    Promise.all([blocksResult, dagBlocksResult])
+      .then((values) => {
+        if (values[0]) {
+          const pbftBlocks: PbftBlock[] = values[0]?.data?.blocks;
+          setPbftBlocks(pbftBlocks);
+        }
+        if (values[1]) {
+          const dagBlocks: DagBlock[] = values[1]?.data?.dagBlocks;
+          setDagBlocks(dagBlocks);
+        }
+        finishLoading();
+      })
+      .catch((err) => {
+        finishLoading();
+        // eslint-disable-next-line no-console
+        console.log('Err: ', err);
+      });
+  }, [blocksResult, dagBlocksResult]);
+
+  const dagToDisplay = (dagBlocks: DagBlock[]) => {
     const _tx = dagBlocks?.map((tx) => {
       return {
-        level: tx.level,
+        level: tx.level?.toString(),
         hash: tx.hash,
-        transactionCount: tx.transactionCount,
-        timeSince: timestampToAge(tx.timestamp),
+        transactionCount: tx.transactions?.length,
+        timeSince: timestampToAge(tx.timestamp.toString()),
         hashElement: (
           <HashLink
             width='auto'
@@ -54,10 +66,10 @@ export const useHomeEffects = () => {
     };
   };
 
-  const pbftToDisplay = (pbftBlocks: BlockData[]) => {
+  const pbftToDisplay = (pbftBlocks: PbftBlock[]) => {
     const _tx = pbftBlocks?.map((tx) => {
       return {
-        level: tx.level,
+        level: tx.number?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
