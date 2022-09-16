@@ -2,12 +2,17 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import { BarChart } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
-import { useHomeEffects } from './Home.effects';
+import {
+  getMockedDagBlocksCard,
+  getMockedPbftBlocksCard,
+} from '../../api/mocks';
 
 const ChartContainer = (): JSX.Element => {
-  const { dagBlocks, pbftBlocks } = useHomeEffects();
+  const dagBlocks = getMockedDagBlocksCard();
+  const pbftBlocks = getMockedPbftBlocksCard();
 
   return (
+    // The implementation below is wrong as the dabBlocks and pbftBlocks cannot be concatenated as they are different objects
     dagBlocks &&
     pbftBlocks && (
       <Grid

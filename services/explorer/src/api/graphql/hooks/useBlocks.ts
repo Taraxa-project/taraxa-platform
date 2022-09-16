@@ -1,7 +1,9 @@
 import { useQuery } from 'urql';
+import cleanDeep from 'clean-deep';
+import { PbftBlocksFilters, PbftBlockDetailsFilters } from '../../types';
 import { blocksQuery, blockQuery } from '../queries';
 
-export const useBlocks = async (from: string, to: string) => {
+export const useBlocks = async ({ from, to }: PbftBlocksFilters) => {
   const [result] = useQuery({
     query: blocksQuery,
     variables: { from, to },
@@ -15,10 +17,12 @@ export const useBlocks = async (from: string, to: string) => {
   };
 };
 
-export const useBlock = async (hash: string, number?: number) => {
+export const useBlock = async ({ hash, number }: PbftBlockDetailsFilters) => {
+  const variables = cleanDeep({ hash, number });
+
   const [result] = useQuery({
     query: blockQuery,
-    variables: { hash, number },
+    variables,
   });
   const { data, fetching, error } = result;
 
