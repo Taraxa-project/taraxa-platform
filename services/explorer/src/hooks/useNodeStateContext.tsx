@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useNodeState } from '../api';
+import { useQuery } from 'urql';
+import { nodeStateQuery } from '../api';
 
 type Context = {
-  finalBlock: string;
-  dagBlockLevel: string;
-  dagBlockPeriod: string;
+  finalBlock: number;
+  dagBlockLevel: number;
+  dagBlockPeriod: number;
 };
 
 const initialState: Context = {
@@ -20,7 +21,9 @@ export const NodeStateProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const resultNodeState = useNodeState();
+  const [{ data }] = useQuery({
+    query: nodeStateQuery,
+  });
   const [currentNodeState, setCurrentNodeState] = useState<Context>({
     finalBlock: null,
     dagBlockLevel: null,
@@ -28,17 +31,10 @@ export const NodeStateProvider = ({
   });
 
   useEffect(() => {
-    resultNodeState
-      .then((response) => {
-        if (response?.data) {
-          setCurrentNodeState(response?.data?.nodeState);
-        }
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.log('Err: ', err);
-      });
-  }, [resultNodeState]);
+    if (data) {
+      setCurrentNodeState(data?.nodeState);
+    }
+  }, [data]);
 
   return (
     <NodeStateContext.Provider value={currentNodeState}>

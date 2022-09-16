@@ -21,9 +21,7 @@ export const dagBlocksQuery = `
       level,
       pbftPeriod,
       timestamp,
-      transactions {
-        hash
-      },
+      transactionCount
     }
   }
 `;

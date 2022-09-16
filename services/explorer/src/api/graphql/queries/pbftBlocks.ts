@@ -1,5 +1,5 @@
 export const blockQuery = `
-  query block_query($number: Long, hash: Bytes32) {
+  query block_query($number: Long, $hash: Bytes32) {
     block (number: $number, hash: $hash) {
       number,
       hash,
@@ -8,6 +8,12 @@ export const blockQuery = `
       gasUsed,
       timestamp,
       transactionCount,
+      transactions {
+        status, hash, value, block {
+          timestamp,
+          number
+        }
+      },
     }
   }
 `;
@@ -21,9 +27,7 @@ export const blocksQuery = `
       gasLimit,
       gasUsed,
       timestamp,
-      transactions {
-        status, hash, gas
-      },
+      transactionCount
     }
   }
 `;

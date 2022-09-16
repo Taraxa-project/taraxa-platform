@@ -8,10 +8,10 @@ export type DagBlockFilters = {
 
 export type PbftBlocksFilters = {
   from: number;
-  to: number;
+  to?: number;
 };
 
 export type PbftBlockDetailsFilters = {
-  hash: string;
+  hash?: string;
   number?: number;
 };

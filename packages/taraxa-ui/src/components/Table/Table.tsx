@@ -28,6 +28,7 @@ export interface TableProps {
   currentPage?: number;
   onPageChange?: (newPage: number) => void;
   onRowsPerPageChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  totalCount?: number;
 }
 
 export default function Table({
@@ -38,6 +39,7 @@ export default function Table({
   onPageChange,
   onRowsPerPageChange,
   currentPage,
+  totalCount,
 }: TableProps) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
@@ -74,7 +76,7 @@ export default function Table({
           <TablePagination
             rowsPerPageOptions={[5, 10, 15, 20, 25]}
             component='div'
-            count={rows.length}
+            count={totalCount || rows.length}
             rowsPerPage={initialRowsPerPage || rowsPerPage}
             page={currentPage || page}
             onPageChange={handleChangePage}

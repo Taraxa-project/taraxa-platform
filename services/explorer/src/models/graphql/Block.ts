@@ -22,5 +22,6 @@ export interface DagBlock {
   timestamp: number;
   block?: string;
   author?: Account;
+  transactionCount?: number;
   transactions?: Transaction[];
 }
