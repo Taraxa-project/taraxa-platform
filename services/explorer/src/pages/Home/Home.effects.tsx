@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
+import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { DagBlock, PbftBlock } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
@@ -6,7 +8,7 @@ import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
 import { useNoteStateContext } from '../../hooks';
-import { useBlocks, useDagBlocks } from '../../api';
+import { blocksQuery, dagBlocksQuery } from '../../api';
 
 export const useHomeEffects = () => {
   const { finalBlock } = useNoteStateContext();
@@ -14,35 +16,42 @@ export const useHomeEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
   const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();
   const [pbftBlocks, setPbftBlocks] = useState<PbftBlock[]>();
-  const blocksResult = useBlocks({
-    from: finalBlock ? Number(finalBlock) - 9 : null,
-    to: finalBlock ? Number(finalBlock) : null,
+
+  const [{ fetching: fetchingBlocks, data: blocksData }] = useQuery({
+    query: blocksQuery,
+    variables: {
+      from: finalBlock ? finalBlock - 9 : null,
+      to: finalBlock || null,
+    },
   });
-  const dagBlocksResult = useDagBlocks({ count: 10, reverse: true });
+
+  const [{ fetching: fetchingDagBlocks, data: dagBlocksData }] = useQuery({
+    query: dagBlocksQuery,
+    variables: {
+      count: 10,
+      reverse: true,
+    },
+  });
 
   useEffect(() => {
-    initLoading();
-  }, []);
+    if (fetchingBlocks || fetchingDagBlocks) {
+      initLoading();
+    } else {
+      finishLoading();
+    }
+  }, [fetchingBlocks, fetchingDagBlocks]);
 
   useEffect(() => {
-    Promise.all([blocksResult, dagBlocksResult])
-      .then((values) => {
-        if (values[0]) {
-          const pbftBlocks: PbftBlock[] = values[0]?.data?.blocks;
-          setPbftBlocks(pbftBlocks);
-        }
-        if (values[1]) {
-          const dagBlocks: DagBlock[] = values[1]?.data?.dagBlocks;
-          setDagBlocks(dagBlocks);
-        }
-        finishLoading();
-      })
-      .catch((err) => {
-        finishLoading();
-        // eslint-disable-next-line no-console
-        console.log('Err: ', err);
-      });
-  }, [blocksResult, dagBlocksResult]);
+    if (blocksData?.blocks) {
+      setPbftBlocks(blocksData?.blocks);
+    }
+  }, [blocksData]);
+
+  useEffect(() => {
+    if (dagBlocksData?.dagBlocks) {
+      setDagBlocks(dagBlocksData?.dagBlocks);
+    }
+  }, [dagBlocksData]);
 
   const dagToDisplay = (dagBlocks: DagBlock[]) => {
     const _tx = dagBlocks?.map((tx) => {

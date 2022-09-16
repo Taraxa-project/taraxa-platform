@@ -16,7 +16,6 @@ export const useTransactionEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: blockData }] = useQuery({
     query: blockQuery,
-    variables: { number: 5406 },
   });
 
   const formatTransactionStatus = (
