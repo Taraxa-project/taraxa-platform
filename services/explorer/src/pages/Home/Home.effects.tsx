@@ -58,7 +58,7 @@ export const useHomeEffects = () => {
       return {
         level: tx.level?.toString(),
         hash: tx.hash,
-        transactionCount: tx.transactions?.length,
+        transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp.toString()),
         hashElement: (
           <HashLink
@@ -78,7 +78,7 @@ export const useHomeEffects = () => {
   const pbftToDisplay = (pbftBlocks: PbftBlock[]) => {
     const _tx = pbftBlocks?.map((tx) => {
       return {
-        level: tx.number?.toString(),
+        blockNumber: tx.number?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),

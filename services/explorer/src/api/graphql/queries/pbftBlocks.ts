@@ -27,9 +27,7 @@ export const blocksQuery = `
       gasLimit,
       gasUsed,
       timestamp,
-      transactions {
-        status, hash, gas
-      },
+      transactionCount
     }
   }
 `;
