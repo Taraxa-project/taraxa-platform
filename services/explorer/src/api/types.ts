@@ -12,6 +12,6 @@ export type PbftBlocksFilters = {
 };
 
 export type PbftBlockDetailsFilters = {
-  hash: string;
+  hash?: string;
   number?: number;
 };

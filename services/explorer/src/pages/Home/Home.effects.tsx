@@ -9,14 +9,14 @@ import { useNoteStateContext } from '../../hooks';
 import { useBlocks, useDagBlocks } from '../../api';
 
 export const useHomeEffects = () => {
+  const { finalBlock } = useNoteStateContext();
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();
   const [pbftBlocks, setPbftBlocks] = useState<PbftBlock[]>();
-  const { finalBlock } = useNoteStateContext();
   const blocksResult = useBlocks({
-    from: Number(finalBlock) - 9,
-    to: Number(finalBlock),
+    from: finalBlock ? Number(finalBlock) - 9 : null,
+    to: finalBlock ? Number(finalBlock) : null,
   });
   const dagBlocksResult = useDagBlocks({ count: 10, reverse: true });
 

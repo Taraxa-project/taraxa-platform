@@ -4,9 +4,11 @@ import { PbftBlocksFilters, PbftBlockDetailsFilters } from '../../types';
 import { blocksQuery, blockQuery } from '../queries';
 
 export const useBlocks = async ({ from, to }: PbftBlocksFilters) => {
+  const variables = cleanDeep({ from, to });
+
   const [result] = useQuery({
     query: blocksQuery,
-    variables: { from, to },
+    variables,
   });
   const { data, fetching, error } = result;
 
