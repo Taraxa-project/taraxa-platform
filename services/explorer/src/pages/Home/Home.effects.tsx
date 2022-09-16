@@ -59,7 +59,7 @@ export const useHomeEffects = () => {
         level: tx.level?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
-        timeSince: timestampToAge(tx.timestamp.toString()),
+        timeSince: timestampToAge(tx.timestamp),
         hashElement: (
           <HashLink
             width='auto'

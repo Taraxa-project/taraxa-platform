@@ -17,7 +17,7 @@ const HomePage = () => {
         title={currentNetwork}
         subtitle='Search for addresses, block hashes, transactions...'
       />
-      <ChartContainer />
+      <ChartContainer pbftBlocks={pbftBlocks} dagBlocks={dagBlocks} />
       <Box className={classes.blocksWrapper}>
         <BlockCard {...dagToDisplay(dagBlocks)} />
         <BlockCard {...pbftToDisplay(pbftBlocks)} />

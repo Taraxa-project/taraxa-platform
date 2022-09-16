@@ -2,14 +2,23 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import { BarChart } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
-import {
-  getMockedDagBlocksCard,
-  getMockedPbftBlocksCard,
-} from '../../api/mocks';
+import { DagBlock, PbftBlock } from '../../models';
+// import {
+//   getMockedDagBlocksCard,
+//   getMockedPbftBlocksCard,
+// } from '../../api/mocks';
 
-const ChartContainer = (): JSX.Element => {
-  const dagBlocks = getMockedDagBlocksCard();
-  const pbftBlocks = getMockedPbftBlocksCard();
+export interface ChartContainerProps {
+  dagBlocks: DagBlock[];
+  pbftBlocks: PbftBlock[];
+}
+
+const ChartContainer = ({
+  dagBlocks,
+  pbftBlocks,
+}: ChartContainerProps): JSX.Element => {
+  // const dagBlocks = getMockedDagBlocksCard();
+  // const pbftBlocks = getMockedPbftBlocksCard();
 
   return (
     // The implementation below is wrong as the dabBlocks and pbftBlocks cannot be concatenated as they are different objects
@@ -26,18 +35,28 @@ const ChartContainer = (): JSX.Element => {
       >
         <BarChart
           title='Transactions per second'
-          labels={dagBlocks
-            .concat(pbftBlocks)
-            .sort((a, b) => +b.timestamp - +a.timestamp)
-            .slice(0, 6)
-            .flatMap((x) => x.level)}
+          labels={pbftBlocks.slice(5).map((block) => block.number.toString())}
           datasets={[
             {
-              data: dagBlocks
-                .concat(pbftBlocks)
-                .sort((a, b) => +b.timestamp - +a.timestamp)
-                .slice(0, 6)
-                .flatMap((x) => +x.transactionCount),
+              data: pbftBlocks.slice(5).map((block) => {
+                console.log(
+                  block.number,
+                  block.transactionCount,
+                  block.timestamp,
+                  pbftBlocks.find((b) => b.number === block.number - 1)
+                    .timestamp,
+                  block.timestamp -
+                    pbftBlocks.find((b) => b.number === block.number - 1)
+                      .timestamp
+                );
+                return (
+                  block.transactionCount /
+                  ((block.timestamp -
+                    pbftBlocks.find((b) => b.number === block.number - 1)
+                      .timestamp) /
+                    1000)
+                );
+              }),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
@@ -46,43 +65,43 @@ const ChartContainer = (): JSX.Element => {
         />
         <BarChart
           title='Block Time'
-          labels={dagBlocks
-            .concat(pbftBlocks)
-            .sort((a, b) => +b.timestamp - +a.timestamp)
-            .slice(0, 6)
-            .flatMap((x) => x.level)}
+          labels={pbftBlocks.slice(5).map((block) => block.number.toString())}
           datasets={[
             {
-              data: dagBlocks
-                .concat(pbftBlocks)
-                .sort((a, b) => +b.timestamp - +a.timestamp)
-                .slice(0, 6)
-                .flatMap((x) => +x.transactionCount),
+              data: pbftBlocks.slice(5).map((block) => {
+                return (
+                  block.timestamp -
+                  pbftBlocks.find((b) => b.number === block.number - 1)
+                    .timestamp
+                );
+              }),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
             },
           ]}
         />
-        <BarChart
+        {/* <BarChart
           title='DAG Block Per Second'
           labels={dagBlocks
-            .sort((a, b) => +b.timestamp - +a.timestamp)
-            .slice(0, 6)
-            .flatMap((x) => x.level)}
+            .slice(5)
+            .map((block) => block.pbftPeriod.toString())}
           datasets={[
             {
-              data: dagBlocks
-                .sort((a, b) => +b.timestamp - +a.timestamp)
-                .slice(0, 6)
-                .flatMap((x) => +x.transactionCount),
+              data: dagBlocks?.slice(5).map((block) => {
+                return (
+                  block.timestamp -
+                  dagBlocks.find((b) => b.pbftPeriod === block.pbftPeriod - 1)
+                    .timestamp
+                );
+              }),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
             },
           ]}
         />
-        <BarChart
+        {/* <BarChart
           title='DAG efficiency'
           labels={dagBlocks
             .sort((a, b) => +b.timestamp - +a.timestamp)
@@ -99,7 +118,7 @@ const ChartContainer = (): JSX.Element => {
               backgroundColor: theme.palette.secondary.main,
             },
           ]}
-        />
+        /> */}
       </Grid>
     )
   );

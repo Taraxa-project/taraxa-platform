@@ -25,7 +25,7 @@ export interface ColumnData {
 }
 
 export interface BlockData {
-  timestamp: string;
+  timestamp: number;
   block?: string;
   level?: string;
   hash: string;

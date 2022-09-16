@@ -59,7 +59,7 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
   };
 };
 
-export const timestampToAge = (timestamp: string) => {
+export const timestampToAge = (timestamp: number) => {
   let age = Math.floor(+new Date() / 1000 - +timestamp);
   const days = Math.floor(age / 86400);
   age -= Math.floor(86400 * days);

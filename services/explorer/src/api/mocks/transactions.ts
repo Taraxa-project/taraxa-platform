@@ -6,7 +6,7 @@ export const getMockedTransactions = (txHash: string): TransactionData[] => {
       txHash:
         '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       status: TransactionStatus.SUCCESS,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
       pbftBlock: txHash,
       dagLevel: '529133',
       dagHash:
@@ -23,7 +23,7 @@ export const getMockedTransactions = (txHash: string): TransactionData[] => {
       txHash:
         '0x11e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       status: TransactionStatus.SUCCESS,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
       pbftBlock:
         '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       dagLevel: '529133',
@@ -40,7 +40,7 @@ export const getMockedTransactions = (txHash: string): TransactionData[] => {
       txHash:
         '0x44e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       status: TransactionStatus.SUCCESS,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
       pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
       dagLevel: '529133',
       dagHash: txHash,
@@ -56,7 +56,7 @@ export const getMockedTransactions = (txHash: string): TransactionData[] => {
       txHash:
         '0x55e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       status: TransactionStatus.FAILURE,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
       pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
       dagLevel: '529133',
       dagHash:
@@ -73,7 +73,7 @@ export const getMockedTransactions = (txHash: string): TransactionData[] => {
       txHash:
         '0x99e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       status: TransactionStatus.SUCCESS,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
       pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
       dagLevel: '529133',
       dagHash:
@@ -90,7 +90,7 @@ export const getMockedTransactions = (txHash: string): TransactionData[] => {
       txHash:
         '0x99e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       status: TransactionStatus.SUCCESS,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
       pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
       dagLevel: '529133',
       dagHash:
@@ -113,7 +113,7 @@ export const getMockedCurrentTransaction = (): TransactionData => {
     txHash:
       '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
     status: TransactionStatus.SUCCESS,
-    timestamp: '1661776098',
+    timestamp: 1661776098,
     pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
     dagLevel: '529133',
     dagHash:
@@ -140,7 +140,7 @@ export const getMockedTransactionColsAndRows = () => {
 
   const rows = [
     {
-      timestamp: '1661429700',
+      timestamp: 1661429700,
       block: '529133',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -149,7 +149,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429100',
+      timestamp: 1661429100,
       block: '529131',
       status: TransactionStatus.FAILURE,
       txHash:
@@ -158,7 +158,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -167,7 +167,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -176,7 +176,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -185,7 +185,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -194,7 +194,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -203,7 +203,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -212,7 +212,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -221,7 +221,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -230,7 +230,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -239,7 +239,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -248,7 +248,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:
@@ -257,7 +257,7 @@ export const getMockedTransactionColsAndRows = () => {
       token: 'TARA',
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       status: TransactionStatus.SUCCESS,
       txHash:

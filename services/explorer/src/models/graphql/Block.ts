@@ -3,8 +3,8 @@ import { Transaction } from './Transaction';
 
 export interface PbftBlock {
   hash: string;
-  number: string;
-  timestamp: string;
+  number: number;
+  timestamp: number;
   gasLimit?: number;
   gasUsed?: number;
   parent?: PbftBlock;

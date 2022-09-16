@@ -2,7 +2,7 @@ import { BlockData, BlockDetails } from '../../models';
 
 export const getMockedDagBlocks = (dagLevel: string): BlockData[] => {
   const dag: BlockData[] = Array(20).fill({
-    timestamp: '1661776098',
+    timestamp: 1661776098,
     block: dagLevel,
     level: '23213123213',
     hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
@@ -13,7 +13,7 @@ export const getMockedDagBlocks = (dagLevel: string): BlockData[] => {
 
 export const getMockedDagTable = (): BlockData[] => {
   const dag: BlockData[] = Array(20).fill({
-    timestamp: '1661776098',
+    timestamp: 1661776098,
     level: '23213123213',
     hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
     transactionCount: 105,
@@ -23,7 +23,7 @@ export const getMockedDagTable = (): BlockData[] => {
 
 export const getMockPbftBlocks = (dagLevel: string): BlockData[] => {
   const pbft: BlockData[] = Array(20).fill({
-    timestamp: '1661416098',
+    timestamp: 1661416098,
     block: dagLevel,
     level: '123512312',
     hash: '0x00e193a15486909eba3fb36c855cb8a331180bc97a27hfb69b8122de02e5ea18',
@@ -34,7 +34,7 @@ export const getMockPbftBlocks = (dagLevel: string): BlockData[] => {
 
 export const getMockedBlockDetails = (txHash: string): BlockDetails => {
   const blockDetails: BlockDetails = {
-    timestamp: '1661858931',
+    timestamp: 1661858931,
     block: '529133',
     hash: txHash,
     transactionCount: 72,
@@ -58,85 +58,85 @@ export const getMockedBlocksColsAndRows = () => {
 
   const rows = [
     {
-      timestamp: `${Date.now()}`,
+      timestamp: Date.now(),
       block: '529133',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661416929',
+      timestamp: 1661416929,
       block: '529131',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 70,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 79,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 101,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 109,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 55,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
     },
     {
-      timestamp: '1661429710',
+      timestamp: 1661429710,
       block: '529134',
       hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
       transactionCount: 72,
@@ -152,37 +152,37 @@ export const getMockedDagBlocksCard = () => {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 3,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 33,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 23,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 13,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 9,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 7,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
   ];
   return blockData;
@@ -194,37 +194,37 @@ export const getMockedPbftBlocksCard = () => {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 3,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 33,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 23,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 13,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 9,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
     {
       level: '525299',
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 7,
-      timestamp: '1661776098',
+      timestamp: 1661776098,
     },
   ];
   return blockData;
