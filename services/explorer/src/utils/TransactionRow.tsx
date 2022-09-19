@@ -79,7 +79,7 @@ export const toBlockTableRow = (props: BlockData) => {
 
   const ageString = timestampToAge(timestamp);
   const txHashContainer = (
-    <HashLink linkType={HashLinkType.TRANSACTIONS} hash={hash} />
+    <HashLink linkType={HashLinkType.BLOCKS} hash={hash} />
   );
 
   return {

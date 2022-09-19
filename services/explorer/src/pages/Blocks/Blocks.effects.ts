@@ -29,6 +29,7 @@ export const useBlockEffects = () => {
   const [{ fetching, data: blocksData }] = useQuery({
     query: blocksQuery,
     variables: blocksFilters,
+    pause: !blocksFilters || !blocksFilters?.from || !blocksFilters?.to,
   });
 
   const handleChangePage = (newPage: number) => {
@@ -36,14 +37,12 @@ export const useBlockEffects = () => {
       from: blocksFilters.to - 1,
       to: blocksFilters.to - 1 - (rowsPerPage - 1),
     });
-    console.log('New page: ', newPage);
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    console.log('Rows per page changed');
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
     setBlocksFilter({ from: finalBlock, to: finalBlock - (rowsPerPage - 1) });
