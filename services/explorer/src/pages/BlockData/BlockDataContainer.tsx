@@ -73,7 +73,7 @@ const BlockDataContainer = (): JSX.Element => {
             </Typography>
             <CopyTo text={txHash} onCopy={onCopy} />
           </Box>
-          <DataRow title='Level' data={blockData.block} />
+          <DataRow title='Level' data={`${blockData.block}`} />
           <DataRow title='Period' data={blockData.period} />
           <DataRow
             title='Timestamp'

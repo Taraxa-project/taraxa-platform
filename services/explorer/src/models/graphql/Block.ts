@@ -3,7 +3,7 @@ import { Transaction } from './Transaction';
 
 export interface PbftBlock {
   hash: string;
-  number: string;
+  number: number;
   timestamp: string;
   gasLimit?: number;
   gasUsed?: number;
