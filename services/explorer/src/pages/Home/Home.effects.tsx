@@ -23,6 +23,7 @@ export const useHomeEffects = () => {
       from: finalBlock ? finalBlock - 9 : null,
       to: finalBlock || null,
     },
+    pause: !finalBlock,
   });
 
   const [{ fetching: fetchingDagBlocks, data: dagBlocksData }] = useQuery({
@@ -63,7 +64,7 @@ export const useHomeEffects = () => {
         hashElement: (
           <HashLink
             width='auto'
-            linkType={HashLinkType.TRANSACTIONS}
+            linkType={HashLinkType.BLOCKS}
             hash={tx.hash}
           />
         ),
@@ -83,11 +84,7 @@ export const useHomeEffects = () => {
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
         hashElement: (
-          <HashLink
-            width='auto'
-            linkType={HashLinkType.TRANSACTIONS}
-            hash={tx.hash}
-          />
+          <HashLink width='auto' linkType={HashLinkType.PBFT} hash={tx.hash} />
         ),
       };
     });

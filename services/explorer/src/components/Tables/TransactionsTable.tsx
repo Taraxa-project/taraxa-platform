@@ -157,7 +157,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         wrap
                       />
                     </TableCell>
-                    <TableCell variant='body'>{block.dagLevel}</TableCell>
+                    <TableCell variant='body'>{block.block}</TableCell>
                     <TableCell variant='body'>Transfer</TableCell>
                     <TableCell variant='body'>
                       <Box

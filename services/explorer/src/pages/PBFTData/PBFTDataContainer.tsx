@@ -10,18 +10,19 @@ import {
   TableTabs,
   TransactionIcon,
 } from '../../components';
-import { useBlockDataContainerEffects } from './BlockDataContainer.effects';
-import { HashLinkType } from '../../utils';
+import { usePBFTDataContainerEffects } from './PBFTDataContainer.effects';
+import { HashLinkType, unwrapIdentifier } from '../../utils';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { TableTabsProps } from '../../models';
-import useStyles from './BlockDataContainer.styles';
+import useStyles from './PBFTDataContainer.styles';
 import { TransactionsTable } from '../../components/Tables';
 
-const BlockDataContainer = (): JSX.Element => {
-  const { txHash } = useParams();
+const PBFTDataContainer = (): JSX.Element => {
+  const { identifier } = useParams();
   const classes = useStyles();
+  const { txHash, blockNumber } = unwrapIdentifier(identifier);
   const { blockData, transactions, currentNetwork } =
-    useBlockDataContainerEffects(txHash);
+    usePBFTDataContainerEffects(blockNumber, txHash);
   const onCopy = useCopyToClipboard();
 
   const tableTabs: TableTabsProps = {
@@ -44,8 +45,8 @@ const BlockDataContainer = (): JSX.Element => {
   return (
     <>
       <PageTitle
-        title='DAG Block Info'
-        subtitle={`Detailed TARAXA DAG block information on the ${currentNetwork}.`}
+        title='PBFT Block Info'
+        subtitle={`Detailed TARAXA PBFT block information on the ${currentNetwork}.`}
       />
       <Paper elevation={1}>
         <Box
@@ -69,9 +70,9 @@ const BlockDataContainer = (): JSX.Element => {
               component='h6'
               style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
             >
-              {txHash}
+              {identifier}
             </Typography>
-            <CopyTo text={txHash} onCopy={onCopy} />
+            <CopyTo text={identifier} onCopy={onCopy} />
           </Box>
           <DataRow title='Level' data={`${blockData.block}`} />
           <DataRow title='Period' data={blockData.period} />
@@ -130,4 +131,4 @@ const BlockDataContainer = (): JSX.Element => {
   );
 };
 
-export default BlockDataContainer;
+export default PBFTDataContainer;

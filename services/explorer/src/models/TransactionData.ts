@@ -5,9 +5,11 @@ export interface TransactionData {
   status: TransactionStatus;
   timestamp: number;
   pbftBlock: string;
+  block: number;
   dagLevel: string;
   dagHash: string;
   value: string;
+  token: string;
   from: string;
   gasLimit: string;
   gas: string;

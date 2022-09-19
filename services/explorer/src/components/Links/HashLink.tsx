@@ -7,18 +7,20 @@ import { HashLinkType } from '../../utils';
 export const HashLink = ({
   linkType,
   hash,
+  blockNumber,
   wrap,
   width,
 }: {
   linkType: HashLinkType;
-  hash: string;
+  hash?: string;
+  blockNumber?: number;
   wrap?: boolean;
   width?: string;
 }): JSX.Element => {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'start' }}>
       <Link
-        to={`/${linkType}/${hash}`}
+        to={`/${linkType}/${hash || blockNumber}`}
         style={{
           textDecoration: 'none',
           color: theme.palette.secondary.main,
@@ -29,6 +31,9 @@ export const HashLink = ({
         }}
       >
         {wrap && hash ? `${hash.slice(0, 8)}...` : hash}
+        {wrap && blockNumber
+          ? `${blockNumber.toString().slice(0, 8)}...`
+          : blockNumber}
       </Link>
     </Box>
   );

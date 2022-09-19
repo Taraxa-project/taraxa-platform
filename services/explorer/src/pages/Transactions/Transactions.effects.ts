@@ -2,13 +2,9 @@ import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import {
-  ColumnData,
-  Transaction,
-  TransactionStatus,
-  TransactionTableData,
-} from '../../models';
+import { ColumnData, Transaction, TransactionTableData } from '../../models';
 import { blockQuery } from '../../api';
+import { formatTransactionStatus } from '../../utils';
 
 export const useTransactionEffects = () => {
   const [data, setData] = useState<TransactionTableData[]>();
@@ -17,21 +13,6 @@ export const useTransactionEffects = () => {
   const [{ fetching, data: blockData }] = useQuery({
     query: blockQuery,
   });
-
-  const formatTransactionStatus = (
-    status: number | null
-  ): TransactionStatus => {
-    switch (status) {
-      case 1:
-        return TransactionStatus.SUCCESS;
-      case 0:
-        return TransactionStatus.FAILURE;
-      case null:
-        return TransactionStatus.IN_PROGRESS;
-      default:
-        return TransactionStatus.IN_PROGRESS;
-    }
-  };
 
   const columns: ColumnData[] = [
     { path: 'timestamp', name: 'Timestamp' },

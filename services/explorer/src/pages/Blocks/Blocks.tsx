@@ -5,7 +5,16 @@ import { useBlockEffects } from './Blocks.effects';
 import { PageTitle } from '../../components';
 
 const BlocksPage = (): JSX.Element => {
-  const { data, columns, currentNetwork } = useBlockEffects();
+  const {
+    data,
+    columns,
+    currentNetwork,
+    rowsPerPage,
+    page,
+    handleChangePage,
+    handleChangeRowsPerPage,
+    totalCount,
+  } = useBlockEffects();
   const rows = data ? data.map((row) => toBlockTableRow(row)) : [];
   return (
     <>
@@ -16,7 +25,16 @@ const BlocksPage = (): JSX.Element => {
         }
           records.`}
       />
-      <Table rows={rows} columns={columns} fixedLayout={false} />
+      <Table
+        rows={rows}
+        columns={columns}
+        fixedLayout={false}
+        totalCount={totalCount}
+        currentPage={page}
+        initialRowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </>
   );
 };

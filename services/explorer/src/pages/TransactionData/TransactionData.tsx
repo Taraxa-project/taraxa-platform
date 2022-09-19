@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
@@ -10,7 +11,12 @@ import {
   PageTitle,
   TableTabs,
 } from '../../components';
-import { HashLinkType, statusToLabel, timestampToAge } from '../../utils';
+import {
+  HashLinkType,
+  statusToLabel,
+  timestampToAge,
+  formatTransactionStatus,
+} from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { BlocksTable } from '../../components/Tables';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -44,7 +50,7 @@ const TransactionDataContainer = (): JSX.Element => {
   return (
     <>
       <PageTitle
-        title='Transactions'
+        title='Transaction hash'
         subtitle={`Detailed information about this transaction hash on the ${currentNetwork}.`}
       />
       <Paper elevation={1}>
@@ -81,34 +87,38 @@ const TransactionDataContainer = (): JSX.Element => {
           </Box>
           <DataRow
             title='Status'
-            data={statusToLabel(transactionData?.status)}
+            data={statusToLabel(
+              formatTransactionStatus(transactionData?.status)
+            )}
           />
           <DataRow
             title='Timestamp'
-            data={timestampToAge(transactionData?.timestamp)}
+            data={timestampToAge(transactionData?.block?.timestamp)}
           />
           <DataRow
             title='Block'
             data={
               <HashLink
-                linkType={HashLinkType.BLOCKS}
+                linkType={HashLinkType.PBFT}
                 width='auto'
-                hash={transactionData?.pbftBlock}
+                hash={transactionData?.block?.hash}
               />
             }
           />
           <Divider light />
-          <DataRow
-            title='Transaction action'
-            data={events.map((e) => `${e.name}`).join(' ')}
-          />
-          {transactionData.value && (
+          {events?.length !== 0 && (
+            <DataRow
+              title='Transaction action'
+              data={events.map((e) => `${e.name}`).join(' ')}
+            />
+          )}
+          {transactionData?.value && (
             <DataRow
               title='Value'
               data={(+transactionData.value)?.toLocaleString()}
             />
           )}
-          {transactionData.from && transactionData.to && (
+          {transactionData?.from && transactionData?.to && (
             <DataRow
               title='FROM/TO'
               data={
@@ -123,23 +133,29 @@ const TransactionDataContainer = (): JSX.Element => {
                   gap='1rem'
                   width='100%'
                 >
-                  <AddressLink width='auto' address={transactionData.from} />
+                  <AddressLink
+                    width='auto'
+                    address={transactionData?.from?.address}
+                  />
                   <Box>
                     <GreenRightArrow />
                   </Box>
-                  <AddressLink width='auto' address={transactionData.to} />
+                  <AddressLink
+                    width='auto'
+                    address={transactionData?.to?.address}
+                  />
                 </Box>
               }
             />
           )}
-          {transactionData.gas && transactionData.gasLimit && (
+          {transactionData?.gas && transactionData?.gasPrice && (
             <DataRow
               title='Gas Limit/ Gas Used'
               data={`${(+transactionData.gas)?.toLocaleString()} /
-            ${(+transactionData.gasLimit)?.toLocaleString()}`}
+            ${(+transactionData.gasUsed)?.toLocaleString()}`}
             />
           )}
-          {transactionData.gasPrice && (
+          {transactionData?.gasPrice && (
             <DataRow
               title='Gas Price'
               data={`${(+transactionData.gasPrice)?.toLocaleString()} TARA`}
@@ -147,15 +163,17 @@ const TransactionDataContainer = (): JSX.Element => {
           )}
           <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
           <Divider light />
-          <Box
-            display='flex'
-            flexDirection='column'
-            alignItems='flex-start'
-            alignContent='center'
-            style={{ overflowWrap: 'anywhere' }}
-          >
-            <TableTabs {...tableTabs} />
-          </Box>
+          {dagData?.length && (
+            <Box
+              display='flex'
+              flexDirection='column'
+              alignItems='flex-start'
+              alignContent='center'
+              style={{ overflowWrap: 'anywhere' }}
+            >
+              <TableTabs {...tableTabs} />
+            </Box>
+          )}
         </Box>
       </Paper>
     </>

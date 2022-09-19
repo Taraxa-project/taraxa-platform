@@ -149,37 +149,37 @@ export const getMockedBlocksColsAndRows = () => {
 export const getMockedDagBlocksCard = () => {
   const blockData: BlockData[] = [
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 3,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 33,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 23,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 13,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 9,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 7,
       timestamp: 1661776098,
@@ -191,37 +191,37 @@ export const getMockedDagBlocksCard = () => {
 export const getMockedPbftBlocksCard = () => {
   const blockData: BlockData[] = [
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 3,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 33,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 23,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 13,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 9,
       timestamp: 1661776098,
     },
     {
-      level: '525299',
+      level: 525299,
       hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
       transactionCount: 7,
       timestamp: 1661776098,

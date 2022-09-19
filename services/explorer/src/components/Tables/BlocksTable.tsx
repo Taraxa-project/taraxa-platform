@@ -38,7 +38,7 @@ export const BlocksTable: React.FC<{ blocksData: BlockData[] }> = ({
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'
-          count={blocksData?.length}
+          count={blocksData?.length || 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

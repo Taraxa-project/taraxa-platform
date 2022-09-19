@@ -35,7 +35,7 @@ export default function Table({
   columns,
   rows,
   fixedLayout = true,
-  initialRowsPerPage = 5,
+  initialRowsPerPage,
   onPageChange,
   onRowsPerPageChange,
   currentPage,
@@ -43,7 +43,7 @@ export default function Table({
 }: TableProps) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
+  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage || 5);
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const handleChangePage = (event: unknown, newPage: number) => {
