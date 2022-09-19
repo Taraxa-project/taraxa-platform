@@ -99,7 +99,7 @@ const TransactionDataContainer = (): JSX.Element => {
             title='Block'
             data={
               <HashLink
-                linkType={HashLinkType.BLOCKS}
+                linkType={HashLinkType.PBFT}
                 width='auto'
                 hash={transactionData?.block?.hash}
               />

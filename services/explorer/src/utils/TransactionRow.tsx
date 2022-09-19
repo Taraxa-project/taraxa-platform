@@ -46,11 +46,15 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
     <HashLink linkType={HashLinkType.TRANSACTIONS} hash={txHash} />
   );
 
+  const blockNumberContainer = (
+    <HashLink linkType={HashLinkType.PBFT} blockNumber={+block} />
+  );
+
   return {
     data: [
       {
         timestamp: txDate,
-        block,
+        block: blockNumberContainer,
         status: labelType,
         txHash: txHashContainer,
         value: `${value} ${token}`,
@@ -81,12 +85,15 @@ export const toBlockTableRow = (props: BlockData) => {
   const txHashContainer = (
     <HashLink linkType={HashLinkType.BLOCKS} hash={hash} />
   );
+  const blockNumberContainer = (
+    <HashLink linkType={HashLinkType.PBFT} blockNumber={block} />
+  );
 
   return {
     data: [
       {
         timestamp: ageString,
-        block,
+        block: blockNumberContainer,
         hash: txHashContainer,
         transactionCount,
       },

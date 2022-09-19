@@ -12,6 +12,7 @@ import FaucetPage from './pages/Faucet/Faucet';
 import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import HomePage from './pages/Home/Home';
 import { DagPage } from './pages/Dag/Dag';
+import PBFTDataContainer from './pages/PBFTData/PBFTDataContainer';
 
 declare global {
   interface Window {
@@ -30,6 +31,7 @@ const Root = (): JSX.Element => {
             <Route path='/' element={<HomePage />} />
             <Route path='/blocks' element={<BlocksPage />} />
             <Route path='/blocks/:txHash' element={<BlockDataContainer />} />
+            <Route path='/pbft/:identifier' element={<PBFTDataContainer />} />
             <Route path='/faucet' element={<FaucetPage />} />
             <Route path='/nodes' element={<NodesPage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
