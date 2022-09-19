@@ -23,6 +23,7 @@ export const useHomeEffects = () => {
       from: finalBlock ? finalBlock - 9 : null,
       to: finalBlock || null,
     },
+    pause: !finalBlock,
   });
 
   const [{ fetching: fetchingDagBlocks, data: dagBlocksData }] = useQuery({
