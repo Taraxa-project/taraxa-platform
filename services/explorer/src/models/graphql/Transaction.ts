@@ -1,4 +1,6 @@
+import { Account } from './Account';
 import { PbftBlock } from './Block';
+import { Log } from './Log';
 
 export interface Transaction {
   hash: string;
@@ -12,4 +14,7 @@ export interface Transaction {
   status?: number;
   gasUsed?: number;
   cumulativeGasUsed?: number;
+  from?: Account;
+  to?: Account;
+  logs?: Log[];
 }

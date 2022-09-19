@@ -1,41 +1,40 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
-import { BlockData, TransactionData } from '../../models';
+import { useQuery } from 'urql';
+import { BlockData, Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import {
-  getMockedCurrentTransaction,
-  getMockedDagBlocks,
-  getMockedEvent,
-} from '../../api/mocks';
 import { useExplorerLoader } from '../../hooks/useLoader';
+import { transactionQuery } from '../../api';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
   const [events, setEvents] = useState<
     { name?: string; from?: string; to?: string; value?: string }[]
-  >([{}]);
+  >([]);
   const [dagData, setDagData] = useState<BlockData[]>();
-  const [transactionData, setTransactionData] = useState<TransactionData>(
-    {} as TransactionData
-  );
+  const [transactionData, setTransactionData] = useState<Transaction>();
   const { initLoading, finishLoading } = useExplorerLoader();
+  const [{ fetching, data: transactiondata }] = useQuery({
+    query: transactionQuery,
+    variables: {
+      hash: txHash,
+    },
+    pause: !txHash,
+  });
 
   useEffect(() => {
-    initLoading();
-    setTimeout(() => {
-      const txData: TransactionData = getMockedCurrentTransaction();
-      setTransactionData(txData);
-      const event = getMockedEvent();
-      setEvents(event);
+    if (transactiondata?.transaction) {
+      setTransactionData(transactiondata?.transaction);
+    }
+  }, [transactiondata]);
+
+  useEffect(() => {
+    if (fetching) {
+      initLoading();
+    } else {
       finishLoading();
-    }, 1000);
-  }, [txHash]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      const dag: BlockData[] = getMockedDagBlocks(transactionData.dagLevel);
-      setDagData(dag);
-    }, 500);
-  }, [transactionData]);
+    }
+  }, [fetching]);
 
   return { transactionData, dagData, events, currentNetwork };
 };

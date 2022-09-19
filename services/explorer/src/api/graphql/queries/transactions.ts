@@ -1,18 +1,32 @@
 export const transactionQuery = `
-  query transaction_query(hash: Bytes32) {
+  query transaction_query($hash: Bytes32!) {
     transaction (hash: $hash) {
       status,
       index,
+      nonce,
       hash,
       gas,
-      from,
-      to,
+      from {
+				address
+			},
+      to {
+				address
+			},
       value,
       gasPrice,
       gas,
-      block,
+      block {
+				number,
+				hash,
+        timestamp,
+			},
       gasUsed,
-      createdContract,
+      cumulativeGasUsed,
+      logs {
+        index,
+        topics,
+        data,
+      }
     }
   }
 `;
