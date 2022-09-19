@@ -53,7 +53,7 @@ export const useBlockEffects = () => {
     if (!blocks?.length) {
       return [];
     }
-    const formmatedBlocks: BlockData[] = blocks
+    const formattedBlocks: BlockData[] = blocks
       .map((block: PbftBlock) => {
         return {
           timestamp: block.timestamp,
@@ -64,7 +64,7 @@ export const useBlockEffects = () => {
         };
       })
       .sort((a, b) => b.block - a.block);
-    return formmatedBlocks;
+    return formattedBlocks;
   };
 
   useEffect(() => {
