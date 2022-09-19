@@ -39,16 +39,6 @@ const ChartContainer = ({
           datasets={[
             {
               data: pbftBlocks.slice(5).map((block) => {
-                console.log(
-                  block.number,
-                  block.transactionCount,
-                  block.timestamp,
-                  pbftBlocks.find((b) => b.number === block.number - 1)
-                    .timestamp,
-                  block.timestamp -
-                    pbftBlocks.find((b) => b.number === block.number - 1)
-                      .timestamp
-                );
                 return (
                   block.transactionCount /
                   ((block.timestamp -
@@ -81,44 +71,55 @@ const ChartContainer = ({
             },
           ]}
         />
-        {/* <BarChart
+        <BarChart
           title='DAG Block Per Second'
           labels={dagBlocks
-            .slice(5)
-            .map((block) => block.pbftPeriod.toString())}
+            .slice(6)
+            .reverse()
+            .map((block) => block.level.toString())}
           datasets={[
             {
-              data: dagBlocks?.slice(5).map((block) => {
-                return (
-                  block.timestamp -
-                  dagBlocks.find((b) => b.pbftPeriod === block.pbftPeriod - 1)
-                    .timestamp
-                );
-              }),
+              data: dagBlocks
+                ?.slice(0, 5)
+                .reverse()
+                .map(
+                  (block) =>
+                    block.transactionCount /
+                    (block.timestamp -
+                      dagBlocks.find((b) => b.level === block.level - 1)
+                        .timestamp) /
+                    1000
+                ),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
             },
           ]}
         />
-        {/* <BarChart
+        <BarChart
           title='DAG efficiency'
           labels={dagBlocks
-            .sort((a, b) => +b.timestamp - +a.timestamp)
-            .slice(0, 6)
-            .flatMap((x) => x.level)}
+            .slice(6)
+            .reverse()
+            .map((block) => block.level.toString())}
           datasets={[
             {
               data: dagBlocks
-                .sort((a, b) => +b.timestamp - +a.timestamp)
-                .slice(0, 6)
-                .flatMap((x) => +x.transactionCount),
+                ?.slice(0, 5)
+                .reverse()
+                .map(
+                  (block) =>
+                    (block.timestamp -
+                      dagBlocks.find((b) => b.level === block.level - 1)
+                        .timestamp) /
+                    1000
+                ),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
             },
           ]}
-        /> */}
+        />
       </Grid>
     )
   );
