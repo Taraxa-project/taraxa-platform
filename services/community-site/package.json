@@ -24,7 +24,7 @@
     "jdenticon": "^3.1.1",
     "metamask-react": "^2.0.2",
     "moment": "^2.29.2",
-    "node-sass": "^6.0.1",
+    "node-sass": "^7.0.0",
     "qs-stringify": "^1.2.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
