@@ -30,7 +30,7 @@ const ChartContainer = (): JSX.Element => {
             .concat(pbftBlocks)
             .sort((a, b) => +b.timestamp - +a.timestamp)
             .slice(0, 6)
-            .flatMap((x) => x.level)}
+            .flatMap((x) => x.level.toString())}
           datasets={[
             {
               data: dagBlocks
@@ -50,7 +50,7 @@ const ChartContainer = (): JSX.Element => {
             .concat(pbftBlocks)
             .sort((a, b) => +b.timestamp - +a.timestamp)
             .slice(0, 6)
-            .flatMap((x) => x.level)}
+            .flatMap((x) => x.level.toString())}
           datasets={[
             {
               data: dagBlocks
@@ -69,7 +69,7 @@ const ChartContainer = (): JSX.Element => {
           labels={dagBlocks
             .sort((a, b) => +b.timestamp - +a.timestamp)
             .slice(0, 6)
-            .flatMap((x) => x.level)}
+            .flatMap((x) => x.level.toString())}
           datasets={[
             {
               data: dagBlocks
@@ -87,7 +87,7 @@ const ChartContainer = (): JSX.Element => {
           labels={dagBlocks
             .sort((a, b) => +b.timestamp - +a.timestamp)
             .slice(0, 6)
-            .flatMap((x) => x.level)}
+            .flatMap((x) => x.level.toString())}
           datasets={[
             {
               data: dagBlocks
