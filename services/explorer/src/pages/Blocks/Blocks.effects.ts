@@ -29,6 +29,7 @@ export const useBlockEffects = () => {
   const [{ fetching, data: blocksData }] = useQuery({
     query: blocksQuery,
     variables: blocksFilters,
+    pause: !blocksFilters || !blocksFilters?.from || !blocksFilters?.to,
   });
 
   const handleChangePage = (newPage: number) => {
