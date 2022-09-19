@@ -3,10 +3,6 @@ import { Grid } from '@mui/material';
 import { BarChart } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
 import { DagBlock, PbftBlock } from '../../models';
-// import {
-//   getMockedDagBlocksCard,
-//   getMockedPbftBlocksCard,
-// } from '../../api/mocks';
 
 export interface ChartContainerProps {
   dagBlocks: DagBlock[];
@@ -17,9 +13,6 @@ const ChartContainer = ({
   dagBlocks,
   pbftBlocks,
 }: ChartContainerProps): JSX.Element => {
-  // const dagBlocks = getMockedDagBlocksCard();
-  // const pbftBlocks = getMockedPbftBlocksCard();
-
   return (
     // The implementation below is wrong as the dabBlocks and pbftBlocks cannot be concatenated as they are different objects
     dagBlocks &&
