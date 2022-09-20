@@ -6,6 +6,13 @@ import { HashLink } from '../components/Links';
 import { BlockData, TransactionTableData, TransactionStatus } from '../models';
 import { HashLinkType } from './Enums';
 
+export const toHexStatus = (status: number): TransactionStatus =>
+  status === 1
+    ? TransactionStatus.SUCCESS
+    : status === 0
+    ? TransactionStatus.FAILURE
+    : TransactionStatus.IN_PROGRESS;
+
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
     return (

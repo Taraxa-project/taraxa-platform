@@ -9,6 +9,9 @@ export interface PbftBlock {
   gasUsed?: number;
   parent?: PbftBlock;
   nonce?: string;
+  difficulty?: number;
+  totalDifficulty?: number;
+  miner?: Account;
   transactionCount?: number;
   transactions?: Transaction[];
 }
@@ -22,6 +25,8 @@ export interface DagBlock {
   timestamp: number;
   block?: string;
   author?: Account;
+  signature?: string;
+  vdf?: number;
   transactionCount?: number;
   transactions?: Transaction[];
 }
