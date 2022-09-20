@@ -11,7 +11,7 @@ import {
   TransactionIcon,
 } from '../../components';
 import { usePBFTDataContainerEffects } from './PBFTDataContainer.effects';
-import { HashLinkType, unwrapIdentifier } from '../../utils';
+import { HashLinkType, unwrapIdentifier, zeroX } from '../../utils';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { TableTabsProps } from '../../models';
 import useStyles from './PBFTDataContainer.styles';
@@ -70,12 +70,12 @@ const PBFTDataContainer = (): JSX.Element => {
               component='h6'
               style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
             >
-              {identifier}
+              {zeroX(blockData.hash)}
             </Typography>
-            <CopyTo text={identifier} onCopy={onCopy} />
+            <CopyTo text={blockData.hash} onCopy={onCopy} />
           </Box>
-          <DataRow title='Level' data={`${blockData.block}`} />
-          <DataRow title='Period' data={blockData.period} />
+          <DataRow title='Number' data={`${blockData.number}`} />
+          <DataRow title='Nonce' data={blockData.nonce} />
           <DataRow
             title='Timestamp'
             data={`${moment
@@ -84,36 +84,36 @@ const PBFTDataContainer = (): JSX.Element => {
           />
           <Divider light />
           <DataRow
-            title='Pivot'
+            title='Parent'
             data={
               <HashLink
-                linkType={HashLinkType.TRANSACTIONS}
+                linkType={HashLinkType.PBFT}
                 width='auto'
-                hash={blockData?.pivot}
+                hash={blockData?.parent?.hash}
               />
             }
           />
           <DataRow
-            title='Sender'
+            title='Miner'
             data={
               <HashLink
                 linkType={HashLinkType.ADDRESSES}
                 width='auto'
-                hash={blockData?.sender}
+                hash={blockData?.miner?.address}
               />
             }
           />
           <DataRow
-            title='Signature'
+            title='Difficulty'
             data={
               <Typography style={{ wordBreak: 'break-all' }}>
-                {blockData.signature}
+                {blockData.difficulty}
               </Typography>
             }
           />
           <DataRow
-            title='Verifiable Delay Function'
-            data={`${blockData.verifiableDelay}`}
+            title='Transaction Count'
+            data={`${blockData.transactionCount}`}
           />
           <Divider light />
           <Box

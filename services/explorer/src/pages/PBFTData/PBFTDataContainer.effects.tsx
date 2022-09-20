@@ -1,40 +1,45 @@
-import { useCallback, useEffect, useState } from 'react';
-import { getMockedBlockDetails, getMockedTransactions } from '../../api/mocks';
+import { useEffect, useState } from 'react';
+import { useQuery } from 'urql';
+import cleanDeep from 'clean-deep';
+import { blockQuery } from '../../api';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { TransactionData, BlockDetails } from '../../models';
+import { PbftBlock, Transaction } from '../../models';
 
 export const usePBFTDataContainerEffects = (
   blockNumber?: number,
   txHash?: string
 ) => {
   const { currentNetwork } = useExplorerNetwork();
-  const [blockData, setBlockData] = useState<BlockDetails>({} as BlockDetails);
-  const [transactions, setTransactions] = useState<TransactionData[]>([
-    {} as TransactionData,
+  const [blockData, setBlockData] = useState<PbftBlock>({} as PbftBlock);
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    {} as Transaction,
   ]);
+  const [{ fetching, data }] = useQuery({
+    query: blockQuery,
+    variables: cleanDeep({
+      number: blockNumber,
+      hash: txHash,
+    }),
+    pause: !blockNumber && !txHash,
+  });
   const { initLoading, finishLoading } = useExplorerLoader();
 
-  const fetchBlockDetails = useCallback(() => {
-    setTimeout(() => {
-      const blockDetails: BlockDetails = getMockedBlockDetails(txHash);
-      setBlockData(blockDetails);
-    }, 500);
-  }, []);
-
-  const fetchTransactions = useCallback(() => {
-    initLoading();
-    setTimeout(() => {
-      const transactions: TransactionData[] = getMockedTransactions(txHash);
-      setTransactions(transactions);
+  useEffect(() => {
+    if (fetching) {
+      initLoading();
+    } else {
       finishLoading();
-    }, 1000);
-  }, []);
+    }
+  }, [currentNetwork, fetching]);
 
   useEffect(() => {
-    fetchBlockDetails();
-    fetchTransactions();
-  }, [currentNetwork]);
+    if (data && data?.block) {
+      console.log(data);
+      setBlockData(data.block);
+      setTransactions(data.block.transactions);
+    }
+  }, [data]);
 
   return { blockData, transactions, currentNetwork };
 };
