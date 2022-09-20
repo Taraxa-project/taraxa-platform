@@ -12,12 +12,12 @@ import {
   AddressInfoDetails,
   BlockData,
   TableTabsProps,
-  TransactionData,
+  Transaction,
 } from '../../models';
 import { TableTabs } from '../TableTabs';
 
 export interface AddressInfoProps {
-  transactions: TransactionData[];
+  transactions: Transaction[];
   dagBlocks: BlockData[];
   pbftBlocks: BlockData[];
   details: AddressInfoDetails;

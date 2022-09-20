@@ -6,10 +6,10 @@ import {
   getMockPbftBlocks,
 } from '../../api/mocks';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { AddressInfoDetails, BlockData, TransactionData } from '../../models';
+import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 
 export const useAddressInfoEffects = (txHash: string) => {
-  const [transactions, setTransactions] = useState<TransactionData[]>();
+  const [transactions, setTransactions] = useState<Transaction[]>();
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
   const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
   const [addressInfoDetails, setAddressInfoDetails] =
@@ -25,7 +25,7 @@ export const useAddressInfoEffects = (txHash: string) => {
 
   useEffect(() => {
     initLoading();
-    const transactions: TransactionData[] = getMockedTransactions(txHash);
+    const transactions: Transaction[] = getMockedTransactions(txHash);
     const dagBlocks: BlockData[] = getMockedDagBlocks(txHash);
     const pbftBlocks: BlockData[] = getMockPbftBlocks(txHash);
     setTimeout(() => {
