@@ -12,12 +12,14 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
     blockNumber: undefined,
     address: undefined,
   };
-  const isNotANumber = Number.isNaN(identifier);
-  if (!isNotANumber) ret.blockNumber = +identifier;
   const isAddress = ethers.utils.isAddress(identifier);
   if (isAddress) {
     ret.address = identifier;
-  } else {
+  }
+  // eslint-disable-next-line no-restricted-globals
+  const isNotANumber = isNaN(+identifier);
+  if (!isNotANumber && !isAddress) ret.blockNumber = +identifier;
+  if (isNotANumber && !isAddress) {
     ret.txHash = identifier;
   }
   return ret;

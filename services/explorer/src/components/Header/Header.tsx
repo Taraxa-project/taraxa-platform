@@ -20,10 +20,15 @@ export const Header = (): JSX.Element => {
     networks,
     currentNetwork,
     setCurrentNetwork,
-    searchInputProps,
+    onInputChange,
     drawerState,
     toggleDrawer,
+    isLoading,
+    searchOptions,
+    onLabelSelect,
   } = useHeaderEffects();
+
+  console.log('Is loading: ', isLoading);
 
   const buttons = (
     <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -78,7 +83,13 @@ export const Header = (): JSX.Element => {
       maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
-      searchInputProps={searchInputProps}
+      searchInputProps={{
+        onInputChange,
+        onChange: onLabelSelect,
+        loading: isLoading,
+        open: isLoading,
+        options: searchOptions,
+      }}
     >
       {isMobile ? hamburger : buttons}
       <Drawer
