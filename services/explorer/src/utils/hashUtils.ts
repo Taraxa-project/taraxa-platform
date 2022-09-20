@@ -19,7 +19,7 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
   // eslint-disable-next-line no-restricted-globals
   const isNotANumber = isNaN(+identifier);
   if (!isNotANumber && !isAddress) ret.blockNumber = +identifier;
-  if (isNotANumber && !isAddress) {
+  if (isNotANumber && !isAddress && identifier.length === 64) {
     ret.txHash = identifier;
   }
   return ret;

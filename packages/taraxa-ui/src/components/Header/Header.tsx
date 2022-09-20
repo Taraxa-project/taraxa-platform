@@ -32,7 +32,7 @@ function Header({
   maxWidth,
   withSearch = false,
   searchInputProps,
-  searchPlaceholder = 'Address, hash or number...',
+  searchPlaceholder = 'Hash or number...',
   ...props
 }: HeaderProps) {
   const classes = useStyles();

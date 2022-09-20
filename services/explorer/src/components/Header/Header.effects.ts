@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-restricted-globals */
 import { Option } from '@taraxa_project/taraxa-ui/src/components/SearchInput/SearchInput';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -13,7 +11,6 @@ import {
   searchTransactionQuery,
 } from '../../api';
 
-/* eslint-disable no-console */
 export type HeaderBtn = {
   label: string;
   onAction: () => void;
@@ -41,8 +38,10 @@ export const useHeaderEffects = () => {
   const location = useLocation();
   const { networks, currentNetwork, setCurrentNetwork } = useExplorerNetwork();
   const [drawerState, setDrawerState] = useState<boolean>(false);
+  const [searchString, setSearchString] = useState<string>(null);
   const [searchHash, setSearchHash] = useState<string>(null);
   const [searchBlockNumber, setSearchBlockNumber] = useState<number>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchAddress, setSearchAddress] = useState<string>(null);
   const [searchOptions, setSearchOptions] = useState<Option[]>([]);
 
@@ -83,7 +82,6 @@ export const useHeaderEffects = () => {
 
   useEffect(() => {
     if (blockData?.block) {
-      console.log('blockData: ', blockData?.block);
       const options: Option[] = [];
       if (searchHash) {
         options.push({
@@ -105,7 +103,6 @@ export const useHeaderEffects = () => {
 
   useEffect(() => {
     if (dagBlockData?.dagBlock) {
-      console.log('blockData: ', blockData?.dagBlock);
       setSearchOptions(
         searchOptions.concat([
           {
@@ -120,7 +117,6 @@ export const useHeaderEffects = () => {
 
   useEffect(() => {
     if (transactionData?.transaction) {
-      console.log('transactionData: ', blockData?.transaction);
       setSearchOptions(
         searchOptions.concat([
           {
@@ -190,8 +186,16 @@ export const useHeaderEffects = () => {
   ];
   const [buttons, setButtons] = useState<HeaderBtn[]>(headerButtons);
 
-  const onInputChange = (searchString: string) => {
+  const clearSearch = () => {
     setSearchOptions([]);
+    setSearchHash(null);
+    setSearchBlockNumber(null);
+    setSearchAddress(null);
+  };
+
+  const onInputChange = (searchString: string) => {
+    setSearchString(searchString);
+    clearSearch();
     const { txHash, blockNumber, address } = unwrapIdentifier(searchString);
     if (txHash) setSearchHash(txHash);
     if (blockNumber) setSearchBlockNumber(blockNumber);
@@ -200,6 +204,7 @@ export const useHeaderEffects = () => {
 
   const onLabelSelect = (option: Option) => {
     setSearchOptions([]);
+    setSearchString(null);
     switch (option.value) {
       case SearchLabelOption.TRANSACTION:
         navigate(`/transactions/${option.label}`);
@@ -240,5 +245,6 @@ export const useHeaderEffects = () => {
     isLoading,
     searchOptions,
     onLabelSelect,
+    searchString,
   };
 };

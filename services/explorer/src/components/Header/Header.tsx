@@ -25,10 +25,9 @@ export const Header = (): JSX.Element => {
     toggleDrawer,
     isLoading,
     searchOptions,
+    searchString,
     onLabelSelect,
   } = useHeaderEffects();
-
-  console.log('Is loading: ', isLoading);
 
   const buttons = (
     <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -87,7 +86,7 @@ export const Header = (): JSX.Element => {
         onInputChange,
         onChange: onLabelSelect,
         loading: isLoading,
-        open: isLoading,
+        open: isLoading || !!searchString,
         options: searchOptions,
       }}
     >
