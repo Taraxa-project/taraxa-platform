@@ -7,7 +7,7 @@ import BlocksPage from './pages/Blocks/Blocks';
 import NodesPage from './pages/Nodes/Nodes';
 import TransactionDataContainer from './pages/TransactionData/TransactionData';
 import AddressInfoPage from './pages/AddressInfo/AddressInfo';
-import BlockDataContainer from './pages/BlockData/BlockDataContainer';
+import DAGDataContainer from './pages/BlockData/DAGDataContainer';
 import FaucetPage from './pages/Faucet/Faucet';
 import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import HomePage from './pages/Home/Home';
@@ -30,7 +30,7 @@ const Root = (): JSX.Element => {
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/blocks' element={<BlocksPage />} />
-            <Route path='/blocks/:txHash' element={<BlockDataContainer />} />
+            <Route path='/blocks/:txHash' element={<DAGDataContainer />} />
             <Route path='/pbft/:identifier' element={<PBFTDataContainer />} />
             <Route path='/faucet' element={<FaucetPage />} />
             <Route path='/nodes' element={<NodesPage />} />

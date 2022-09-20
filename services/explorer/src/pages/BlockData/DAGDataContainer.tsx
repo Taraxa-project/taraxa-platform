@@ -10,18 +10,18 @@ import {
   TableTabs,
   TransactionIcon,
 } from '../../components';
-import { useBlockDataContainerEffects } from './BlockDataContainer.effects';
-import { HashLinkType } from '../../utils';
+import { useDAGDataContainerEffects } from './DAGDataContainer.effects';
+import { deZeroX, HashLinkType, zeroX } from '../../utils';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { TableTabsProps } from '../../models';
-import useStyles from './BlockDataContainer.styles';
+import useStyles from './DAGDataContainer.styles';
 import { TransactionsTable } from '../../components/Tables';
 
-const BlockDataContainer = (): JSX.Element => {
+const DAGDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const classes = useStyles();
   const { blockData, transactions, currentNetwork } =
-    useBlockDataContainerEffects(txHash);
+    useDAGDataContainerEffects(deZeroX(txHash));
   const onCopy = useCopyToClipboard();
 
   const tableTabs: TableTabsProps = {
@@ -69,16 +69,16 @@ const BlockDataContainer = (): JSX.Element => {
               component='h6'
               style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
             >
-              {txHash}
+              {zeroX(txHash)}
             </Typography>
             <CopyTo text={txHash} onCopy={onCopy} />
           </Box>
-          <DataRow title='Level' data={`${blockData.block}`} />
-          <DataRow title='Period' data={blockData.period} />
+          <DataRow title='Level' data={`${blockData?.level}`} />
+          <DataRow title='Period' data={`${blockData?.pbftPeriod}`} />
           <DataRow
             title='Timestamp'
             data={`${moment
-              .unix(+blockData.timestamp)
+              .unix(+(blockData ? blockData.timestamp : 0))
               .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
           />
           <Divider light />
@@ -88,7 +88,7 @@ const BlockDataContainer = (): JSX.Element => {
               <HashLink
                 linkType={HashLinkType.TRANSACTIONS}
                 width='auto'
-                hash={blockData?.pivot}
+                hash={zeroX(blockData?.pivot)}
               />
             }
           />
@@ -98,7 +98,7 @@ const BlockDataContainer = (): JSX.Element => {
               <HashLink
                 linkType={HashLinkType.ADDRESSES}
                 width='auto'
-                hash={blockData?.sender}
+                hash={zeroX(blockData?.author?.address)}
               />
             }
           />
@@ -106,13 +106,15 @@ const BlockDataContainer = (): JSX.Element => {
             title='Signature'
             data={
               <Typography style={{ wordBreak: 'break-all' }}>
-                {blockData.signature}
+                {blockData?.signature
+                  ? zeroX(blockData?.signature)
+                  : 'Loading...'}
               </Typography>
             }
           />
           <DataRow
             title='Verifiable Delay Function'
-            data={`${blockData.verifiableDelay}`}
+            data={blockData?.vdf ? `${blockData?.vdf}` : 'Loading...'}
           />
           <Divider light />
           <Box
@@ -130,4 +132,4 @@ const BlockDataContainer = (): JSX.Element => {
   );
 };
 
-export default BlockDataContainer;
+export default DAGDataContainer;
