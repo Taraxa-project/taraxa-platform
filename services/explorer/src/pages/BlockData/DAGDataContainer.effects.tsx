@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { dagDetailsQuery } from '../../api';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
@@ -20,23 +20,20 @@ export const useDAGDataContainerEffects = (hash: string) => {
   });
   const { initLoading, finishLoading } = useExplorerLoader();
 
-  const fetchBlockDetails = useCallback(() => {
-    setBlockData(data?.dagBlock);
-    setTransactions(data?.dagBlock?.transactions);
+  useEffect(() => {
+    if (data?.dagBlock) {
+      setBlockData(data?.dagBlock);
+      setTransactions(data?.dagBlock?.transactions);
+    }
   }, [data]);
 
   useEffect(() => {
     if (fetching) {
       initLoading();
     } else {
-      fetchBlockDetails();
       finishLoading();
     }
-  }, [fetching]);
-
-  useEffect(() => {
-    fetchBlockDetails();
-  }, [currentNetwork]);
+  }, [fetching, currentNetwork]);
 
   return { blockData, transactions, currentNetwork };
 };
