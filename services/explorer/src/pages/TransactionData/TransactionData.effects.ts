@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
+import { deZeroX } from '../../utils';
 import { BlockData, Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
@@ -17,7 +18,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   const [{ fetching, data: transactiondata }] = useQuery({
     query: transactionQuery,
     variables: {
-      hash: txHash,
+      hash: deZeroX(txHash),
     },
     pause: !txHash,
   });

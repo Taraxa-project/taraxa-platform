@@ -27,6 +27,16 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
       />
     );
   }
+  if (state === TransactionStatus.NOT_YET_MINED) {
+    return (
+      <Label
+        variant='secondary'
+        label='Not Yet Mined'
+        gap
+        icon={<Icons.NotFound />}
+      />
+    );
+  }
   return (
     <Label
       variant='loading'
@@ -64,6 +74,7 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
 };
 
 export const timestampToAge = (timestamp: string) => {
+  if (!timestamp) return '0';
   let age = Math.floor(+new Date() / 1000 - +timestamp);
   const days = Math.floor(age / 86400);
   age -= Math.floor(86400 * days);

@@ -7,8 +7,24 @@ export const blockQuery = `
       gasLimit,
       gasUsed,
       timestamp,
+			parent {
+				hash
+			},
+			miner {
+				address
+			},
+			difficulty,
+		  totalDifficulty,
       transactionCount,
       transactions {
+				from {
+					address
+				},
+				to {
+					address
+				},
+        gasUsed,
+        gasPrice
         status, hash, value, block {
           timestamp,
           number
