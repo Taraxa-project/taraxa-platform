@@ -53,7 +53,7 @@ export const useHeaderEffects = () => {
       onAction: () => onClick('dag'),
     },
     {
-      label: 'Blocks',
+      label: 'PBFT',
       color: 'primary',
       variant: 'text',
       selected: false,
