@@ -19,7 +19,6 @@ export const Header = (): JSX.Element => {
     buttons: headerButtons,
     networks,
     currentNetwork,
-    setCurrentNetwork,
     onInputChange,
     drawerState,
     toggleDrawer,
@@ -27,6 +26,8 @@ export const Header = (): JSX.Element => {
     searchOptions,
     searchString,
     onLabelSelect,
+    setNetwork,
+    disableNetworkSelection,
   } = useHeaderEffects();
 
   const buttons = (
@@ -55,7 +56,8 @@ export const Header = (): JSX.Element => {
         <NetworkMenu
           networks={networks}
           currentNetwork={currentNetwork}
-          onNetworkChange={setCurrentNetwork}
+          onNetworkChange={setNetwork}
+          disableNetworkSelection={disableNetworkSelection}
         />
       </Box>
     </Box>

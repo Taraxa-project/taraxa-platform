@@ -36,7 +36,8 @@ export enum SearchLabelOption {
 export const useHeaderEffects = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { networks, currentNetwork, setCurrentNetwork } = useExplorerNetwork();
+  const { networks, currentNetwork, setNetwork, disableNetworkSelection } =
+    useExplorerNetwork();
   const [drawerState, setDrawerState] = useState<boolean>(false);
   const [searchString, setSearchString] = useState<string>(null);
   const [searchHash, setSearchHash] = useState<string>(null);
@@ -238,7 +239,6 @@ export const useHeaderEffects = () => {
     buttons,
     networks,
     currentNetwork,
-    setCurrentNetwork,
     onInputChange,
     drawerState,
     toggleDrawer,
@@ -246,5 +246,7 @@ export const useHeaderEffects = () => {
     searchOptions,
     onLabelSelect,
     searchString,
+    setNetwork,
+    disableNetworkSelection,
   };
 };

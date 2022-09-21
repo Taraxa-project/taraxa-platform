@@ -1,33 +1,41 @@
 import React, { createContext, useContext, useState } from 'react';
-
-export enum Network {
-  TESTNET = 'Californicum Testnet',
-  MAINNET = 'Mainnet Candidate',
-}
+import { Network, getDomainName, SELECTED_NETWORK } from '../utils';
 
 type Context = {
   networks: string[];
   currentNetwork: string;
-  setCurrentNetwork: (network: string) => void;
+  setNetwork: (network: string) => void;
+  disableNetworkSelection: boolean;
 };
 
 const initialState: Context = {
   networks: Object.values(Network),
   currentNetwork: Network.MAINNET,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setCurrentNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  disableNetworkSelection: false,
 };
 
 const ExplorerNetworkContext = createContext<Context>(initialState);
 
 const useNetworkSelection = () => {
   const networks = Object.values(Network);
-  const [currentNetwork, setCurrentNetwork] = useState<string>(Network.TESTNET);
+  const savedNetwork = localStorage.getItem(SELECTED_NETWORK);
+  const hostNetwork = getDomainName();
+  const [currentNetwork, setCurrentNetwork] = useState<string>(
+    hostNetwork || savedNetwork || Network.DEVNET
+  );
+
+  const setNetwork = (network: string) => {
+    setCurrentNetwork(network);
+    localStorage.setItem(SELECTED_NETWORK, network);
+  };
 
   return {
     networks,
-    setCurrentNetwork,
+    setNetwork,
     currentNetwork,
+    disableNetworkSelection: !!hostNetwork,
   };
 };
 
