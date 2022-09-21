@@ -23,7 +23,8 @@ export type HeaderBtn = {
 export const useHeaderEffects = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { networks, currentNetwork, setCurrentNetwork } = useExplorerNetwork();
+  const { networks, currentNetwork, setNetwork, disableNetworkSelection } =
+    useExplorerNetwork();
   const [drawerState, setDrawerState] = useState<boolean>(false);
 
   const toggleDrawer =
@@ -106,9 +107,10 @@ export const useHeaderEffects = () => {
     buttons,
     networks,
     currentNetwork,
-    setCurrentNetwork,
+    setNetwork,
     searchInputProps,
     drawerState,
     toggleDrawer,
+    disableNetworkSelection,
   };
 };

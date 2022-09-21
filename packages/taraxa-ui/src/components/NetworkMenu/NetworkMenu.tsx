@@ -18,6 +18,7 @@ export interface NetworkMenuProps {
   onNetworkChange?: (network: string) => void;
   verticalPosition?: 'top' | 'bottom';
   horizontalPosition?: 'left' | 'right';
+  disableNetworkSelection?: boolean;
 }
 
 const NetworkMenu = ({
@@ -26,6 +27,7 @@ const NetworkMenu = ({
   onNetworkChange,
   verticalPosition = 'top',
   horizontalPosition = 'left',
+  disableNetworkSelection = false,
 }: NetworkMenuProps) => {
   const classes = useStyles();
   const [selectedNetwork, setSelectedNetwork] = useState(currentNetwork);
@@ -83,6 +85,7 @@ const NetworkMenu = ({
             }}
             key={`${network}-${Date.now()}`}
             selected={network === selectedNetwork}
+            disabled={disableNetworkSelection}
             onClick={() => onNetworkClick(network)}
           >
             <Check />
