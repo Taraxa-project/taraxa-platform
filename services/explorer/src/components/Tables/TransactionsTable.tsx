@@ -12,12 +12,8 @@ import {
 import { Icons } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
-import {
-  statusToLabel,
-  timestampToAge,
-  toHexStatus,
-} from '../../utils/TransactionRow';
-import { HashLinkType } from '../../utils';
+import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
+import { formatTransactionStatus, HashLinkType } from '../../utils';
 import { Transaction } from '../../models';
 
 export interface TransactionsTableProps {
@@ -161,7 +157,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         wrap
                       />
                     </TableCell>
-                    <TableCell variant='body'>{block.block?.number}</TableCell>
+                    <TableCell variant='body'>
+                      {block.block?.number || 0}
+                    </TableCell>
                     <TableCell variant='body'>Transfer</TableCell>
                     <TableCell variant='body'>
                       <Box
@@ -179,7 +177,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       </Box>
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {statusToLabel(toHexStatus(block.status))}
+                      {statusToLabel(formatTransactionStatus(block.status))}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
                       {timestampToAge(block.block?.timestamp)}
@@ -188,7 +186,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       {block.value}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {block.gasUsed}
+                      {block.gasUsed || 0}
                     </TableCell>
                   </TableRow>
                 ))}

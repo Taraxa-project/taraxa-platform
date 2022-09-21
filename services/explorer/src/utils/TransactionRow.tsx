@@ -6,13 +6,6 @@ import { HashLink } from '../components/Links';
 import { BlockData, TransactionTableData, TransactionStatus } from '../models';
 import { HashLinkType } from './Enums';
 
-export const toHexStatus = (status: number): TransactionStatus =>
-  status === 1
-    ? TransactionStatus.SUCCESS
-    : status === 0
-    ? TransactionStatus.FAILURE
-    : TransactionStatus.IN_PROGRESS;
-
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
     return (
@@ -31,6 +24,16 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
         label='Failure'
         gap
         icon={<Icons.RedCircledCancel />}
+      />
+    );
+  }
+  if (state === TransactionStatus.NOT_YET_MINED) {
+    return (
+      <Label
+        variant='secondary'
+        label='Not Yet Mined'
+        gap
+        icon={<Icons.NotFound />}
       />
     );
   }
@@ -71,6 +74,7 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
 };
 
 export const timestampToAge = (timestamp: string) => {
+  if (!timestamp) return '0';
   let age = Math.floor(+new Date() / 1000 - +timestamp);
   const days = Math.floor(age / 86400);
   age -= Math.floor(86400 * days);

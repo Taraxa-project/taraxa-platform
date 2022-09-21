@@ -34,8 +34,7 @@ export const usePBFTDataContainerEffects = (
   }, [currentNetwork, fetching]);
 
   useEffect(() => {
-    if (data && data?.block) {
-      console.log(data);
+    if (data?.block) {
       setBlockData(data.block);
       setTransactions(data.block.transactions);
     }

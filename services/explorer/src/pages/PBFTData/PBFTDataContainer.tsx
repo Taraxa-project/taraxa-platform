@@ -70,16 +70,16 @@ const PBFTDataContainer = (): JSX.Element => {
               component='h6'
               style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
             >
-              {zeroX(blockData.hash)}
+              {zeroX(blockData?.hash)}
             </Typography>
-            <CopyTo text={blockData.hash} onCopy={onCopy} />
+            <CopyTo text={blockData?.hash} onCopy={onCopy} />
           </Box>
-          <DataRow title='Number' data={`${blockData.number}`} />
-          <DataRow title='Nonce' data={blockData.nonce} />
+          <DataRow title='Number' data={`${blockData?.number}`} />
+          <DataRow title='Nonce' data={blockData?.nonce} />
           <DataRow
             title='Timestamp'
             data={`${moment
-              .unix(+blockData.timestamp)
+              .unix(+(blockData?.timestamp || 0))
               .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
           />
           <Divider light />
@@ -107,13 +107,13 @@ const PBFTDataContainer = (): JSX.Element => {
             title='Difficulty'
             data={
               <Typography style={{ wordBreak: 'break-all' }}>
-                {blockData.difficulty}
+                {blockData?.difficulty}
               </Typography>
             }
           />
           <DataRow
             title='Transaction Count'
-            data={`${blockData.transactionCount}`}
+            data={`${blockData?.transactionCount}`}
           />
           <Divider light />
           <Box

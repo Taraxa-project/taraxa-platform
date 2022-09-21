@@ -21,11 +21,8 @@ export const useDAGDataContainerEffects = (hash: string) => {
   const { initLoading, finishLoading } = useExplorerLoader();
 
   const fetchBlockDetails = useCallback(() => {
-    setTimeout(() => {
-      console.log('dddd: ', data);
-      setBlockData(data?.dagBlock);
-      setTransactions(data?.dagBlock?.transactions);
-    }, 500);
+    setBlockData(data?.dagBlock);
+    setTransactions(data?.dagBlock?.transactions);
   }, [data]);
 
   useEffect(() => {

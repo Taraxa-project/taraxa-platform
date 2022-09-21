@@ -88,7 +88,7 @@ const DAGDataContainer = (): JSX.Element => {
               <HashLink
                 linkType={HashLinkType.TRANSACTIONS}
                 width='auto'
-                hash={zeroX(blockData?.pivot)}
+                hash={blockData?.pivot}
               />
             }
           />
@@ -98,7 +98,7 @@ const DAGDataContainer = (): JSX.Element => {
               <HashLink
                 linkType={HashLinkType.ADDRESSES}
                 width='auto'
-                hash={zeroX(blockData?.author?.address)}
+                hash={blockData?.author?.address}
               />
             }
           />
@@ -106,9 +106,7 @@ const DAGDataContainer = (): JSX.Element => {
             title='Signature'
             data={
               <Typography style={{ wordBreak: 'break-all' }}>
-                {blockData?.signature
-                  ? zeroX(blockData?.signature)
-                  : 'Loading...'}
+                {blockData?.signature ? blockData?.signature : 'Loading...'}
               </Typography>
             }
           />
