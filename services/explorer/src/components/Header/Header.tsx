@@ -19,10 +19,14 @@ export const Header = (): JSX.Element => {
     buttons: headerButtons,
     networks,
     currentNetwork,
-    setNetwork,
-    searchInputProps,
+    onInputChange,
     drawerState,
     toggleDrawer,
+    isLoading,
+    searchOptions,
+    searchString,
+    onLabelSelect,
+    setNetwork,
     disableNetworkSelection,
   } = useHeaderEffects();
 
@@ -80,7 +84,13 @@ export const Header = (): JSX.Element => {
       maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
-      searchInputProps={searchInputProps}
+      searchInputProps={{
+        onInputChange,
+        onChange: onLabelSelect,
+        loading: isLoading,
+        open: isLoading || !!searchString,
+        options: searchOptions,
+      }}
     >
       {isMobile ? hamburger : buttons}
       <Drawer

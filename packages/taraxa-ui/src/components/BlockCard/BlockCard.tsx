@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardContent,
   Box,
+  Typography,
 } from '@mui/material';
 import useStyles from './BlockCard.styles';
 import theme from '../theme';
@@ -33,7 +34,7 @@ export const BlockCard: FC<BlockCardProps> = ({ title, transactions }) => {
           className={classes.cardHeader}
         />
         <CardContent className={classes.cardContent}>
-          {transactions?.length &&
+          {transactions?.length > 0 ? (
             transactions.map(
               (transaction: TransactionDetailsProps, i: number) => (
                 <Box key={`${transaction.hash}-${transaction.level}-${i}`}>
@@ -48,7 +49,10 @@ export const BlockCard: FC<BlockCardProps> = ({ title, transactions }) => {
                   />
                 </Box>
               )
-            )}
+            )
+          ) : (
+            <Typography>No data available</Typography>
+          )}
         </CardContent>
       </Card>
     </ThemeProvider>
