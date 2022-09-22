@@ -6,7 +6,7 @@ export enum TransactionStatus {
 }
 
 export interface TransactionTableData {
-  timestamp: string;
+  timestamp: number;
   block: string;
   status: TransactionStatus;
   txHash: string;
@@ -26,7 +26,7 @@ export interface ColumnData {
 }
 
 export interface BlockData {
-  timestamp: string;
+  timestamp: number | string;
   block?: number;
   level?: number;
   hash: string;

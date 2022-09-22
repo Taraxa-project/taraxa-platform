@@ -1,7 +1,7 @@
 export const GRAPHQL_API = `${process.env.REACT_APP_GRAPHQL_HOST}`;
 
 export type DagBlockFilters = {
-  dagLevel?: number;
+  dagLevel: number;
   count?: number;
   reverse?: boolean;
 };

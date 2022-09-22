@@ -73,7 +73,7 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
   };
 };
 
-export const timestampToAge = (timestamp: string) => {
+export const timestampToAge = (timestamp: string | number) => {
   if (!timestamp) return '0';
   let age = Math.floor(+new Date() / 1000 - +timestamp);
   const days = Math.floor(age / 86400);
@@ -103,6 +103,24 @@ export const toBlockTableRow = (props: BlockData) => {
       {
         timestamp: ageString,
         block: blockNumberContainer,
+        hash: txHashContainer,
+        transactionCount,
+      },
+    ],
+  };
+};
+
+export const toDagBlockTableRow = (props: BlockData) => {
+  const { timestamp, level, hash, transactionCount } = props;
+
+  const ageString = timestampToAge(timestamp);
+  const txHashContainer = <HashLink linkType={HashLinkType.PBFT} hash={hash} />;
+
+  return {
+    data: [
+      {
+        timestamp: ageString,
+        level,
         hash: txHashContainer,
         transactionCount,
       },
