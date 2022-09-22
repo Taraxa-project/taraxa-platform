@@ -3,4 +3,5 @@ export interface Account {
   balance: number;
   transactionCount: number;
   code: number;
+  storage: string;
 }
