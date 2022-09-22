@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import { useExplorerLoader, useNoteStateContext } from '../../hooks';
+import { useExplorerLoader, useNodeStateContext } from '../../hooks';
 import { BlockData, ColumnData, DagBlock } from '../../models';
 import { DagBlockFilters, dagBlocksQuery } from '../../api';
 
 export const useDagEffects = () => {
-  const { dagBlockLevel } = useNoteStateContext();
+  const { dagBlockLevel } = useNodeStateContext();
   const [data, setData] = useState<BlockData[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);

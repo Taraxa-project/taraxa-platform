@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import {
   useExplorerLoader,
-  useNoteStateContext,
+  useNodeStateContext,
   useExplorerNetwork,
 } from '../../hooks';
 import { BlockData, ColumnData, PbftBlock } from '../../models';
 import { blocksQuery, PbftBlocksFilters } from '../../api';
 
 export const useBlockEffects = () => {
-  const { finalBlock } = useNoteStateContext();
+  const { finalBlock } = useNodeStateContext();
   const [data, setData] = useState<BlockData[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);

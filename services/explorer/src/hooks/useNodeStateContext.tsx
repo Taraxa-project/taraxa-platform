@@ -43,6 +43,6 @@ export const NodeStateProvider = ({
   );
 };
 
-export const useNoteStateContext = () => {
+export const useNodeStateContext = () => {
   return useContext(NodeStateContext);
 };
