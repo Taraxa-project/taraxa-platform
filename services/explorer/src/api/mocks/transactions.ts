@@ -19,6 +19,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       to: {
         address:
@@ -26,6 +27,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       gas: 21000,
       gasPrice: 3100,
@@ -50,6 +52,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       to: {
         address:
@@ -57,6 +60,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       gas: 21000,
       gasPrice: 3100,
@@ -81,6 +85,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       to: {
         address:
@@ -88,6 +93,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       gas: 21000,
       gasPrice: 3100,
@@ -112,6 +118,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       to: {
         address:
@@ -119,6 +126,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       gas: 21000,
       gasPrice: 3100,
@@ -143,6 +151,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       to: {
         address:
@@ -150,6 +159,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       gas: 21000,
       gasPrice: 3100,
@@ -174,6 +184,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       to: {
         address:
@@ -181,6 +192,7 @@ export const getMockedTransactions = (txHash: string): Transaction[] => {
         balance: 10000001,
         code: 2332,
         transactionCount: 21,
+        storage: '0x0',
       },
       gas: 21000,
       gasPrice: 3100,
