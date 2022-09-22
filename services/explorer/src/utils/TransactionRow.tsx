@@ -93,9 +93,7 @@ export const toBlockTableRow = (props: BlockData) => {
   const { timestamp, block, hash, transactionCount } = props;
 
   const ageString = timestampToAge(timestamp);
-  const txHashContainer = (
-    <HashLink linkType={HashLinkType.BLOCKS} hash={hash} />
-  );
+  const txHashContainer = <HashLink linkType={HashLinkType.PBFT} hash={hash} />;
   const blockNumberContainer = (
     <HashLink linkType={HashLinkType.PBFT} blockNumber={block} />
   );
