@@ -1,9 +1,7 @@
-import cleanDeep from 'clean-deep';
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { ethers } from 'ethers';
 import { accountQuery } from '../../api/graphql/queries/account';
-import { useExplorerNetwork } from '../../hooks';
 import {
   getMockedDagBlocks,
   getMockedTransactions,
@@ -13,7 +11,6 @@ import { useExplorerLoader } from '../../hooks/useLoader';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 
 export const useAddressInfoEffects = (account: string) => {
-  const { currentNetwork } = useExplorerNetwork();
   const [transactions, setTransactions] = useState<Transaction[]>();
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
   const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
@@ -21,9 +18,7 @@ export const useAddressInfoEffects = (account: string) => {
     useState<AddressInfoDetails>();
   const [{ fetching, data }] = useQuery({
     query: accountQuery,
-    variables: cleanDeep({
-      account,
-    }),
+    variables: { account },
     pause: !account,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
@@ -34,7 +29,7 @@ export const useAddressInfoEffects = (account: string) => {
     } else {
       finishLoading();
     }
-  }, [fetching, currentNetwork]);
+  }, [fetching]);
 
   useEffect(() => {
     if (data?.block) {
