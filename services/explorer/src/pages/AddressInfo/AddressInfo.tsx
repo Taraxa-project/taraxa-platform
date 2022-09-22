@@ -4,9 +4,9 @@ import { AddressInfo, PageTitle } from '../../components';
 import { useAddressInfoEffects } from './AddressInfo.effects';
 
 const AddressInfoPage = () => {
-  const { txHash } = useParams();
+  const { account } = useParams();
   const { transactions, addressInfoDetails, dagBlocks, pbftBlocks } =
-    useAddressInfoEffects(txHash);
+    useAddressInfoEffects(account);
 
   return (
     <>

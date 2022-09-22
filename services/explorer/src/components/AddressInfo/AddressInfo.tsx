@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { toSvg } from 'jdenticon';
 import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
+import { zeroX } from '../../utils';
 import useStyles from './AddressInfo.styles';
 import { BlocksTable, TransactionsTable } from '../Tables';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -102,7 +103,7 @@ export const AddressInfo = ({
             component='h6'
             style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
           >
-            {details?.address}
+            {zeroX(details?.address)}
           </Typography>
           <CopyTo text={details?.address} onCopy={onCopy} />
         </Box>
