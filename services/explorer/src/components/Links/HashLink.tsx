@@ -30,7 +30,7 @@ export const HashLink = ({
           width,
         }}
       >
-        {wrap && hash ? `${zeroX(hash).slice(0, 8)}...` : hash}
+        {hash ? (wrap ? `${zeroX(hash).slice(0, 8)}...` : zeroX(hash)) : hash}
         {wrap && blockNumber
           ? `${blockNumber.toString().slice(0, 8)}...`
           : blockNumber}

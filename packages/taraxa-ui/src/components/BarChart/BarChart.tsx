@@ -23,7 +23,7 @@ ChartJS.register(
   Legend
 );
 
-const DEFAULT_OPTIONS = {
+const useTick = (tick: string) => ({
   responsive: false,
   plugins: {
     legend: {
@@ -55,21 +55,26 @@ const DEFAULT_OPTIONS = {
       ticks: {
         stepSize: 50,
         color: theme.palette.text.secondary,
-        callback: (value: any) => `${value}/s`,
+        callback: (value: any) => `${value}${tick}`,
       },
     },
   },
-};
+});
 
 export interface BarChartProps {
   title?: string;
   labels: string[];
+  tick?: string;
   datasets: ChartDataset<'bar', number[]>[];
 }
 
-const BarChart = ({ title = '', labels = [], datasets }: BarChartProps) => {
+const BarChart = ({
+  title = '',
+  labels = [],
+  datasets,
+  tick = '/s',
+}: BarChartProps) => {
   const classes = useStyles();
-
   const parseData = () => {
     const result = {
       labels,
@@ -83,7 +88,7 @@ const BarChart = ({ title = '', labels = [], datasets }: BarChartProps) => {
       <CssBaseline />
       <Box className={classes.boxRoot}>
         <Box className={classes.innerBox}>
-          <Bar options={DEFAULT_OPTIONS} data={parseData()} />
+          <Bar options={useTick(tick)} data={parseData()} />
           <Box className={classes.titleHolder}>{title}</Box>
         </Box>
       </Box>
