@@ -59,7 +59,7 @@ export const AddressInfo = ({
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={dagBlocks} />,
+        children: <BlocksTable blocksData={dagBlocks} type='dag' />,
       },
       {
         label: 'PBFT Blocks',
@@ -70,7 +70,7 @@ export const AddressInfo = ({
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={pbftBlocks} />,
+        children: <BlocksTable blocksData={pbftBlocks} type='pbft' />,
       },
     ],
     initialValue: 0,

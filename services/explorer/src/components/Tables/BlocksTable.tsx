@@ -15,9 +15,10 @@ import { BlockData } from '../../models';
 import { HashLinkType } from '../../utils';
 import { timestampToAge } from '../../utils/TransactionRow';
 
-export const BlocksTable: React.FC<{ blocksData: BlockData[] }> = ({
-  blocksData,
-}) => {
+export const BlocksTable: React.FC<{
+  blocksData: BlockData[];
+  type: 'pbft' | 'dag';
+}> = ({ blocksData, type }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [page, setPage] = React.useState(0);
 
@@ -86,10 +87,18 @@ export const BlocksTable: React.FC<{ blocksData: BlockData[] }> = ({
                     </TableCell>
                     <TableCell variant='body'>{block.level}</TableCell>
                     <TableCell variant='body'>
-                      <HashLink
-                        linkType={HashLinkType.BLOCKS}
-                        hash={block.hash}
-                      />
+                      {type === 'pbft' && (
+                        <HashLink
+                          linkType={HashLinkType.PBFT}
+                          hash={block.hash}
+                        />
+                      )}
+                      {type === 'dag' && (
+                        <HashLink
+                          linkType={HashLinkType.BLOCKS}
+                          hash={block.hash}
+                        />
+                      )}
                     </TableCell>
                     <TableCell variant='body'>
                       {block.transactionCount}
