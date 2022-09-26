@@ -3,22 +3,25 @@ import { Grid } from '@mui/material';
 import { BarChart } from '@taraxa_project/taraxa-ui';
 import {
   calculateDagBlocksPerSecond,
+  calculateDagEfficiencyForPBFT,
   calculatePBFTBlockTime,
   calculateTransactionsPerSecond,
   getLatestNDagBlocks,
   getLatestNTimestamps,
-} from '../../utils/chartUtils';
+} from '../../utils';
 import { theme } from '../../theme-provider';
 import { DagBlock, PbftBlock } from '../../models';
 
 export interface ChartContainerProps {
   dagBlocks: DagBlock[];
   pbftBlocks: PbftBlock[];
+  dagsForLastFivePeriods: DagBlock[];
 }
 
 const ChartContainer = ({
   dagBlocks,
   pbftBlocks,
+  dagsForLastFivePeriods,
 }: ChartContainerProps): JSX.Element => {
   return (
     // The implementation below is wrong as the dabBlocks and pbftBlocks cannot be concatenated as they are different objects
@@ -37,8 +40,7 @@ const ChartContainer = ({
           title='Transactions per second'
           labels={pbftBlocks
             .slice(0, 5)
-            .map((block) => block.number.toString())
-            .reverse()}
+            .map((block) => block.number.toString())}
           datasets={[
             {
               data: calculateTransactionsPerSecond(
@@ -52,13 +54,13 @@ const ChartContainer = ({
         />
         <BarChart
           title='Block Time'
+          tick='s'
           labels={pbftBlocks
             .slice(0, 5)
-            .map((block) => block.number.toString())
-            .reverse()}
+            .map((block) => block.number.toString())}
           datasets={[
             {
-              data: calculatePBFTBlockTime(pbftBlocks.slice(0, 6).reverse()),
+              data: calculatePBFTBlockTime(pbftBlocks.slice(0, 6)),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
@@ -67,6 +69,7 @@ const ChartContainer = ({
         />
         <BarChart
           title='DAG Blocks Per Second'
+          tick=''
           labels={getLatestNTimestamps(
             getLatestNDagBlocks(
               dagBlocks.sort((block) => block.timestamp),
@@ -94,22 +97,14 @@ const ChartContainer = ({
         />
         <BarChart
           title='DAG efficiency'
-          labels={dagBlocks
-            .slice(6)
-            .reverse()
-            .map((block) => block.level.toString())}
+          labels={pbftBlocks.reverse().map((block) => block.number.toString())}
+          tick='%'
           datasets={[
             {
-              data: dagBlocks
-                ?.slice(0, 5)
-                .reverse()
-                .map(
-                  (block) =>
-                    (block.timestamp -
-                      dagBlocks.find((b) => b.level === block.level - 1)
-                        .timestamp) /
-                    1000
-                ),
+              data: calculateDagEfficiencyForPBFT(
+                pbftBlocks,
+                dagsForLastFivePeriods
+              ),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
