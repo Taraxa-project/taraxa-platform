@@ -13,11 +13,11 @@ import { Icons } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
-import { HashLinkType } from '../../utils';
-import { TransactionData } from '../../models';
+import { formatTransactionStatus, HashLinkType } from '../../utils';
+import { Transaction } from '../../models';
 
 export interface TransactionsTableProps {
-  transactionsData: TransactionData[];
+  transactionsData: Transaction[];
 }
 
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({
@@ -76,7 +76,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'
-          count={transactionsData?.length}
+          count={transactionsData?.length || 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -149,15 +149,17 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
               transactionsData
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((block, i) => (
-                  <TableRow key={`${block.txHash}-${i}`}>
+                  <TableRow key={`${block.hash}-${i}`}>
                     <TableCell variant='body'>
                       <HashLink
                         linkType={HashLinkType.TRANSACTIONS}
-                        hash={block.txHash}
+                        hash={block.hash}
                         wrap
                       />
                     </TableCell>
-                    <TableCell variant='body'>{block.block}</TableCell>
+                    <TableCell variant='body'>
+                      {block.block?.number || 0}
+                    </TableCell>
                     <TableCell variant='body'>Transfer</TableCell>
                     <TableCell variant='body'>
                       <Box
@@ -169,22 +171,22 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         maxWidth='20rem'
                         gap='0.2rem'
                       >
-                        <AddressLink address={block.from} />
+                        <AddressLink address={block.from?.address} />
                         <Icons.GreenRightArrow />
-                        <AddressLink address={block.to} />
+                        <AddressLink address={block.to?.address} />
                       </Box>
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {statusToLabel(block.status)}
+                      {statusToLabel(formatTransactionStatus(block.status))}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {timestampToAge(block.timestamp)}
+                      {timestampToAge(block.block?.timestamp)}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
                       {block.value}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {(+block.gas).toLocaleString()}
+                      {block.gasUsed || 0}
                     </TableCell>
                   </TableRow>
                 ))}

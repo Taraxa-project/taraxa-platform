@@ -1,144 +1,208 @@
-import { TransactionData, TransactionStatus } from '../../models';
+import { Transaction, TransactionStatus } from '../../models';
 
-export const getMockedTransactions = (txHash: string): TransactionData[] => {
-  const transactions: TransactionData[] = [
+export const getMockedTransactions = (txHash: string): Transaction[] => {
+  const transactions: Transaction[] = [
     {
-      txHash,
-      status: TransactionStatus.SUCCESS,
-      timestamp: 1661776098,
-      pbftBlock: txHash,
-      block: 7414,
-      dagLevel: '529133',
-      dagHash:
-        '0x00ACD3a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      value: '1000000',
-      from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      gasLimit: '210000',
-      gas: '21000',
-      gasPrice: '3100',
-      token: 'TARA',
-      nonce: 244411,
+      hash: txHash,
+      nonce: 2221,
+      index: 44421,
+      status: 1,
+      value: 1000000,
+      block: {
+        timestamp: 1661776098,
+        hash: txHash,
+        number: 7414,
+      },
+      from: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      to: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      gas: 21000,
+      gasPrice: 3100,
+      gasUsed: 1111,
+      inputData: 2131123132312,
+      cumulativeGasUsed: 2222,
     },
     {
-      txHash,
-      status: TransactionStatus.SUCCESS,
-      timestamp: 1661776098,
-      pbftBlock:
-        '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      block: 7414,
-      dagLevel: '529133',
-      dagHash: txHash,
-      value: '1000000',
-      from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      gasLimit: '210000',
-      gas: '21000',
-      gasPrice: '3100',
-      nonce: 244411,
-      token: 'TARA',
+      hash: txHash,
+      nonce: 2221,
+      index: 44421,
+      status: 1,
+      value: 1000000,
+      block: {
+        timestamp: 1661776098,
+        hash: txHash,
+        number: 7414,
+      },
+      from: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      to: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      gas: 21000,
+      gasPrice: 3100,
+      gasUsed: 1111,
+      inputData: 2131123132312,
+      cumulativeGasUsed: 2222,
     },
     {
-      txHash:
-        '0x44e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      status: TransactionStatus.SUCCESS,
-      timestamp: 1661776098,
-      pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-      block: 7414,
-      dagLevel: '529133',
-      dagHash: txHash,
-      value: '1000000',
-      from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      gasLimit: '210000',
-      gas: '21000',
-      gasPrice: '3100',
-      nonce: 244411,
-      token: 'TARA',
+      hash: txHash,
+      nonce: 2221,
+      index: 44421,
+      status: 1,
+      value: 1000000,
+      block: {
+        timestamp: 1661776098,
+        hash: txHash,
+        number: 7414,
+      },
+      from: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      to: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      gas: 21000,
+      gasPrice: 3100,
+      gasUsed: 1111,
+      inputData: 2131123132312,
+      cumulativeGasUsed: 2222,
     },
     {
-      txHash:
-        '0x55e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      status: TransactionStatus.FAILURE,
-      timestamp: 1661776098,
-      pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-      block: 7414,
-      dagLevel: '529133',
-      dagHash:
-        '0x00ACD3a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      value: '1000000',
-      from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      gasLimit: '210000',
-      gas: '21000',
-      gasPrice: '3100',
-      nonce: 244411,
-      token: 'TARA',
+      hash: txHash,
+      nonce: 2221,
+      index: 44421,
+      status: 1,
+      value: 1000000,
+      block: {
+        timestamp: 1661776098,
+        hash: txHash,
+        number: 7414,
+      },
+      from: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      to: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      gas: 21000,
+      gasPrice: 3100,
+      gasUsed: 1111,
+      inputData: 2131123132312,
+      cumulativeGasUsed: 2222,
     },
     {
-      txHash:
-        '0x99e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      status: TransactionStatus.SUCCESS,
-      timestamp: 1661776098,
-      pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-      block: 7414,
-      dagLevel: '529133',
-      dagHash:
-        '0x00ACD3a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      value: '1000000',
-      from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      gasLimit: '210000',
-      gas: '21000',
-      gasPrice: '3100',
-      nonce: 244411,
-      token: 'TARA',
+      hash: txHash,
+      nonce: 2221,
+      index: 44421,
+      status: 1,
+      value: 1000000,
+      block: {
+        timestamp: 1661776098,
+        hash: txHash,
+        number: 7414,
+      },
+      from: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      to: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      gas: 21000,
+      gasPrice: 3100,
+      gasUsed: 1111,
+      inputData: 2131123132312,
+      cumulativeGasUsed: 2222,
     },
     {
-      txHash:
-        '0x99e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      status: TransactionStatus.SUCCESS,
-      timestamp: 1661776098,
-      pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-      block: 7414,
-      dagLevel: '529133',
-      dagHash:
-        '0x00ACD3a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      value: '1000000',
-      from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-      gasLimit: '210000',
-      gas: '21000',
-      gasPrice: '3100',
-      nonce: 244411,
-      token: 'TARA',
+      hash: txHash,
+      nonce: 2221,
+      index: 44421,
+      status: 1,
+      value: 1000000,
+      block: {
+        timestamp: 1661776098,
+        hash: txHash,
+        number: 7414,
+      },
+      from: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      to: {
+        address:
+          '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
+        balance: 10000001,
+        code: 2332,
+        transactionCount: 21,
+        storage: '0x0',
+      },
+      gas: 21000,
+      gasPrice: 3100,
+      gasUsed: 1111,
+      inputData: 2131123132312,
+      cumulativeGasUsed: 2222,
     },
   ];
 
   return transactions;
-};
-
-export const getMockedCurrentTransaction = (): TransactionData => {
-  const txData: TransactionData = {
-    txHash:
-      '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    status: TransactionStatus.SUCCESS,
-    timestamp: 1661776098,
-    pbftBlock: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    block: 7417,
-    dagLevel: '529133',
-    dagHash:
-      '0x00ACD3a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    value: '1000000',
-    from: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    to: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    gasLimit: '210000',
-    gas: '21000',
-    gasPrice: '3100',
-    nonce: 244411,
-    token: 'TARA',
-  };
-  return txData;
 };
 
 export const getMockedTransactionColsAndRows = () => {

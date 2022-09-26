@@ -1,29 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import cleanDeep from 'clean-deep';
-import { blockQuery } from '../../api';
+import { dagDetailsQuery } from '../../api';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { PbftBlock, Transaction } from '../../models';
+import { DagBlock, Transaction } from '../../models';
 
-export const usePBFTDataContainerEffects = (
-  blockNumber?: number,
-  txHash?: string
-) => {
+export const useDAGDataContainerEffects = (hash: string) => {
   const { currentNetwork } = useExplorerNetwork();
-  const [blockData, setBlockData] = useState<PbftBlock>({} as PbftBlock);
+  const [blockData, setBlockData] = useState<DagBlock>({} as DagBlock);
   const [transactions, setTransactions] = useState<Transaction[]>([
     {} as Transaction,
   ]);
   const [{ fetching, data }] = useQuery({
-    query: blockQuery,
-    variables: cleanDeep({
-      number: blockNumber,
-      hash: txHash,
-    }),
-    pause: !blockNumber && !txHash,
+    query: dagDetailsQuery,
+    variables: {
+      hash,
+    },
+    pause: !hash,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+
+  useEffect(() => {
+    if (data?.dagBlock) {
+      setBlockData(data?.dagBlock);
+      setTransactions(data?.dagBlock?.transactions);
+    }
+  }, [data]);
 
   useEffect(() => {
     if (fetching) {
@@ -31,14 +33,7 @@ export const usePBFTDataContainerEffects = (
     } else {
       finishLoading();
     }
-  }, [currentNetwork, fetching]);
-
-  useEffect(() => {
-    if (data?.block) {
-      setBlockData(data.block);
-      setTransactions(data.block.transactions);
-    }
-  }, [data]);
+  }, [fetching, currentNetwork]);
 
   return { blockData, transactions, currentNetwork };
 };

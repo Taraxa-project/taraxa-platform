@@ -3,8 +3,7 @@ import { TransactionStatus } from './TableData';
 export interface TransactionData {
   txHash: string;
   status: TransactionStatus;
-  timestamp: number;
-  pbftBlock: string;
+  timestamp: number | string;
   block: number;
   dagLevel: string;
   dagHash: string;

@@ -7,11 +7,11 @@ import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
-import { useNoteStateContext } from '../../hooks';
+import { useNodeStateContext } from '../../hooks';
 import { blocksQuery, dagBlocksQuery } from '../../api';
 
 export const useHomeEffects = () => {
-  const { finalBlock } = useNoteStateContext();
+  const { finalBlock } = useNodeStateContext();
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { theme } from '@taraxa_project/taraxa-ui';
-import { HashLinkType } from '../../utils';
+import { HashLinkType, zeroX } from '../../utils';
 
 export const HashLink = ({
   linkType,
@@ -30,7 +30,7 @@ export const HashLink = ({
           width,
         }}
       >
-        {wrap && hash ? `${hash.slice(0, 8)}...` : hash}
+        {wrap && hash ? `${zeroX(hash).slice(0, 8)}...` : hash}
         {wrap && blockNumber
           ? `${blockNumber.toString().slice(0, 8)}...`
           : blockNumber}

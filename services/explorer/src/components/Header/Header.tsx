@@ -19,10 +19,15 @@ export const Header = (): JSX.Element => {
     buttons: headerButtons,
     networks,
     currentNetwork,
-    setCurrentNetwork,
-    searchInputProps,
+    onInputChange,
     drawerState,
     toggleDrawer,
+    isLoading,
+    searchOptions,
+    searchString,
+    onLabelSelect,
+    setNetwork,
+    disableNetworkSelection,
   } = useHeaderEffects();
 
   const buttons = (
@@ -51,7 +56,8 @@ export const Header = (): JSX.Element => {
         <NetworkMenu
           networks={networks}
           currentNetwork={currentNetwork}
-          onNetworkChange={setCurrentNetwork}
+          onNetworkChange={setNetwork}
+          disableNetworkSelection={disableNetworkSelection}
         />
       </Box>
     </Box>
@@ -78,7 +84,13 @@ export const Header = (): JSX.Element => {
       maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
-      searchInputProps={searchInputProps}
+      searchInputProps={{
+        onInputChange,
+        onChange: onLabelSelect,
+        loading: isLoading,
+        open: isLoading || !!searchString,
+        options: searchOptions,
+      }}
     >
       {isMobile ? hamburger : buttons}
       <Drawer
