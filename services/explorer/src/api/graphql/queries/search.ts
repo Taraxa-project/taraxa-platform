@@ -22,3 +22,11 @@ export const searchDagBlockQuery = `
     }
   }
 `;
+
+export const searchAccountAddressQuery = `
+  query account_query($address: Address!) {
+    account(address: $address) {
+      address,
+    }
+  }
+`;

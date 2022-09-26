@@ -6,6 +6,7 @@ import { useQuery } from 'urql';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { unwrapIdentifier } from '../../utils';
 import {
+  searchAccountAddressQuery,
   searchBlockQuery,
   searchDagBlockQuery,
   searchTransactionQuery,
@@ -73,13 +74,26 @@ export const useHeaderEffects = () => {
     pause: !searchHash,
   });
 
+  const [{ fetching: fetchingAddress, data: addressData }] = useQuery({
+    query: searchAccountAddressQuery,
+    variables: {
+      address: searchAddress,
+    },
+    pause: !searchAddress,
+  });
+
   useEffect(() => {
-    if (fetchingBlock || fetchingDagBlock || fetchingTransaction) {
+    if (
+      fetchingBlock ||
+      fetchingDagBlock ||
+      fetchingTransaction ||
+      fetchingAddress
+    ) {
       setIsLoading(true);
     } else {
       setIsLoading(false);
     }
-  }, [fetchingBlock, fetchingDagBlock, fetchingTransaction]);
+  }, [fetchingBlock, fetchingDagBlock, fetchingTransaction, fetchingAddress]);
 
   useEffect(() => {
     if (blockData?.block) {
@@ -129,6 +143,20 @@ export const useHeaderEffects = () => {
       );
     }
   }, [transactionData]);
+
+  useEffect(() => {
+    if (addressData?.account) {
+      setSearchOptions(
+        searchOptions.concat([
+          {
+            type: 'Address',
+            label: addressData?.account?.address,
+            value: SearchLabelOption.ADDRESS,
+          },
+        ])
+      );
+    }
+  }, [addressData]);
 
   const toggleDrawer =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
