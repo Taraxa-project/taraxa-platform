@@ -27,15 +27,15 @@ export const calculatePBFTBlockTime = (last6PbftBlocks: PbftBlock[]) => {
   return data.slice(0, data.length - 1);
 };
 
-export const getLatestNTimestamps = (dags: DagBlock[], amount: number) => {
+export const getLastNTimestamps = (dags: DagBlock[], amount: number) => {
   return dags
     .flatMap((d) => d.timestamp)
     .sort((a, b) => a - b)
     .slice(0, amount);
 };
 
-export const getLatestNDagBlocks = (dags: DagBlock[], amount: number) => {
-  const onlyNLatestTimestamps = getLatestNTimestamps(dags, amount);
+export const getLastNDagBlocks = (dags: DagBlock[], amount: number) => {
+  const onlyNLatestTimestamps = getLastNTimestamps(dags, amount);
   const last6Timestamps = dags
     .filter((b) => onlyNLatestTimestamps.includes(b.timestamp))
     .sort((a, b) => a.timestamp + b.timestamp);

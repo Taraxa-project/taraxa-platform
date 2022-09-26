@@ -6,8 +6,8 @@ import {
   calculateDagEfficiencyForPBFT,
   calculatePBFTBlockTime,
   calculateTransactionsPerSecond,
-  getLatestNDagBlocks,
-  getLatestNTimestamps,
+  getLastNDagBlocks,
+  getLastNTimestamps,
 } from '../../utils';
 import { theme } from '../../theme-provider';
 import { DagBlock, PbftBlock } from '../../models';
@@ -70,8 +70,8 @@ const ChartContainer = ({
         <BarChart
           title='DAG Blocks Per Second'
           tick=''
-          labels={getLatestNTimestamps(
-            getLatestNDagBlocks(
+          labels={getLastNTimestamps(
+            getLastNDagBlocks(
               dagBlocks.sort((block) => block.timestamp),
               5
             ),
@@ -80,9 +80,9 @@ const ChartContainer = ({
           datasets={[
             {
               data: calculateDagBlocksPerSecond(
-                getLatestNDagBlocks(dagBlocks, 6),
-                getLatestNTimestamps(
-                  getLatestNDagBlocks(
+                getLastNDagBlocks(dagBlocks, 6),
+                getLastNTimestamps(
+                  getLastNDagBlocks(
                     dagBlocks.sort((block) => block.timestamp),
                     6
                   ),
