@@ -35,7 +35,7 @@ export const getMockPbftBlocks = (dagLevel: string): BlockData[] => {
 export const getMockedBlockDetails = (txHash: string): BlockDetails => {
   const blockDetails: BlockDetails = {
     timestamp: 1661858931,
-    block: '529133',
+    block: 529133,
     hash: txHash,
     transactionCount: 72,
     period: '11923',

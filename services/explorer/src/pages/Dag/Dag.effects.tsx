@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
+import { DagBlockFilters, dagBlocksQuery } from '../../api';
 import { useExplorerLoader, useNodeStateContext } from '../../hooks';
 import { BlockData, ColumnData, DagBlock } from '../../models';
-import { DagBlockFilters, dagBlocksQuery } from '../../api';
 
 export const useDagEffects = () => {
   const { dagBlockLevel } = useNodeStateContext();

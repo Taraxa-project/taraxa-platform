@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { DagBlock, PbftBlock } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
 import { blocksQuery, dagBlocksQuery } from '../../api';
+import { DagBlock, PbftBlock } from '../../models';
 
 export const useHomeEffects = () => {
   const { finalBlock } = useNodeStateContext();

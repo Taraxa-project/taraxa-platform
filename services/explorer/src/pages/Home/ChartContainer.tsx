@@ -34,10 +34,12 @@ const ChartContainer = ({
               data: pbftBlocks.slice(5).map((block) => {
                 return (
                   block.transactionCount /
-                  ((block.timestamp -
-                    pbftBlocks.find((b) => b.number === block.number - 1)
-                      .timestamp) /
-                    1000)
+                  (Number(block.timestamp) -
+                    Number(
+                      pbftBlocks.find((b) => b.number === block.number - 1)
+                        .timestamp
+                    ) /
+                      1000)
                 );
               }),
               borderRadius: 5,
@@ -53,9 +55,11 @@ const ChartContainer = ({
             {
               data: pbftBlocks.slice(5).map((block) => {
                 return (
-                  block.timestamp -
-                  pbftBlocks.find((b) => b.number === block.number - 1)
-                    .timestamp
+                  Number(block.timestamp) -
+                  Number(
+                    pbftBlocks.find((b) => b.number === block.number - 1)
+                      .timestamp
+                  )
                 );
               }),
               borderRadius: 5,

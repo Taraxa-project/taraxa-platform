@@ -9,13 +9,13 @@ import { BlocksTable, TransactionsTable } from '../Tables';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { DataRow } from '../DataRow';
 import { TransactionIcon } from '../icons';
-import {
-  AddressInfoDetails,
-  BlockData,
-  TableTabsProps,
-  Transaction,
-} from '../../models';
 import { TableTabs } from '../TableTabs';
+import {
+  Transaction,
+  BlockData,
+  AddressInfoDetails,
+  TableTabsProps,
+} from '../../models';
 
 export interface AddressInfoProps {
   transactions: Transaction[];
