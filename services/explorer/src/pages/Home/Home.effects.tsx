@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
@@ -7,15 +7,23 @@ import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
-import { blocksQuery, dagBlocksQuery } from '../../api';
+import {
+  blocksQuery,
+  dagBlocksForPeriodQuery,
+  dagBlocksQuery,
+} from '../../api';
 import { DagBlock, PbftBlock } from '../../models';
 
 export const useHomeEffects = () => {
-  const { finalBlock } = useNodeStateContext();
+  const { finalBlock, dagBlockPeriod } = useNodeStateContext();
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();
   const [pbftBlocks, setPbftBlocks] = useState<PbftBlock[]>();
+  const [currentPeriod, setCurrentPeriod] = useState(dagBlockPeriod);
+  const [dagsForLastFivePeriods, setDagsForLastFivePeriods] = useState<
+    DagBlock[]
+  >([]);
 
   const [{ fetching: fetchingBlocks, data: blocksData }] = useQuery({
     query: blocksQuery,
@@ -34,13 +42,31 @@ export const useHomeEffects = () => {
     },
   });
 
+  const [
+    { fetching: fetchingDagBlocksForLastFivePeriods, data: dagsForLastPeriod },
+  ] = useQuery({
+    query: dagBlocksForPeriodQuery,
+    variables: {
+      period: currentPeriod,
+    },
+    pause: !currentPeriod,
+  });
+
   useEffect(() => {
-    if (fetchingBlocks || fetchingDagBlocks) {
+    setCurrentPeriod(dagBlockPeriod);
+  }, [dagBlockPeriod]);
+
+  useEffect(() => {
+    if (
+      fetchingBlocks ||
+      fetchingDagBlocks ||
+      fetchingDagBlocksForLastFivePeriods
+    ) {
       initLoading();
     } else {
       finishLoading();
     }
-  }, [fetchingBlocks, fetchingDagBlocks]);
+  }, [fetchingBlocks, fetchingDagBlocks, fetchingDagBlocksForLastFivePeriods]);
 
   useEffect(() => {
     if (blocksData?.blocks) {
@@ -53,6 +79,17 @@ export const useHomeEffects = () => {
       setDagBlocks(dagBlocksData?.dagBlocks);
     }
   }, [dagBlocksData]);
+
+  useEffect(() => {
+    if (dagsForLastPeriod?.periodDagBlocks) {
+      setDagsForLastFivePeriods([
+        ...dagsForLastFivePeriods,
+        ...dagsForLastPeriod.periodDagBlocks,
+      ]);
+      if (dagBlockPeriod - currentPeriod < 5)
+        setCurrentPeriod(currentPeriod - 1);
+    }
+  }, [dagsForLastPeriod]);
 
   const dagToDisplay = (dagBlocks: DagBlock[]) => {
     const _tx = dagBlocks?.map((tx) => {
@@ -94,5 +131,12 @@ export const useHomeEffects = () => {
     };
   };
 
-  return { currentNetwork, dagBlocks, pbftBlocks, dagToDisplay, pbftToDisplay };
+  return {
+    currentNetwork,
+    dagBlocks,
+    pbftBlocks,
+    dagsForLastFivePeriods,
+    dagToDisplay,
+    pbftToDisplay,
+  };
 };

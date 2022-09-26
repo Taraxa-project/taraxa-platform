@@ -7,8 +7,14 @@ import ChartContainer from './ChartContainer';
 import useStyles from './Home.styles';
 
 const HomePage = () => {
-  const { currentNetwork, dagBlocks, pbftBlocks, dagToDisplay, pbftToDisplay } =
-    useHomeEffects();
+  const {
+    currentNetwork,
+    dagBlocks,
+    pbftBlocks,
+    dagsForLastFivePeriods,
+    dagToDisplay,
+    pbftToDisplay,
+  } = useHomeEffects();
   const classes = useStyles();
 
   return (
@@ -17,10 +23,14 @@ const HomePage = () => {
         title={currentNetwork}
         subtitle='Search for addresses, block hashes, transactions...'
       />
-      <ChartContainer pbftBlocks={pbftBlocks} dagBlocks={dagBlocks} />
+      <ChartContainer
+        pbftBlocks={pbftBlocks}
+        dagBlocks={dagBlocks}
+        dagsForLastFivePeriods={dagsForLastFivePeriods}
+      />
       <Box className={classes.blocksWrapper}>
-        <BlockCard {...dagToDisplay(dagBlocks)} />
-        <BlockCard {...pbftToDisplay(pbftBlocks)} />
+        <BlockCard {...dagToDisplay(dagBlocks?.slice(0, 10).reverse())} />
+        <BlockCard {...pbftToDisplay(pbftBlocks?.slice(0, 10).reverse())} />
       </Box>
     </>
   );
