@@ -1,6 +1,13 @@
 import React from 'react';
 import { Grid } from '@mui/material';
 import { BarChart } from '@taraxa_project/taraxa-ui';
+import {
+  calculateDagBlocksPerSecond,
+  calculatePBFTBlockTime,
+  calculateTransactionsPerSecond,
+  getLatestNDagBlocks,
+  getLatestNTimestamps,
+} from '../../utils/chartUtils';
 import { theme } from '../../theme-provider';
 import { DagBlock, PbftBlock } from '../../models';
 
@@ -28,20 +35,15 @@ const ChartContainer = ({
       >
         <BarChart
           title='Transactions per second'
-          labels={pbftBlocks.slice(5).map((block) => block.number.toString())}
+          labels={pbftBlocks
+            .slice(0, 5)
+            .map((block) => block.number.toString())
+            .reverse()}
           datasets={[
             {
-              data: pbftBlocks.slice(5).map((block) => {
-                return (
-                  block.transactionCount /
-                  (Number(block.timestamp) -
-                    Number(
-                      pbftBlocks.find((b) => b.number === block.number - 1)
-                        .timestamp
-                    ) /
-                      1000)
-                );
-              }),
+              data: calculateTransactionsPerSecond(
+                pbftBlocks.slice(0, 6).reverse()
+              ),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
@@ -50,18 +52,13 @@ const ChartContainer = ({
         />
         <BarChart
           title='Block Time'
-          labels={pbftBlocks.slice(5).map((block) => block.number.toString())}
+          labels={pbftBlocks
+            .slice(0, 5)
+            .map((block) => block.number.toString())
+            .reverse()}
           datasets={[
             {
-              data: pbftBlocks.slice(5).map((block) => {
-                return (
-                  Number(block.timestamp) -
-                  Number(
-                    pbftBlocks.find((b) => b.number === block.number - 1)
-                      .timestamp
-                  )
-                );
-              }),
+              data: calculatePBFTBlockTime(pbftBlocks.slice(0, 6).reverse()),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
@@ -69,24 +66,26 @@ const ChartContainer = ({
           ]}
         />
         <BarChart
-          title='DAG Block Per Second'
-          labels={dagBlocks
-            .slice(6)
-            .reverse()
-            .map((block) => block.level.toString())}
+          title='DAG Blocks Per Second'
+          labels={getLatestNTimestamps(
+            getLatestNDagBlocks(
+              dagBlocks.sort((block) => block.timestamp),
+              5
+            ),
+            5
+          ).map(String)}
           datasets={[
             {
-              data: dagBlocks
-                ?.slice(0, 5)
-                .reverse()
-                .map(
-                  (block) =>
-                    block.transactionCount /
-                    (block.timestamp -
-                      dagBlocks.find((b) => b.level === block.level - 1)
-                        .timestamp) /
-                    1000
-                ),
+              data: calculateDagBlocksPerSecond(
+                getLatestNDagBlocks(dagBlocks, 6),
+                getLatestNTimestamps(
+                  getLatestNDagBlocks(
+                    dagBlocks.sort((block) => block.timestamp),
+                    6
+                  ),
+                  6
+                )
+              ),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
