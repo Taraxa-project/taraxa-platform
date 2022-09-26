@@ -23,7 +23,7 @@ export interface DagBlock {
   level?: number;
   pbftPeriod?: number;
   timestamp: number;
-  block?: string;
+  // block?: string;
   author?: Account;
   signature?: string;
   vdf?: number;

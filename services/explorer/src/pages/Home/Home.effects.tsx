@@ -29,7 +29,7 @@ export const useHomeEffects = () => {
   const [{ fetching: fetchingDagBlocks, data: dagBlocksData }] = useQuery({
     query: dagBlocksQuery,
     variables: {
-      count: 10,
+      count: 100,
       reverse: true,
     },
   });
