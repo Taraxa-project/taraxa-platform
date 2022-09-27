@@ -64,3 +64,28 @@ export const dagBlocksQuery = `
     }
   }
 `;
+
+export const dagBlocksForPeriodQuery = `
+query period_Dag_Blocks($period: Long!){
+	periodDagBlocks(period: $period){
+		hash
+		pivot
+		tips
+		level
+		pbftPeriod
+		author{
+			address
+			balance
+		}
+		timestamp
+		transactions{
+			hash
+			nonce
+			index
+			inputData
+			value
+		}
+    transactionCount
+	}
+}
+`;

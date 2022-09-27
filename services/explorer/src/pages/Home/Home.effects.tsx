@@ -1,21 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { DagBlock, PbftBlock } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
-import { blocksQuery, dagBlocksQuery } from '../../api';
+import {
+  blocksQuery,
+  dagBlocksForPeriodQuery,
+  dagBlocksQuery,
+} from '../../api';
+import { DagBlock, PbftBlock } from '../../models';
 
 export const useHomeEffects = () => {
-  const { finalBlock } = useNodeStateContext();
+  const { finalBlock, dagBlockPeriod } = useNodeStateContext();
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();
   const [pbftBlocks, setPbftBlocks] = useState<PbftBlock[]>();
+  const [currentPeriod, setCurrentPeriod] = useState(dagBlockPeriod);
+  const [dagsForLastTenPeriods, setDagsForLastTenPeriods] = useState<
+    DagBlock[]
+  >([]);
 
   const [{ fetching: fetchingBlocks, data: blocksData }] = useQuery({
     query: blocksQuery,
@@ -29,18 +37,36 @@ export const useHomeEffects = () => {
   const [{ fetching: fetchingDagBlocks, data: dagBlocksData }] = useQuery({
     query: dagBlocksQuery,
     variables: {
-      count: 10,
+      count: 100,
       reverse: true,
     },
   });
 
+  const [
+    { fetching: fetchingDagBlocksForLastFivePeriods, data: dagsForLastPeriod },
+  ] = useQuery({
+    query: dagBlocksForPeriodQuery,
+    variables: {
+      period: currentPeriod,
+    },
+    pause: !currentPeriod,
+  });
+
   useEffect(() => {
-    if (fetchingBlocks || fetchingDagBlocks) {
+    setCurrentPeriod(dagBlockPeriod);
+  }, [dagBlockPeriod]);
+
+  useEffect(() => {
+    if (
+      fetchingBlocks ||
+      fetchingDagBlocks ||
+      fetchingDagBlocksForLastFivePeriods
+    ) {
       initLoading();
     } else {
       finishLoading();
     }
-  }, [fetchingBlocks, fetchingDagBlocks]);
+  }, [fetchingBlocks, fetchingDagBlocks, fetchingDagBlocksForLastFivePeriods]);
 
   useEffect(() => {
     if (blocksData?.blocks) {
@@ -54,13 +80,24 @@ export const useHomeEffects = () => {
     }
   }, [dagBlocksData]);
 
+  useEffect(() => {
+    if (dagsForLastPeriod?.periodDagBlocks) {
+      setDagsForLastTenPeriods([
+        ...dagsForLastTenPeriods,
+        ...dagsForLastPeriod.periodDagBlocks,
+      ]);
+      if (dagBlockPeriod - currentPeriod < 9)
+        setCurrentPeriod(currentPeriod - 1);
+    }
+  }, [dagsForLastPeriod]);
+
   const dagToDisplay = (dagBlocks: DagBlock[]) => {
     const _tx = dagBlocks?.map((tx) => {
       return {
         level: tx.level?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
-        timeSince: timestampToAge(tx.timestamp.toString()),
+        timeSince: timestampToAge(tx.timestamp),
         hashElement: (
           <HashLink
             width='auto'
@@ -94,5 +131,12 @@ export const useHomeEffects = () => {
     };
   };
 
-  return { currentNetwork, dagBlocks, pbftBlocks, dagToDisplay, pbftToDisplay };
+  return {
+    currentNetwork,
+    dagBlocks,
+    pbftBlocks,
+    dagsForLastTenPeriods,
+    dagToDisplay,
+    pbftToDisplay,
+  };
 };
