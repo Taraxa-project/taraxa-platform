@@ -23,7 +23,7 @@ ChartJS.register(
   Legend
 );
 
-const useTick = (tick: string) => ({
+const setTick = (tick: string) => ({
   responsive: false,
   plugins: {
     legend: {
@@ -88,7 +88,7 @@ const BarChart = ({
       <CssBaseline />
       <Box className={classes.boxRoot}>
         <Box className={classes.innerBox}>
-          <Bar options={useTick(tick)} data={parseData()} />
+          <Bar options={setTick(tick)} data={parseData()} />
           <Box className={classes.titleHolder}>{title}</Box>
         </Box>
       </Box>

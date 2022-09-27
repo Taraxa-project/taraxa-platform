@@ -15,18 +15,18 @@ import { DagBlock, PbftBlock } from '../../models';
 export interface ChartContainerProps {
   dagBlocks: DagBlock[];
   pbftBlocks: PbftBlock[];
-  dagsForLastFivePeriods: DagBlock[];
+  dagsForLastTenPeriods: DagBlock[];
 }
 
 const ChartContainer = ({
   dagBlocks,
   pbftBlocks,
-  dagsForLastFivePeriods,
+  dagsForLastTenPeriods,
 }: ChartContainerProps): JSX.Element => {
   return (
-    // The implementation below is wrong as the dabBlocks and pbftBlocks cannot be concatenated as they are different objects
     dagBlocks &&
-    pbftBlocks && (
+    pbftBlocks &&
+    dagsForLastTenPeriods && (
       <Grid
         container
         display='grid'
@@ -38,13 +38,14 @@ const ChartContainer = ({
       >
         <BarChart
           title='Transactions per second'
-          labels={pbftBlocks
+          labels={[...pbftBlocks]
+            .reverse()
             .slice(0, 5)
             .map((block) => block.number.toString())}
           datasets={[
             {
               data: calculateTransactionsPerSecond(
-                pbftBlocks.slice(0, 6).reverse()
+                [...pbftBlocks].reverse().slice(0, 6)
               ),
               borderRadius: 5,
               barThickness: 20,
@@ -55,12 +56,15 @@ const ChartContainer = ({
         <BarChart
           title='Block Time'
           tick='s'
-          labels={pbftBlocks
+          labels={[...pbftBlocks]
+            .reverse()
             .slice(0, 5)
             .map((block) => block.number.toString())}
           datasets={[
             {
-              data: calculatePBFTBlockTime(pbftBlocks.slice(0, 6)),
+              data: calculatePBFTBlockTime(
+                [...pbftBlocks].reverse().slice(0, 6)
+              ),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,
@@ -70,13 +74,9 @@ const ChartContainer = ({
         <BarChart
           title='DAG Blocks Per Second'
           tick=''
-          labels={getLastNTimestamps(
-            getLastNDagBlocks(
-              dagBlocks.sort((block) => block.timestamp),
-              5
-            ),
-            5
-          ).map(String)}
+          labels={getLastNTimestamps(getLastNDagBlocks(dagBlocks, 5), 5).map(
+            String
+          )}
           datasets={[
             {
               data: calculateDagBlocksPerSecond(
@@ -97,13 +97,15 @@ const ChartContainer = ({
         />
         <BarChart
           title='DAG efficiency'
-          labels={pbftBlocks.reverse().map((block) => block.number.toString())}
+          labels={[...pbftBlocks]
+            .reverse()
+            .map((block) => block.number.toString())}
           tick='%'
           datasets={[
             {
               data: calculateDagEfficiencyForPBFT(
-                pbftBlocks,
-                dagsForLastFivePeriods
+                [...pbftBlocks].reverse(),
+                dagsForLastTenPeriods
               ),
               borderRadius: 5,
               barThickness: 20,

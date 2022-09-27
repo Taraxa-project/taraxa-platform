@@ -30,7 +30,7 @@ export const calculatePBFTBlockTime = (last6PbftBlocks: PbftBlock[]) => {
 export const getLastNTimestamps = (dags: DagBlock[], amount: number) => {
   return dags
     .flatMap((d) => d.timestamp)
-    .sort((a, b) => a - b)
+    .sort((a, b) => a + b)
     .slice(0, amount);
 };
 
@@ -39,7 +39,7 @@ export const getLastNDagBlocks = (dags: DagBlock[], amount: number) => {
   const last6Timestamps = dags
     .filter((b) => onlyNLatestTimestamps.includes(b.timestamp))
     .sort((a, b) => a.timestamp + b.timestamp);
-  return last6Timestamps.sort((a, b) => a.timestamp + b.timestamp);
+  return last6Timestamps;
 };
 
 export const calculateDagBlocksPerSecond = (

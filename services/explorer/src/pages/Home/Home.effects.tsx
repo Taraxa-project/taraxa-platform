@@ -21,7 +21,7 @@ export const useHomeEffects = () => {
   const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();
   const [pbftBlocks, setPbftBlocks] = useState<PbftBlock[]>();
   const [currentPeriod, setCurrentPeriod] = useState(dagBlockPeriod);
-  const [dagsForLastFivePeriods, setDagsForLastFivePeriods] = useState<
+  const [dagsForLastTenPeriods, setDagsForLastTenPeriods] = useState<
     DagBlock[]
   >([]);
 
@@ -82,11 +82,11 @@ export const useHomeEffects = () => {
 
   useEffect(() => {
     if (dagsForLastPeriod?.periodDagBlocks) {
-      setDagsForLastFivePeriods([
-        ...dagsForLastFivePeriods,
+      setDagsForLastTenPeriods([
+        ...dagsForLastTenPeriods,
         ...dagsForLastPeriod.periodDagBlocks,
       ]);
-      if (dagBlockPeriod - currentPeriod < 5)
+      if (dagBlockPeriod - currentPeriod < 9)
         setCurrentPeriod(currentPeriod - 1);
     }
   }, [dagsForLastPeriod]);
@@ -135,7 +135,7 @@ export const useHomeEffects = () => {
     currentNetwork,
     dagBlocks,
     pbftBlocks,
-    dagsForLastFivePeriods,
+    dagsForLastTenPeriods,
     dagToDisplay,
     pbftToDisplay,
   };
