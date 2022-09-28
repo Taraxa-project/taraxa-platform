@@ -5,7 +5,7 @@ const useStyles = makeStyles(() => {
   return {
     container: {
       textAlign: 'left',
-      backgroundColor: theme.palette.grey['100'],
+      backgroundColor: theme.palette.grey.A100,
       border: '1px solid #4f5368',
       borderRadius: '4px',
       letterSpacing: '-0.02em',

@@ -48,6 +48,8 @@ const BaseCard = ({
               className={classes.label}
               variant='body1'
               color='primary'
+              textAlign='left'
+              width='100%'
             >
               {description}
             </Typography>

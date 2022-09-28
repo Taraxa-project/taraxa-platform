@@ -69,6 +69,7 @@ const IconCard = ({
               variant='contained'
               label={onClickText}
               disabled={disabled}
+              fullWidth
             />
           </CardActions>
         )}
