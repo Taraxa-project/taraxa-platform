@@ -42,7 +42,7 @@ const Switch = ({
             onChange={onChange}
             name={name}
             disabled={disabled}
-            color={color}
+            color={color || 'secondary'}
             value={value}
           />
         }

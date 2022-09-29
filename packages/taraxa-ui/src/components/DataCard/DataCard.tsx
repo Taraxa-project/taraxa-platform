@@ -87,6 +87,7 @@ const DataCard = ({
               variant='contained'
               label={onClickText}
               size='medium'
+              fullWidth
             />
           </CardActions>
         )}

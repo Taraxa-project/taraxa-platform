@@ -174,7 +174,7 @@ a.commissionChangeCheck {
     max-width: 1000px;
 
     .trophyLegend {
-      padding: 12px 12px 12px 15px;
+      padding: 0 0 16px 0 !important;
       font-size: 12px;
       border: 1px solid #282c3e;
       background-color: #181b27 !important;
@@ -555,4 +555,12 @@ a.commissionChangeCheck {
 }
 
 @media only screen and (min-width: 760px) {
+}
+
+.delegateBtn {
+  height: 32px !important;
+  padding: 8px 16px !important;
+  > * {
+    font-size: 0.8125rem !important;
+  }
 }

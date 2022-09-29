@@ -4,7 +4,7 @@ const useStyles = makeStyles(() => {
   return {
     root: {
       width: 320,
-      maxHeight: 160,
+      maxHeight: 210,
       textAlign: 'left',
       backgroundColor: '#181B27 !important',
       paddingLeft: '1%',
@@ -21,9 +21,12 @@ const useStyles = makeStyles(() => {
       alignItems: 'flex-start',
     },
     actionContainer: {
+      widht: '100%',
       marginTop: '12%',
       display: 'flex',
+      flexDirection: 'column',
       justifyContent: 'space-between',
+      gap: '1rem',
       minHeight: '32px',
     },
     icon: {

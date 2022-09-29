@@ -41,7 +41,7 @@ const TransactionDataContainer = (): JSX.Element => {
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={dagData} />,
+        children: <BlocksTable blocksData={dagData} type='dag' />,
       },
     ],
     initialValue: 0,
