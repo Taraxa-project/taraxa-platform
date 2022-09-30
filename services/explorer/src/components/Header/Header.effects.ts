@@ -234,6 +234,9 @@ export const useHeaderEffects = () => {
   const onLabelSelect = (option: Option) => {
     setSearchOptions([]);
     setSearchString(null);
+    if (!option) {
+      return;
+    }
     switch (option.value) {
       case SearchLabelOption.TRANSACTION:
         navigate(`/transactions/${option.label}`);
