@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';

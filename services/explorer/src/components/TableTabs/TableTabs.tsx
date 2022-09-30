@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, SyntheticEvent, useState } from 'react';
 import { Box, Tab } from '@mui/material';
 import Tabs from '@mui/material/Tabs';

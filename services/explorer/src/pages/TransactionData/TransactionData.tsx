@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';

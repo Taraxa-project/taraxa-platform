@@ -86,12 +86,10 @@ const SearchInput = ({
     event: ChangeEvent<any>,
     value: Option | null
   ) => {
-    // eslint-disable-next-line no-console
     if (typeof onChange === 'function') onChange(value);
   };
 
   const handleInputChange = (value: string) => {
-    // eslint-disable-next-line no-console
     if (typeof onInputChange === 'function') onInputChange(value);
   };
 

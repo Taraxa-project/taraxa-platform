@@ -43,7 +43,6 @@ export const useHeaderEffects = () => {
   const [searchString, setSearchString] = useState<string>(null);
   const [searchHash, setSearchHash] = useState<string>(null);
   const [searchBlockNumber, setSearchBlockNumber] = useState<number>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchAddress, setSearchAddress] = useState<string>(null);
   const [searchOptions, setSearchOptions] = useState<Option[]>([]);
 
