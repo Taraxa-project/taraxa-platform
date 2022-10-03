@@ -83,7 +83,13 @@ export class NodeService {
 
     this.eventEmitter.emit(
       NODE_CREATED_EVENT,
-      new NodeCreatedEvent(node.id, node.type, node.address),
+      new NodeCreatedEvent(
+        node.id,
+        node.type,
+        node.address,
+        node.addressProof,
+        node.vrfKey,
+      ),
     );
 
     return this.findNodeByOrFail({

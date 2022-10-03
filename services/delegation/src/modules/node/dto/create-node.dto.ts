@@ -30,6 +30,11 @@ export class CreateNodeDto {
   @ApiProperty()
   addressProof: string;
 
+  @ValidateIf((o) => o.type === NodeType.TESTNET)
+  @IsHexadecimal()
+  @ApiPropertyOptional()
+  vrfKey: string;
+
   @ValidateIf((o) => o.type === NodeType.MAINNET)
   @Min(0)
   @Max(100)
