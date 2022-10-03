@@ -10,7 +10,7 @@ const useStyles = makeStyles(() => {
       flexDirection: 'column',
     },
     hashContainer: {
-      width: 'calc(100% - 10rem)',
+      width: 'calc(100% - 11rem)',
       [theme.breakpoints.down('sm')]: {
         width: '100%',
       },

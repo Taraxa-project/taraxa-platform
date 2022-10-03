@@ -1,89 +1,11 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
-import { ColumnData, NodesTableData } from '../../models/TableData';
+import { NodesTableData } from '../../models';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
-
-const cols: ColumnData[] = [
-  { path: 'rank', name: 'Rank' },
-  { path: 'nodeAddress', name: 'Node Address' },
-  { path: 'blocksProduced', name: '# blocks produced' },
-];
-
-const rows: NodesTableData[] = [
-  {
-    rank: 1,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 2,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 3,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 4,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 5,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 6,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 7,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 8,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 9,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 10,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 11,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 12,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 13,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-  {
-    rank: 14,
-    nodeAddress: '0xc26f6b31a5f8452201af8db5cc25cf4340df8b09',
-    blocksProduced: 3213,
-  },
-];
+import { getMockedNodesColsAndRows } from '../../api/mocks';
 
 export const useNodesEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
@@ -97,6 +19,23 @@ export const useNodesEffects = () => {
   const subtitle = `Top block producers for Week ${weekNo} (${monday} - ${sunday})`;
   const description = 'Total blocks produced this week';
   const [tableData, setTableData] = useState<NodesTableData[]>();
+
+  const { cols, rows } = getMockedNodesColsAndRows();
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = React.useState(0);
+
+  const handleChangePage = (newPage: number) => {
+    console.log('New page: ', newPage);
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    console.log('Rows per page changed');
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const formatTableData = (
     rows: NodesTableData[]
@@ -134,7 +73,7 @@ export const useNodesEffects = () => {
     setTimeout(() => {
       setTableData(rows);
       finishLoading();
-    }, 3000);
+    }, 1500);
   }, []);
 
   return {
@@ -145,5 +84,9 @@ export const useNodesEffects = () => {
     cols,
     tableData,
     formatTableData,
+    rowsPerPage,
+    page,
+    handleChangePage,
+    handleChangeRowsPerPage,
   };
 };

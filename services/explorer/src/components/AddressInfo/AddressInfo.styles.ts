@@ -11,12 +11,11 @@ const useStyles = makeStyles(() => {
         borderRadius: '50%',
       },
     },
-    clipboard: {
-      marginLeft: theme.spacing(2),
-      borderRadius: theme.spacing(1),
-      backgroundColor: theme.palette.grey.A200,
-      padding: theme.spacing(1, 2),
-      minWidth: theme.spacing(2),
+    tabIconContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: theme.spacing(1),
     },
     twoColumnFlex: {
       display: 'flex',
@@ -35,12 +34,6 @@ const useStyles = makeStyles(() => {
       lineHeight: theme.spacing(3.25),
       fontWeight: 700,
       maxWidth: '200px',
-    },
-    gridValue: {
-      letterSpacing: '-0.03rem',
-      fontSize: theme.spacing(1.75),
-      lineHeight: theme.spacing(3.25),
-      color: theme.palette.text.primary,
     },
     blocksBox: {
       borderRadius: theme.spacing(0.5),

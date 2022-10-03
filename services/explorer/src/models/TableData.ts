@@ -1,11 +1,12 @@
 export enum TransactionStatus {
-  SUCCESS = '0x0',
-  FAILURE = '0x1',
-  IN_PROGRESS = '0x',
+  SUCCESS = '0x1',
+  FAILURE = '0x0',
+  NOT_YET_MINED = '0x',
+  LOADING = '',
 }
 
 export interface TransactionTableData {
-  timestamp: string;
+  timestamp: number;
   block: string;
   status: TransactionStatus;
   txHash: string;
@@ -25,9 +26,9 @@ export interface ColumnData {
 }
 
 export interface BlockData {
-  timestamp: string;
-  block?: string;
-  level?: string;
+  timestamp: number | string;
+  block?: number;
+  level?: number;
   hash: string;
   transactionCount: number;
 }

@@ -1,16 +1,25 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { AddressInfo, PageTitle } from '../../components';
 import { useAddressInfoEffects } from './AddressInfo.effects';
 
 const AddressInfoPage = () => {
-  const { transactions, addressInfoDetails } = useAddressInfoEffects();
+  const { account } = useParams();
+  const { transactions, addressInfoDetails, dagBlocks, pbftBlocks } =
+    useAddressInfoEffects(account);
+
   return (
     <>
       <PageTitle
         title='Address info'
         subtitle='Detailed TARAXA address information'
       />
-      <AddressInfo blockData={transactions} {...addressInfoDetails} />
+      <AddressInfo
+        details={addressInfoDetails}
+        transactions={transactions}
+        dagBlocks={dagBlocks}
+        pbftBlocks={pbftBlocks}
+      />
     </>
   );
 };

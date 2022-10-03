@@ -2,11 +2,23 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
+import {
+  createClient as urqlCreatClient,
+  Provider as UrqlProvider,
+} from 'urql';
 import App from './App';
-import { ExplorerNetworkProvider } from './hooks/useExplorerNetwork';
 import reportWebVitals from './reportWebVitals';
 import { ExplorerThemeProvider } from './theme-provider';
-import { ExplorerLoaderProvider } from './hooks/useLoader';
+import { GRAPHQL_API } from './api';
+import {
+  ExplorerNetworkProvider,
+  ExplorerLoaderProvider,
+  NodeStateProvider,
+} from './hooks';
+
+export const graphQLClient = urqlCreatClient({
+  url: GRAPHQL_API,
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,13 +27,17 @@ root.render(
   <React.StrictMode>
     <ExplorerThemeProvider>
       <ExplorerNetworkProvider>
-        <ExplorerLoaderProvider>
-          <BrowserRouter>
-            <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-              <App />
-            </SnackbarProvider>
-          </BrowserRouter>
-        </ExplorerLoaderProvider>
+        <UrqlProvider value={graphQLClient}>
+          <NodeStateProvider>
+            <ExplorerLoaderProvider>
+              <BrowserRouter>
+                <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+                  <App />
+                </SnackbarProvider>
+              </BrowserRouter>
+            </ExplorerLoaderProvider>
+          </NodeStateProvider>
+        </UrqlProvider>
       </ExplorerNetworkProvider>
     </ExplorerThemeProvider>
   </React.StrictMode>

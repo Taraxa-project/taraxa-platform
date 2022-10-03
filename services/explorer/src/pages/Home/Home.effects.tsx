@@ -1,74 +1,106 @@
 import React, { useEffect, useState } from 'react';
+import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { BlockData } from '../../models/TableData';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { timestampToAge } from '../../utils/TransactionRow';
 import { HashLink } from '../../components';
 import { HashLinkType } from '../../utils';
-
-const transactions: BlockData[] = [
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 3,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 33,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 23,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 13,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 9,
-    timestamp: '1661776098',
-  },
-  {
-    level: '525299',
-    hash: '0xdbc8ec105e36519c7f3cb3bbaff4f5662e96b8e42fbe5761a3c11d8efe9974ac',
-    transactionCount: 7,
-    timestamp: '1661776098',
-  },
-];
+import { useNodeStateContext } from '../../hooks';
+import {
+  blocksQuery,
+  dagBlocksForPeriodQuery,
+  dagBlocksQuery,
+} from '../../api';
+import { DagBlock, PbftBlock } from '../../models';
 
 export const useHomeEffects = () => {
+  const { finalBlock, dagBlockPeriod } = useNodeStateContext();
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
-  const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
-  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
+  const [dagBlocks, setDagBlocks] = useState<DagBlock[]>();
+  const [pbftBlocks, setPbftBlocks] = useState<PbftBlock[]>();
+  const [currentPeriod, setCurrentPeriod] = useState(dagBlockPeriod);
+  const [dagsForLastTenPeriods, setDagsForLastTenPeriods] = useState<
+    DagBlock[]
+  >([]);
+
+  const [{ fetching: fetchingBlocks, data: blocksData }] = useQuery({
+    query: blocksQuery,
+    variables: {
+      from: finalBlock ? finalBlock - 9 : null,
+      to: finalBlock || null,
+    },
+    pause: !finalBlock,
+  });
+
+  const [{ fetching: fetchingDagBlocks, data: dagBlocksData }] = useQuery({
+    query: dagBlocksQuery,
+    variables: {
+      count: 100,
+      reverse: true,
+    },
+  });
+
+  const [
+    { fetching: fetchingDagBlocksForLastFivePeriods, data: dagsForLastPeriod },
+  ] = useQuery({
+    query: dagBlocksForPeriodQuery,
+    variables: {
+      period: currentPeriod,
+    },
+    pause: !currentPeriod,
+  });
 
   useEffect(() => {
-    initLoading();
-    setDagBlocks(transactions);
-    setPbftBlocks(transactions);
-    finishLoading();
-  }, [currentNetwork]);
+    setCurrentPeriod(dagBlockPeriod);
+  }, [dagBlockPeriod]);
 
-  const dagToDisplay = (dagBlocks: BlockData[]) => {
+  useEffect(() => {
+    if (
+      fetchingBlocks ||
+      fetchingDagBlocks ||
+      fetchingDagBlocksForLastFivePeriods
+    ) {
+      initLoading();
+    } else {
+      finishLoading();
+    }
+  }, [fetchingBlocks, fetchingDagBlocks, fetchingDagBlocksForLastFivePeriods]);
+
+  useEffect(() => {
+    if (blocksData?.blocks) {
+      setPbftBlocks(blocksData?.blocks);
+    }
+  }, [blocksData]);
+
+  useEffect(() => {
+    if (dagBlocksData?.dagBlocks) {
+      setDagBlocks(dagBlocksData?.dagBlocks);
+    }
+  }, [dagBlocksData]);
+
+  useEffect(() => {
+    if (dagsForLastPeriod?.periodDagBlocks) {
+      setDagsForLastTenPeriods([
+        ...dagsForLastTenPeriods,
+        ...dagsForLastPeriod.periodDagBlocks,
+      ]);
+      if (dagBlockPeriod - currentPeriod < 9)
+        setCurrentPeriod(currentPeriod - 1);
+    }
+  }, [dagsForLastPeriod]);
+
+  const dagToDisplay = (dagBlocks: DagBlock[]) => {
     const _tx = dagBlocks?.map((tx) => {
       return {
-        level: tx.level,
+        level: tx.level?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
         hashElement: (
           <HashLink
             width='auto'
-            linkType={HashLinkType.TRANSACTIONS}
+            linkType={HashLinkType.BLOCKS}
             hash={tx.hash}
           />
         ),
@@ -80,19 +112,15 @@ export const useHomeEffects = () => {
     };
   };
 
-  const pbftToDisplay = (pbftBlocks: BlockData[]) => {
+  const pbftToDisplay = (pbftBlocks: PbftBlock[]) => {
     const _tx = pbftBlocks?.map((tx) => {
       return {
-        level: tx.level,
+        blockNumber: tx.number?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
         hashElement: (
-          <HashLink
-            width='auto'
-            linkType={HashLinkType.TRANSACTIONS}
-            hash={tx.hash}
-          />
+          <HashLink width='auto' linkType={HashLinkType.PBFT} hash={tx.hash} />
         ),
       };
     });
@@ -102,5 +130,12 @@ export const useHomeEffects = () => {
     };
   };
 
-  return { currentNetwork, dagBlocks, pbftBlocks, dagToDisplay, pbftToDisplay };
+  return {
+    currentNetwork,
+    dagBlocks,
+    pbftBlocks,
+    dagsForLastTenPeriods,
+    dagToDisplay,
+    pbftToDisplay,
+  };
 };

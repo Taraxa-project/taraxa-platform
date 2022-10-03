@@ -7,10 +7,12 @@ import BlocksPage from './pages/Blocks/Blocks';
 import NodesPage from './pages/Nodes/Nodes';
 import TransactionDataContainer from './pages/TransactionData/TransactionData';
 import AddressInfoPage from './pages/AddressInfo/AddressInfo';
-import BlockDataContainer from './pages/BlockData/BlockDataContainer';
+import DAGDataContainer from './pages/BlockData/DAGDataContainer';
 import FaucetPage from './pages/Faucet/Faucet';
 import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import HomePage from './pages/Home/Home';
+import { DagPage } from './pages/Dag/Dag';
+import PBFTDataContainer from './pages/PBFTData/PBFTDataContainer';
 
 declare global {
   interface Window {
@@ -28,16 +30,17 @@ const Root = (): JSX.Element => {
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/blocks' element={<BlocksPage />} />
-            <Route path='/blocks/:txHash' element={<BlockDataContainer />} />
-            <Route path='/dag' element={<HomePage />} />
+            <Route path='/blocks/:txHash' element={<DAGDataContainer />} />
+            <Route path='/pbft/:identifier' element={<PBFTDataContainer />} />
             <Route path='/faucet' element={<FaucetPage />} />
             <Route path='/nodes' element={<NodesPage />} />
             <Route path='/transactions' element={<TransactionsPage />} />
+            <Route path='/dag' element={<DagPage />} />
             <Route
               path='/transactions/:txHash'
               element={<TransactionDataContainer />}
             />
-            <Route path='/address/:address' element={<AddressInfoPage />} />
+            <Route path='/address/:account' element={<AddressInfoPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
           <Footer />

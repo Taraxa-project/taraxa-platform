@@ -1,116 +1,100 @@
 import { useEffect, useState } from 'react';
-import { useExplorerLoader } from '../../hooks/useLoader';
-import { BlockData, ColumnData } from '../../models/TableData';
-import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-
-const cols = [
-  { path: 'timestamp', name: 'Age' },
-  { path: 'block', name: 'Block' },
-  { path: 'hash', name: 'Tx Hash' },
-  { path: 'transactionCount', name: 'Transactions' },
-];
-
-const rows = [
-  {
-    timestamp: `${Date.now()}`,
-    block: '529133',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661416929',
-    block: '529131',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 70,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 79,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 101,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 109,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 55,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-  {
-    timestamp: '1661429710',
-    block: '529134',
-    hash: '0x00e193a15486909eba3fb36c815cb8a331180cc97a27ffb69b8122de02e5ea18',
-    transactionCount: 72,
-  },
-];
+import { useQuery } from 'urql';
+import {
+  useExplorerLoader,
+  useNodeStateContext,
+  useExplorerNetwork,
+} from '../../hooks';
+import { BlockData, ColumnData, PbftBlock } from '../../models';
+import { blocksQuery, PbftBlocksFilters } from '../../api';
 
 export const useBlockEffects = () => {
-  const [data, setData] = useState<BlockData[]>();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [columns, setColumns] = useState<ColumnData[]>(cols);
+  const { finalBlock } = useNodeStateContext();
+  const [data, setData] = useState<BlockData[]>([]);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = useState(0);
   const { currentNetwork } = useExplorerNetwork();
   const { initLoading, finishLoading } = useExplorerLoader();
 
-  useEffect(() => {
-    initLoading();
-    setTimeout(() => {
-      setData(rows);
-      finishLoading();
-    }, 3000);
-  }, []);
+  const columns: ColumnData[] = [
+    { path: 'timestamp', name: 'Age' },
+    { path: 'block', name: 'Block' },
+    { path: 'hash', name: 'Tx Hash' },
+    { path: 'transactionCount', name: 'Transactions' },
+  ];
 
-  return { data, columns, currentNetwork };
+  const [blocksFilters, setBlocksFilter] = useState<PbftBlocksFilters>({
+    from: 0,
+  });
+
+  const [{ fetching, data: blocksData }] = useQuery({
+    query: blocksQuery,
+    variables: blocksFilters,
+    pause: !blocksFilters || !blocksFilters?.from || !blocksFilters?.to,
+  });
+
+  const handleChangePage = (newPage: number) => {
+    setBlocksFilter({
+      from: blocksFilters.to - 1,
+      to: blocksFilters.to - 1 - (rowsPerPage - 1),
+    });
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+    setBlocksFilter({ from: finalBlock, to: finalBlock - (rowsPerPage - 1) });
+  };
+
+  const formatBlocksToTable = (blocks: PbftBlock[]): BlockData[] => {
+    if (!blocks?.length) {
+      return [];
+    }
+    const formattedBlocks: BlockData[] = blocks
+      .map((block: PbftBlock) => {
+        return {
+          timestamp: block.timestamp,
+          block: block.number,
+          level: block.number,
+          hash: block.hash,
+          transactionCount: block.transactionCount,
+        };
+      })
+      .sort((a, b) => b.block - a.block);
+    return formattedBlocks;
+  };
+
+  useEffect(() => {
+    if (fetching) {
+      initLoading();
+    } else {
+      finishLoading();
+    }
+  }, [fetching]);
+
+  useEffect(() => {
+    if (blocksData?.blocks) {
+      setData(data.concat(formatBlocksToTable(blocksData?.blocks)));
+    }
+  }, [blocksData]);
+
+  useEffect(() => {
+    if (finalBlock) {
+      setBlocksFilter({ from: finalBlock, to: finalBlock - (rowsPerPage - 1) });
+    }
+  }, [finalBlock]);
+
+  return {
+    data,
+    columns,
+    currentNetwork,
+    rowsPerPage,
+    page,
+    handleChangePage,
+    handleChangeRowsPerPage,
+    totalCount: finalBlock,
+  };
 };

@@ -2,42 +2,79 @@ import React from 'react';
 import clsx from 'clsx';
 import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { toSvg } from 'jdenticon';
-import { CopyTo } from '@taraxa_project/taraxa-ui';
+import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
+import { zeroX } from '../../utils';
 import useStyles from './AddressInfo.styles';
-import { AddressInfoTable, TransactionDataItem } from './AddressInfoTable';
+import { BlocksTable, TransactionsTable } from '../Tables';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { DataRow } from '../DataRow';
+import { TransactionIcon } from '../icons';
+import { TableTabs } from '../TableTabs';
+import {
+  Transaction,
+  BlockData,
+  AddressInfoDetails,
+  TableTabsProps,
+} from '../../models';
 
 export interface AddressInfoProps {
-  address: string;
-  blockData: TransactionDataItem[];
-  balance: string;
-  value: string;
-  transactionCount: number;
-  totalReceived: string;
-  totalSent: string;
-  fees: string;
-  dagBlocks: number;
-  pbftBlocks: number;
+  transactions: Transaction[];
+  dagBlocks: BlockData[];
+  pbftBlocks: BlockData[];
+  details: AddressInfoDetails;
 }
 
 export const AddressInfo = ({
-  address,
-  balance,
-  blockData,
-  value,
-  transactionCount,
-  totalReceived,
-  totalSent,
-  fees,
+  details,
+  transactions,
   dagBlocks,
   pbftBlocks,
 }: AddressInfoProps) => {
   const classes = useStyles();
-  const addressIcon = toSvg(address, 40, { backColor: '#fff' });
+  const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
   const onCopy = useCopyToClipboard();
 
-  const pricePerTara = parseFloat(balance) / parseFloat(value);
+  const pricePerTara =
+    parseFloat(details?.balance) / parseFloat(details?.value);
+
+  const tableTabs: TableTabsProps = {
+    tabs: [
+      {
+        label: 'Transactions',
+        index: 0,
+        icon: (
+          <Box className={classes.tabIconContainer}>
+            <TransactionIcon />
+          </Box>
+        ),
+        iconPosition: 'start',
+        children: <TransactionsTable transactionsData={transactions} />,
+      },
+      {
+        label: 'DAG Blocks',
+        index: 1,
+        icon: (
+          <Box className={classes.tabIconContainer}>
+            <Icons.Block />
+          </Box>
+        ),
+        iconPosition: 'start',
+        children: <BlocksTable blocksData={dagBlocks} type='dag' />,
+      },
+      {
+        label: 'PBFT Blocks',
+        index: 2,
+        icon: (
+          <Box className={classes.tabIconContainer}>
+            <Icons.Block />
+          </Box>
+        ),
+        iconPosition: 'start',
+        children: <BlocksTable blocksData={pbftBlocks} type='pbft' />,
+      },
+    ],
+    initialValue: 0,
+  };
 
   return (
     <Paper elevation={1}>
@@ -66,9 +103,9 @@ export const AddressInfo = ({
             component='h6'
             style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
           >
-            {address}
+            {zeroX(details?.address)}
           </Typography>
-          <CopyTo text={address} onCopy={onCopy} />
+          <CopyTo text={details?.address} onCopy={onCopy} />
         </Box>
         <Box className={classes.twoColumnFlex}>
           <Box
@@ -77,12 +114,15 @@ export const AddressInfo = ({
             alignItems='left'
             gap='1.5rem'
           >
-            <DataRow title='Balance' data={`${balance} TARA`} />
+            <DataRow title='Balance' data={`${details?.balance} TARA`} />
             <DataRow
               title='Value'
-              data={`$${value} ( ${pricePerTara} / TARA )`}
+              data={`$${details?.value} ( ${pricePerTara} / TARA )`}
             />
-            <DataRow title='Transaction count' data={`${transactionCount}`} />
+            <DataRow
+              title='Transaction count'
+              data={`${details?.transactionCount}`}
+            />
           </Box>
           <div style={{ maxWidth: '320px' }}>
             <Grid container gap={1}>
@@ -94,31 +134,33 @@ export const AddressInfo = ({
                 BLOCKS PRODUCED:
               </Grid>
               <Grid className={classes.blocksBox} item>
-                <div>{dagBlocks}</div>
+                <div>{details?.dagBlocks}</div>
                 <span>#DAG Blocks</span>
               </Grid>
               <Grid className={classes.blocksBox} item>
-                <div>{pbftBlocks}</div>
+                <div>{details?.pbftBlocks}</div>
                 <span>#PBFT Blocks</span>
               </Grid>
             </Grid>
           </div>
         </Box>
         <Divider light />
-        <DataRow title='Total received' data={`${totalReceived} TARA`} />
-        <DataRow title='Total sent' data={`${totalSent} TARA`} />
-        <DataRow title='Fees' data={`${fees} TARA`} />
+        <DataRow
+          title='Total received'
+          data={`${details?.totalReceived} TARA`}
+        />
+        <DataRow title='Total sent' data={`${details?.totalSent} TARA`} />
+        <DataRow title='Fees' data={`${details?.fees} TARA`} />
         <Divider light />
-      </Box>
-      <Box
-        display='flex'
-        flexDirection='column'
-        alignItems='flex-start'
-        alignContent='center'
-        margin='1rem 1rem 1rem'
-        style={{ overflowWrap: 'anywhere' }}
-      >
-        <AddressInfoTable blockData={blockData} />
+        <Box
+          display='flex'
+          flexDirection='column'
+          alignItems='flex-start'
+          alignContent='center'
+          style={{ overflowWrap: 'anywhere' }}
+        >
+          <TableTabs {...tableTabs} />
+        </Box>
       </Box>
     </Paper>
   );

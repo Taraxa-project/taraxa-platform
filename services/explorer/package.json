@@ -37,8 +37,6 @@
     "zlib": false
   },
   "dependencies": {
-    "@emotion/react": "^11.10.0",
-    "@emotion/styled": "^11.10.0",
     "@hookform/resolvers": "^2.9.7",
     "@mui/icons-material": "^5.8.4",
     "@mui/lab": "^5.0.0-alpha.95",
@@ -54,10 +52,12 @@
     "@types/react-dom": "^18.0.3",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^0.21.4",
+    "clean-deep": "^3.4.0",
     "clsx": "^1.1.1",
     "cross-env": "^7.0.3",
     "crypto-js": "^4.1.1",
-    "ethers": "^5.4.7",
+    "ethers": "^5.7.1",
+    "graphql": "^16.6.0",
     "jdenticon": "^3.1.1",
     "metamask-react": "^2.0.2",
     "moment": "^2.29.2",
@@ -77,6 +77,7 @@
     "state-pool": "^0.6.0",
     "styled-components": "^5.3.5",
     "typescript": "^4.1.2",
+    "urql": "^3.0.3",
     "web-vitals": "^1.0.1",
     "yup": "^0.32.11"
   },

@@ -2,23 +2,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { theme } from '@taraxa_project/taraxa-ui';
-import { HashLinkType } from '../../utils';
+import { HashLinkType, zeroX } from '../../utils';
 
 export const HashLink = ({
   linkType,
   hash,
+  blockNumber,
   wrap,
   width,
 }: {
   linkType: HashLinkType;
-  hash: string;
+  hash?: string;
+  blockNumber?: number;
   wrap?: boolean;
   width?: string;
 }): JSX.Element => {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'start' }}>
       <Link
-        to={`/${linkType}/${hash}`}
+        to={`/${linkType}/${hash || blockNumber}`}
         style={{
           textDecoration: 'none',
           color: theme.palette.secondary.main,
@@ -28,7 +30,10 @@ export const HashLink = ({
           width,
         }}
       >
-        {wrap && hash ? `${hash.slice(0, 8)}...` : hash}
+        {hash ? (wrap ? `${zeroX(hash).slice(0, 8)}...` : zeroX(hash)) : hash}
+        {wrap && blockNumber
+          ? `${blockNumber.toString().slice(0, 8)}...`
+          : blockNumber}
       </Link>
     </Box>
   );

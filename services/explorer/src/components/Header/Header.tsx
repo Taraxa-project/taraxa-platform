@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
 import {
@@ -6,11 +5,12 @@ import {
   Header as THeader,
   NetworkMenu,
 } from '@taraxa_project/taraxa-ui';
-import { Box, IconButton } from '@mui/material';
+import { Box, Drawer, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { theme } from '../../theme-provider';
 import { TaraxaIcon } from '../icons';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
+import { DrawerElements } from './DrawerElements';
 
 export const Header = (): JSX.Element => {
   const isMobile = useMediaQuery({ query: `(max-width: 1200px)` });
@@ -18,8 +18,15 @@ export const Header = (): JSX.Element => {
     buttons: headerButtons,
     networks,
     currentNetwork,
-    setCurrentNetwork,
-    searchInputProps,
+    onInputChange,
+    drawerState,
+    toggleDrawer,
+    isLoading,
+    searchOptions,
+    searchString,
+    onLabelSelect,
+    setNetwork,
+    disableNetworkSelection,
   } = useHeaderEffects();
 
   const buttons = (
@@ -48,7 +55,8 @@ export const Header = (): JSX.Element => {
         <NetworkMenu
           networks={networks}
           currentNetwork={currentNetwork}
-          onNetworkChange={setCurrentNetwork}
+          onNetworkChange={setNetwork}
+          disableNetworkSelection={disableNetworkSelection}
         />
       </Box>
     </Box>
@@ -56,7 +64,7 @@ export const Header = (): JSX.Element => {
 
   const hamburger = (
     <IconButton
-      onClick={() => console.log('open!')}
+      onClick={toggleDrawer(true)}
       color='primary'
       aria-label='upload picture'
       component='label'
@@ -75,9 +83,30 @@ export const Header = (): JSX.Element => {
       maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
-      searchInputProps={searchInputProps}
+      searchInputProps={{
+        onInputChange,
+        onChange: onLabelSelect,
+        loading: isLoading,
+        open: isLoading || !!searchString,
+        options: searchOptions,
+      }}
     >
       {isMobile ? hamburger : buttons}
+      <Drawer
+        anchor='right'
+        open={drawerState}
+        onClose={toggleDrawer(false)}
+        sx={{
+          '& .MuiPaper-root': {
+            background: theme.palette.grey[800],
+          },
+        }}
+      >
+        <DrawerElements
+          toggleDrawer={toggleDrawer}
+          headerButtons={headerButtons}
+        />
+      </Drawer>
     </THeader>
   );
 };
