@@ -1,51 +1,48 @@
-import { ethereum, general } from '@faucet/config';
+import { general } from '@faucet/config';
+import { InjectQueue } from '@nestjs/bull';
 import {
   BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Queue } from 'bull';
 import { ethers } from 'ethers';
 import { Repository } from 'typeorm';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { CreateRequestDto } from './dto';
 import { RequestEntity } from './entity';
+import { TransactionRequest } from './types';
 import RequestLimit from './types/RequestLimit.enum';
 import { filterRequestsOfThisWeek } from './utils';
 import { toUTCDate } from './utils/utils';
 
 @Injectable()
 export class FaucetService {
-  privateKey: Buffer;
+  private readonly logger = new Logger(FaucetService.name);
   constructor(
+    @InjectQueue('faucet')
+    private readonly faucetQueue: Queue,
     @InjectRepository(RequestEntity)
     private readonly requestRepository: Repository<RequestEntity>,
     @Inject(general.KEY)
     private readonly generalConfig: ConfigType<typeof general>,
-    @Inject(ethereum.KEY)
-    private readonly ethereumConfig: ConfigType<typeof ethereum>,
     private readonly blockchainService: BlockchainService
-  ) {
-    this.privateKey = Buffer.from(
-      this.ethereumConfig.privateSigningKey!,
-      'hex'
-    );
-  }
-  public async registerRequest(
-    requestDto: CreateRequestDto
-  ): Promise<RequestEntity> {
+  ) {}
+
+  public async registerRequest(requestDto: CreateRequestDto): Promise<void> {
     if (!(requestDto.amount in RequestLimit))
       throw new BadRequestException(
         `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.TWO}; ${RequestLimit.FIVE} or ${RequestLimit.SEVEN}`
       );
     requestDto.address = ethers.utils.getAddress(requestDto.address);
-    const requestsForAddress = await this.requestRepository.find({
-      address: requestDto.address,
+    const requestsForAddressOrIp = await this.requestRepository.find({
+      where: [{ address: requestDto.address }, { ipv4: requestDto.ipv4 }],
     });
-
-    const requestsOfThisWeek = filterRequestsOfThisWeek(requestsForAddress);
+    const requestsOfThisWeek = filterRequestsOfThisWeek(requestsForAddressOrIp);
     if (requestsOfThisWeek && requestsOfThisWeek.length > 0) {
       const total = requestsOfThisWeek
         .map((r) => r.amount)
@@ -60,10 +57,31 @@ export class FaucetService {
           `You can withdraw ${remainder} TARA tokens for the current week only. Please choose an amount smaller or equal to it.`
         );
     }
+    const sendTx: ethers.providers.TransactionRequest = {
+      to: requestDto.address,
+      value: ethers.utils.parseEther(`${requestDto.amount}`).toHexString(),
+      gasPrice: 0,
+      gasLimit: 100000000,
+    };
+    await this.faucetQueue.add(
+      'faucet',
+      new TransactionRequest(
+        toUTCDate(new Date(requestDto.timestamp)),
+        requestDto.ipv4,
+        sendTx
+      ),
+      { attempts: 5 }
+    );
+  }
+
+  public async broadcastTransaction(
+    transaction: TransactionRequest
+  ): Promise<void> {
     const request = new RequestEntity();
-    request.address = requestDto.address;
-    request.amount = requestDto.amount;
-    request.createdAt = toUTCDate(new Date(requestDto.timestamp));
+    request.address = transaction.txRequest.to!;
+    request.amount = +ethers.utils.formatEther(transaction.txRequest.value!);
+    request.ipv4 = transaction.ipv4;
+    request.createdAt = toUTCDate(new Date(transaction.timestamp));
 
     if (request) {
       const taraWallet = this.blockchainService.getWallet();
@@ -71,33 +89,39 @@ export class FaucetService {
         throw new InternalServerErrorException(
           'TARA wallet cannot be initialized. Please try again later.'
         );
-      const sendTx: ethers.providers.TransactionRequest = {
-        to: request.address,
-        value: ethers.utils.parseEther(`${request.amount}`),
-        gasPrice: 0,
-        gasLimit: 100000000,
-      };
-      const transfer = await taraWallet.sendTransaction(sendTx);
-      while (!transfer.hash) {
-        console.log('waiting for confirmation');
-      }
-      if (transfer && transfer.hash) {
-        request.txHash = transfer.hash;
-        const registered = await this.requestRepository.save(request);
-        return registered;
-      } else
-        throw new InternalServerErrorException(
-          `${transfer.hash} was unsuccessful.`
+      try {
+        const transfer = await taraWallet.sendTransaction(
+          transaction.txRequest
         );
+        while (!transfer.hash) {}
+        if (transfer && transfer.hash) {
+          request.txHash = transfer.hash;
+          const registered = await this.requestRepository.save(request);
+          this.logger.log(
+            `Transaction ${registered.txHash} was broadcasted for address ${registered.address}: ${registered.amount} TARA`
+          );
+          if (!registered)
+            throw new InternalServerErrorException(
+              'Database save was unsuccessful. Please try again later.'
+            );
+        } else
+          throw new InternalServerErrorException(
+            `${transfer.hash} was unsuccessful.`
+          );
+      } catch (error) {
+        throw new Error(`${error}`);
+      }
+    } else {
+      throw new InternalServerErrorException(
+        'Database connection cannot be initialized. Please try again later.'
+      );
     }
-    throw new InternalServerErrorException(
-      'Database connection cannot be initialized. Please try again later.'
-    );
   }
+
   public getAllRequests = (): Promise<RequestEntity[]> => {
     return this.requestRepository.find({});
   };
   public getByHash = (txHash: string): Promise<RequestEntity> => {
-    return this.requestRepository.findOne({ txHash });
+    return this.requestRepository.findOneOrFail({ txHash });
   };
 }

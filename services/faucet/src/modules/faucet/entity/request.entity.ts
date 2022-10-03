@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 
-@Entity('request')
+@Entity('requests')
 export class RequestEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,11 +16,15 @@ export class RequestEntity {
   address: string;
 
   @Column()
-  amount: number;
+  @Index()
+  ipv4: string;
 
   @Column()
   @Index()
   txHash: string;
+
+  @Column()
+  amount: number;
 
   @CreateDateColumn()
   createdAt: Date;

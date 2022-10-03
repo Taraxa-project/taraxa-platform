@@ -8,6 +8,10 @@ export class CreateRequestDto {
   address: string;
 
   @IsNotEmpty()
+  @ApiProperty()
+  ipv4: string;
+
+  @IsNotEmpty()
   @IsEnum(RequestLimit)
   @ApiProperty({
     enum: RequestLimit,

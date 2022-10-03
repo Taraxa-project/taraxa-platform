@@ -1,13 +1,21 @@
-import { database, ethereum, general } from '@faucet/config';
+import { database, ethereum, general, queue } from '@faucet/config';
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [general, database, ethereum],
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 60 * 60 * 24, // 7 requests for a day
+      limit: 7,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -23,6 +31,25 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule.forFeature(queue)],
+      useFactory: (config: ConfigService) => ({
+        redis: {
+          host: config.get('queue.host'),
+          port: config.get('queue.port'),
+          password: config.get('queue.pass'),
+          prefix: config.get('queue.prefix'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    EventEmitterModule.forRoot(),
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class GeneralModule {}
