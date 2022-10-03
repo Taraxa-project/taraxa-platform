@@ -30,6 +30,7 @@
     "status-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status build",
     "status-start": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status dev",
     "ui-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-ui build",
+    "models-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-models build",
     "ui-storybook": "yarn workspace @taraxa_project/taraxa-ui storybook",
     "watch:community-rebuild": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-build && yarn community-start\"",
     "watch:community": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-start\"",
