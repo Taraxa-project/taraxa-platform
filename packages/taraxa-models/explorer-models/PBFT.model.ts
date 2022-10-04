@@ -1,5 +1,3 @@
-import { ITransaction } from './Transaction.model';
-
 export interface IPBFT {
   hash: string;
   number: number;
@@ -12,5 +10,5 @@ export interface IPBFT {
   totalDifficulty?: number;
   miner?: string;
   transactionCount?: number;
-  transactions?: ITransaction[];
+  transactions?: string[];
 }

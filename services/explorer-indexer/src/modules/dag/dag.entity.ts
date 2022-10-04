@@ -18,9 +18,6 @@ export class DagEntity extends BaseEntity implements IDAG {
   pivot?: string;
 
   @Column({ nullable: true })
-  @IsString()
-  tips?: string[];
-  @Column({ nullable: true })
   @IsNumber()
   level?: number;
   @Column({ nullable: true })
@@ -42,7 +39,4 @@ export class DagEntity extends BaseEntity implements IDAG {
   @Column({ nullable: true })
   @IsNumber()
   transactionCount?: number;
-  @Column({ nullable: true })
-  @IsArray()
-  transactions?: ITransaction[];
 }
