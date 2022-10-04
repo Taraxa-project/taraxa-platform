@@ -17,4 +17,5 @@ data:
   MAINNET_EXPLORER_URL: {{ .Values.app.mainnetExplorerUrl | quote }}
   TESTNET_EXPLORER_URL: {{ .Values.app.testnetExplorerUrl | quote }}
   INDEXER_STAKING_URL: {{ .Values.app.indexerStakingUrl | quote }}
+  TESTNET_OWN_NODES: {{ .Values.app.testnetOwnNodes | toJson | quote }}
   NODE_ENV: {{ .Values.app.environment | quote }}

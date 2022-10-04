@@ -365,20 +365,6 @@ export class DelegationService {
       .outbound_deposits;
   }
 
-  async rebalanceTestnet() {
-    const ownNodes = await this.getOwnNodes('testnet');
-    const nodes = await this.nodeService.findNodes({ type: 'testnet' });
-    const nodeCount = nodes.length;
-    const newDelegation = this.testnetDelegationAmount
-      .mul(ethers.BigNumber.from(2))
-      .mul(ethers.BigNumber.from(nodeCount))
-      .div(ethers.BigNumber.from(ownNodes.length));
-
-    for (const node of ownNodes) {
-      await this.ensureTestnetDelegation(node, newDelegation);
-    }
-  }
-
   async rebalanceMainnet() {
     const ownNodes = await this.getOwnNodes('mainnet');
 

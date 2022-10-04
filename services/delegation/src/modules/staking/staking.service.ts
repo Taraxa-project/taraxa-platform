@@ -14,7 +14,7 @@ export class StakingService {
   private mainnetWallet: Account;
   private testnetProvider: Web3;
   private testnetWallet: Account;
-  private contract: ethers.Contract;
+  private stakingContract: ethers.Contract;
   private dposContractAddress = '0x00000000000000000000000000000000000000ff';
   private testnetExplorerUrl: string;
   public testnetFaucetWalletAddress: string;
@@ -24,7 +24,7 @@ export class StakingService {
       this.config.get<string>('ethereum.ethEndpoint'),
     );
 
-    this.contract = new ethers.Contract(
+    this.stakingContract = new ethers.Contract(
       this.config.get<string>('staking.contract'),
       ['function stakeOf(address) view returns (uint,uint,uint)'],
       this.ethProvider,
@@ -59,7 +59,7 @@ export class StakingService {
   }
 
   async getStakingAmount(address: string): Promise<number> {
-    const stakeOf = await this.contract.stakeOf(address);
+    const stakeOf = await this.stakingContract.stakeOf(address);
     return stakeOf[0].div(ethers.BigNumber.from(10).pow(18)).toNumber();
   }
 
