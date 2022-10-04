@@ -8,7 +8,7 @@ export class Request1655714961399 implements MigrationInterface {
       `CREATE TABLE "requests" 
       ("id" SERIAL NOT NULL, 
       "address" character varying NOT NULL, 
-      "ipv4" character varying NOT NULL, 
+      "ip" character varying NOT NULL, 
       "txHash" character varying NOT NULL, 
       "amount" integer NOT NULL, 
       "createdAt" TIMESTAMP NOT NULL DEFAULT now(), 

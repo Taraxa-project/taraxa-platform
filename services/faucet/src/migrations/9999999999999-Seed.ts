@@ -36,12 +36,12 @@ export class Seed9999999999999 implements MigrationInterface {
         queryRunner.query(
           `INSERT INTO public.requests (
             "address", 
-            "ipv4", 
+            "ip", 
             "txHash", 
             "amount" 
             ) VALUES (
               '${request.address}', 
-              '${request.ipv4}', 
+              '${request.ip}', 
               '${request.txHash}', 
               '${request.amount}' 
             )`
