@@ -8,7 +8,10 @@
     "start": "ts-node index.ts",
     "build": "tsc"
   },
-  "keywords": ["typescript", "nodejs"],
+  "keywords": [
+    "typescript",
+    "nodejs"
+  ],
   "author": "Taraxa",
   "license": "UNLICENSED",
   "devDependencies": {

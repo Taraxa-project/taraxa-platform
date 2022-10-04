@@ -1,1 +1,2 @@
-export * from './Node.model';
+export * from './TaraxaNode.model';
+export * from './Address.model';
