@@ -5,9 +5,10 @@ import {
   Index,
   CreateDateColumn,
 } from 'typeorm';
+import { IRequest } from '../../../models';
 
 @Entity('requests')
-export class RequestEntity {
+export class RequestEntity implements IRequest {
   @PrimaryGeneratedColumn()
   id: number;
 
