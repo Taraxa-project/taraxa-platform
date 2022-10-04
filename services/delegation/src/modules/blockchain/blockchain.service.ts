@@ -63,7 +63,7 @@ export class BlockchainService {
       const ownNode = this.testnetOwnNodes[randomIndex];
       const tx = await this.testnetDelegationContract.delegate(ownNode, {
         gasLimit: 120000,
-        value: this.testnetDelegationAmount.mul(2),
+        value: this.testnetDelegationAmount.mul(2).toString(),
       });
       await tx.wait();
     } catch (e) {
@@ -80,7 +80,7 @@ export class BlockchainService {
         '',
         {
           gasLimit: 120000,
-          value: this.testnetDelegationAmount,
+          value: this.testnetDelegationAmount.toString(),
         },
       );
       await receipt.wait();
