@@ -22,6 +22,12 @@
       "@faucet/faucet": ["src/modules/faucet"]
     }
   },
-  "include": ["src/**/*", "test/**/*", ".eslintrc.js"],
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "migrations/*",
+    "data-source.ts",
+    ".eslintrc.js"
+  ],
   "exclude": ["node_modules", "dist"]
 }
