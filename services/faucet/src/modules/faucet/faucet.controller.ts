@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Ip,
+  Param,
+  Post,
+  Headers,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { CreateRequestDto } from './dto';
@@ -12,8 +20,13 @@ export class FaucetController {
 
   @ApiOkResponse({ description: 'Faucet fund request' })
   @Post('/')
-  async registerClaim(@Body() requestDto: CreateRequestDto): Promise<void> {
-    return await this.faucetService.registerRequest(requestDto);
+  async registerClaim(
+    @Ip() requestIp: string,
+    @Headers('x-forwarded-for') proxy: string,
+    @Body() requestDto: CreateRequestDto
+  ): Promise<void> {
+    const ip = proxy ? proxy : requestIp;
+    return await this.faucetService.registerRequest(requestDto, ip);
   }
 
   @SkipThrottle()

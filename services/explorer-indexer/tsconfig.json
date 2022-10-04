@@ -27,7 +27,7 @@
   "include": [
     "src/**/*",
     "test/**/*",
-    "migrations/*",
+    "src/migrations/*",
     "data-source.ts",
     ".eslintrc.js"
   ],

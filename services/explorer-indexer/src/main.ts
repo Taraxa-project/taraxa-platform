@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { useContainer } from 'class-validator';
+import helmet from 'helmet';
 
 export function getPort(): number {
   return parseInt(process.env.PORT || process.env.SERVER_PORT || '3000', 10);
@@ -20,6 +21,7 @@ async function bootstrap() {
     origin: '*',
     exposedHeaders: ['Content-Type', 'Content-Range'],
   });
+  app.use(helmet());
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
