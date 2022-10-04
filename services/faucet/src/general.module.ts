@@ -6,12 +6,27 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { APP_GUARD } from '@nestjs/core';
+import { resolve } from 'path';
+import { existsSync } from 'fs';
+
+const getEnvFilePath = () => {
+  const pathsToTest = ['../.env', '../../.env', '../../../.env'];
+
+  for (const pathToTest of pathsToTest) {
+    const resolvedPath = resolve(__dirname, pathToTest);
+
+    if (existsSync(resolvedPath)) {
+      return resolvedPath;
+    }
+  }
+};
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [general, database, ethereum],
+      envFilePath: getEnvFilePath(),
     }),
     ThrottlerModule.forRoot({
       ttl: 60 * 60 * 24, // 7 requests for a day
@@ -27,7 +42,9 @@ import { APP_GUARD } from '@nestjs/core';
         password: configService.get<string>('database.pass'),
         database: configService.get<string>('database.name'),
         entities: [`${__dirname}/**/*.entity{.ts,.js}`],
-        synchronize: true,
+        synchronize: false,
+        autoLoadEntities: true,
+        logging: ['info'],
       }),
       inject: [ConfigService],
     }),
