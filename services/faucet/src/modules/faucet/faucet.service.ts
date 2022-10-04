@@ -33,14 +33,17 @@ export class FaucetService {
     private readonly blockchainService: BlockchainService
   ) {}
 
-  public async registerRequest(requestDto: CreateRequestDto): Promise<void> {
+  public async registerRequest(
+    requestDto: CreateRequestDto,
+    ip: string
+  ): Promise<void> {
     if (!(requestDto.amount in RequestLimit))
       throw new BadRequestException(
         `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.TWO}; ${RequestLimit.FIVE} or ${RequestLimit.SEVEN}`
       );
     requestDto.address = ethers.utils.getAddress(requestDto.address);
     const requestsForAddressOrIp = await this.requestRepository.find({
-      where: [{ address: requestDto.address }, { ipv4: requestDto.ipv4 }],
+      where: [{ address: requestDto.address }, { ip }],
     });
     const requestsOfThisWeek = filterRequestsOfThisWeek(requestsForAddressOrIp);
     if (requestsOfThisWeek && requestsOfThisWeek.length > 0) {
@@ -67,7 +70,7 @@ export class FaucetService {
       'faucet',
       new TransactionRequest(
         toUTCDate(new Date(requestDto.timestamp)),
-        requestDto.ipv4,
+        ip,
         sendTx
       ),
       { attempts: 5 }
@@ -80,7 +83,7 @@ export class FaucetService {
     const request = new RequestEntity();
     request.address = transaction.txRequest.to!;
     request.amount = +ethers.utils.formatEther(transaction.txRequest.value!);
-    request.ipv4 = transaction.ipv4;
+    request.ip = transaction.ip;
     request.createdAt = toUTCDate(new Date(transaction.timestamp));
 
     if (request) {
@@ -122,6 +125,6 @@ export class FaucetService {
     return this.requestRepository.find({});
   };
   public getByHash = (txHash: string): Promise<RequestEntity> => {
-    return this.requestRepository.findOneOrFail({ txHash });
+    return this.requestRepository.findOneByOrFail({ txHash });
   };
 }

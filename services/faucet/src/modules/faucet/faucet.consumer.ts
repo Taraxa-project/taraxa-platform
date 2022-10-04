@@ -24,11 +24,11 @@ export class FaucetConsumer implements OnModuleInit {
         2
       )}`
     );
-    const { timestamp, ipv4, txRequest } = job.data;
+    const { timestamp, ip, txRequest } = job.data;
 
     await this.faucetService.broadcastTransaction({
       timestamp,
-      ipv4,
+      ip,
       txRequest,
     });
     this.logger.debug(
