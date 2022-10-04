@@ -79,7 +79,7 @@ export class BlockchainService {
         '',
         '',
         {
-          gasLimit: 120000,
+          gasLimit: 240000,
           value: this.testnetDelegationAmount.toString(),
         },
       );
