@@ -18,7 +18,7 @@ export class RequestEntity implements IRequest {
 
   @Column()
   @Index()
-  ipv4: string;
+  ip: string;
 
   @Column()
   @Index()
