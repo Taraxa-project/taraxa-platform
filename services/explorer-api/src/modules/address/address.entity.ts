@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, BaseEntity, Column } from 'typeorm';
 import { IsString, IsNotEmpty } from 'class-validator';
-import { IAddress } from '@taraxa_project/taraxa-models';
+import { IAccount } from '@taraxa_project/taraxa-models';
 
 const tableName = 'explorer_address';
 
 @Entity(tableName)
-export class Address extends BaseEntity implements IAddress {
+export class Address extends BaseEntity implements IAccount {
   constructor(pool?: Partial<Address>) {
     super();
     Object.assign(this, pool);

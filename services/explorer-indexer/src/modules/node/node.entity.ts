@@ -1,28 +1,46 @@
-import { Entity, BaseEntity, Column, PrimaryColumn } from 'typeorm';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  Entity,
+  BaseEntity,
+  Column,
+  PrimaryColumn,
+  Unique,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ITaraxaNode } from '@taraxa_project/taraxa-models';
 
 const tableName = 'explorer_node';
 
 @Entity(tableName)
+@Unique(['id'])
 export class TaraxaNode extends BaseEntity implements ITaraxaNode {
   constructor(node?: Partial<ITaraxaNode>) {
     super();
     Object.assign(this, node);
   }
 
-  @PrimaryColumn()
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column({ nullable: false })
+  @IsNotEmpty()
+  @IsString()
+  address!: string;
+
+  @Column({ nullable: false, default: 0 })
   @IsNotEmpty()
   @IsNumber()
   lastBlockNumber!: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   @IsNotEmpty()
   @IsNumber()
-  count!: number;
+  pbftCount!: number;
+
+  @Column({ nullable: false, default: 0 })
+  @IsNotEmpty()
+  @IsNumber()
+  dagCount!: number;
 
   @Column({
     type: 'timestamp',
