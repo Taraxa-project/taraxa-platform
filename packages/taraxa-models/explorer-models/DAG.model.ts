@@ -7,7 +7,6 @@ export interface IDAG {
   level?: number;
   pbftPeriod?: number;
   timestamp: number;
-  // block?: string;
   author?: string;
   signature?: string;
   vdf?: number;

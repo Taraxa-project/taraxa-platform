@@ -3,10 +3,10 @@ import { ITransaction } from './Transaction.model';
 export interface IPBFT {
   hash: string;
   number: number;
-  timestamp: string | number;
+  timestamp: number;
   gasLimit?: number;
   gasUsed?: number;
-  parent?: IPBFT;
+  parent?: string;
   nonce?: string;
   difficulty?: number;
   totalDifficulty?: number;
