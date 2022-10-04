@@ -1,19 +1,18 @@
 import { Queue } from 'bull';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bull';
-import { NODE_CREATED_EVENT } from '../../node/node.constants';
-import { NodeCreatedEvent } from '../../node/event/node-created.event';
-import { NodeType } from '../../node/node-type.enum';
-import { ENSURE_DELEGATION_JOB } from '../delegation.constants';
-import { EnsureDelegationJob } from '../job/ensure-delegation.job';
+import { OnEvent } from '@nestjs/event-emitter';
+import { ENSURE_NODE_ONCHAIN_JOB, NODE_CREATED_EVENT } from '../node.constants';
+import { NodeCreatedEvent } from '../event/node-created.event';
+import { EnsureNodeOnchainJob } from '../job/ensure-node-onchain.job';
+import { NodeType } from '../node-type.enum';
 
 @Injectable()
 export class NodeCreatedListener {
   private readonly logger = new Logger(NodeCreatedListener.name);
   constructor(
-    @InjectQueue('delegation')
-    private delegationQueue: Queue,
+    @InjectQueue('node')
+    private nodeQueue: Queue,
   ) {}
   @OnEvent(NODE_CREATED_EVENT, { async: true })
   async handleNodeCreatedEvent(event: NodeCreatedEvent) {
@@ -32,9 +31,9 @@ export class NodeCreatedListener {
       return;
     }
 
-    await this.delegationQueue.add(
-      ENSURE_DELEGATION_JOB,
-      new EnsureDelegationJob(event.nodeId, event.type, event.address),
+    await this.nodeQueue.add(
+      ENSURE_NODE_ONCHAIN_JOB,
+      new EnsureNodeOnchainJob(event.nodeId, event.type, event.address),
     );
   }
 }

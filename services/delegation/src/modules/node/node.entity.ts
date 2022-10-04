@@ -96,6 +96,11 @@ export class Node {
   })
   lastBlockCreatedAt?: Date;
 
+  @Column({
+    default: false,
+  })
+  isCreatedOnchain: boolean;
+
   @OneToMany(() => NodeCommission, (commission) => commission.node, {
     eager: true,
     cascade: true,
