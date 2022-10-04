@@ -1,5 +1,7 @@
 export interface ITaraxaNode {
-  id: string;
+  id: number;
+  address: string;
   lastBlockNumber: number;
-  count: number;
+  pbftCount: number;
+  dagCount: number;
 }
