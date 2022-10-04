@@ -52,7 +52,6 @@ export class BlockchainService {
     address: string,
     addressProof: string,
     vrfKey: string,
-    name = '',
   ) {
     if (this.testnetOwnNodes.length == 0) {
       console.error(`Can't delegate to own nodes - No own nodes.`);
@@ -77,7 +76,7 @@ export class BlockchainService {
         addressProof,
         vrfKey,
         0,
-        name,
+        '',
         '',
         {
           gasLimit: 120000,

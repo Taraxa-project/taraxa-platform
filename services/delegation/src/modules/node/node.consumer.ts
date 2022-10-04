@@ -52,7 +52,6 @@ export class NodeConsumer implements OnModuleInit {
           node.address,
           node.addressProof,
           node.vrfKey,
-          node.name,
         );
         node.isCreatedOnchain = true;
         await this.nodeRepository.save(node);
