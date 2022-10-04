@@ -2981,6 +2981,15 @@
   dependencies:
     uuid "8.3.2"
 
+"@nestjs/websockets@^9.1.2":
+  version "9.1.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/websockets/-/websockets-9.1.2.tgz#d668793173cc550f1e14fea698f4c7713266f79c"
+  integrity sha512-mWMivndv7WuA4qQNRsp8lNHEGe9cL6K3nv9TplAOcRtBT33olqKynjNGHppSjU2an44t3rnT4//6SyyeLbO/eQ==
+  dependencies:
+    iterare "1.2.1"
+    object-hash "3.0.0"
+    tslib "2.4.0"
+
 "@next/env@12.3.1":
   version "12.3.1"
   resolved "https://registry.yarnpkg.com/@next/env/-/env-12.3.1.tgz#18266bd92de3b4aa4037b1927aa59e6f11879260"
