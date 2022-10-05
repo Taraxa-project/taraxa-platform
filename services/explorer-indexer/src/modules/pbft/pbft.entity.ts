@@ -18,7 +18,7 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @IsNotEmpty()
   number: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
   timestamp: number;
