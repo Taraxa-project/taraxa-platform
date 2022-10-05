@@ -11,7 +11,6 @@ import {
   PbftEntity,
   DagEntity,
 } from './modules';
-import NodeSyncronizer from './nodeSyncronizer.gateway';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];
@@ -76,7 +75,7 @@ const IndexerTypeOrmModule = () => {
     DagModule,
     PbftModule,
   ],
-  providers: [NodeSyncronizer],
-  exports: [NodeSyncronizer],
+  providers: [],
+  exports: [],
 })
 export class AppModule {}
