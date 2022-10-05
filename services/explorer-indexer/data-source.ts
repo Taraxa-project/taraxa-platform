@@ -29,7 +29,7 @@ const DataSourceConfig = new DataSource({
   logging: process.env.NODE_ENV !== 'production',
   entities: [`${__dirname}/src/modules/**/*.entity{.ts,.js}`],
   migrations: [`${__dirname}/src/migrations/*{.ts,.js}`],
-  migrationsTableName: 'migrations_hype_pool',
+  migrationsTableName: 'migrations_explorer_indexer',
 } as DataSourceOptions);
 
 export default DataSourceConfig;
