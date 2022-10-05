@@ -6,6 +6,7 @@ import {
   createClient as urqlCreatClient,
   Provider as UrqlProvider,
 } from 'urql';
+import { QueryClientProvider, QueryClient } from 'react-query';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ExplorerThemeProvider } from './theme-provider';
@@ -20,6 +21,14 @@ export const graphQLClient = urqlCreatClient({
   url: GRAPHQL_API,
 });
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -28,15 +37,17 @@ root.render(
     <ExplorerThemeProvider>
       <ExplorerNetworkProvider>
         <UrqlProvider value={graphQLClient}>
-          <NodeStateProvider>
-            <ExplorerLoaderProvider>
-              <BrowserRouter>
-                <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-                  <App />
-                </SnackbarProvider>
-              </BrowserRouter>
-            </ExplorerLoaderProvider>
-          </NodeStateProvider>
+          <QueryClientProvider client={queryClient}>
+            <NodeStateProvider>
+              <ExplorerLoaderProvider>
+                <BrowserRouter>
+                  <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+                    <App />
+                  </SnackbarProvider>
+                </BrowserRouter>
+              </ExplorerLoaderProvider>
+            </NodeStateProvider>
+          </QueryClientProvider>
         </UrqlProvider>
       </ExplorerNetworkProvider>
     </ExplorerThemeProvider>

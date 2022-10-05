@@ -28,8 +28,8 @@ export class NodeService {
 
   public async findAll(filterDto: GetNodesDto): Promise<NodesPaginate> {
     const [nodes, total] = await this.getByFilters(filterDto);
-    const formmatedNodes = nodes?.map((node: TaraxaNode, i: number) => {
-      return this.formatNodesToFrontend(node, i);
+    const formmatedNodes = nodes?.map((node: TaraxaNode) => {
+      return this.formatNodesToFrontend(node);
     });
     return {
       data: formmatedNodes || [],
@@ -43,8 +43,8 @@ export class NodeService {
     const { take, skip } = filterDto;
     const limit = take || 0;
     const offset = skip || 0;
-    // const orderByType = 'createdAt';
-    // const orderDirection: 'ASC' | 'DESC' = 'DESC';
+    const orderByType = 'pbftCount';
+    const orderDirection: 'ASC' | 'DESC' = 'DESC';
 
     const query = this.repository
       .createQueryBuilder('explorer_node')
@@ -60,7 +60,7 @@ export class NodeService {
       const results = await query
         .skip(offset)
         .take(limit)
-        // .orderBy(`explorer_node.${orderByType}`, orderDirection)
+        .orderBy(`explorer_node.${orderByType}`, orderDirection)
         .getManyAndCount();
       return results;
     } catch (error) {
@@ -72,13 +72,13 @@ export class NodeService {
     }
   }
 
-  private formatNodesToFrontend(node: TaraxaNode, i: number): RankedNode {
+  private formatNodesToFrontend(node: TaraxaNode): RankedNode {
     if (!node) {
       return;
     }
     return {
       ...node,
-      rank: i,
+      rank: node.id,
     } as RankedNode;
   }
 }

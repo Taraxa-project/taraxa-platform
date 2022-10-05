@@ -3,6 +3,7 @@ import { Table, AwardCard } from '@taraxa_project/taraxa-ui';
 import { Box } from '@mui/material';
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
+import { toNodeTableRow } from '../../utils';
 
 const NodesPage = (): JSX.Element => {
   const {
@@ -16,8 +17,11 @@ const NodesPage = (): JSX.Element => {
     page,
     handleChangePage,
     handleChangeRowsPerPage,
-    formatTableData,
+    totalCount,
   } = useNodesEffects();
+
+  const rows = tableData ? tableData.map((row) => toNodeTableRow(row)) : [];
+
   return (
     <>
       <PageTitle
@@ -32,12 +36,13 @@ const NodesPage = (): JSX.Element => {
           total={blocks}
         />
         <Table
-          rows={formatTableData(tableData)}
+          rows={rows}
           columns={cols}
           currentPage={page}
           initialRowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          totalCount={totalCount}
         />
       </Box>
     </>

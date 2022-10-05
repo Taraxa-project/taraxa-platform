@@ -1,11 +1,15 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
-import { NodesTableData } from '../../models';
+import { ColumnData, NodesTableData } from '../../models';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { HashLink } from '../../components';
-import { HashLinkType } from '../../utils';
-import { getMockedNodesColsAndRows } from '../../api/mocks';
+import { RankedNode, useGetNodes } from '../../api';
+
+const cols: ColumnData[] = [
+  { path: 'rank', name: 'Rank' },
+  { path: 'nodeAddress', name: 'Node Address' },
+  { path: 'blocksProduced', name: '# blocks produced' },
+];
 
 export const useNodesEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
@@ -18,11 +22,48 @@ export const useNodesEffects = () => {
   const title = `Top nodes for Week ${weekNo} ${year}`;
   const subtitle = `Top block producers for Week ${weekNo} (${monday} - ${sunday})`;
   const description = 'Total blocks produced this week';
-  const [tableData, setTableData] = useState<NodesTableData[]>();
+  const [tableData, setTableData] = useState<NodesTableData[]>([]);
+  const [totalCount, setTotalCount] = useState<number>();
 
-  const { cols, rows } = getMockedNodesColsAndRows();
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = React.useState(0);
+  const {
+    data: nodesResult,
+    isFetching,
+    isLoading,
+  } = useGetNodes({ rowsPerPage, page });
+
+  const formatNodesToTable = (nodes: RankedNode[]): NodesTableData[] => {
+    if (!nodes?.length) {
+      return [];
+    }
+    const formattedNodes: NodesTableData[] = nodes.map((node: RankedNode) => {
+      return {
+        rank: node.id,
+        nodeAddress: node.address,
+        blocksProduced: node.pbftCount,
+      };
+    });
+    return formattedNodes;
+  };
+
+  useEffect(() => {
+    if (isFetching || isLoading) {
+      initLoading();
+    } else {
+      finishLoading();
+    }
+  }, [isFetching, isLoading]);
+
+  useEffect(() => {
+    if (nodesResult?.data && nodesResult?.total) {
+      console.log('nodesResult.data: ', nodesResult.data);
+      setTableData(
+        tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
+      );
+      setTotalCount(nodesResult?.total);
+    }
+  }, [nodesResult]);
 
   const handleChangePage = (newPage: number) => {
     console.log('New page: ', newPage);
@@ -37,45 +78,6 @@ export const useNodesEffects = () => {
     setPage(0);
   };
 
-  const formatTableData = (
-    rows: NodesTableData[]
-  ): {
-    data: {
-      rank: number;
-      nodeAddress: JSX.Element;
-      blocksProduced: string;
-    }[];
-  }[] => {
-    if (!rows?.length) {
-      return [];
-    }
-    return rows.map((row) => {
-      return {
-        data: [
-          {
-            rank: row.rank,
-            nodeAddress: (
-              <HashLink
-                linkType={HashLinkType.ADDRESSES}
-                width='auto'
-                hash={row.nodeAddress}
-              />
-            ),
-            blocksProduced: row.blocksProduced.toLocaleString('en-US'),
-          },
-        ],
-      };
-    });
-  };
-
-  useEffect(() => {
-    initLoading();
-    setTimeout(() => {
-      setTableData(rows);
-      finishLoading();
-    }, 1500);
-  }, []);
-
   return {
     blocks,
     title,
@@ -83,7 +85,7 @@ export const useNodesEffects = () => {
     description,
     cols,
     tableData,
-    formatTableData,
+    totalCount,
     rowsPerPage,
     page,
     handleChangePage,

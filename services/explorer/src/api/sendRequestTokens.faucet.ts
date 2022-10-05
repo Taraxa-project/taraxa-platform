@@ -45,6 +45,7 @@ export async function sendRequestTokens(
       });
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
     cb({
       display: true,

@@ -3,7 +3,12 @@ import { CircularProgress } from '@mui/material';
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import { HashLink } from '../components/Links';
-import { BlockData, TransactionTableData, TransactionStatus } from '../models';
+import {
+  BlockData,
+  TransactionTableData,
+  TransactionStatus,
+  NodesTableData,
+} from '../models';
 import { HashLinkType } from './Enums';
 
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
@@ -125,6 +130,29 @@ export const toDagBlockTableRow = (props: BlockData) => {
         level,
         hash: txHashContainer,
         transactionCount,
+      },
+    ],
+  };
+};
+
+export const toNodeTableRow = ({
+  rank,
+  nodeAddress,
+  blocksProduced,
+}: NodesTableData) => {
+  const address = (
+    <HashLink
+      linkType={HashLinkType.ADDRESSES}
+      width='auto'
+      hash={nodeAddress}
+    />
+  );
+  return {
+    data: [
+      {
+        rank,
+        nodeAddress: address,
+        blocksProduced: blocksProduced.toLocaleString('en-US'),
       },
     ],
   };
