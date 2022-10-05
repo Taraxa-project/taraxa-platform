@@ -17,32 +17,40 @@ export class DagEntity extends BaseEntity implements IDAG {
   @IsString()
   pivot?: string;
 
-  @Column({ nullable: true })
-  @IsString()
+  @Column('simple-array', { nullable: true })
+  @IsArray()
   tips?: string[];
+
   @Column({ nullable: true })
   @IsNumber()
   level?: number;
+
   @Column({ nullable: true })
   @IsNumber()
   pbftPeriod?: number;
+
   @Column({ nullable: false })
   @IsNumber()
   @IsNotEmpty()
   timestamp: number;
+
   @Column({ nullable: true })
   @IsString()
   author?: string;
+
   @Column({ nullable: true })
   @IsString()
   signature?: string;
+
   @Column({ nullable: true })
   @IsNumber()
   vdf?: number;
+
   @Column({ nullable: true })
   @IsNumber()
   transactionCount?: number;
-  @Column({ nullable: true })
+
+  @Column('simple-array', { nullable: true })
   @IsArray()
   transactions?: ITransaction[];
 }
