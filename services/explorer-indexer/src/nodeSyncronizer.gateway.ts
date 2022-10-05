@@ -20,7 +20,7 @@ export enum Topics {
 }
 
 @UseFilters(new AllExceptionsFilter())
-@WebSocketGateway(80, {
+@WebSocketGateway(Number(process.env.WS_SERVER_PORT) || 80, {
   cors: {
     origin: '*',
   },
