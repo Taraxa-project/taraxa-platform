@@ -3,7 +3,6 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
-  WebSocketServer,
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server } from 'ws';
@@ -38,8 +37,7 @@ export default class NodeSyncronizer implements OnGatewayInit {
   }
   afterInit(server: Server) {
     if (server) {
-      const addr = server.address();
-      this.logger.log('Connected to WS server at: ', addr);
+      this.logger.log('Connected to WS server');
     } else {
       this.logger.error('Server not connected successfully:', server);
     }

@@ -1,10 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { WsAdapter } from '@nestjs/platform-ws';
+import { WsClientAdapter } from './WSClientAdapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useWebSocketAdapter(new WsAdapter(process.env.NODE_WS_ENDPOINT));
+  app.useWebSocketAdapter(
+    new WsClientAdapter(
+      app,
+      Number(process.env.WS_SERVER_PORT || '80'),
+      process.env.NODE_WS_ENDPOINT
+    )
+  );
 
   // Uncomment these lines to use the Redis adapter:
   // const redisIoAdapter = new RedisIoAdapter(app);
