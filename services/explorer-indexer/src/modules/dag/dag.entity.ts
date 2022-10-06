@@ -1,6 +1,6 @@
 import { IDAG } from '@taraxa_project/taraxa-models';
 import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
 
 const table_name = 'dags';
 
@@ -17,26 +17,40 @@ export class DagEntity extends BaseEntity implements IDAG {
   @IsString()
   pivot?: string;
 
+  @Column('simple-array', { nullable: true })
+  @IsArray()
+  tips?: string[];
+
   @Column({ nullable: true })
   @IsNumber()
   level?: number;
+
   @Column({ nullable: true })
   @IsNumber()
   pbftPeriod?: number;
+
   @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
   timestamp: number;
+
   @Column({ nullable: true })
   @IsString()
   author?: string;
+
   @Column({ nullable: true })
   @IsString()
   signature?: string;
+
   @Column({ nullable: true })
   @IsNumber()
   vdf?: number;
+
   @Column({ nullable: true })
   @IsNumber()
   transactionCount?: number;
+
+  @Column('simple-array', { nullable: true })
+  @IsArray()
+  transactions?: string[];
 }

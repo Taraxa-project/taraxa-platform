@@ -25,7 +25,7 @@ export default class PbftService {
       timestamp: timestamp || 0,
       miner: zeroX(beneficiary),
     };
-    const saved = await this.pbftRepository.save(pbft);
+    const saved = await this.pbftRepository.save(pbft as PbftEntity);
     if (saved) this.logger.log(`Registered new PBFT ${saved.hash}`);
   }
 
@@ -49,8 +49,8 @@ export default class PbftService {
       hash: zeroX(hash),
       number: parseInt(number, 16) || 0,
       timestamp: parseInt(timestamp, 16) || 0,
-      gasLimit: parseInt(gas_limit, 16) || 0,
-      gasUsed: parseInt(gas_used, 16) || 0,
+      gasLimit: gas_limit,
+      gasUsed: gas_used,
       parent: zeroX(parent),
       nonce,
       difficulty: parseInt(difficulty, 16) || 0,
@@ -59,7 +59,7 @@ export default class PbftService {
       transactionCount: parseInt(transactionCount, 16) || 0,
       transactions,
     };
-    const updated = await this.pbftRepository.save(pbft);
+    const updated = await this.pbftRepository.save(pbft as PbftEntity);
     if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
   }
 }

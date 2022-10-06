@@ -31,13 +31,13 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @IsString()
   miner?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'bigint' })
   @IsNumber()
-  gasLimit?: number;
+  gasLimit?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'bigint' })
   @IsNumber()
-  gasUsed?: number;
+  gasUsed?: string;
 
   @Column({ nullable: true })
   @IsString()
@@ -54,4 +54,8 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @Column({ nullable: true })
   @IsNumber()
   transactionCount?: number;
+
+  @Column('simple-array', { nullable: true })
+  @IsArray()
+  transactions?: string[];
 }
