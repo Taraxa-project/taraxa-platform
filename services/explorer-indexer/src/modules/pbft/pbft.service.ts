@@ -66,13 +66,10 @@ export default class PbftService {
       transactions,
     };
     const updated = await this.pbftRepository.save(pbft as PbftEntity);
-    if (updated) {
-      this.logger.log(`PBFT ${updated.hash} finalized`);
-      await this.createOrUpdateNode(updated);
-    }
+    if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
   }
 
-  private async createOrUpdateNode(pbft: IPBFT) {
+  private async createOrUpdateNode(pbft: PbftEntity) {
     const foundNode = await this.nodeRepository.findOne({
       where: { address: pbft.miner },
     });
