@@ -1,12 +1,27 @@
 import { Logger } from '@nestjs/common';
 import { WebSocketClient } from 'nestjs-websocket';
-import { Topics } from 'src/modules/node/nodeSyncer.service';
 import util from 'util';
 
 export enum ResponseTypes {
   NewDagBlockFinalizedResponse = 'NewDagBlockFinalizedResponse',
   NewPbftBlockResponse = 'NewPbftBlockResponse',
   NewDagBlockResponse = 'NewDagBlockResponse',
+  NewHeadsReponse = 'NewHeadsReponse',
+}
+
+export enum Topics {
+  NEW_DAG_BLOCKS = 'newDagBlocks', // @note fired when a DAG block is accepted by the consensus
+  NEW_DAG_BLOCKS_FINALIZED = 'newDagBlocksFinalized', // @note fired when a DAG block is inserted into a PBFT block
+  NEW_PBFT_BLOCKS = 'newPbftBlocks', // @note fired when a PBFT block is accepted by the consensus
+  NEW_HEADS = 'newHeads', // @note fired when a PBFT ns "mined": all transactions inside it were executed
+  ERRORS = 'error', // @note error message
+}
+
+export enum Subscriptions {
+  NEW_DAG_BLOCKS = 1, // @note fired when a DAG block is accepted by the consensus
+  NEW_DAG_BLOCKS_FINALIZED = 2, // @note fired when a DAG block is inserted into a PBFT block
+  NEW_PBFT_BLOCKS = 3, // @note fired when a PBFT block is accepted by the consensus
+  NEW_HEADS = 4, // @note fired when a PBFT ns "mined": all transactions inside it were executed
 }
 
 export function checkType(object: BaseResponseRype): string {
@@ -16,8 +31,10 @@ export function checkType(object: BaseResponseRype): string {
       ? ResponseTypes.NewDagBlockResponse
       : object.subscription === '0x2'
       ? ResponseTypes.NewDagBlockFinalizedResponse
-      : object.subscription === '0x3' || object.subscription === '0x4'
+      : object.subscription === '0x3'
       ? ResponseTypes.NewPbftBlockResponse
+      : object.subscription === '0x4'
+      ? ResponseTypes.NewHeadsReponse
       : ''
     : '';
 }
@@ -27,11 +44,11 @@ export interface NewDagBlockFinalizedResponse {
   period: string; // hex number of period of which the PBFT was created
 }
 
-export interface NewPbftBlockResponse {
+export interface NewPbftBlockHeaderResponse {
   hash: string;
   number: string; // hex number
-  gasLimit?: string; // hex number
-  gasUsed?: string; // hex number
+  gas_limit?: string; // hex number
+  gas_used?: string; // hex number
   parent?: string;
   nonce?: string; // hex number
   difficulty?: string; // hex number
@@ -40,17 +57,33 @@ export interface NewPbftBlockResponse {
   transactionCount?: string; // hex number
   transactions?: string[];
   author: string; // block auther, same as miner
-  extraData: string; // encoded extra data
-  logsBloom: string; // logs
+  extra_data: string; // encoded extra data
+  log_bloom: string; // logs
   mixHash: string;
-  parentHash: string;
-  receiptsRoot: string;
+  parent_hash: string;
+  receipts_root: string;
   sha3Uncles: string;
   size: string; // hex number
-  stateRoot: string;
+  state_root: string;
   timestamp: string; // hex number
-  transactionsRoot: string;
-  uncles: string[];
+  transactions_root: string;
+  uncles_hash: string[];
+  ethereum_rlp_size: number;
+}
+
+export interface NewPbftBlockResponse {
+  beneficiary: string;
+  block_hash: string;
+  dag_block_hash_as_pivot: string;
+  order_hash: string;
+  period: number;
+  prev_block_hash: string;
+  reward_votes: string[];
+  schedule: {
+    dag_blocks_order: string[];
+  };
+  singature: string;
+  timestamp: number;
 }
 
 export interface NewDagBlockResponse {
@@ -80,8 +113,9 @@ export interface BaseResponseRype {
   subscription: string; // hex number of subscription. Incremental on the subscriptions that are sent.
   result:
     | NewDagBlockResponse
-    | NewPbftBlockResponse
-    | NewDagBlockFinalizedResponse;
+    | NewPbftBlockHeaderResponse
+    | NewDagBlockFinalizedResponse
+    | NewPbftBlockResponse;
 }
 export interface RpcResponseData {
   result: any;
@@ -141,7 +175,7 @@ export const toObject = (
       case '0x3': {
         // NEW_PBFT_BLOCKS
         const newPbftBlockData = {
-          result: response.params.result as NewPbftBlockResponse,
+          result: response.params.result as NewPbftBlockHeaderResponse,
           subscription: response.params.subscription,
         } as BaseResponseRype;
         returnObj = newPbftBlockData;
@@ -150,7 +184,7 @@ export const toObject = (
       case '0x4': {
         // NEW_HEADS
         const newHeadsData = {
-          result: response.params.result as NewPbftBlockResponse,
+          result: response.params.result as NewPbftBlockHeaderResponse,
           subscription: response.params.subscription,
         } as BaseResponseRype;
         returnObj = newHeadsData;
