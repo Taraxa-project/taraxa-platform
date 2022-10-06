@@ -1,6 +1,6 @@
-import { IDAG, ITransaction } from '@taraxa_project/taraxa-models';
+import { IDAG } from '@taraxa_project/taraxa-models';
 import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
-import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 const table_name = 'dags';
 
@@ -23,7 +23,7 @@ export class DagEntity extends BaseEntity implements IDAG {
   @Column({ nullable: true })
   @IsNumber()
   pbftPeriod?: number;
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
   timestamp: number;
