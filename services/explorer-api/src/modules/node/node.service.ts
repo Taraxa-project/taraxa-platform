@@ -13,10 +13,6 @@ export interface NodesPaginate {
   total: number;
 }
 
-export interface RankedNode extends TaraxaNode {
-  rank: number;
-}
-
 @Injectable()
 export class NodeService {
   private logger = new Logger('NodeService');
