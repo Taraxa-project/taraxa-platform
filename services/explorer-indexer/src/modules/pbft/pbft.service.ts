@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPBFT } from '@taraxa_project/taraxa-models';
-import { NewPbftBlockResponse } from 'src/types';
+import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
+import { zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
 import { PbftEntity } from './pbft.entity';
 
 @Injectable()
 export default class PbftService {
+  private readonly logger: Logger = new Logger(PbftService.name);
   constructor(
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>
@@ -14,13 +16,26 @@ export default class PbftService {
     this.pbftRepository = pbftRepository;
   }
 
-  public handleNewPbft(pbftData: NewPbftBlockResponse) {
+  public async handleNewPbft(pbftData: NewPbftBlockResponse) {
+    const { block_hash, period, timestamp, beneficiary } = { ...pbftData };
+    if (!block_hash) return;
+    const pbft: IPBFT = {
+      hash: zeroX(block_hash),
+      number: period || 0,
+      timestamp: timestamp || 0,
+      miner: zeroX(beneficiary),
+    };
+    const saved = await this.pbftRepository.save(pbft);
+    if (saved) this.logger.log(`Registered new PBFT ${saved.hash}`);
+  }
+
+  public async handleNewPbftHeads(pbftData: NewPbftBlockHeaderResponse) {
     const {
       hash,
       number,
       timestamp,
-      gasLimit,
-      gasUsed,
+      gas_limit,
+      gas_used,
       parent,
       nonce,
       difficulty,
@@ -29,20 +44,22 @@ export default class PbftService {
       transactionCount,
       transactions,
     } = { ...pbftData };
+    if (!hash) return;
     const pbft: IPBFT = {
-      hash,
-      number: parseInt(number, 16),
-      timestamp: parseInt(timestamp, 16),
-      gasLimit: parseInt(gasLimit, 16),
-      gasUsed: parseInt(gasUsed, 16),
-      parent,
+      hash: zeroX(hash),
+      number: parseInt(number, 16) || 0,
+      timestamp: parseInt(timestamp, 16) || 0,
+      gasLimit: parseInt(gas_limit, 16) || 0,
+      gasUsed: parseInt(gas_used, 16) || 0,
+      parent: zeroX(parent),
       nonce,
-      difficulty: parseInt(difficulty, 16),
-      totalDifficulty: parseInt(totalDifficulty, 16),
-      miner,
+      difficulty: parseInt(difficulty, 16) || 0,
+      totalDifficulty: parseInt(totalDifficulty, 16) || 0,
+      miner: zeroX(miner),
       transactionCount: parseInt(transactionCount, 16) || 0,
       transactions,
     };
-    return this.pbftRepository.save(pbft);
+    const updated = await this.pbftRepository.save(pbft);
+    if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
   }
 }
