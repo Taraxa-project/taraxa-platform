@@ -38,13 +38,15 @@ export const useNodesEffects = () => {
     if (!nodes?.length) {
       return [];
     }
-    const formattedNodes: NodesTableData[] = nodes.map((node: RankedNode) => {
-      return {
-        rank: node.id,
-        nodeAddress: node.address,
-        blocksProduced: node.pbftCount,
-      };
-    });
+    const formattedNodes: NodesTableData[] = nodes.map(
+      (node: RankedNode, i: number) => {
+        return {
+          rank: tableData?.length > 0 ? tableData.length + i + 1 : i + 1,
+          nodeAddress: node.address,
+          blocksProduced: node.pbftCount,
+        };
+      }
+    );
     return formattedNodes;
   };
 

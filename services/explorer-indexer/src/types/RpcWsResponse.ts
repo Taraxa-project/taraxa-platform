@@ -93,7 +93,10 @@ export interface NewDagBlockResponse {
   level?: number;
   period?: number;
   signature?: string;
-  vdf?: number;
+  vdf?: {
+    difficulty: string;
+    proof: string;
+  };
   transactionCount?: number;
   transactions?: string[];
   author: string; // block auther, same as miner

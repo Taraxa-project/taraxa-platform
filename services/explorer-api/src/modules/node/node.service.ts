@@ -28,11 +28,8 @@ export class NodeService {
 
   public async findAll(filterDto: GetNodesDto): Promise<NodesPaginate> {
     const [nodes, total] = await this.getByFilters(filterDto);
-    const formmatedNodes = nodes?.map((node: TaraxaNode) => {
-      return this.formatNodesToFrontend(node);
-    });
     return {
-      data: formmatedNodes || [],
+      data: nodes || [],
       total,
     };
   }
@@ -70,15 +67,5 @@ export class NodeService {
       );
       throw new InternalServerErrorException('Internal server exception');
     }
-  }
-
-  private formatNodesToFrontend(node: TaraxaNode): RankedNode {
-    if (!node) {
-      return;
-    }
-    return {
-      ...node,
-      rank: node.id,
-    } as RankedNode;
   }
 }
