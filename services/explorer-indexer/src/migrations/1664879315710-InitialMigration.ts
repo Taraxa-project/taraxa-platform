@@ -22,8 +22,8 @@ export class InitialMigration1664879315710 implements MigrationInterface {
       "number" integer NOT NULL,
       "nonce" character varying,
       "miner" character varying,
-      "gasLimit" integer,  
-      "gasUsed" integer,  
+      "gasLimit" bigint,  
+      "gasUsed" bigint,  
       "parent" character varying,
       "difficulty" integer,
       "totalDifficulty" integer,
@@ -31,7 +31,12 @@ export class InitialMigration1664879315710 implements MigrationInterface {
       CONSTRAINT "PK_cccccc93c01b655ad755cebf74fc6" PRIMARY KEY ("hash"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "explorer_node" ("id" character varying NOT NULL, "lastBlockNumber" integer NOT NULL, "count" integer NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_0dcdsc50571405beb630f56df277" PRIMARY KEY ("id"))`
+      `CREATE TABLE "explorer_node" ("id" character varying NOT NULL, 
+      "lastBlockNumber" integer NOT NULL, 
+      "count" integer NOT NULL, 
+      "createdAt" TIMESTAMP NOT NULL DEFAULT now(), 
+      "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), 
+      CONSTRAINT "PK_0dcdsc50571405beb630f56df277" PRIMARY KEY ("id"))`
     );
   }
 
