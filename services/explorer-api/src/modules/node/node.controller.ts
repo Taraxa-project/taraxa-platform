@@ -21,7 +21,7 @@ export class NodeController {
     description: 'Returns all nodes',
   })
   @Get()
-  public getAllPools(
+  public getAllNodes(
     @Query(ValidationPipe) filterDto: GetNodesDto
   ): Promise<NodesPaginate> {
     return this.service.findAll(filterDto);

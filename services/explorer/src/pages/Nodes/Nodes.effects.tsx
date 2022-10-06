@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import { ColumnData, NodesTableData } from '../../models';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { RankedNode, useGetNodes } from '../../api';
@@ -14,14 +14,15 @@ const cols: ColumnData[] = [
 export const useNodesEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
   const blocks = 3214; // We will get this from GraphQL
-  const weekNo = 8; // We will get this from GraphQL
-  const now = moment();
-  const monday = now.clone().weekday(1).format('MMM DD');
-  const sunday = now.clone().weekday(7).format('MMM DD');
-  const year = now.clone().year();
+
+  const weekNo = DateTime.now().weekNumber;
+  const year = DateTime.now().year;
+  const monday = DateTime.now().startOf('week').toFormat('LLL dd');
+  const sunday = DateTime.now().endOf('week').toFormat('LLL dd');
   const title = `Top nodes for Week ${weekNo} ${year}`;
   const subtitle = `Top block producers for Week ${weekNo} (${monday} - ${sunday})`;
   const description = 'Total blocks produced this week';
+
   const [tableData, setTableData] = useState<NodesTableData[]>([]);
   const [totalCount, setTotalCount] = useState<number>();
 
@@ -57,7 +58,6 @@ export const useNodesEffects = () => {
 
   useEffect(() => {
     if (nodesResult?.data && nodesResult?.total) {
-      console.log('nodesResult.data: ', nodesResult.data);
       setTableData(
         tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
       );
@@ -66,14 +66,12 @@ export const useNodesEffects = () => {
   }, [nodesResult]);
 
   const handleChangePage = (newPage: number) => {
-    console.log('New page: ', newPage);
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    console.log('Rows per page changed');
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
