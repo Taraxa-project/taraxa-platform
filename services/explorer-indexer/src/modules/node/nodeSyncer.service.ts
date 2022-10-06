@@ -7,30 +7,16 @@ import {
   EventListener,
   OnMessage,
 } from 'nestjs-websocket';
-import util from 'util';
 import {
   checkType,
   NewDagBlockFinalizedResponse,
   NewDagBlockResponse,
+  NewPbftBlockHeaderResponse,
   NewPbftBlockResponse,
   ResponseTypes,
   toObject,
+  Topics,
 } from 'src/types';
-
-export enum Topics {
-  NEW_DAG_BLOCKS = 'newDagBlocks', // @note fired when a DAG block is accepted by the consensus
-  NEW_DAG_BLOCKS_FINALIZED = 'newDagBlocksFinalized', // @note fired when a DAG block is inserted into a PBFT block
-  NEW_PBFT_BLOCKS = 'newPbftBlocks', // @note fired when a PBFT block is accepted by the consensus
-  NEW_HEADS = 'newHeads', // @note fired when a PBFT ns "mined": all transactions inside it were executed
-  ERRORS = 'error', // @note error message
-}
-
-export enum Subscriptions {
-  NEW_DAG_BLOCKS = 1, // @note fired when a DAG block is accepted by the consensus
-  NEW_DAG_BLOCKS_FINALIZED = 2, // @note fired when a DAG block is inserted into a PBFT block
-  NEW_PBFT_BLOCKS = 3, // @note fired when a PBFT block is accepted by the consensus
-  NEW_HEADS = 4, // @note fired when a PBFT ns "mined": all transactions inside it were executed
-}
 
 @Injectable()
 export default class NodeSyncerService {
@@ -65,7 +51,7 @@ export default class NodeSyncerService {
       }
     );
     this.logger.warn(
-      `Subscribet to eth_subscription method ${Topics.NEW_DAG_BLOCKS}`
+      `Subscribed to eth_subscription method ${Topics.NEW_DAG_BLOCKS}`
     );
     this.ws.send(
       JSON.stringify({
@@ -84,7 +70,7 @@ export default class NodeSyncerService {
       }
     );
     this.logger.warn(
-      `Subscribet to eth_subscription method ${Topics.NEW_DAG_BLOCKS_FINALIZED}`
+      `Subscribed to eth_subscription method ${Topics.NEW_DAG_BLOCKS_FINALIZED}`
     );
     this.ws.send(
       JSON.stringify({
@@ -103,7 +89,7 @@ export default class NodeSyncerService {
       }
     );
     this.logger.warn(
-      `Subscribet to eth_subscription method ${Topics.NEW_PBFT_BLOCKS}`
+      `Subscribed to eth_subscription method ${Topics.NEW_PBFT_BLOCKS}`
     );
 
     this.ws.send(
@@ -123,7 +109,7 @@ export default class NodeSyncerService {
       }
     );
     this.logger.warn(
-      `Subscribet to eth_subscription method ${Topics.NEW_HEADS}`
+      `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
     );
   }
 
@@ -136,14 +122,14 @@ export default class NodeSyncerService {
 
   @EventListener('ping')
   onPing(data: Buffer) {
-    const j = data.toJSON();
-    this.logger.log(`PING ${this.ws.url} >>> ${j}`);
+    const pingJson = data.toJSON();
+    this.logger.log(`PING ${this.ws.url} >>> ${pingJson}`);
   }
 
   @EventListener('pong')
   onPong(data: Buffer) {
-    const j = data.toJSON();
-    this.logger.log(`PONG ${this.ws.url} >>> ${j}`);
+    const pongJson = data.toJSON();
+    this.logger.log(`PONG ${this.ws.url} >>> ${pongJson}`);
   }
 
   @EventListener('error')
@@ -153,26 +139,37 @@ export default class NodeSyncerService {
 
   @OnMessage()
   message(data: WebSocketClient.Data) {
-    this.logger.log(
-      `Data received: ${util.inspect(JSON.parse(data.toString()))}`
-    );
     const parsedData = toObject(
       data,
       (msg: string) => this.logger.warn(msg),
       this.logger
     );
     const type = checkType(parsedData);
-    switch (type) {
-      case ResponseTypes.NewDagBlockFinalizedResponse:
-        this.dagService.updateDag(
-          parsedData.result as NewDagBlockFinalizedResponse
-        );
-      case ResponseTypes.NewDagBlockResponse:
-        this.dagService.handleNewDag(parsedData.result as NewDagBlockResponse);
-      case ResponseTypes.NewPbftBlockResponse:
-        this.pbftService.handleNewPbft(
-          parsedData.result as NewPbftBlockResponse
-        );
+    try {
+      switch (type) {
+        case ResponseTypes.NewDagBlockFinalizedResponse:
+          this.dagService.updateDag(
+            parsedData.result as NewDagBlockFinalizedResponse
+          );
+          break;
+        case ResponseTypes.NewDagBlockResponse:
+          this.dagService.handleNewDag(
+            parsedData.result as NewDagBlockResponse
+          );
+          break;
+        case ResponseTypes.NewPbftBlockResponse:
+          this.pbftService.handleNewPbft(
+            parsedData.result as NewPbftBlockResponse
+          );
+          break;
+        case ResponseTypes.NewHeadsReponse:
+          this.pbftService.handleNewPbftHeads(
+            parsedData.result as NewPbftBlockHeaderResponse
+          );
+          break;
+      }
+    } catch (error) {
+      this.logger.error(`Could not persist incoming data. Cause: ${error}`);
     }
   }
 
