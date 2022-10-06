@@ -42,6 +42,7 @@
     "@mui/lab": "^5.0.0-alpha.95",
     "@mui/material": "^5.10.1",
     "@mui/styles": "^5.9.3",
+    "@taraxa_project/taraxa-models": "^0.0.1",
     "@taraxa_project/taraxa-ui": "^0.0.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -59,6 +60,7 @@
     "ethers": "^5.7.1",
     "graphql": "^16.6.0",
     "jdenticon": "^3.1.1",
+    "luxon": "^3.0.4",
     "metamask-react": "^2.0.2",
     "moment": "^2.29.2",
     "node-sass": "^6.0.1",
@@ -70,6 +72,7 @@
     "react-google-recaptcha-v3": "^1.9.5",
     "react-hook-form": "^7.34.2",
     "react-markdown": "^7.1.0",
+    "react-query": "^3.39.2",
     "react-responsive": "^9.0.0-beta.4",
     "react-router-dom": "6.3.0",
     "react-scripts": "4.0.3",
@@ -83,6 +86,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
-    "@types/date-and-time": "^0.13.0"
+    "@types/date-and-time": "^0.13.0",
+    "@types/luxon": "^3.0.1"
   }
 }

@@ -54,7 +54,8 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @Column({ nullable: true })
   @IsNumber()
   transactionCount?: number;
-  @Column({ nullable: true })
+
+  @Column('simple-array', { nullable: true })
   @IsArray()
   transactions?: ITransaction[];
 }

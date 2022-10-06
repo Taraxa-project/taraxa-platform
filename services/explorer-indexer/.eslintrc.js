@@ -1,33 +1,51 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.json',
-    tsconfigRootDir: __dirname,
+    project: './tsconfig.json',
     sourceType: 'module',
+    tsconfigRootDir: __dirname,
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'prettier',
   ],
   root: true,
   env: {
     node: true,
-    jest: true,
   },
+  ignorePatterns: ['.eslintrc.js'],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
   },
-  settings: {
-    'import/resolver': {
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'],
+  overrides: [
+    {
+      // JavaScript and JSX
+      files: ['*.{ts,tsx}'],
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+      },
+      rules: {
+        'no-restricted-exports': 'off',
+        'prettier/prettier': [
+          'error',
+          {
+            endOfLine: 'auto',
+            printWidth: 80,
+            trailingComma: 'es5',
+            semi: true,
+            doubleQuote: false,
+            jsxSingleQuote: true,
+            singleQuote: true,
+            useTabs: false,
+            tabWidth: 2,
+          },
+        ],
       },
     },
-  },
+  ],
 };
