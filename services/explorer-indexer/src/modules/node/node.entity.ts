@@ -1,18 +1,10 @@
-import {
-  Entity,
-  BaseEntity,
-  Column,
-  PrimaryColumn,
-  Unique,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Entity, BaseEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ITaraxaNode } from '@taraxa_project/taraxa-models';
 
 const tableName = 'explorer_node';
 
 @Entity(tableName)
-@Unique(['id'])
 export class TaraxaNode extends BaseEntity implements ITaraxaNode {
   constructor(node?: Partial<ITaraxaNode>) {
     super();
@@ -22,7 +14,7 @@ export class TaraxaNode extends BaseEntity implements ITaraxaNode {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   @IsNotEmpty()
   @IsString()
   address!: string;
