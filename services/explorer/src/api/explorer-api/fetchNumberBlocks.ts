@@ -9,7 +9,7 @@ const getBlocksNumber = () => {
 
 export const useGetBlocksThisWeek = () => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['pbgt-blocks-this-week'],
+    ['pbft-blocks-this-week'],
     () => getBlocksNumber(),
     {
       onError: (error) => {
