@@ -11,6 +11,7 @@ import {
   PbftEntity,
   DagEntity,
 } from './modules';
+import { HealthModule } from './modules/health/health.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];
@@ -74,6 +75,7 @@ const IndexerTypeOrmModule = () => {
     NodeModule,
     DagModule,
     PbftModule,
+    HealthModule,
   ],
   providers: [],
   exports: [],
