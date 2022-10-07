@@ -19,6 +19,17 @@ export default class DagService {
     this.dagRepository = dagRepository;
   }
 
+  public getLastDagHash = async () => {
+    return (
+      await this.dagRepository
+        .createQueryBuilder('dags')
+        .select()
+        .orderBy('dags.timestamp', 'DESC')
+        .limit(1)
+        .getOne()
+    ).hash;
+  };
+
   public async handleNewDag(dagData: NewDagBlockResponse) {
     const {
       hash,

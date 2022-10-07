@@ -19,15 +19,40 @@ export default class PbftService {
     this.pbftRepository = pbftRepository;
   }
 
-  public async handleNewPbft(pbftData: NewPbftBlockResponse) {
+  private updateValuesForPbft = async (pbftData: NewPbftBlockResponse) => {
     const { block_hash, period, timestamp, beneficiary } = { ...pbftData };
-    if (!block_hash) return;
-    const pbft: IPBFT = {
-      hash: zeroX(block_hash),
-      number: period || 0,
-      timestamp: timestamp || 0,
-      miner: zeroX(beneficiary),
-    };
+    const existing = await this.pbftRepository.findOneBy({ hash: block_hash });
+    if (existing) {
+      existing.number = period;
+      existing.timestamp = timestamp;
+      existing.miner = beneficiary;
+      return existing;
+    } else {
+      const pbft: IPBFT = {
+        hash: zeroX(block_hash),
+        number: period || 0,
+        timestamp: timestamp || 0,
+        miner: zeroX(beneficiary),
+      };
+      return pbft;
+    }
+  };
+
+  public getLastPbftHash = async () => {
+    return (
+      await this.pbftRepository
+        .createQueryBuilder('pbfts')
+        .select()
+        .orderBy('pbfts.timestamp', 'DESC')
+        .limit(1)
+        .getOne()
+    ).hash;
+  };
+
+  public async handleNewPbft(pbftData: NewPbftBlockResponse) {
+    if (!pbftData || !pbftData.block_hash) return;
+
+    const pbft = await this.updateValuesForPbft(pbftData);
     const saved = await this.pbftRepository.save(pbft as PbftEntity);
     if (saved) {
       this.logger.log(`Registered new PBFT ${pbft.hash}`);
