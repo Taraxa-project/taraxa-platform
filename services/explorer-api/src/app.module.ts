@@ -10,6 +10,7 @@ import {
   NodeModule,
   PbftModule,
   DagModule,
+  HealthModule,
 } from './modules';
 
 const getEnvFilePath = () => {
@@ -74,6 +75,7 @@ const IndexerTypeOrmModule = () => {
     NodeModule,
     PbftModule,
     DagModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
