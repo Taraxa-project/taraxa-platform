@@ -1,5 +1,5 @@
 import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, Index, PrimaryColumn } from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
 
 const table_name = 'pbfts';
@@ -16,11 +16,13 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @Column({ nullable: false })
   @IsNumber()
   @IsNotEmpty()
+  @Index()
   number: number;
 
   @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
+  @Index()
   timestamp: number;
 
   @Column({ nullable: true })
@@ -29,6 +31,7 @@ export class PbftEntity extends BaseEntity implements IPBFT {
 
   @Column({ nullable: true })
   @IsString()
+  @Index()
   miner?: string;
 
   @Column({ nullable: true, type: 'bigint' })

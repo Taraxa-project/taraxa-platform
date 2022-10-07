@@ -1,4 +1,10 @@
-import { Entity, BaseEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  BaseEntity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+} from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ITaraxaNode } from '@taraxa_project/taraxa-models';
 
@@ -17,6 +23,7 @@ export class TaraxaNode extends BaseEntity implements ITaraxaNode {
   @Column({ nullable: false, unique: true })
   @IsNotEmpty()
   @IsString()
+  @Index()
   address!: string;
 
   @Column({ nullable: false, default: 0 })
@@ -27,11 +34,13 @@ export class TaraxaNode extends BaseEntity implements ITaraxaNode {
   @Column({ nullable: false, default: 0 })
   @IsNotEmpty()
   @IsNumber()
+  @Index()
   pbftCount!: number;
 
   @Column({ nullable: false, default: 0 })
   @IsNotEmpty()
   @IsNumber()
+  @Index()
   dagCount!: number;
 
   @Column({
