@@ -9,6 +9,7 @@ import {
 } from '../../api/mocks';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
+import { useGetNodeByAddress } from '../../api';
 
 export const useAddressInfoEffects = (account: string) => {
   const [transactions, setTransactions] = useState<Transaction[]>();
@@ -22,14 +23,29 @@ export const useAddressInfoEffects = (account: string) => {
     pause: !account,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const {
+    data: nodeData,
+    isFetching,
+    isLoading,
+  } = useGetNodeByAddress(account);
 
   useEffect(() => {
-    if (fetching) {
+    if (fetching || isFetching || isLoading) {
       initLoading();
     } else {
       finishLoading();
     }
-  }, [fetching]);
+  }, [fetching, isFetching, isLoading]);
+
+  useEffect(() => {
+    if (nodeData?.data) {
+      setAddressInfoDetails({
+        ...addressInfoDetails,
+        dagBlocks: nodeData?.data?.dagCount,
+        pbftBlocks: nodeData?.data?.pbftCount,
+      });
+    }
+  }, [nodeData]);
 
   useEffect(() => {
     if (data?.block) {
@@ -45,8 +61,8 @@ export const useAddressInfoEffects = (account: string) => {
         totalReceived: '10000 (mocked)',
         totalSent: '10000 (mocked)',
         fees: '15 (mocked)',
-        dagBlocks: 320,
-        pbftBlocks: 221,
+        dagBlocks: addressInfoDetails.dagBlocks || 0,
+        pbftBlocks: addressInfoDetails.pbftBlocks || 0,
       };
       setAddressInfoDetails(details);
     }

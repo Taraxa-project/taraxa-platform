@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { API } from './types';
+import { API } from '../types';
 
 const getBlocksNumber = () => {
   const url = `${API}/pbft/total-this-week`;
