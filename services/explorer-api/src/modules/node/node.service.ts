@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -28,6 +29,16 @@ export class NodeService {
       data: nodes || [],
       total,
     };
+  }
+
+  public async findByAddress(address: string): Promise<TaraxaNode> {
+    const node = await this.repository.findOneBy({ address: address });
+    if (!node) {
+      throw new NotFoundException(
+        `There aren't any nodes with the address ${address}`
+      );
+    }
+    return node;
   }
 
   private async getByFilters(
