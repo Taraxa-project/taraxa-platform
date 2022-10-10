@@ -3,13 +3,14 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryColumn,
 } from 'typeorm';
 import { IsNumber, IsString, IsArray } from 'class-validator';
-import { PbftEntity } from '../pbft';
-import { DagEntity } from '../dag';
+import { PbftEntity } from '../pbft/pbft.entity';
+import { DagEntity } from '../dag/dag.entity';
 
 const table_name = 'transactions';
 
@@ -59,13 +60,12 @@ export default class TransactionEntity
   inputData?: string;
 
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions)
-  @Column({ nullable: true })
-  @IsString()
   block?: PbftEntity;
 
-  @ManyToMany(() => DagEntity, (dag) => dag.transactions)
-  @Column('simple-array', { nullable: true })
-  @IsArray()
+  @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
+    cascade: true,
+  })
+  @JoinTable()
   dagBlocks?: DagEntity[];
 
   @Column({ nullable: true })
