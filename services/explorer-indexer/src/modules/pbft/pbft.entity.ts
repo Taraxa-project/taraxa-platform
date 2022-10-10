@@ -67,7 +67,5 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   transactionCount?: number;
 
   @OneToMany(() => TransactionEntity, (transaction) => transaction.block)
-  @Column('simple-array', { nullable: true })
-  @IsArray()
   transactions?: TransactionEntity[];
 }

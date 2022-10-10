@@ -5,6 +5,7 @@ import { WebSocketModule } from 'nestjs-websocket';
 import NodeSyncerService from './nodeSyncer.service';
 import { DagModule } from '../dag';
 import { PbftModule } from '../pbft';
+import { TransactionModule } from '../transaction';
 
 @Injectable()
 class ConfigService {
@@ -35,6 +36,7 @@ class ConfigModule {}
     }),
     DagModule,
     PbftModule,
+    TransactionModule,
   ],
   providers: [NodeSyncerService],
   controllers: [],

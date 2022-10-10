@@ -18,6 +18,7 @@ import {
   Topics,
 } from 'src/types';
 import util from 'util';
+import TransactionService from '../transaction/transaction.service';
 
 @Injectable()
 export default class NodeSyncerService {
@@ -27,7 +28,8 @@ export default class NodeSyncerService {
     @InjectWebSocketProvider()
     private readonly ws: WebSocketClient,
     private readonly dagService: DagService,
-    private readonly pbftService: PbftService
+    private readonly pbftService: PbftService,
+    private readonly txService: TransactionService
   ) {
     this.logger.log('Starting NodeSyncronizer');
   }
@@ -130,7 +132,7 @@ export default class NodeSyncerService {
       }
     );
     this.logger.warn(
-      `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
+      `Subscribed to eth_subscription method ${Topics.NEW_PENDING_TRANSACTIONS}`
     );
   }
 
@@ -189,9 +191,9 @@ export default class NodeSyncerService {
           );
           break;
         case ResponseTypes.NewPendingTransactions:
-          this.logger.error(
-            `Pending tx data is: ${util.inspect(parsedData.result)}`
-          );
+          this.txService.safeSaveTransaction({
+            hash: parsedData.result as string,
+          });
       }
     } catch (error) {
       this.logger.error(`Could not persist incoming data. Cause: ${error}`);

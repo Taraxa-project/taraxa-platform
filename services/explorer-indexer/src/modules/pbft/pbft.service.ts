@@ -2,8 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPBFT } from '@taraxa_project/taraxa-models';
 import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
-import { zeroX } from 'src/utils';
+import { findTransactionsByHashesOrFill, zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
+import TransactionEntity from '../transaction/transaction.entity';
 import { PbftEntity } from './pbft.entity';
 
 @Injectable()
@@ -11,14 +12,18 @@ export default class PbftService {
   private readonly logger: Logger = new Logger(PbftService.name);
   constructor(
     @InjectRepository(PbftEntity)
-    private pbftRepository: Repository<PbftEntity>
+    private pbftRepository: Repository<PbftEntity>,
+    @InjectRepository(TransactionEntity)
+    private tsRepository: Repository<TransactionEntity>
   ) {
     this.pbftRepository = pbftRepository;
   }
 
   private updateValuesForPbft = async (pbftData: NewPbftBlockResponse) => {
     const { block_hash, period, timestamp, beneficiary } = { ...pbftData };
-    const existing = await this.pbftRepository.findOneBy({ hash: block_hash });
+    const existing = await this.pbftRepository.findOneBy({
+      hash: zeroX(block_hash),
+    });
     if (existing) {
       existing.number = period;
       existing.timestamp = timestamp;
@@ -72,6 +77,11 @@ export default class PbftService {
       transactions,
     } = { ...pbftData };
     if (!hash) return;
+    const txes = await findTransactionsByHashesOrFill(
+      transactions,
+      this.tsRepository,
+      this.logger
+    );
     const pbft: IPBFT = {
       hash: zeroX(hash),
       number: parseInt(number, 16) || 0,
@@ -84,8 +94,11 @@ export default class PbftService {
       totalDifficulty: parseInt(totalDifficulty, 16) || 0,
       miner: zeroX(miner),
       transactionCount: parseInt(transactionCount, 16) || 0,
-      transactions,
+      transactions: txes,
     };
+    if (transactions?.length > 0) {
+      console.error(pbft);
+    }
     const updated = await this.pbftRepository.save(pbft as PbftEntity);
     if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
   }

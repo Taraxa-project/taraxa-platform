@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   Index,
+  JoinTable,
   ManyToMany,
   PrimaryColumn,
 } from 'typeorm';
@@ -63,7 +64,5 @@ export class DagEntity extends BaseEntity implements IDAG {
   transactionCount?: number;
 
   @ManyToMany(() => TransactionEntity, (transaction) => transaction.dagBlocks)
-  @Column('simple-array', { nullable: true })
-  @IsArray()
-  transactions?: TransactionEntity[];
+  transactions!: TransactionEntity[];
 }
