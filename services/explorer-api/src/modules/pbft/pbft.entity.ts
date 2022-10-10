@@ -1,4 +1,4 @@
-import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
+import { IPBFT } from '@taraxa_project/taraxa-models';
 import { BaseEntity, Column, Entity, Index, PrimaryColumn } from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
 

@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NodeController } from './node.controller';
-import { TaraxaNode } from './node.entity';
+import { NodeEntity } from './node.entity';
 import { NodeService } from './node.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TaraxaNode])],
+  imports: [TypeOrmModule.forFeature([NodeEntity])],
   providers: [NodeService],
   controllers: [NodeController],
 })
