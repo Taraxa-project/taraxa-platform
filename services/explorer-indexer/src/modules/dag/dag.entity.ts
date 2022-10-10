@@ -1,6 +1,14 @@
 import { IDAG } from '@taraxa_project/taraxa-models';
-import { BaseEntity, Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  ManyToMany,
+  PrimaryColumn,
+} from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
+import TransactionEntity from '../transaction/transaction.entity';
 
 const table_name = 'dags';
 
@@ -11,6 +19,7 @@ export class DagEntity extends BaseEntity implements IDAG {
     Object.assign(this, dag);
   }
   @PrimaryColumn()
+  @IsString()
   hash: string;
 
   @Column({ nullable: true })
@@ -53,7 +62,8 @@ export class DagEntity extends BaseEntity implements IDAG {
   @IsNumber()
   transactionCount?: number;
 
+  @ManyToMany(() => TransactionEntity, (transaction) => transaction.dagBlocks)
   @Column('simple-array', { nullable: true })
   @IsArray()
-  transactions?: string[];
+  transactions?: TransactionEntity[];
 }

@@ -1,6 +1,14 @@
-import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
-import { BaseEntity, Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import { IPBFT } from '@taraxa_project/taraxa-models';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
+import TransactionEntity from '../transaction/transaction.entity';
 
 const table_name = 'pbfts';
 
@@ -58,7 +66,8 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @IsNumber()
   transactionCount?: number;
 
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.block)
   @Column('simple-array', { nullable: true })
   @IsArray()
-  transactions?: string[];
+  transactions?: TransactionEntity[];
 }
