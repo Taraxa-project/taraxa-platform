@@ -10,8 +10,8 @@ import {
   PbftModule,
   PbftEntity,
   DagEntity,
-  HealthModule,
   TransactionModule,
+  HealthModule,
 } from './modules';
 import TransactionEntity from './modules/transaction/transaction.entity';
 
