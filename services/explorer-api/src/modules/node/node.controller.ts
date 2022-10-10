@@ -38,4 +38,16 @@ export class NodeController {
   ): Promise<NodeDto | null> {
     return this.service.findByAddress(address);
   }
+
+  @Get('/:address/stats')
+  @ApiOkResponse({
+    type: NodeDto,
+    description: 'Returns stats for a given address',
+  })
+  @ApiNotFoundResponse({
+    description: `The node with the address doesn't exist`,
+  })
+  async getStats(@Param('address') address: string): Promise<any> {
+    return this.service.getStats(address);
+  }
 }

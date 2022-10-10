@@ -22487,7 +22487,7 @@ web3-shh@1.8.0:
     web3-core-subscriptions "1.8.0"
     web3-net "1.8.0"
 
-web3-utils@1.8.0:
+web3-utils@1.8.0, web3-utils@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.8.0.tgz#0a506f8c6af9a2ad6ba79689892662769534fc03"
   integrity sha512-7nUIl7UWpLVka2f09CMbKOSEvorvHnaugIabU4mj7zfMvm0tSByLcEu3eyV9qgS11qxxLuOkzBIwCstTflhmpQ==
