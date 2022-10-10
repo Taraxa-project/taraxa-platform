@@ -4,14 +4,15 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
 import {
-  TaraxaNode,
   NodeModule,
   DagModule,
   PbftModule,
   PbftEntity,
   DagEntity,
+  HealthModule,
+  TransactionModule,
 } from './modules';
-import { HealthModule } from './modules/health/health.module';
+import TransactionEntity from './modules/transaction/transaction.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];
@@ -25,7 +26,7 @@ const getEnvFilePath = () => {
   }
 };
 
-export const entities = [TaraxaNode, PbftEntity, DagEntity];
+export const entities = [TransactionEntity, PbftEntity, DagEntity];
 
 const IndexerTypeOrmModule = () => {
   let typeOrmOptions: TypeOrmModuleOptions;
@@ -75,6 +76,7 @@ const IndexerTypeOrmModule = () => {
     NodeModule,
     DagModule,
     PbftModule,
+    TransactionModule,
     HealthModule,
   ],
   providers: [],
