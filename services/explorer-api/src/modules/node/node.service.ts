@@ -7,10 +7,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GetNodesDto } from './dto/get-nodes.dto';
-import { TaraxaNode } from './node.entity';
+import { NodeDto } from './dto/node.dto';
+import { NodeEntity } from './node.entity';
 
 export interface NodesPaginate {
-  data: TaraxaNode[];
+  data: NodeDto[];
   total: number;
 }
 
@@ -19,8 +20,8 @@ export class NodeService {
   private logger = new Logger('NodeService');
 
   constructor(
-    @InjectRepository(TaraxaNode)
-    private repository: Repository<TaraxaNode>
+    @InjectRepository(NodeEntity)
+    private repository: Repository<NodeEntity>
   ) {}
 
   public async findAll(filterDto: GetNodesDto): Promise<NodesPaginate> {
@@ -31,7 +32,7 @@ export class NodeService {
     };
   }
 
-  public async findByAddress(address: string): Promise<TaraxaNode> {
+  public async findByAddress(address: string): Promise<NodeDto> {
     const node = await this.repository.findOneBy({ address: address });
     if (!node) {
       throw new NotFoundException(
@@ -43,7 +44,7 @@ export class NodeService {
 
   private async getByFilters(
     filterDto: GetNodesDto
-  ): Promise<[TaraxaNode[], number]> {
+  ): Promise<[NodeDto[], number]> {
     const { take, skip } = filterDto;
     const limit = take || 0;
     const offset = skip || 0;
@@ -52,13 +53,7 @@ export class NodeService {
 
     const query = this.repository
       .createQueryBuilder('explorer_node')
-      .select([
-        'explorer_node.id',
-        'explorer_node.address',
-        'explorer_node.pbftCount',
-        'explorer_node.createdAt',
-        'explorer_node.updatedAt',
-      ]);
+      .select(['explorer_node.address', 'explorer_node.pbftCount']);
 
     try {
       const results = await query

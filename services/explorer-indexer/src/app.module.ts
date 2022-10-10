@@ -4,7 +4,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
 import {
-  TaraxaNode,
+  NodeEntity,
   NodeModule,
   DagModule,
   PbftModule,
@@ -25,7 +25,7 @@ const getEnvFilePath = () => {
   }
 };
 
-export const entities = [TaraxaNode, PbftEntity, DagEntity];
+export const entities = [NodeEntity, PbftEntity, DagEntity];
 
 const IndexerTypeOrmModule = () => {
   let typeOrmOptions: TypeOrmModuleOptions;
