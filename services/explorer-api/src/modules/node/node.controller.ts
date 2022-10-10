@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags, ApiNotFoundResponse } from '@nestjs/swagger';
 import { GetNodesDto } from './dto/get-nodes.dto';
-import { TaraxaNode } from './node.entity';
+import { NodeDto } from './dto/node.dto';
 import { NodeService, NodesPaginate } from './node.service';
 
 @ApiTags('nodes')
@@ -18,7 +18,7 @@ export class NodeController {
 
   @ApiOkResponse({
     status: HttpStatus.OK,
-    type: [TaraxaNode],
+    type: [NodeDto],
     description: 'Returns all nodes',
   })
   @Get()
@@ -29,13 +29,13 @@ export class NodeController {
   }
 
   @Get('/:address')
-  @ApiOkResponse({ type: TaraxaNode, description: 'Returns a Node' })
+  @ApiOkResponse({ type: NodeDto, description: 'Returns a Node' })
   @ApiNotFoundResponse({
     description: `The node with the address doesn't exist`,
   })
   async getByAddress(
     @Param('address') address: string
-  ): Promise<TaraxaNode | null> {
+  ): Promise<NodeDto | null> {
     return this.service.findByAddress(address);
   }
 }
