@@ -38,6 +38,7 @@ export class DagEntity extends BaseEntity implements IDAG {
 
   @Column({ nullable: true })
   @IsString()
+  @Index()
   author?: string;
 
   @Column({ nullable: true })
