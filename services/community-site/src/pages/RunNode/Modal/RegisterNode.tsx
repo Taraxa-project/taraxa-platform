@@ -16,6 +16,8 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
   const [addressError, setAddressError] = useState('');
   const [addressProof, setAddressProof] = useState('');
   const [addressProofError, setAddressProofError] = useState('');
+  const [vrfKey, setVrfKey] = useState('');
+  const [vrfKeyError, setVrfKeyError] = useState('');
   const [commission, setCommission] = useState('');
   const [commissionError, setCommissionError] = useState('');
   const [ip, setIp] = useState('');
@@ -29,6 +31,7 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
     setError('');
     setAddressError('');
     setAddressProofError('');
+    setVrfKeyError('');
     setIpError('');
     setCommissionError('');
 
@@ -43,6 +46,10 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
       payload.ip = ip;
     }
 
+    if (type === 'testnet') {
+      payload.vrfKey = vrfKey;
+    }
+
     const result = await delegationApi.post(`/nodes`, payload, true);
 
     if (result.success) {
@@ -51,6 +58,10 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
       const generalErrors = result.response.filter((errMsg) => {
         if (errMsg.startsWith('addressProof')) {
           setAddressProofError(errMsg.slice('addressProof'.length + 1));
+          return false;
+        }
+        if (errMsg.startsWith('vrfKey')) {
+          setVrfKeyError(errMsg.slice('vrfKey'.length + 1));
           return false;
         }
         if (errMsg.startsWith('address')) {
@@ -120,6 +131,21 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
             setAddressProof(event.target.value);
           }}
         />
+        {type === 'testnet' && (
+          <InputField
+            label="VRF Public Key"
+            error={!!vrfKeyError}
+            helperText={vrfKeyError}
+            value={vrfKey}
+            variant="outlined"
+            type="text"
+            fullWidth
+            margin="normal"
+            onChange={(event) => {
+              setVrfKey(event.target.value);
+            }}
+          />
+        )}
         <InputField
           label="Node IP (optional)"
           error={!!ipError}
@@ -180,6 +206,22 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
         }
         fullWidth
       />
+      {type === 'testnet' && (
+        <Button
+          label="How to find my node's VRF public key?"
+          variant="outlined"
+          color="secondary"
+          className="node-control-reference-button"
+          onClick={() =>
+            window.open(
+              `https://docs.taraxa.io/node-setup/vrf_key`,
+              '_blank',
+              'noreferrer noopener',
+            )
+          }
+          fullWidth
+        />
+      )}
       <Button
         label="How do I get the proof of owership?"
         variant="outlined"

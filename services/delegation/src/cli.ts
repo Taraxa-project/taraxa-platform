@@ -112,11 +112,6 @@ async function bootstrap() {
     await unDelegate(n, currentDelegations);
   };
 
-  const rebalanceTestnet = async () => {
-    await delegationService.rebalanceTestnet();
-    return Promise.resolve();
-  };
-
   const rebalanceMainnet = async () => {
     await delegationService.rebalanceMainnet();
     return Promise.resolve();
@@ -197,11 +192,6 @@ async function bootstrap() {
       'mainnet-undelegate',
       'remove delegation from all mainnet nodes',
       mainnetUndelegate,
-    )
-    .command(
-      'rebalance-testnet',
-      'rebalances own node delegations for testnet',
-      rebalanceTestnet,
     )
     .command(
       'rebalance-mainnet',
