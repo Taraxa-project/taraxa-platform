@@ -123,7 +123,8 @@ export interface BaseResponseRype {
     | NewDagBlockResponse
     | NewPbftBlockHeaderResponse
     | NewDagBlockFinalizedResponse
-    | NewPbftBlockResponse;
+    | NewPbftBlockResponse
+    | string;
 }
 export interface RpcResponseData {
   result: any;
@@ -196,6 +197,15 @@ export const toObject = (
           subscription: response.params.subscription,
         } as BaseResponseRype;
         returnObj = newHeadsData;
+        break;
+      }
+      case '0x5': {
+        // NEW_HEADS
+        const newTxData = {
+          result: response.params.result as string,
+          subscription: response.params.subscription,
+        } as BaseResponseRype;
+        returnObj = newTxData;
         break;
       }
       default:
