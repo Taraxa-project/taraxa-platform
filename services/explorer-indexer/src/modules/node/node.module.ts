@@ -1,6 +1,4 @@
 import { Injectable, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TaraxaNode } from './node.entity';
 import { WebSocketModule } from 'nestjs-websocket';
 import NodeSyncerService from './nodeSyncer.service';
 import { DagModule } from '../dag';
@@ -20,7 +18,6 @@ class ConfigModule {}
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TaraxaNode]),
     WebSocketModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

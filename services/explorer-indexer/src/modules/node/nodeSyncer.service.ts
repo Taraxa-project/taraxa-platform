@@ -17,6 +17,7 @@ import {
   toObject,
   Topics,
 } from 'src/types';
+import util from 'util';
 
 @Injectable()
 export default class NodeSyncerService {
@@ -111,6 +112,26 @@ export default class NodeSyncerService {
     this.logger.warn(
       `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
     );
+
+    this.ws.send(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 0,
+        method: 'eth_subscribe',
+        params: [
+          // Topics.NEW_DAG_BLOCKS,
+          // Topics.NEW_DAG_BLOCKS_FINALIZED,
+          // Topics.NEW_PBFT_BLOCKS,
+          Topics.NEW_PENDING_TRANSACTIONS,
+        ],
+      }),
+      (err: Error) => {
+        if (err) this.logger.error(err);
+      }
+    );
+    this.logger.warn(
+      `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
+    );
   }
 
   @EventListener('close')
@@ -167,46 +188,13 @@ export default class NodeSyncerService {
             parsedData.result as NewPbftBlockHeaderResponse
           );
           break;
+        case ResponseTypes.NewPendingTransactions:
+          this.logger.error(
+            `Pending tx data is: ${util.inspect(parsedData.result)}`
+          );
       }
     } catch (error) {
       this.logger.error(`Could not persist incoming data. Cause: ${error}`);
     }
   }
-
-  //   @SubscribeMessage(Topics.ERRORS)
-  //   handleErrors(@MessageBody() data: string): void {
-  //     this.logger.error(JSON.parse(data));
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_DAG_BLOCKS)
-  //   handleNewDagBlockCreation(@MessageBody() data: string): void {
-  //     console.log(`handleNewDagBlockCreation: ${data}`);
-  //     const dag = JSON.parse(data) as IDAG;
-  //     this.logger.log(`NewDagBlock ${dag.hash}`);
-  //     this.dagService.handleNewDag(dag);
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_DAG_BLOCKS_FINALIZED)
-  //   handleNewDagBlockFinalization(@MessageBody() data: string): void {
-  //     console.log(`handleNewDagBlockFinalization: ${data}`);
-  //     const dag = JSON.parse(data) as IDAG;
-  //     this.logger.log(`NewDagBlockFinalized ${dag.hash}`);
-  //     this.dagService.handleNewDag(dag);
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_PBFT_BLOCKS)
-  //   handleNewPbftBlock(@MessageBody() data: string): void {
-  //     console.log(`handleNewPbftBlock: ${data}`);
-  //     const pbft = JSON.parse(data) as IPBFT;
-  //     this.logger.log(`NewPbftBlock ${pbft.hash}`);
-  //     this.pbftService.handleNewPbft(pbft);
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_PBFT_BLOCKS)
-  //   handleNewHeads(@MessageBody() data: string): void {
-  //     console.log(`handleNewHeads: ${data}`);
-  //     const pbft = JSON.parse(data) as IPBFT;
-  //     this.logger.log(`NewPbftBlock ${pbft.hash}`);
-  //     this.pbftService.handleNewPbft(pbft);
-  //   }
 }
