@@ -1,3 +1,5 @@
+import { ITransaction } from './Transaction.model';
+
 export interface IDAG {
   hash: string;
   pivot?: string;
@@ -9,5 +11,5 @@ export interface IDAG {
   signature?: string;
   vdf?: number;
   transactionCount?: number;
-  transactions?: string[];
+  transactions?: ITransaction[];
 }

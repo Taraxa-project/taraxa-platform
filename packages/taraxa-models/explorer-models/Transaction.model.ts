@@ -5,12 +5,12 @@ export interface ITransaction {
   nonce?: number;
   index?: number;
   value?: number;
-  gasPrice?: number;
-  gas?: number;
-  inputData?: number;
+  gasPrice?: string;
+  gas?: string;
+  inputData?: string;
   block?: IPBFT;
   status?: number;
-  gasUsed?: number;
+  gasUsed?: string;
   cumulativeGasUsed?: number;
   from?: string;
   to?: string;
