@@ -114,25 +114,25 @@ export default class NodeSyncerService {
       `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
     );
 
-    this.ws.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: 0,
-        method: 'eth_subscribe',
-        params: [
-          // Topics.NEW_DAG_BLOCKS,
-          // Topics.NEW_DAG_BLOCKS_FINALIZED,
-          // Topics.NEW_PBFT_BLOCKS,
-          Topics.NEW_PENDING_TRANSACTIONS,
-        ],
-      }),
-      (err: Error) => {
-        if (err) this.logger.error(err);
-      }
-    );
-    this.logger.warn(
-      `Subscribed to eth_subscription method ${Topics.NEW_PENDING_TRANSACTIONS}`
-    );
+    // this.ws.send(
+    //   JSON.stringify({
+    //     jsonrpc: '2.0',
+    //     id: 0,
+    //     method: 'eth_subscribe',
+    //     params: [
+    //       // Topics.NEW_DAG_BLOCKS,
+    //       // Topics.NEW_DAG_BLOCKS_FINALIZED,
+    //       // Topics.NEW_PBFT_BLOCKS,
+    //       Topics.NEW_PENDING_TRANSACTIONS,
+    //     ],
+    //   }),
+    //   (err: Error) => {
+    //     if (err) this.logger.error(err);
+    //   }
+    // );
+    // this.logger.warn(
+    //   `Subscribed to eth_subscription method ${Topics.NEW_PENDING_TRANSACTIONS}`
+    // );
   }
 
   @EventListener('close')
@@ -193,6 +193,7 @@ export default class NodeSyncerService {
           this.txService.safeSaveTransaction({
             hash: parsedData.result as string,
           });
+          break;
       }
     } catch (error) {
       this.logger.error(`Could not persist incoming data. Cause: ${error}`);
