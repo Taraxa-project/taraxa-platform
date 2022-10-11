@@ -21,16 +21,15 @@ import delegationConfig from '../../config/delegation';
     UserModule,
     ConfigModule.forFeature(indexerConfig),
     ConfigModule.forFeature(delegationConfig),
-    TypeOrmModule.forFeature([
-      Reward,
-      RewardRepository,
-      Node,
-      NodeCommission,
-      Delegation,
-    ]),
+    TypeOrmModule.forFeature([Reward, Node, NodeCommission, Delegation]),
   ],
   controllers: [RewardsController],
-  providers: [StakingDataService, DelegationDataService, RewardService],
+  providers: [
+    StakingDataService,
+    DelegationDataService,
+    RewardService,
+    RewardRepository,
+  ],
 })
 export class RewardModule {
   static forRoot(type = 'web'): DynamicModule {
