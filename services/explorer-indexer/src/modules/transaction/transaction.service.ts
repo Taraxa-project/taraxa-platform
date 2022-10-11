@@ -44,25 +44,29 @@ export default class TransactionService {
     });
 
     if (!tx) {
-      let newTx = this.txRepository.create({ hash });
-      newTx = await this.txRepository.save(newTx);
-      if (newTx) {
-        this.logger.log(`Registered new Transaction ${newTx.hash}`);
-      }
+      try {
+        const newTx = this.txRepository.create({ hash });
+        // newTx = await this.txRepository.save(newTx);
+        if (newTx) {
+          this.logger.log(`Registered new Transaction ${newTx.hash}`);
+        }
 
-      const saved = await this.txRepository
-        .createQueryBuilder()
-        .insert()
-        .into(TransactionEntity)
-        .values({ hash })
-        .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
-        .setParameter('hash', hash)
-        .execute();
+        const saved = await this.txRepository
+          .createQueryBuilder()
+          .insert()
+          .into(TransactionEntity)
+          .values(newTx)
+          .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
+          .setParameter('hash', hash)
+          .execute();
 
-      if (saved) {
-        this.logger.log(`Registered new Transaction ${newTx.hash}`);
+        if (saved) {
+          this.logger.log(`Registered new Transaction ${newTx.hash}`);
+        }
+        return saved.raw[0];
+      } catch (error) {
+        console.error(error);
       }
-      return saved.raw[0];
     }
     return tx;
   }
