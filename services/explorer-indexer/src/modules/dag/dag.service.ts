@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewDagBlockResponse, NewDagBlockFinalizedResponse } from 'src/types';
-import { findTransactionsByHashesOrFill, zeroX } from 'src/utils';
+import { zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
-import TransactionEntity from '../transaction/transaction.entity';
+import TransactionService from '../transaction/transaction.service';
 import { DagEntity } from './dag.entity';
 
 @Injectable()
@@ -12,8 +12,7 @@ export default class DagService {
   constructor(
     @InjectRepository(DagEntity)
     private dagRepository: Repository<DagEntity>,
-    @InjectRepository(TransactionEntity)
-    private txRepository: Repository<TransactionEntity>
+    private txService: TransactionService
   ) {
     this.dagRepository = dagRepository;
   }
@@ -44,11 +43,11 @@ export default class DagService {
       transactions,
     } = { ...dagData };
 
-    const txes = await findTransactionsByHashesOrFill(
-      transactions,
-      this.txRepository,
-      this.logger
+    const txes = await this.txService.findTransactionsByHashesOrFill(
+      transactions
     );
+    console.log('Transactions found: ', txes);
+
     let newDag = await this.dagRepository.findOneBy({ hash: zeroX(hash) });
     if (newDag) {
       newDag.pivot = zeroX(pivot);
@@ -60,7 +59,6 @@ export default class DagService {
       newDag.signature = zeroX(signature);
       newDag.vdf = parseInt(vdf?.difficulty, 16) || 0;
       newDag.transactionCount = transactionCount;
-      newDag.transactions = txes;
     } else {
       newDag = new DagEntity({
         hash: zeroX(hash),
@@ -73,9 +71,13 @@ export default class DagService {
         signature: zeroX(signature),
         vdf: parseInt(vdf?.difficulty, 16) || 0,
         transactionCount,
-        transactions: txes,
       });
     }
+    if (!newDag.transactions) {
+      newDag.transactions = [];
+    }
+    newDag.transactions = txes;
+
     try {
       const saved = await this.dagRepository.save(newDag);
       if (saved) {

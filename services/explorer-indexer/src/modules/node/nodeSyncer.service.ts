@@ -17,7 +17,6 @@ import {
   toObject,
   Topics,
 } from 'src/types';
-import util from 'util';
 import TransactionService from '../transaction/transaction.service';
 
 @Injectable()

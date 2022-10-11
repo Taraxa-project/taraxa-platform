@@ -62,9 +62,7 @@ export default class TransactionEntity
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions)
   block?: PbftEntity;
 
-  @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
-    cascade: true,
-  })
+  @ManyToMany(() => DagEntity, (dag) => dag.transactions)
   @JoinTable()
   dagBlocks?: DagEntity[];
 
