@@ -4,6 +4,7 @@ export interface IPBFT {
   hash: string;
   number: number;
   timestamp: number;
+  reward?: number;
   gasLimit?: number | string;
   gasUsed?: number | string;
   parent?: string;
