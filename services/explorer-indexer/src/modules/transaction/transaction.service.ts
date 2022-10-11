@@ -1,9 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ITransaction } from '@taraxa_project/taraxa-models';
-import { Repository, InsertResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import TransactionEntity from './transaction.entity';
-import util from 'util';
 
 @Injectable()
 export default class TransactionService {
@@ -45,8 +44,7 @@ export default class TransactionService {
     });
 
     if (!tx) {
-      const newTx = await this.txRepository.create({ hash });
-
+      const newTx = this.txRepository.create({ hash });
       return newTx;
       // try {
       //   // let newTx = this.txRepository.create({ hash });

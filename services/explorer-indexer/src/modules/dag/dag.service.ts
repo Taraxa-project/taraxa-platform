@@ -46,7 +46,6 @@ export default class DagService {
     const txes = await this.txService.findTransactionsByHashesOrFill(
       transactions
     );
-    console.log('Transactions found: ', txes);
 
     let newDag = await this.dagRepository.findOneBy({ hash: zeroX(hash) });
     if (newDag) {
@@ -86,8 +85,7 @@ export default class DagService {
 
       return saved;
     } catch (error) {
-      console.error('handleNewDag');
-      console.error(error);
+      console.error('handleNewDag', error);
     }
   }
 

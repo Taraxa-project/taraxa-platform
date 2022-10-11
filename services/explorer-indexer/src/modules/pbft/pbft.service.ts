@@ -106,8 +106,7 @@ export default class PbftService {
       if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
       return updated;
     } catch (error) {
-      console.error('handleNewPbftHeads');
-      console.error(error);
+      console.error('handleNewPbftHeads', error);
     }
   }
 }
