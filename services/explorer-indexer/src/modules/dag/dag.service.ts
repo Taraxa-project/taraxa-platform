@@ -18,10 +18,39 @@ export default class DagService {
     this.dagRepository = dagRepository;
   }
 
+  public async clearDagData() {
+    await this.dagRepository.query('DELETE FROM "dags"');
+  }
+
+  public async getBlockByLevel(level: number) {
+    return await this.dagRepository.findOneBy({ level });
+  }
+
+  public async getDagsFromLastLevel(limit: number) {
+    return await this.dagRepository
+      .createQueryBuilder('dags')
+      .leftJoinAndSelect('dags.transactions', 'transactions')
+      .select()
+      .orderBy('dags.level', 'DESC')
+      .limit(limit)
+      .getMany();
+  }
+
+  public async getLastDagFromLastPbftPeriod(limit: number) {
+    return await this.dagRepository
+      .createQueryBuilder('dags')
+      .leftJoinAndSelect('dags.transactions', 'transactions')
+      .select()
+      .orderBy('dags.pbftPeriod', 'DESC')
+      .limit(limit)
+      .getMany();
+  }
+
   public async getLastDagHash() {
     return (
       await this.dagRepository
         .createQueryBuilder('dags')
+        .leftJoinAndSelect('dags.transactions', 'transactions')
         .select()
         .orderBy('dags.timestamp', 'DESC')
         .limit(1)

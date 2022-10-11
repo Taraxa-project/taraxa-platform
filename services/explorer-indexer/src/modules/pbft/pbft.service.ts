@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPBFT } from '@taraxa_project/taraxa-models';
 import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
-import { findTransactionsByHashesOrFill, zeroX } from 'src/utils';
+import { findTransactionsByHashesOrFill, safeSavePbft, zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
 import TransactionEntity from '../transaction/transaction.entity';
 import { PbftEntity } from './pbft.entity';
@@ -40,10 +40,37 @@ export default class PbftService {
     }
   };
 
+  public async safeSavePbft(pbft: IPBFT) {
+    return await safeSavePbft(pbft, this.pbftRepository, this.logger);
+  }
+
+  public async clearPbftData() {
+    await this.pbftRepository.query('DELETE FROM "pbfts"');
+  }
+
+  public async getPbftsOfLastLevel(limit: number) {
+    return await this.pbftRepository
+      .createQueryBuilder('pbfts')
+      .leftJoinAndSelect('pbfts.transactions', 'transactions')
+      .select()
+      .orderBy('pbfts.number', 'DESC')
+      .limit(limit)
+      .getMany();
+  }
+
+  public async getBlockByNumber(number: number) {
+    return await this.pbftRepository.findOneBy({ number });
+  }
+
+  public async getBlockByHash(hash: string) {
+    return await this.pbftRepository.findOneBy({ hash });
+  }
+
   public getLastPbftHash = async () => {
     return (
       await this.pbftRepository
         .createQueryBuilder('pbfts')
+        .leftJoinAndSelect('pbfts.transactions', 'transactions')
         .select()
         .orderBy('pbfts.timestamp', 'DESC')
         .limit(1)

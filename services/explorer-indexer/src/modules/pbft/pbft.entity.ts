@@ -44,6 +44,10 @@ export class PbftEntity extends BaseEntity implements IPBFT {
 
   @Column({ nullable: true, type: 'bigint' })
   @IsNumber()
+  reward?: number;
+
+  @Column({ nullable: true, type: 'bigint' })
+  @IsNumber()
   gasLimit?: string;
 
   @Column({ nullable: true, type: 'bigint' })

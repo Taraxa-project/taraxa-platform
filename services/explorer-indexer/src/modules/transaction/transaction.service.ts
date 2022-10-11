@@ -15,6 +15,10 @@ export default class TransactionService {
     this.txRepository = txRepository;
   }
 
+  public async clearTransactionData() {
+    await this.txRepository.query('DELETE FROM "transactions"');
+  }
+
   public async safeSaveTransaction(transaction: ITransaction) {
     return await safeSaveTx(transaction.hash, this.txRepository, this.logger);
   }
