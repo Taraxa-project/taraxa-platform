@@ -18,6 +18,7 @@ import { NodeService } from '../node/node.service';
 import { Node } from '../node/node.entity';
 import { NodeType } from '../node/node-type.enum';
 import { StakingService } from '../staking/staking.service';
+import { BlockchainService } from '../blockchain/blockchain.service';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
 import {
@@ -51,6 +52,7 @@ export class DelegationService {
     private nodeService: NodeService,
     private stakingService: StakingService,
     private connection: Connection,
+    private blockchainService: BlockchainService,
   ) {
     this.mainnetEndpoint = this.config.get<string>('ethereum.mainnetEndpoint');
     this.testnetEndpoint = this.config.get<string>('ethereum.testnetEndpoint');
@@ -291,7 +293,33 @@ export class DelegationService {
     if (type === NodeType.MAINNET) {
       await this.ensureMainnetDelegation(address, totalNodeDelegation);
     } else {
-      await this.ensureTestnetDelegation(address, this.testnetDelegationAmount);
+      if (node) {
+        totalNodeDelegation = this.testnetDelegationAmount;
+      } else {
+        totalNodeDelegation = ethers.BigNumber.from(0);
+      }
+
+      let currentDelegation = ethers.BigNumber.from('0');
+      try {
+        const validator = await this.blockchainService.getValidator(address);
+        currentDelegation = validator.total_stake;
+      } catch (e) {
+        currentDelegation = ethers.BigNumber.from('0');
+      }
+
+      if (currentDelegation.eq(totalNodeDelegation)) {
+        return;
+      }
+
+      if (currentDelegation.gt(totalNodeDelegation)) {
+        // await this.blockchainService.unregisterValidator(address);
+      } else {
+        await this.blockchainService.registerValidator(
+          address,
+          node.addressProof,
+          node.vrfKey,
+        );
+      }
     }
   }
 
@@ -299,7 +327,7 @@ export class DelegationService {
     if (type === NodeType.MAINNET) {
       await this.ensureMainnetDelegation(address, ethers.BigNumber.from(0));
     } else {
-      await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
+      // await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
     }
   }
 
@@ -578,25 +606,6 @@ export class DelegationService {
         address,
         totalNodeDelegation.sub(currentDelegation),
       );
-    }
-  }
-
-  private async ensureTestnetDelegation(
-    address: string,
-    totalNodeDelegation: ethers.BigNumber,
-  ) {
-    const currentDelegation = await this.getDelegation(
-      address,
-      NodeType.TESTNET,
-    );
-    if (currentDelegation.eq(totalNodeDelegation)) {
-      return;
-    }
-
-    if (currentDelegation.gt(totalNodeDelegation)) {
-      await this.stakingService.undelegateTestnetTransaction(address);
-    } else {
-      await this.stakingService.delegateTestnetTransaction(address);
     }
   }
 

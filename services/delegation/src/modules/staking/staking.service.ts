@@ -77,26 +77,6 @@ export class StakingService {
     );
   }
 
-  async delegateTestnetTransaction(address: string) {
-    await this.httpService
-      .get(
-        `${
-          this.testnetExplorerUrl
-        }/api/delegate/${address}?sig=${this.getSignature(address)}`,
-      )
-      .toPromise();
-  }
-
-  async undelegateTestnetTransaction(address: string) {
-    await this.httpService
-      .get(
-        `${
-          this.testnetExplorerUrl
-        }/api/undelegate/${address}?sig=${this.getSignature(address)}`,
-      )
-      .toPromise();
-  }
-
   private async sendMainnetTransaction(
     to: string,
     input: string,

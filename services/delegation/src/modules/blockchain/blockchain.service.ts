@@ -44,8 +44,21 @@ export class BlockchainService {
     this.testnetOwnNodes = delegation.testnetOwnNodes;
   }
 
-  getValidator(address: string) {
-    return this.testnetDelegationContract.getValidator(address);
+  async getValidator(address: string) {
+    const {
+      total_stake,
+      commission_reward,
+      commission,
+      description,
+      endpoint,
+    } = await this.testnetDelegationContract.getValidator(address);
+    return {
+      total_stake,
+      commission_reward,
+      commission,
+      description,
+      endpoint,
+    };
   }
 
   async registerValidator(
@@ -53,21 +66,9 @@ export class BlockchainService {
     addressProof: string,
     vrfKey: string,
   ) {
-    if (this.testnetOwnNodes.length == 0) {
-      console.error(`Can't delegate to own nodes - No own nodes.`);
-    }
-    try {
-      const randomIndex = Math.floor(
-        Math.random() * this.testnetOwnNodes.length,
-      );
-      const ownNode = this.testnetOwnNodes[randomIndex];
-      const tx = await this.testnetDelegationContract.delegate(ownNode, {
-        gasLimit: 120000,
-        value: this.testnetDelegationAmount.mul(2).toString(),
-      });
-      await tx.wait();
-    } catch (e) {
-      console.error(`Could not delegate to own nodes`, e);
+    const delegatedOwnNodes = await this.delegateOwnNodes();
+    if (!delegatedOwnNodes) {
+      return false;
     }
 
     try {
@@ -79,7 +80,6 @@ export class BlockchainService {
         '',
         '',
         {
-          gasLimit: 240000,
           value: this.testnetDelegationAmount.toString(),
         },
       );
@@ -87,6 +87,28 @@ export class BlockchainService {
       return true;
     } catch (e) {
       console.error(`Could not create validator`, e);
+    }
+
+    return false;
+  }
+
+  async delegateOwnNodes() {
+    if (this.testnetOwnNodes.length == 0) {
+      console.error(`Can't delegate to own nodes - No own nodes.`);
+      return false;
+    }
+    try {
+      const randomIndex = Math.floor(
+        Math.random() * this.testnetOwnNodes.length,
+      );
+      const ownNode = this.testnetOwnNodes[randomIndex];
+      const tx = await this.testnetDelegationContract.delegate(ownNode, {
+        value: this.testnetDelegationAmount.mul(2).toString(),
+      });
+      await tx.wait();
+      return true;
+    } catch (e) {
+      console.error(`Could not delegate to own nodes`, e);
     }
 
     return false;

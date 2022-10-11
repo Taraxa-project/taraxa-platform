@@ -6,6 +6,7 @@ import { AppCoreModule } from './modules/app-core.module';
 import { NodeService } from './modules/node/node.service';
 import { DelegationService } from './modules/delegation/delegation.service';
 import { RewardService } from './modules/reward/reward.service';
+import { BlockchainService } from './modules/blockchain/blockchain.service';
 
 interface Node {
   id: number;
@@ -28,6 +29,7 @@ async function bootstrap() {
   const nodeService = app.get(NodeService);
   const delegationService = app.get(DelegationService);
   const rewardService = app.get(RewardService);
+  const blockchainService = app.get(BlockchainService);
 
   const nodes = async (type: string) => {
     return nodeService.findNodes({ type });
@@ -81,11 +83,27 @@ async function bootstrap() {
   };
 
   const testnetEnsureDelegation = async () => {
-    const n = await nodes('testnet');
-    const currentDelegations = await delegationService.getDelegationsFor(
-      'testnet',
-    );
-    await ensureDelegation(n, currentDelegations);
+    const nodes = await nodeService.findAllTestnetNodes();
+    let count = 0;
+    for (const node of nodes) {
+      count++;
+      const { id, type, address, deletedAt } = node;
+      const isDeleted = deletedAt !== null;
+      console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
+      console.log(`ensuring delegation...`);
+      console.log(`Deleted: ${isDeleted ? 'Y' : 'N'}`);
+      try {
+        const validator = await blockchainService.getValidator(address);
+        console.log(`currentDelegation: ${validator.total_stake.toString()}`);
+        console.log({
+          validator,
+        });
+      } catch (e) {
+        console.log(`Node isn't registered as a validator.`);
+      }
+      await delegationService.ensureDelegation(id, type, address);
+      console.log(`------------------------------`);
+    }
   };
 
   const mainnetEnsureDelegation = async () => {
