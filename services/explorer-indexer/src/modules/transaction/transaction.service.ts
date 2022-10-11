@@ -44,20 +44,27 @@ export default class TransactionService {
     });
 
     if (!tx) {
-      const newTx = this.txRepository.create({ hash });
-      if (newTx) {
-        this.logger.log(`Registered new Transaction ${newTx.hash}`);
-      }
+      const newTx = new TransactionEntity();
+      newTx.hash = hash;
+      try {
+        // const saved = await this.txRepository.save(newTx);
 
-      return newTx;
-      // try {
-      //   // let newTx = this.txRepository.create({ hash });
-      //   const newTx = await this.txRepository.save({ hash });
-      //   console.log('newTx: ', newTx);
-      //   return newTx;
-      // } catch (err) {
-      //   console.error('Cannot save transaction: ', err);
-      // }
+        const saved = await this.txRepository
+          .createQueryBuilder()
+          .insert()
+          .into(TransactionEntity)
+          .values({ hash })
+          .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
+          .setParameter('hash', hash)
+          .execute();
+
+        if (saved) {
+          this.logger.log(`Registered new Transaction ${newTx.hash}`);
+        }
+        return saved.raw[0];
+      } catch (err) {
+        console.error('Cannot save transaction: ', err);
+      }
     }
     return tx;
   }

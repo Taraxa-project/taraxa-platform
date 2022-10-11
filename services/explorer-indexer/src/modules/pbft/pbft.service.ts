@@ -97,6 +97,7 @@ export default class PbftService {
       pbft.transactions = [];
     }
     pbft.transactions = txes;
+
     if (transactions?.length > 0) {
       console.error(pbft);
     }
