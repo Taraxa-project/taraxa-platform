@@ -45,6 +45,10 @@ export default class TransactionService {
 
     if (!tx) {
       const newTx = this.txRepository.create({ hash });
+      if (newTx) {
+        this.logger.log(`Registered new Transaction ${newTx.hash}`);
+      }
+
       return newTx;
       // try {
       //   // let newTx = this.txRepository.create({ hash });
