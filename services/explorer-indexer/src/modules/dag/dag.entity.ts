@@ -4,9 +4,8 @@ import {
   Column,
   Entity,
   Index,
-  JoinTable,
   ManyToMany,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
 import TransactionEntity from '../transaction/transaction.entity';
@@ -19,7 +18,11 @@ export class DagEntity extends BaseEntity implements IDAG {
     super();
     Object.assign(this, dag);
   }
-  @PrimaryColumn()
+
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
   @IsString()
   hash: string;
 
@@ -63,6 +66,8 @@ export class DagEntity extends BaseEntity implements IDAG {
   @IsNumber()
   transactionCount?: number;
 
-  @ManyToMany(() => TransactionEntity, (transaction) => transaction.dagBlocks)
-  transactions!: TransactionEntity[];
+  @ManyToMany(() => TransactionEntity, (transaction) => transaction.dagBlocks, {
+    cascade: false,
+  })
+  transactions: TransactionEntity[];
 }

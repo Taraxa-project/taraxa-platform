@@ -37,11 +37,6 @@ export default class TransactionService {
     if (!hash) {
       return;
     }
-    // const tx = this.txRepository
-    //   .createQueryBuilder('tx')
-    //   .select('tx.hash')
-    //   .where('LOWER("tx"."hash") = LOWER(:hash)', { hash })
-    //   .getOne();
 
     const tx = await this.txRepository.findOne({
       where: {
@@ -50,15 +45,8 @@ export default class TransactionService {
     });
 
     if (!tx) {
-      const newTx = await this.txRepository.save({ hash });
-      // const newTx = await this.txRepository
-      //   .createQueryBuilder()
-      //   .insert()
-      //   .into(TransactionEntity)
-      //   .values([{ hash }])
-      //   .execute();
+      const newTx = await this.txRepository.create({ hash });
 
-      console.log('newTx: ', newTx);
       return newTx;
       // try {
       //   // let newTx = this.txRepository.create({ hash });
