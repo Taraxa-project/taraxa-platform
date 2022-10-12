@@ -22,7 +22,7 @@ import general from 'src/config/general';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         return {
-          url: config.get<string>('general.connectionURL'),
+          url: config.get<string>('general.wsConnectionURL'),
           port: config.get<number>('general.port'),
           followRedirects: false,
           handshakeTimeout: 10000,

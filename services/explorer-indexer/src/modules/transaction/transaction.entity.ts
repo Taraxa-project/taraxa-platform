@@ -46,6 +46,7 @@ export default class TransactionEntity
   @Column({ nullable: true, type: 'bigint' })
   @IsNumber()
   gasPrice?: string;
+
   @Column({ nullable: true, type: 'bigint' })
   @IsNumber()
   gas?: string;

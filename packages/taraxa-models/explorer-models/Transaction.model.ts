@@ -14,4 +14,11 @@ export interface ITransaction {
   cumulativeGasUsed?: number;
   from?: string;
   to?: string;
+  r?: string;
+  v?: string; // hex
+  s?: string;
+  blockHash?: string;
+  blockNumber?: string;
+  input?: string;
+  transactionIndex?: string;
 }
