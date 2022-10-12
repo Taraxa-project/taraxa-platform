@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IDAG, ITransaction } from '@taraxa_project/taraxa-models';
 import { NewDagBlockResponse, NewDagBlockFinalizedResponse } from 'src/types';
 import { zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
@@ -17,6 +18,74 @@ export default class DagService {
     this.dagRepository = dagRepository;
   }
 
+  private async safeSaveDag(dag: IDAG) {
+    const txes = await this.txService.findTransactionsByHashesOrFill(
+      dag.transactions?.map((tx) => tx.hash)
+    );
+
+    let newDag = await this.dagRepository.findOneBy({
+      hash: zeroX(dag.hash),
+    });
+    if (newDag) {
+      Object.assign(newDag, dag);
+      newDag.transactions = txes;
+    } else {
+      newDag = this.dagRepository.create({ ...dag, transactions: txes });
+    }
+    if (!newDag.transactions) {
+      newDag.transactions = [];
+    }
+
+    try {
+      const saved = await this.dagRepository
+        .createQueryBuilder()
+        .insert()
+        .into(DagEntity)
+        .values(newDag)
+        .orUpdate(['hash'], 'UQ_3928cee78a30b23a175d50796b2')
+        .setParameter('hash', newDag.hash)
+        .execute();
+      if (saved) {
+        this.logger.log(`Registered new DAG ${newDag.hash}`);
+      }
+
+      return saved;
+    } catch (error) {
+      console.error(`DAG ${newDag.hash} could not be saved: `, error);
+    }
+  }
+
+  public dagRpcToIDAG(dag: NewDagBlockResponse) {
+    const {
+      hash,
+      pivot,
+      tips,
+      level,
+      period,
+      timestamp,
+      author,
+      signature,
+      vdf,
+      transactionCount,
+      transactions,
+    } = { ...dag };
+
+    const _dag = {
+      hash,
+      pivot: zeroX(pivot),
+      tips: tips,
+      level: parseInt(`${level}`, 16) || 0,
+      pbftPeriod: period,
+      timestamp: parseInt(timestamp, 16) || 0,
+      author: zeroX(author),
+      signature: zeroX(signature),
+      vdf: parseInt(vdf?.difficulty, 16) || 0,
+      transactionCount: transactionCount,
+      transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
+    };
+    return _dag;
+  }
+
   public async clearDagData() {
     await this.dagRepository.query('DELETE FROM "dags"');
   }
@@ -30,6 +99,7 @@ export default class DagService {
       .createQueryBuilder('dags')
       .leftJoinAndSelect('dags.transactions', 'transactions')
       .select()
+      .where('dags.level IS NOT NULL')
       .orderBy('dags.level', 'DESC')
       .limit(limit)
       .getMany();
@@ -40,6 +110,7 @@ export default class DagService {
       .createQueryBuilder('dags')
       .leftJoinAndSelect('dags.transactions', 'transactions')
       .select()
+      .where('dags.pbftPeriod IS NOT NULL')
       .orderBy('dags.pbftPeriod', 'DESC')
       .limit(limit)
       .getMany();
@@ -58,61 +129,10 @@ export default class DagService {
   }
 
   public async handleNewDag(dagData: NewDagBlockResponse) {
-    const {
-      hash,
-      pivot,
-      tips,
-      level,
-      period,
-      timestamp,
-      author,
-      signature,
-      vdf,
-      transactionCount,
-      transactions,
-    } = { ...dagData };
-
-    const txes = await this.txService.findTransactionsByHashesOrFill(
-      transactions
-    );
-
-    let newDag = await this.dagRepository.findOneBy({ hash: zeroX(hash) });
-    if (newDag) {
-      newDag.pivot = zeroX(pivot);
-      newDag.tips = tips;
-      newDag.level = parseInt(`${level}`, 16) || 0;
-      newDag.pbftPeriod = period;
-      newDag.timestamp = parseInt(timestamp, 16) || 0;
-      newDag.author = zeroX(author);
-      newDag.signature = zeroX(signature);
-      newDag.vdf = parseInt(vdf?.difficulty, 16) || 0;
-      newDag.transactionCount = transactionCount;
-    } else {
-      newDag = new DagEntity({
-        hash: zeroX(hash),
-        pivot: zeroX(pivot),
-        tips,
-        level: parseInt(`${level}`, 16) || 0,
-        pbftPeriod: period,
-        timestamp: parseInt(timestamp, 16) || 0,
-        author: zeroX(author),
-        signature: zeroX(signature),
-        vdf: parseInt(vdf?.difficulty, 16) || 0,
-        transactionCount,
-      });
-    }
-    if (!newDag.transactions) {
-      newDag.transactions = [];
-    }
-    newDag.transactions = txes;
+    const _dagObject = this.dagRpcToIDAG(dagData);
 
     try {
-      const saved = await this.dagRepository.save(newDag);
-      if (saved) {
-        this.logger.log(`Registered new DAG ${saved.hash}`);
-      }
-
-      return saved;
+      await this.safeSaveDag(_dagObject);
     } catch (error) {
       console.error('handleNewDag', error);
     }

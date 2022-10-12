@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Ip, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPBFT } from '@taraxa_project/taraxa-models';
+import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
 import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
 import { zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
@@ -40,7 +40,57 @@ export default class PbftService {
   };
 
   public async safeSavePbft(pbft: IPBFT) {
-    return await safeSavePbft(pbft, this.pbftRepository, this.logger);
+    if (!pbft || !pbft.hash) {
+      return;
+    }
+    let _pbft;
+    try {
+      const existing = await this.pbftRepository.findOneBy({ hash: pbft.hash });
+      if (!existing) {
+        const newPbft = this.pbftRepository.create({
+          hash: pbft.hash,
+          miner: pbft.miner,
+          number: pbft.number,
+          timestamp: pbft.timestamp,
+          nonce: pbft.nonce,
+          reward: pbft.reward,
+          gasLimit: String(pbft.gasLimit || '0'),
+          gasUsed: String(pbft.gasUsed || '0'),
+          parent: pbft.parent,
+          difficulty: pbft.difficulty,
+          totalDifficulty: pbft.totalDifficulty,
+          transactionCount: pbft.transactionCount,
+        });
+        _pbft = newPbft;
+      }
+      if (!pbft.transactions) {
+        _pbft.transactions = [];
+      }
+      _pbft.transactions = await this.txService.findTransactionsByHashesOrFill(
+        pbft.transactions.map((tx) => tx.hash)
+      );
+      _pbft.transactionCount = _pbft.transactions?.length;
+
+      const saved = await this.pbftRepository
+        .createQueryBuilder()
+        .insert()
+        .into(PbftEntity)
+        .values(_pbft)
+        .orUpdate(['hash'], 'UQ_35a84f8058f83feff8f2941de6a')
+        .setParameter('hash', _pbft.hash)
+        .execute();
+
+      if (saved) {
+        this.logger.log(`Registered new PBFT ${_pbft.hash}`);
+      }
+      const pbftFound = await this.pbftRepository.findOneBy({
+        hash: _pbft.hash,
+      });
+      console.log(pbftFound);
+      return saved.raw[0];
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   public async clearPbftData() {
@@ -76,6 +126,39 @@ export default class PbftService {
         .getOne()
     ).hash;
   };
+
+  public pbftRpcToIPBFT(pbftRpc: NewPbftBlockHeaderResponse) {
+    const {
+      hash,
+      number,
+      timestamp,
+      gas_limit,
+      gas_used,
+      parent,
+      nonce,
+      difficulty,
+      totalDifficulty,
+      miner,
+      transactionCount,
+      transactions,
+    } = { ...pbftRpc };
+    if (!hash) return;
+    const pbft: IPBFT = {
+      hash: zeroX(hash),
+      number: parseInt(number, 16) || 0,
+      timestamp: parseInt(timestamp, 16) || 0,
+      gasLimit: gas_limit,
+      gasUsed: gas_used,
+      parent: zeroX(parent),
+      nonce,
+      difficulty: parseInt(difficulty, 16) || 0,
+      totalDifficulty: parseInt(totalDifficulty, 16) || 0,
+      miner: zeroX(miner),
+      transactionCount: parseInt(transactionCount, 16) || 0,
+      transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
+    };
+    return pbft;
+  }
 
   public async handleNewPbft(pbftData: NewPbftBlockResponse) {
     if (!pbftData || !pbftData.block_hash) return;
