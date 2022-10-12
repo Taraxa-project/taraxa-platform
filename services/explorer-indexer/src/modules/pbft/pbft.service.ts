@@ -71,6 +71,7 @@ export default class PbftService {
         .values(_pbft)
         .orUpdate(['hash'], 'UQ_35a84f8058f83feff8f2941de6a')
         .setParameter('hash', _pbft.hash)
+        .returning('*')
         .execute();
 
       if (saved) {

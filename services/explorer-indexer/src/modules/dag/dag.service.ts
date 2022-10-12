@@ -44,6 +44,7 @@ export default class DagService {
         .values(newDag)
         .orUpdate(['hash'], 'UQ_3928cee78a30b23a175d50796b2')
         .setParameter('hash', newDag.hash)
+        .returning('*')
         .execute();
       if (saved) {
         this.logger.log(`Registered new DAG ${newDag.hash}`);

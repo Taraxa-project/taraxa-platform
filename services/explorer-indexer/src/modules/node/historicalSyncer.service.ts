@@ -178,23 +178,23 @@ export default class HistoricalSyncService {
       );
       const blockTxs: ITransaction[] = [];
       for (let i = 0; i < block.transactions.length; i++) {
-        this.logger.log(
+        this.logger.debug(
           `Getting transaction #${i + 1} out of #${
             block.transactions.length
-          } - ${block.transactions[i]?.hash}...`
+          } - ${block.transactions[i]?.hash}`
         );
 
         if (block.transactions[i]) {
           const tx = await this.rpcConnector.getTransactionByHash(
             block.transactions[i].hash
           );
+
           blockTxs.push(
             this.txService.populateTransactionWithPBFT(
               this.txService.txRpcToITransaction(tx),
               block
             )
           );
-          block.transactions = blockTxs;
         }
       }
 
@@ -221,28 +221,14 @@ export default class HistoricalSyncService {
       });
 
       block.reward = blockReward;
+      const blockToSave = { ...block };
+      blockToSave.transactions = blockTxs;
+      blockToSave.transactionCount = blockTxs.length;
 
-      const savedBlock = await this.pbftService.safeSavePbft(block);
+      const savedBlock = await this.pbftService.safeSavePbft(blockToSave);
 
       if (savedBlock) {
-        console.log(`Finalized block ${savedBlock.hash}`);
         this.logger.log(`Finalized block ${savedBlock.hash}`);
-        const formmatedTransactions = block.transactions.map((tx) => {
-          return {
-            ...tx,
-            block: {
-              id: tx?.block?.id,
-              hash: tx.block.hash,
-              number: tx.block.number,
-              timestamp: tx.block.timestamp,
-            },
-          };
-        });
-        await Promise.all(
-          formmatedTransactions.map(async (trans) => {
-            await this.txService.safeSaveTx(trans);
-          })
-        );
       }
 
       // update sync state
