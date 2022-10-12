@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPBFT } from '@taraxa_project/taraxa-models';
 import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
-import { findTransactionsByHashesOrFill, safeSavePbft, zeroX } from 'src/utils';
+import { zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
-import TransactionEntity from '../transaction/transaction.entity';
+import TransactionService from '../transaction/transaction.service';
 import { PbftEntity } from './pbft.entity';
 
 @Injectable()
@@ -13,8 +13,7 @@ export default class PbftService {
   constructor(
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>,
-    @InjectRepository(TransactionEntity)
-    private tsRepository: Repository<TransactionEntity>
+    private txService: TransactionService
   ) {
     this.pbftRepository = pbftRepository;
   }
@@ -104,10 +103,8 @@ export default class PbftService {
       transactions,
     } = { ...pbftData };
     if (!hash) return;
-    const txes = await findTransactionsByHashesOrFill(
-      transactions,
-      this.tsRepository,
-      this.logger
+    const txes = await this.txService.findTransactionsByHashesOrFill(
+      transactions
     );
     const pbft: IPBFT = {
       hash: zeroX(hash),
@@ -121,12 +118,23 @@ export default class PbftService {
       totalDifficulty: parseInt(totalDifficulty, 16) || 0,
       miner: zeroX(miner),
       transactionCount: parseInt(transactionCount, 16) || 0,
-      transactions: txes,
     };
+
+    if (!pbft.transactions) {
+      pbft.transactions = [];
+    }
+    pbft.transactions = txes;
+
     if (transactions?.length > 0) {
       console.error(pbft);
     }
-    const updated = await this.pbftRepository.save(pbft as PbftEntity);
-    if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
+
+    try {
+      const updated = await this.pbftRepository.save(pbft as PbftEntity);
+      if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
+      return updated;
+    } catch (error) {
+      console.error('handleNewPbftHeads', error);
+    }
   }
 }
