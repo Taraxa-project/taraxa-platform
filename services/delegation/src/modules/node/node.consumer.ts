@@ -48,13 +48,16 @@ export class NodeConsumer implements OnModuleInit {
         return;
       }
       try {
-        await this.blockchainService.registerValidator(
-          node.address,
-          node.addressProof,
-          node.vrfKey,
-        );
-        node.isCreatedOnchain = true;
-        await this.nodeRepository.save(node);
+        const registeredValidator =
+          await this.blockchainService.registerValidator(
+            node.address,
+            node.addressProof,
+            node.vrfKey,
+          );
+        if (registeredValidator) {
+          node.isCreatedOnchain = true;
+          await this.nodeRepository.save(node);
+        }
       } catch (e) {
         this.logger.error(
           `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Failed to create onchain validator for ${node.address}.`,

@@ -72,7 +72,7 @@ export class BlockchainService {
     }
 
     try {
-      const receipt = await this.testnetDelegationContract.registerValidator(
+      const tx = await this.testnetDelegationContract.registerValidator(
         address,
         addressProof,
         vrfKey,
@@ -80,10 +80,11 @@ export class BlockchainService {
         '',
         '',
         {
-          value: this.testnetDelegationAmount.toString(),
+          gasPrice: this.testnetProvider.getGasPrice(),
+          value: this.testnetDelegationAmount,
         },
       );
-      await receipt.wait();
+      await tx.wait();
       return true;
     } catch (e) {
       console.error(`Could not create validator`, e);
@@ -103,7 +104,8 @@ export class BlockchainService {
       );
       const ownNode = this.testnetOwnNodes[randomIndex];
       const tx = await this.testnetDelegationContract.delegate(ownNode, {
-        value: this.testnetDelegationAmount.mul(2).toString(),
+        gasPrice: this.testnetProvider.getGasPrice(),
+        value: this.testnetDelegationAmount.mul(2),
       });
       await tx.wait();
       return true;
