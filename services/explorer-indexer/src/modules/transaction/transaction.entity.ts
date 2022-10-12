@@ -6,9 +6,9 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IsNumber, IsString, IsArray } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { PbftEntity } from '../pbft/pbft.entity';
 import { DagEntity } from '../dag/dag.entity';
 
@@ -24,7 +24,10 @@ export default class TransactionEntity
     Object.assign(this, transaction);
   }
 
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
   @IsString()
   hash: string;
 
@@ -63,7 +66,7 @@ export default class TransactionEntity
   block?: PbftEntity;
 
   @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
-    cascade: true,
+    cascade: false,
   })
   @JoinTable()
   dagBlocks?: DagEntity[];

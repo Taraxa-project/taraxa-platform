@@ -5,9 +5,9 @@ import {
   Entity,
   Index,
   OneToMany,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import TransactionEntity from '../transaction/transaction.entity';
 
 const table_name = 'pbfts';
@@ -18,7 +18,12 @@ export class PbftEntity extends BaseEntity implements IPBFT {
     super();
     Object.assign(this, pbft);
   }
-  @PrimaryColumn()
+
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  @IsString()
   hash: string;
 
   @Column({ nullable: false })
