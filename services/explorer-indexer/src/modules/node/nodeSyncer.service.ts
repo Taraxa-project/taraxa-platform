@@ -197,9 +197,7 @@ export default class NodeSyncerService {
           );
           break;
         case ResponseTypes.NewPendingTransactions:
-          this.txService.safeSaveTransaction({
-            hash: parsedData.result as string,
-          });
+          this.txService.safeSaveEmptyTx(parsedData.result as string);
           break;
       }
     } catch (error) {

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
 import _ from 'lodash';
+import { NewPbftBlockHeaderResponse } from 'src/types';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
@@ -20,6 +21,7 @@ export default class HistoricalSyncService {
     private readonly rpcConnector: RPCConnectorService
   ) {
     this.logger.log('Historical syncer started.');
+    console.log('Historical syncer started.');
   }
 
   public get getChainState() {
@@ -31,22 +33,15 @@ export default class HistoricalSyncService {
   }
 
   private async reSyncChainState() {
-    const state = await Promise.all([
-      this.rpcConnector.blockNumber(),
-      this.rpcConnector.dagBlockLevel(),
-      this.rpcConnector.dagBlockPeriod(),
-    ]);
-    const blockNumber = parseInt(state[0], 16);
-    const dagBlockLevel = parseInt(state[1], 16);
-    const dagBlockPeriod = parseInt(state[2], 16);
+    const blockNumber = parseInt(await this.rpcConnector.blockNumber(), 16);
+    const dagBlockLevel = parseInt(await this.rpcConnector.dagBlockLevel(), 16);
+    const dagBlockPeriod = parseInt(
+      await this.rpcConnector.dagBlockPeriod(),
+      16
+    );
 
-    const blocks = await Promise.all([
-      this.rpcConnector.getBlockByNumber(0),
-      this.rpcConnector.getBlockByNumber(blockNumber),
-    ]);
-
-    const genesis = blocks[0];
-    const block = blocks[1];
+    const genesis = await this.rpcConnector.getBlockByNumber(0);
+    const block = await this.rpcConnector.getBlockByNumber(blockNumber);
 
     this.chainState = {
       number: block.number,
@@ -58,16 +53,11 @@ export default class HistoricalSyncService {
   }
 
   private async reSyncCurrentState() {
-    const blocks = await Promise.all([
-      this.pbftService.getBlockByNumber(0),
-      this.pbftService.getPbftsOfLastLevel(1),
-      this.dagService.getDagsFromLastLevel(1),
-      this.dagService.getLastDagFromLastPbftPeriod(1),
-    ]);
-    const genesisBlock = blocks[0];
-    const lastBlocks = blocks[1];
-    const lastDagBlocksByLevel = blocks[2];
-    const lastDagBlocksByPeriod = blocks[3];
+    const genesisBlock = await this.pbftService.getBlockByNumber(0);
+    const lastBlocks = await this.pbftService.getPbftsOfLastLevel(1);
+    const lastDagBlocksByLevel = await this.dagService.getDagsFromLastLevel(1);
+    const lastDagBlocksByPeriod =
+      await this.dagService.getLastDagFromLastPbftPeriod(1);
 
     const _syncState = {
       hash: '',
@@ -124,6 +114,7 @@ export default class HistoricalSyncService {
 
     this.isRunning = true;
     this.logger.log('Historical sync started');
+    console.log('Historical sync started');
     //reset state
     await this.reSyncChainState();
     await this.reSyncCurrentState();
@@ -136,6 +127,7 @@ export default class HistoricalSyncService {
       this.chainState.genesis !== this.syncState.genesis
     ) {
       this.logger.log('New genesis block hash. Restarting chain sync.');
+      console.log('New genesis block hash. Restarting chain sync.');
       // reset the database
       await this.txService.clearTransactionData();
       await this.dagService.clearDagData();
@@ -173,17 +165,18 @@ export default class HistoricalSyncService {
 
     // sync blocks to tip
     while (this.syncState.number < this.chainState.number) {
+      console.log(`Getting block ${this.syncState.number + 1}...`);
       this.logger.log(`Getting block ${this.syncState.number + 1}...`);
-      const block: IPBFT = await this.rpcConnector.getBlockByNumber(
-        this.syncState.number + 1
-      );
+      const blockRpc: NewPbftBlockHeaderResponse =
+        await this.rpcConnector.getBlockByNumber(this.syncState.number + 1);
 
+      const block = this.pbftService.pbftRpcToIPBFT(blockRpc);
       this.logger.log(
         `Getting ${block.transactions.length} transactions for block ${
           this.syncState.number + 1
         }...`
       );
-      const blockTxs = [];
+      const blockTxs: ITransaction[] = [];
       for (let i = 0; i < block.transactions.length; i++) {
         this.logger.log(
           `Getting transaction #${i + 1} out of #${
@@ -191,9 +184,14 @@ export default class HistoricalSyncService {
           } - ${block.transactions[i]}...`
         );
         const tx = await this.rpcConnector.getTransactionByHash(
-          block.transactions[i]?.hash
+          block.transactions[i].hash
         );
-        blockTxs.push(tx);
+        blockTxs.push(
+          this.txService.populateTransactionWithPBFT(
+            this.txService.txRpcToITransaction(tx),
+            block
+          )
+        );
       }
 
       block.transactions = blockTxs;
@@ -203,37 +201,32 @@ export default class HistoricalSyncService {
       }
 
       const started = new Date();
-      const txHashes: string[] = [];
       let blockReward = 0;
-
-      const minBlock = Object.assign({}, block);
 
       // @note : Right now there is no way to get the genesis transactions to set:
       // Initial validators, initial balances for delegators and faucet.
       // big TODO
 
       const txReceipts = await this.getTransactionReceipts(
-        block.transactions.map((tx: ITransaction) => tx.hash),
+        block.transactions?.map((tx) => tx.hash),
         20
       );
 
       block.transactions.forEach((tx: ITransaction, idx: number) => {
-        txHashes.push(tx.hash);
         const receipt = txReceipts[idx];
         blockReward =
           blockReward + Number(receipt.gasUsed) * Number(tx.gasPrice);
       });
 
-      minBlock.reward = blockReward;
-      minBlock.transactions = block.transactions;
+      for (const trans of block.transactions) {
+        await this.txService.safeSaveTx(trans);
+      }
 
-      this.logger.log(`Finalized block ${minBlock.hash}`);
+      block.reward = blockReward;
 
-      await Promise.all(
-        block.transactions?.map((tx) => this.txService.safeSaveTransaction(tx))
-      );
-
-      await this.pbftService.safeSavePbft(block);
+      const savedBlock = await this.pbftService.safeSavePbft(block);
+      console.log(`Finalized block ${savedBlock.hash}`);
+      this.logger.log(`Finalized block ${savedBlock.hash}`);
 
       // update sync state
       this.syncState.number = block.number;
@@ -246,7 +239,7 @@ export default class HistoricalSyncService {
         this.syncState.number,
         this.syncState.hash,
         'with',
-        txHashes.length,
+        block.transactions?.length,
         'transactions, in',
         completed.getTime() - started.getTime(),
         'ms'
