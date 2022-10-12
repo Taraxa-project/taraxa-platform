@@ -44,7 +44,7 @@ export default class RPCConnectorService {
         )
         .pipe(
           map((res: AxiosResponse) => {
-            console.log(res);
+            // console.log(res);
             return res.data?.result;
           })
         )

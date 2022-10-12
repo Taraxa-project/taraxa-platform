@@ -63,13 +63,6 @@ export default class PbftService {
         });
         _pbft = newPbft;
       }
-      if (!pbft.transactions) {
-        _pbft.transactions = [];
-      }
-      _pbft.transactions = await this.txService.findTransactionsByHashesOrFill(
-        pbft.transactions.map((tx) => tx.hash)
-      );
-      _pbft.transactionCount = _pbft.transactions?.length;
 
       const saved = await this.pbftRepository
         .createQueryBuilder()
@@ -82,12 +75,35 @@ export default class PbftService {
 
       if (saved) {
         this.logger.log(`Registered new PBFT ${_pbft.hash}`);
+
+        if (pbft.transactions?.length > 0) {
+          const newTransactions: ITransaction[] = pbft.transactions.map(
+            (transaction) => {
+              return {
+                ...transaction,
+                block: {
+                  id: saved.raw[0].id,
+                  hash: saved.raw[0].hash,
+                  number: saved.raw[0].number,
+                  timestamp: saved.raw[0].timestamp,
+                },
+              };
+            }
+          );
+
+          _pbft.transactions =
+            await this.txService.findTransactionsByHashesOrFill(
+              newTransactions
+            );
+          _pbft.transactionCount = _pbft.transactions?.length;
+          _pbft.save();
+        }
       }
       const pbftFound = await this.pbftRepository.findOneBy({
         hash: _pbft.hash,
       });
       console.log(pbftFound);
-      return saved.raw[0];
+      return pbftFound;
     } catch (error) {
       console.error(error);
     }
@@ -186,9 +202,7 @@ export default class PbftService {
       transactions,
     } = { ...pbftData };
     if (!hash) return;
-    const txes = await this.txService.findTransactionsByHashesOrFill(
-      transactions
-    );
+
     const pbft: IPBFT = {
       hash: zeroX(hash),
       number: parseInt(number, 16) || 0,
@@ -203,18 +217,24 @@ export default class PbftService {
       transactionCount: parseInt(transactionCount, 16) || 0,
     };
 
-    if (!pbft.transactions) {
-      pbft.transactions = [];
-    }
-    pbft.transactions = txes;
-
-    if (transactions?.length > 0) {
-      console.error(pbft);
-    }
-
     try {
       const updated = await this.pbftRepository.save(pbft as PbftEntity);
-      if (updated) this.logger.log(`PBFT ${updated.hash} finalized`);
+      if (updated) {
+        this.logger.log(`PBFT ${updated.hash} finalized`);
+        const txes: ITransaction[] = transactions.map((hash: string) => ({
+          hash,
+          block: {
+            id: updated.id,
+            hash: updated.hash,
+            number: updated.number,
+            timestamp: updated.timestamp,
+          },
+        }));
+        const savedTx = await this.txService.findTransactionsByHashesOrFill(
+          txes
+        );
+        pbft.transactions = savedTx;
+      }
       return updated;
     } catch (error) {
       console.error('handleNewPbftHeads', error);

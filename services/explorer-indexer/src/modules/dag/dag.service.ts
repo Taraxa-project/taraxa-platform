@@ -20,7 +20,7 @@ export default class DagService {
 
   private async safeSaveDag(dag: IDAG) {
     const txes = await this.txService.findTransactionsByHashesOrFill(
-      dag.transactions?.map((tx) => tx.hash)
+      dag.transactions
     );
 
     let newDag = await this.dagRepository.findOneBy({

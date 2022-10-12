@@ -48,15 +48,15 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   miner?: string;
 
   @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @IsString()
   reward?: number;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
   gasLimit?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
   gasUsed?: string;
 
   @Column({ nullable: true })

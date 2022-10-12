@@ -181,20 +181,22 @@ export default class HistoricalSyncService {
         this.logger.log(
           `Getting transaction #${i + 1} out of #${
             block.transactions.length
-          } - ${block.transactions[i]}...`
+          } - ${block.transactions[i]?.hash}...`
         );
-        const tx = await this.rpcConnector.getTransactionByHash(
-          block.transactions[i].hash
-        );
-        blockTxs.push(
-          this.txService.populateTransactionWithPBFT(
-            this.txService.txRpcToITransaction(tx),
-            block
-          )
-        );
-      }
 
-      block.transactions = blockTxs;
+        if (block.transactions[i]) {
+          const tx = await this.rpcConnector.getTransactionByHash(
+            block.transactions[i].hash
+          );
+          blockTxs.push(
+            this.txService.populateTransactionWithPBFT(
+              this.txService.txRpcToITransaction(tx),
+              block
+            )
+          );
+          block.transactions = blockTxs;
+        }
+      }
 
       if (!block.hash) {
         continue;
@@ -218,15 +220,28 @@ export default class HistoricalSyncService {
           blockReward + Number(receipt.gasUsed) * Number(tx.gasPrice);
       });
 
-      for (const trans of block.transactions) {
-        await this.txService.safeSaveTx(trans);
-      }
-
       block.reward = blockReward;
 
       const savedBlock = await this.pbftService.safeSavePbft(block);
-      console.log(`Finalized block ${savedBlock.hash}`);
-      this.logger.log(`Finalized block ${savedBlock.hash}`);
+
+      if (savedBlock) {
+        console.log(`Finalized block ${savedBlock.hash}`);
+        this.logger.log(`Finalized block ${savedBlock.hash}`);
+        const formmatedTransactions = block.transactions.map((tx) => {
+          return {
+            ...tx,
+            block: {
+              id: tx?.block?.id,
+              hash: tx.block.hash,
+              number: tx.block.number,
+              timestamp: tx.block.timestamp,
+            },
+          };
+        });
+        for (const trans of formmatedTransactions) {
+          await this.txService.safeSaveTx(trans);
+        }
+      }
 
       // update sync state
       this.syncState.number = block.number;

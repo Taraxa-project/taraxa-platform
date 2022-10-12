@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
 import { Repository } from 'typeorm';
+import { PbftEntity } from '../pbft';
 import TransactionEntity from './transaction.entity';
 
 export interface RPCTransaction {
@@ -38,13 +39,9 @@ export default class TransactionService {
 
   public txRpcToITransaction(rpcTx: RPCTransaction) {
     const nonce = parseInt(rpcTx.nonce, 16);
-    const value = parseInt(rpcTx.value, 16);
-    delete rpcTx.nonce;
-    delete rpcTx.value;
     const iTx: ITransaction = {
       ...rpcTx,
       nonce,
-      value,
     };
     return iTx;
   }
@@ -53,18 +50,17 @@ export default class TransactionService {
     await this.txRepository.query('DELETE FROM "transactions"');
   }
 
-  public async findTransactionsByHashesOrFill(hashes: string[]) {
-    if (!(hashes?.length > 0)) {
+  public async findTransactionsByHashesOrFill(transactions: ITransaction[]) {
+    if (!(transactions?.length > 0)) {
       return [];
     }
-    const cleanHashes = Array.from(new Set(hashes));
-    const transactions: TransactionEntity[] = [];
-    for (const cleanHash of cleanHashes) {
-      const tx = await this.safeSaveEmptyTx(cleanHash);
-      transactions.push(tx);
+    const newTransactions: TransactionEntity[] = [];
+    for (const transaction of transactions) {
+      const tx = await this.safeSaveEmptyTx(transaction);
+      newTransactions.push(tx);
     }
 
-    return transactions;
+    return newTransactions;
   }
 
   public async safeSaveTx(transaction: ITransaction) {
@@ -77,6 +73,8 @@ export default class TransactionService {
         hash: transaction.hash,
       },
     });
+    const block = transaction.block as PbftEntity;
+    delete block.transactions;
 
     if (!tx) {
       try {
@@ -93,11 +91,14 @@ export default class TransactionService {
           status: transaction.status,
           from: transaction.from,
           to: transaction.to,
+          block: {
+            id: transaction?.block?.id,
+            hash: transaction.block.hash,
+            number: transaction.block.number,
+            timestamp: transaction.block.timestamp,
+          },
         });
         // newTx = await this.txRepository.save(newTx);
-        if (newTx) {
-          this.logger.log(`Registered new Transaction ${newTx.hash}`);
-        }
 
         const saved = await this.txRepository
           .createQueryBuilder()
@@ -108,8 +109,8 @@ export default class TransactionService {
           .setParameter('hash', newTx.hash)
           .execute();
 
-        if (saved) {
-          this.logger.log(`Registered new Transaction ${newTx.hash}`);
+        if (saved?.raw[0]) {
+          this.logger.log(`Registered new Transaction ${saved.raw[0].hash}`);
         }
         return saved.raw[0];
       } catch (error) {
@@ -119,24 +120,29 @@ export default class TransactionService {
     return tx;
   }
 
-  public async safeSaveEmptyTx(hash: string) {
-    if (!hash) {
+  public async safeSaveEmptyTx(transaction: ITransaction) {
+    if (!transaction) {
       return;
     }
 
     const tx = await this.txRepository.findOne({
       where: {
-        hash,
+        hash: transaction.hash,
       },
     });
 
     if (!tx) {
       try {
-        const newTx = this.txRepository.create({ hash });
-        // newTx = await this.txRepository.save(newTx);
-        if (newTx) {
-          this.logger.log(`Registered new Transaction ${newTx.hash}`);
-        }
+        const transactionEntity = new TransactionEntity({
+          ...transaction,
+          block: {
+            id: transaction?.block?.id,
+            hash: transaction.block.hash,
+            number: transaction.block.number,
+            timestamp: transaction.block.timestamp,
+          },
+        });
+        const newTx = this.txRepository.create(transactionEntity);
 
         const saved = await this.txRepository
           .createQueryBuilder()
@@ -144,11 +150,11 @@ export default class TransactionService {
           .into(TransactionEntity)
           .values(newTx)
           .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
-          .setParameter('hash', hash)
+          .setParameter('hash', newTx.hash)
           .execute();
 
-        if (saved) {
-          this.logger.log(`Registered new Transaction ${newTx.hash}`);
+        if (saved.raw[0]) {
+          this.logger.log(`Registered new Transaction ${saved.raw[0].hash}`);
         }
         return saved.raw[0];
       } catch (error) {

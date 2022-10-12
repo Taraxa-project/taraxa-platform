@@ -1,10 +1,11 @@
 import { IPBFT } from './PBFT.model';
 
 export interface ITransaction {
+  id?: number;
   hash: string;
   nonce?: number;
   index?: number;
-  value?: number;
+  value?: string;
   gasPrice?: string;
   gas?: string;
   inputData?: string;
