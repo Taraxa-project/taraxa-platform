@@ -55,11 +55,16 @@ export default class TransactionService {
       return [];
     }
     const newTransactions: TransactionEntity[] = [];
-    for (const transaction of transactions) {
-      const tx = await this.safeSaveEmptyTx(transaction);
-      newTransactions.push(tx);
-    }
-
+    await Promise.all(
+      transactions.map(async (transaction) => {
+        const tx = await this.safeSaveEmptyTx(transaction);
+        newTransactions.push(tx);
+      })
+    );
+    // for (const transaction of transactions) {
+    //   const tx = await this.safeSaveEmptyTx(transaction);
+    //   newTransactions.push(tx);
+    // }
     return newTransactions;
   }
 
@@ -107,10 +112,13 @@ export default class TransactionService {
           .values(newTx)
           .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
           .setParameter('hash', newTx.hash)
+          .returning('*')
           .execute();
 
         if (saved?.raw[0]) {
-          this.logger.log(`Registered new Transaction ${saved.raw[0].hash}`);
+          this.logger.log(
+            `Registered new Transaction ${JSON.stringify(saved.raw[0]?.hash)}`
+          );
         }
         return saved.raw[0];
       } catch (error) {
@@ -151,10 +159,13 @@ export default class TransactionService {
           .values(newTx)
           .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
           .setParameter('hash', newTx.hash)
+          .returning('*')
           .execute();
 
         if (saved.raw[0]) {
-          this.logger.log(`Registered new Transaction ${saved.raw[0].hash}`);
+          this.logger.log(
+            `Registered new Transaction ${JSON.stringify(saved.raw[0]?.hash)}`
+          );
         }
         return saved.raw[0];
       } catch (error) {

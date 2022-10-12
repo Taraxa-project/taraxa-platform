@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
+import { ITransaction } from '@taraxa_project/taraxa-models';
 import _ from 'lodash';
 import { NewPbftBlockHeaderResponse } from 'src/types';
 import { ChainState } from 'src/types/chainState';
@@ -238,9 +238,11 @@ export default class HistoricalSyncService {
             },
           };
         });
-        for (const trans of formmatedTransactions) {
-          await this.txService.safeSaveTx(trans);
-        }
+        await Promise.all(
+          formmatedTransactions.map(async (trans) => {
+            await this.txService.safeSaveTx(trans);
+          })
+        );
       }
 
       // update sync state
