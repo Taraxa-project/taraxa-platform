@@ -14,7 +14,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { HttpService } from '@nestjs/axios';
 import { ValidationException } from '../utils/exceptions/validation.exception';
-import { NodeService } from '../node/node.service';
 import { Node } from '../node/node.entity';
 import { NodeType } from '../node/node-type.enum';
 import { StakingService } from '../staking/staking.service';
@@ -46,10 +45,11 @@ export class DelegationService {
     private delegationRepository: Repository<Delegation>,
     @InjectRepository(DelegationNonce)
     private delegationNonceRepository: Repository<DelegationNonce>,
+    @InjectRepository(Node)
+    private nodeRepository: Repository<Node>,
     private eventEmitter: EventEmitter2,
     private config: ConfigService,
     private httpService: HttpService,
-    private nodeService: NodeService,
     private stakingService: StakingService,
     private connection: Connection,
     private blockchainService: BlockchainService,
@@ -139,7 +139,7 @@ export class DelegationService {
     user: number,
     delegationDto: CreateDelegationDto,
   ): Promise<Delegation> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: delegationDto.node,
       type: NodeType.MAINNET,
     });
@@ -214,7 +214,7 @@ export class DelegationService {
     user: number,
     undelegationDto: CreateUndelegationDto,
   ): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: undelegationDto.node,
       type: NodeType.MAINNET,
     });
@@ -278,7 +278,10 @@ export class DelegationService {
   async ensureDelegation(nodeId: number, type: string, address: string) {
     let node: Node;
     try {
-      node = await this.nodeService.findNodeByOrFail({ id: nodeId });
+      node = await this.nodeRepository.findOneOrFail({
+        where: { id: nodeId },
+        withDeleted: true,
+      });
     } catch (e) {
       node = null;
     }
@@ -507,7 +510,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<string> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
@@ -525,7 +528,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<string> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
@@ -543,7 +546,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
@@ -569,7 +572,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
