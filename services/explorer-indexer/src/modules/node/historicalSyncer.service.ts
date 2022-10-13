@@ -179,6 +179,7 @@ export default class HistoricalSyncService {
         }...`
       );
       const blockTxs: ITransaction[] = [];
+      const fetchTxStart = new Date();
       for (let i = 0; i < block.transactions.length; i++) {
         this.logger.debug(
           `Getting transaction #${i + 1} out of #${
@@ -187,10 +188,16 @@ export default class HistoricalSyncService {
         );
 
         if (block.transactions[i]) {
+          const fetchStart = new Date();
           const tx = await this.rpcConnector.getTransactionByHash(
             block.transactions[i].hash
           );
-
+          const fetchEnd = new Date();
+          console.log(
+            `Fetched tx ${block.transactions[i].hash} in ${
+              fetchEnd.getTime() - fetchStart.getTime()
+            }ms.`
+          );
           blockTxs.push(
             this.txService.populateTransactionWithPBFT(
               this.txService.txRpcToITransaction(tx),
@@ -199,6 +206,12 @@ export default class HistoricalSyncService {
           );
         }
       }
+      const fetchTxEnd = new Date();
+      console.log(
+        `Fetched ${block.transactions?.length} tx-es in ${
+          fetchTxEnd.getTime() - fetchTxStart.getTime()
+        } ms.`
+      );
 
       if (!block.hash) {
         continue;
