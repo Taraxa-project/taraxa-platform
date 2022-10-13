@@ -47,12 +47,16 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @Index()
   miner?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
+  reward?: string;
+
+  @Column({ nullable: true })
+  @IsString()
   gasLimit?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
   gasUsed?: string;
 
   @Column({ nullable: true })
@@ -73,4 +77,36 @@ export class PbftEntity extends BaseEntity implements IPBFT {
 
   @OneToMany(() => TransactionEntity, (transaction) => transaction.block)
   transactions?: TransactionEntity[];
+
+  @Column({ nullable: true })
+  @IsString()
+  transactionsRoot?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  extraData?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  logsBloom?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  mixHash?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  recepitsRoot?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  sha3Uncles?: string;
+
+  @Column({ nullable: true })
+  @IsNumber()
+  size?: number;
+
+  @Column({ nullable: true })
+  @IsString()
+  stateRoot?: string;
 }

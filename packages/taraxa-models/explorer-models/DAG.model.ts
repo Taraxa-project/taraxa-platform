@@ -1,6 +1,7 @@
 import { ITransaction } from './Transaction.model';
 
 export interface IDAG {
+  id?: number;
   hash: string;
   pivot?: string;
   tips?: string[];

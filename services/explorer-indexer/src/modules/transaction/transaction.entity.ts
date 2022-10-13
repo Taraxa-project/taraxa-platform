@@ -32,7 +32,7 @@ export default class TransactionEntity
   hash: string;
 
   @Column({ nullable: true })
-  @IsString()
+  @IsNumber()
   nonce?: number;
 
   @Column({ nullable: true })
@@ -40,21 +40,22 @@ export default class TransactionEntity
   index?: number;
 
   @Column({ nullable: true })
-  @IsNumber()
-  value?: number;
+  @IsString()
+  value?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
   gasPrice?: string;
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+
+  @Column({ nullable: true })
+  @IsString()
   gas?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
   gasUsed?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
+  @Column({ nullable: true })
   @IsNumber()
   cumulativeGasUsed?: number;
 
@@ -82,4 +83,32 @@ export default class TransactionEntity
   @Column({ nullable: true })
   @IsString()
   to?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  v?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  r?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  s?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  blockHash?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  blockNumber?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  input?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  transactionIndex?: string;
 }

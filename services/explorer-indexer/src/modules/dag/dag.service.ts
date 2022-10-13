@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IDAG, ITransaction } from '@taraxa_project/taraxa-models';
 import { NewDagBlockResponse, NewDagBlockFinalizedResponse } from 'src/types';
 import { zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
@@ -17,18 +18,45 @@ export default class DagService {
     this.dagRepository = dagRepository;
   }
 
-  public async getLastDagHash() {
-    return (
-      await this.dagRepository
-        .createQueryBuilder('dags')
-        .select()
-        .orderBy('dags.timestamp', 'DESC')
-        .limit(1)
-        .getOne()
-    ).hash;
+  private async safeSaveDag(dag: IDAG) {
+    const txes = await this.txService.findTransactionsByHashesOrFill(
+      dag.transactions
+    );
+
+    let newDag = await this.dagRepository.findOneBy({
+      hash: zeroX(dag.hash),
+    });
+    if (newDag) {
+      Object.assign(newDag, dag);
+      newDag.transactions = txes;
+    } else {
+      newDag = this.dagRepository.create({ ...dag, transactions: txes });
+    }
+    if (!newDag.transactions) {
+      newDag.transactions = [];
+    }
+
+    try {
+      const saved = await this.dagRepository
+        .createQueryBuilder()
+        .insert()
+        .into(DagEntity)
+        .values(newDag)
+        .orUpdate(['hash'], 'UQ_3928cee78a30b23a175d50796b2')
+        .setParameter('hash', newDag.hash)
+        .returning('*')
+        .execute();
+      if (saved) {
+        this.logger.log(`Registered new DAG ${newDag.hash}`);
+      }
+
+      return saved;
+    } catch (error) {
+      console.error(`DAG ${newDag.hash} could not be saved: `, error);
+    }
   }
 
-  public async handleNewDag(dagData: NewDagBlockResponse) {
+  public dagRpcToIDAG(dag: NewDagBlockResponse) {
     const {
       hash,
       pivot,
@@ -41,49 +69,71 @@ export default class DagService {
       vdf,
       transactionCount,
       transactions,
-    } = { ...dagData };
+    } = { ...dag };
 
-    const txes = await this.txService.findTransactionsByHashesOrFill(
-      transactions
-    );
+    const _dag = {
+      hash,
+      pivot: zeroX(pivot),
+      tips: tips,
+      level: parseInt(`${level}`, 16) || 0,
+      pbftPeriod: period,
+      timestamp: parseInt(timestamp, 16) || 0,
+      author: zeroX(author),
+      signature: zeroX(signature),
+      vdf: parseInt(vdf?.difficulty, 16) || 0,
+      transactionCount: transactionCount,
+      transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
+    };
+    return _dag;
+  }
 
-    let newDag = await this.dagRepository.findOneBy({ hash: zeroX(hash) });
-    if (newDag) {
-      newDag.pivot = zeroX(pivot);
-      newDag.tips = tips;
-      newDag.level = parseInt(`${level}`, 16) || 0;
-      newDag.pbftPeriod = period;
-      newDag.timestamp = parseInt(timestamp, 16) || 0;
-      newDag.author = zeroX(author);
-      newDag.signature = zeroX(signature);
-      newDag.vdf = parseInt(vdf?.difficulty, 16) || 0;
-      newDag.transactionCount = transactionCount;
-    } else {
-      newDag = new DagEntity({
-        hash: zeroX(hash),
-        pivot: zeroX(pivot),
-        tips,
-        level: parseInt(`${level}`, 16) || 0,
-        pbftPeriod: period,
-        timestamp: parseInt(timestamp, 16) || 0,
-        author: zeroX(author),
-        signature: zeroX(signature),
-        vdf: parseInt(vdf?.difficulty, 16) || 0,
-        transactionCount,
-      });
-    }
-    if (!newDag.transactions) {
-      newDag.transactions = [];
-    }
-    newDag.transactions = txes;
+  public async clearDagData() {
+    await this.dagRepository.query('DELETE FROM "dags"');
+  }
+
+  public async getBlockByLevel(level: number) {
+    return await this.dagRepository.findOneBy({ level });
+  }
+
+  public async getDagsFromLastLevel(limit: number) {
+    return await this.dagRepository
+      .createQueryBuilder('dags')
+      .leftJoinAndSelect('dags.transactions', 'transactions')
+      .select()
+      .where('dags.level IS NOT NULL')
+      .orderBy('dags.level', 'DESC')
+      .limit(limit)
+      .getMany();
+  }
+
+  public async getLastDagFromLastPbftPeriod(limit: number) {
+    return await this.dagRepository
+      .createQueryBuilder('dags')
+      .leftJoinAndSelect('dags.transactions', 'transactions')
+      .select()
+      .where('dags.pbftPeriod IS NOT NULL')
+      .orderBy('dags.pbftPeriod', 'DESC')
+      .limit(limit)
+      .getMany();
+  }
+
+  public async getLastDagHash() {
+    return (
+      await this.dagRepository
+        .createQueryBuilder('dags')
+        .leftJoinAndSelect('dags.transactions', 'transactions')
+        .select()
+        .orderBy('dags.timestamp', 'DESC')
+        .limit(1)
+        .getOne()
+    ).hash;
+  }
+
+  public async handleNewDag(dagData: NewDagBlockResponse) {
+    const _dagObject = this.dagRpcToIDAG(dagData);
 
     try {
-      const saved = await this.dagRepository.save(newDag);
-      if (saved) {
-        this.logger.log(`Registered new DAG ${saved.hash}`);
-      }
-
-      return saved;
+      await this.safeSaveDag(_dagObject);
     } catch (error) {
       console.error('handleNewDag', error);
     }

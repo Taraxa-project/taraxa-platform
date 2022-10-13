@@ -18,6 +18,7 @@ import {
   Topics,
 } from 'src/types';
 import TransactionService from '../transaction/transaction.service';
+import HistoricalSyncService from './historicalSyncer.service';
 
 @Injectable()
 export default class NodeSyncerService {
@@ -28,14 +29,20 @@ export default class NodeSyncerService {
     private readonly ws: WebSocketClient,
     private readonly dagService: DagService,
     private readonly pbftService: PbftService,
-    private readonly txService: TransactionService
+    private readonly txService: TransactionService,
+    private readonly historicalSyncService: HistoricalSyncService
   ) {
     this.logger.log('Starting NodeSyncronizer');
   }
 
   @EventListener('open')
-  onOpen() {
-    this.logger.log(`Connected to WS server at ${this.ws.url}`);
+  async onOpen() {
+    this.logger.log(
+      `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
+    );
+
+    await this.historicalSyncService.runHistoricalSync();
+
     this.ws.send(
       JSON.stringify({
         jsonrpc: '2.0',
@@ -190,9 +197,7 @@ export default class NodeSyncerService {
           );
           break;
         case ResponseTypes.NewPendingTransactions:
-          this.txService.safeSaveTransaction({
-            hash: parsedData.result as string,
-          });
+          this.txService.safeSaveEmptyTx({ hash: parsedData.result as string });
           break;
       }
     } catch (error) {
