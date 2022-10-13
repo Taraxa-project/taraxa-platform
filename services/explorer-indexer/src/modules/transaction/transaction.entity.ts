@@ -83,4 +83,32 @@ export default class TransactionEntity
   @Column({ nullable: true })
   @IsString()
   to?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  v?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  r?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  s?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  blockHash?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  blockNumber?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  input?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  transactionIndex?: string;
 }

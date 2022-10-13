@@ -7,6 +7,30 @@ import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
 import { PbftEntity } from './pbft.entity';
 
+export interface RPCPbft {
+  author: string;
+  difficulty: string; //hex
+  extraData: string;
+  gasLimit: string; //hex
+  gasUsed: string; //hex
+  hash: string;
+  logsBloom: string;
+  miner: string;
+  mixHash: string;
+  nonce: string;
+  number: string; //hex
+  parentHash: string;
+  recepitsRoot: string;
+  sha3Uncles: string;
+  size: string; //hex
+  stateRoot: string;
+  timestamp: string; //hex
+  totalDifficulty: string; //hex
+  transactionsRoot: string;
+  uncles: string[];
+  transactions: string[];
+}
+
 @Injectable()
 export default class PbftService {
   private readonly logger: Logger = new Logger(PbftService.name);
@@ -144,35 +168,50 @@ export default class PbftService {
     ).hash;
   };
 
-  public pbftRpcToIPBFT(pbftRpc: NewPbftBlockHeaderResponse) {
+  public pbftRpcToIPBFT(pbftRpc: RPCPbft) {
     const {
       hash,
       number,
       timestamp,
-      gas_limit,
-      gas_used,
-      parent,
+      gasLimit,
+      gasUsed,
+      parentHash,
       nonce,
       difficulty,
       totalDifficulty,
       miner,
-      transactionCount,
+      transactionsRoot,
+      extraData,
       transactions,
+      logsBloom,
+      mixHash,
+      recepitsRoot,
+      sha3Uncles,
+      size,
+      stateRoot,
     } = { ...pbftRpc };
     if (!hash) return;
     const pbft: IPBFT = {
       hash: zeroX(hash),
       number: parseInt(number, 16) || 0,
       timestamp: parseInt(timestamp, 16) || 0,
-      gasLimit: gas_limit,
-      gasUsed: gas_used,
-      parent: zeroX(parent),
+      gasLimit: parseInt(gasLimit, 16) || 0,
+      gasUsed: parseInt(gasUsed, 16) || 0,
+      parent: zeroX(parentHash),
       nonce,
       difficulty: parseInt(difficulty, 16) || 0,
       totalDifficulty: parseInt(totalDifficulty, 16) || 0,
       miner: zeroX(miner),
-      transactionCount: parseInt(transactionCount, 16) || 0,
+      transactionsRoot,
+      transactionCount: transactions?.length || 0,
       transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
+      extraData,
+      logsBloom,
+      mixHash,
+      recepitsRoot,
+      sha3Uncles,
+      size: parseInt(size, 16) || 0,
+      stateRoot,
     };
     return pbft;
   }
