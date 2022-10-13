@@ -19,13 +19,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strictNullChecks": false,
-    "isolatedModules": true,
+    "isolatedModules": true
   },
-  "include": [
-    "src/**/*",
-    "test/**/*",
-    "src/migrations/*",
-    "data-source.ts",
-  ],
+  "include": ["src/**/*", "test/**/*", "src/migrations/*", "data-source.ts"],
   "exclude": ["node_modules", "dist"]
 }

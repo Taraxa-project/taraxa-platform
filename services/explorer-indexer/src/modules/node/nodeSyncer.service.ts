@@ -17,6 +17,8 @@ import {
   toObject,
   Topics,
 } from 'src/types';
+import TransactionService from '../transaction/transaction.service';
+import HistoricalSyncService from './historicalSyncer.service';
 
 @Injectable()
 export default class NodeSyncerService {
@@ -26,14 +28,21 @@ export default class NodeSyncerService {
     @InjectWebSocketProvider()
     private readonly ws: WebSocketClient,
     private readonly dagService: DagService,
-    private readonly pbftService: PbftService
+    private readonly pbftService: PbftService,
+    private readonly txService: TransactionService,
+    private readonly historicalSyncService: HistoricalSyncService
   ) {
     this.logger.log('Starting NodeSyncronizer');
   }
 
   @EventListener('open')
-  onOpen() {
-    this.logger.log(`Connected to WS server at ${this.ws.url}`);
+  async onOpen() {
+    this.logger.log(
+      `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
+    );
+
+    await this.historicalSyncService.runHistoricalSync();
+
     this.ws.send(
       JSON.stringify({
         jsonrpc: '2.0',
@@ -111,6 +120,26 @@ export default class NodeSyncerService {
     this.logger.warn(
       `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
     );
+
+    // this.ws.send(
+    //   JSON.stringify({
+    //     jsonrpc: '2.0',
+    //     id: 0,
+    //     method: 'eth_subscribe',
+    //     params: [
+    //       // Topics.NEW_DAG_BLOCKS,
+    //       // Topics.NEW_DAG_BLOCKS_FINALIZED,
+    //       // Topics.NEW_PBFT_BLOCKS,
+    //       Topics.NEW_PENDING_TRANSACTIONS,
+    //     ],
+    //   }),
+    //   (err: Error) => {
+    //     if (err) this.logger.error(err);
+    //   }
+    // );
+    // this.logger.warn(
+    //   `Subscribed to eth_subscription method ${Topics.NEW_PENDING_TRANSACTIONS}`
+    // );
   }
 
   @EventListener('close')
@@ -167,46 +196,12 @@ export default class NodeSyncerService {
             parsedData.result as NewPbftBlockHeaderResponse
           );
           break;
+        case ResponseTypes.NewPendingTransactions:
+          this.txService.safeSaveEmptyTx({ hash: parsedData.result as string });
+          break;
       }
     } catch (error) {
       this.logger.error(`Could not persist incoming data. Cause: ${error}`);
     }
   }
-
-  //   @SubscribeMessage(Topics.ERRORS)
-  //   handleErrors(@MessageBody() data: string): void {
-  //     this.logger.error(JSON.parse(data));
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_DAG_BLOCKS)
-  //   handleNewDagBlockCreation(@MessageBody() data: string): void {
-  //     console.log(`handleNewDagBlockCreation: ${data}`);
-  //     const dag = JSON.parse(data) as IDAG;
-  //     this.logger.log(`NewDagBlock ${dag.hash}`);
-  //     this.dagService.handleNewDag(dag);
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_DAG_BLOCKS_FINALIZED)
-  //   handleNewDagBlockFinalization(@MessageBody() data: string): void {
-  //     console.log(`handleNewDagBlockFinalization: ${data}`);
-  //     const dag = JSON.parse(data) as IDAG;
-  //     this.logger.log(`NewDagBlockFinalized ${dag.hash}`);
-  //     this.dagService.handleNewDag(dag);
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_PBFT_BLOCKS)
-  //   handleNewPbftBlock(@MessageBody() data: string): void {
-  //     console.log(`handleNewPbftBlock: ${data}`);
-  //     const pbft = JSON.parse(data) as IPBFT;
-  //     this.logger.log(`NewPbftBlock ${pbft.hash}`);
-  //     this.pbftService.handleNewPbft(pbft);
-  //   }
-
-  //   @SubscribeMessage(Topics.NEW_PBFT_BLOCKS)
-  //   handleNewHeads(@MessageBody() data: string): void {
-  //     console.log(`handleNewHeads: ${data}`);
-  //     const pbft = JSON.parse(data) as IPBFT;
-  //     this.logger.log(`NewPbftBlock ${pbft.hash}`);
-  //     this.pbftService.handleNewPbft(pbft);
-  //   }
 }

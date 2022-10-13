@@ -7,6 +7,7 @@ export enum ResponseTypes {
   NewPbftBlockResponse = 'NewPbftBlockResponse',
   NewDagBlockResponse = 'NewDagBlockResponse',
   NewHeadsReponse = 'NewHeadsReponse',
+  NewPendingTransactions = 'NewPendingTransactions',
 }
 
 export enum Topics {
@@ -14,6 +15,7 @@ export enum Topics {
   NEW_DAG_BLOCKS_FINALIZED = 'newDagBlocksFinalized', // @note fired when a DAG block is inserted into a PBFT block
   NEW_PBFT_BLOCKS = 'newPbftBlocks', // @note fired when a PBFT block is accepted by the consensus
   NEW_HEADS = 'newHeads', // @note fired when a PBFT ns "mined": all transactions inside it were executed
+  NEW_PENDING_TRANSACTIONS = 'newPendingTransactions', // @note fired when a tx is registered to the mempool
   ERRORS = 'error', // @note error message
 }
 
@@ -22,6 +24,7 @@ export enum Subscriptions {
   NEW_DAG_BLOCKS_FINALIZED = 2, // @note fired when a DAG block is inserted into a PBFT block
   NEW_PBFT_BLOCKS = 3, // @note fired when a PBFT block is accepted by the consensus
   NEW_HEADS = 4, // @note fired when a PBFT ns "mined": all transactions inside it were executed
+  NEW_PENDING_TRANSACTIONS = 5, // @note fired when a tx is registered to the mempool
 }
 
 export function checkType(object: BaseResponseRype): string {
@@ -35,6 +38,8 @@ export function checkType(object: BaseResponseRype): string {
       ? ResponseTypes.NewPbftBlockResponse
       : object.subscription === '0x4'
       ? ResponseTypes.NewHeadsReponse
+      : object.subscription === '0x5'
+      ? ResponseTypes.NewPendingTransactions
       : ''
     : '';
 }
@@ -118,7 +123,8 @@ export interface BaseResponseRype {
     | NewDagBlockResponse
     | NewPbftBlockHeaderResponse
     | NewDagBlockFinalizedResponse
-    | NewPbftBlockResponse;
+    | NewPbftBlockResponse
+    | string;
 }
 export interface RpcResponseData {
   result: any;
@@ -191,6 +197,15 @@ export const toObject = (
           subscription: response.params.subscription,
         } as BaseResponseRype;
         returnObj = newHeadsData;
+        break;
+      }
+      case '0x5': {
+        // NEW_HEADS
+        const newTxData = {
+          result: response.params.result as string,
+          subscription: response.params.subscription,
+        } as BaseResponseRype;
+        returnObj = newTxData;
         break;
       }
       default:

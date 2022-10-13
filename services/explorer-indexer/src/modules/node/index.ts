@@ -1,2 +1,2 @@
-export * from './node.entity';
 export * from './node.module';
+export * from './node.entity';

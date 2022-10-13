@@ -10,8 +10,10 @@ import {
   PbftModule,
   PbftEntity,
   DagEntity,
+  TransactionModule,
+  HealthModule,
 } from './modules';
-import { HealthModule } from './modules/health/health.module';
+import TransactionEntity from './modules/transaction/transaction.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];
@@ -25,7 +27,7 @@ const getEnvFilePath = () => {
   }
 };
 
-export const entities = [NodeEntity, PbftEntity, DagEntity];
+export const entities = [NodeEntity, TransactionEntity, PbftEntity, DagEntity];
 
 const IndexerTypeOrmModule = () => {
   let typeOrmOptions: TypeOrmModuleOptions;
@@ -75,6 +77,7 @@ const IndexerTypeOrmModule = () => {
     NodeModule,
     DagModule,
     PbftModule,
+    TransactionModule,
     HealthModule,
   ],
   providers: [],
