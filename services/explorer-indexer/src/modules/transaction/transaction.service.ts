@@ -41,6 +41,7 @@ export default class TransactionService {
     const nonce = parseInt(rpcTx.nonce, 16);
     const iTx: ITransaction = {
       ...rpcTx,
+      inputData: rpcTx.input,
       nonce,
     };
     return iTx;

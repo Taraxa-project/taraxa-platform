@@ -1,10 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ITransaction } from '@taraxa_project/taraxa-models';
 import _ from 'lodash';
-import { NewPbftBlockHeaderResponse } from 'src/types';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
-import PbftService from '../pbft/pbft.service';
+import PbftService, { RPCPbft } from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
 import RPCConnectorService from './rpcConnector.service';
 import { BigInteger } from 'jsbn';
@@ -169,8 +168,9 @@ export default class HistoricalSyncService {
       console.log(`Getting block ${this.syncState.number + 1}...`);
       this.logger.log(`Getting block ${this.syncState.number + 1}...`);
       const started = new Date();
-      const blockRpc: NewPbftBlockHeaderResponse =
-        await this.rpcConnector.getBlockByNumber(this.syncState.number + 1);
+      const blockRpc: RPCPbft = await this.rpcConnector.getBlockByNumber(
+        this.syncState.number + 1
+      );
 
       const block = this.pbftService.pbftRpcToIPBFT(blockRpc);
       this.logger.log(
@@ -230,8 +230,15 @@ export default class HistoricalSyncService {
 
       Array.from(new Set(blockTxs)).forEach((tx: ITransaction, idx: number) => {
         const receipt = txReceipts[idx];
+        tx.status = parseInt(receipt.status, 16);
+        tx.index = parseInt(receipt.transactionIndex, 16);
         const gasUsed = new BigInteger(receipt.gasUsed || '0x0', 16);
+        tx.gasUsed = gasUsed.toString();
         const gasPrice = new BigInteger(tx.gasPrice || '0x0', 16);
+        tx.gasPrice = gasPrice.toString();
+        tx.cumulativeGasUsed = Number(
+          new BigInteger(receipt.cumulativeGasUsed || '0x0', 16)
+        );
         const reward = gasUsed.multiply(gasPrice);
         const newVal = blockReward.add(reward);
         blockReward = newVal;
