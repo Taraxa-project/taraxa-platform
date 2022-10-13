@@ -7,6 +7,7 @@ import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
 import RPCConnectorService from './rpcConnector.service';
+import { BigInteger } from 'jsbn';
 
 @Injectable()
 export default class HistoricalSyncService {
@@ -167,6 +168,7 @@ export default class HistoricalSyncService {
     while (this.syncState.number < this.chainState.number) {
       console.log(`Getting block ${this.syncState.number + 1}...`);
       this.logger.log(`Getting block ${this.syncState.number + 1}...`);
+      const started = new Date();
       const blockRpc: NewPbftBlockHeaderResponse =
         await this.rpcConnector.getBlockByNumber(this.syncState.number + 1);
 
@@ -202,25 +204,27 @@ export default class HistoricalSyncService {
         continue;
       }
 
-      const started = new Date();
-      let blockReward = 0;
+      let blockReward = new BigInteger('0', 10);
 
       // @note : Right now there is no way to get the genesis transactions to set:
       // Initial validators, initial balances for delegators and faucet.
       // big TODO
 
       const txReceipts = await this.getTransactionReceipts(
-        block.transactions?.map((tx) => tx.hash),
+        blockTxs.map((tx) => tx.hash),
         20
       );
 
-      block.transactions.forEach((tx: ITransaction, idx: number) => {
+      Array.from(new Set(blockTxs)).forEach((tx: ITransaction, idx: number) => {
         const receipt = txReceipts[idx];
-        blockReward =
-          blockReward + Number(receipt.gasUsed) * Number(tx.gasPrice);
+        const gasUsed = new BigInteger(receipt.gasUsed || '0x0', 16);
+        const gasPrice = new BigInteger(tx.gasPrice || '0x0', 16);
+        const reward = gasUsed.multiply(gasPrice);
+        const newVal = blockReward.add(reward);
+        blockReward = newVal;
       });
 
-      block.reward = blockReward;
+      block.reward = blockReward.toString();
       const blockToSave = { ...block };
       blockToSave.transactions = blockTxs;
       blockToSave.transactionCount = blockTxs.length;
