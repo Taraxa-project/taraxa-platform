@@ -1,6 +1,14 @@
 import { IPBFT } from '@taraxa_project/taraxa-models';
-import { BaseEntity, Column, Entity, Index, PrimaryColumn } from 'typeorm';
-import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { TransactionEntity } from './transaction.entity';
 
 const table_name = 'pbfts';
 
@@ -10,7 +18,12 @@ export class PbftEntity extends BaseEntity implements IPBFT {
     super();
     Object.assign(this, pbft);
   }
-  @PrimaryColumn()
+
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  @IsString()
   hash: string;
 
   @Column({ nullable: false })
@@ -34,12 +47,16 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @Index()
   miner?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
+  reward?: string;
+
+  @Column({ nullable: true })
+  @IsString()
   gasLimit?: string;
 
-  @Column({ nullable: true, type: 'bigint' })
-  @IsNumber()
+  @Column({ nullable: true })
+  @IsString()
   gasUsed?: string;
 
   @Column({ nullable: true })
@@ -58,7 +75,38 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   @IsNumber()
   transactionCount?: number;
 
-  @Column('simple-array', { nullable: true })
-  @IsArray()
-  transactions?: string[];
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.block)
+  transactions?: TransactionEntity[];
+
+  @Column({ nullable: true })
+  @IsString()
+  transactionsRoot?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  extraData?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  logsBloom?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  mixHash?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  recepitsRoot?: string;
+
+  @Column({ nullable: true })
+  @IsString()
+  sha3Uncles?: string;
+
+  @Column({ nullable: true })
+  @IsNumber()
+  size?: number;
+
+  @Column({ nullable: true })
+  @IsString()
+  stateRoot?: string;
 }

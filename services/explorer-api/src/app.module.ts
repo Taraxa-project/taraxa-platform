@@ -6,11 +6,11 @@ import { existsSync } from 'fs';
 import {
   NodeEntity,
   PbftEntity,
-  DagEntity,
   NodeModule,
+  DagEntity,
   PbftModule,
-  DagModule,
   HealthModule,
+  TransactionEntity,
 } from './modules';
 
 const getEnvFilePath = () => {
@@ -25,7 +25,7 @@ const getEnvFilePath = () => {
   }
 };
 
-export const entities = [NodeEntity, PbftEntity, DagEntity];
+export const entities = [NodeEntity, PbftEntity, DagEntity, TransactionEntity];
 
 const IndexerTypeOrmModule = () => {
   let typeOrmOptions: TypeOrmModuleOptions;
@@ -74,7 +74,6 @@ const IndexerTypeOrmModule = () => {
     IndexerTypeOrmModule(),
     NodeModule,
     PbftModule,
-    DagModule,
     HealthModule,
   ],
 })
