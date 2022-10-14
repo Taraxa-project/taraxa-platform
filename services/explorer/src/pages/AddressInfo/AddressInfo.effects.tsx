@@ -9,7 +9,7 @@ import {
 } from '../../api/mocks';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
-import { useGetNodeByAddress } from '../../api';
+import { useGetBlocksByAddress } from '../../api';
 
 export const useAddressInfoEffects = (account: string) => {
   const [transactions, setTransactions] = useState<Transaction[]>();
@@ -27,7 +27,7 @@ export const useAddressInfoEffects = (account: string) => {
     data: nodeData,
     isFetching,
     isLoading,
-  } = useGetNodeByAddress(account);
+  } = useGetBlocksByAddress(account);
 
   useEffect(() => {
     if (fetching || isFetching || isLoading) {
@@ -41,8 +41,8 @@ export const useAddressInfoEffects = (account: string) => {
     if (nodeData?.data) {
       setAddressInfoDetails({
         ...addressInfoDetails,
-        dagBlocks: nodeData?.data?.dagCount,
-        pbftBlocks: nodeData?.data?.pbftCount,
+        dagBlocks: nodeData?.data?.dags,
+        pbftBlocks: nodeData?.data?.pbft,
       });
     }
   }, [nodeData]);

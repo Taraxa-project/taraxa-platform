@@ -6,14 +6,14 @@ const getByAddress = (address: string) => {
   if (!address) {
     return;
   }
-  const url = `${API}/nodes/${address}`;
+  const url = `${API}/address/${address}/dags`;
   // eslint-disable-next-line consistent-return
   return axios.get(url);
 };
 
-export const useGetNodeByAddress = (address: string) => {
+export const useGetDagsByAddress = (address: string) => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['node-by-address', address],
+    ['dags-by-address', address],
     () => getByAddress(address),
     {
       onError: (error) => {
