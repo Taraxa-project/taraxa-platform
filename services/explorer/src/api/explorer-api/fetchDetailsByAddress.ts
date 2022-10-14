@@ -13,7 +13,7 @@ const getByAddress = (address: string) => {
 
 export const useGetDetailsForAddress = (address: string) => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['dags-by-address', address],
+    ['details-by-address', address],
     () => getByAddress(address),
     {
       onError: (error) => {

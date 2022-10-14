@@ -34,9 +34,6 @@ export const AddressInfo = ({
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
   const onCopy = useCopyToClipboard();
 
-  const pricePerTara =
-    parseFloat(details?.balance) / parseFloat(details?.value);
-
   const tableTabs: TableTabsProps = {
     tabs: [
       {
@@ -117,7 +114,7 @@ export const AddressInfo = ({
             <DataRow title='Balance' data={`${details?.balance} TARA`} />
             <DataRow
               title='Value'
-              data={`$${details?.value} ( ${pricePerTara} / TARA )`}
+              data={`$${details?.value} ( ${details?.pricePerTara} / TARA )`}
             />
             <DataRow
               title='Transaction count'

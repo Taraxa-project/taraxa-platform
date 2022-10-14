@@ -7,6 +7,7 @@ import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
   useGetBlocksByAddress,
   useGetDagsByAddress,
+  useGetDetailsForAddress,
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
@@ -56,6 +57,12 @@ export const useAddressInfoEffects = (account: string) => {
     isLoading: isLoadingTx,
   } = useGetTransactionsByAddress(account);
 
+  const {
+    data: details,
+    isFetching: isFetchingDetails,
+    isLoading: isLoadingDetails,
+  } = useGetDetailsForAddress(account);
+
   useEffect(() => {
     if (
       fetching ||
@@ -66,7 +73,9 @@ export const useAddressInfoEffects = (account: string) => {
       isFetchingPbfts ||
       isLoadingPbfts ||
       isFetchingTx ||
-      isLoadingTx
+      isLoadingTx ||
+      isFetchingDetails ||
+      isLoadingDetails
     ) {
       initLoading();
     } else {
@@ -83,16 +92,6 @@ export const useAddressInfoEffects = (account: string) => {
     isFetchingTx,
     isLoadingTx,
   ]);
-
-  useEffect(() => {
-    if (nodeData?.data) {
-      setAddressInfoDetails({
-        ...addressInfoDetails,
-        dagBlocks: nodeData?.data?.dags,
-        pbftBlocks: nodeData?.data?.pbft,
-      });
-    }
-  }, [nodeData]);
 
   useEffect(() => {
     if (dagsData?.data) {
@@ -132,30 +131,40 @@ export const useAddressInfoEffects = (account: string) => {
 
   useEffect(() => {
     if (txData?.data) {
-      setTransactions(formatToTransaction(txData?.data));
+      setTransactions(formatToTransaction(txData.data));
     }
   }, [txData]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const getFees = (transactions: TransactionResponse[]) => {
+    return transactions.reduce((accumulator: any, object) => {
+      return accumulator + object.gasPrice;
+    }, 0);
+  };
+
   useEffect(() => {
-    if (data?.block) {
-      const details: AddressInfoDetails = {
-        address: data?.block?.account?.address,
-        balance: ethers.BigNumber.from(
-          data?.block?.account?.balance
-        ).toString(),
-        value: `${ethers.BigNumber.from(
-          data?.block?.account?.balance
-        ).toString()} TARA`,
-        transactionCount: data?.block?.account?.transactionCount,
-        totalReceived: '10000 (mocked)',
-        totalSent: '10000 (mocked)',
-        fees: '15 (mocked)',
-        dagBlocks: addressInfoDetails?.dagBlocks || 0,
-        pbftBlocks: addressInfoDetails?.pbftBlocks || 0,
-      };
-      setAddressInfoDetails(details);
+    const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
+    if (details?.data) {
+      addressDetails.balance = details?.data.currentBalance;
+      addressDetails.value = `${details?.data.currentValue} ${details?.data?.currency}`;
+      addressDetails.totalReceived = details?.data?.totalReceived;
+      addressDetails.totalSent = details?.data?.totalSent;
+      addressDetails.pricePerTara = details?.data?.priceAtTimeOfCalculation;
     }
-  }, [data]);
+    if (data?.block) {
+      addressDetails.address = data?.block?.account?.address;
+    }
+    if (nodeData?.data) {
+      addressDetails.dagBlocks = nodeData?.data?.dags;
+      addressDetails.pbftBlocks = nodeData?.data?.pbft;
+    }
+    if (txData?.data) {
+      addressDetails.transactionCount = txData.data.length;
+      // addressDetails.fees = `${getFees(txData.data)}`;
+      addressDetails.fees = `0`;
+    }
+    setAddressInfoDetails(addressDetails);
+  }, [details, data, nodeData, txData]);
 
   return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };
 };

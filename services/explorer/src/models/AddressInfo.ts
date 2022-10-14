@@ -8,4 +8,5 @@ export interface AddressInfoDetails {
   fees: string;
   dagBlocks: number;
   pbftBlocks: number;
+  pricePerTara: number;
 }

@@ -178,7 +178,6 @@ export class AddressService {
           )
           .pipe(
             map((res: AxiosResponse) => {
-              console.log(res);
               return res.data;
             })
           )
@@ -188,7 +187,7 @@ export class AddressService {
       return {
         totalSent: totalSent.toString(),
         totalReceived: totalReceived.toString(),
-        priceAtTimeOfCalcualtion: price.toFixed(6).toString(),
+        priceAtTimeOfCalculation: price.toFixed(6).toString(),
         currentBalance: balance.toString(),
         currentValue: currentValue.toString(),
         currency: 'USD',
