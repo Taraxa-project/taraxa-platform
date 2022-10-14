@@ -7,7 +7,12 @@ import {
 } from '@nestjs/swagger';
 import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
 import { AddressService } from './address.service';
-import { BlocksCount, StatsResponse, TransactionResponse } from './responses';
+import {
+  AddressDetailsResponse,
+  BlocksCount,
+  StatsResponse,
+  TransactionResponse,
+} from './responses';
 
 @ApiTags('address')
 @Controller('/address')
@@ -64,5 +69,21 @@ export class AddressController {
     @Param('address') address: string
   ): Promise<TransactionResponse[]> {
     return this.service.getTransactions(address);
+  }
+
+  @Get(':address/details')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns cumulative details about the address like ',
+  })
+  @ApiTooManyRequestsResponse({ description: 'Too many responses' })
+  @ApiNotFoundResponse({
+    description:
+      'Returns cumulative data for given address for TARA like total total sent, total received, current value, current price action and curertn balance',
+  })
+  async getDetails(
+    @Param('address') address: string
+  ): Promise<AddressDetailsResponse> {
+    return this.service.getDetails(address);
   }
 }

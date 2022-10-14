@@ -1,14 +1,25 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Repository } from 'typeorm';
-import { toChecksumAddress } from '../../utils';
+import { toBN, toWei } from 'web3-utils';
 import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
-import { StatsResponse, TransactionResponse, BlocksCount } from './responses';
+import {
+  StatsResponse,
+  TransactionResponse,
+  BlocksCount,
+  AddressDetailsResponse,
+} from './responses';
+import { catchError, firstValueFrom, map } from 'rxjs';
+import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
 
 @Injectable()
 export class AddressService {
@@ -20,7 +31,9 @@ export class AddressService {
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>,
     @InjectRepository(TransactionEntity)
-    private txRepository: Repository<TransactionEntity>
+    private txRepository: Repository<TransactionEntity>,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {}
 
   public async getStats(address: string): Promise<StatsResponse> {
@@ -128,5 +141,61 @@ export class AddressService {
     );
 
     return res;
+  }
+
+  public async getDetails(address: string): Promise<AddressDetailsResponse> {
+    if (!address) throw new BadRequestException('Address not supplied!');
+    let balance = toBN('0');
+    try {
+      const [{ total_sent }] = await this.txRepository.query(
+        `select sum(value::REAL) as total_sent from transactions where lower(transactions.from) = lower('${address}');`
+      );
+      const [{ total_received }] = await this.txRepository.query(
+        `select sum(value::REAL) as total_received from transactions where lower(transactions.to) = lower('${address}');`
+      );
+      const [{ total_mined }] = await this.txRepository.query(
+        `select sum(reward::REAL) as total_mined from pbfts where lower(miner) = lower('${address}');`
+      );
+      const padSentToWei = toWei(String(total_sent || '0'), 'ether');
+      const padReceivedToWei = toWei(String(total_received || '0'), 'ether');
+      const totalSent = toBN(padSentToWei);
+      const totalReceived = toBN(padReceivedToWei);
+      const fromScietificToString =
+        Intl.NumberFormat('en-US').format(total_mined);
+      const clear = fromScietificToString.replace(/\D+/g, '');
+      const totalMined = toBN(`${clear}` || '0');
+      balance = balance.add(totalMined);
+      balance = balance.add(totalReceived);
+      balance = balance.sub(totalSent);
+
+      console.log(this.configService.get<string>('general.tokenPriceURL'));
+      const realTimePrice = await firstValueFrom(
+        this.httpService
+          .get(this.configService.get<string>('general.tokenPriceURL'))
+          .pipe(
+            catchError(() => {
+              throw new ForbiddenException('API not available');
+            })
+          )
+          .pipe(
+            map((res: AxiosResponse) => {
+              console.log(res);
+              return res.data;
+            })
+          )
+      );
+      console.log(realTimePrice);
+      const price = realTimePrice[0].current_price as number;
+      const currentValue = balance.toNumber() * price;
+      return {
+        totalSent: totalSent.toString(),
+        totalReceived: totalReceived.toString(),
+        priceAtTimeOfCalcualtion: price.toFixed(6).toString(),
+        currentBalance: balance.toString(),
+        currentValue: currentValue.toString(),
+      };
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
