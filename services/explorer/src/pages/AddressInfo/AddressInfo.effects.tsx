@@ -150,8 +150,8 @@ export const useAddressInfoEffects = (account: string) => {
         totalReceived: '10000 (mocked)',
         totalSent: '10000 (mocked)',
         fees: '15 (mocked)',
-        dagBlocks: addressInfoDetails.dagBlocks || 0,
-        pbftBlocks: addressInfoDetails.pbftBlocks || 0,
+        dagBlocks: addressInfoDetails?.dagBlocks || 0,
+        pbftBlocks: addressInfoDetails?.pbftBlocks || 0,
       };
       setAddressInfoDetails(details);
     }

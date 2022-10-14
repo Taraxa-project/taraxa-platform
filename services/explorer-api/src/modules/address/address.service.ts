@@ -95,9 +95,6 @@ export class AddressService {
       `SELECT COUNT(distinct hash) as dags_mined from dags  WHERE LOWER(author) = lower('${address}')`
     );
 
-    console.log('pbftQuery: ', pbfts_mined);
-    console.log('dagQuery: ', dags_mined);
-
     return {
       dags: dags_mined,
       pbft: pbfts_mined,
