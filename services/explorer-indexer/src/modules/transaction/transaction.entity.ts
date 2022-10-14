@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -28,6 +29,7 @@ export default class TransactionEntity
   id: number;
 
   @Column({ unique: true })
+  @Index()
   @IsString()
   hash: string;
 
@@ -77,10 +79,12 @@ export default class TransactionEntity
   status?: number;
 
   @Column({ nullable: true })
+  @Index()
   @IsString()
   from?: string;
 
   @Column({ nullable: true })
+  @Index()
   @IsString()
   to?: string;
 

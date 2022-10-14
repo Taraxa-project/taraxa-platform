@@ -2,11 +2,10 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Param,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags, ApiNotFoundResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { GetNodesDto } from './dto/get-nodes.dto';
 import { NodeDto } from './dto/node.dto';
 import { NodeService, NodesPaginate } from './node.service';
@@ -26,28 +25,5 @@ export class NodeController {
     @Query(ValidationPipe) filterDto: GetNodesDto
   ): Promise<NodesPaginate> {
     return this.service.findAll(filterDto);
-  }
-
-  @Get('/:address')
-  @ApiOkResponse({ type: NodeDto, description: 'Returns a Node' })
-  @ApiNotFoundResponse({
-    description: `The node with the address doesn't exist`,
-  })
-  async getByAddress(
-    @Param('address') address: string
-  ): Promise<NodeDto | null> {
-    return this.service.findByAddress(address);
-  }
-
-  @Get('/:address/stats')
-  @ApiOkResponse({
-    type: NodeDto,
-    description: 'Returns stats for a given address',
-  })
-  @ApiNotFoundResponse({
-    description: `The node with the address doesn't exist`,
-  })
-  async getStats(@Param('address') address: string): Promise<any> {
-    return this.service.getStats(address);
   }
 }

@@ -3,13 +3,14 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
-import { PbftEntity } from './pbft.entity';
+import { PbftEntity } from '../pbft/pbft.entity';
 import { DagEntity } from './dag.entity';
 
 const table_name = 'transactions';
@@ -25,6 +26,7 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   id: number;
 
   @Column({ unique: true })
+  @Index()
   @IsString()
   hash: string;
 
@@ -74,10 +76,12 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   status?: number;
 
   @Column({ nullable: true })
+  @Index()
   @IsString()
   from?: string;
 
   @Column({ nullable: true })
+  @Index()
   @IsString()
   to?: string;
 
