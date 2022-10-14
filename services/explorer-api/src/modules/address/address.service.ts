@@ -2,21 +2,13 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Repository } from 'typeorm';
 import { toChecksumAddress } from '../../utils';
 import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
-
-export interface StatsResponse {
-  totalProduced: number;
-  firstBlockTimestamp: number;
-  lastBlockTimestamp: number;
-  rank: number;
-  produced: number;
-}
+import { StatsResponse, TransactionResponse, BlocksCount } from './responses';
 
 @Injectable()
 export class AddressService {
@@ -95,9 +87,7 @@ export class AddressService {
     };
   }
 
-  public async getBlocksProduced(
-    address: string
-  ): Promise<{ dags: number; pbft: number }> {
+  public async getBlocksProduced(address: string): Promise<BlocksCount> {
     const [{ pbfts_mined }] = await this.pbftRepository.query(
       `SELECT COUNT(distinct hash) as pbfts_mined from pbfts WHERE LOWER(miner) = lower('${address}')`
     );
@@ -116,6 +106,7 @@ export class AddressService {
 
   public async getDags(address: string): Promise<DagEntity[]> {
     return await this.dagRepository.find({
+      select: ['timestamp', 'level', 'hash', 'transactionCount'],
       where: {
         author: address,
       },
@@ -124,16 +115,19 @@ export class AddressService {
 
   public async getPbfts(address: string): Promise<PbftEntity[]> {
     return await this.pbftRepository.find({
+      select: ['timestamp', 'number', 'hash', 'transactionCount'],
       where: {
         miner: address,
       },
     });
   }
 
-  public async getTransactions(address: string): Promise<TransactionEntity[]> {
+  public async getTransactions(
+    address: string
+  ): Promise<TransactionResponse[]> {
     // Don't test with Swagger as it will break
     const res = await this.txRepository.query(
-      `SELECT * FROM transactions WHERE LOWER(transactions.from) = LOWER('${address}') OR LOWER(transactions.to) = LOWER('${address}')`
+      `SELECT t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age from transactions t LEFT JOIN pbfts p ON t."blockId" = p.id WHERE LOWER(t.from) = LOWER('${address}') or LOWER(t.to) = LOWER('${address}')`
     );
 
     return res;

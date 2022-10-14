@@ -6,7 +6,8 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
-import { StatsResponse, AddressService } from './address.service';
+import { AddressService } from './address.service';
+import { BlocksCount, StatsResponse, TransactionResponse } from './responses';
 
 @ApiTags('address')
 @Controller('/address')
@@ -27,7 +28,7 @@ export class AddressController {
   })
   async getBlocksProduced(
     @Param('address') address: string
-  ): Promise<{ dags: number; pbft: number }> {
+  ): Promise<BlocksCount> {
     return this.service.getBlocksProduced(address);
   }
 
@@ -61,7 +62,7 @@ export class AddressController {
   })
   async getTransactions(
     @Param('address') address: string
-  ): Promise<TransactionEntity[]> {
+  ): Promise<TransactionResponse[]> {
     return this.service.getTransactions(address);
   }
 }
