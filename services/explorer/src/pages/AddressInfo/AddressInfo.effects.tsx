@@ -2,14 +2,26 @@ import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { ethers } from 'ethers';
 import { accountQuery } from '../../api/graphql/queries/account';
-import {
-  getMockedDagBlocks,
-  getMockedTransactions,
-  getMockPbftBlocks,
-} from '../../api/mocks';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
-import { useGetBlocksByAddress } from '../../api';
+import {
+  useGetBlocksByAddress,
+  useGetDagsByAddress,
+  useGetPbftsByAddress,
+  useGetTransactionsByAddress,
+} from '../../api';
+
+export interface TransactionResponse {
+  hash: string;
+  from: string;
+  to: string;
+  status: number;
+  gasUsed: string;
+  gasPrice: string;
+  value: string;
+  block: number;
+  age: number;
+}
 
 export const useAddressInfoEffects = (account: string) => {
   const [transactions, setTransactions] = useState<Transaction[]>();
@@ -25,17 +37,52 @@ export const useAddressInfoEffects = (account: string) => {
   const { initLoading, finishLoading } = useExplorerLoader();
   const {
     data: nodeData,
-    isFetching,
-    isLoading,
+    isFetching: isFetchingBlocks,
+    isLoading: isLoadingBlocks,
   } = useGetBlocksByAddress(account);
+  const {
+    data: dagsData,
+    isFetching: isFetchingDags,
+    isLoading: isLoadingDags,
+  } = useGetDagsByAddress(account);
+  const {
+    data: pbftsData,
+    isFetching: isFetchingPbfts,
+    isLoading: isLoadingPbfts,
+  } = useGetPbftsByAddress(account);
+  const {
+    data: txData,
+    isFetching: isFetchingTx,
+    isLoading: isLoadingTx,
+  } = useGetTransactionsByAddress(account);
 
   useEffect(() => {
-    if (fetching || isFetching || isLoading) {
+    if (
+      fetching ||
+      isFetchingBlocks ||
+      isLoadingBlocks ||
+      isFetchingDags ||
+      isLoadingDags ||
+      isFetchingPbfts ||
+      isLoadingPbfts ||
+      isFetchingTx ||
+      isLoadingTx
+    ) {
       initLoading();
     } else {
       finishLoading();
     }
-  }, [fetching, isFetching, isLoading]);
+  }, [
+    fetching,
+    isFetchingBlocks,
+    isLoadingBlocks,
+    isFetchingDags,
+    isLoadingDags,
+    isFetchingPbfts,
+    isLoadingPbfts,
+    isFetchingTx,
+    isLoadingTx,
+  ]);
 
   useEffect(() => {
     if (nodeData?.data) {
@@ -46,6 +93,48 @@ export const useAddressInfoEffects = (account: string) => {
       });
     }
   }, [nodeData]);
+
+  useEffect(() => {
+    if (dagsData?.data) {
+      setDagBlocks(dagsData?.data);
+    }
+  }, [dagsData]);
+
+  useEffect(() => {
+    if (pbftsData?.data) {
+      setPbftBlocks(pbftsData?.data);
+    }
+  }, [pbftsData]);
+
+  const formatToTransaction = (
+    transactions: TransactionResponse[]
+  ): Transaction[] => {
+    return transactions.map((tx) => {
+      return {
+        hash: tx.hash,
+        block: {
+          number: tx.block,
+          timestamp: tx.age,
+        },
+        value: ethers.BigNumber.from(tx.value),
+        gasPrice: ethers.BigNumber.from(tx.gasPrice),
+        gas: ethers.BigNumber.from(tx.gasUsed),
+        status: tx.status,
+        from: {
+          address: tx.from,
+        },
+        to: {
+          address: tx.to,
+        },
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (txData?.data) {
+      setTransactions(formatToTransaction(txData?.data));
+    }
+  }, [txData]);
 
   useEffect(() => {
     if (data?.block) {
@@ -67,19 +156,6 @@ export const useAddressInfoEffects = (account: string) => {
       setAddressInfoDetails(details);
     }
   }, [data]);
-
-  useEffect(() => {
-    initLoading();
-    const transactions: Transaction[] = getMockedTransactions(account);
-    const dagBlocks: BlockData[] = getMockedDagBlocks(account);
-    const pbftBlocks: BlockData[] = getMockPbftBlocks(account);
-    setTimeout(() => {
-      setTransactions(transactions);
-      setDagBlocks(dagBlocks);
-      setPbftBlocks(pbftBlocks);
-      finishLoading();
-    }, 1500);
-  }, []);
 
   return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };
 };
