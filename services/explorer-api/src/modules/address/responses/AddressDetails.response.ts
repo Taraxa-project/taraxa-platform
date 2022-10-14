@@ -4,4 +4,5 @@ export interface AddressDetailsResponse {
   priceAtTimeOfCalcualtion: string;
   currentBalance: string;
   currentValue: string;
+  currency: 'USD' | 'GBP' | 'EUR';
 }

@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Repository } from 'typeorm';
-import { toBN, toWei } from 'web3-utils';
+import { fromWei, toBN, toWei } from 'web3-utils';
 import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
 import {
   StatsResponse,
@@ -168,7 +168,6 @@ export class AddressService {
       balance = balance.add(totalReceived);
       balance = balance.sub(totalSent);
 
-      console.log(this.configService.get<string>('general.tokenPriceURL'));
       const realTimePrice = await firstValueFrom(
         this.httpService
           .get(this.configService.get<string>('general.tokenPriceURL'))
@@ -184,18 +183,20 @@ export class AddressService {
             })
           )
       );
-      console.log(realTimePrice);
       const price = realTimePrice[0].current_price as number;
-      const currentValue = balance.toNumber() * price;
+      const currentValue = +fromWei(balance, 'ether') * price;
       return {
         totalSent: totalSent.toString(),
         totalReceived: totalReceived.toString(),
         priceAtTimeOfCalcualtion: price.toFixed(6).toString(),
         currentBalance: balance.toString(),
         currentValue: currentValue.toString(),
+        currency: 'USD',
       };
     } catch (error) {
-      console.error(error);
+      throw new InternalServerErrorException(
+        'Fetching details unsuccessful. Please try again later.'
+      );
     }
   }
 }
