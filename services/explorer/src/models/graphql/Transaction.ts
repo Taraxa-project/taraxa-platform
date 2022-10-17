@@ -18,5 +18,4 @@ export interface Transaction {
   from?: Partial<Account>;
   to?: Partial<Account>;
   logs?: Log[];
-  action?: string;
 }

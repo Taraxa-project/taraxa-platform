@@ -125,7 +125,6 @@ export const useAddressInfoEffects = (account: string) => {
         to: {
           address: tx.to,
         },
-        action: 'Transfer',
       };
     });
   };
