@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ITransaction } from '@taraxa_project/taraxa-models';
+import { ITransaction } from '@taraxa_project/explorer-shared';
 import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';

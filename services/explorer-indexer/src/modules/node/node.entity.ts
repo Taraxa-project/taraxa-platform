@@ -1,4 +1,4 @@
-import { ITaraxaNode } from '@taraxa_project/taraxa-models';
+import { ITaraxaNode } from '@taraxa_project/explorer-shared';
 import { ViewEntity, ViewColumn } from 'typeorm';
 
 @ViewEntity({

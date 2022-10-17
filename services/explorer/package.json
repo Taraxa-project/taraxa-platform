@@ -42,7 +42,7 @@
     "@mui/lab": "^5.0.0-alpha.95",
     "@mui/material": "^5.10.1",
     "@mui/styles": "^5.9.3",
-    "@taraxa_project/taraxa-models": "^0.0.1",
+    "@taraxa_project/explorer-shared": "^0.0.1",
     "@taraxa_project/taraxa-ui": "^0.0.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",

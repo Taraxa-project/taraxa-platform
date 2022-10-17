@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
+import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
 import { Repository } from 'typeorm';
 import { PbftEntity } from '../pbft';
 import TransactionEntity from './transaction.entity';

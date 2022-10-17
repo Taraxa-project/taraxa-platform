@@ -1,4 +1,4 @@
-import { IDAG } from '@taraxa_project/taraxa-models';
+import { IDAG } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,
