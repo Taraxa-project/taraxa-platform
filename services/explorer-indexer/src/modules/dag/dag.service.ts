@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IDAG, ITransaction, zeroX } from '@taraxa_project/explorer-shared';
+import {
+  IDAG,
+  ITransaction,
+  zeroX,
+  toChecksumAddress,
+} from '@taraxa_project/explorer-shared';
 import { NewDagBlockResponse, NewDagBlockFinalizedResponse } from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
@@ -28,8 +33,13 @@ export default class DagService {
     if (newDag) {
       Object.assign(newDag, dag);
       newDag.transactions = txes;
+      newDag.author = toChecksumAddress(dag.author);
     } else {
-      newDag = this.dagRepository.create({ ...dag, transactions: txes });
+      newDag = this.dagRepository.create({
+        ...dag,
+        transactions: txes,
+        author: toChecksumAddress(dag.author),
+      });
     }
     if (!newDag.transactions) {
       newDag.transactions = [];
@@ -77,7 +87,7 @@ export default class DagService {
       level: parseInt(`${level}`, 16) || 0,
       pbftPeriod: period,
       timestamp: parseInt(timestamp, 16) || 0,
-      author: zeroX(author),
+      author: toChecksumAddress(zeroX(author)),
       signature: zeroX(signature),
       vdf: parseInt(vdf?.difficulty, 16) || 0,
       transactionCount: transactionCount,

@@ -20,6 +20,7 @@ import {
 } from './responses';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
+import { toChecksumAddress } from '@taraxa_project/explorer-shared';
 
 @Injectable()
 export class AddressService {
@@ -37,7 +38,7 @@ export class AddressService {
   ) {}
 
   public async getStats(address: string): Promise<StatsResponse> {
-    // const parsedAddress = toChecksumAddress(address); // We need to add this everywhere we save the miners
+    const parsedAddress = toChecksumAddress(address);
 
     let totalProduced = 0;
     let firstBlockTimestamp = null;
@@ -48,7 +49,7 @@ export class AddressService {
     const query = this.pbftRepository
       .createQueryBuilder('pbfts')
       .select(['pbfts.miner', 'pbfts.timestamp'])
-      .where('pbfts.miner = :address', { address: address })
+      .where('pbfts.miner = :address', { address: parsedAddress })
       .orderBy(`pbfts.timestamp`, 'ASC');
 
     try {
@@ -77,7 +78,7 @@ export class AddressService {
           );
           const addressRank = ranks.find(
             (rank: { rank: number; address: string; count: number }) =>
-              rank.address === address
+              rank.address === parsedAddress
           );
           rank = Number(addressRank.rank);
           produced = Number(addressRank.count);
@@ -101,11 +102,13 @@ export class AddressService {
   }
 
   public async getBlocksProduced(address: string): Promise<BlocksCount> {
+    const parsedAddress = toChecksumAddress(address);
+
     const [{ pbfts_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(distinct hash) as pbfts_mined from pbfts WHERE LOWER(miner) = lower('${address}')`
+      `SELECT COUNT(distinct hash) as pbfts_mined from pbfts WHERE LOWER(miner) = lower('${parsedAddress}')`
     );
     const [{ dags_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(distinct hash) as dags_mined from dags  WHERE LOWER(author) = lower('${address}')`
+      `SELECT COUNT(distinct hash) as dags_mined from dags  WHERE LOWER(author) = lower('${parsedAddress}')`
     );
 
     return {
@@ -118,7 +121,7 @@ export class AddressService {
     return await this.dagRepository.find({
       select: ['timestamp', 'level', 'hash', 'transactionCount'],
       where: {
-        author: address,
+        author: toChecksumAddress(address),
       },
     });
   }
@@ -127,7 +130,7 @@ export class AddressService {
     return await this.pbftRepository.find({
       select: ['timestamp', 'number', 'hash', 'transactionCount'],
       where: {
-        miner: address,
+        miner: toChecksumAddress(address),
       },
     });
   }
@@ -135,26 +138,30 @@ export class AddressService {
   public async getTransactions(
     address: string
   ): Promise<TransactionResponse[]> {
+    const parsedAddress = toChecksumAddress(address);
     // Don't test with Swagger as it will break
     const res = await this.txRepository.query(
-      `SELECT t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age from transactions t LEFT JOIN pbfts p ON t."blockId" = p.id WHERE LOWER(t.from) = LOWER('${address}') or LOWER(t.to) = LOWER('${address}')`
+      `SELECT t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age from transactions t LEFT JOIN pbfts p ON t."blockId" = p.id WHERE LOWER(t.from) = LOWER('${parsedAddress}') or LOWER(t.to) = LOWER('${parsedAddress}')`
     );
 
     return res;
   }
 
   public async getDetails(address: string): Promise<AddressDetailsResponse> {
-    if (!address) throw new BadRequestException('Address not supplied!');
+    if (!address) {
+      throw new BadRequestException('Address not supplied!');
+    }
+    const parsedAddress = toChecksumAddress(address);
     let balance = toBN('0');
     try {
       const [{ total_sent }] = await this.txRepository.query(
-        `select sum(value::REAL) as total_sent from transactions where lower(transactions.from) = lower('${address}');`
+        `select sum(value::REAL) as total_sent from transactions where lower(transactions.from) = lower('${parsedAddress}');`
       );
       const [{ total_received }] = await this.txRepository.query(
-        `select sum(value::REAL) as total_received from transactions where lower(transactions.to) = lower('${address}');`
+        `select sum(value::REAL) as total_received from transactions where lower(transactions.to) = lower('${parsedAddress}');`
       );
       const [{ total_mined }] = await this.txRepository.query(
-        `select sum(reward::REAL) as total_mined from pbfts where lower(miner) = lower('${address}');`
+        `select sum(reward::REAL) as total_mined from pbfts where lower(miner) = lower('${parsedAddress}');`
       );
       const padSentToWei = toWei(String(total_sent || '0'), 'ether');
       const padReceivedToWei = toWei(String(total_received || '0'), 'ether');

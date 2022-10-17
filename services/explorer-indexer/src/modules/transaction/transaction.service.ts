@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
+import {
+  IPBFT,
+  ITransaction,
+  toChecksumAddress,
+} from '@taraxa_project/explorer-shared';
 import { Repository } from 'typeorm';
 import { PbftEntity } from '../pbft';
 import TransactionEntity from './transaction.entity';
@@ -95,8 +99,8 @@ export default class TransactionService {
           cumulativeGasUsed: transaction.cumulativeGasUsed,
           inputData: transaction.inputData,
           status: transaction.status,
-          from: transaction.from,
-          to: transaction.to,
+          from: toChecksumAddress(transaction.from),
+          to: toChecksumAddress(transaction.to),
           block: {
             id: transaction?.block?.id,
             hash: transaction.block.hash,
@@ -144,6 +148,8 @@ export default class TransactionService {
       try {
         const transactionEntity = new TransactionEntity({
           ...transaction,
+          from: toChecksumAddress(transaction.from),
+          to: toChecksumAddress(transaction.to),
           block: {
             id: transaction?.block?.id,
             hash: transaction.block.hash,
