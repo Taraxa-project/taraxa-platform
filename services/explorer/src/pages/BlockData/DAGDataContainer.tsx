@@ -73,35 +73,43 @@ const DAGDataContainer = (): JSX.Element => {
             </Typography>
             <CopyTo text={txHash} onCopy={onCopy} />
           </Box>
-          <DataRow title='Level' data={`${blockData?.level}`} />
-          <DataRow title='Period' data={`${blockData?.pbftPeriod}`} />
-          <DataRow
-            title='Timestamp'
-            data={`${moment
-              .unix(+(blockData ? blockData.timestamp : 0))
-              .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
-          />
-          <Divider light />
-          <DataRow
-            title='Pivot'
-            data={
-              <HashLink
-                linkType={HashLinkType.TRANSACTIONS}
-                width='auto'
-                hash={blockData?.pivot}
-              />
-            }
-          />
-          <DataRow
-            title='Sender'
-            data={
-              <HashLink
-                linkType={HashLinkType.ADDRESSES}
-                width='auto'
-                hash={blockData?.author?.address}
-              />
-            }
-          />
+          <DataRow title='Level' data={`${blockData?.level || ''}`} />
+          <DataRow title='Period' data={`${blockData?.pbftPeriod || ''}`} />
+          {blockData.timestamp && (
+            <DataRow
+              title='Timestamp'
+              data={`${moment
+                .unix(+(blockData ? blockData.timestamp : 0))
+                .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+            />
+          )}
+          {(blockData?.level ||
+            blockData?.pbftPeriod ||
+            blockData.timestamp) && <Divider light />}
+          {blockData?.pivot && (
+            <DataRow
+              title='Pivot'
+              data={
+                <HashLink
+                  linkType={HashLinkType.TRANSACTIONS}
+                  width='auto'
+                  hash={blockData?.pivot}
+                />
+              }
+            />
+          )}
+          {blockData?.author?.address && (
+            <DataRow
+              title='Sender'
+              data={
+                <HashLink
+                  linkType={HashLinkType.ADDRESSES}
+                  width='auto'
+                  hash={blockData?.author?.address}
+                />
+              }
+            />
+          )}
           <DataRow
             title='Signature'
             data={

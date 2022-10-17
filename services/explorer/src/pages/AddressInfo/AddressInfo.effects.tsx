@@ -125,6 +125,7 @@ export const useAddressInfoEffects = (account: string) => {
         to: {
           address: tx.to,
         },
+        action: 'Transfer',
       };
     });
   };
@@ -152,11 +153,17 @@ export const useAddressInfoEffects = (account: string) => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
     addressDetails.address = account;
     if (details?.data) {
-      addressDetails.balance = details?.data.currentBalance;
+      addressDetails.balance = ethers.utils.formatEther(
+        ethers.BigNumber.from(details?.data.currentBalance)
+      );
       addressDetails.value = details?.data.currentValue;
       addressDetails.valueCurrency = details?.data?.currency;
-      addressDetails.totalReceived = details?.data?.totalReceived;
-      addressDetails.totalSent = details?.data?.totalSent;
+      addressDetails.totalReceived = ethers.utils.formatEther(
+        ethers.BigNumber.from(details?.data.totalReceived)
+      );
+      addressDetails.totalSent = ethers.utils.formatEther(
+        ethers.BigNumber.from(details?.data.totalSent)
+      );
       addressDetails.pricePerTara = details?.data?.priceAtTimeOfCalculation;
     }
     if (data?.block) {
