@@ -135,11 +135,14 @@ export const useAddressInfoEffects = (account: string) => {
     }
   }, [txData]);
 
-  const getFees = (transactions: TransactionResponse[]) => {
+  const getFees = (transactions: TransactionResponse[], address: string) => {
     if (!transactions || !transactions?.length) {
       return 0;
     }
-    const sum = transactions.reduce((accumulator: any, object) => {
+    const fromTransactions: TransactionResponse[] = transactions.filter(
+      (tx: TransactionResponse) => tx.from === address
+    );
+    const sum = fromTransactions.reduce((accumulator: any, object) => {
       return Number(accumulator) + Number(object.gasUsed);
     }, 0);
     return sum;
@@ -165,7 +168,7 @@ export const useAddressInfoEffects = (account: string) => {
     }
     if (txData?.data) {
       addressDetails.transactionCount = txData.data.length;
-      addressDetails.fees = `${getFees(txData.data)}`;
+      addressDetails.fees = `${getFees(txData.data, account)}`;
     }
     setAddressInfoDetails(addressDetails);
   }, [details, data, nodeData, txData]);
