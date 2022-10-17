@@ -102,7 +102,7 @@ export const AddressInfo = ({
           >
             {zeroX(details?.address)}
           </Typography>
-          <CopyTo text={details?.address} onCopy={onCopy} />
+          <CopyTo text={zeroX(details?.address)} onCopy={onCopy} />
         </Box>
         <Box className={classes.twoColumnFlex}>
           <Box
