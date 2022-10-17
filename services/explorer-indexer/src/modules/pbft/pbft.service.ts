@@ -94,7 +94,7 @@ export default class PbftService {
         .into(PbftEntity)
         .values(_pbft)
         .orUpdate(['hash'], 'UQ_35a84f8058f83feff8f2941de6a')
-        .setParameter('hash', _pbft.hash)
+        .setParameter('hash', _pbft?.hash || pbft.hash)
         .returning('*')
         .execute();
 

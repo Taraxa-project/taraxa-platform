@@ -111,10 +111,15 @@ export const AddressInfo = ({
             alignItems='left'
             gap='1.5rem'
           >
-            <DataRow title='Balance' data={`${details?.balance} TARA`} />
+            <DataRow
+              title='Balance'
+              data={`${Number(details?.balance)?.toLocaleString()} TARA`}
+            />
             <DataRow
               title='Value'
-              data={`$${details?.value} ( ${details?.pricePerTara} / TARA )`}
+              data={`$${Number(details?.value).toLocaleString()} ${
+                details?.valueCurrency
+              } ( ${Number(details?.pricePerTara).toLocaleString()} / TARA )`}
             />
             <DataRow
               title='Transaction count'
@@ -144,10 +149,16 @@ export const AddressInfo = ({
         <Divider light />
         <DataRow
           title='Total received'
-          data={`${details?.totalReceived} TARA`}
+          data={`${Number(details?.totalReceived).toLocaleString()} TARA`}
         />
-        <DataRow title='Total sent' data={`${details?.totalSent} TARA`} />
-        <DataRow title='Fees' data={`${details?.fees} TARA`} />
+        <DataRow
+          title='Total sent'
+          data={`${Number(details?.totalSent).toLocaleString()} TARA`}
+        />
+        <DataRow
+          title='Fees'
+          data={`${Number(details?.fees).toLocaleString()} TARA`}
+        />
         <Divider light />
         <Box
           display='flex'

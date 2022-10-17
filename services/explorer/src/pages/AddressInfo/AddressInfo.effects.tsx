@@ -135,18 +135,23 @@ export const useAddressInfoEffects = (account: string) => {
     }
   }, [txData]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getFees = (transactions: TransactionResponse[]) => {
-    return transactions.reduce((accumulator: any, object) => {
-      return accumulator + object.gasPrice;
+    if (!transactions || !transactions?.length) {
+      return 0;
+    }
+    const sum = transactions.reduce((accumulator: any, object) => {
+      return Number(accumulator) + Number(object.gasUsed);
     }, 0);
+    return sum;
   };
 
   useEffect(() => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
+    addressDetails.address = account;
     if (details?.data) {
       addressDetails.balance = details?.data.currentBalance;
-      addressDetails.value = `${details?.data.currentValue} ${details?.data?.currency}`;
+      addressDetails.value = details?.data.currentValue;
+      addressDetails.valueCurrency = details?.data?.currency;
       addressDetails.totalReceived = details?.data?.totalReceived;
       addressDetails.totalSent = details?.data?.totalSent;
       addressDetails.pricePerTara = details?.data?.priceAtTimeOfCalculation;
@@ -160,8 +165,7 @@ export const useAddressInfoEffects = (account: string) => {
     }
     if (txData?.data) {
       addressDetails.transactionCount = txData.data.length;
-      // addressDetails.fees = `${getFees(txData.data)}`;
-      addressDetails.fees = `0`;
+      addressDetails.fees = `${getFees(txData.data)}`;
     }
     setAddressInfoDetails(addressDetails);
   }, [details, data, nodeData, txData]);
