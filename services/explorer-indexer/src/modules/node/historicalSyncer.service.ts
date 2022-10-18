@@ -1,17 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
+import { IPBFT, ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
 import PbftService, { IGQLPBFT, RPCPbft } from '../pbft/pbft.service';
-import TransactionService, {
-  IGQLTransaction,
-} from '../transaction/transaction.service';
+import TransactionService from '../transaction/transaction.service';
 import RPCConnectorService from './rpcConnector.service';
 import { BigInteger } from 'jsbn';
-import { InjectGraphQLClient } from '@golevelup/nestjs-graphql-request';
-import { gql, GraphQLClient } from 'graphql-request';
-
+import { GraphQLConnector } from './graphQLConnector.service';
 @Injectable()
 export default class HistoricalSyncService {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -22,8 +18,7 @@ export default class HistoricalSyncService {
     private readonly dagService: DagService,
     private readonly pbftService: PbftService,
     private readonly txService: TransactionService,
-    @InjectGraphQLClient()
-    private readonly graphQLClient: GraphQLClient,
+    private readonly graphQLConnector: GraphQLConnector,
     private readonly rpcConnector: RPCConnectorService
   ) {
     this.logger.log('Historical syncer started.');
@@ -38,7 +33,42 @@ export default class HistoricalSyncService {
     return this.syncState;
   }
 
+  /**
+   * Syncs the current chain state via Taraxa NodeRPC
+   */
   private async reSyncChainState() {
+    const blockNumber = parseInt(await this.rpcConnector.blockNumber(), 16);
+    const dagBlockLevel = parseInt(await this.rpcConnector.dagBlockLevel(), 16);
+    const dagBlockPeriod = parseInt(
+      await this.rpcConnector.dagBlockPeriod(),
+      16
+    );
+
+    const genesis = (
+      await this.graphQLConnector.getBlocksByNumberFromTo(0, 0)
+    )[0];
+    const block = (
+      await this.graphQLConnector.getBlocksByNumberFromTo(
+        blockNumber,
+        blockNumber
+      )
+    )[0];
+
+    this.chainState = {
+      number: block.number,
+      hash: block.hash,
+      genesis: genesis.hash,
+      dagBlockLevel,
+      dagBlockPeriod,
+    };
+  }
+
+  /**
+   * @deprecated
+   * A newer, faster GraphQL interface has been implemented to get this data.
+   * Use this method only if you cannot connect to the Taraxa node GraphQL inteface
+   */
+  private async reSyncChainStateRPC() {
     const blockNumber = parseInt(await this.rpcConnector.blockNumber(), 16);
     const dagBlockLevel = parseInt(await this.rpcConnector.dagBlockLevel(), 16);
     const dagBlockPeriod = parseInt(
@@ -50,7 +80,7 @@ export default class HistoricalSyncService {
     const block = await this.rpcConnector.getBlockByNumber(blockNumber);
 
     this.chainState = {
-      number: parseInt(block.number, 16),
+      number: block.number,
       hash: block.hash,
       genesis: genesis.hash,
       dagBlockLevel,
@@ -58,6 +88,9 @@ export default class HistoricalSyncService {
     };
   }
 
+  /**
+   * Syncs the current database content headers in-memory.
+   */
   private async reSyncCurrentState() {
     const genesisBlock = await this.pbftService.getBlockByNumber(0);
     const lastBlocks = await this.pbftService.getPbftsOfLastLevel(1);
@@ -96,6 +129,12 @@ export default class HistoricalSyncService {
     this.syncState = _syncState;
   }
 
+  /**
+   * @deprecated Getting tx receipts is not longer needed as they are embedded in the new GraphQL interface's response.
+   * @param hashes the hashes for which the receipts will be fetched
+   * @param limit the amount of receipts to fetch
+   * @returns
+   */
   private async getTransactionReceipts(
     hashes: string[],
     limit = 0
@@ -115,7 +154,11 @@ export default class HistoricalSyncService {
     return results;
   }
 
-  public async runHistoricalSync() {
+  /**
+   * Syncs the missing chain history to the explorer's database using the new Taraxa Node GraphQL inteface.
+   * @returns void
+   */
+  public async runHistoricalSync(): Promise<void> {
     if (this.isRunning) return;
 
     this.isRunning = true;
@@ -130,7 +173,7 @@ export default class HistoricalSyncService {
     // if genesis block changes, resync
     if (
       !this.chainState.genesis ||
-      this.chainState.genesis !== this.syncState.genesis
+      zeroX(this.chainState.genesis) !== this.syncState.genesis
     ) {
       this.logger.log('New genesis block hash. Restarting chain sync.');
       console.log('New genesis block hash. Restarting chain sync.');
@@ -139,11 +182,11 @@ export default class HistoricalSyncService {
       await this.dagService.clearDagData();
       await this.pbftService.clearPbftData();
       this.syncState = {
-        number: 1,
+        number: 0,
         hash: '',
         genesis: '',
         dagBlockLevel: 0,
-        dagBlockPeriod: 1,
+        dagBlockPeriod: 0,
       };
       verifiedTip = true;
     }
@@ -174,67 +217,16 @@ export default class HistoricalSyncService {
       }
     }
 
+    // @note : Right now there is no way to get the genesis transactions to set:
+    // Initial validators, initial balances for delegators and faucet.
+    // big TODO
+
     while (this.syncState.number < this.chainState.number) {
-      const blocksWithTransactions: IGQLPBFT[] = (
-        await this.graphQLClient.request(
-          gql`
-            query get_pbfts_from($from: Long!, $to: Long!) {
-              blocks(from: $from, to: $to) {
-                number
-                hash
-                stateRoot
-                gasLimit
-                gasUsed
-                timestamp
-                transactionCount
-                parent {
-                  hash
-                }
-                difficulty
-                totalDifficulty
-                miner {
-                  address
-                }
-                transactionsRoot
-                extraData
-                logsBloom
-                mixHash
-                receiptsRoot
-                ommerHash
-                stateRoot
-                transactions {
-                  block {
-                    hash
-                    number
-                  }
-                  hash
-                  nonce
-                  from {
-                    address
-                  }
-                  to {
-                    address
-                  }
-                  gas
-                  gasUsed
-                  cumulativeGasUsed
-                  gasPrice
-                  inputData
-                  r
-                  v
-                  s
-                  index
-                  value
-                }
-              }
-            }
-          `,
-          {
-            from: this.syncState.number,
-            to: this.chainState.number,
-          }
-        )
-      )?.blocks;
+      const blocksWithTransactions: IGQLPBFT[] =
+        await this.graphQLConnector.getBlocksByNumberFromTo(
+          this.syncState.number,
+          this.chainState.number
+        );
       console.log(blocksWithTransactions);
 
       const iBlocks = blocksWithTransactions.map((block) =>
@@ -260,7 +252,9 @@ export default class HistoricalSyncService {
         block.reward = blockReward.toString();
         const blockToSave = { ...block };
         blockToSave.transactions = block.transactions;
-        blockToSave.transactionCount = block.transactions?.length;
+        blockToSave.transactionCount = block.transactions
+          ? block.transactions?.length
+          : block.transactionCount;
 
         const savedBlock = await this.pbftService.safeSavePbft(blockToSave);
 
@@ -279,122 +273,183 @@ export default class HistoricalSyncService {
           this.syncState.number,
           this.syncState.hash,
           'with',
-          block.transactions?.length,
+          block.transactions?.length || 0,
           'transactions, in',
           completed.getTime() - started.getTime(),
           'ms'
         );
       }
     }
+  }
+
+  /**
+   * @deprecated
+   * Using the Taraxa nodeRPC syncing bigger amount of blocks took too long.
+   * Taking transactions one by one from the RPC endpoint takes at around ±500ms each so syncing is unfeasible.
+   * Use this only if there is no way to connect to the GraphQL endpoints.
+   */
+  public async runHistoricalSyncRPC(): Promise<void> {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    this.logger.log('Historical sync started');
+    console.log('Historical sync started');
+    //reset state
+    await this.reSyncChainState();
+    await this.reSyncCurrentState();
+
+    let verifiedTip = false;
+
+    // if genesis block changes, resync
+    if (
+      !this.chainState.genesis ||
+      this.chainState.genesis !== this.syncState.genesis
+    ) {
+      this.logger.log('New genesis block hash. Restarting chain sync.');
+      console.log('New genesis block hash. Restarting chain sync.');
+      // reset the database
+      await this.txService.clearTransactionData();
+      await this.dagService.clearDagData();
+      await this.pbftService.clearPbftData();
+      this.syncState = {
+        number: -1,
+        hash: '',
+        genesis: '',
+        dagBlockLevel: 0,
+        dagBlockPeriod: -1,
+      };
+      verifiedTip = true;
+    }
+
+    while (!verifiedTip) {
+      const chainBlockAtSyncNumber = await this.rpcConnector.getBlockByNumber(
+        this.syncState.number
+      );
+      if (chainBlockAtSyncNumber?.hash !== this.syncState.hash) {
+        this.logger.log(
+          'Block hash at height',
+          this.syncState.number,
+          'has changed. Re-org detected, walking back.'
+        );
+        const lastBlock = await this.pbftService.getBlockByHash(
+          this.syncState.hash
+        );
+        // go back a step
+        this.syncState.number = Number(lastBlock.number) - 1;
+        this.syncState.hash = lastBlock.parent;
+      } else {
+        verifiedTip = true;
+      }
+    }
 
     // sync blocks to tip
-    // while (this.syncState.number < this.chainState.number) {
-    //   console.log(`Getting block ${this.syncState.number + 1}...`);
-    //   this.logger.log(`Getting block ${this.syncState.number + 1}...`);
-    //   const started = new Date();
-    //   const blockRpc: RPCPbft = await this.rpcConnector.getBlockByNumber(
-    //     this.syncState.number + 1
-    //   );
+    while (this.syncState.number < this.chainState.number) {
+      console.log(`Getting block ${this.syncState.number + 1}...`);
+      this.logger.log(`Getting block ${this.syncState.number + 1}...`);
+      const started = new Date();
+      const blockRpc: RPCPbft = await this.rpcConnector.getBlockByNumber(
+        this.syncState.number + 1
+      );
 
-    //   const block = this.pbftService.pbftRpcToIPBFT(blockRpc);
-    //   this.logger.log(
-    //     `Getting ${block.transactions.length} transactions for block ${
-    //       this.syncState.number + 1
-    //     }...`
-    //   );
-    //   const blockTxs: ITransaction[] = [];
-    //   const fetchTxStart = new Date();
-    //   for (let i = 0; i < block.transactions.length; i++) {
-    //     this.logger.debug(
-    //       `Getting transaction #${i + 1} out of #${
-    //         block.transactions.length
-    //       } - ${block.transactions[i]?.hash}`
-    //     );
+      const block = this.pbftService.pbftRpcToIPBFT(blockRpc);
+      this.logger.log(
+        `Getting ${block.transactions.length} transactions for block ${
+          this.syncState.number + 1
+        }...`
+      );
+      const blockTxs: ITransaction[] = [];
+      const fetchTxStart = new Date();
+      for (let i = 0; i < block.transactions.length; i++) {
+        this.logger.debug(
+          `Getting transaction #${i + 1} out of #${
+            block.transactions.length
+          } - ${block.transactions[i]?.hash}`
+        );
 
-    //     if (block.transactions[i]) {
-    //       const fetchStart = new Date();
-    //       const tx = await this.rpcConnector.getTransactionByHash(
-    //         block.transactions[i].hash
-    //       );
-    //       const fetchEnd = new Date();
-    //       console.log(
-    //         `Fetched tx ${block.transactions[i].hash} in ${
-    //           fetchEnd.getTime() - fetchStart.getTime()
-    //         }ms.`
-    //       );
-    //       blockTxs.push(
-    //         this.txService.populateTransactionWithPBFT(
-    //           this.txService.txRpcToITransaction(tx),
-    //           block
-    //         )
-    //       );
-    //     }
-    //   }
-    //   const fetchTxEnd = new Date();
-    //   console.log(
-    //     `Fetched ${block.transactions?.length} tx-es in ${
-    //       fetchTxEnd.getTime() - fetchTxStart.getTime()
-    //     } ms.`
-    //   );
+        if (block.transactions[i]) {
+          const fetchStart = new Date();
+          const tx = await this.rpcConnector.getTransactionByHash(
+            block.transactions[i].hash
+          );
+          const fetchEnd = new Date();
+          console.log(
+            `Fetched tx ${block.transactions[i].hash} in ${
+              fetchEnd.getTime() - fetchStart.getTime()
+            }ms.`
+          );
+          blockTxs.push(
+            this.txService.populateTransactionWithPBFT(
+              this.txService.txRpcToITransaction(tx),
+              block
+            )
+          );
+        }
+      }
+      const fetchTxEnd = new Date();
+      console.log(
+        `Fetched ${block.transactions?.length} tx-es in ${
+          fetchTxEnd.getTime() - fetchTxStart.getTime()
+        } ms.`
+      );
 
-    //   if (!block.hash) {
-    //     continue;
-    //   }
+      if (!block.hash) {
+        continue;
+      }
 
-    //   let blockReward = new BigInteger('0', 10);
+      let blockReward = new BigInteger('0', 10);
 
-    //   // @note : Right now there is no way to get the genesis transactions to set:
-    //   // Initial validators, initial balances for delegators and faucet.
-    //   // big TODO
+      // @note : Right now there is no way to get the genesis transactions to set:
+      // Initial validators, initial balances for delegators and faucet.
+      // big TODO
 
-    //   const txReceipts = await this.getTransactionReceipts(
-    //     blockTxs.map((tx) => tx.hash),
-    //     20
-    //   );
+      const txReceipts = await this.getTransactionReceipts(
+        blockTxs.map((tx) => tx.hash),
+        20
+      );
 
-    //   Array.from(new Set(blockTxs)).forEach((tx: ITransaction, idx: number) => {
-    //     const receipt = txReceipts[idx];
-    //     tx.status = parseInt(receipt.status, 16);
-    //     tx.index = parseInt(receipt.transactionIndex, 16);
-    //     const gasUsed = new BigInteger(receipt.gasUsed || '0x0', 16);
-    //     tx.gasUsed = gasUsed.toString();
-    //     const gasPrice = new BigInteger(tx.gasPrice || '0x0', 16);
-    //     tx.gasPrice = gasPrice.toString();
-    //     tx.cumulativeGasUsed = Number(
-    //       new BigInteger(receipt.cumulativeGasUsed || '0x0', 16)
-    //     );
-    //     const reward = gasUsed.multiply(gasPrice);
-    //     const newVal = blockReward.add(reward);
-    //     blockReward = newVal;
-    //   });
+      Array.from(new Set(blockTxs)).forEach((tx: ITransaction, idx: number) => {
+        const receipt = txReceipts[idx];
+        tx.status = parseInt(receipt.status, 16);
+        tx.index = parseInt(receipt.transactionIndex, 16);
+        const gasUsed = new BigInteger(receipt.gasUsed || '0x0', 16);
+        tx.gasUsed = gasUsed.toString();
+        const gasPrice = new BigInteger(tx.gasPrice || '0x0', 16);
+        tx.gasPrice = gasPrice.toString();
+        tx.cumulativeGasUsed = Number(
+          new BigInteger(receipt.cumulativeGasUsed || '0x0', 16)
+        );
+        const reward = gasUsed.multiply(gasPrice);
+        const newVal = blockReward.add(reward);
+        blockReward = newVal;
+      });
 
-    //   block.reward = blockReward.toString();
-    //   const blockToSave = { ...block };
-    //   blockToSave.transactions = blockTxs;
-    //   blockToSave.transactionCount = blockTxs.length;
+      block.reward = blockReward.toString();
+      const blockToSave = { ...block };
+      blockToSave.transactions = blockTxs;
+      blockToSave.transactionCount = blockTxs.length;
 
-    //   const savedBlock = await this.pbftService.safeSavePbft(blockToSave);
+      const savedBlock = await this.pbftService.safeSavePbft(blockToSave);
 
-    //   if (savedBlock) {
-    //     this.logger.log(`Finalized block ${savedBlock.hash}`);
-    //   }
+      if (savedBlock) {
+        this.logger.log(`Finalized block ${savedBlock.hash}`);
+      }
 
-    //   // update sync state
-    //   this.syncState.number = block.number;
-    //   this.syncState.genesis = this.chainState.genesis;
-    //   this.syncState.hash = block.hash;
+      // update sync state
+      this.syncState.number = block.number;
+      this.syncState.genesis = this.chainState.genesis;
+      this.syncState.hash = block.hash;
 
-    //   const completed = new Date();
-    //   console.log(
-    //     'Synced block',
-    //     this.syncState.number,
-    //     this.syncState.hash,
-    //     'with',
-    //     block.transactions?.length,
-    //     'transactions, in',
-    //     completed.getTime() - started.getTime(),
-    //     'ms'
-    //   );
-    // }
+      const completed = new Date();
+      console.log(
+        'Synced block',
+        this.syncState.number,
+        this.syncState.hash,
+        'with',
+        block.transactions?.length,
+        'transactions, in',
+        completed.getTime() - started.getTime(),
+        'ms'
+      );
+    }
   }
 }

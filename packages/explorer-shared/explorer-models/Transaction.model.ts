@@ -20,6 +20,5 @@ export interface ITransaction {
   s?: string;
   blockHash?: string;
   blockNumber?: string;
-  input?: string;
   transactionIndex?: string;
 }

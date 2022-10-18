@@ -110,9 +110,5 @@ export default class TransactionEntity
 
   @Column({ nullable: true })
   @IsString()
-  input?: string;
-
-  @Column({ nullable: true })
-  @IsString()
   transactionIndex?: string;
 }
