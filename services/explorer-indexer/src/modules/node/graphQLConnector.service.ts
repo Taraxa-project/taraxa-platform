@@ -77,4 +77,40 @@ export class GraphQLConnector {
       )
     )?.blocks;
   }
+  public async getBlockHashForNumber(number: number) {
+    return (
+      await this.graphQLClient.request(
+        gql`
+          query block_query($number: Long, $hash: Bytes32) {
+            block(number: $number, hash: $hash) {
+              hash
+            }
+          }
+        `,
+        {
+          number,
+        }
+      )
+    )?.block;
+  }
+
+  public async getBlockNumberAndParentForHash(hash: string) {
+    return (
+      await this.graphQLClient.request(
+        gql`
+          query block_query($number: Long, $hash: Bytes32) {
+            block(number: $number, hash: $hash) {
+              number
+              parent {
+                hash
+              }
+            }
+          }
+        `,
+        {
+          hash,
+        }
+      )
+    )?.block;
+  }
 }

@@ -192,10 +192,14 @@ export default class HistoricalSyncService {
     }
 
     while (!verifiedTip) {
-      const chainBlockAtSyncNumber = await this.rpcConnector.getBlockByNumber(
-        this.syncState.number
+      const chainBlockAtSyncNumber = zeroX(
+        (
+          await this.graphQLConnector.getBlockHashForNumber(
+            this.syncState.number
+          )
+        )?.hash
       );
-      if (chainBlockAtSyncNumber?.hash !== this.syncState.hash) {
+      if (chainBlockAtSyncNumber !== this.syncState.hash) {
         console.log(
           'Block hash at height',
           this.syncState.number,
@@ -210,8 +214,10 @@ export default class HistoricalSyncService {
           this.syncState.hash
         );
         // go back a step
-        this.syncState.number = Number(lastBlock.number) - 1;
-        this.syncState.hash = lastBlock.parent;
+        this.syncState.number = Number(lastBlock?.number || 1) - 1; //if the last block comes as null
+        this.syncState.hash = lastBlock?.parent
+          ? lastBlock?.parent
+          : zeroX((await this.graphQLConnector.getBlockHashForNumber(0))?.hash); //if the parent comes back as null jump to block zero
       } else {
         verifiedTip = true;
       }
