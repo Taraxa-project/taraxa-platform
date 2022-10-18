@@ -12,6 +12,7 @@ import HistoricalSyncService from './historicalSyncer.service';
 import RPCConnectorService from './rpcConnector.service';
 import general from 'src/config/general';
 import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
+import { GraphQLConnector } from './graphQLConnector.service';
 
 @Module({
   imports: [
@@ -43,8 +44,18 @@ import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
     PbftModule,
     TransactionModule,
   ],
-  providers: [NodeSyncerService, RPCConnectorService, HistoricalSyncService],
+  providers: [
+    NodeSyncerService,
+    RPCConnectorService,
+    HistoricalSyncService,
+    GraphQLConnector,
+  ],
   controllers: [],
-  exports: [NodeSyncerService, RPCConnectorService, HistoricalSyncService],
+  exports: [
+    NodeSyncerService,
+    RPCConnectorService,
+    HistoricalSyncService,
+    GraphQLConnector,
+  ],
 })
 export class NodeModule {}
