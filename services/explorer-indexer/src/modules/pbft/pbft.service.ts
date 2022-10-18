@@ -1,8 +1,12 @@
-import { Injectable, Ip, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
+import {
+  IPBFT,
+  ITransaction,
+  zeroX,
+  toChecksumAddress,
+} from '@taraxa_project/explorer-shared';
 import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
-import { zeroX } from 'src/utils';
 import { Repository } from 'typeorm';
 import TransactionService, {
   IGQLTransaction,
@@ -80,14 +84,14 @@ export default class PbftService {
     if (existing) {
       existing.number = period;
       existing.timestamp = timestamp;
-      existing.miner = beneficiary;
+      existing.miner = toChecksumAddress(beneficiary);
       return existing;
     } else {
       const pbft: IPBFT = {
         hash: zeroX(block_hash),
         number: period || 0,
         timestamp: timestamp || 0,
-        miner: zeroX(beneficiary),
+        miner: toChecksumAddress(zeroX(beneficiary)),
       };
       return pbft;
     }
@@ -103,7 +107,7 @@ export default class PbftService {
       if (!existing) {
         const newPbft = this.pbftRepository.create({
           hash: pbft.hash,
-          miner: pbft.miner,
+          miner: toChecksumAddress(pbft.miner),
           number: pbft.number,
           timestamp: pbft.timestamp,
           nonce: pbft.nonce,
@@ -124,7 +128,7 @@ export default class PbftService {
         .into(PbftEntity)
         .values(_pbft)
         .orUpdate(['hash'], 'UQ_35a84f8058f83feff8f2941de6a')
-        .setParameter('hash', _pbft.hash)
+        .setParameter('hash', _pbft?.hash || pbft.hash)
         .returning('*')
         .execute();
 
@@ -157,7 +161,7 @@ export default class PbftService {
       const pbftFound = await this.pbftRepository.findOneBy({
         hash: _pbft.hash,
       });
-      console.log(pbftFound);
+      // console.log(pbftFound);
       return pbftFound;
     } catch (error) {
       console.error(error);
@@ -231,7 +235,7 @@ export default class PbftService {
       nonce,
       difficulty: parseInt(difficulty, 16) || 0,
       totalDifficulty: parseInt(totalDifficulty, 16) || 0,
-      miner: zeroX(miner),
+      miner: toChecksumAddress(zeroX(miner)),
       transactionsRoot,
       transactionCount: transactions?.length || 0,
       transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
@@ -331,7 +335,7 @@ export default class PbftService {
       nonce,
       difficulty: parseInt(difficulty, 16) || 0,
       totalDifficulty: parseInt(totalDifficulty, 16) || 0,
-      miner: zeroX(miner),
+      miner: toChecksumAddress(zeroX(miner)),
       transactionCount: parseInt(transactionCount, 16) || 0,
     };
 

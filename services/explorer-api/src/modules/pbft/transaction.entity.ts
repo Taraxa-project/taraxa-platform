@@ -1,4 +1,4 @@
-import { ITransaction } from '@taraxa_project/taraxa-models';
+import { ITransaction } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,

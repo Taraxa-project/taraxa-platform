@@ -160,7 +160,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     <TableCell variant='body'>
                       {tx.block?.number || 0}
                     </TableCell>
-                    <TableCell variant='body'>Transfer</TableCell>
+                    <TableCell variant='body'>
+                      {tx.value ? 'Transfer' : 'Method call'}
+                    </TableCell>
                     <TableCell variant='body'>
                       <Box
                         display='flex'

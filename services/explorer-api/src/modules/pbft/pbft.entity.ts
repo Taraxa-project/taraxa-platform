@@ -1,4 +1,4 @@
-import { IPBFT } from '@taraxa_project/taraxa-models';
+import { IPBFT } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,

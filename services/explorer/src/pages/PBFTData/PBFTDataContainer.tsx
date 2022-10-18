@@ -74,15 +74,23 @@ const PBFTDataContainer = (): JSX.Element => {
             </Typography>
             <CopyTo text={blockData?.hash} onCopy={onCopy} />
           </Box>
-          <DataRow title='Number' data={`${blockData?.number}`} />
-          <DataRow title='Nonce' data={blockData?.nonce} />
-          <DataRow
-            title='Timestamp'
-            data={`${moment
-              .unix(+(blockData?.timestamp || 0))
-              .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
-          />
-          <Divider light />
+          {blockData?.number && (
+            <DataRow title='Number' data={`${blockData?.number}`} />
+          )}
+          {blockData?.nonce && (
+            <DataRow title='Nonce' data={blockData?.nonce} />
+          )}
+          {blockData?.timestamp && (
+            <DataRow
+              title='Timestamp'
+              data={`${moment
+                .unix(+(blockData?.timestamp || 0))
+                .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+            />
+          )}
+          {(blockData?.number || blockData?.nonce || blockData.timestamp) && (
+            <Divider light />
+          )}
           <DataRow
             title='Parent'
             data={
