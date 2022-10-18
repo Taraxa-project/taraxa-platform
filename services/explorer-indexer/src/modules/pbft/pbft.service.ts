@@ -45,7 +45,7 @@ export interface IGQLPBFT {
   gasLimit?: number | string;
   gasUsed?: number | string;
   parent?: {
-    address?: string;
+    hash?: string;
   };
   nonce?: string;
   difficulty?: number;
@@ -103,8 +103,8 @@ export default class PbftService {
     }
     let _pbft;
     try {
-      const existing = await this.pbftRepository.findOneBy({ hash: pbft.hash });
-      if (!existing) {
+      _pbft = await this.pbftRepository.findOneBy({ hash: pbft.hash });
+      if (!_pbft) {
         const newPbft = this.pbftRepository.create({
           hash: pbft.hash,
           miner: toChecksumAddress(pbft.miner),
@@ -118,6 +118,13 @@ export default class PbftService {
           difficulty: pbft.difficulty,
           totalDifficulty: pbft.totalDifficulty,
           transactionCount: pbft.transactionCount,
+          extraData: pbft.extraData,
+          logsBloom: pbft.logsBloom,
+          mixHash: pbft.mixHash,
+          recepitsRoot: pbft.recepitsRoot,
+          sha3Uncles: pbft.sha3Uncles,
+          size: pbft.size,
+          stateRoot: pbft.stateRoot,
         });
         _pbft = newPbft;
       }
@@ -141,10 +148,10 @@ export default class PbftService {
               return {
                 ...transaction,
                 block: {
-                  id: saved.raw[0].id,
-                  hash: saved.raw[0].hash,
-                  number: saved.raw[0].number,
-                  timestamp: saved.raw[0].timestamp,
+                  id: saved.raw[0]?.id,
+                  hash: saved.raw[0]?.hash,
+                  number: saved.raw[0]?.number,
+                  timestamp: saved.raw[0]?.timestamp,
                 },
               };
             }
@@ -269,6 +276,7 @@ export default class PbftService {
       recepitsRoot,
       ommerHash,
       stateRoot,
+      parent,
     } = { ...pbftGQL };
     if (!hash) return;
     const pbft: IPBFT = {
@@ -277,23 +285,22 @@ export default class PbftService {
       timestamp: timestamp || 0,
       gasLimit: gasLimit || 0,
       gasUsed: gasUsed || 0,
-      parent: zeroX(pbftGQL.parent?.address),
+      parent: zeroX(parent?.hash),
       nonce,
       difficulty: difficulty || 0,
       totalDifficulty: totalDifficulty || 0,
       miner: zeroX(miner?.address),
-      transactionsRoot,
+      transactionsRoot: zeroX(transactionsRoot),
       transactionCount: transactions?.length || 0,
-      transactions: transactions?.map((tx) =>
-        this.txService.gQLToITransaction(tx)
-      ),
-      extraData,
-      logsBloom,
-      mixHash,
-      recepitsRoot,
-      sha3Uncles: ommerHash,
+      transactions:
+        transactions?.map((tx) => this.txService.gQLToITransaction(tx)) || [],
+      extraData: zeroX(extraData),
+      logsBloom: zeroX(logsBloom),
+      mixHash: zeroX(mixHash),
+      recepitsRoot: zeroX(recepitsRoot),
+      sha3Uncles: zeroX(ommerHash),
       size: 0,
-      stateRoot,
+      stateRoot: zeroX(stateRoot),
     };
     return pbft;
   }
@@ -305,6 +312,7 @@ export default class PbftService {
     const saved = await this.pbftRepository.save(pbft as PbftEntity);
     if (saved) {
       this.logger.log(`Registered new PBFT ${pbft.hash}`);
+      console.log(`Registered new PBFT ${pbft.hash}`);
     }
   }
 
@@ -343,7 +351,7 @@ export default class PbftService {
       const updated = await this.pbftRepository.save(pbft as PbftEntity);
       if (updated && transactions && transactions.length > 0) {
         this.logger.log(`PBFT ${updated.hash} finalized`);
-        const txes: ITransaction[] = transactions.map((hash: string) => ({
+        const txes: ITransaction[] = transactions?.map((hash: string) => ({
           hash,
           block: {
             id: updated.id,
@@ -357,8 +365,11 @@ export default class PbftService {
         );
         pbft.transactions = savedTx;
       }
+      this.logger.log(`Handled PBFT Heads for PBFT ${hash}`);
+      console.log(`Handled PBFT Heads for PBFT ${hash}`);
       return updated;
     } catch (error) {
+      this.logger.error('handleNewPbftHeads', error);
       console.error('handleNewPbftHeads', error);
     }
   }

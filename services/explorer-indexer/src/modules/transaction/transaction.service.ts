@@ -4,6 +4,7 @@ import {
   IPBFT,
   ITransaction,
   toChecksumAddress,
+  zeroX,
 } from '@taraxa_project/explorer-shared';
 import { Repository } from 'typeorm';
 import { PbftEntity } from '../pbft';
@@ -71,9 +72,13 @@ export default class TransactionService {
   public gQLToITransaction(gqlTx: IGQLTransaction) {
     const iTx: ITransaction = {
       ...gqlTx,
-      inputData: gqlTx.input,
-      to: gqlTx.to?.address,
-      from: gqlTx.from?.address,
+      to: zeroX(gqlTx.to?.address),
+      inputData: zeroX(gqlTx.inputData),
+      from: zeroX(gqlTx.from?.address),
+      nonce: Number(gqlTx.nonce),
+      blockHash: zeroX(gqlTx.block?.hash),
+      blockNumber: gqlTx.block?.number + '',
+      transactionIndex: gqlTx.index + '',
     };
     return iTx;
   }
@@ -189,9 +194,9 @@ export default class TransactionService {
           to: toChecksumAddress(transaction.to),
           block: {
             id: transaction?.block?.id,
-            hash: transaction.block.hash,
-            number: transaction.block.number,
-            timestamp: transaction.block.timestamp,
+            hash: transaction.block?.hash,
+            number: transaction.block?.number,
+            timestamp: transaction.block?.timestamp,
           },
         });
         const newTx = this.txRepository.create(transactionEntity);

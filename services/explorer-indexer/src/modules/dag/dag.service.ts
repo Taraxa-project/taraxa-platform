@@ -142,8 +142,13 @@ export default class DagService {
     const _dagObject = this.dagRpcToIDAG(dagData);
 
     try {
-      await this.safeSaveDag(_dagObject);
+      const res = await this.safeSaveDag(_dagObject);
+      if (res) {
+        this.logger.log(`Saved new DAG ${dagData.hash}`);
+        console.log(`Saved new DAG ${dagData.hash}`);
+      }
     } catch (error) {
+      this.logger.error('handleNewDag', error);
       console.error('handleNewDag', error);
     }
   }
@@ -159,10 +164,13 @@ export default class DagService {
     dag.pbftPeriod = parseInt(updateData.period, 10);
     try {
       const updated = await this.dagRepository.save(dag);
-      if (updated) this.logger.log(`DAG ${updateData.block} finalized`);
+      if (updated) {
+        this.logger.log(`DAG ${updateData.block} finalized`);
+        console.log(`DAG ${updateData.block} finalized`);
+      }
     } catch (error) {
-      console.error('NewDagBlockFinalizedResponse');
-      console.error(error);
+      this.logger.error('NewDagBlockFinalizedResponse', error);
+      console.error('NewDagBlockFinalizedResponse', error);
     }
   }
 }
