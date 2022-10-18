@@ -341,7 +341,7 @@ export default class PbftService {
 
     try {
       const updated = await this.pbftRepository.save(pbft as PbftEntity);
-      if (updated) {
+      if (updated && transactions && transactions.length > 0) {
         this.logger.log(`PBFT ${updated.hash} finalized`);
         const txes: ITransaction[] = transactions.map((hash: string) => ({
           hash,
