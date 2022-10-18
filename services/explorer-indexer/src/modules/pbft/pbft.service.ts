@@ -8,7 +8,9 @@ import {
 } from '@taraxa_project/explorer-shared';
 import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
 import { Repository } from 'typeorm';
-import TransactionService from '../transaction/transaction.service';
+import TransactionService, {
+  IGQLTransaction,
+} from '../transaction/transaction.service';
 import { PbftEntity } from './pbft.entity';
 
 export interface RPCPbft {
@@ -33,6 +35,34 @@ export interface RPCPbft {
   transactionsRoot: string;
   uncles: string[];
   transactions: string[];
+}
+
+export interface IGQLPBFT {
+  hash: string;
+  number: number;
+  timestamp: number;
+  reward?: string;
+  gasLimit?: number | string;
+  gasUsed?: number | string;
+  parent?: {
+    address?: string;
+  };
+  nonce?: string;
+  difficulty?: number;
+  totalDifficulty?: number;
+  miner?: {
+    address?: string;
+  };
+  transactionCount?: number;
+  transactions?: IGQLTransaction[];
+  transactionsRoot?: string;
+  extraData?: string;
+  logsBloom?: string;
+  mixHash?: string;
+  recepitsRoot?: string;
+  ommerHash?: string;
+  size?: number;
+  stateRoot?: string;
 }
 
 @Injectable()
@@ -215,6 +245,54 @@ export default class PbftService {
       recepitsRoot,
       sha3Uncles,
       size: parseInt(size, 16) || 0,
+      stateRoot,
+    };
+    return pbft;
+  }
+
+  public pbftGQLToIPBFT(pbftGQL: IGQLPBFT) {
+    const {
+      hash,
+      number,
+      timestamp,
+      gasLimit,
+      gasUsed,
+      nonce,
+      difficulty,
+      totalDifficulty,
+      miner,
+      transactionsRoot,
+      extraData,
+      transactions,
+      logsBloom,
+      mixHash,
+      recepitsRoot,
+      ommerHash,
+      stateRoot,
+    } = { ...pbftGQL };
+    if (!hash) return;
+    const pbft: IPBFT = {
+      hash: zeroX(hash),
+      number: number || 0,
+      timestamp: timestamp || 0,
+      gasLimit: gasLimit || 0,
+      gasUsed: gasUsed || 0,
+      parent: zeroX(pbftGQL.parent?.address),
+      nonce,
+      difficulty: difficulty || 0,
+      totalDifficulty: totalDifficulty || 0,
+      miner: zeroX(miner?.address),
+      transactionsRoot,
+      transactionCount: transactions?.length || 0,
+      transactions: transactions?.map((tx) =>
+        this.txService.gQLToITransaction(tx)
+      ),
+      extraData,
+      logsBloom,
+      mixHash,
+      recepitsRoot,
+      sha3Uncles: ommerHash,
+      size: 0,
       stateRoot,
     };
     return pbft;

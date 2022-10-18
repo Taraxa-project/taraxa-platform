@@ -26,6 +26,33 @@ export interface RPCTransaction {
   value?: string; //hex
 }
 
+export interface IGQLTransaction {
+  hash: string;
+  nonce?: number;
+  index?: number;
+  value?: string;
+  gasPrice?: string;
+  gas?: string;
+  inputData?: string;
+  block?: IPBFT;
+  status?: number;
+  gasUsed?: string;
+  cumulativeGasUsed?: number;
+  from?: {
+    address?: string;
+  };
+  to?: {
+    address?: string;
+  };
+  r?: string;
+  v?: string; // hex
+  s?: string;
+  blockHash?: string;
+  blockNumber?: string;
+  input?: string;
+  transactionIndex?: string;
+}
+
 @Injectable()
 export default class TransactionService {
   private readonly logger: Logger = new Logger(TransactionService.name);
@@ -39,6 +66,16 @@ export default class TransactionService {
   public populateTransactionWithPBFT(tx: ITransaction, block: IPBFT) {
     tx.block = block;
     return tx;
+  }
+
+  public gQLToITransaction(gqlTx: IGQLTransaction) {
+    const iTx: ITransaction = {
+      ...gqlTx,
+      inputData: gqlTx.input,
+      to: gqlTx.to?.address,
+      from: gqlTx.from?.address,
+    };
+    return iTx;
   }
 
   public txRpcToITransaction(rpcTx: RPCTransaction) {
