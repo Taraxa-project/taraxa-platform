@@ -113,17 +113,25 @@ export const AddressInfo = ({
           >
             <DataRow
               title='Balance'
-              data={`${Number(details?.balance)?.toLocaleString()} TARA`}
+              data={`${
+                details?.balance
+                  ? Number(details?.balance)?.toLocaleString()
+                  : ''
+              } TARA`}
             />
             <DataRow
               title='Value'
-              data={`$${Number(details?.value).toLocaleString()} ${
-                details?.valueCurrency
-              } ( ${Number(details?.pricePerTara).toLocaleString()} / TARA )`}
+              data={`$${
+                details?.value ? Number(details?.value).toLocaleString() : ''
+              } ${details?.valueCurrency || ''} ( ${
+                details?.pricePerTara
+                  ? Number(details?.pricePerTara).toLocaleString()
+                  : ''
+              } / TARA )`}
             />
             <DataRow
               title='Transaction count'
-              data={`${details?.transactionCount}`}
+              data={`${details?.transactionCount || ''}`}
             />
           </Box>
           <div style={{ maxWidth: '320px' }}>
@@ -149,15 +157,25 @@ export const AddressInfo = ({
         <Divider light />
         <DataRow
           title='Total received'
-          data={`${Number(details?.totalReceived).toLocaleString()} TARA`}
+          data={`${
+            details?.totalReceived
+              ? Number(details?.totalReceived).toLocaleString()
+              : ''
+          } TARA`}
         />
         <DataRow
           title='Total sent'
-          data={`${Number(details?.totalSent).toLocaleString()} TARA`}
+          data={`${
+            details?.totalSent
+              ? Number(details?.totalSent).toLocaleString()
+              : ''
+          } TARA`}
         />
         <DataRow
           title='Fees'
-          data={`${Number(details?.fees).toLocaleString()} TARA`}
+          data={`${
+            details?.fees ? Number(details?.fees).toLocaleString() : ''
+          } TARA`}
         />
         <Divider light />
         <Box
