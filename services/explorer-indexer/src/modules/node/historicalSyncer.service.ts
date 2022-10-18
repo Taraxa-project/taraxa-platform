@@ -268,7 +268,7 @@ export default class HistoricalSyncService {
         this.syncState.hash = block.hash;
 
         const completed = new Date();
-        console.log(
+        this.logger.log(
           'Synced block',
           this.syncState.number,
           this.syncState.hash,
