@@ -98,13 +98,15 @@ export interface NewDagBlockResponse {
   level?: number;
   period?: number;
   signature?: string;
+  sig?: string;
   vdf?: {
     difficulty: string;
     proof: string;
   };
   transactionCount?: number;
   transactions?: string[];
-  author: string; // block auther, same as miner
+  author: string; // block author, same as miner
+  sender: string; // block author, same as miner
   extraData: string; // encoded extra data
   logsBloom: string; // logs
   mixHash: string;

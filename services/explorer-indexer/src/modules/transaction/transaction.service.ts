@@ -190,15 +190,21 @@ export default class TransactionService {
       try {
         const transactionEntity = new TransactionEntity({
           ...transaction,
-          from: toChecksumAddress(transaction.from),
-          to: toChecksumAddress(transaction.to),
-          block: {
+        });
+        if (transaction.from) {
+          transactionEntity.from = toChecksumAddress(transaction.from);
+        }
+        if (transaction.to) {
+          transactionEntity.to = toChecksumAddress(transaction.to);
+        }
+        if (transaction?.block) {
+          transactionEntity.block = {
             id: transaction?.block?.id,
             hash: transaction.block?.hash,
             number: transaction.block?.number,
             timestamp: transaction.block?.timestamp,
-          },
-        });
+          } as PbftEntity;
+        }
         const newTx = this.txRepository.create(transactionEntity);
 
         const saved = await this.txRepository

@@ -74,7 +74,9 @@ export default class DagService {
       period,
       timestamp,
       author,
+      sender,
       signature,
+      sig,
       vdf,
       transactionCount,
       transactions,
@@ -87,10 +89,10 @@ export default class DagService {
       level: parseInt(`${level}`, 16) || 0,
       pbftPeriod: period,
       timestamp: parseInt(timestamp, 16) || 0,
-      author: toChecksumAddress(zeroX(author)),
-      signature: zeroX(signature),
+      author: toChecksumAddress(zeroX(sender || author)),
+      signature: zeroX(sig || signature),
       vdf: parseInt(vdf?.difficulty, 16) || 0,
-      transactionCount: transactionCount,
+      transactionCount: transactionCount || transactions?.length || 0,
       transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
     };
     return _dag;
