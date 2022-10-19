@@ -23,28 +23,21 @@ export default class DagService {
   }
 
   private async safeSaveDag(dag: IDAG) {
-    console.log('dag:', dag);
     const txes = await this.txService.findTransactionsByHashesOrFill(
       dag.transactions
     );
-    console.log('txes: ', txes);
     let newDag = await this.dagRepository.findOneBy({
       hash: zeroX(dag.hash),
     });
     if (newDag) {
-      console.log('2222');
       Object.assign(newDag, dag);
-      newDag.transactions = txes;
       newDag.author = dag.author ? toChecksumAddress(dag.author) : null;
     } else {
       newDag = this.dagRepository.create({
         ...dag,
-        transactions: txes,
+        transactions: [],
         author: dag.author ? toChecksumAddress(dag.author) : null,
       });
-    }
-    if (!newDag.transactions) {
-      newDag.transactions = [];
     }
 
     try {
@@ -58,9 +51,19 @@ export default class DagService {
         .returning('*')
         .execute();
       if (saved) {
-        this.logger.log(`Registered new DAG ${newDag.hash}`);
+        const savedDag = saved.raw[0];
+        this.logger.log(`Registered new DAG ${savedDag.hash}`);
+        if (txes?.length > 0) {
+          const currentDag = await this.dagRepository.findOneBy({
+            hash: zeroX(savedDag.hash),
+          });
+          await this.dagRepository
+            .createQueryBuilder()
+            .relation(DagEntity, 'transactions')
+            .of(currentDag)
+            .add(txes);
+        }
       }
-      console.log('exit');
       return saved;
     } catch (error) {
       console.error(`DAG ${newDag.hash} could not be saved: `, error);

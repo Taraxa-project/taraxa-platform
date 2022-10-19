@@ -4,14 +4,11 @@ import {
   Column,
   Entity,
   Index,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
 import { PbftEntity } from '../pbft/pbft.entity';
-import { DagEntity } from '../dag/dag.entity';
 
 const table_name = 'transactions';
 
@@ -68,11 +65,13 @@ export default class TransactionEntity
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions)
   block?: PbftEntity;
 
-  @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
-    cascade: false,
-  })
-  @JoinTable()
-  dagBlocks?: DagEntity[];
+  // @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
+  //   onUpdate: 'CASCADE',
+  // })
+  // @JoinTable({
+  //   name: 'transactions_dags',
+  // })
+  // dagBlocks?: DagEntity[];
 
   @Column({ nullable: true })
   @IsNumber()
