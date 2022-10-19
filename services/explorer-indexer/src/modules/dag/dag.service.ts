@@ -37,8 +37,14 @@ export default class DagService {
       dagExists.timestamp = dag.timestamp || dagExists.timestamp;
       dagExists.signature = dag.signature || dagExists.signature;
       dagExists.vdf = dag.vdf || dagExists.vdf;
-      dagExists.author = dag.author ? toChecksumAddress(dag.author) : null;
-      dagExists.transactions = txes || [];
+      dagExists.author = dag.author
+        ? toChecksumAddress(dag.author)
+        : dagExists.author;
+      if (dagExists.transactions?.length > 0) {
+        dagExists.transactions = [...dagExists.transactions, ...txes];
+      } else {
+        dagExists.transactions = txes;
+      }
       return await this.saveDagToDB(dagExists);
     } else {
       const newDag = this.dagRepository.create({
@@ -152,10 +158,9 @@ export default class DagService {
   public async updateDag(updateData: NewDagBlockFinalizedResponse) {
     const dag = new DagEntity();
     dag.hash = zeroX(updateData.block);
-    dag.pbftPeriod = parseInt(updateData.period, 10);
+    dag.pbftPeriod = parseInt(Number(updateData.period).toString(), 10);
     try {
       const updated = await this.safeSaveDag(dag);
-      console.log('DAG updated: ', updated);
       if (updated) {
         this.logger.log(`DAG ${updateData.block} finalized`);
         console.log(`DAG ${updateData.block} finalized`);
