@@ -54,10 +54,8 @@ export class NodeConsumer implements OnModuleInit {
             node.addressProof,
             node.vrfKey,
           );
-        if (registeredValidator) {
-          node.isCreatedOnchain = true;
-          await this.nodeRepository.save(node);
-        }
+        node.isCreatedOnchain = registeredValidator;
+        await this.nodeRepository.save(node);
       } catch (e) {
         this.logger.error(
           `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Failed to create onchain validator for ${node.address}.`,

@@ -317,11 +317,17 @@ export class DelegationService {
       if (currentDelegation.gt(totalNodeDelegation)) {
         // await this.blockchainService.unregisterValidator(address);
       } else {
-        await this.blockchainService.registerValidator(
-          address,
-          node.addressProof,
-          node.vrfKey,
-        );
+        const registeredValidator =
+          await this.blockchainService.registerValidator(
+            address,
+            node.addressProof,
+            node.vrfKey,
+          );
+
+        if (node) {
+          node.isCreatedOnchain = registeredValidator;
+          await this.nodeRepository.save(node);
+        }
       }
     }
   }
