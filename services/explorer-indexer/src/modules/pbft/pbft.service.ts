@@ -77,7 +77,9 @@ export default class PbftService {
   }
 
   private updateValuesForPbft = async (pbftData: NewPbftBlockResponse) => {
-    const { block_hash, period, timestamp, beneficiary } = { ...pbftData };
+    const { block_hash, period, timestamp, beneficiary } = {
+      ...pbftData?.pbft_block,
+    };
     const existing = await this.pbftRepository.findOneBy({
       hash: zeroX(block_hash),
     });
@@ -117,7 +119,7 @@ export default class PbftService {
           parent: pbft.parent,
           difficulty: pbft.difficulty,
           totalDifficulty: pbft.totalDifficulty,
-          transactionCount: pbft.transactionCount,
+          transactionCount: pbft.transactions?.length || pbft.transactionCount,
           extraData: pbft.extraData,
           logsBloom: pbft.logsBloom,
           mixHash: pbft.mixHash,
@@ -125,6 +127,7 @@ export default class PbftService {
           sha3Uncles: pbft.sha3Uncles,
           size: pbft.size,
           stateRoot: pbft.stateRoot,
+          transactionsRoot: pbft.transactionsRoot,
         });
         _pbft = newPbft;
       }
@@ -168,7 +171,6 @@ export default class PbftService {
       const pbftFound = await this.pbftRepository.findOneBy({
         hash: _pbft.hash,
       });
-      // console.log(pbftFound);
       return pbftFound;
     } catch (error) {
       console.error(error);
@@ -306,7 +308,7 @@ export default class PbftService {
   }
 
   public async handleNewPbft(pbftData: NewPbftBlockResponse) {
-    if (!pbftData || !pbftData.block_hash) return;
+    if (!pbftData || !pbftData?.pbft_block?.block_hash) return;
 
     const pbft = await this.updateValuesForPbft(pbftData);
     const saved = await this.pbftRepository.save(pbft as PbftEntity);
@@ -322,14 +324,32 @@ export default class PbftService {
       number,
       timestamp,
       gas_limit,
+      gasLimit,
       gas_used,
+      gasUsed,
       parent,
+      parentHash,
+      parent_hash,
       nonce,
       difficulty,
       totalDifficulty,
+      extraData,
+      extra_data,
+      log_bloom,
+      logsBloom,
       miner,
       transactionCount,
       transactions,
+      author,
+      mixHash,
+      receiptsRoot,
+      receipts_root,
+      sha3Uncles,
+      size,
+      stateRoot,
+      state_root,
+      transactionsRoot,
+      transactions_root,
     } = { ...pbftData };
     if (!hash) return;
 
@@ -337,14 +357,22 @@ export default class PbftService {
       hash: zeroX(hash),
       number: parseInt(number, 16) || 0,
       timestamp: parseInt(timestamp, 16) || 0,
-      gasLimit: gas_limit,
-      gasUsed: gas_used,
-      parent: zeroX(parent),
-      nonce,
+      gasLimit: String(parseInt(gas_limit || gasLimit, 16)),
+      gasUsed: String(parseInt(gas_used || gasUsed, 16)),
+      parent: zeroX(parent || parentHash || parent_hash),
+      nonce: String(parseInt(nonce, 16)),
       difficulty: parseInt(difficulty, 16) || 0,
       totalDifficulty: parseInt(totalDifficulty, 16) || 0,
-      miner: toChecksumAddress(zeroX(miner)),
+      miner: toChecksumAddress(zeroX(miner || author)),
+      extraData: zeroX(extraData || extra_data),
       transactionCount: parseInt(transactionCount, 16) || 0,
+      logsBloom: zeroX(logsBloom || log_bloom),
+      mixHash: zeroX(mixHash),
+      recepitsRoot: zeroX(receiptsRoot || receipts_root),
+      sha3Uncles: zeroX(sha3Uncles),
+      size: parseInt(size, 16),
+      stateRoot: zeroX(stateRoot || state_root),
+      transactionsRoot: zeroX(transactionsRoot || transactions_root),
     };
 
     try {

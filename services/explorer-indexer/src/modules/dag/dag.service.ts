@@ -23,22 +23,24 @@ export default class DagService {
   }
 
   private async safeSaveDag(dag: IDAG) {
+    console.log('dag:', dag);
     const txes = await this.txService.findTransactionsByHashesOrFill(
       dag.transactions
     );
-
+    console.log('txes: ', txes);
     let newDag = await this.dagRepository.findOneBy({
       hash: zeroX(dag.hash),
     });
     if (newDag) {
+      console.log('2222');
       Object.assign(newDag, dag);
       newDag.transactions = txes;
-      newDag.author = toChecksumAddress(dag.author);
+      newDag.author = dag.author ? toChecksumAddress(dag.author) : null;
     } else {
       newDag = this.dagRepository.create({
         ...dag,
         transactions: txes,
-        author: toChecksumAddress(dag.author),
+        author: dag.author ? toChecksumAddress(dag.author) : null,
       });
     }
     if (!newDag.transactions) {
@@ -58,7 +60,7 @@ export default class DagService {
       if (saved) {
         this.logger.log(`Registered new DAG ${newDag.hash}`);
       }
-
+      console.log('exit');
       return saved;
     } catch (error) {
       console.error(`DAG ${newDag.hash} could not be saved: `, error);
@@ -156,16 +158,12 @@ export default class DagService {
   }
 
   public async updateDag(updateData: NewDagBlockFinalizedResponse) {
-    let dag;
-
-    dag = await this.dagRepository.findOneBy({ hash: zeroX(updateData.block) });
-    if (!dag) {
-      dag = new DagEntity();
-      dag.hash = zeroX(updateData.block);
-    }
+    const dag = new DagEntity();
+    dag.hash = zeroX(updateData.block);
     dag.pbftPeriod = parseInt(updateData.period, 10);
     try {
-      const updated = await this.dagRepository.save(dag);
+      const updated = await this.safeSaveDag(dag);
+      console.log(' dag updated: ', updated);
       if (updated) {
         this.logger.log(`DAG ${updateData.block} finalized`);
         console.log(`DAG ${updateData.block} finalized`);

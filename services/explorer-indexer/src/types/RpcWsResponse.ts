@@ -51,9 +51,11 @@ export interface NewDagBlockFinalizedResponse {
 
 export interface NewPbftBlockHeaderResponse {
   hash: string;
-  number: string; // hex number
+  number?: string; // hex number
   gas_limit?: string; // hex number
+  gasLimit?: string;
   gas_used?: string; // hex number
+  gasUsed?: string;
   parent?: string;
   nonce?: string; // hex number
   difficulty?: string; // hex number
@@ -61,34 +63,43 @@ export interface NewPbftBlockHeaderResponse {
   miner?: string;
   transactionCount?: string; // hex number
   transactions?: string[];
-  author: string; // block auther, same as miner
-  extra_data: string; // encoded extra data
-  log_bloom: string; // logs
-  mixHash: string;
-  parent_hash: string;
-  receipts_root: string;
-  sha3Uncles: string;
-  size: string; // hex number
-  state_root: string;
-  timestamp: string; // hex number
-  transactions_root: string;
-  uncles_hash: string[];
-  ethereum_rlp_size: number;
+  author?: string; // block auther, same as miner
+  extra_data?: string; // encoded extra data
+  extraData?: string;
+  log_bloom?: string; // logs
+  logsBloom?: string;
+  mixHash?: string;
+  parent_hash?: string;
+  parentHash?: string;
+  receipts_root?: string;
+  receiptsRoot?: string;
+  sha3Uncles?: string;
+  size?: string; // hex number
+  state_root?: string;
+  stateRoot?: string;
+  timestamp?: string; // hex number
+  transactions_root?: string;
+  transactionsRoot?: string;
+  uncles_hash?: string[];
+  uncles?: string[];
+  ethereum_rlp_size?: number;
 }
 
 export interface NewPbftBlockResponse {
-  beneficiary: string;
-  block_hash: string;
-  dag_block_hash_as_pivot: string;
-  order_hash: string;
-  period: number;
-  prev_block_hash: string;
-  reward_votes: string[];
-  schedule: {
-    dag_blocks_order: string[];
+  pbft_block: {
+    beneficiary: string;
+    block_hash: string;
+    dag_block_hash_as_pivot: string;
+    order_hash: string;
+    period: number;
+    prev_block_hash: string;
+    reward_votes: string[];
+    schedule: {
+      dag_blocks_order: string[];
+    };
+    singature: string;
+    timestamp: number;
   };
-  singature: string;
-  timestamp: number;
 }
 
 export interface NewDagBlockResponse {
@@ -186,7 +197,7 @@ export const toObject = (
       case '0x3': {
         // NEW_PBFT_BLOCKS
         const newPbftBlockData = {
-          result: response.params.result as NewPbftBlockHeaderResponse,
+          result: response.params.result as NewPbftBlockResponse,
           subscription: response.params.subscription,
         } as BaseResponseRype;
         returnObj = newPbftBlockData;

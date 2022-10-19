@@ -10,7 +10,7 @@ export class GraphQLConnector {
     private readonly graphQLClient: GraphQLClient
   ) {}
 
-  public async getBlocksByNumberFromTo(
+  public async getPBFTBlocksByNumberFromTo(
     from: number,
     to: number
   ): Promise<IGQLPBFT[]> {
@@ -77,7 +77,7 @@ export class GraphQLConnector {
       )
     )?.blocks;
   }
-  public async getBlockHashForNumber(number: number) {
+  public async getPBFTBlockHashForNumber(number: number) {
     return (
       await this.graphQLClient.request(
         gql`
@@ -94,7 +94,12 @@ export class GraphQLConnector {
     )?.block;
   }
 
-  public async getBlockNumberAndParentForHash(hash: string) {
+  /**
+   * @note If no parameter is given for neither number or hash the last block is returned.
+   * @param hash The PBFT block's hash that should be fetched.
+   * @returns Block object containing number and parent object of the sought hash
+   */
+  public async getPBFTBlockNumberAndParentForHash(hash?: string) {
     return (
       await this.graphQLClient.request(
         gql`
@@ -112,5 +117,24 @@ export class GraphQLConnector {
         }
       )
     )?.block;
+  }
+
+  public async getDagBlockByHash(hash?: string) {
+    return (
+      await this.graphQLClient.request(
+        gql`
+          query dag_block_query($hash: Bytes32) {
+            dagBlock(hash: $hash) {
+              hash
+              level
+              pbftPeriod
+            }
+          }
+        `,
+        {
+          hash,
+        }
+      )
+    )?.dagBlock;
   }
 }

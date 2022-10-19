@@ -37,18 +37,17 @@ export default class HistoricalSyncService {
    * Syncs the current chain state via Taraxa NodeRPC
    */
   private async reSyncChainState() {
-    const blockNumber = parseInt(await this.rpcConnector.blockNumber(), 16);
-    const dagBlockLevel = parseInt(await this.rpcConnector.dagBlockLevel(), 16);
-    const dagBlockPeriod = parseInt(
-      await this.rpcConnector.dagBlockPeriod(),
-      16
-    );
+    const blockNumber = (
+      await this.graphQLConnector.getPBFTBlockNumberAndParentForHash()
+    )?.number;
+    const { level, pbftPeriod } =
+      await this.graphQLConnector.getDagBlockByHash();
 
     const genesis = (
-      await this.graphQLConnector.getBlocksByNumberFromTo(0, 0)
+      await this.graphQLConnector.getPBFTBlocksByNumberFromTo(0, 0)
     )[0];
     const block = (
-      await this.graphQLConnector.getBlocksByNumberFromTo(
+      await this.graphQLConnector.getPBFTBlocksByNumberFromTo(
         blockNumber,
         blockNumber
       )
@@ -58,8 +57,8 @@ export default class HistoricalSyncService {
       number: block.number,
       hash: block.hash,
       genesis: genesis.hash,
-      dagBlockLevel,
-      dagBlockPeriod,
+      dagBlockLevel: level,
+      dagBlockPeriod: pbftPeriod,
     };
   }
 
@@ -170,10 +169,11 @@ export default class HistoricalSyncService {
 
     let verifiedTip = false;
 
-    // if genesis block changes, resync
+    // if genesis block changes or the chain has lesser blocks than the syncer state(reset happened), resync
     if (
       !this.chainState.genesis ||
-      zeroX(this.chainState.genesis) !== this.syncState.genesis
+      zeroX(this.chainState.genesis) !== this.syncState.genesis ||
+      this.chainState.number < this.syncState.number
     ) {
       this.logger.log('New genesis block hash. Restarting chain sync.');
       console.log('New genesis block hash. Restarting chain sync.');
@@ -194,7 +194,7 @@ export default class HistoricalSyncService {
     while (!verifiedTip) {
       const chainBlockAtSyncNumber = zeroX(
         (
-          await this.graphQLConnector.getBlockHashForNumber(
+          await this.graphQLConnector.getPBFTBlockHashForNumber(
             this.syncState.number
           )
         )?.hash
@@ -217,7 +217,9 @@ export default class HistoricalSyncService {
         this.syncState.number = Number(lastBlock?.number || 1) - 1; //if the last block comes as null
         this.syncState.hash = lastBlock?.parent
           ? lastBlock?.parent
-          : zeroX((await this.graphQLConnector.getBlockHashForNumber(0))?.hash); //if the parent comes back as null jump to block zero
+          : zeroX(
+              (await this.graphQLConnector.getPBFTBlockHashForNumber(0))?.hash
+            ); //if the parent comes back as null jump to block zero
       } else {
         verifiedTip = true;
       }
@@ -229,11 +231,10 @@ export default class HistoricalSyncService {
 
     while (this.syncState.number < this.chainState.number) {
       const blocksWithTransactions: IGQLPBFT[] =
-        await this.graphQLConnector.getBlocksByNumberFromTo(
+        await this.graphQLConnector.getPBFTBlocksByNumberFromTo(
           this.syncState.number,
           this.chainState.number
         );
-      console.log(blocksWithTransactions);
 
       const iBlocks = blocksWithTransactions.map((block) =>
         this.pbftService.pbftGQLToIPBFT(block)
