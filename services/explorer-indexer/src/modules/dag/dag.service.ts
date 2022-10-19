@@ -26,48 +26,37 @@ export default class DagService {
     const txes = await this.txService.findTransactionsByHashesOrFill(
       dag.transactions
     );
-    let newDag = await this.dagRepository.findOneBy({
+    const dagExists = await this.dagRepository.findOneBy({
       hash: zeroX(dag.hash),
     });
-    if (newDag) {
-      Object.assign(newDag, dag);
-      newDag.author = dag.author ? toChecksumAddress(dag.author) : null;
+    if (dagExists) {
+      dagExists.pivot = dag.pivot || dagExists.pivot;
+      dagExists.tips = dag.tips || dagExists.tips;
+      dagExists.level = dag.level || dagExists.level;
+      dagExists.pbftPeriod = dag.pbftPeriod || dagExists.pbftPeriod;
+      dagExists.timestamp = dag.timestamp || dagExists.timestamp;
+      dagExists.signature = dag.signature || dagExists.signature;
+      dagExists.vdf = dag.vdf || dagExists.vdf;
+      dagExists.author = dag.author ? toChecksumAddress(dag.author) : null;
+      dagExists.transactions = txes || [];
+      return await this.saveDagToDB(dagExists);
     } else {
-      newDag = this.dagRepository.create({
+      const newDag = this.dagRepository.create({
         ...dag,
-        transactions: [],
+        transactions: txes || [],
         author: dag.author ? toChecksumAddress(dag.author) : null,
       });
+      return await this.saveDagToDB(newDag);
     }
+  }
 
-    try {
-      const saved = await this.dagRepository
-        .createQueryBuilder()
-        .insert()
-        .into(DagEntity)
-        .values(newDag)
-        .orUpdate(['hash'], 'UQ_3928cee78a30b23a175d50796b2')
-        .setParameter('hash', newDag.hash)
-        .returning('*')
-        .execute();
-      if (saved) {
-        const savedDag = saved.raw[0];
-        this.logger.log(`Registered new DAG ${savedDag.hash}`);
-        if (txes?.length > 0) {
-          const currentDag = await this.dagRepository.findOneBy({
-            hash: zeroX(savedDag.hash),
-          });
-          await this.dagRepository
-            .createQueryBuilder()
-            .relation(DagEntity, 'transactions')
-            .of(currentDag)
-            .add(txes);
-        }
-      }
-      return saved;
-    } catch (error) {
-      console.error(`DAG ${newDag.hash} could not be saved: `, error);
+  private async saveDagToDB(dagToCreate: DagEntity) {
+    if (!dagToCreate) {
+      return;
     }
+    const savedDag = await dagToCreate.save();
+    this.logger.log(`Registered new DAG ${savedDag.hash}`);
+    return savedDag;
   }
 
   public dagRpcToIDAG(dag: NewDagBlockResponse) {
@@ -166,7 +155,7 @@ export default class DagService {
     dag.pbftPeriod = parseInt(updateData.period, 10);
     try {
       const updated = await this.safeSaveDag(dag);
-      console.log(' dag updated: ', updated);
+      console.log('DAG updated: ', updated);
       if (updated) {
         this.logger.log(`DAG ${updateData.block} finalized`);
         console.log(`DAG ${updateData.block} finalized`);
