@@ -198,7 +198,7 @@ function Redeem() {
             <div className="notification">
               <Notification
                 title="Info:"
-                text="We release the rewards once a month, usually on the 15th."
+                text="We release the rewards once a month, usually on the 20th."
                 variant="info"
               />
             </div>
