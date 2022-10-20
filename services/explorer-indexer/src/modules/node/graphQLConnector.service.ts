@@ -1,6 +1,7 @@
 import { InjectGraphQLClient } from '@golevelup/nestjs-graphql-request';
 import { Injectable } from '@nestjs/common';
 import { gql, GraphQLClient } from 'graphql-request';
+import { IGQLDag } from '../../types';
 import { IGQLPBFT } from '../pbft';
 
 @Injectable()
@@ -136,5 +137,41 @@ export class GraphQLConnector {
         }
       )
     )?.dagBlock;
+  }
+
+  /**
+   * Fetches DAG blocks based on PBFT period
+   * @param period Optional if not give returns DAG from last PBFT period
+   * @returns DAG array
+   */
+  public async getDagBlockForPbftPeriod(period?: number): Promise<IGQLDag[]> {
+    return (
+      await this.graphQLClient.request(
+        gql`
+          query period_Dag_Blocks($period: Long!) {
+            periodDagBlocks(period: $period) {
+              hash
+              pivot
+              tips
+              level
+              pbftPeriod
+              author {
+                address
+              }
+              timestamp
+              signature
+              vdf
+              transactions {
+                hash
+              }
+              transactionCount
+            }
+          }
+        `,
+        {
+          period,
+        }
+      )
+    )?.periodDagBlocks;
   }
 }

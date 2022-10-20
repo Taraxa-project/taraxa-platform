@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { WebSocketClient } from 'nestjs-websocket';
 import util from 'util';
+import { IGQLTransaction } from '../modules';
 
 export enum ResponseTypes {
   NewDagBlockFinalizedResponse = 'NewDagBlockFinalizedResponse',
@@ -128,6 +129,22 @@ export interface NewDagBlockResponse {
   stateRoot: string;
   timestamp: string; // hex number
   transactionsRoot: string;
+}
+
+export interface IGQLDag {
+  hash: string;
+  pivot?: string;
+  tips?: string[];
+  level?: number;
+  pbftPeriod?: number;
+  timestamp: number;
+  author?: {
+    address: string;
+  };
+  signature?: string;
+  vdf?: number;
+  transactionCount?: number;
+  transactions?: IGQLTransaction[];
 }
 
 export interface BaseResponseRype {

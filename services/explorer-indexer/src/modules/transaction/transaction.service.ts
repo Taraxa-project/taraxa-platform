@@ -69,7 +69,7 @@ export default class TransactionService {
     return tx;
   }
 
-  public gQLToITransaction(gqlTx: IGQLTransaction) {
+  public gQLToITransaction(gqlTx: IGQLTransaction): ITransaction {
     const iTx: ITransaction = {
       ...gqlTx,
       to: zeroX(gqlTx.to?.address),

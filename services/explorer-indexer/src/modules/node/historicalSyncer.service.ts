@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IPBFT, ITransaction, zeroX } from '@taraxa_project/explorer-shared';
+import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
@@ -8,6 +8,7 @@ import TransactionService from '../transaction/transaction.service';
 import RPCConnectorService from './rpcConnector.service';
 import { BigInteger } from 'jsbn';
 import { GraphQLConnector } from './graphQLConnector.service';
+import { IGQLDag } from '../../types';
 @Injectable()
 export default class HistoricalSyncService {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -206,9 +207,7 @@ export default class HistoricalSyncService {
           'has changed. Re-org detected, walking back.'
         );
         this.logger.log(
-          'Block hash at height',
-          this.syncState.number,
-          'has changed. Re-org detected, walking back.'
+          `Block hash at height ${this.syncState.number} has changed. Re-org detected, walking back.`
         );
         const lastBlock = await this.pbftService.getBlockByHash(
           this.syncState.hash
@@ -267,9 +266,18 @@ export default class HistoricalSyncService {
 
         if (savedBlock) {
           this.logger.log(`Finalized block ${savedBlock.hash}`);
+          // Fetch and save each DAG block for the PBFT Period
+          const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(
+            savedBlock.number
+          );
+          for (const dag of dags) {
+            const formattedDag = await this.dagService.dagGraphQlToIdag(dag);
+            await this.dagService.safeSaveDag(formattedDag);
+          }
         }
 
         // update sync state
+        await this.reSyncChainState();
         this.syncState.number = block.number;
         this.syncState.genesis = this.chainState.genesis;
         this.syncState.hash = block.hash;
@@ -351,7 +359,6 @@ export default class HistoricalSyncService {
 
     // sync blocks to tip
     while (this.syncState.number < this.chainState.number) {
-      console.log(`Getting block ${this.syncState.number + 1}...`);
       this.logger.log(`Getting block ${this.syncState.number + 1}...`);
       const started = new Date();
       const blockRpc: RPCPbft = await this.rpcConnector.getBlockByNumber(
@@ -379,7 +386,7 @@ export default class HistoricalSyncService {
             block.transactions[i].hash
           );
           const fetchEnd = new Date();
-          console.log(
+          this.logger.debug(
             `Fetched tx ${block.transactions[i].hash} in ${
               fetchEnd.getTime() - fetchStart.getTime()
             }ms.`
@@ -393,7 +400,7 @@ export default class HistoricalSyncService {
         }
       }
       const fetchTxEnd = new Date();
-      console.log(
+      this.logger.debug(
         `Fetched ${block.transactions?.length} tx-es in ${
           fetchTxEnd.getTime() - fetchTxStart.getTime()
         } ms.`
@@ -447,15 +454,10 @@ export default class HistoricalSyncService {
       this.syncState.hash = block.hash;
 
       const completed = new Date();
-      console.log(
-        'Synced block',
-        this.syncState.number,
-        this.syncState.hash,
-        'with',
-        block.transactions?.length,
-        'transactions, in',
-        completed.getTime() - started.getTime(),
-        'ms'
+      this.logger.debug(
+        `Synced block ${this.syncState.number} ${this.syncState.hash} with ${
+          block.transactions?.length
+        } transactions in ${completed.getTime()} - ${started.getTime()} ms`
       );
     }
   }

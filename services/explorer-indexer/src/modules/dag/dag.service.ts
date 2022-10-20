@@ -6,7 +6,11 @@ import {
   zeroX,
   toChecksumAddress,
 } from '@taraxa_project/explorer-shared';
-import { NewDagBlockResponse, NewDagBlockFinalizedResponse } from 'src/types';
+import {
+  NewDagBlockResponse,
+  NewDagBlockFinalizedResponse,
+  IGQLDag,
+} from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
 import { DagEntity } from './dag.entity';
@@ -22,7 +26,7 @@ export default class DagService {
     this.dagRepository = dagRepository;
   }
 
-  private async safeSaveDag(dag: IDAG) {
+  public async safeSaveDag(dag: IDAG) {
     const txes = await this.txService.findTransactionsByHashesOrFill(
       dag.transactions
     );
@@ -41,7 +45,9 @@ export default class DagService {
         ? toChecksumAddress(dag.author)
         : dagExists.author;
       if (dagExists.transactions?.length > 0) {
-        dagExists.transactions = [...dagExists.transactions, ...txes];
+        dagExists.transactions = Array.from(
+          new Set([...dagExists.transactions, ...txes])
+        );
       } else {
         dagExists.transactions = txes;
       }
@@ -100,6 +106,38 @@ export default class DagService {
       vdf: parseInt(vdf?.difficulty, 16) || 0,
       transactionCount: transactionCount || transactions?.length || 0,
       transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
+    };
+    return _dag;
+  }
+
+  public dagGraphQlToIdag(dag: IGQLDag) {
+    const {
+      hash,
+      pivot,
+      tips,
+      level,
+      pbftPeriod,
+      timestamp,
+      author,
+      signature,
+      vdf,
+      transactionCount,
+      transactions,
+    } = dag;
+    const _dag: IDAG = {
+      hash: zeroX(hash),
+      pivot: zeroX(pivot),
+      tips: tips,
+      level: parseInt(`${level}`, 16) || 0,
+      pbftPeriod,
+      timestamp,
+      author: author.address ? toChecksumAddress(zeroX(author.address)) : null,
+      signature: zeroX(signature),
+      vdf,
+      transactionCount: transactionCount || transactions?.length || 0,
+      transactions: transactions?.map((tx) =>
+        this.txService.gQLToITransaction(tx)
+      ),
     };
     return _dag;
   }
