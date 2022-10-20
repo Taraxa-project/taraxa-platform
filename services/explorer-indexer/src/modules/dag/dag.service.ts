@@ -60,9 +60,15 @@ export default class DagService {
     if (!dagToCreate) {
       return;
     }
-    const savedDag = await dagToCreate.save();
-    this.logger.log(`Registered new DAG ${savedDag.hash}`);
-    return savedDag;
+    try {
+      const savedDag = await dagToCreate.save();
+      this.logger.log(`Registered new DAG ${savedDag.hash}`);
+      return savedDag;
+    } catch (err) {
+      this.logger.error(
+        `Failed to save or update DAG with hash: ${dagToCreate.hash}`
+      );
+    }
   }
 
   public dagRpcToIDAG(dag: NewDagBlockResponse) {
