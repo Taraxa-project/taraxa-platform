@@ -119,7 +119,7 @@ export default class TransactionService {
     if (!transaction || !transaction.hash) {
       return;
     }
-
+    transaction.hash = zeroX(transaction.hash);
     const tx = await this.txRepository.findOne({
       where: {
         hash: transaction.hash,
@@ -179,6 +179,7 @@ export default class TransactionService {
     if (!transaction) {
       return;
     }
+    transaction.hash = zeroX(transaction.hash);
 
     const tx = await this.txRepository.findOne({
       where: {
