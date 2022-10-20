@@ -4,14 +4,11 @@ import {
   Column,
   Entity,
   Index,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
 import { PbftEntity } from '../pbft/pbft.entity';
-import { DagEntity } from './dag.entity';
 
 const table_name = 'transactions';
 
@@ -65,11 +62,13 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions)
   block?: PbftEntity;
 
-  @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
-    cascade: false,
-  })
-  @JoinTable()
-  dagBlocks?: DagEntity[];
+  // @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
+  //   onUpdate: 'CASCADE',
+  // })
+  // @JoinTable({
+  //   name: 'transactions_dags',
+  // })
+  // dagBlocks?: DagEntity[];
 
   @Column({ nullable: true })
   @IsNumber()
@@ -104,10 +103,6 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   @Column({ nullable: true })
   @IsString()
   blockNumber?: string;
-
-  @Column({ nullable: true })
-  @IsString()
-  input?: string;
 
   @Column({ nullable: true })
   @IsString()
