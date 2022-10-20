@@ -1,8 +1,7 @@
 import { InjectGraphQLClient } from '@golevelup/nestjs-graphql-request';
 import { Injectable } from '@nestjs/common';
 import { gql, GraphQLClient } from 'graphql-request';
-import { IGQLDag } from '../../types';
-import { IGQLPBFT } from '../pbft';
+import { IGQLDag, IGQLPBFT } from '../../types';
 
 @Injectable()
 export class GraphQLConnector {
@@ -78,6 +77,7 @@ export class GraphQLConnector {
       )
     )?.blocks;
   }
+
   public async getPBFTBlockHashForNumber(number: number) {
     return (
       await this.graphQLClient.request(

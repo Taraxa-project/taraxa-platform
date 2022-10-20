@@ -6,53 +6,10 @@ import {
   toChecksumAddress,
   zeroX,
 } from '@taraxa_project/explorer-shared';
+import { IGQLTransaction, RPCTransaction } from 'src/types';
 import { Repository } from 'typeorm';
 import { PbftEntity } from '../pbft';
 import TransactionEntity from './transaction.entity';
-
-export interface RPCTransaction {
-  blockHash?: string;
-  blockNumber?: string; //hex
-  from?: string;
-  to?: string;
-  gas?: string; //hex
-  gasPrice?: string; //hex
-  hash: string;
-  input?: string;
-  nonce?: string; //hex
-  r?: string;
-  v?: string; // hex
-  s?: string;
-  transactionIndex?: string; //hex
-  value?: string; //hex
-}
-
-export interface IGQLTransaction {
-  hash: string;
-  nonce?: number;
-  index?: number;
-  value?: string;
-  gasPrice?: string;
-  gas?: string;
-  inputData?: string;
-  block?: IPBFT;
-  status?: number;
-  gasUsed?: string;
-  cumulativeGasUsed?: number;
-  from?: {
-    address?: string;
-  };
-  to?: {
-    address?: string;
-  };
-  r?: string;
-  v?: string; // hex
-  s?: string;
-  blockHash?: string;
-  blockNumber?: string;
-  input?: string;
-  transactionIndex?: string;
-}
 
 @Injectable()
 export default class TransactionService {

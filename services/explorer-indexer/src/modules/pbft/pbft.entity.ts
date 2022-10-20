@@ -11,7 +11,6 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import TransactionEntity from '../transaction/transaction.entity';
 
 const table_name = 'pbfts';
-
 @Entity(table_name)
 export class PbftEntity extends BaseEntity implements IPBFT {
   constructor(pbft?: Partial<IPBFT>) {

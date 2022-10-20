@@ -6,64 +6,15 @@ import {
   zeroX,
   toChecksumAddress,
 } from '@taraxa_project/explorer-shared';
-import { NewPbftBlockHeaderResponse, NewPbftBlockResponse } from 'src/types';
+import {
+  IGQLPBFT,
+  NewPbftBlockHeaderResponse,
+  NewPbftBlockResponse,
+  RPCPbft,
+} from 'src/types';
 import { Repository } from 'typeorm';
-import TransactionService, {
-  IGQLTransaction,
-} from '../transaction/transaction.service';
+import TransactionService from '../transaction/transaction.service';
 import { PbftEntity } from './pbft.entity';
-
-export interface RPCPbft {
-  author: string;
-  difficulty: string; //hex
-  extraData: string;
-  gasLimit: string; //hex
-  gasUsed: string; //hex
-  hash: string;
-  logsBloom: string;
-  miner: string;
-  mixHash: string;
-  nonce: string;
-  number: string; //hex
-  parentHash: string;
-  recepitsRoot: string;
-  sha3Uncles: string;
-  size: string; //hex
-  stateRoot: string;
-  timestamp: string; //hex
-  totalDifficulty: string; //hex
-  transactionsRoot: string;
-  uncles: string[];
-  transactions: string[];
-}
-
-export interface IGQLPBFT {
-  hash: string;
-  number: number;
-  timestamp: number;
-  reward?: string;
-  gasLimit?: number | string;
-  gasUsed?: number | string;
-  parent?: {
-    hash?: string;
-  };
-  nonce?: string;
-  difficulty?: number;
-  totalDifficulty?: number;
-  miner?: {
-    address?: string;
-  };
-  transactionCount?: number;
-  transactions?: IGQLTransaction[];
-  transactionsRoot?: string;
-  extraData?: string;
-  logsBloom?: string;
-  mixHash?: string;
-  recepitsRoot?: string;
-  ommerHash?: string;
-  size?: number;
-  stateRoot?: string;
-}
 
 @Injectable()
 export default class PbftService {

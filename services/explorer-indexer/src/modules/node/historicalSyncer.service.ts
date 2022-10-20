@@ -3,12 +3,12 @@ import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
-import PbftService, { IGQLPBFT, RPCPbft } from '../pbft/pbft.service';
+import PbftService from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
 import RPCConnectorService from './rpcConnector.service';
 import { BigInteger } from 'jsbn';
 import { GraphQLConnector } from './graphQLConnector.service';
-import { IGQLDag } from '../../types';
+import { IGQLPBFT, RPCPbft } from 'src/types';
 @Injectable()
 export default class HistoricalSyncService {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -267,12 +267,23 @@ export default class HistoricalSyncService {
         if (savedBlock) {
           this.logger.log(`Finalized block ${savedBlock.hash}`);
           // Fetch and save each DAG block for the PBFT Period
-          const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(
-            savedBlock.number
-          );
-          for (const dag of dags) {
-            const formattedDag = await this.dagService.dagGraphQlToIdag(dag);
-            await this.dagService.safeSaveDag(formattedDag);
+          try {
+            const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(
+              savedBlock.number
+            );
+            for (const dag of dags) {
+              const formattedDag = this.dagService.dagGraphQlToIdag(dag);
+              await this.dagService.safeSaveDag(formattedDag);
+            }
+          } catch (error) {
+            this.logger.error(
+              `Saving DAGs for PBFT period ${savedBlock.number} failed. Reason: `,
+              error
+            );
+            console.error(
+              `Saving DAGs for PBFT period ${savedBlock.number} failed. Reason: `,
+              error
+            );
           }
         }
 
