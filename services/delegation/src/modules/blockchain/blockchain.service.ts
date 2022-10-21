@@ -196,12 +196,8 @@ export class BlockchainService {
     let hasNextPage = true;
     while (hasNextPage) {
       try {
-        const gasLimit =
-          await this.testnetDelegationContract.estimateGas.getValidators(page);
         const allValidators =
-          await this.testnetDelegationContract.getValidators(page, {
-            gasLimit,
-          });
+          await this.testnetDelegationContract.getValidators(page);
         validators = [...validators, ...allValidators.validators];
         hasNextPage = !allValidators.end;
         page++;
