@@ -173,10 +173,16 @@ export default class HistoricalSyncService {
     if (
       !this.chainState.genesis ||
       zeroX(this.chainState.genesis) !== this.syncState.genesis ||
-      this.chainState.number < this.syncState.number
+      (this.chainState.number < this.syncState.number &&
+        this.chainState.hash?.toLowerCase() !==
+          this.syncState.hash?.toLowerCase())
     ) {
-      this.logger.log('New genesis block hash. Restarting chain sync.');
-      console.log('New genesis block hash. Restarting chain sync.');
+      this.logger.log(
+        'New genesis block hash or network reset detected. Restarting chain sync.'
+      );
+      console.log(
+        'New genesis block hash or network reset detected. Restarting chain sync.'
+      );
       // reset the database
       await this.txService.clearTransactionData();
       await this.dagService.clearDagData();
