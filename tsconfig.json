@@ -25,7 +25,7 @@
       "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"],
       "@taraxa_project/explorer": ["services/explorer/src/index.ts"],
       "@taraxa_project/faucet": ["services/faucet/src/index.ts"],
-      "@taraxa_project/explorer-shared": ["packages/explorer-shared/index.ts"]
+      "@taraxa_project/explorer-shared": ["packages/explorer-shared/src/index.ts"]
     }
   },
   "references": [

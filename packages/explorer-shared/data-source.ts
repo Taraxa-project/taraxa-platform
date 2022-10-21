@@ -27,7 +27,7 @@ const DataSourceConfig = new DataSource({
   synchronize: false,
   migrationsRun: true,
   logging: process.env.NODE_ENV !== 'production',
-  entities: [`${__dirname}/src/modules/**/*.entity{.ts,.js}`],
+  entities: [`${__dirname}/src/entities/*.entity{.ts,.js}`],
   migrations: [`${__dirname}/src/migrations/*{.ts,.js}`],
   migrationsTableName: 'migrations_explorer_indexer',
 } as DataSourceOptions);

@@ -1,4 +1,3 @@
-import { ITransaction } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,
@@ -8,15 +7,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
-import { PbftEntity } from '../pbft/pbft.entity';
+import { ITransaction } from '../models';
+import { PbftEntity } from './pbft.entity';
 
 const table_name = 'transactions';
 
 @Entity(table_name)
-export default class TransactionEntity
-  extends BaseEntity
-  implements ITransaction
-{
+export class TransactionEntity extends BaseEntity implements ITransaction {
   constructor(transaction?: Partial<ITransaction>) {
     super();
     Object.assign(this, transaction);
@@ -64,14 +61,6 @@ export default class TransactionEntity
 
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions)
   block?: PbftEntity;
-
-  // @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
-  //   onUpdate: 'CASCADE',
-  // })
-  // @JoinTable({
-  //   name: 'transactions_dags',
-  // })
-  // dagBlocks?: DagEntity[];
 
   @Column({ nullable: true })
   @IsNumber()

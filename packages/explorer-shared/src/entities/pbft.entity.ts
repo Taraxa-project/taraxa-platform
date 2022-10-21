@@ -1,4 +1,3 @@
-import { IPBFT } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,
@@ -8,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IPBFT } from '../models';
 import { TransactionEntity } from './transaction.entity';
 
 const table_name = 'pbfts';

@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PbftEntity, TransactionEntity } from '@taraxa_project/explorer-shared';
 import { TransactionModule } from '../transaction';
-import TransactionEntity from '../transaction/transaction.entity';
-import { PbftEntity } from './pbft.entity';
 import PbftService from './pbft.service';
 
 @Module({

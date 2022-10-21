@@ -11,7 +11,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Raw, Repository } from 'typeorm';
 import { fromWei, toBN, toWei } from 'web3-utils';
-import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
+import {
+  PbftEntity,
+  DagEntity,
+  TransactionEntity,
+  toChecksumAddress,
+} from '@taraxa_project/explorer-shared';
 import {
   StatsResponse,
   TransactionResponse,
@@ -20,7 +25,6 @@ import {
 } from './responses';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
-import { toChecksumAddress } from '@taraxa_project/explorer-shared';
 
 @Injectable()
 export class AddressService {

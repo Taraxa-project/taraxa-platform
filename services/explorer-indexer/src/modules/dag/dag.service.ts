@@ -5,6 +5,7 @@ import {
   ITransaction,
   zeroX,
   toChecksumAddress,
+  DagEntity,
 } from '@taraxa_project/explorer-shared';
 import {
   NewDagBlockResponse,
@@ -13,7 +14,6 @@ import {
 } from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
-import { DagEntity } from './dag.entity';
 
 @Injectable()
 export default class DagService {

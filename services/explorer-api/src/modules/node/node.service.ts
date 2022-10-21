@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GetNodesDto } from './dto/get-nodes.dto';
 import { NodeDto } from './dto/node.dto';
-import { NodeEntity } from './node.entity';
+import { NodeEntity } from '@taraxa_project/explorer-shared';
 
 export interface NodesPaginate {
   data: NodeDto[];

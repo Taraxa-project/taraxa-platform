@@ -3,16 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
+import { NodeModule, PbftModule, HealthModule, AddressModule } from './modules';
 import {
   NodeEntity,
   PbftEntity,
-  NodeModule,
   DagEntity,
-  PbftModule,
-  HealthModule,
   TransactionEntity,
-  AddressModule,
-} from './modules';
+} from '@taraxa_project/explorer-shared';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];

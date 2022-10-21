@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DagEntity, TransactionEntity } from '@taraxa_project/explorer-shared';
 import { TransactionModule } from '../transaction';
-import TransactionEntity from '../transaction/transaction.entity';
-import { DagEntity } from './dag.entity';
 import DagService from './dag.service';
 
 @Module({

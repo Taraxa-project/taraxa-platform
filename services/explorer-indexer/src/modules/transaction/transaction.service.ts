@@ -3,13 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   IPBFT,
   ITransaction,
+  PbftEntity,
   toChecksumAddress,
+  TransactionEntity,
   zeroX,
 } from '@taraxa_project/explorer-shared';
 import { IGQLTransaction, RPCTransaction } from 'src/types';
 import { Repository } from 'typeorm';
-import { PbftEntity } from '../pbft';
-import TransactionEntity from './transaction.entity';
 
 @Injectable()
 export default class TransactionService {

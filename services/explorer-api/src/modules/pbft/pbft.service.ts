@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Repository, Between } from 'typeorm';
-import { PbftEntity } from './pbft.entity';
+import { PbftEntity } from '@taraxa_project/explorer-shared';
 
 @Injectable()
 export class PbftService {

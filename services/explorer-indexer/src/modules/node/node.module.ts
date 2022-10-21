@@ -1,7 +1,6 @@
 import { Injectable, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { NodeEntity } from './node.entity';
 import { WebSocketModule } from 'nestjs-websocket';
 import NodeSyncerService from './nodeSyncer.service';
 import { DagModule } from '../dag';
@@ -13,6 +12,7 @@ import RPCConnectorService from './rpcConnector.service';
 import general from 'src/config/general';
 import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
 import { GraphQLConnector } from './graphQLConnector.service';
+import { NodeEntity } from '@taraxa_project/explorer-shared';
 
 @Module({
   imports: [

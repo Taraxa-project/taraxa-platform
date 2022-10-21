@@ -4,16 +4,18 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
 import {
-  NodeEntity,
   NodeModule,
   DagModule,
   PbftModule,
-  PbftEntity,
-  DagEntity,
   TransactionModule,
   HealthModule,
 } from './modules';
-import TransactionEntity from './modules/transaction/transaction.entity';
+import {
+  NodeEntity,
+  PbftEntity,
+  DagEntity,
+  TransactionEntity,
+} from '@taraxa_project/explorer-shared';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];

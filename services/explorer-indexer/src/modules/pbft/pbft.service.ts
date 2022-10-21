@@ -5,6 +5,7 @@ import {
   ITransaction,
   zeroX,
   toChecksumAddress,
+  PbftEntity,
 } from '@taraxa_project/explorer-shared';
 import {
   IGQLPBFT,
@@ -14,7 +15,6 @@ import {
 } from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
-import { PbftEntity } from './pbft.entity';
 
 @Injectable()
 export default class PbftService {
