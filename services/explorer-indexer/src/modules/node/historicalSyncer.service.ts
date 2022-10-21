@@ -41,8 +41,7 @@ export default class HistoricalSyncService {
     const blockNumber = (
       await this.graphQLConnector.getPBFTBlockNumberAndParentForHash()
     )?.number;
-    const { level, pbftPeriod } =
-      await this.graphQLConnector.getDagBlockByHash();
+    const dagBlock = await this.graphQLConnector.getDagBlockByHash();
 
     const genesis = (
       await this.graphQLConnector.getPBFTBlocksByNumberFromTo(0, 0)
@@ -58,8 +57,8 @@ export default class HistoricalSyncService {
       number: block.number,
       hash: block.hash,
       genesis: genesis.hash,
-      dagBlockLevel: level,
-      dagBlockPeriod: pbftPeriod,
+      dagBlockLevel: dagBlock?.level,
+      dagBlockPeriod: dagBlock?.pbftPeriod,
     };
   }
 
@@ -266,6 +265,7 @@ export default class HistoricalSyncService {
 
         if (savedBlock) {
           this.logger.log(`Finalized block ${savedBlock.hash}`);
+          console.log(`Finalized block ${savedBlock.hash}`);
           // Fetch and save each DAG block for the PBFT Period
           try {
             const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(

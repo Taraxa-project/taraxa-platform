@@ -120,7 +120,11 @@ export class GraphQLConnector {
     )?.block;
   }
 
-  public async getDagBlockByHash(hash?: string) {
+  public async getDagBlockByHash(hash?: string): Promise<{
+    hash: string;
+    level: number;
+    pbftPeriod: number;
+  } | null> {
     return (
       await this.graphQLClient.request(
         gql`
