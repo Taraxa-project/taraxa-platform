@@ -9,7 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { fromWei, toBN, toWei } from 'web3-utils';
 import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
 import {
@@ -49,7 +49,11 @@ export class AddressService {
     const query = this.pbftRepository
       .createQueryBuilder('pbfts')
       .select(['pbfts.miner', 'pbfts.timestamp'])
-      .where('pbfts.miner = :address', { address: parsedAddress })
+      .where('pbfts.miner = :address', {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          parsedAddress,
+        }),
+      })
       .orderBy(`pbfts.timestamp`, 'ASC');
 
     try {

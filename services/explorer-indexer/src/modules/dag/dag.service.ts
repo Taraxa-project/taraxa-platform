@@ -93,7 +93,6 @@ export default class DagService {
       transactionCount,
       transactions,
     } = { ...dag };
-    console.log('DAG: ', dag);
     const _dag = {
       hash,
       pivot: zeroX(pivot),

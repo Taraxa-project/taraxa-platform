@@ -16,9 +16,9 @@ export enum Topics {
 }
 
 export enum Subscriptions {
-  NEW_DAG_BLOCKS = 1, // @note fired when a DAG block is accepted by the consensus
-  NEW_DAG_BLOCKS_FINALIZED = 2, // @note fired when a DAG block is inserted into a PBFT block
-  NEW_PBFT_BLOCKS = 3, // @note fired when a PBFT block is accepted by the consensus
-  NEW_HEADS = 4, // @note fired when a PBFT ns "mined": all transactions inside it were executed
-  NEW_PENDING_TRANSACTIONS = 5, // @note fired when a tx is registered to the mempool
+  NEW_DAG_BLOCKS = '0x1', // @note fired when a DAG block is accepted by the consensus
+  NEW_DAG_BLOCKS_FINALIZED = '0x2', // @note fired when a DAG block is inserted into a PBFT block
+  NEW_PBFT_BLOCKS = '0x3', // @note fired when a PBFT block is accepted by the consensus
+  NEW_HEADS = '0x4', // @note fired when a PBFT ns "mined": all transactions inside it were executed
+  NEW_PENDING_TRANSACTIONS = '0x5', // @note fired when a tx is registered to the mempool
 }
