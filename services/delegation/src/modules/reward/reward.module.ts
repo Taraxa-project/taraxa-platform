@@ -1,3 +1,4 @@
+import { Connection } from 'typeorm';
 import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -28,7 +29,12 @@ import delegationConfig from '../../config/delegation';
     StakingDataService,
     DelegationDataService,
     RewardService,
-    RewardRepository,
+    {
+      provide: 'RewardRepository',
+      useFactory: (connection: Connection) =>
+        connection.getCustomRepository(RewardRepository),
+      inject: [Connection],
+    },
   ],
 })
 export class RewardModule {
