@@ -48,12 +48,13 @@ export class NodeConsumer implements OnModuleInit {
         return;
       }
       try {
-        await this.blockchainService.registerValidator(
-          node.address,
-          node.addressProof,
-          node.vrfKey,
-        );
-        node.isCreatedOnchain = true;
+        const registeredValidator =
+          await this.blockchainService.registerValidator(
+            node.address,
+            node.addressProof,
+            node.vrfKey,
+          );
+        node.isCreatedOnchain = registeredValidator;
         await this.nodeRepository.save(node);
       } catch (e) {
         this.logger.error(

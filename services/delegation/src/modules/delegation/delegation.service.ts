@@ -14,10 +14,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { HttpService } from '@nestjs/axios';
 import { ValidationException } from '../utils/exceptions/validation.exception';
-import { NodeService } from '../node/node.service';
 import { Node } from '../node/node.entity';
 import { NodeType } from '../node/node-type.enum';
 import { StakingService } from '../staking/staking.service';
+import { BlockchainService } from '../blockchain/blockchain.service';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
 import {
@@ -45,12 +45,14 @@ export class DelegationService {
     private delegationRepository: Repository<Delegation>,
     @InjectRepository(DelegationNonce)
     private delegationNonceRepository: Repository<DelegationNonce>,
+    @InjectRepository(Node)
+    private nodeRepository: Repository<Node>,
     private eventEmitter: EventEmitter2,
     private config: ConfigService,
     private httpService: HttpService,
-    private nodeService: NodeService,
     private stakingService: StakingService,
     private connection: Connection,
+    private blockchainService: BlockchainService,
   ) {
     this.mainnetEndpoint = this.config.get<string>('ethereum.mainnetEndpoint');
     this.testnetEndpoint = this.config.get<string>('ethereum.testnetEndpoint');
@@ -137,7 +139,7 @@ export class DelegationService {
     user: number,
     delegationDto: CreateDelegationDto,
   ): Promise<Delegation> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: delegationDto.node,
       type: NodeType.MAINNET,
     });
@@ -212,7 +214,7 @@ export class DelegationService {
     user: number,
     undelegationDto: CreateUndelegationDto,
   ): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: undelegationDto.node,
       type: NodeType.MAINNET,
     });
@@ -276,7 +278,10 @@ export class DelegationService {
   async ensureDelegation(nodeId: number, type: string, address: string) {
     let node: Node;
     try {
-      node = await this.nodeService.findNodeByOrFail({ id: nodeId });
+      node = await this.nodeRepository.findOneOrFail({
+        where: { id: nodeId },
+        withDeleted: true,
+      });
     } catch (e) {
       node = null;
     }
@@ -291,7 +296,39 @@ export class DelegationService {
     if (type === NodeType.MAINNET) {
       await this.ensureMainnetDelegation(address, totalNodeDelegation);
     } else {
-      await this.ensureTestnetDelegation(address, this.testnetDelegationAmount);
+      if (node) {
+        totalNodeDelegation = this.testnetDelegationAmount;
+      } else {
+        totalNodeDelegation = ethers.BigNumber.from(0);
+      }
+
+      let currentDelegation = ethers.BigNumber.from('0');
+      try {
+        const validator = await this.blockchainService.getValidator(address);
+        currentDelegation = validator.total_stake;
+      } catch (e) {
+        currentDelegation = ethers.BigNumber.from('0');
+      }
+
+      if (currentDelegation.eq(totalNodeDelegation)) {
+        return;
+      }
+
+      if (currentDelegation.gt(totalNodeDelegation)) {
+        // await this.blockchainService.unregisterValidator(address);
+      } else {
+        const registeredValidator =
+          await this.blockchainService.registerValidator(
+            address,
+            node.addressProof,
+            node.vrfKey,
+          );
+
+        if (node) {
+          node.isCreatedOnchain = registeredValidator;
+          await this.nodeRepository.save(node);
+        }
+      }
     }
   }
 
@@ -299,7 +336,7 @@ export class DelegationService {
     if (type === NodeType.MAINNET) {
       await this.ensureMainnetDelegation(address, ethers.BigNumber.from(0));
     } else {
-      await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
+      // await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
     }
   }
 
@@ -479,7 +516,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<string> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
@@ -497,7 +534,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<string> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
@@ -515,7 +552,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
@@ -541,7 +578,7 @@ export class DelegationService {
     address: string,
     nodeId: number,
   ): Promise<void> {
-    const node = await this.nodeService.findNodeByOrFail({
+    const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
       type: NodeType.MAINNET,
     });
@@ -578,25 +615,6 @@ export class DelegationService {
         address,
         totalNodeDelegation.sub(currentDelegation),
       );
-    }
-  }
-
-  private async ensureTestnetDelegation(
-    address: string,
-    totalNodeDelegation: ethers.BigNumber,
-  ) {
-    const currentDelegation = await this.getDelegation(
-      address,
-      NodeType.TESTNET,
-    );
-    if (currentDelegation.eq(totalNodeDelegation)) {
-      return;
-    }
-
-    if (currentDelegation.gt(totalNodeDelegation)) {
-      await this.stakingService.undelegateTestnetTransaction(address);
-    } else {
-      await this.stakingService.delegateTestnetTransaction(address);
     }
   }
 

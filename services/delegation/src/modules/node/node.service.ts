@@ -32,12 +32,6 @@ export class NodeService {
   async createNode(user: number, nodeDto: CreateNodeDto): Promise<Node> {
     const { address } = nodeDto;
 
-    if (nodeDto.type === NodeType.TESTNET) {
-      if (nodeDto.vrfKey.slice(0, 2) !== '0x') {
-        throw new ValidationException(`Invalid VRF key`);
-      }
-    }
-
     try {
       const digest = ethers.utils.keccak256(address);
       const recoveredAddress = ethers.utils.recoverAddress(
@@ -206,6 +200,16 @@ export class NodeService {
   async findAllMainnetNodes(): Promise<Node[]> {
     const nodes = await this.nodeRepository.find({
       type: NodeType.MAINNET,
+    });
+    return this.decorateNodes(nodes);
+  }
+
+  async findAllTestnetNodes(): Promise<Node[]> {
+    const nodes = await this.nodeRepository.find({
+      where: {
+        type: NodeType.TESTNET,
+      },
+      withDeleted: true,
     });
     return this.decorateNodes(nodes);
   }
