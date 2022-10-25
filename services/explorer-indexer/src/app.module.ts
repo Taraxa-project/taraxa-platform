@@ -4,12 +4,13 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
 import {
-  NodeModule,
   DagModule,
   PbftModule,
   TransactionModule,
   HealthModule,
   ConnectorsModule,
+  LiveSyncerModule,
+  HistoricalSyncerModule,
 } from './modules';
 import {
   NodeEntity,
@@ -90,7 +91,8 @@ const IndexerTypeOrmModule = () => {
         };
       },
     }),
-    NodeModule,
+    LiveSyncerModule,
+    HistoricalSyncerModule,
     DagModule,
     PbftModule,
     TransactionModule,

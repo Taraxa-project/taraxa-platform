@@ -17,17 +17,15 @@ import {
 } from 'src/types';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import HistoricalSyncService from './historical.syncer.service';
 
 @Injectable()
-export default class NodeSyncerService {
-  private readonly logger: Logger = new Logger(NodeSyncerService.name);
+export default class LiveSyncerService {
+  private readonly logger: Logger = new Logger(LiveSyncerService.name);
   constructor(
     @InjectWebSocketProvider()
     private readonly ws: WebSocketClient,
     @InjectQueue('live_sync')
-    private readonly liveSyncQueue: Queue,
-    private readonly historicalSyncService: HistoricalSyncService
+    private readonly liveSyncQueue: Queue
   ) {
     this.logger.log('Starting NodeSyncronizer');
   }
@@ -37,8 +35,6 @@ export default class NodeSyncerService {
     this.logger.log(
       `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
     );
-
-    this.historicalSyncService.runHistoricalSync();
 
     this.ws.send(
       JSON.stringify({
