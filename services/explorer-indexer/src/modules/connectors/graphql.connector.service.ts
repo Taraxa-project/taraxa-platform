@@ -4,7 +4,7 @@ import { gql, GraphQLClient } from 'graphql-request';
 import { IGQLDag, IGQLPBFT } from '../../types';
 
 @Injectable()
-export class GraphQLConnector {
+export class GraphQLConnectorService {
   constructor(
     @InjectGraphQLClient()
     private readonly graphQLClient: GraphQLClient

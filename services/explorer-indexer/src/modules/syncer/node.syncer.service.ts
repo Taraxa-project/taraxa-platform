@@ -18,7 +18,7 @@ import {
   Topics,
 } from 'src/types';
 import TransactionService from '../transaction/transaction.service';
-import HistoricalSyncService from './historicalSyncer.service';
+import HistoricalSyncService from './historical.syncer.service';
 
 @Injectable()
 export default class NodeSyncerService {

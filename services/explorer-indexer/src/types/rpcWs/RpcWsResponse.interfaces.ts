@@ -18,8 +18,8 @@ export interface NewPbftBlockHeaderResponse
     | 'size'
   > {
   number?: string; // hex number
-  gas_limit?: string; // hex number
-  gas_used?: string; // hex number
+  gas_limit?: string | number; // hex number
+  gas_used?: string | number; // hex number
   difficulty?: string; // hex number
   totalDifficulty?: string; // hex number
   transactionCount?: string; // hex number
