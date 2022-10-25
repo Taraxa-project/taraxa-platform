@@ -7,7 +7,7 @@ import PbftService from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
 import { BigInteger } from 'jsbn';
 import { IGQLPBFT } from 'src/types';
-import { GraphQLConnectorService, RPCConnectorService } from '../connectors';
+import { GraphQLConnectorService } from '../connectors';
 @Injectable()
 export default class HistoricalSyncService {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -18,8 +18,7 @@ export default class HistoricalSyncService {
     private readonly dagService: DagService,
     private readonly pbftService: PbftService,
     private readonly txService: TransactionService,
-    private readonly graphQLConnector: GraphQLConnectorService,
-    private readonly rpcConnector: RPCConnectorService
+    private readonly graphQLConnector: GraphQLConnectorService
   ) {
     this.logger.log('Historical syncer started.');
     console.log('Historical syncer started.');
@@ -100,31 +99,6 @@ export default class HistoricalSyncService {
     }
 
     this.syncState = _syncState;
-  }
-
-  /**
-   * @deprecated Getting tx receipts is not longer needed as they are embedded in the new GraphQL interface's response.
-   * @param hashes the hashes for which the receipts will be fetched
-   * @param limit the amount of receipts to fetch
-   * @returns
-   */
-  private async getTransactionReceipts(
-    hashes: string[],
-    limit = 0
-  ): Promise<any[]> {
-    const _hashes = Object.assign([], _.zip(hashes, _.range(hashes.length)));
-    const results: any[] = [];
-
-    const awaitWorker = async () => {
-      while (_hashes.length > 0) {
-        const [hash, idx] = _hashes.pop();
-        results[idx] = await this.rpcConnector.getTransactionReceipt(hash);
-      }
-    };
-
-    await Promise.all(_.range(limit).map(awaitWorker));
-
-    return results;
   }
 
   /**

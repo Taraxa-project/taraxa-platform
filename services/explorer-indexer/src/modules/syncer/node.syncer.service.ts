@@ -23,7 +23,6 @@ import HistoricalSyncService from './historical.syncer.service';
 @Injectable()
 export default class NodeSyncerService {
   private readonly logger: Logger = new Logger(NodeSyncerService.name);
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(
     @InjectWebSocketProvider()
     private readonly ws: WebSocketClient,
