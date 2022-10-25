@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WebSocketModule } from 'nestjs-websocket';
+import { BullModule } from '@nestjs/bull';
 import NodeSyncerService from './node.syncer.service';
 import { DagModule } from '../dag';
 import { PbftModule } from '../pbft';
@@ -24,6 +25,17 @@ import { ConnectorsModule } from '../connectors';
         };
       },
     }),
+    BullModule.registerQueue(
+      {
+        name: 'pbfts',
+      },
+      {
+        name: 'dags',
+      },
+      {
+        name: 'liveSync',
+      }
+    ),
     DagModule,
     PbftModule,
     TransactionModule,

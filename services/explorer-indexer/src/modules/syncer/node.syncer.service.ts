@@ -1,6 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import DagService from '../dag/dag.service';
-import PbftService from '../pbft/pbft.service';
 import {
   InjectWebSocketProvider,
   WebSocketClient,
@@ -17,7 +15,8 @@ import {
   toObject,
   Topics,
 } from 'src/types';
-import TransactionService from '../transaction/transaction.service';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import HistoricalSyncService from './historical.syncer.service';
 
 @Injectable()
@@ -26,9 +25,8 @@ export default class NodeSyncerService {
   constructor(
     @InjectWebSocketProvider()
     private readonly ws: WebSocketClient,
-    private readonly dagService: DagService,
-    private readonly pbftService: PbftService,
-    private readonly txService: TransactionService,
+    @InjectQueue('liveSync')
+    private readonly liveSyncQueue: Queue,
     private readonly historicalSyncService: HistoricalSyncService
   ) {
     this.logger.log('Starting NodeSyncronizer');
@@ -40,19 +38,14 @@ export default class NodeSyncerService {
       `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
     );
 
-    await this.historicalSyncService.runHistoricalSync();
+    this.historicalSyncService.runHistoricalSync();
 
     this.ws.send(
       JSON.stringify({
         jsonrpc: '2.0',
         id: 0,
         method: 'eth_subscribe',
-        params: [
-          Topics.NEW_DAG_BLOCKS,
-          //   Topics.NEW_DAG_BLOCKS_FINALIZED,
-          // Topics.NEW_PBFT_BLOCKS,
-          //   Topics.NEW_HEADS,
-        ],
+        params: [Topics.NEW_DAG_BLOCKS],
       }),
       (err: Error) => {
         if (err) this.logger.error(err);
@@ -66,12 +59,7 @@ export default class NodeSyncerService {
         jsonrpc: '2.0',
         id: 0,
         method: 'eth_subscribe',
-        params: [
-          // Topics.NEW_DAG_BLOCKS,
-          Topics.NEW_DAG_BLOCKS_FINALIZED,
-          // Topics.NEW_PBFT_BLOCKS,
-          //   Topics.NEW_HEADS,
-        ],
+        params: [Topics.NEW_DAG_BLOCKS_FINALIZED],
       }),
       (err: Error) => {
         if (err) this.logger.error(err);
@@ -85,12 +73,7 @@ export default class NodeSyncerService {
         jsonrpc: '2.0',
         id: 0,
         method: 'eth_subscribe',
-        params: [
-          //   Topics.NEW_DAG_BLOCKS,
-          //   Topics.NEW_DAG_BLOCKS_FINALIZED,
-          Topics.NEW_PBFT_BLOCKS,
-          //   Topics.NEW_HEADS,
-        ],
+        params: [Topics.NEW_PBFT_BLOCKS],
       }),
       (err: Error) => {
         if (err) this.logger.error(err);
@@ -105,12 +88,7 @@ export default class NodeSyncerService {
         jsonrpc: '2.0',
         id: 0,
         method: 'eth_subscribe',
-        params: [
-          // Topics.NEW_DAG_BLOCKS,
-          // Topics.NEW_DAG_BLOCKS_FINALIZED,
-          // Topics.NEW_PBFT_BLOCKS,
-          Topics.NEW_HEADS,
-        ],
+        params: [Topics.NEW_HEADS],
       }),
       (err: Error) => {
         if (err) this.logger.error(err);
@@ -119,26 +97,6 @@ export default class NodeSyncerService {
     this.logger.warn(
       `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
     );
-
-    // this.ws.send(
-    //   JSON.stringify({
-    //     jsonrpc: '2.0',
-    //     id: 0,
-    //     method: 'eth_subscribe',
-    //     params: [
-    //       // Topics.NEW_DAG_BLOCKS,
-    //       // Topics.NEW_DAG_BLOCKS_FINALIZED,
-    //       // Topics.NEW_PBFT_BLOCKS,
-    //       Topics.NEW_PENDING_TRANSACTIONS,
-    //     ],
-    //   }),
-    //   (err: Error) => {
-    //     if (err) this.logger.error(err);
-    //   }
-    // );
-    // this.logger.warn(
-    //   `Subscribed to eth_subscription method ${Topics.NEW_PENDING_TRANSACTIONS}`
-    // );
   }
 
   @EventListener('close')
@@ -176,27 +134,47 @@ export default class NodeSyncerService {
     try {
       switch (type) {
         case ResponseTypes.NewDagBlockFinalizedResponse:
-          this.dagService.updateDag(
+          this.liveSyncQueue.add(
+            Topics.NEW_DAG_BLOCKS,
             parsedData.result as NewDagBlockFinalizedResponse
           );
+          // this.dagService.updateDag(
+          //   parsedData.result as NewDagBlockFinalizedResponse
+          // );
           break;
         case ResponseTypes.NewDagBlockResponse:
-          this.dagService.handleNewDag(
+          this.liveSyncQueue.add(
+            Topics.NEW_DAG_BLOCKS_FINALIZED,
             parsedData.result as NewDagBlockResponse
           );
+          // this.dagService.handleNewDag(
+          //   parsedData.result as NewDagBlockResponse
+          // );
           break;
         case ResponseTypes.NewPbftBlockResponse:
-          this.pbftService.handleNewPbft(
+          this.liveSyncQueue.add(
+            Topics.NEW_PBFT_BLOCKS,
             parsedData.result as NewPbftBlockResponse
           );
+          // this.pbftService.handleNewPbft(
+          //   parsedData.result as NewPbftBlockResponse
+          // );
           break;
         case ResponseTypes.NewHeadsReponse:
-          this.pbftService.handleNewPbftHeads(
+          this.liveSyncQueue.add(
+            Topics.NEW_HEADS,
             parsedData.result as NewPbftBlockHeaderResponse
           );
+          // this.pbftService.handleNewPbftHeads(
+          //   parsedData.result as NewPbftBlockHeaderResponse
+          // );
           break;
         case ResponseTypes.NewPendingTransactions:
-          this.txService.safeSaveEmptyTx({ hash: parsedData.result as string });
+          this,
+            this.liveSyncQueue.add(Topics.NEW_PENDING_TRANSACTIONS, {
+              hash: parsedData.result as string,
+            });
+          // this.txService.safeSaveEmptyTx({ hash: parsedData.result as string });
           break;
       }
     } catch (error) {
