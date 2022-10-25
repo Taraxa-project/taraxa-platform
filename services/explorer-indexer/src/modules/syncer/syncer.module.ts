@@ -27,13 +27,13 @@ import { ConnectorsModule } from '../connectors';
     }),
     BullModule.registerQueue(
       {
-        name: 'pbfts',
+        name: 'historical_pbfts',
       },
       {
-        name: 'dags',
+        name: 'historical_dags',
       },
       {
-        name: 'liveSync',
+        name: 'live_sync',
       }
     ),
     DagModule,

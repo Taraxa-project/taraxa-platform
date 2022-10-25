@@ -25,7 +25,7 @@ export default class NodeSyncerService {
   constructor(
     @InjectWebSocketProvider()
     private readonly ws: WebSocketClient,
-    @InjectQueue('liveSync')
+    @InjectQueue('live_sync')
     private readonly liveSyncQueue: Queue,
     private readonly historicalSyncService: HistoricalSyncService
   ) {

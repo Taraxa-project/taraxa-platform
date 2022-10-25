@@ -19,7 +19,7 @@ export default class HistoricalSyncService {
     private readonly pbftService: PbftService,
     private readonly txService: TransactionService,
     private readonly graphQLConnector: GraphQLConnectorService,
-    @InjectQueue('pbfts')
+    @InjectQueue('historical_pbfts')
     private readonly pbftQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
