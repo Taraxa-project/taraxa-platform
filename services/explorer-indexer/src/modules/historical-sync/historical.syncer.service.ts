@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { zeroX } from '@taraxa_project/explorer-shared';
 import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
@@ -9,7 +9,7 @@ import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 @Injectable()
-export default class HistoricalSyncService {
+export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
   private isRunning = false;
   private chainState = {} as ChainState;
@@ -24,6 +24,9 @@ export default class HistoricalSyncService {
   ) {
     this.logger.log('Historical syncer started.');
     console.log('Historical syncer started.');
+  }
+  onModuleInit() {
+    this.runHistoricalSync();
   }
 
   public get getChainState() {
