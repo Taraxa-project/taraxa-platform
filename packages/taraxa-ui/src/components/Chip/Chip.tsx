@@ -4,7 +4,7 @@ import {
   CssBaseline,
   ThemeProvider,
   ChipProps as MChipProps,
-} from '@material-ui/core';
+} from '@mui/material';
 import theme from '../theme';
 
 export type ChipProps = MChipProps;

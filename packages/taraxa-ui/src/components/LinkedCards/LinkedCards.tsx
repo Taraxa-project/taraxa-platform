@@ -5,10 +5,10 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
-import useStyles from './linkedCards-styles';
+import useStyles from './LinkedCards.styles';
 
 export interface LinkedCardsProps extends MCardProps {
   approvedContent: JSX.Element;
@@ -36,31 +36,44 @@ const LinkedCards = ({
       <MCard
         className={isMobile ? classes.mobileRoot : classes.root}
         elevation={0}
-        variant="outlined"
+        variant='outlined'
       >
         <MCard
-          className={isMobile ? classes.mobileApprovedCard : classes.approvedCard}
+          className={
+            isMobile ? classes.mobileApprovedCard : classes.approvedCard
+          }
           elevation={0}
         >
-          {approvedTooltip && <div className={classes.tooltipIcon}>{approvedTooltip}</div>}
-          <Typography variant="body1" color="primary">
+          {approvedTooltip && (
+            <div className={classes.tooltipIcon}>{approvedTooltip}</div>
+          )}
+          <Typography variant='body1' color='primary'>
             Approved
             {approvedContent}
           </Typography>
         </MCard>
-        <MCard className={isMobile ? classes.mobileReviewCard : classes.reviewCard} elevation={0}>
-          {reviewTooltip && <div className={classes.tooltipIcon}>{reviewTooltip}</div>}
-          <Typography variant="body1" color="primary">
+        <MCard
+          className={isMobile ? classes.mobileReviewCard : classes.reviewCard}
+          elevation={0}
+        >
+          {reviewTooltip && (
+            <div className={classes.tooltipIcon}>{reviewTooltip}</div>
+          )}
+          <Typography variant='body1' color='primary'>
             In review
             {reviewContent}
           </Typography>
         </MCard>
         <MCard
-          className={isMobile ? classes.mobileRejectedCard : classes.rejectedCard}
+          className={
+            isMobile ? classes.mobileRejectedCard : classes.rejectedCard
+          }
           elevation={0}
         >
-          {rejectedTooltip && <div className={classes.tooltipIcon}>{rejectedTooltip}</div>}
-          <Typography variant="body1" color="primary">
+          {rejectedTooltip && (
+            <div className={classes.tooltipIcon}>{rejectedTooltip}</div>
+          )}
+          <Typography variant='body1' color='primary'>
             Rejected
             {rejectedContent}
           </Typography>

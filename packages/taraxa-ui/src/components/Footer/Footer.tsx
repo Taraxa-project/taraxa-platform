@@ -3,11 +3,11 @@ import {
   BottomNavigationActionProps as MBottomNavigationActionProps,
   CssBaseline,
   ThemeProvider,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import Text from '../Text';
-import useStyles from './footer-styles';
+import useStyles from './Footer.styles';
 import logo from '../../images/logo.svg';
 
 export interface FooterProps extends MBottomNavigationActionProps {
@@ -24,8 +24,10 @@ const Footer = ({ items, description, links }: FooterProps) => {
       <CssBaseline />
       <div className={isMobile ? classes.footerMobile : classes.footer}>
         <div className={isMobile ? classes.logoMobile : classes.logo}>
-          <div className={isMobile ? classes.footerSVGMobile : classes.footerSVG}>
-            <img src={logo} alt="Taraxa" />
+          <div
+            className={isMobile ? classes.footerSVGMobile : classes.footerSVG}
+          >
+            <img src={logo} alt='Taraxa' />
           </div>
           {items && !isMobile && (
             <ul className={classes.footerUl}>
@@ -38,11 +40,15 @@ const Footer = ({ items, description, links }: FooterProps) => {
           )}
         </div>
         {description && (
-          <div className={isMobile ? classes.descriptionMobile : classes.description}>
+          <div
+            className={
+              isMobile ? classes.descriptionMobile : classes.description
+            }
+          >
             <Text
               label={description}
-              variant="body1"
-              color="textSecondary"
+              variant='body1'
+              color='textSecondary'
               style={{ textAlign: 'left' }}
             />
           </div>
@@ -64,11 +70,15 @@ const Footer = ({ items, description, links }: FooterProps) => {
               <a
                 key={link.label}
                 href={link.link}
-                target="_blank"
+                target='_blank'
                 className={classes.footerParagraph}
-                rel="noreferrer"
+                rel='noreferrer'
               >
-                <Text label={link.label} variant="body1" color="textSecondary" />
+                <Text
+                  label={link.label}
+                  variant='body1'
+                  color='textSecondary'
+                />
               </a>
             ))}
           </div>

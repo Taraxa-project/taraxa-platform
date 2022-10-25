@@ -1,0 +1,46 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es6",
+    "rootDir": ".",
+    "outDir": "./build",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./dist",
+    "noEmit": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strictNullChecks": false,
+    "isolatedModules": true,
+    "jsx": "react-jsx"
+  },
+  "references": [
+    {
+      "path": "../../packages/taraxa-ui"
+    }
+  ],
+  "include": [
+    "**/src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "*.d.ts"
+  ]
+}

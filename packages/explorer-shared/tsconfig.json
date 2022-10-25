@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./lib",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./lib",
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "target": "es2016",
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": ["node_modules", "lib", "*.d.ts"]
+}

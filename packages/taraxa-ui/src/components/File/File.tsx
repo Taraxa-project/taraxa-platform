@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import theme from '../theme';
 
 import { Attachment } from '../Icons';
 import Button from '../Button';
-import useStyles from './file-styles';
+import useStyles from './File.styles';
 
 export interface FileProps {
   onChange: (file: File) => void;
@@ -30,14 +30,14 @@ const File = ({ onChange }: FileProps) => {
       <input
         className={classes.input}
         ref={uploadRef}
-        accept="*"
+        accept='*'
         onChange={onChangeField}
-        type="file"
+        type='file'
       />
       <Button
         className={classes.button}
-        color="primary"
-        variant="text"
+        color='primary'
+        variant='text'
         startIcon={<Attachment />}
         label={filename || `Attach file`}
         onClick={() => uploadRef.current?.click()}

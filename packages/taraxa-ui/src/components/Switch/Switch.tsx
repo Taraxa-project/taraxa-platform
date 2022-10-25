@@ -6,8 +6,8 @@ import {
   ThemeProvider,
   SwitchProps as MSwitchProps,
   FormControlLabel,
-} from '@material-ui/core';
-import useStyles from './switch-styles';
+} from '@mui/material';
+import useStyles from './Switch.styles';
 import theme from '../theme';
 
 export interface SwitchProps extends MSwitchProps {
@@ -42,13 +42,13 @@ const Switch = ({
             onChange={onChange}
             name={name}
             disabled={disabled}
-            color={color}
+            color={color || 'secondary'}
             value={value}
           />
         }
         label={label}
         labelPlacement={labelPlacement || 'start'}
-        color="white"
+        color='white'
       />
     </ThemeProvider>
   );

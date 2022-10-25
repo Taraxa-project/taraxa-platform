@@ -8,12 +8,12 @@ import {
   ThemeProvider,
   Typography,
   Box,
-} from '@material-ui/core';
-import Jdenticon from 'jdenticon';
+} from '@mui/material';
+import { toSvg } from 'jdenticon';
 
 import theme from '../theme';
 
-import useStyles from './profilecard-styles';
+import useStyles from './ProfileCard.styles';
 
 export interface ProfileCardProps extends MCardProps {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
@@ -23,14 +23,20 @@ export interface ProfileCardProps extends MCardProps {
   buttonOptions?: JSX.Element;
 }
 
-const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCardProps) => {
+const ProfileCard = ({
+  Icon,
+  username,
+  email,
+  wallet,
+  buttonOptions,
+}: ProfileCardProps) => {
   const classes = useStyles();
-  const profileIcon = Jdenticon.toSvg(email, 47, { backColor: '#fff' });
+  const profileIcon = toSvg(email, 47, { backColor: '#fff' });
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={classes.root} elevation={0} variant="outlined">
+      <MCard className={classes.root} elevation={0} variant='outlined'>
         <div className={classes.userDetails}>
           {Icon && (
             <div
@@ -40,10 +46,18 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
             />
           )}
           <Box sx={{ flexDirection: 'column' }}>
-            <Typography variant="body1" className={classes.label} color="primary">
+            <Typography
+              variant='body1'
+              className={classes.label}
+              color='primary'
+            >
               {username}
             </Typography>
-            <Typography variant="body2" className={classes.label} color="textSecondary">
+            <Typography
+              variant='body2'
+              className={classes.label}
+              color='textSecondary'
+            >
               {email}
             </Typography>
           </Box>
@@ -51,10 +65,18 @@ const ProfileCard = ({ Icon, username, email, wallet, buttonOptions }: ProfileCa
         <CardContent className={classes.content}>
           {wallet && (
             <>
-              <Typography variant="body2" className={classes.label} color="textSecondary">
+              <Typography
+                variant='body2'
+                className={classes.label}
+                color='textSecondary'
+              >
                 TARA address (ERC20):
               </Typography>
-              <Typography variant="body1" className={classes.label} color="primary">
+              <Typography
+                variant='body1'
+                className={classes.label}
+                color='primary'
+              >
                 {wallet}
               </Typography>
             </>

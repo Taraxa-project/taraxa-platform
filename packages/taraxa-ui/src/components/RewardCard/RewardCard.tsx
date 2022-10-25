@@ -6,11 +6,11 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import theme from '../theme';
 import Button from '../Button';
 import { ExpirationExpired, ExpirationNotExpired, Submission } from '../Icons';
-import useStyles from './rewardcard-styles';
+import useStyles from './RewardCard.styles';
 
 export interface RewardCardProps extends CardProps {
   description: React.ReactNode;
@@ -41,22 +41,39 @@ const RewardCard = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={[classes.root, 'reward-card'].join(' ')} elevation={0} variant="outlined">
-        <CardContent className={[classes.content, 'reward-card-content'].join(' ')}>
+      <MCard
+        className={[classes.root, 'reward-card'].join(' ')}
+        elevation={0}
+        variant='outlined'
+      >
+        <CardContent
+          className={[classes.content, 'reward-card-content'].join(' ')}
+        >
           <div className={[classes.main, 'reward-card-main'].join(' ')}>
-            <div className={[classes.informationCard, 'reward-card-info'].join(' ')}>
-              <Typography variant="h5" color="primary" className={classes.title}>
+            <div
+              className={[classes.informationCard, 'reward-card-info'].join(
+                ' '
+              )}
+            >
+              <Typography
+                variant='h5'
+                color='primary'
+                className={classes.title}
+              >
                 <span
-                  className={[classes.dot, isActive ? classes.active : classes.inactive].join(' ')}
+                  className={[
+                    classes.dot,
+                    isActive ? classes.active : classes.inactive,
+                  ].join(' ')}
                 />
                 {title}
               </Typography>
 
               <Typography
-                variant="body2"
-                color="primary"
+                variant='body2'
+                color='primary'
                 className={classes.description}
-                component="div"
+                component='div'
               >
                 {description}
               </Typography>
@@ -64,9 +81,13 @@ const RewardCard = ({
               <div className={classes.iconContainer}>
                 <div className={classes.iconContent}>
                   <span className={classes.icon}>
-                    {isInfinite ? <ExpirationExpired /> : <ExpirationNotExpired />}
+                    {isInfinite ? (
+                      <ExpirationExpired />
+                    ) : (
+                      <ExpirationNotExpired />
+                    )}
                   </span>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant='body2' color='textSecondary'>
                     {expiration}
                   </Typography>
                 </div>
@@ -74,30 +95,34 @@ const RewardCard = ({
                   <span className={classes.icon}>
                     <Submission />
                   </span>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant='body2' color='textSecondary'>
                     {submissions} submissions
                   </Typography>
                 </div>
               </div>
             </div>
-            <div className={[classes.actionCard, 'reward-card-action'].join(' ')}>
-              <Typography color="primary" variant="body1">
+            <div
+              className={[classes.actionCard, 'reward-card-action'].join(' ')}
+            >
+              <Typography color='primary' variant='body1'>
                 Reward:
               </Typography>
               <div className={classes.rewardContent}>{reward}</div>
               <Button
                 disableElevation
-                color="secondary"
+                color='secondary'
                 onClick={onClickButton}
                 disabled={!onClickButton}
-                variant="contained"
+                variant='contained'
                 label={onClickText}
-                size="medium"
+                size='medium'
                 fullWidth
               />
             </div>
           </div>
-          {dataList && <div className={classes.dataListContainer}>{dataList}</div>}
+          {dataList && (
+            <div className={classes.dataListContainer}>{dataList}</div>
+          )}
         </CardContent>
       </MCard>
     </ThemeProvider>

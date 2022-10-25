@@ -1,48 +1,84 @@
 import React from 'react';
-import MTable from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import {
+  CssBaseline,
+  ThemeProvider,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TablePagination,
+  TableRow,
+  Paper,
+  Table as MTable,
+  TableHead,
+} from '@mui/material';
+
 import moment from 'moment';
 import { useMediaQuery } from 'react-responsive';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import useStyles from './table-styles';
+import useStyles from './Table.styles';
 import theme from '../theme';
 
 export interface TableProps {
   columns: { path: string; name: string }[];
-  rows: { Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>; data: any[] }[];
+  rows: {
+    Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+    data: any[];
+  }[];
+  fixedLayout?: boolean;
+  initialRowsPerPage?: number;
+  currentPage?: number;
+  onPageChange?: (newPage: number) => void;
+  onRowsPerPageChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  totalCount?: number;
 }
 
-export default function Table({ columns, rows }: TableProps) {
+export default function Table({
+  columns,
+  rows,
+  fixedLayout = true,
+  initialRowsPerPage,
+  onPageChange,
+  onRowsPerPageChange,
+  currentPage,
+  totalCount,
+}: TableProps) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage || 5);
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
+    if (typeof onPageChange === 'function') {
+      onPageChange(newPage);
+    } else {
+      setPage(newPage);
+    }
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (typeof onRowsPerPageChange === 'function') {
+      onRowsPerPageChange(event);
+    } else {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+    }
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className={classes.root}>
-        <Paper className={isMobile ? classes.mobilePaper : classes.paper} elevation={0}>
+        <Paper
+          className={isMobile ? classes.mobilePaper : classes.paper}
+          elevation={0}
+        >
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            rowsPerPageOptions={[5, 10, 15, 20, 25]}
+            component='div'
+            count={totalCount || rows.length}
+            rowsPerPage={initialRowsPerPage || rowsPerPage}
+            page={currentPage || page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             SelectProps={{
@@ -50,7 +86,7 @@ export default function Table({ columns, rows }: TableProps) {
             }}
             classes={{
               root: classes.tablePagination,
-              caption: classes.tablePaginationCaption,
+              selectLabel: classes.tablePaginationCaption,
               selectIcon: classes.tablePaginationSelectIcon,
               select: classes.tablePaginationSelect,
               actions: classes.tablePaginationActions,
@@ -60,57 +96,79 @@ export default function Table({ columns, rows }: TableProps) {
           <TableContainer>
             <MTable
               className={classes.table}
-              aria-labelledby="tableTitle"
-              size="medium"
-              aria-label="enhanced table"
+              aria-labelledby='tableTitle'
+              size='medium'
+              aria-label='enhanced table'
+              style={
+                fixedLayout ? { tableLayout: 'fixed' } : { tableLayout: 'auto' }
+              }
             >
+              <TableHead>
+                <TableRow tabIndex={-1} key='index'>
+                  {columns.map((column, index) => (
+                    <TableCell key={`${index}-${index}-head`}>
+                      {column.name}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
               <TableBody>
                 {rows
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .slice(
+                    (currentPage || page) * (initialRowsPerPage || rowsPerPage),
+                    (currentPage || page) *
+                      (initialRowsPerPage || rowsPerPage) +
+                      (initialRowsPerPage || rowsPerPage)
+                  )
                   .map((row, index) =>
                     row.data.map((rowData: any) =>
                       isMobile ? (
-                        <TableRow
-                          // onClick={(event) => handleClick(event, row.username)}
-                          tabIndex={-1}
-                          key={index}
-                        >
+                        <TableRow tabIndex={-1} key={index}>
                           {row.Icon && (
-                            <TableCell className={classes.mobileTableCell} align="left">
+                            <TableCell
+                              className={classes.mobileTableCell}
+                              align='left'
+                              key={`${index}-${index}`}
+                            >
                               <row.Icon />
                             </TableCell>
                           )}
-                          {columns.map(({ path }) =>
+                          {columns.map(({ path }, j) =>
                             rowData[path] instanceof Date ? (
-                              <TableCell className={classes.mobileDateTableCell}>
+                              <TableCell
+                                className={classes.mobileDateTableCell}
+                                key={`${index}-${j}`}
+                              >
                                 {moment(rowData[path]).fromNow()}
                               </TableCell>
                             ) : (
                               <TableCell
                                 className={classes.mobileTableCell}
                                 align={!row.Icon ? 'center' : 'right'}
+                                key={`${index}-${j}`}
                               >
                                 {rowData[path]}
                               </TableCell>
-                            ),
+                            )
                           )}
                         </TableRow>
                       ) : (
-                        <TableRow
-                          // onClick={(event) => handleClick(event, row.username)}
-                          tabIndex={-1}
-                          key={index}
-                        >
+                        <TableRow tabIndex={-1} key={index}>
                           {row.Icon && (
-                            <TableCell className={classes.tableCell} align="left">
+                            <TableCell
+                              className={classes.tableCell}
+                              align='left'
+                              key={`${index}-${index}-icon`}
+                            >
                               <row.Icon />
                             </TableCell>
                           )}
-                          {columns.map(({ path }) =>
+                          {columns.map(({ path }, i) =>
                             rowData[path] instanceof Date ? (
                               <TableCell
                                 className={classes.dateTableCell}
                                 align={!row.Icon ? 'center' : 'right'}
+                                key={`${index}-${index}-date`}
                               >
                                 {moment(rowData[path]).fromNow()}
                               </TableCell>
@@ -118,14 +176,15 @@ export default function Table({ columns, rows }: TableProps) {
                               <TableCell
                                 className={classes.tableCell}
                                 align={!row.Icon ? 'center' : 'right'}
+                                key={`${index}-${i}`}
                               >
                                 {rowData[path]}
                               </TableCell>
-                            ),
+                            )
                           )}
                         </TableRow>
-                      ),
-                    ),
+                      )
+                    )
                   )}
               </TableBody>
             </MTable>

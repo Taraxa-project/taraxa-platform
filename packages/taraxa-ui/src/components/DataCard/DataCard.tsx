@@ -7,11 +7,11 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import Button from '../Button';
-import useStyles from './datacard-styles';
+import useStyles from './DataCard.styles';
 
 export interface DataCardProps extends MCardProps {
   description: string;
@@ -46,36 +46,48 @@ const DataCard = ({
       <MCard
         className={isMobile ? classes.mobileRoot : classes.root}
         elevation={0}
-        variant="outlined"
+        variant='outlined'
       >
         <CardContent>
           {tooltip && <div className={classes.tooltipIcon}>{tooltip}</div>}
-          <Typography variant="body1" className={classes.label} color="primary">
+          <Typography variant='body1' className={classes.label} color='primary'>
             {description}
           </Typography>
 
-          <Typography color="primary" variant="h4" component="h4" className={classes.title}>
+          <Typography
+            color='primary'
+            variant='h4'
+            component='h4'
+            className={classes.title}
+          >
             {title}
           </Typography>
           {label && (
-            <Typography className={classes.label} variant="body2" color="textSecondary">
+            <Typography
+              className={classes.label}
+              variant='body2'
+              color='textSecondary'
+            >
               {label}
             </Typography>
           )}
         </CardContent>
         {input && input}
-        {descriptionLegend && <div className={classes.descriptionLegend}>{descriptionLegend}</div>}
+        {descriptionLegend && (
+          <div className={classes.descriptionLegend}>{descriptionLegend}</div>
+        )}
         {dataOptions && <div className={classes.chips}>{dataOptions}</div>}
         {onClickButton && onClickText && (
           <CardActions className={classes.actions}>
             <Button
               disableElevation
-              color="secondary"
+              color='secondary'
               disabled={disabled}
               onClick={onClickButton}
-              variant="contained"
+              variant='contained'
               label={onClickText}
-              size="medium"
+              size='medium'
+              fullWidth
             />
           </CardActions>
         )}

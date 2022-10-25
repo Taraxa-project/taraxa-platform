@@ -1,5 +1,5 @@
 import React from 'react';
-import useStyles from './amountcard-styles';
+import useStyles from './AmountCard.styles';
 
 interface AmountCardProps {
   amount: string;

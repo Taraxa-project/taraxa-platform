@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  faucet:
+    build:
+      context: ../../
+      target: build
+      dockerfile: services/faucet/Dockerfile
+    command: yarn workspace @taraxa_project/faucet start:prod
+    ports:
+      - ${SERVER_PORT}:3002
+    volumes:
+      - .:/usr/src/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    network_mode: host
+  db:
+    image: postgres
+    restart: always
+    command: ['postgres', '-cshared_preload_libraries=pg_stat_statements']
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5432:5432
+    network_mode: host
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    network_mode: host

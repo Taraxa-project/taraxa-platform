@@ -7,10 +7,10 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import theme from '../theme';
 import Button from '../Button';
-import useStyles from './iconcard-styles';
+import useStyles from './IconCard.styles';
 
 export interface IconCardProps extends MCardProps {
   description: string;
@@ -36,7 +36,7 @@ const IconCard = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MCard className={classes.root} id={id} elevation={0} variant="outlined">
+      <MCard className={classes.root} id={id} elevation={0} variant='outlined'>
         <CardContent className={classes.content}>
           {tooltip && Icon ? (
             <div className={classes.tooltipIcon}>{tooltip}</div>
@@ -48,10 +48,15 @@ const IconCard = ({
               <Icon />
             </div>
           )}
-          <Typography color="primary" variant="h5" component="h5" className={classes.bottomSpacing}>
+          <Typography
+            color='primary'
+            variant='h5'
+            component='h5'
+            className={classes.bottomSpacing}
+          >
             {title}
           </Typography>
-          <Typography className={classes.label} variant="body1" color="primary">
+          <Typography className={classes.label} variant='body1' color='primary'>
             <span>{description}</span>
           </Typography>
         </CardContent>
@@ -59,11 +64,12 @@ const IconCard = ({
           <CardActions className={classes.actions}>
             <Button
               disableElevation
-              color="secondary"
+              color='secondary'
               onClick={onClickButton}
-              variant="contained"
+              variant='contained'
               label={onClickText}
               disabled={disabled}
+              fullWidth
             />
           </CardActions>
         )}
