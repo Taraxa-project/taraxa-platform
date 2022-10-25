@@ -1,4 +1,4 @@
-import { ITaraxaNode } from '@taraxa_project/taraxa-models';
+import { ITaraxaNode } from '@taraxa_project/explorer-shared';
 
 export const GRAPHQL_API = `${process.env.REACT_APP_GRAPHQL_HOST}`;
 export const API = `${process.env.REACT_APP_API_HOST}`;

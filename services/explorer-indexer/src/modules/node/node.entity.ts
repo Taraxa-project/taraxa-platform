@@ -1,56 +1,15 @@
-import {
-  Entity,
-  BaseEntity,
-  Column,
-  PrimaryColumn,
-  Unique,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { ITaraxaNode } from '@taraxa_project/taraxa-models';
+import { ITaraxaNode } from '@taraxa_project/explorer-shared';
+import { ViewEntity, ViewColumn } from 'typeorm';
 
-const tableName = 'explorer_node';
+@ViewEntity({
+  expression: `
+      SELECT "miner" AS "address", COUNT("hash") AS "pbftCount" FROM "pbfts" GROUP BY "miner"
+  `,
+})
+export class NodeEntity implements ITaraxaNode {
+  @ViewColumn()
+  address: string;
 
-@Entity(tableName)
-@Unique(['id'])
-export class TaraxaNode extends BaseEntity implements ITaraxaNode {
-  constructor(node?: Partial<ITaraxaNode>) {
-    super();
-    Object.assign(this, node);
-  }
-
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column({ nullable: false })
-  @IsNotEmpty()
-  @IsString()
-  address!: string;
-
-  @Column({ nullable: false, default: 0 })
-  @IsNotEmpty()
-  @IsNumber()
-  lastBlockNumber!: number;
-
-  @Column({ nullable: false, default: 0 })
-  @IsNotEmpty()
-  @IsNumber()
-  pbftCount!: number;
-
-  @Column({ nullable: false, default: 0 })
-  @IsNotEmpty()
-  @IsNumber()
-  dagCount!: number;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: string;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: string;
+  @ViewColumn()
+  pbftCount: number;
 }

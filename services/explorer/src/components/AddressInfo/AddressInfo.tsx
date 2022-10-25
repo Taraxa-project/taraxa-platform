@@ -34,9 +34,6 @@ export const AddressInfo = ({
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
   const onCopy = useCopyToClipboard();
 
-  const pricePerTara =
-    parseFloat(details?.balance) / parseFloat(details?.value);
-
   const tableTabs: TableTabsProps = {
     tabs: [
       {
@@ -105,7 +102,7 @@ export const AddressInfo = ({
           >
             {zeroX(details?.address)}
           </Typography>
-          <CopyTo text={details?.address} onCopy={onCopy} />
+          <CopyTo text={zeroX(details?.address)} onCopy={onCopy} />
         </Box>
         <Box className={classes.twoColumnFlex}>
           <Box
@@ -114,14 +111,27 @@ export const AddressInfo = ({
             alignItems='left'
             gap='1.5rem'
           >
-            <DataRow title='Balance' data={`${details?.balance} TARA`} />
+            <DataRow
+              title='Balance'
+              data={`${
+                details?.balance
+                  ? Number(details?.balance)?.toLocaleString()
+                  : ''
+              } TARA`}
+            />
             <DataRow
               title='Value'
-              data={`$${details?.value} ( ${pricePerTara} / TARA )`}
+              data={`$${
+                details?.value ? Number(details?.value).toLocaleString() : ''
+              } ${details?.valueCurrency || ''} ( ${
+                details?.pricePerTara
+                  ? Number(details?.pricePerTara).toLocaleString()
+                  : ''
+              } / TARA )`}
             />
             <DataRow
               title='Transaction count'
-              data={`${details?.transactionCount}`}
+              data={`${details?.transactionCount || ''}`}
             />
           </Box>
           <div style={{ maxWidth: '320px' }}>
@@ -147,10 +157,26 @@ export const AddressInfo = ({
         <Divider light />
         <DataRow
           title='Total received'
-          data={`${details?.totalReceived} TARA`}
+          data={`${
+            details?.totalReceived
+              ? Number(details?.totalReceived).toLocaleString()
+              : ''
+          } TARA`}
         />
-        <DataRow title='Total sent' data={`${details?.totalSent} TARA`} />
-        <DataRow title='Fees' data={`${details?.fees} TARA`} />
+        <DataRow
+          title='Total sent'
+          data={`${
+            details?.totalSent
+              ? Number(details?.totalSent).toLocaleString()
+              : ''
+          } TARA`}
+        />
+        <DataRow
+          title='Fees'
+          data={`${
+            details?.fees ? Number(details?.fees).toLocaleString() : ''
+          } TARA`}
+        />
         <Divider light />
         <Box
           display='flex'

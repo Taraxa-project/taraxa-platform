@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { GetNodesDto } from './dto/get-nodes.dto';
-import { TaraxaNode } from './node.entity';
+import { NodeDto } from './dto/node.dto';
 import { NodeService, NodesPaginate } from './node.service';
 
 @ApiTags('nodes')
@@ -17,7 +17,7 @@ export class NodeController {
 
   @ApiOkResponse({
     status: HttpStatus.OK,
-    type: [TaraxaNode],
+    type: [NodeDto],
     description: 'Returns all nodes',
   })
   @Get()

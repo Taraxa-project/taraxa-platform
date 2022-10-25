@@ -26,10 +26,7 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
 };
 
 export const zeroX = (hash: string): string => {
-  if (!hash) {
-    return null;
-  }
-  return `0x${hash}`;
+  return hash ? (hash.includes('0x') ? hash : `0x${hash}`) : null;
 };
 
 export const deZeroX = (zeroXHash: string): string => {

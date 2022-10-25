@@ -1,52 +1,40 @@
-import { ITaraxaNode } from '@taraxa_project/taraxa-models';
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-import NodesJSON from './nodes.json';
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config({ path: '../../.env' });
+require('dotenv').config({ path: '../../../.env' });
 
 export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
-    await this.seedNodes(queryRunner);
     await queryRunner.query(
       `SELECT setval(
-        pg_get_serial_sequence('public.explorer_node', 'id'),
+        pg_get_serial_sequence('public.pbfts', 'id'),
         (
             SELECT MAX("id")
-            FROM public.explorer_node
+            FROM public.pbfts
+        ) + 1
+    );`
+    );
+    await queryRunner.query(
+      `SELECT setval(
+        pg_get_serial_sequence('public.dags', 'id'),
+        (
+            SELECT MAX("id")
+            FROM public.dags
+        ) + 1
+    );`
+    );
+    await queryRunner.query(
+      `SELECT setval(
+        pg_get_serial_sequence('public.transactions', 'id'),
+        (
+            SELECT MAX("id")
+            FROM public.transactions
         ) + 1
     );`
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async down(queryRunner: QueryRunner): Promise<any> {}
-
-  private async seedNodes(queryRunner: QueryRunner) {
-    const nodeTable = await queryRunner.getTable('public.explorer_node');
-
-    if (!nodeTable) {
-      console.log('explorer_node table does not exist.');
-      return;
-    }
-
-    await Promise.all(
-      (NodesJSON as unknown as ITaraxaNode[]).map(async (node) => {
-        queryRunner.query(
-          `INSERT INTO public.explorer_node (
-            "address", 
-            "lastBlockNumber", 
-            "pbftCount", 
-            "dagCount"
-            ) VALUES (
-              '${node.address}', 
-              '${node.lastBlockNumber}', 
-              '${node.pbftCount}', 
-              '${node.dagCount}'
-            )`
-        );
-      })
-    );
-  }
 }

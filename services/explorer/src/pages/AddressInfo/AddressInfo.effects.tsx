@@ -2,13 +2,27 @@ import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { ethers } from 'ethers';
 import { accountQuery } from '../../api/graphql/queries/account';
-import {
-  getMockedDagBlocks,
-  getMockedTransactions,
-  getMockPbftBlocks,
-} from '../../api/mocks';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
+import {
+  useGetBlocksByAddress,
+  useGetDagsByAddress,
+  useGetDetailsForAddress,
+  useGetPbftsByAddress,
+  useGetTransactionsByAddress,
+} from '../../api';
+
+export interface TransactionResponse {
+  hash: string;
+  from: string;
+  to: string;
+  status: number;
+  gasUsed: string;
+  gasPrice: string;
+  value: string;
+  block: number;
+  age: number;
+}
 
 export const useAddressInfoEffects = (account: string) => {
   const [transactions, setTransactions] = useState<Transaction[]>();
@@ -22,48 +36,148 @@ export const useAddressInfoEffects = (account: string) => {
     pause: !account,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const {
+    data: nodeData,
+    isFetching: isFetchingBlocks,
+    isLoading: isLoadingBlocks,
+  } = useGetBlocksByAddress(account);
+  const {
+    data: dagsData,
+    isFetching: isFetchingDags,
+    isLoading: isLoadingDags,
+  } = useGetDagsByAddress(account);
+  const {
+    data: pbftsData,
+    isFetching: isFetchingPbfts,
+    isLoading: isLoadingPbfts,
+  } = useGetPbftsByAddress(account);
+  const {
+    data: txData,
+    isFetching: isFetchingTx,
+    isLoading: isLoadingTx,
+  } = useGetTransactionsByAddress(account);
+
+  const {
+    data: details,
+    isFetching: isFetchingDetails,
+    isLoading: isLoadingDetails,
+  } = useGetDetailsForAddress(account);
 
   useEffect(() => {
-    if (fetching) {
+    if (
+      fetching ||
+      isFetchingBlocks ||
+      isLoadingBlocks ||
+      isFetchingDags ||
+      isLoadingDags ||
+      isFetchingPbfts ||
+      isLoadingPbfts ||
+      isFetchingTx ||
+      isLoadingTx ||
+      isFetchingDetails ||
+      isLoadingDetails
+    ) {
       initLoading();
     } else {
       finishLoading();
     }
-  }, [fetching]);
+  }, [
+    fetching,
+    isFetchingBlocks,
+    isLoadingBlocks,
+    isFetchingDags,
+    isLoadingDags,
+    isFetchingPbfts,
+    isLoadingPbfts,
+    isFetchingTx,
+    isLoadingTx,
+  ]);
 
   useEffect(() => {
-    if (data?.block) {
-      const details: AddressInfoDetails = {
-        address: data?.block?.account?.address,
-        balance: ethers.BigNumber.from(
-          data?.block?.account?.balance
-        ).toString(),
-        value: `${ethers.BigNumber.from(
-          data?.block?.account?.balance
-        ).toString()} TARA`,
-        transactionCount: data?.block?.account?.transactionCount,
-        totalReceived: '10000 (mocked)',
-        totalSent: '10000 (mocked)',
-        fees: '15 (mocked)',
-        dagBlocks: 320,
-        pbftBlocks: 221,
-      };
-      setAddressInfoDetails(details);
+    if (dagsData?.data) {
+      setDagBlocks(dagsData?.data);
     }
-  }, [data]);
+  }, [dagsData]);
 
   useEffect(() => {
-    initLoading();
-    const transactions: Transaction[] = getMockedTransactions(account);
-    const dagBlocks: BlockData[] = getMockedDagBlocks(account);
-    const pbftBlocks: BlockData[] = getMockPbftBlocks(account);
-    setTimeout(() => {
-      setTransactions(transactions);
-      setDagBlocks(dagBlocks);
-      setPbftBlocks(pbftBlocks);
-      finishLoading();
-    }, 1500);
-  }, []);
+    if (pbftsData?.data) {
+      setPbftBlocks(pbftsData?.data);
+    }
+  }, [pbftsData]);
+
+  const formatToTransaction = (
+    transactions: TransactionResponse[]
+  ): Transaction[] => {
+    return transactions.map((tx) => {
+      return {
+        hash: tx.hash,
+        block: {
+          number: tx.block,
+          timestamp: tx.age,
+        },
+        value: ethers.BigNumber.from(tx.value),
+        gasPrice: ethers.BigNumber.from(tx.gasPrice),
+        gas: ethers.BigNumber.from(tx.gasUsed),
+        status: tx.status,
+        from: {
+          address: tx.from,
+        },
+        to: {
+          address: tx.to,
+        },
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (txData?.data) {
+      setTransactions(formatToTransaction(txData.data));
+    }
+  }, [txData]);
+
+  const getFees = (transactions: TransactionResponse[], address: string) => {
+    if (!transactions || !transactions?.length) {
+      return 0;
+    }
+    const fromTransactions: TransactionResponse[] = transactions.filter(
+      (tx: TransactionResponse) => tx.from === address
+    );
+    const sum = fromTransactions.reduce((accumulator: any, object) => {
+      return Number(accumulator) + Number(object.gasUsed);
+    }, 0);
+    return sum;
+  };
+
+  useEffect(() => {
+    const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
+    addressDetails.address = account;
+    if (details?.data) {
+      addressDetails.balance = ethers.utils.formatEther(
+        ethers.BigNumber.from(details?.data.currentBalance)
+      );
+      addressDetails.value = details?.data.currentValue;
+      addressDetails.valueCurrency = details?.data?.currency;
+      addressDetails.totalReceived = ethers.utils.formatEther(
+        ethers.BigNumber.from(details?.data.totalReceived)
+      );
+      addressDetails.totalSent = ethers.utils.formatEther(
+        ethers.BigNumber.from(details?.data.totalSent)
+      );
+      addressDetails.pricePerTara = details?.data?.priceAtTimeOfCalculation;
+    }
+    if (data?.block) {
+      addressDetails.address = data?.block?.account?.address;
+    }
+    if (nodeData?.data) {
+      addressDetails.dagBlocks = nodeData?.data?.dags;
+      addressDetails.pbftBlocks = nodeData?.data?.pbft;
+    }
+    if (txData?.data) {
+      addressDetails.transactionCount = txData.data.length;
+      addressDetails.fees = `${getFees(txData.data, account)}`;
+    }
+    setAddressInfoDetails(addressDetails);
+  }, [details, data, nodeData, txData]);
 
   return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };
 };

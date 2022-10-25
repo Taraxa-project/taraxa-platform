@@ -1,6 +1,15 @@
-import { IDAG, ITransaction } from '@taraxa_project/taraxa-models';
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import { IDAG } from '@taraxa_project/explorer-shared';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
+import TransactionEntity from '../transaction/transaction.entity';
 
 const table_name = 'dags';
 
@@ -10,7 +19,12 @@ export class DagEntity extends BaseEntity implements IDAG {
     super();
     Object.assign(this, dag);
   }
-  @PrimaryColumn()
+
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  @IsString()
   hash: string;
 
   @Column({ nullable: true })
@@ -27,15 +41,18 @@ export class DagEntity extends BaseEntity implements IDAG {
 
   @Column({ nullable: true })
   @IsNumber()
+  @Index()
   pbftPeriod?: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
+  @Index()
   timestamp: number;
 
   @Column({ nullable: true })
   @IsString()
+  @Index()
   author?: string;
 
   @Column({ nullable: true })
@@ -50,7 +67,11 @@ export class DagEntity extends BaseEntity implements IDAG {
   @IsNumber()
   transactionCount?: number;
 
-  @Column('simple-array', { nullable: true })
-  @IsArray()
-  transactions?: ITransaction[];
+  @ManyToMany(() => TransactionEntity, {
+    onUpdate: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'transactions_dags',
+  })
+  transactions: TransactionEntity[];
 }

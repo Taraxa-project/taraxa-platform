@@ -3,7 +3,16 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
-import { TaraxaNode, NodeModule } from './modules';
+import {
+  NodeEntity,
+  PbftEntity,
+  NodeModule,
+  DagEntity,
+  PbftModule,
+  HealthModule,
+  TransactionEntity,
+  AddressModule,
+} from './modules';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];
@@ -17,7 +26,7 @@ const getEnvFilePath = () => {
   }
 };
 
-export const entities = [TaraxaNode];
+export const entities = [NodeEntity, PbftEntity, DagEntity, TransactionEntity];
 
 const IndexerTypeOrmModule = () => {
   let typeOrmOptions: TypeOrmModuleOptions;
@@ -65,6 +74,9 @@ const IndexerTypeOrmModule = () => {
     }),
     IndexerTypeOrmModule(),
     NodeModule,
+    PbftModule,
+    HealthModule,
+    AddressModule,
   ],
 })
 export class AppModule {}

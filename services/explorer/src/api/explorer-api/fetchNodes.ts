@@ -5,7 +5,7 @@ import {
   FetchNodesFilter,
   FetchNodesPagination,
   NodesPaginate,
-} from './types';
+} from '../types';
 
 const computeFilters = ({
   rowsPerPage,

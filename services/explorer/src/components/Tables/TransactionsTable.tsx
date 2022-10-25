@@ -148,19 +148,21 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
             {transactionsData &&
               transactionsData
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((block, i) => (
-                  <TableRow key={`${block.hash}-${i}`}>
+                .map((tx, i) => (
+                  <TableRow key={`${tx.hash}-${i}`}>
                     <TableCell variant='body'>
                       <HashLink
                         linkType={HashLinkType.TRANSACTIONS}
-                        hash={block.hash}
+                        hash={tx.hash}
                         wrap
                       />
                     </TableCell>
                     <TableCell variant='body'>
-                      {block.block?.number || 0}
+                      {tx.block?.number || 0}
                     </TableCell>
-                    <TableCell variant='body'>Transfer</TableCell>
+                    <TableCell variant='body'>
+                      {tx.value ? 'Transfer' : 'Method call'}
+                    </TableCell>
                     <TableCell variant='body'>
                       <Box
                         display='flex'
@@ -171,22 +173,22 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         maxWidth='20rem'
                         gap='0.2rem'
                       >
-                        <AddressLink address={block.from?.address} />
+                        <AddressLink address={tx.from?.address} />
                         <Icons.GreenRightArrow />
-                        <AddressLink address={block.to?.address} />
+                        <AddressLink address={tx.to?.address} />
                       </Box>
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {statusToLabel(formatTransactionStatus(block.status))}
+                      {statusToLabel(formatTransactionStatus(tx.status))}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {timestampToAge(block.block?.timestamp)}
+                      {timestampToAge(tx.block?.timestamp)}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {block.value}
+                      {tx.value?.toString()}
                     </TableCell>
                     <TableCell variant='body' width='5rem !important'>
-                      {block.gasUsed || 0}
+                      {tx.gasUsed || 0}
                     </TableCell>
                   </TableRow>
                 ))}
