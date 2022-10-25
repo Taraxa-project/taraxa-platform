@@ -4,8 +4,6 @@ export interface RPCPbft
   extends Pick<
     IPBFT,
     | 'hash'
-    | 'gasLimit'
-    | 'gasUsed'
     | 'extraData'
     | 'logsBloom'
     | 'mixHash'
@@ -15,6 +13,8 @@ export interface RPCPbft
     | 'stateRoot'
     | 'transactionsRoot'
   > {
+  gasLimit: string;
+  gasUsed: string;
   author: string;
   difficulty: string; //hex
   miner: string;

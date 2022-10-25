@@ -21,7 +21,7 @@ export function request(name: string, params: string[] = [], id = 0) {
 }
 
 @Injectable()
-export default class RPCConnectorService {
+export class RPCConnectorService {
   private readonly connectionURL: string;
   constructor(
     private readonly configService: ConfigService,

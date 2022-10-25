@@ -9,6 +9,7 @@ import {
   PbftModule,
   TransactionModule,
   HealthModule,
+  ConnectorsModule,
 } from './modules';
 import {
   NodeEntity,
@@ -81,6 +82,7 @@ const IndexerTypeOrmModule = () => {
     PbftModule,
     TransactionModule,
     HealthModule,
+    ConnectorsModule,
   ],
   providers: [],
   exports: [],
