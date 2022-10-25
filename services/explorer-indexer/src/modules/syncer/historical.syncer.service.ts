@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
+import { zeroX } from '@taraxa_project/explorer-shared';
 import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
-import { BigInteger } from 'jsbn';
-import { IGQLPBFT } from 'src/types';
 import { GraphQLConnectorService } from '../connectors';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 @Injectable()
 export default class HistoricalSyncService {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -18,7 +18,9 @@ export default class HistoricalSyncService {
     private readonly dagService: DagService,
     private readonly pbftService: PbftService,
     private readonly txService: TransactionService,
-    private readonly graphQLConnector: GraphQLConnectorService
+    private readonly graphQLConnector: GraphQLConnectorService,
+    @InjectQueue('historical_pbfts')
+    private readonly pbftQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
     console.log('Historical syncer started.');
@@ -180,85 +182,113 @@ export default class HistoricalSyncService {
     // @note : Right now there is no way to get the genesis transactions to set:
     // Initial validators, initial balances for delegators and faucet.
     // big TODO
-
+    let chuncks: { data: { from: number; to: number } }[];
+    const step = 20; //20 because loading in 100 of pbft data is too slow
     while (this.syncState.number < this.chainState.number) {
-      const blocksWithTransactions: IGQLPBFT[] =
-        await this.graphQLConnector.getPBFTBlocksByNumberFromTo(
-          this.syncState.number,
-          this.chainState.number
-        );
-
-      const iBlocks = blocksWithTransactions.map((block) =>
-        this.pbftService.pbftGQLToIPBFT(block)
-      );
-      for (const block of iBlocks) {
-        const started = new Date();
-        let blockReward = new BigInteger('0', 10);
-
-        block.transactions?.map(async (tx) =>
-          this.txService.populateTransactionWithPBFT(tx, block)
-        );
-        block.transactions?.forEach((tx: ITransaction) => {
-          const gasUsed = new BigInteger(tx.gasUsed.toString() || '0');
-          tx.gasUsed = gasUsed.toString();
-          const gasPrice = new BigInteger(tx.gasPrice.toString() || '0');
-          tx.gasPrice = gasPrice.toString();
-          const reward = gasUsed.multiply(gasPrice);
-          const newVal = blockReward.add(reward);
-          blockReward = newVal;
+      const newSyncState = this.syncState.number + step;
+      if (!chuncks) {
+        chuncks = [
+          {
+            data: {
+              from: this.syncState.number,
+              to:
+                newSyncState - 1 > this.chainState.number
+                  ? this.chainState.number
+                  : newSyncState - 1,
+            },
+          },
+        ];
+      } else {
+        chuncks.push({
+          data: {
+            from: this.syncState.number,
+            to:
+              newSyncState - 1 > this.chainState.number
+                ? this.chainState.number
+                : newSyncState - 1,
+          },
         });
-
-        block.reward = blockReward.toString();
-        const blockToSave = { ...block };
-        blockToSave.transactions = block.transactions;
-        blockToSave.transactionCount = block.transactions
-          ? block.transactions?.length
-          : block.transactionCount;
-
-        const savedBlock = await this.pbftService.safeSavePbft(blockToSave);
-
-        if (savedBlock) {
-          this.logger.log(`Finalized block ${savedBlock.hash}`);
-          console.log(`Finalized block ${savedBlock.hash}`);
-          // Fetch and save each DAG block for the PBFT Period
-          try {
-            const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(
-              savedBlock.number
-            );
-            for (const dag of dags) {
-              const formattedDag = this.dagService.dagGraphQlToIdag(dag);
-              await this.dagService.safeSaveDag(formattedDag);
-            }
-          } catch (error) {
-            this.logger.error(
-              `Saving DAGs for PBFT period ${savedBlock.number} failed. Reason: `,
-              error
-            );
-            console.error(
-              `Saving DAGs for PBFT period ${savedBlock.number} failed. Reason: `,
-              error
-            );
-          }
-        }
-
-        // update sync state
-        await this.reSyncChainState();
-        this.syncState.number = block.number;
-        this.syncState.genesis = this.chainState.genesis;
-        this.syncState.hash = block.hash;
-
-        const completed = new Date();
-        this.logger.log(
-          'Synced block',
-          this.syncState.number,
-          this.syncState.hash,
-          'with',
-          block.transactions?.length || 0,
-          'transactions, in',
-          completed.getTime() - started.getTime(),
-          'ms'
-        );
       }
+      this.syncState.number = newSyncState + 1;
     }
+    this.pbftQueue.addBulk(chuncks);
+    //   const blocksWithTransactions: IGQLPBFT[] =
+    //     await this.graphQLConnector.getPBFTBlocksByNumberFromTo(
+    //       this.syncState.number,
+    //       this.chainState.number
+    //     );
+
+    //   const iBlocks = blocksWithTransactions.map((block) =>
+    //     this.pbftService.pbftGQLToIPBFT(block)
+    //   );
+    //   for (const block of iBlocks) {
+    //     const started = new Date();
+    //     let blockReward = new BigInteger('0', 10);
+
+    //     block.transactions?.map(async (tx) =>
+    //       this.txService.populateTransactionWithPBFT(tx, block)
+    //     );
+    //     block.transactions?.forEach((tx: ITransaction) => {
+    //       const gasUsed = new BigInteger(tx.gasUsed.toString() || '0');
+    //       tx.gasUsed = gasUsed.toString();
+    //       const gasPrice = new BigInteger(tx.gasPrice.toString() || '0');
+    //       tx.gasPrice = gasPrice.toString();
+    //       const reward = gasUsed.multiply(gasPrice);
+    //       const newVal = blockReward.add(reward);
+    //       blockReward = newVal;
+    //     });
+
+    //     block.reward = blockReward.toString();
+    //     const blockToSave = { ...block };
+    //     blockToSave.transactions = block.transactions;
+    //     blockToSave.transactionCount = block.transactions
+    //       ? block.transactions?.length
+    //       : block.transactionCount;
+
+    //     const savedBlock = await this.pbftService.safeSavePbft(blockToSave);
+
+    //     if (savedBlock) {
+    //       this.logger.log(`Finalized block ${savedBlock.hash}`);
+    //       console.log(`Finalized block ${savedBlock.hash}`);
+    //       // Fetch and save each DAG block for the PBFT Period
+    //       try {
+    //         const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(
+    //           savedBlock.number
+    //         );
+    //         for (const dag of dags) {
+    //           const formattedDag = this.dagService.dagGraphQlToIdag(dag);
+    //           await this.dagService.safeSaveDag(formattedDag);
+    //         }
+    //       } catch (error) {
+    //         this.logger.error(
+    //           `Saving DAGs for PBFT period ${savedBlock.number} failed. Reason: `,
+    //           error
+    //         );
+    //         console.error(
+    //           `Saving DAGs for PBFT period ${savedBlock.number} failed. Reason: `,
+    //           error
+    //         );
+    //       }
+    //     }
+
+    //     // update sync state
+    //     await this.reSyncChainState();
+    //     this.syncState.number = block.number;
+    //     this.syncState.genesis = this.chainState.genesis;
+    //     this.syncState.hash = block.hash;
+
+    //     const completed = new Date();
+    //     this.logger.log(
+    //       'Synced block',
+    //       this.syncState.number,
+    //       this.syncState.hash,
+    //       'with',
+    //       block.transactions?.length || 0,
+    //       'transactions, in',
+    //       completed.getTime() - started.getTime(),
+    //       'ms'
+    //     );
+    //   }
+    // }
   }
 }

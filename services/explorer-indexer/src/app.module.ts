@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
@@ -17,6 +17,7 @@ import {
   DagEntity,
   TransactionEntity,
 } from '@taraxa_project/explorer-shared';
+import { BullModule } from '@nestjs/bull';
 
 const getEnvFilePath = () => {
   const pathsToTest = ['../.env', '../../.env', '../../../.env'];
@@ -77,6 +78,18 @@ const IndexerTypeOrmModule = () => {
       isGlobal: true,
     }),
     IndexerTypeOrmModule(),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          redis: {
+            host: config.get<string>('general.redisHost'),
+            port: config.get<number>('general.redisPort'),
+          },
+        };
+      },
+    }),
     NodeModule,
     DagModule,
     PbftModule,
