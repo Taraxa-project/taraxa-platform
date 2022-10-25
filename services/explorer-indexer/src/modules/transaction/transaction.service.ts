@@ -1,26 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPBFT, ITransaction } from '@taraxa_project/taraxa-models';
+import {
+  IPBFT,
+  ITransaction,
+  toChecksumAddress,
+  zeroX,
+} from '@taraxa_project/explorer-shared';
+import { IGQLTransaction, RPCTransaction } from 'src/types';
 import { Repository } from 'typeorm';
 import { PbftEntity } from '../pbft';
 import TransactionEntity from './transaction.entity';
-
-export interface RPCTransaction {
-  blockHash?: string;
-  blockNumber?: string; //hex
-  from?: string;
-  to?: string;
-  gas?: string; //hex
-  gasPrice?: string; //hex
-  hash: string;
-  input?: string;
-  nonce?: string; //hex
-  r?: string;
-  v?: string; // hex
-  s?: string;
-  transactionIndex?: string; //hex
-  value?: string; //hex
-}
 
 @Injectable()
 export default class TransactionService {
@@ -35,6 +24,20 @@ export default class TransactionService {
   public populateTransactionWithPBFT(tx: ITransaction, block: IPBFT) {
     tx.block = block;
     return tx;
+  }
+
+  public gQLToITransaction(gqlTx: IGQLTransaction): ITransaction {
+    const iTx: ITransaction = {
+      ...gqlTx,
+      to: zeroX(gqlTx.to?.address),
+      inputData: zeroX(gqlTx.inputData),
+      from: zeroX(gqlTx.from?.address),
+      nonce: Number(gqlTx.nonce),
+      blockHash: zeroX(gqlTx.block?.hash),
+      blockNumber: gqlTx.block?.number + '',
+      transactionIndex: gqlTx.index + '',
+    };
+    return iTx;
   }
 
   public txRpcToITransaction(rpcTx: RPCTransaction) {
@@ -73,7 +76,7 @@ export default class TransactionService {
     if (!transaction || !transaction.hash) {
       return;
     }
-
+    transaction.hash = zeroX(transaction.hash);
     const tx = await this.txRepository.findOne({
       where: {
         hash: transaction.hash,
@@ -95,8 +98,8 @@ export default class TransactionService {
           cumulativeGasUsed: transaction.cumulativeGasUsed,
           inputData: transaction.inputData,
           status: transaction.status,
-          from: transaction.from,
-          to: transaction.to,
+          from: toChecksumAddress(transaction.from),
+          to: toChecksumAddress(transaction.to),
           block: {
             id: transaction?.block?.id,
             hash: transaction.block.hash,
@@ -133,6 +136,7 @@ export default class TransactionService {
     if (!transaction) {
       return;
     }
+    transaction.hash = zeroX(transaction.hash);
 
     const tx = await this.txRepository.findOne({
       where: {
@@ -144,13 +148,21 @@ export default class TransactionService {
       try {
         const transactionEntity = new TransactionEntity({
           ...transaction,
-          block: {
-            id: transaction?.block?.id,
-            hash: transaction.block.hash,
-            number: transaction.block.number,
-            timestamp: transaction.block.timestamp,
-          },
         });
+        if (transaction.from) {
+          transactionEntity.from = toChecksumAddress(transaction.from);
+        }
+        if (transaction.to) {
+          transactionEntity.to = toChecksumAddress(transaction.to);
+        }
+        if (transaction?.block) {
+          transactionEntity.block = {
+            id: transaction?.block?.id,
+            hash: transaction.block?.hash,
+            number: transaction.block?.number,
+            timestamp: transaction.block?.timestamp,
+          } as PbftEntity;
+        }
         const newTx = this.txRepository.create(transactionEntity);
 
         const saved = await this.txRepository

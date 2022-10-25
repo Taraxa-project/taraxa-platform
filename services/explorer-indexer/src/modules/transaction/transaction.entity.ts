@@ -1,17 +1,14 @@
-import { ITransaction } from '@taraxa_project/taraxa-models';
+import { ITransaction } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,
   Entity,
   Index,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
 import { PbftEntity } from '../pbft/pbft.entity';
-import { DagEntity } from '../dag/dag.entity';
 
 const table_name = 'transactions';
 
@@ -68,11 +65,13 @@ export default class TransactionEntity
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions)
   block?: PbftEntity;
 
-  @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
-    cascade: false,
-  })
-  @JoinTable()
-  dagBlocks?: DagEntity[];
+  // @ManyToMany(() => DagEntity, (dag) => dag.transactions, {
+  //   onUpdate: 'CASCADE',
+  // })
+  // @JoinTable({
+  //   name: 'transactions_dags',
+  // })
+  // dagBlocks?: DagEntity[];
 
   @Column({ nullable: true })
   @IsNumber()
@@ -107,10 +106,6 @@ export default class TransactionEntity
   @Column({ nullable: true })
   @IsString()
   blockNumber?: string;
-
-  @Column({ nullable: true })
-  @IsString()
-  input?: string;
 
   @Column({ nullable: true })
   @IsString()

@@ -2,9 +2,9 @@ import * as utils from 'web3-utils';
 
 export const toChecksumAddress = (address: any) => {
   if (typeof address !== 'string') {
-    address = address.toString();
+    address = address?.toString();
   }
-  address = address.trim();
+  address = address?.trim();
 
   if (utils.isAddress(address)) {
     address = utils.toChecksumAddress(address);

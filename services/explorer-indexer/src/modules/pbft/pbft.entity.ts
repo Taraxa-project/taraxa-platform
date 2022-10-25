@@ -1,4 +1,4 @@
-import { IPBFT } from '@taraxa_project/taraxa-models';
+import { IPBFT } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,
@@ -11,7 +11,6 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import TransactionEntity from '../transaction/transaction.entity';
 
 const table_name = 'pbfts';
-
 @Entity(table_name)
 export class PbftEntity extends BaseEntity implements IPBFT {
   constructor(pbft?: Partial<IPBFT>) {

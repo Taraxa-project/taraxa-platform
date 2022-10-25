@@ -11,12 +11,23 @@ import { HttpModule } from '@nestjs/axios';
 import HistoricalSyncService from './historicalSyncer.service';
 import RPCConnectorService from './rpcConnector.service';
 import general from 'src/config/general';
+import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
+import { GraphQLConnector } from './graphQLConnector.service';
 
 @Module({
   imports: [
     HttpModule,
     ConfigModule.forFeature(general),
     TypeOrmModule.forFeature([NodeEntity]),
+    GraphQLRequestModule.forRootAsync(GraphQLRequestModule, {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          endpoint: config.get<string>('general.graphQLConnectionURL'),
+        };
+      },
+    }),
     WebSocketModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -33,8 +44,18 @@ import general from 'src/config/general';
     PbftModule,
     TransactionModule,
   ],
-  providers: [NodeSyncerService, RPCConnectorService, HistoricalSyncService],
+  providers: [
+    NodeSyncerService,
+    RPCConnectorService,
+    HistoricalSyncService,
+    GraphQLConnector,
+  ],
   controllers: [],
-  exports: [NodeSyncerService, RPCConnectorService, HistoricalSyncService],
+  exports: [
+    NodeSyncerService,
+    RPCConnectorService,
+    HistoricalSyncService,
+    GraphQLConnector,
+  ],
 })
 export class NodeModule {}

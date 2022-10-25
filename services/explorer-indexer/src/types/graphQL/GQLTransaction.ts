@@ -1,7 +1,6 @@
-import { IPBFT } from './PBFT.model';
+import { IPBFT } from '@taraxa_project/explorer-shared';
 
-export interface ITransaction {
-  id?: number;
+export interface IGQLTransaction {
   hash: string;
   nonce?: number;
   index?: number;
@@ -13,8 +12,12 @@ export interface ITransaction {
   status?: number;
   gasUsed?: string;
   cumulativeGasUsed?: number;
-  from?: string;
-  to?: string;
+  from?: {
+    address?: string;
+  };
+  to?: {
+    address?: string;
+  };
   r?: string;
   v?: string; // hex
   s?: string;

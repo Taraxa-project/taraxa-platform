@@ -1,8 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IDAG, ITransaction } from '@taraxa_project/taraxa-models';
-import { NewDagBlockResponse, NewDagBlockFinalizedResponse } from 'src/types';
-import { zeroX } from 'src/utils';
+import {
+  IDAG,
+  ITransaction,
+  zeroX,
+  toChecksumAddress,
+} from '@taraxa_project/explorer-shared';
+import {
+  NewDagBlockResponse,
+  NewDagBlockFinalizedResponse,
+  IGQLDag,
+} from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
 import { DagEntity } from './dag.entity';
@@ -18,41 +26,54 @@ export default class DagService {
     this.dagRepository = dagRepository;
   }
 
-  private async safeSaveDag(dag: IDAG) {
+  public async safeSaveDag(dag: IDAG) {
     const txes = await this.txService.findTransactionsByHashesOrFill(
       dag.transactions
     );
-
-    let newDag = await this.dagRepository.findOneBy({
+    const dagExists = await this.dagRepository.findOneBy({
       hash: zeroX(dag.hash),
     });
-    if (newDag) {
-      Object.assign(newDag, dag);
-      newDag.transactions = txes;
-    } else {
-      newDag = this.dagRepository.create({ ...dag, transactions: txes });
-    }
-    if (!newDag.transactions) {
-      newDag.transactions = [];
-    }
-
-    try {
-      const saved = await this.dagRepository
-        .createQueryBuilder()
-        .insert()
-        .into(DagEntity)
-        .values(newDag)
-        .orUpdate(['hash'], 'UQ_3928cee78a30b23a175d50796b2')
-        .setParameter('hash', newDag.hash)
-        .returning('*')
-        .execute();
-      if (saved) {
-        this.logger.log(`Registered new DAG ${newDag.hash}`);
+    if (dagExists) {
+      dagExists.pivot = dag.pivot || dagExists.pivot;
+      dagExists.tips = dag.tips || dagExists.tips;
+      dagExists.level = dag.level || dagExists.level;
+      dagExists.pbftPeriod = dag.pbftPeriod || dagExists.pbftPeriod;
+      dagExists.timestamp = dag.timestamp || dagExists.timestamp;
+      dagExists.signature = dag.signature || dagExists.signature;
+      dagExists.vdf = dag.vdf || dagExists.vdf;
+      dagExists.author = dag.author
+        ? toChecksumAddress(dag.author)
+        : dagExists.author;
+      if (dagExists.transactions?.length > 0) {
+        dagExists.transactions = Array.from(
+          new Set([...dagExists.transactions, ...txes])
+        );
+      } else {
+        dagExists.transactions = txes;
       }
+      return await this.saveDagToDB(dagExists);
+    } else {
+      const newDag = this.dagRepository.create({
+        ...dag,
+        transactions: txes || [],
+        author: dag.author ? toChecksumAddress(dag.author) : null,
+      });
+      return await this.saveDagToDB(newDag);
+    }
+  }
 
-      return saved;
-    } catch (error) {
-      console.error(`DAG ${newDag.hash} could not be saved: `, error);
+  private async saveDagToDB(dagToCreate: DagEntity) {
+    if (!dagToCreate) {
+      return;
+    }
+    try {
+      const savedDag = await dagToCreate.save();
+      this.logger.log(`Registered new DAG ${savedDag.hash}`);
+      return savedDag;
+    } catch (err) {
+      this.logger.error(
+        `Failed to save or update DAG with hash: ${dagToCreate.hash}`
+      );
     }
   }
 
@@ -65,12 +86,13 @@ export default class DagService {
       period,
       timestamp,
       author,
+      sender,
       signature,
+      sig,
       vdf,
       transactionCount,
       transactions,
     } = { ...dag };
-
     const _dag = {
       hash,
       pivot: zeroX(pivot),
@@ -78,11 +100,43 @@ export default class DagService {
       level: parseInt(`${level}`, 16) || 0,
       pbftPeriod: period,
       timestamp: parseInt(timestamp, 16) || 0,
-      author: zeroX(author),
-      signature: zeroX(signature),
+      author: toChecksumAddress(zeroX(sender || author)),
+      signature: zeroX(sig || signature),
       vdf: parseInt(vdf?.difficulty, 16) || 0,
-      transactionCount: transactionCount,
+      transactionCount: transactionCount || transactions?.length || 0,
       transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
+    };
+    return _dag;
+  }
+
+  public dagGraphQlToIdag(dag: IGQLDag) {
+    const {
+      hash,
+      pivot,
+      tips,
+      level,
+      pbftPeriod,
+      timestamp,
+      author,
+      signature,
+      vdf,
+      transactionCount,
+      transactions,
+    } = dag;
+    const _dag: IDAG = {
+      hash: zeroX(hash),
+      pivot: zeroX(pivot),
+      tips: tips,
+      level: parseInt(`${level}`, 16) || 0,
+      pbftPeriod,
+      timestamp,
+      author: author.address ? toChecksumAddress(zeroX(author.address)) : null,
+      signature: zeroX(signature),
+      vdf,
+      transactionCount: transactionCount || transactions?.length || 0,
+      transactions: transactions?.map((tx) =>
+        this.txService.gQLToITransaction(tx)
+      ),
     };
     return _dag;
   }
@@ -133,27 +187,30 @@ export default class DagService {
     const _dagObject = this.dagRpcToIDAG(dagData);
 
     try {
-      await this.safeSaveDag(_dagObject);
+      const res = await this.safeSaveDag(_dagObject);
+      if (res) {
+        this.logger.log(`Saved new DAG ${dagData.hash}`);
+        console.log(`Saved new DAG ${dagData.hash}`);
+      }
     } catch (error) {
+      this.logger.error('handleNewDag', error);
       console.error('handleNewDag', error);
     }
   }
 
   public async updateDag(updateData: NewDagBlockFinalizedResponse) {
-    let dag;
-
-    dag = await this.dagRepository.findOneBy({ hash: zeroX(updateData.block) });
-    if (!dag) {
-      dag = new DagEntity();
-      dag.hash = zeroX(updateData.block);
-    }
-    dag.pbftPeriod = parseInt(updateData.period, 10);
+    const dag = new DagEntity();
+    dag.hash = zeroX(updateData.block);
+    dag.pbftPeriod = parseInt(Number(updateData.period).toString(), 10);
     try {
-      const updated = await this.dagRepository.save(dag);
-      if (updated) this.logger.log(`DAG ${updateData.block} finalized`);
+      const updated = await this.safeSaveDag(dag);
+      if (updated) {
+        this.logger.log(`DAG ${updateData.block} finalized`);
+        console.log(`DAG ${updateData.block} finalized`);
+      }
     } catch (error) {
-      console.error('NewDagBlockFinalizedResponse');
-      console.error(error);
+      this.logger.error('NewDagBlockFinalizedResponse', error);
+      console.error('NewDagBlockFinalizedResponse', error);
     }
   }
 }
