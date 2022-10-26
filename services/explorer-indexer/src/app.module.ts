@@ -91,14 +91,6 @@ const IndexerTypeOrmModule = () => {
         };
       },
     }),
-    BullModule.registerQueue(
-      {
-        name: 'new_pbfts',
-      },
-      {
-        name: 'new_dags',
-      }
-    ),
     LiveSyncerModule,
     HistoricalSyncerModule,
     DagModule,
