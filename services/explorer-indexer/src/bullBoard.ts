@@ -15,4 +15,5 @@ export const initializeBullBoard = (app: INestApplication) => {
     queues: [new BullAdapter(pbftQueue), new BullAdapter(dagsQueue)],
     serverAdapter,
   });
+  return serverAdapter.getRouter();
 };

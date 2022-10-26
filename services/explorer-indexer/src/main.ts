@@ -5,7 +5,7 @@ import { initializeBullBoard } from './bullBoard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const serverAdapter = initializeBullBoard(app);
+  const serverAdapterRouter = initializeBullBoard(app);
 
   app.use(
     '/bull-board',
@@ -15,7 +15,7 @@ async function bootstrap() {
       },
       challenge: true,
     }),
-    serverAdapter.getRouter()
+    serverAdapterRouter
   );
   await app.listen(process.env.SERVER_PORT || 3040);
   console.log(`Application is running on: ${await app.getUrl()}`);
