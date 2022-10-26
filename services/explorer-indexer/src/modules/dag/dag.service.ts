@@ -18,12 +18,22 @@ import TransactionService from '../transaction/transaction.service';
 @Injectable()
 export default class DagService {
   private readonly logger: Logger = new Logger(DagService.name);
+  private isRedisConnected: boolean;
   constructor(
     @InjectRepository(DagEntity)
     private dagRepository: Repository<DagEntity>,
     private txService: TransactionService
   ) {
     this.dagRepository = dagRepository;
+    this.isRedisConnected = true;
+  }
+
+  public getRedisConnectionState() {
+    return this.isRedisConnected;
+  }
+
+  public setRedisConnectionState(state: boolean) {
+    this.isRedisConnected = state;
   }
 
   public async safeSaveDag(dag: IDAG) {
@@ -180,7 +190,7 @@ export default class DagService {
         .orderBy('dags.timestamp', 'DESC')
         .limit(1)
         .getOne()
-    ).hash;
+    )?.hash;
   }
 
   public async handleNewDag(dagData: NewDagBlockResponse) {

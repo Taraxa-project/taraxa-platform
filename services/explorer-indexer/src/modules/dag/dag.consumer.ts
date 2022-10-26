@@ -1,6 +1,6 @@
 import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
-import { Processor, Process } from '@nestjs/bull';
+import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { DagQueueData, IGQLDag, QueueJobs } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
@@ -16,6 +16,13 @@ export class DagConsumer implements OnModuleInit {
   onModuleInit() {
     this.logger.debug(`Init ${DagConsumer.name} worker`);
   }
+
+  @OnQueueError({ name: 'new_dags' })
+  async handleQueueErrors(error: Error) {
+    this.logger.error('DAG queue ran into an error: ', error);
+    this.dagService.setRedisConnectionState(false);
+  }
+
   @Process(QueueJobs.NEW_DAG_BLOCKS)
   async saveDag(job: Job<DagQueueData>) {
     this.logger.debug(

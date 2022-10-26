@@ -32,6 +32,8 @@ export class HealthController {
       () => this.memory.checkRSS('memory_rss', 150 * 1024 * 1024),
       () => this.syncerHealthIndicator.isHealthy('pbft'),
       () => this.syncerHealthIndicator.isHealthy('dag'),
+      () => this.syncerHealthIndicator.isHealthy('queue_pbfts'),
+      () => this.syncerHealthIndicator.isHealthy('queue_dags'),
     ]);
   }
 }

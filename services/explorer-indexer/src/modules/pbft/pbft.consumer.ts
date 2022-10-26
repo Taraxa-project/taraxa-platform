@@ -1,6 +1,6 @@
 import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
-import { Processor, Process, InjectQueue } from '@nestjs/bull';
+import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import PbftService from './pbft.service';
 import { IGQLPBFT, QueueJobs } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
@@ -20,6 +20,13 @@ export class PbftConsumer implements OnModuleInit {
   onModuleInit() {
     this.logger.debug(`Init ${PbftConsumer.name} worker`);
   }
+
+  @OnQueueError({ name: 'new_pbfts' })
+  async handleQueueErrors(error: Error) {
+    this.logger.error('PBFT queue ran into an error: ', error);
+    this.pbftService.setRedisConnectionState(false);
+  }
+
   @Process(QueueJobs.NEW_PBFT_BLOCKS)
   async savePbft(job: Job<{ pbftPeriod: number }>) {
     this.logger.debug(

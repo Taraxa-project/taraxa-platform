@@ -19,12 +19,22 @@ import TransactionService from '../transaction/transaction.service';
 @Injectable()
 export default class PbftService {
   private readonly logger: Logger = new Logger(PbftService.name);
+  private isRedisConnected: boolean;
   constructor(
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>,
     private txService: TransactionService
   ) {
     this.pbftRepository = pbftRepository;
+    this.isRedisConnected = true;
+  }
+
+  public getRedisConnectionState() {
+    return this.isRedisConnected;
+  }
+
+  public setRedisConnectionState(state: boolean) {
+    this.isRedisConnected = state;
   }
 
   private updateValuesForPbft = async (pbftData: NewPbftBlockResponse) => {
@@ -159,7 +169,7 @@ export default class PbftService {
         .orderBy('pbfts.timestamp', 'DESC')
         .limit(1)
         .getOne()
-    ).hash;
+    )?.hash;
   };
 
   public pbftRpcToIPBFT(pbftRpc: RPCPbft) {
