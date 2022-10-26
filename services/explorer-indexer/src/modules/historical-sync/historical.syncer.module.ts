@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WebSocketModule } from 'nestjs-websocket';
-import { BullModule } from '@nestjs/bull';
 import { DagModule } from '../dag';
 import { PbftModule } from '../pbft';
 import { TransactionModule } from '../transaction';
@@ -24,14 +23,6 @@ import { ConnectorsModule } from '../connectors';
         };
       },
     }),
-    BullModule.registerQueue(
-      {
-        name: 'historical_pbfts',
-      },
-      {
-        name: 'historical_dags',
-      }
-    ),
     DagModule,
     PbftModule,
     TransactionModule,

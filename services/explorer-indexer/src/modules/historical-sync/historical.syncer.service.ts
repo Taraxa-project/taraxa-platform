@@ -8,6 +8,7 @@ import TransactionService from '../transaction/transaction.service';
 import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { DagQueueData, QueueJobs } from '../../types';
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -19,8 +20,8 @@ export default class HistoricalSyncService implements OnModuleInit {
     private readonly pbftService: PbftService,
     private readonly txService: TransactionService,
     private readonly graphQLConnector: GraphQLConnectorService,
-    @InjectQueue('historical_pbfts')
-    private readonly pbftQueue: Queue
+    @InjectQueue('new_pbfts')
+    private readonly pbftsQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
     console.log('Historical syncer started.');
@@ -185,36 +186,28 @@ export default class HistoricalSyncService implements OnModuleInit {
     // @note : Right now there is no way to get the genesis transactions to set:
     // Initial validators, initial balances for delegators and faucet.
     // big TODO
-    let chuncks: { data: { from: number; to: number } }[];
-    const step = 20; //20 because loading in 100 of pbft data is too slow
-    while (this.syncState.number < this.chainState.number) {
-      const newSyncState = this.syncState.number + step;
+    let chuncks: { name: QueueJobs; data: DagQueueData }[];
+    for (let i = 0; i < this.chainState.number; i++) {
       if (!chuncks) {
         chuncks = [
           {
+            name: QueueJobs.NEW_PBFT_BLOCKS,
             data: {
-              from: this.syncState.number,
-              to:
-                newSyncState - 1 > this.chainState.number
-                  ? this.chainState.number
-                  : newSyncState - 1,
+              pbftPeriod: this.syncState.number,
             },
           },
         ];
       } else {
         chuncks.push({
+          name: QueueJobs.NEW_PBFT_BLOCKS,
           data: {
-            from: this.syncState.number,
-            to:
-              newSyncState - 1 > this.chainState.number
-                ? this.chainState.number
-                : newSyncState - 1,
+            pbftPeriod: this.syncState.number,
           },
         });
       }
-      this.syncState.number = newSyncState + 1;
+      this.syncState.number = i;
     }
-    this.pbftQueue.addBulk(chuncks);
+    this.pbftsQueue.addBulk(chuncks);
     //   const blocksWithTransactions: IGQLPBFT[] =
     //     await this.graphQLConnector.getPBFTBlocksByNumberFromTo(
     //       this.syncState.number,
@@ -255,7 +248,7 @@ export default class HistoricalSyncService implements OnModuleInit {
     //       console.log(`Finalized block ${savedBlock.hash}`);
     //       // Fetch and save each DAG block for the PBFT Period
     //       try {
-    //         const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(
+    //         const dags = await this.graphQLConnector.getDagBlocksForPbftPeriod(
     //           savedBlock.number
     //         );
     //         for (const dag of dags) {

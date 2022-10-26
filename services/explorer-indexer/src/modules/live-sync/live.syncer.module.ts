@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WebSocketModule } from 'nestjs-websocket';
-import { BullModule } from '@nestjs/bull';
 import LiveSyncerService from './live.syncer.service';
 import general from 'src/config/general';
 
@@ -19,9 +18,6 @@ import general from 'src/config/general';
           handshakeTimeout: 10000,
         };
       },
-    }),
-    BullModule.registerQueue({
-      name: 'live_sync',
     }),
   ],
   providers: [LiveSyncerService],

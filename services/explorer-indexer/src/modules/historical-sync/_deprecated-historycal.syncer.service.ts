@@ -273,7 +273,7 @@ export default class HistoricalSyncService {
           console.log(`Finalized block ${savedBlock.hash}`);
           // Fetch and save each DAG block for the PBFT Period
           try {
-            const dags = await this.graphQLConnector.getDagBlockForPbftPeriod(
+            const dags = await this.graphQLConnector.getDagBlocksForPbftPeriod(
               savedBlock.number
             );
             for (const dag of dags) {

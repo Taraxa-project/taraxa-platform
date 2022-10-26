@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DagEntity, TransactionEntity } from '@taraxa_project/explorer-shared';
 import { TransactionModule } from '../transaction';
+import { DagConsumer } from './dag.consumer';
 import DagService from './dag.service';
 
 @Module({
@@ -9,7 +10,7 @@ import DagService from './dag.service';
     TransactionModule,
     TypeOrmModule.forFeature([DagEntity, TransactionEntity]),
   ],
-  providers: [DagService],
+  providers: [DagService, DagConsumer],
   controllers: [],
   exports: [DagService],
 })
