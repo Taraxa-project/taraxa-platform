@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DagEntity, TransactionEntity } from '@taraxa_project/explorer-shared';
@@ -11,6 +12,9 @@ import DagService from './dag.service';
     TransactionModule,
     TypeOrmModule.forFeature([DagEntity, TransactionEntity]),
     ConnectorsModule,
+    BullModule.registerQueue({
+      name: 'new_dags',
+    }),
   ],
   providers: [DagService, DagConsumer],
   controllers: [],

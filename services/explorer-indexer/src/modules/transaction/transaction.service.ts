@@ -32,7 +32,7 @@ export default class TransactionService {
       to: zeroX(gqlTx.to?.address),
       inputData: zeroX(gqlTx.inputData),
       from: zeroX(gqlTx.from?.address),
-      nonce: Number(gqlTx.nonce),
+      nonce: Number(gqlTx.nonce || null),
       blockHash: zeroX(gqlTx.block?.hash),
       blockNumber: gqlTx.block?.number + '',
       transactionIndex: gqlTx.index + '',
@@ -89,7 +89,7 @@ export default class TransactionService {
       try {
         const newTx = this.txRepository.create({
           hash: transaction.hash,
-          nonce: transaction.nonce,
+          nonce: transaction.nonce || null,
           index: transaction.index,
           value: transaction.value,
           gas: String(parseInt(transaction.gas, 16) || '0'),
