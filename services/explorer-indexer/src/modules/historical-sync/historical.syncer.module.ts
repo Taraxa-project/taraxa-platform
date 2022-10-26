@@ -7,6 +7,7 @@ import { TransactionModule } from '../transaction';
 import HistoricalSyncService from './historical.syncer.service';
 import general from 'src/config/general';
 import { ConnectorsModule } from '../connectors';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -23,6 +24,14 @@ import { ConnectorsModule } from '../connectors';
         };
       },
     }),
+    BullModule.registerQueue(
+      {
+        name: 'new_pbfts',
+      },
+      {
+        name: 'new_dags',
+      }
+    ),
     DagModule,
     PbftModule,
     TransactionModule,

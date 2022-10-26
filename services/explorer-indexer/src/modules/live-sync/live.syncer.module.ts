@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WebSocketModule } from 'nestjs-websocket';
 import LiveSyncerService from './live.syncer.service';
 import general from 'src/config/general';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -18,6 +19,9 @@ import general from 'src/config/general';
           handshakeTimeout: 10000,
         };
       },
+    }),
+    BullModule.registerQueue({
+      name: 'new_pbfts',
     }),
   ],
   providers: [LiveSyncerService],

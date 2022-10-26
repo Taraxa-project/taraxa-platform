@@ -1,19 +1,17 @@
 import { Job, Queue } from 'bull';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Processor, Process, InjectQueue } from '@nestjs/bull';
+import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
+import { Processor, Process } from '@nestjs/bull';
 import { DagQueueData, IGQLDag, QueueJobs } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
 
 @Injectable()
-@Processor('dag')
+@Processor({ name: 'new_dags', scope: Scope.REQUEST })
 export class DagConsumer implements OnModuleInit {
   private readonly logger = new Logger(DagConsumer.name);
   constructor(
     private dagService: DagService,
-    private readonly graphQLConnector: GraphQLConnectorService,
-    @InjectQueue('new_transactions')
-    private readonly txQueue: Queue
+    private readonly graphQLConnector: GraphQLConnectorService
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${DagConsumer.name} worker`);

@@ -7,10 +7,7 @@ import {
 } from 'nestjs-websocket';
 import {
   checkType,
-  NewDagBlockFinalizedResponse,
-  NewDagBlockResponse,
   NewPbftBlockHeaderResponse,
-  NewPbftBlockResponse,
   QueueJobs,
   ResponseTypes,
   toObject,

@@ -21,7 +21,9 @@ export default class HistoricalSyncService implements OnModuleInit {
     private readonly txService: TransactionService,
     private readonly graphQLConnector: GraphQLConnectorService,
     @InjectQueue('new_pbfts')
-    private readonly pbftsQueue: Queue
+    private readonly pbftsQueue: Queue,
+    @InjectQueue('new_dags')
+    private readonly dagsQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
     console.log('Historical syncer started.');
@@ -137,10 +139,12 @@ export default class HistoricalSyncService implements OnModuleInit {
       console.log(
         'New genesis block hash or network reset detected. Restarting chain sync.'
       );
-      // reset the database
+      // reset the database and remove the queue entries
       await this.txService.clearTransactionData();
       await this.dagService.clearDagData();
       await this.pbftService.clearPbftData();
+      await this.pbftsQueue.empty();
+      await this.dagsQueue.empty();
       this.syncState = {
         number: 0,
         hash: '',

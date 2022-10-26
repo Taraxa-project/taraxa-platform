@@ -1,5 +1,5 @@
 import { Job, Queue } from 'bull';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue } from '@nestjs/bull';
 import PbftService from './pbft.service';
 import { IGQLPBFT, QueueJobs } from '../../types';
@@ -8,7 +8,7 @@ import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 
 @Injectable()
-@Processor('pbft')
+@Processor({ name: 'new_pbfts', scope: Scope.REQUEST })
 export class PbftConsumer implements OnModuleInit {
   private readonly logger = new Logger(PbftConsumer.name);
   constructor(
@@ -21,16 +21,16 @@ export class PbftConsumer implements OnModuleInit {
     this.logger.debug(`Init ${PbftConsumer.name} worker`);
   }
   @Process(QueueJobs.NEW_PBFT_BLOCKS)
-  async savePbft(job: Job<number>) {
+  async savePbft(job: Job<{ pbftPeriod: number }>) {
     this.logger.debug(
-      `Starting ${QueueJobs.NEW_PBFT_BLOCKS} worker for job ${
+      `Handling ${QueueJobs.NEW_PBFT_BLOCKS} for job ${
         job.id
       }, data: ${JSON.stringify(job.data, null, 2)}`
     );
 
-    const number = job.data;
+    const { pbftPeriod } = job.data;
     const newBlock: IGQLPBFT =
-      await this.graphQLConnector.getPBFTBlockForNumber(number);
+      await this.graphQLConnector.getPBFTBlockForNumber(pbftPeriod);
 
     if (newBlock && newBlock.number) {
       const formattedBlock: IPBFT = this.pbftService.pbftGQLToIPBFT(newBlock);
