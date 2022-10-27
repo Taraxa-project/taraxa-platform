@@ -8,7 +8,8 @@ import {
   PbftEntity,
 } from '@taraxa_project/explorer-shared';
 import { IGQLPBFT } from 'src/types';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
+import DagService from '../dag/dag.service';
 import TransactionService from '../transaction/transaction.service';
 
 @Injectable()
@@ -18,7 +19,8 @@ export default class PbftService {
   constructor(
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>,
-    private txService: TransactionService
+    private txService: TransactionService,
+    private dagService: DagService
   ) {
     this.pbftRepository = pbftRepository;
     this.isRedisConnected = true;
@@ -107,6 +109,30 @@ export default class PbftService {
       return pbftFound;
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  public async checkAndDeletePbftsGreaterThanNumber(
+    pbftNumber: number
+  ): Promise<void> {
+    const pbfts = await this.pbftRepository.find({
+      where: {
+        number: MoreThanOrEqual(pbftNumber),
+      },
+    });
+    if (pbfts?.length > 0) {
+      await Promise.all(
+        pbfts.map(async (pbft: PbftEntity) => {
+          await this.dagService.findAndRemoveDagsForPbftPeriod(pbft.number);
+        })
+      );
+
+      this.logger.debug(
+        `Deleting ${pbfts?.length} PBFTs with number greater or equal than ${pbftNumber}`
+      );
+
+      await this.pbftRepository.delete(pbfts.map((pbft) => pbft.id));
+      this.logger.debug(`Deleted ${pbfts?.length} PBFTs`);
     }
   }
 

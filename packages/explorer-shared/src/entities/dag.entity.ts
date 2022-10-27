@@ -69,6 +69,7 @@ export class DagEntity extends BaseEntity implements IDAG {
 
   @ManyToMany(() => TransactionEntity, {
     onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   })
   @JoinTable({
     name: 'transactions_dags',

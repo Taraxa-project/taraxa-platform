@@ -21,6 +21,7 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
+    // TODO: Add same check as we use on Slack
     return this.health.check([
       () => this.db.pingCheck('database'),
       () =>

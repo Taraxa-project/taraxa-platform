@@ -122,6 +122,21 @@ export default class DagService {
     return await this.dagRepository.findOneBy({ level });
   }
 
+  public async findAndRemoveDagsForPbftPeriod(period: number): Promise<void> {
+    const dags = await this.dagRepository.find({
+      where: {
+        pbftPeriod: period,
+      },
+    });
+    if (dags?.length > 0) {
+      this.logger.debug(
+        `Deleting ${dags?.length} DAGS with pbftPeriod ${period}`
+      );
+      await this.dagRepository.remove(dags);
+      this.logger.debug(`Deleted ${dags?.length} DAGs`);
+    }
+  }
+
   public async getDagsFromLastLevel(limit: number) {
     return await this.dagRepository
       .createQueryBuilder('dags')

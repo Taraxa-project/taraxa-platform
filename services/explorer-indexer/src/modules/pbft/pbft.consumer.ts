@@ -41,6 +41,9 @@ export class PbftConsumer implements OnModuleInit {
 
     if (newBlock && newBlock.number) {
       const formattedBlock: IPBFT = this.pbftService.pbftGQLToIPBFT(newBlock);
+      await this.pbftService.checkAndDeletePbftsGreaterThanNumber(
+        newBlock.number
+      );
       this.logger.debug(
         `${QueueJobs.NEW_PBFT_BLOCKS} worker (job ${job.id}): Saving PBFT ${job.data}`
       );
