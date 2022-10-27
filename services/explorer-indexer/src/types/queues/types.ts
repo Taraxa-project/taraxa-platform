@@ -4,6 +4,10 @@ export enum QueueJobs {
   NEW_TRANSACTIONS = 'NEW_TRANSACTIONS',
 }
 
+export enum Queues {
+  NEW_PBFTS = 'new_pbfts',
+  NEW_DAGS = 'new_dags',
+}
 export interface DagQueueData {
   pbftPeriod: number;
 }

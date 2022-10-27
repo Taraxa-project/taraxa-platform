@@ -2,26 +2,26 @@ import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import PbftService from './pbft.service';
-import { IGQLPBFT, QueueJobs } from '../../types';
+import { IGQLPBFT, QueueJobs, Queues } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 
 @Injectable()
-@Processor({ name: 'new_pbfts', scope: Scope.REQUEST })
+@Processor({ name: Queues.NEW_PBFTS, scope: Scope.REQUEST })
 export class PbftConsumer implements OnModuleInit {
   private readonly logger = new Logger(PbftConsumer.name);
   constructor(
     private pbftService: PbftService,
     private readonly graphQLConnector: GraphQLConnectorService,
-    @InjectQueue('new_dags')
+    @InjectQueue(Queues.NEW_DAGS)
     private readonly dagsQueue: Queue
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${PbftConsumer.name} worker`);
   }
 
-  @OnQueueError({ name: 'new_pbfts' })
+  @OnQueueError({ name: Queues.NEW_PBFTS })
   async handleQueueErrors(error: Error) {
     this.logger.error('PBFT queue ran into an error: ', error);
     this.pbftService.setRedisConnectionState(false);
@@ -30,9 +30,7 @@ export class PbftConsumer implements OnModuleInit {
   @Process(QueueJobs.NEW_PBFT_BLOCKS)
   async savePbft(job: Job<{ pbftPeriod: number }>) {
     this.logger.debug(
-      `Handling ${QueueJobs.NEW_PBFT_BLOCKS} for job ${
-        job.id
-      }, data: ${JSON.stringify(job.data, null, 2)}`
+      `Handling ${QueueJobs.NEW_PBFT_BLOCKS} for job ${job.id}, saving PBFT for period: ${job.data.pbftPeriod}`
     );
 
     const { pbftPeriod } = job.data;
