@@ -2,16 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   IDAG,
-  ITransaction,
   zeroX,
   toChecksumAddress,
   DagEntity,
 } from '@taraxa_project/explorer-shared';
-import {
-  NewDagBlockResponse,
-  NewDagBlockFinalizedResponse,
-  IGQLDag,
-} from 'src/types';
+import { IGQLDag } from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
 
@@ -87,38 +82,6 @@ export default class DagService {
     }
   }
 
-  public dagRpcToIDAG(dag: NewDagBlockResponse) {
-    const {
-      hash,
-      pivot,
-      tips,
-      level,
-      period,
-      timestamp,
-      author,
-      sender,
-      signature,
-      sig,
-      vdf,
-      transactionCount,
-      transactions,
-    } = { ...dag };
-    const _dag = {
-      hash,
-      pivot: zeroX(pivot),
-      tips: tips,
-      level: parseInt(`${level}`, 16) || 0,
-      pbftPeriod: period,
-      timestamp: parseInt(timestamp, 16) || 0,
-      author: toChecksumAddress(zeroX(sender || author)),
-      signature: zeroX(sig || signature),
-      vdf: parseInt(vdf?.difficulty, 16) || 0,
-      transactionCount: transactionCount || transactions?.length || 0,
-      transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
-    };
-    return _dag;
-  }
-
   public dagGraphQlToIdag(dag: IGQLDag) {
     const {
       hash,
@@ -191,36 +154,5 @@ export default class DagService {
         .limit(1)
         .getOne()
     )?.hash;
-  }
-
-  public async handleNewDag(dagData: NewDagBlockResponse) {
-    const _dagObject = this.dagRpcToIDAG(dagData);
-
-    try {
-      const res = await this.safeSaveDag(_dagObject);
-      if (res) {
-        this.logger.log(`Saved new DAG ${dagData.hash}`);
-        console.log(`Saved new DAG ${dagData.hash}`);
-      }
-    } catch (error) {
-      this.logger.error('handleNewDag', error);
-      console.error('handleNewDag', error);
-    }
-  }
-
-  public async updateDag(updateData: NewDagBlockFinalizedResponse) {
-    const dag = new DagEntity();
-    dag.hash = zeroX(updateData.block);
-    dag.pbftPeriod = parseInt(Number(updateData.period).toString(), 10);
-    try {
-      const updated = await this.safeSaveDag(dag);
-      if (updated) {
-        this.logger.log(`DAG ${updateData.block} finalized`);
-        console.log(`DAG ${updateData.block} finalized`);
-      }
-    } catch (error) {
-      this.logger.error('NewDagBlockFinalizedResponse', error);
-      console.error('NewDagBlockFinalizedResponse', error);
-    }
   }
 }

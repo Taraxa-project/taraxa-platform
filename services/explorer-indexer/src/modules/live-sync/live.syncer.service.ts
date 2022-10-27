@@ -127,49 +127,11 @@ export default class LiveSyncerService {
     const type = checkType(parsedData);
     try {
       switch (type) {
-        // case ResponseTypes.NewDagBlockFinalizedResponse:
-        //   this.liveSyncQueue.add(
-        //     Topics.NEW_DAG_BLOCKS,
-        //     parsedData.result as NewDagBlockFinalizedResponse
-        //   );
-        //   // this.dagService.updateDag(
-        //   //   parsedData.result as NewDagBlockFinalizedResponse
-        //   // );
-        //   break;
-        // case ResponseTypes.NewDagBlockResponse:
-        //   this.liveSyncQueue.add(
-        //     Topics.NEW_DAG_BLOCKS_FINALIZED,
-        //     parsedData.result as NewDagBlockResponse
-        //   );
-        //   // this.dagService.handleNewDag(
-        //   //   parsedData.result as NewDagBlockResponse
-        //   // );
-        //   break;
-        // case ResponseTypes.NewPbftBlockResponse:
-        //   this.pbftsQueue.add(
-        //     // Topics.NEW_PBFT_BLOCKS,
-        //     QueueJobs.NEW_PBFT_BLOCKS,
-        //     parsedData.result as NewPbftBlockResponse
-        //   );
-        //   // this.pbftService.handleNewPbft(
-        //   //   parsedData.result as NewPbftBlockResponse
-        //   // );
-        //   break;
         case ResponseTypes.NewHeadsReponse:
           const { number } = parsedData.result as NewPbftBlockHeaderResponse;
           const formattedNumber = parseInt(number, 16);
           this.pbftsQueue.add(QueueJobs.NEW_PBFT_BLOCKS, formattedNumber);
-          // this.pbftService.handleNewPbftHeads(
-          //   parsedData.result as NewPbftBlockHeaderResponse
-          // );
           break;
-        // case ResponseTypes.NewPendingTransactions:
-        //   this,
-        //     this.liveSyncQueue.add(Topics.NEW_PENDING_TRANSACTIONS, {
-        //       hash: parsedData.result as string,
-        //     });
-        //   // this.txService.safeSaveEmptyTx({ hash: parsedData.result as string });
-        //   break;
       }
     } catch (error) {
       this.logger.error(`Could not persist incoming data. Cause: ${error}`);

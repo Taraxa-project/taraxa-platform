@@ -7,12 +7,7 @@ import {
   toChecksumAddress,
   PbftEntity,
 } from '@taraxa_project/explorer-shared';
-import {
-  IGQLPBFT,
-  NewPbftBlockHeaderResponse,
-  NewPbftBlockResponse,
-  RPCPbft,
-} from 'src/types';
+import { IGQLPBFT } from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
 
@@ -36,29 +31,6 @@ export default class PbftService {
   public setRedisConnectionState(state: boolean) {
     this.isRedisConnected = state;
   }
-
-  private updateValuesForPbft = async (pbftData: NewPbftBlockResponse) => {
-    const { block_hash, period, timestamp, beneficiary } = {
-      ...pbftData?.pbft_block,
-    };
-    const existing = await this.pbftRepository.findOneBy({
-      hash: zeroX(block_hash),
-    });
-    if (existing) {
-      existing.number = period;
-      existing.timestamp = timestamp;
-      existing.miner = toChecksumAddress(beneficiary);
-      return existing;
-    } else {
-      const pbft: IPBFT = {
-        hash: zeroX(block_hash),
-        number: period || 0,
-        timestamp: timestamp || 0,
-        miner: toChecksumAddress(zeroX(beneficiary)),
-      };
-      return pbft;
-    }
-  };
 
   public async safeSavePbft(pbft: IPBFT) {
     if (!pbft || !pbft.hash) {
@@ -172,54 +144,6 @@ export default class PbftService {
     )?.hash;
   };
 
-  public pbftRpcToIPBFT(pbftRpc: RPCPbft) {
-    const {
-      hash,
-      number,
-      timestamp,
-      gasLimit,
-      gasUsed,
-      parentHash,
-      nonce,
-      difficulty,
-      totalDifficulty,
-      miner,
-      transactionsRoot,
-      extraData,
-      transactions,
-      logsBloom,
-      mixHash,
-      recepitsRoot,
-      sha3Uncles,
-      size,
-      stateRoot,
-    } = { ...pbftRpc };
-    if (!hash) return;
-    const pbft: IPBFT = {
-      hash: zeroX(hash),
-      number: parseInt(number, 16) || 0,
-      timestamp: parseInt(timestamp, 16) || 0,
-      gasLimit: parseInt(gasLimit, 16) || 0,
-      gasUsed: parseInt(gasUsed, 16) || 0,
-      parent: zeroX(parentHash),
-      nonce,
-      difficulty: parseInt(difficulty, 16) || 0,
-      totalDifficulty: parseInt(totalDifficulty, 16) || 0,
-      miner: toChecksumAddress(zeroX(miner)),
-      transactionsRoot,
-      transactionCount: transactions?.length || 0,
-      transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
-      extraData,
-      logsBloom,
-      mixHash,
-      recepitsRoot,
-      sha3Uncles,
-      size: parseInt(size, 16) || 0,
-      stateRoot,
-    };
-    return pbft;
-  }
-
   public pbftGQLToIPBFT(pbftGQL: IGQLPBFT) {
     const {
       hash,
@@ -266,100 +190,5 @@ export default class PbftService {
       stateRoot: zeroX(stateRoot),
     };
     return pbft;
-  }
-
-  public async handleNewPbft(pbftData: NewPbftBlockResponse) {
-    if (!pbftData || !pbftData?.pbft_block?.block_hash) return;
-
-    const pbft = await this.updateValuesForPbft(pbftData);
-    const saved = await this.pbftRepository.save(pbft as PbftEntity);
-    if (saved) {
-      this.logger.log(`Registered new PBFT ${pbft.hash}`);
-      console.log(`Registered new PBFT ${pbft.hash}`);
-    }
-  }
-
-  public async handleNewPbftHeads(pbftData: NewPbftBlockHeaderResponse) {
-    const {
-      hash,
-      number,
-      timestamp,
-      gas_limit,
-      gasLimit,
-      gas_used,
-      gasUsed,
-      parent,
-      parentHash,
-      parent_hash,
-      nonce,
-      difficulty,
-      totalDifficulty,
-      extraData,
-      extra_data,
-      log_bloom,
-      logsBloom,
-      miner,
-      transactionCount,
-      transactions,
-      author,
-      mixHash,
-      receiptsRoot,
-      receipts_root,
-      sha3Uncles,
-      size,
-      stateRoot,
-      state_root,
-      transactionsRoot,
-      transactions_root,
-    } = { ...pbftData };
-    if (!hash) return;
-
-    const pbft: IPBFT = {
-      hash: zeroX(hash),
-      number: parseInt(number, 16) || 0,
-      timestamp: parseInt(timestamp, 16) || 0,
-      gasLimit: String(parseInt((gas_limit || gasLimit)?.toString(), 16)),
-      gasUsed: String(parseInt((gas_used || gasUsed)?.toString(), 16)),
-      parent: zeroX(parent || parentHash || parent_hash),
-      nonce: String(parseInt(nonce, 16)),
-      difficulty: parseInt(difficulty, 16) || 0,
-      totalDifficulty: parseInt(totalDifficulty, 16) || 0,
-      miner: toChecksumAddress(zeroX(miner || author)),
-      extraData: zeroX(extraData || extra_data),
-      transactionCount: parseInt(transactionCount, 16) || 0,
-      logsBloom: zeroX(logsBloom || log_bloom),
-      mixHash: zeroX(mixHash),
-      recepitsRoot: zeroX(receiptsRoot || receipts_root),
-      sha3Uncles: zeroX(sha3Uncles),
-      size: parseInt(size, 16),
-      stateRoot: zeroX(stateRoot || state_root),
-      transactionsRoot: zeroX(transactionsRoot || transactions_root),
-    };
-
-    try {
-      const updated = await this.pbftRepository.save(pbft as PbftEntity);
-      if (updated && transactions && transactions.length > 0) {
-        this.logger.log(`PBFT ${updated.hash} finalized`);
-        const txes: ITransaction[] = transactions?.map((hash: string) => ({
-          hash,
-          block: {
-            id: updated.id,
-            hash: updated.hash,
-            number: updated.number,
-            timestamp: updated.timestamp,
-          },
-        }));
-        const savedTx = await this.txService.findTransactionsByHashesOrFill(
-          txes
-        );
-        pbft.transactions = savedTx;
-      }
-      this.logger.log(`Handled PBFT Heads for PBFT ${hash}`);
-      console.log(`Handled PBFT Heads for PBFT ${hash}`);
-      return updated;
-    } catch (error) {
-      this.logger.error('handleNewPbftHeads', error);
-      console.error('handleNewPbftHeads', error);
-    }
   }
 }
