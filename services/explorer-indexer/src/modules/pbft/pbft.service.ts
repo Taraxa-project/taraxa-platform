@@ -34,6 +34,15 @@ export default class PbftService {
     this.isRedisConnected = state;
   }
 
+  public async getSavedPbftPeriods() {
+    return (
+      (await this.pbftRepository
+        .createQueryBuilder()
+        .select('number')
+        .execute()) as { number: number }[]
+    )?.map((entry) => entry.number);
+  }
+
   public async safeSavePbft(pbft: IPBFT) {
     if (!pbft || !pbft.hash) {
       return;
@@ -121,18 +130,31 @@ export default class PbftService {
       },
     });
     if (pbfts?.length > 0) {
-      await Promise.all(
-        pbfts.map(async (pbft: PbftEntity) => {
+      try {
+        for (const pbft of pbfts) {
           await this.dagService.findAndRemoveDagsForPbftPeriod(pbft.number);
-        })
-      );
+          if (pbft.transactions && pbft.transactions?.length > 0) {
+            await this.txService.deleteTransactions(
+              pbft.transactions?.filter(Boolean)
+            );
+          }
+        }
 
-      this.logger.debug(
-        `Deleting ${pbfts?.length} PBFTs with number greater or equal than ${pbftNumber}`
-      );
+        this.logger.debug(
+          `Deleting ${pbfts?.length} PBFTs with number greater or equal than ${pbftNumber}`
+        );
 
-      await this.pbftRepository.delete(pbfts.map((pbft) => pbft.id));
-      this.logger.debug(`Deleted ${pbfts?.length} PBFTs`);
+        await this.pbftRepository.remove(pbfts);
+        this.logger.debug(`Deleted ${pbfts?.length} PBFTs`);
+      } catch (error) {
+        this.logger.error(
+          `Erroneous data could not be saved. Purging the database! `,
+          error
+        );
+        await this.txService.clearTransactionData();
+        await this.clearPbftData();
+        await this.dagService.clearDagData();
+      }
     }
   }
 

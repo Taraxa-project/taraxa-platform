@@ -8,7 +8,7 @@ import TransactionService from '../transaction/transaction.service';
 import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { DagQueueData, QueueJobs } from '../../types';
+import { QueueData, QueueJobs } from '../../types';
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -26,7 +26,6 @@ export default class HistoricalSyncService implements OnModuleInit {
     private readonly dagsQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
-    console.log('Historical syncer started.');
   }
   onModuleInit() {
     this.runHistoricalSync();
@@ -61,8 +60,8 @@ export default class HistoricalSyncService implements OnModuleInit {
 
     this.chainState = {
       number: block.number,
-      hash: block.hash,
-      genesis: genesis.hash,
+      hash: zeroX(block.hash),
+      genesis: zeroX(genesis.hash),
       dagBlockLevel: dagBlock?.level,
       dagBlockPeriod: dagBlock?.pbftPeriod,
     };
@@ -118,7 +117,6 @@ export default class HistoricalSyncService implements OnModuleInit {
 
     this.isRunning = true;
     this.logger.log('Historical sync started');
-    console.log('Historical sync started');
     //reset state
     await this.reSyncChainState();
     await this.reSyncCurrentState();
@@ -127,16 +125,11 @@ export default class HistoricalSyncService implements OnModuleInit {
 
     // if genesis block changes or the chain has lesser blocks than the syncer state(reset happened), resync
     if (
-      !this.chainState.genesis ||
-      zeroX(this.chainState.genesis) !== this.syncState.genesis ||
-      (this.chainState.number < this.syncState.number &&
-        this.chainState.hash?.toLowerCase() !==
-          this.syncState.hash?.toLowerCase())
+      !this.chainState.genesis || //there is no genesys
+      this.chainState.genesis !== this.syncState.genesis || // genesys hash is different
+      this.chainState.number < this.syncState.number // there has been a network reset
     ) {
-      this.logger.log(
-        'New genesis block hash or network reset detected. Restarting chain sync.'
-      );
-      console.log(
+      this.logger.warn(
         'New genesis block hash or network reset detected. Restarting chain sync.'
       );
       // reset the database and remove the queue entries
@@ -156,20 +149,15 @@ export default class HistoricalSyncService implements OnModuleInit {
     }
 
     while (!verifiedTip) {
-      const chainBlockAtSyncNumber = zeroX(
+      const chainBlockHashAtSyncNumber = zeroX(
         (
           await this.graphQLConnector.getPBFTBlockHashForNumber(
             this.syncState.number
           )
         )?.hash
       );
-      if (chainBlockAtSyncNumber !== this.syncState.hash) {
-        console.log(
-          'Block hash at height',
-          this.syncState.number,
-          'has changed. Re-org detected, walking back.'
-        );
-        this.logger.log(
+      if (chainBlockHashAtSyncNumber !== this.syncState.hash) {
+        this.logger.warn(
           `Block hash at height ${this.syncState.number} has changed. Re-org detected, walking back.`
         );
         const lastBlock = await this.pbftService.getBlockByHash(
@@ -190,26 +178,40 @@ export default class HistoricalSyncService implements OnModuleInit {
     // @note : Right now there is no way to get the genesis transactions to set:
     // Initial validators, initial balances for delegators and faucet.
     // big TODO
-    let chuncks: { name: QueueJobs; data: DagQueueData }[];
-    for (let i = 0; i < this.chainState.number; i++) {
-      if (!chuncks) {
-        chuncks = [
-          {
-            name: QueueJobs.NEW_PBFT_BLOCKS,
-            data: {
-              pbftPeriod: this.syncState.number,
-            },
-          },
-        ];
-      } else {
+    const chuncks = [
+      {
+        name: QueueJobs.NEW_PBFT_BLOCKS,
+        data: {
+          pbftPeriod: 0,
+        },
+      },
+    ];
+    const foundBlockNumbers = await this.pbftService.getSavedPbftPeriods();
+    const count = foundBlockNumbers.length;
+
+    for (let i = 1; i <= count; i++) {
+      if (foundBlockNumbers.indexOf(i) == -1) {
         chuncks.push({
           name: QueueJobs.NEW_PBFT_BLOCKS,
           data: {
-            pbftPeriod: this.syncState.number,
-          },
+            pbftPeriod: i,
+            type: 'historicalSync',
+          } as QueueData,
         });
       }
-      this.syncState.number = i;
+    }
+    for (
+      this.syncState.number;
+      this.syncState.number < this.chainState.number;
+      this.syncState.number++
+    ) {
+      chuncks.push({
+        name: QueueJobs.NEW_PBFT_BLOCKS,
+        data: {
+          pbftPeriod: this.syncState.number,
+          type: 'historicalSync',
+        } as QueueData,
+      });
     }
     this.pbftsQueue.addBulk(chuncks);
   }
