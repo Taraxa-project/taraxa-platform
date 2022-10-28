@@ -5,6 +5,8 @@ import LiveSyncerService from './live.syncer.service';
 import general from 'src/config/general';
 import { BullModule } from '@nestjs/bull';
 
+const isProducer = process.env.ENABLE_PRODUCER_MODULE;
+
 @Module({
   imports: [
     ConfigModule.forFeature(general),
@@ -24,8 +26,8 @@ import { BullModule } from '@nestjs/bull';
       name: 'new_pbfts',
     }),
   ],
-  providers: [LiveSyncerService],
+  providers: isProducer ? [LiveSyncerModule] : [],
   controllers: [],
-  exports: [LiveSyncerService],
+  exports: isProducer ? [LiveSyncerService] : [],
 })
 export class LiveSyncerModule {}
