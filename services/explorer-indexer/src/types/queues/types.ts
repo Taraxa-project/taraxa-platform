@@ -8,6 +8,7 @@ export enum Queues {
   NEW_PBFTS = 'new_pbfts',
   NEW_DAGS = 'new_dags',
 }
-export interface DagQueueData {
+export interface QueueData {
   pbftPeriod: number;
+  type: 'liveSync' | 'historicalSync';
 }

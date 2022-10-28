@@ -21,6 +21,10 @@ export default class TransactionService {
     this.txRepository = txRepository;
   }
 
+  public async deleteTransactions(transactions: TransactionEntity[]) {
+    return await this.txRepository.remove(transactions);
+  }
+
   public populateTransactionWithPBFT(tx: ITransaction, block: IPBFT) {
     tx.block = block;
     return tx;

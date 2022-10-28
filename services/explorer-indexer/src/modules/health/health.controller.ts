@@ -30,7 +30,7 @@ export class HealthController {
           thresholdPercent: 0.99,
         }),
       () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
-      () => this.memory.checkRSS('memory_rss', 150 * 1024 * 1024),
+      () => this.memory.checkRSS('memory_rss', 500 * 1024 * 1024),
       () => this.syncerHealthIndicator.isHealthy('pbft'),
       () => this.syncerHealthIndicator.isHealthy('dag'),
       () => this.syncerHealthIndicator.isHealthy('queue_pbfts'),

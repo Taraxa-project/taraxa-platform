@@ -2,7 +2,7 @@ import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import PbftService from './pbft.service';
-import { IGQLPBFT, QueueJobs, Queues } from '../../types';
+import { IGQLPBFT, QueueData, QueueJobs, Queues } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
@@ -28,22 +28,27 @@ export class PbftConsumer implements OnModuleInit {
   }
 
   @Process(QueueJobs.NEW_PBFT_BLOCKS)
-  async savePbft(job: Job<{ pbftPeriod: number }>) {
+  async savePbft(job: Job<QueueData>) {
     this.logger.debug(
       `Handling ${QueueJobs.NEW_PBFT_BLOCKS} for job ${job.id}, saving PBFT for period: ${job.data.pbftPeriod}`
     );
 
-    const { pbftPeriod } = job.data;
+    const { pbftPeriod, type } = job.data;
+    if (pbftPeriod == 0) {
+      console.log('Were at zero');
+    }
     const newBlock: IGQLPBFT =
       await this.graphQLConnector.getPBFTBlockForNumber(pbftPeriod);
 
-    if (newBlock && newBlock.number) {
+    if (newBlock && newBlock.number != undefined) {
       const formattedBlock: IPBFT = this.pbftService.pbftGQLToIPBFT(newBlock);
-      await this.pbftService.checkAndDeletePbftsGreaterThanNumber(
-        newBlock.number
-      );
+      if (type === 'liveSync') {
+        await this.pbftService.checkAndDeletePbftsGreaterThanNumber(
+          newBlock.number
+        );
+      }
       this.logger.debug(
-        `${QueueJobs.NEW_PBFT_BLOCKS} worker (job ${job.id}): Saving PBFT ${job.data}`
+        `${QueueJobs.NEW_PBFT_BLOCKS} worker (job ${job.id}): Saving PBFT ${job.data.pbftPeriod}`
       );
       let blockReward = new BigInteger('0', 10);
       formattedBlock.transactions?.forEach((tx: ITransaction) => {
@@ -58,6 +63,9 @@ export class PbftConsumer implements OnModuleInit {
 
       formattedBlock.reward = blockReward.toString();
       const savedPbft = await this.pbftService.safeSavePbft(formattedBlock);
+      this.logger.debug(
+        `Saved new PBFT with ID ${savedPbft.id} for period ${savedPbft.number}`
+      );
       this.dagsQueue.add(QueueJobs.NEW_DAG_BLOCKS, {
         pbftPeriod: savedPbft.number,
       });

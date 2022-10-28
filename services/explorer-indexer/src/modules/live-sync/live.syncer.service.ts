@@ -8,6 +8,7 @@ import {
 import {
   checkType,
   NewPbftBlockHeaderResponse,
+  QueueData,
   QueueJobs,
   ResponseTypes,
   toObject,
@@ -130,7 +131,10 @@ export default class LiveSyncerService {
         case ResponseTypes.NewHeadsReponse:
           const { number } = parsedData.result as NewPbftBlockHeaderResponse;
           const formattedNumber = parseInt(number, 16);
-          this.pbftsQueue.add(QueueJobs.NEW_PBFT_BLOCKS, formattedNumber);
+          this.pbftsQueue.add(QueueJobs.NEW_PBFT_BLOCKS, {
+            pbftPeriod: formattedNumber,
+            type: 'liveSync',
+          } as QueueData);
           break;
       }
     } catch (error) {

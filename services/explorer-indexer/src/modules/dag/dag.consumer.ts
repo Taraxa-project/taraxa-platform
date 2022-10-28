@@ -1,7 +1,7 @@
 import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
-import { DagQueueData, IGQLDag, QueueJobs, Queues } from '../../types';
+import { QueueData, IGQLDag, QueueJobs, Queues } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
 
@@ -24,7 +24,7 @@ export class DagConsumer implements OnModuleInit {
   }
 
   @Process(QueueJobs.NEW_DAG_BLOCKS)
-  async saveDag(job: Job<DagQueueData>) {
+  async saveDag(job: Job<QueueData>) {
     const { pbftPeriod } = job.data;
 
     const dags: IGQLDag[] =
