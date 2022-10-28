@@ -11,6 +11,7 @@ import {
   QueueData,
   QueueJobs,
   ResponseTypes,
+  SyncTypes,
   toObject,
   Topics,
 } from 'src/types';
@@ -133,7 +134,7 @@ export default class LiveSyncerService {
           const formattedNumber = parseInt(number, 16);
           this.pbftsQueue.add(QueueJobs.NEW_PBFT_BLOCKS, {
             pbftPeriod: formattedNumber,
-            type: 'liveSync',
+            type: SyncTypes.LIVE,
           } as QueueData);
           break;
       }

@@ -8,7 +8,7 @@ import TransactionService from '../transaction/transaction.service';
 import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { QueueData, QueueJobs } from '../../types';
+import { QueueData, QueueJobs, SyncTypes } from '../../types';
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -195,7 +195,7 @@ export default class HistoricalSyncService implements OnModuleInit {
           name: QueueJobs.NEW_PBFT_BLOCKS,
           data: {
             pbftPeriod: i,
-            type: 'historicalSync',
+            type: SyncTypes.HISTORICAL,
           } as QueueData,
         });
       }
@@ -209,7 +209,7 @@ export default class HistoricalSyncService implements OnModuleInit {
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
           pbftPeriod: this.syncState.number,
-          type: 'historicalSync',
+          type: SyncTypes.HISTORICAL,
         } as QueueData,
       });
     }

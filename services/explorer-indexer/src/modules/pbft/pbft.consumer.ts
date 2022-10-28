@@ -2,7 +2,7 @@ import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import PbftService from './pbft.service';
-import { IGQLPBFT, QueueData, QueueJobs, Queues } from '../../types';
+import { IGQLPBFT, QueueData, QueueJobs, Queues, SyncTypes } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
@@ -42,7 +42,7 @@ export class PbftConsumer implements OnModuleInit {
 
     if (newBlock && newBlock.number != undefined) {
       const formattedBlock: IPBFT = this.pbftService.pbftGQLToIPBFT(newBlock);
-      if (type === 'liveSync') {
+      if (type === SyncTypes.LIVE) {
         await this.pbftService.checkAndDeletePbftsGreaterThanNumber(
           newBlock.number
         );

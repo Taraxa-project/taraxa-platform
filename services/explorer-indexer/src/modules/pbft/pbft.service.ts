@@ -36,10 +36,11 @@ export default class PbftService {
 
   public async getSavedPbftPeriods() {
     return (
-      (await this.pbftRepository
-        .createQueryBuilder()
-        .select('number')
-        .execute()) as { number: number }[]
+      await this.pbftRepository.find({
+        select: {
+          number: true,
+        },
+      })
     )?.map((entry) => entry.number);
   }
 
@@ -133,11 +134,6 @@ export default class PbftService {
       try {
         for (const pbft of pbfts) {
           await this.dagService.findAndRemoveDagsForPbftPeriod(pbft.number);
-          if (pbft.transactions && pbft.transactions?.length > 0) {
-            await this.txService.deleteTransactions(
-              pbft.transactions?.filter(Boolean)
-            );
-          }
         }
 
         this.logger.debug(
@@ -151,9 +147,6 @@ export default class PbftService {
           `Erroneous data could not be saved. Purging the database! `,
           error
         );
-        await this.txService.clearTransactionData();
-        await this.clearPbftData();
-        await this.dagService.clearDagData();
       }
     }
   }
