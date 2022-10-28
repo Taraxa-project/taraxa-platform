@@ -68,6 +68,7 @@ export class DagEntity extends BaseEntity implements IDAG {
   transactionCount?: number;
 
   @ManyToMany(() => TransactionEntity, {
+    cascade: true,
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })

@@ -76,7 +76,7 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   transactionCount?: number;
 
   @OneToMany(() => TransactionEntity, (transaction) => transaction.block, {
-    onDelete: 'CASCADE',
+    cascade: true,
   })
   transactions?: TransactionEntity[];
 

@@ -98,9 +98,9 @@ export default class TransactionService {
         const saved = await this.txRepository
           .createQueryBuilder()
           .insert()
+          .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
           .into(TransactionEntity)
           .values(newTx)
-          .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
           .setParameter('hash', newTx.hash)
           .returning('*')
           .execute();

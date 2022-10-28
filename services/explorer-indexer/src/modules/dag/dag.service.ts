@@ -79,6 +79,7 @@ export default class DagService {
       this.logger.error(
         `Failed to save or update DAG with hash: ${dagToCreate.hash}`
       );
+      this.logger.error(`Reason is: ${err}`);
     }
   }
 
