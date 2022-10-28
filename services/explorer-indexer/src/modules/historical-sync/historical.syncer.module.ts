@@ -8,7 +8,9 @@ import HistoricalSyncService from './historical.syncer.service';
 import general from 'src/config/general';
 import { ConnectorsModule } from '../connectors';
 import { BullModule } from '@nestjs/bull';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE;
 @Module({
   imports: [
