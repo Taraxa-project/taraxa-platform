@@ -35,7 +35,7 @@ export default class DagService {
     const txes = await this.txService.findTransactionsByHashesOrFill(
       dag.transactions
     );
-    const dagExists = await this.dagRepository.findOneBy({
+    const dagExists = await this.dagRepository.findOne({
       hash: zeroX(dag.hash),
     });
     if (dagExists) {
@@ -120,7 +120,7 @@ export default class DagService {
   }
 
   public async getBlockByLevel(level: number) {
-    return await this.dagRepository.findOneBy({ level });
+    return await this.dagRepository.findOne({ level });
   }
 
   public async findAndRemoveDagsForPbftPeriod(period: number): Promise<void> {
