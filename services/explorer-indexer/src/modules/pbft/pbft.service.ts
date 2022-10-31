@@ -49,7 +49,7 @@ export default class PbftService {
       return;
     }
     let _pbft;
-    _pbft = await this.pbftRepository.findOne({ hash: pbft.hash });
+    _pbft = await this.pbftRepository.findOneBy({ hash: pbft.hash });
     if (!_pbft) {
       const newPbft = this.pbftRepository.create({
         hash: pbft.hash,
@@ -112,7 +112,7 @@ export default class PbftService {
           _pbft.save();
         }
       }
-      const pbftFound = await this.pbftRepository.findOne({
+      const pbftFound = await this.pbftRepository.findOneBy({
         hash: _pbft.hash,
       });
       return pbftFound;
@@ -169,11 +169,11 @@ export default class PbftService {
   }
 
   public async getBlockByNumber(number: number) {
-    return await this.pbftRepository.findOne({ number });
+    return await this.pbftRepository.findOneBy({ number });
   }
 
   public async getBlockByHash(hash: string) {
-    return await this.pbftRepository.findOne({ hash });
+    return await this.pbftRepository.findOneBy({ hash });
   }
 
   public getLastPbftHash = async () => {

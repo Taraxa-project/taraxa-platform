@@ -38,5 +38,7 @@ export class DagConsumer implements OnModuleInit {
         await this.dagService.safeSaveDag(formattedDag);
       }
     }
+
+    await job.progress(100);
   }
 }

@@ -7,7 +7,7 @@ import { BullModule } from '@nestjs/bull';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
-const isProducer = process.env.ENABLE_PRODUCER_MODULE;
+const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 
 @Module({
   imports: [

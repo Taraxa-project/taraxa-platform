@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { zeroX } from '@taraxa_project/explorer-shared';
 import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
@@ -20,6 +21,7 @@ export default class HistoricalSyncService implements OnModuleInit {
     private readonly pbftService: PbftService,
     private readonly txService: TransactionService,
     private readonly graphQLConnector: GraphQLConnectorService,
+    private readonly configService: ConfigService,
     @InjectQueue('new_pbfts')
     private readonly pbftsQueue: Queue,
     @InjectQueue('new_dags')
@@ -28,6 +30,11 @@ export default class HistoricalSyncService implements OnModuleInit {
     this.logger.log('Historical syncer started.');
   }
   onModuleInit() {
+    const isProduer = this.configService.get<boolean>('general.isProducer');
+    if (isProduer) {
+      this.pbftsQueue.empty();
+      this.dagsQueue.empty();
+    }
     this.runHistoricalSync();
   }
 

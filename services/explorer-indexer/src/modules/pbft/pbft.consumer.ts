@@ -72,6 +72,7 @@ export class PbftConsumer implements OnModuleInit {
           pbftPeriod: savedPbft.number,
         });
       }
+      await job.progress(100);
     } catch (error) {
       this.logger.error(
         `An error occurred during saving PBFT ${pbftPeriod}. Putting it back to queue: `,
@@ -81,6 +82,7 @@ export class PbftConsumer implements OnModuleInit {
         pbftPeriod,
         type,
       } as QueueData);
+      await job.progress(100);
     }
   }
 }
