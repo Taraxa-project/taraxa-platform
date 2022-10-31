@@ -34,46 +34,55 @@ export default class PbftService {
     this.isRedisConnected = state;
   }
 
+  public async getSavedPbftPeriods() {
+    return (
+      await this.pbftRepository.find({
+        select: {
+          number: true,
+        },
+      })
+    )?.map((entry) => entry.number);
+  }
+
   public async safeSavePbft(pbft: IPBFT) {
     if (!pbft || !pbft.hash) {
       return;
     }
     let _pbft;
-    try {
-      _pbft = await this.pbftRepository.findOneBy({ hash: pbft.hash });
-      if (!_pbft) {
-        const newPbft = this.pbftRepository.create({
-          hash: pbft.hash,
-          miner: toChecksumAddress(pbft.miner),
-          number: pbft.number,
-          timestamp: pbft.timestamp,
-          nonce: pbft.nonce,
-          reward: pbft.reward,
-          gasLimit: String(pbft.gasLimit || '0'),
-          gasUsed: String(pbft.gasUsed || '0'),
-          parent: pbft.parent,
-          difficulty: pbft.difficulty,
-          totalDifficulty: pbft.totalDifficulty,
-          transactionCount: pbft.transactions?.length || pbft.transactionCount,
-          extraData: pbft.extraData,
-          logsBloom: pbft.logsBloom,
-          mixHash: pbft.mixHash,
-          recepitsRoot: pbft.recepitsRoot,
-          sha3Uncles: pbft.sha3Uncles,
-          size: pbft.size,
-          stateRoot: pbft.stateRoot,
-          transactionsRoot: pbft.transactionsRoot,
-        });
-        _pbft = newPbft;
-      }
+    _pbft = await this.pbftRepository.findOneBy({ hash: pbft.hash });
+    if (!_pbft) {
+      const newPbft = this.pbftRepository.create({
+        hash: pbft.hash,
+        miner: toChecksumAddress(pbft.miner),
+        number: pbft.number,
+        timestamp: pbft.timestamp,
+        nonce: pbft.nonce,
+        reward: pbft.reward,
+        gasLimit: String(pbft.gasLimit || '0'),
+        gasUsed: String(pbft.gasUsed || '0'),
+        parent: pbft.parent,
+        difficulty: pbft.difficulty,
+        totalDifficulty: pbft.totalDifficulty,
+        transactionCount: pbft.transactions?.length || pbft.transactionCount,
+        extraData: pbft.extraData,
+        logsBloom: pbft.logsBloom,
+        mixHash: pbft.mixHash,
+        recepitsRoot: pbft.recepitsRoot,
+        sha3Uncles: pbft.sha3Uncles,
+        size: pbft.size,
+        stateRoot: pbft.stateRoot,
+        transactionsRoot: pbft.transactionsRoot,
+      });
+      _pbft = newPbft;
+    }
 
+    try {
       const saved = await this.pbftRepository
         .createQueryBuilder()
         .insert()
         .into(PbftEntity)
         .values(_pbft)
-        .orUpdate(['hash'], 'UQ_35a84f8058f83feff8f2941de6a')
-        .setParameter('hash', _pbft?.hash || pbft.hash)
+        .orIgnore()
         .returning('*')
         .execute();
 
@@ -108,7 +117,8 @@ export default class PbftService {
       });
       return pbftFound;
     } catch (error) {
-      console.error(error);
+      this.logger.error(`Error when saving PBFT: ${JSON.stringify(error)}`);
+      return _pbft;
     }
   }
 
@@ -121,18 +131,26 @@ export default class PbftService {
       },
     });
     if (pbfts?.length > 0) {
-      await Promise.all(
-        pbfts.map(async (pbft: PbftEntity) => {
+      try {
+        for (const pbft of pbfts) {
           await this.dagService.findAndRemoveDagsForPbftPeriod(pbft.number);
-        })
-      );
+        }
 
-      this.logger.debug(
-        `Deleting ${pbfts?.length} PBFTs with number greater or equal than ${pbftNumber}`
-      );
+        this.logger.debug(
+          `Deleting ${pbfts?.length} PBFTs with number greater or equal than ${pbftNumber}`
+        );
 
-      await this.pbftRepository.delete(pbfts.map((pbft) => pbft.id));
-      this.logger.debug(`Deleted ${pbfts?.length} PBFTs`);
+        await this.pbftRepository.remove(pbfts);
+        this.logger.debug(`Deleted ${pbfts?.length} PBFTs`);
+      } catch (error) {
+        // Call method for removing first Transactions, then Dags, then PBFTS
+        this.logger.error(`Erroneous data could not be saved! `, error);
+        // this.logger.debug(`Trying deletion again ...`);
+        // await this.pbftRepository.delete(pbfts.map((pbft) => pbft.id));
+        // for (const pbft of pbfts) {
+        //   await this.txService.deleteTransactions(pbft.transactions);
+        // }
+      }
     }
   }
 

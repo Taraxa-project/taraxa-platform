@@ -4,6 +4,10 @@ import { WebSocketModule } from 'nestjs-websocket';
 import LiveSyncerService from './live.syncer.service';
 import general from 'src/config/general';
 import { BullModule } from '@nestjs/bull';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 
 @Module({
   imports: [
@@ -24,8 +28,8 @@ import { BullModule } from '@nestjs/bull';
       name: 'new_pbfts',
     }),
   ],
-  providers: [LiveSyncerService],
+  providers: isProducer ? [LiveSyncerService] : [],
   controllers: [],
-  exports: [LiveSyncerService],
+  exports: isProducer ? [LiveSyncerService] : [],
 })
 export class LiveSyncerModule {}

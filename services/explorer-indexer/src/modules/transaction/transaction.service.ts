@@ -21,6 +21,10 @@ export default class TransactionService {
     this.txRepository = txRepository;
   }
 
+  public async deleteTransactions(transactions: TransactionEntity[]) {
+    return await this.txRepository.remove(transactions);
+  }
+
   public populateTransactionWithPBFT(tx: ITransaction, block: IPBFT) {
     tx.block = block;
     return tx;
@@ -96,8 +100,7 @@ export default class TransactionService {
           .insert()
           .into(TransactionEntity)
           .values(newTx)
-          .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
-          .setParameter('hash', newTx.hash)
+          .orIgnore()
           .returning('*')
           .execute();
 

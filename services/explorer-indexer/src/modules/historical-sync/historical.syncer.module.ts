@@ -8,7 +8,10 @@ import HistoricalSyncService from './historical.syncer.service';
 import general from 'src/config/general';
 import { ConnectorsModule } from '../connectors';
 import { BullModule } from '@nestjs/bull';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
+const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 @Module({
   imports: [
     ConfigModule.forFeature(general),
@@ -37,8 +40,8 @@ import { BullModule } from '@nestjs/bull';
     TransactionModule,
     ConnectorsModule,
   ],
-  providers: [HistoricalSyncService],
+  providers: isProducer ? [HistoricalSyncService] : [],
   controllers: [],
-  exports: [HistoricalSyncService],
+  exports: isProducer ? [HistoricalSyncService] : [],
 })
 export class HistoricalSyncerModule {}
