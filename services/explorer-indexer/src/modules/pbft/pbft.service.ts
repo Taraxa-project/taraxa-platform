@@ -80,10 +80,9 @@ export default class PbftService {
       const saved = await this.pbftRepository
         .createQueryBuilder()
         .insert()
-        .orUpdate(['hash'], 'UQ_35a84f8058f83feff8f2941de6a')
         .into(PbftEntity)
         .values(_pbft)
-        .setParameter('hash', _pbft?.hash || pbft.hash)
+        .orIgnore()
         .returning('*')
         .execute();
 
