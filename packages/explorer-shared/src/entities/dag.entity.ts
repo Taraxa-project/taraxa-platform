@@ -1,4 +1,3 @@
-import { IDAG } from '@taraxa_project/explorer-shared';
 import {
   BaseEntity,
   Column,
@@ -9,7 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
-import TransactionEntity from '../transaction/transaction.entity';
+import { IDAG } from '../models';
+import { TransactionEntity } from './transaction.entity';
 
 const table_name = 'dags';
 
@@ -68,7 +68,9 @@ export class DagEntity extends BaseEntity implements IDAG {
   transactionCount?: number;
 
   @ManyToMany(() => TransactionEntity, {
+    cascade: true,
     onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   })
   @JoinTable({
     name: 'transactions_dags',

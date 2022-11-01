@@ -3,7 +3,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config({ path: '../../../.env' });
+require('dotenv').config({ path: '../../.env' });
 
 export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {

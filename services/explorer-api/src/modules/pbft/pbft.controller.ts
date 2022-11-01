@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { PbftEntity } from './pbft.entity';
+import { PbftEntity } from '@taraxa_project/explorer-shared';
 import { PbftService } from './pbft.service';
 
 @ApiTags('pbft')

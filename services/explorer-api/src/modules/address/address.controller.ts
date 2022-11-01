@@ -5,7 +5,11 @@ import {
   ApiTooManyRequestsResponse,
   ApiResponse,
 } from '@nestjs/swagger';
-import { DagEntity, PbftEntity, TransactionEntity } from '../pbft';
+import {
+  PbftEntity,
+  DagEntity,
+  TransactionEntity,
+} from '@taraxa_project/explorer-shared';
 import { AddressService } from './address.service';
 import {
   AddressDetailsResponse,

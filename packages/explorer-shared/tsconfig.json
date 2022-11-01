@@ -1,6 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "lib": ["es5", "es6"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "rootDir": ".",
     "outDir": "./lib",
     "baseUrl": ".",
@@ -16,7 +20,11 @@
     "module": "commonjs",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true
   },
+  "include": ["src/**/*", "src/migrations/*", "data-source.ts"],
   "exclude": ["node_modules", "lib", "*.d.ts"]
 }

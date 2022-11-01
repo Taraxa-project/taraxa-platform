@@ -1,16 +1,21 @@
-export interface RPCTransaction {
+import { ITransaction } from '@taraxa_project/explorer-shared';
+
+export interface RPCTransaction
+  extends Pick<
+    ITransaction,
+    | 'from'
+    | 'to'
+    | 'gas'
+    | 'gasPrice'
+    | 'hash'
+    | 'r'
+    | 'v'
+    | 's'
+    | 'transactionIndex'
+    | 'value'
+  > {
   blockHash?: string;
   blockNumber?: string; //hex
-  from?: string;
-  to?: string;
-  gas?: string; //hex
-  gasPrice?: string; //hex
-  hash: string;
   input?: string;
   nonce?: string; //hex
-  r?: string;
-  v?: string; // hex
-  s?: string;
-  transactionIndex?: string; //hex
-  value?: string; //hex
 }

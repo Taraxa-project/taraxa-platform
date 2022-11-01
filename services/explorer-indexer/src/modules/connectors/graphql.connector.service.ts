@@ -4,7 +4,7 @@ import { gql, GraphQLClient } from 'graphql-request';
 import { IGQLDag, IGQLPBFT } from '../../types';
 
 @Injectable()
-export class GraphQLConnector {
+export class GraphQLConnectorService {
   constructor(
     @InjectGraphQLClient()
     private readonly graphQLClient: GraphQLClient
@@ -78,6 +78,70 @@ export class GraphQLConnector {
     )?.blocks;
   }
 
+  public async getPBFTBlockForNumber(number: number) {
+    return (
+      await this.graphQLClient.request(
+        gql`
+          query block_query($number: Long, $hash: Bytes32) {
+            block(number: $number, hash: $hash) {
+              number
+              hash
+              stateRoot
+              gasLimit
+              gasUsed
+              timestamp
+              transactionCount
+              parent {
+                hash
+              }
+              difficulty
+              totalDifficulty
+              miner {
+                address
+              }
+              transactionsRoot
+              extraData
+              logsBloom
+              mixHash
+              receiptsRoot
+              ommerHash
+              nonce
+              stateRoot
+              transactions {
+                block {
+                  hash
+                  number
+                }
+                hash
+                nonce
+                status
+                from {
+                  address
+                }
+                to {
+                  address
+                }
+                gas
+                gasUsed
+                cumulativeGasUsed
+                gasPrice
+                inputData
+                r
+                v
+                s
+                index
+                value
+              }
+            }
+          }
+        `,
+        {
+          number,
+        }
+      )
+    )?.block;
+  }
+
   public async getPBFTBlockHashForNumber(number: number) {
     return (
       await this.graphQLClient.request(
@@ -148,7 +212,7 @@ export class GraphQLConnector {
    * @param period Optional if not give returns DAG from last PBFT period
    * @returns DAG array
    */
-  public async getDagBlockForPbftPeriod(period?: number): Promise<IGQLDag[]> {
+  public async getDagBlocksForPbftPeriod(period?: number): Promise<IGQLDag[]> {
     return (
       await this.graphQLClient.request(
         gql`

@@ -1,5 +1,5 @@
-import { ITaraxaNode } from '@taraxa_project/explorer-shared';
 import { ViewEntity, ViewColumn } from 'typeorm';
+import { ITaraxaNode } from '../models';
 
 @ViewEntity({
   expression: `

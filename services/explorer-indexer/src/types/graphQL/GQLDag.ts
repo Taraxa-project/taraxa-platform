@@ -1,17 +1,9 @@
+import { IDAG } from '@taraxa_project/explorer-shared';
 import { IGQLTransaction } from './GQLTransaction';
 
-export interface IGQLDag {
-  hash: string;
-  pivot?: string;
-  tips?: string[];
-  level?: number;
-  pbftPeriod?: number;
-  timestamp: number;
+export interface IGQLDag extends Omit<IDAG, 'id' | 'author' | 'transactions'> {
   author?: {
     address: string;
   };
-  signature?: string;
-  vdf?: number;
-  transactionCount?: number;
   transactions?: IGQLTransaction[];
 }

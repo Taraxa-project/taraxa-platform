@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { theme } from '@taraxa_project/taraxa-ui';
+import { zeroX } from '../../utils';
 
 export const AddressLink = ({
   address,
@@ -11,7 +12,7 @@ export const AddressLink = ({
 }): JSX.Element => {
   return (
     <Link
-      to={`/addresses/${address}`}
+      to={`/address/${address}`}
       style={{
         textDecoration: 'none',
         color: theme.palette.secondary.main,
@@ -21,7 +22,7 @@ export const AddressLink = ({
         width,
       }}
     >
-      {address}
+      {zeroX(address)}
     </Link>
   );
 };
