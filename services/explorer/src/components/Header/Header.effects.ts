@@ -188,21 +188,21 @@ export const useHeaderEffects = () => {
       color: 'primary',
       variant: 'text',
       selected: false,
-      onAction: () => onClick('blocks'),
+      onAction: () => onClick('block'),
     },
     {
       label: 'Transactions',
       color: 'primary',
       variant: 'text',
       selected: false,
-      onAction: () => onClick('transactions'),
+      onAction: () => onClick('tx'),
     },
     {
       label: 'Nodes',
       color: 'primary',
       variant: 'text',
       selected: false,
-      onAction: () => onClick('nodes'),
+      onAction: () => onClick('node'),
     },
     {
       label: 'Faucet',
@@ -238,10 +238,10 @@ export const useHeaderEffects = () => {
     }
     switch (option.value) {
       case SearchLabelOption.TRANSACTION:
-        navigate(`/transactions/${option.label}`);
+        navigate(`/tx/${option.label}`);
         break;
       case SearchLabelOption.DAG:
-        navigate(`/blocks/${option.label}`);
+        navigate(`/block/${option.label}`);
         break;
       case SearchLabelOption.PBFT:
         navigate(`/pbft/${option.label}`);

@@ -2,16 +2,28 @@ import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import { ColumnData, Transaction, TransactionTableData } from '../../models';
-import { blockQuery } from '../../api';
+import {
+  ColumnData,
+  PbftBlock,
+  Transaction,
+  TransactionTableData,
+} from '../../models';
+import { blocksQueryWithTransactions } from '../../api';
 import { formatTransactionStatus } from '../../utils';
+import { useNodeStateContext } from '../../hooks';
+import { displayThreshold } from '../../config';
 
 export const useTransactionEffects = () => {
   const [data, setData] = useState<TransactionTableData[]>();
   const { currentNetwork } = useExplorerNetwork();
+  const { finalBlock } = useNodeStateContext();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: blockData }] = useQuery({
-    query: blockQuery,
+    query: blocksQueryWithTransactions,
+    variables: {
+      from: finalBlock ? finalBlock - Number(displayThreshold) : 0,
+      to: finalBlock || 0,
+    },
   });
 
   const columns: ColumnData[] = [
@@ -31,21 +43,26 @@ export const useTransactionEffects = () => {
   }, [fetching]);
 
   useEffect(() => {
-    if (blockData?.block) {
-      const transactions = blockData?.block?.transactions;
-      if (transactions?.length) {
-        const rows = transactions.map((transaction: Transaction) => {
-          return {
-            timestamp: blockData?.block?.timestamp,
-            block: blockData?.block?.number,
-            status: formatTransactionStatus(transaction.status),
-            txHash: transaction.hash,
-            value: transaction.value,
-            token: 'TARA',
-          };
-        });
-        setData(rows);
-      }
+    if (blockData?.blocks) {
+      const blocks = blockData?.blocks as PbftBlock[];
+      blocks.forEach((block) => {
+        if (block) {
+          const transactions = block?.transactions;
+          if (transactions?.length) {
+            const rows = transactions.map((transaction: Transaction) => {
+              return {
+                timestamp: Number(block?.timestamp),
+                block: `${block?.number}`,
+                status: formatTransactionStatus(transaction.status),
+                txHash: transaction.hash,
+                value: `${transaction.value}`,
+                token: 'TARA',
+              };
+            });
+            setData(rows);
+          }
+        }
+      });
     }
   }, [blockData]);
 
