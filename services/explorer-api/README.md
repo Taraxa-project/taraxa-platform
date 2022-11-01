@@ -1,73 +1,82 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+  <a href="http://taraxa.io/" target="blank"><img src="https://taraxa.io/static/taraxa_io/img/taraxa_logo_transparent_dark_bg.png" width="200" alt="Taraxa Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+  <p align="center">Built with Nest.Js: A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+<a href="https://www.npmjs.com/~taraxa_project" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~taraxa_project" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://circleci.com/gh/Taraxa-project/taraxa-platform" target="_blank"><img src="https://img.shields.io/circleci/build/github/Taraxa-project/taraxa-platform/main" alt="CircleCI" /></a>
+<a href="https://discord.gg/Sqf9MHD2" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://github.com/Taraxa-project" target="_blank"><img src="https://img.shields.io/github/followers/Taraxa-project?style=social" alt="GitHub Followers" /></a>
+  <a href="https://twitter.com/taraxa_project" target="_blank"><img src="https://img.shields.io/twitter/follow/taraxa_project?style=social"></a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Explorer backend API serving the [Taraxa Explorer](https://github.com/Taraxa-project/taraxa-platform/tree/develop/services/explorer) with indexed data from the [Explorer Indexer](https://github.com/Taraxa-project/taraxa-platform/tree/develop/services/explorer-indexer).
+
+## Routes
+
+### Address
+
+Main route: `/address/[hash]` where the hash is the public key of the address.
+
+- GET `/stats` to retrieve the [`StatsReponse`](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-api/src/modules/address/responses/Stats.response.ts#L1) for the provided address.
+- GET `/blocks` to retrieve the [`BlocksCount`](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-api/src/modules/address/responses/BlocksCount.response.ts#L1) for the provided address.
+- GET `/dags` to retrieve the DAGs produced by the provided address.
+- GET `/pbfts` to retrieve the PBFTs produced by the provided address.
+- GET `/transactions` to retrieve the Transactions initiated by the provided address.
+- GET `/details` to retrivei cumulative data about the address and its holdings: [`AddressDetails`](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-api/src/modules/address/responses/AddressDetails.response.ts#L1)
+
+### Health
+
+To obtain the service status of the `Explorer API` do a GET request to `/health`. This will return whether:
+
+- The Database connection is alive.
+- The storage used by the process is adequate.
+- The Heap used by the process is adequate.
+- The RSS memory used by the process is adequate.
+
+### Node
+
+To obtian the list of nodes currently known by the Explorer do a GEt request to `/nodes`.
+**Note**: This returns a paginated response.
+
+### PBFT
+
+Main route: `/pbft`.
+
+- GET `/total-this-week` to return the number of blocks produced this week.
 
 ## Installation
 
 ```bash
-$ npm install
+$ yarn install
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ yarn start
 
 # watch mode
-$ npm run start:dev
+$ yarn start:dev
 
 # production mode
-$ npm run start:prod
+$ yarn start:prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ yarn test
 
 # e2e tests
-$ npm run test:e2e
+$ yarn test:e2e
 
 # test coverage
-$ npm run test:cov
+$ yarn test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).

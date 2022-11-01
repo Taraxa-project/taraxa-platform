@@ -29,17 +29,14 @@ const Root = (): JSX.Element => {
         <Box sx={{ px: 4 }}>
           <Routes>
             <Route path='/' element={<HomePage />} />
-            <Route path='/blocks' element={<BlocksPage />} />
-            <Route path='/blocks/:txHash' element={<DAGDataContainer />} />
+            <Route path='/block' element={<BlocksPage />} />
+            <Route path='/block/:txHash' element={<DAGDataContainer />} />
             <Route path='/pbft/:identifier' element={<PBFTDataContainer />} />
             <Route path='/faucet' element={<FaucetPage />} />
-            <Route path='/nodes' element={<NodesPage />} />
-            <Route path='/transactions' element={<TransactionsPage />} />
+            <Route path='/node' element={<NodesPage />} />
+            <Route path='/tx' element={<TransactionsPage />} />
             <Route path='/dag' element={<DagPage />} />
-            <Route
-              path='/transactions/:txHash'
-              element={<TransactionDataContainer />}
-            />
+            <Route path='/tx/:txHash' element={<TransactionDataContainer />} />
             <Route path='/address/:account' element={<AddressInfoPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
