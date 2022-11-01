@@ -21,6 +21,7 @@ import { Delegation } from '../delegation/delegation.entity';
 import { Node } from '../node/node.entity';
 import { NodeCommission } from '../node/node-commission.entity';
 import { Reward } from './reward.entity';
+import { RewardRepository } from './reward.repository';
 import { RewardType } from './reward-type.enum';
 
 @Injectable()
@@ -30,7 +31,7 @@ export class RewardService {
     private stakingDataService: StakingDataService,
     private delegationDataService: DelegationDataService,
     @InjectRepository(Reward)
-    private rewardRepository: Repository<Reward>,
+    private rewardRepository: RewardRepository,
     private config: ConfigService,
     private userService: UserService,
   ) {

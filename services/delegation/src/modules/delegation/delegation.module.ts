@@ -5,8 +5,8 @@ import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
 import delegationConfig from '../../config/delegation';
 import ethereumConfig from '../../config/ethereum';
-import { NodeModule } from '../node/node.module';
 import { StakingModule } from '../staking/staking.module';
+import { BlockchainModule } from '../blockchain/blockchain.module';
 import { Node } from '../node/node.entity';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
@@ -33,8 +33,8 @@ import { DelegationDeletedListener } from './listener/delegation-deleted.listene
         maxRedirects: 5,
       }),
     }),
-    NodeModule,
     StakingModule,
+    BlockchainModule,
   ],
   controllers: [
     DelegationController,

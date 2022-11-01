@@ -1,8 +1,10 @@
 import { Queue } from 'bull';
+import { Repository } from 'typeorm';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bull';
-import { NodeService } from '../node/node.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Node } from '../node/node.entity';
 import { DelegationService } from './delegation.service';
 import { ENSURE_DELEGATION_JOB } from './delegation.constants';
 import { EnsureDelegationJob } from './job/ensure-delegation.job';
@@ -12,7 +14,8 @@ export class DelegationTaskService implements OnModuleInit {
   private readonly logger = new Logger(DelegationTaskService.name);
 
   constructor(
-    private nodeService: NodeService,
+    @InjectRepository(Node)
+    private nodeRepository: Repository<Node>,
     @InjectQueue('delegation')
     private delegationQueue: Queue,
     private delegationService: DelegationService,
@@ -24,7 +27,7 @@ export class DelegationTaskService implements OnModuleInit {
   @Cron('0 0 * * *')
   async ensureDelegation() {
     this.logger.debug('Starting delegation worker...');
-    const nodes = await this.nodeService.findNodes({ type: 'mainnet' });
+    const nodes = await this.nodeRepository.find({ type: 'mainnet' });
 
     for (const node of nodes) {
       await this.delegationQueue.add(

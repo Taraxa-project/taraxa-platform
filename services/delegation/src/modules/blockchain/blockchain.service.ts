@@ -44,8 +44,21 @@ export class BlockchainService {
     this.testnetOwnNodes = delegation.testnetOwnNodes;
   }
 
-  getValidator(address: string) {
-    return this.testnetDelegationContract.getValidator(address);
+  async getValidator(address: string) {
+    const {
+      total_stake,
+      commission_reward,
+      commission,
+      description,
+      endpoint,
+    } = await this.testnetDelegationContract.getValidator(address);
+    return {
+      total_stake,
+      commission_reward,
+      commission,
+      description,
+      endpoint,
+    };
   }
 
   async registerValidator(
@@ -53,25 +66,10 @@ export class BlockchainService {
     addressProof: string,
     vrfKey: string,
   ) {
-    if (this.testnetOwnNodes.length == 0) {
-      console.error(`Can't delegate to own nodes - No own nodes.`);
-    }
-    try {
-      const randomIndex = Math.floor(
-        Math.random() * this.testnetOwnNodes.length,
-      );
-      const ownNode = this.testnetOwnNodes[randomIndex];
-      const tx = await this.testnetDelegationContract.delegate(ownNode, {
-        gasLimit: 120000,
-        value: this.testnetDelegationAmount.mul(2).toString(),
-      });
-      await tx.wait();
-    } catch (e) {
-      console.error(`Could not delegate to own nodes`, e);
-    }
+    await this.rebalanceOwnNodes(true);
 
     try {
-      const receipt = await this.testnetDelegationContract.registerValidator(
+      const tx = await this.testnetDelegationContract.registerValidator(
         address,
         addressProof,
         vrfKey,
@@ -79,16 +77,134 @@ export class BlockchainService {
         '',
         '',
         {
-          gasLimit: 240000,
-          value: this.testnetDelegationAmount.toString(),
+          gasPrice: this.testnetProvider.getGasPrice(),
+          value: this.testnetDelegationAmount,
         },
       );
-      await receipt.wait();
+      await tx.wait();
       return true;
     } catch (e) {
       console.error(`Could not create validator`, e);
     }
 
     return false;
+  }
+
+  async rebalanceOwnNodes(addOneNode = false) {
+    if (this.testnetOwnNodes.length === 0) {
+      console.error(`Can't delegate to own nodes - No own nodes.`);
+      return false;
+    }
+
+    // Getting all validators from contract (including own nodes)
+    const allValidators = await this.getAllValidators();
+    if (allValidators.length === 0) {
+      console.error(`Can't delegate to own nodes - No validators in contract.`);
+      return false;
+    }
+
+    // Getting all registered own nodes and total stake for each
+    const ownNodes = allValidators
+      .filter((validator) =>
+        this.testnetOwnNodes
+          .map((node) => node.toLowerCase())
+          .includes(validator.account.toLowerCase()),
+      )
+      .map((validator) => ({
+        address: validator.account,
+        stake: validator.info.total_stake,
+      }));
+    if (ownNodes.length === 0) {
+      console.error(`Can't delegate to own nodes - No own nodes in contract.`);
+      return false;
+    }
+    const totalStakeOwnNodes = ownNodes.reduce((prev, curr) => {
+      return prev.add(curr.stake);
+    }, ethers.BigNumber.from(0));
+
+    let numberOfCommunityNodes = allValidators.length - ownNodes.length;
+    if (addOneNode) {
+      numberOfCommunityNodes++;
+    }
+
+    const totalStakeCommunityNodes = this.testnetDelegationAmount.mul(
+      numberOfCommunityNodes,
+    );
+
+    // If our node have 2 x stake of community nodes already, we exit
+    if (totalStakeOwnNodes.gte(totalStakeCommunityNodes.mul(2))) {
+      return;
+    }
+
+    // Sorting own nodes in ascending order
+    ownNodes.sort((a, b) => {
+      if (a.stake.eq(b.stake)) {
+        return 0;
+      }
+      if (a.stake.gt(b.stake)) {
+        return 1;
+      }
+      return -1;
+    });
+
+    const avgStakeOwnNode = totalStakeCommunityNodes
+      .mul(2)
+      .div(ownNodes.length);
+    let left = totalStakeCommunityNodes.mul(2).sub(totalStakeOwnNodes);
+    for (const ownNode of ownNodes) {
+      if (left.isZero()) {
+        break;
+      }
+
+      if (ownNode.stake.gte(avgStakeOwnNode)) {
+        continue;
+      }
+
+      const d = avgStakeOwnNode.sub(ownNode.stake);
+      let toDelegate = ethers.BigNumber.from(0);
+      if (d.gt(left)) {
+        toDelegate = ethers.BigNumber.from(left);
+      } else {
+        toDelegate = ethers.BigNumber.from(d);
+      }
+
+      console.log(`Delegating ${toDelegate} to ${ownNode.address}`);
+
+      try {
+        const tx = await this.testnetDelegationContract.delegate(
+          ownNode.address,
+          {
+            gasPrice: this.testnetProvider.getGasPrice(),
+            value: toDelegate,
+          },
+        );
+        await tx.wait();
+      } catch (e) {
+        console.error(
+          `Can't delegate to own nodes - delegation call failed for node ${ownNode.address}`,
+        );
+        break;
+      }
+
+      left = left.sub(toDelegate);
+    }
+  }
+
+  async getAllValidators() {
+    let validators = [];
+    let page = 0;
+    let hasNextPage = true;
+    while (hasNextPage) {
+      try {
+        const allValidators =
+          await this.testnetDelegationContract.getValidators(page);
+        validators = [...validators, ...allValidators.validators];
+        hasNextPage = !allValidators.end;
+        page++;
+      } catch (e) {
+        hasNextPage = false;
+      }
+    }
+    return validators;
   }
 }
