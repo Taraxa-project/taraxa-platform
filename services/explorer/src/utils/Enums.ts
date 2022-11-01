@@ -6,8 +6,8 @@ export enum RequestLimit {
 }
 
 export enum HashLinkType {
-  TRANSACTIONS = 'transactions',
-  BLOCKS = 'blocks',
+  TRANSACTIONS = 'tx',
+  BLOCKS = 'block',
   PBFT = 'pbft',
   ADDRESSES = 'address',
 }
