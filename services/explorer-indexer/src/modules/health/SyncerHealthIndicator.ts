@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   HealthIndicator,
   HealthIndicatorResult,
@@ -15,7 +15,9 @@ export class SyncerHealthIndicator extends HealthIndicator {
   ) {
     super();
   }
-  async isHealthy(key: string): Promise<HealthIndicatorResult> {
+  async isHealthy(
+    key: 'pbft' | 'dag' | 'queue_pbfts' | 'queue_dags'
+  ): Promise<HealthIndicatorResult> {
     switch (key) {
       case 'pbft': {
         const lastPbftHash = await this.pbftService.getLastPbftHash();
@@ -36,6 +38,21 @@ export class SyncerHealthIndicator extends HealthIndicator {
           return result;
         }
         throw new HealthCheckError('Last PBFT block is undefined', result);
+      }
+      case 'queue_pbfts': {
+        if (this.pbftService) {
+          return this.getStatus(
+            key,
+            this.pbftService.getRedisConnectionState()
+          );
+        }
+        break;
+      }
+      case 'queue_dags': {
+        if (this.dagService) {
+          return this.getStatus(key, this.dagService.getRedisConnectionState());
+        }
+        break;
       }
     }
   }

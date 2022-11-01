@@ -8,7 +8,7 @@ import {
   TransactionEntity,
   zeroX,
 } from '@taraxa_project/explorer-shared';
-import { IGQLTransaction, RPCTransaction } from 'src/types';
+import { IGQLTransaction } from 'src/types';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -19,6 +19,10 @@ export default class TransactionService {
     private txRepository: Repository<TransactionEntity>
   ) {
     this.txRepository = txRepository;
+  }
+
+  public async deleteTransactions(transactions: TransactionEntity[]) {
+    return await this.txRepository.remove(transactions);
   }
 
   public populateTransactionWithPBFT(tx: ITransaction, block: IPBFT) {
@@ -32,20 +36,10 @@ export default class TransactionService {
       to: zeroX(gqlTx.to?.address),
       inputData: zeroX(gqlTx.inputData),
       from: zeroX(gqlTx.from?.address),
-      nonce: Number(gqlTx.nonce),
+      nonce: Number(gqlTx.nonce || null),
       blockHash: zeroX(gqlTx.block?.hash),
       blockNumber: gqlTx.block?.number + '',
       transactionIndex: gqlTx.index + '',
-    };
-    return iTx;
-  }
-
-  public txRpcToITransaction(rpcTx: RPCTransaction) {
-    const nonce = parseInt(rpcTx.nonce, 16);
-    const iTx: ITransaction = {
-      ...rpcTx,
-      inputData: rpcTx.input,
-      nonce,
     };
     return iTx;
   }
@@ -65,71 +59,7 @@ export default class TransactionService {
         newTransactions.push(tx);
       })
     );
-    // for (const transaction of transactions) {
-    //   const tx = await this.safeSaveEmptyTx(transaction);
-    //   newTransactions.push(tx);
-    // }
     return newTransactions;
-  }
-
-  public async safeSaveTx(transaction: ITransaction) {
-    if (!transaction || !transaction.hash) {
-      return;
-    }
-    transaction.hash = zeroX(transaction.hash);
-    const tx = await this.txRepository.findOne({
-      where: {
-        hash: transaction.hash,
-      },
-    });
-    const block = transaction.block as PbftEntity;
-    delete block.transactions;
-
-    if (!tx) {
-      try {
-        const newTx = this.txRepository.create({
-          hash: transaction.hash,
-          nonce: transaction.nonce,
-          index: transaction.index,
-          value: transaction.value,
-          gas: String(parseInt(transaction.gas, 16) || '0'),
-          gasPrice: String(parseInt(transaction.gasPrice, 16) || '0'),
-          gasUsed: String(parseInt(transaction.gasUsed, 16) || '0'),
-          cumulativeGasUsed: transaction.cumulativeGasUsed,
-          inputData: transaction.inputData,
-          status: transaction.status,
-          from: toChecksumAddress(transaction.from),
-          to: toChecksumAddress(transaction.to),
-          block: {
-            id: transaction?.block?.id,
-            hash: transaction.block.hash,
-            number: transaction.block.number,
-            timestamp: transaction.block.timestamp,
-          },
-        });
-        // newTx = await this.txRepository.save(newTx);
-
-        const saved = await this.txRepository
-          .createQueryBuilder()
-          .insert()
-          .into(TransactionEntity)
-          .values(newTx)
-          .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
-          .setParameter('hash', newTx.hash)
-          .returning('*')
-          .execute();
-
-        if (saved?.raw[0]) {
-          this.logger.log(
-            `Registered new Transaction ${JSON.stringify(saved.raw[0]?.hash)}`
-          );
-        }
-        return saved.raw[0];
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    return tx;
   }
 
   public async safeSaveEmptyTx(transaction: ITransaction) {
@@ -170,8 +100,7 @@ export default class TransactionService {
           .insert()
           .into(TransactionEntity)
           .values(newTx)
-          .orUpdate(['hash'], 'UQ_6f30cde2f4cf5a630e053758400')
-          .setParameter('hash', newTx.hash)
+          .orIgnore()
           .returning('*')
           .execute();
 

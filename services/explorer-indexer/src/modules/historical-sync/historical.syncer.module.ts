@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WebSocketModule } from 'nestjs-websocket';
-import { BullModule } from '@nestjs/bull';
 import { DagModule } from '../dag';
 import { PbftModule } from '../pbft';
 import { TransactionModule } from '../transaction';
 import HistoricalSyncService from './historical.syncer.service';
 import general from 'src/config/general';
 import { ConnectorsModule } from '../connectors';
+import { BullModule } from '@nestjs/bull';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
+const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 @Module({
   imports: [
     ConfigModule.forFeature(general),
@@ -26,10 +29,10 @@ import { ConnectorsModule } from '../connectors';
     }),
     BullModule.registerQueue(
       {
-        name: 'historical_pbfts',
+        name: 'new_pbfts',
       },
       {
-        name: 'historical_dags',
+        name: 'new_dags',
       }
     ),
     DagModule,
@@ -37,8 +40,8 @@ import { ConnectorsModule } from '../connectors';
     TransactionModule,
     ConnectorsModule,
   ],
-  providers: [HistoricalSyncService],
+  providers: isProducer ? [HistoricalSyncService] : [],
   controllers: [],
-  exports: [HistoricalSyncService],
+  exports: isProducer ? [HistoricalSyncService] : [],
 })
 export class HistoricalSyncerModule {}

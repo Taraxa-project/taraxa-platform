@@ -2,28 +2,33 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   IDAG,
-  ITransaction,
   zeroX,
   toChecksumAddress,
   DagEntity,
 } from '@taraxa_project/explorer-shared';
-import {
-  NewDagBlockResponse,
-  NewDagBlockFinalizedResponse,
-  IGQLDag,
-} from 'src/types';
+import { IGQLDag } from 'src/types';
 import { Repository } from 'typeorm';
 import TransactionService from '../transaction/transaction.service';
 
 @Injectable()
 export default class DagService {
   private readonly logger: Logger = new Logger(DagService.name);
+  private isRedisConnected: boolean;
   constructor(
     @InjectRepository(DagEntity)
     private dagRepository: Repository<DagEntity>,
     private txService: TransactionService
   ) {
     this.dagRepository = dagRepository;
+    this.isRedisConnected = true;
+  }
+
+  public getRedisConnectionState() {
+    return this.isRedisConnected;
+  }
+
+  public setRedisConnectionState(state: boolean) {
+    this.isRedisConnected = state;
   }
 
   public async safeSaveDag(dag: IDAG) {
@@ -74,39 +79,8 @@ export default class DagService {
       this.logger.error(
         `Failed to save or update DAG with hash: ${dagToCreate.hash}`
       );
+      this.logger.error(`Reason is: ${err}`);
     }
-  }
-
-  public dagRpcToIDAG(dag: NewDagBlockResponse) {
-    const {
-      hash,
-      pivot,
-      tips,
-      level,
-      period,
-      timestamp,
-      author,
-      sender,
-      signature,
-      sig,
-      vdf,
-      transactionCount,
-      transactions,
-    } = { ...dag };
-    const _dag = {
-      hash,
-      pivot: zeroX(pivot),
-      tips: tips,
-      level: parseInt(`${level}`, 16) || 0,
-      pbftPeriod: period,
-      timestamp: parseInt(timestamp, 16) || 0,
-      author: toChecksumAddress(zeroX(sender || author)),
-      signature: zeroX(sig || signature),
-      vdf: parseInt(vdf?.difficulty, 16) || 0,
-      transactionCount: transactionCount || transactions?.length || 0,
-      transactions: transactions?.map((tx) => ({ hash: tx } as ITransaction)),
-    };
-    return _dag;
   }
 
   public dagGraphQlToIdag(dag: IGQLDag) {
@@ -149,6 +123,21 @@ export default class DagService {
     return await this.dagRepository.findOneBy({ level });
   }
 
+  public async findAndRemoveDagsForPbftPeriod(period: number): Promise<void> {
+    const dags = await this.dagRepository.find({
+      where: {
+        pbftPeriod: period,
+      },
+    });
+    if (dags?.length > 0) {
+      this.logger.debug(
+        `Deleting ${dags?.length} DAGS with pbftPeriod ${period}`
+      );
+      await this.dagRepository.remove(dags);
+      this.logger.debug(`Deleted ${dags?.length} DAGs`);
+    }
+  }
+
   public async getDagsFromLastLevel(limit: number) {
     return await this.dagRepository
       .createQueryBuilder('dags')
@@ -180,37 +169,6 @@ export default class DagService {
         .orderBy('dags.timestamp', 'DESC')
         .limit(1)
         .getOne()
-    ).hash;
-  }
-
-  public async handleNewDag(dagData: NewDagBlockResponse) {
-    const _dagObject = this.dagRpcToIDAG(dagData);
-
-    try {
-      const res = await this.safeSaveDag(_dagObject);
-      if (res) {
-        this.logger.log(`Saved new DAG ${dagData.hash}`);
-        console.log(`Saved new DAG ${dagData.hash}`);
-      }
-    } catch (error) {
-      this.logger.error('handleNewDag', error);
-      console.error('handleNewDag', error);
-    }
-  }
-
-  public async updateDag(updateData: NewDagBlockFinalizedResponse) {
-    const dag = new DagEntity();
-    dag.hash = zeroX(updateData.block);
-    dag.pbftPeriod = parseInt(Number(updateData.period).toString(), 10);
-    try {
-      const updated = await this.safeSaveDag(dag);
-      if (updated) {
-        this.logger.log(`DAG ${updateData.block} finalized`);
-        console.log(`DAG ${updateData.block} finalized`);
-      }
-    } catch (error) {
-      this.logger.error('NewDagBlockFinalizedResponse', error);
-      console.error('NewDagBlockFinalizedResponse', error);
-    }
+    )?.hash;
   }
 }

@@ -7,4 +7,5 @@ export default registerAs('general', () => ({
   redisHost: process.env.REDIS_HOST,
   redisPort: process.env.REDIS_PORT,
   port: process.env.WS_SERVER_PORT,
+  isProducer: process.env.ENABLE_PRODUCER_MODULE,
 }));

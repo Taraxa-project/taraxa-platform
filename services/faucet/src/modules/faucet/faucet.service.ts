@@ -125,6 +125,6 @@ export class FaucetService {
     return this.requestRepository.find({});
   };
   public getByHash = (txHash: string): Promise<RequestEntity> => {
-    return this.requestRepository.findOneByOrFail({ txHash });
+    return this.requestRepository.findOneOrFail({ txHash });
   };
 }
