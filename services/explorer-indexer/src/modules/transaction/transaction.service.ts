@@ -100,7 +100,7 @@ export default class TransactionService {
           .insert()
           .into(TransactionEntity)
           .values(newTx)
-          .orIgnore()
+          .orIgnore(true)
           .returning('*')
           .execute();
 

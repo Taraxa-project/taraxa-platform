@@ -30,8 +30,8 @@ export default class HistoricalSyncService implements OnModuleInit {
     this.logger.log('Historical syncer started.');
   }
   onModuleInit() {
-    const isProduer = this.configService.get<boolean>('general.isProducer');
-    if (isProduer) {
+    const isProducer = this.configService.get<boolean>('general.isProducer');
+    if (isProducer) {
       this.pbftsQueue.empty();
       this.dagsQueue.empty();
     }
