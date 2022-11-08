@@ -12,12 +12,7 @@ interface StakingSuccessProps {
 }
 
 const StakingSuccess = ({ lockingPeriod, transactionHash, onSuccess }: StakingSuccessProps) => {
-  const { chainId: hexChainId } = useCMetamask();
-
-  let chainId = 1;
-  if (hexChainId !== null) {
-    chainId = parseInt(hexChainId, 16);
-  }
+  const { chainId } = useCMetamask();
 
   let etherscanBaseUrl = 'https://etherscan.io/tx/';
   if (chainId === 3) {

@@ -56,13 +56,21 @@ aliases:
         elif [ "${CIRCLE_BRANCH}" == "main" ]; then
           export ENV=prod
           echo 'export ENV=prod' >> $BASH_ENV
+        elif [ "${CIRCLE_BRANCH}" == "feature/moves_mainnet_to_onchain_economics" ]; then
+          export ENV=stage
+          echo 'export ENV=stage' >> $BASH_ENV
         else
           echo 'Unknown branch' >&2
           exit 1
         fi
         echo "export IMAGE=taraxa-community-frontend" >> $BASH_ENV
         echo "export GCP_REGISTRY=gcr.io/${GOOGLE_PROJECT_ID}" >> $BASH_ENV
-        echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
+
+        if [ "${CIRCLE_BRANCH}" == "feature/moves_mainnet_to_onchain_economics" ]; then
+          echo "export VERSION=onchain-economics-$(git rev-parse --short HEAD)" >> $BASH_ENV
+        else
+          echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
+        fi
 jobs:
   build-community-site:
     <<: *config
@@ -75,7 +83,7 @@ jobs:
           name: Build image
           shell: /bin/bash -eo pipefail
           command: |
-            docker build --build-arg NODE_ENV=${ENV} -t ${IMAGE}:${VERSION} -f services/community-site/Dockerfile .
+            docker build --build-arg NODE_ENV=${ENV} -t taraxa-community-frontend:${VERSION} -f services/community-site/Dockerfile .
       - run:
           name: Tag and push images
           shell: /bin/bash -eo pipefail
@@ -83,45 +91,18 @@ jobs:
             if [ "${ENV}" == "prod" ]; then
               echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
 
-              docker tag ${IMAGE}:${VERSION} taraxa/${IMAGE}:${VERSION}
-              docker tag ${IMAGE}:${VERSION} taraxa/${IMAGE}:latest
-              docker push taraxa/${IMAGE}:${VERSION}
-              docker push taraxa/${IMAGE}:latest
+              docker tag taraxa-community-frontend:${VERSION} taraxa/taraxa-community-frontend:${VERSION}
+              docker tag taraxa-community-frontend:${VERSION} taraxa/taraxa-community-frontend:latest
+              docker push taraxa/taraxa-community-frontend:${VERSION}
+              docker push taraxa/taraxa-community-frontend:latest
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag ${IMAGE}:${VERSION} ${GCP_REGISTRY}/${IMAGE}-develop:${VERSION}
-              docker tag ${IMAGE}:${VERSION} ${GCP_REGISTRY}/${IMAGE}-develop:latest
-              docker push ${GCP_REGISTRY}/${IMAGE}-develop:${VERSION}
-              docker push ${GCP_REGISTRY}/${IMAGE}-develop:latest
+              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
+              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
             fi
-  deploy-community-site:
-    <<: *config
-    steps:
-      - *step_install_deps
-      - checkout
-      - *step_install_deploy_deps
-      - *step_setup_remote_docker
-      - *step_prepare_environment
-      - run:
-          name: Deploy
-          shell: /bin/bash -eo pipefail
-          command: |
-            if [ "${ENV}" == "prod" ]; then
-              export NS=taraxa-community-prod
-              export HELM_NAME=taraxa-community
-              export HELM_CONFIG=prod.values.yaml
-            else
-              export NS=taraxa-community-qa
-              export HELM_NAME=qa-taraxa-community-site
-              export HELM_CONFIG=qa.values.yaml
-            fi
-
-            helm upgrade -i ${HELM_NAME} services/community-site/charts/community-site/ \
-              --namespace ${NS} \
-              -f services/community-site/charts/community-site/values.yaml \
-              -f services/community-site/charts/${HELM_CONFIG} \
-              --set frontend.image.tag=${VERSION}
   build-node-status:
     <<: *config
     steps:
@@ -271,20 +252,11 @@ workflows:
               only:
                 - main
                 - develop
+                - feature/moves_mainnet_to_onchain_economics
           context:
             - TARAXA
             - DOCKERHUB
             - GCR
-      - deploy-community-site:
-          requires:
-            - build-community-site
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-          context:
-            - K8S
   node-status:
     when:
       or:

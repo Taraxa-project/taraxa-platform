@@ -590,7 +590,7 @@ function Stake({
               disabled={delegators.length === 0}
               variant="outlined"
               color="secondary"
-              onClick={() => history.push('/delegation?show_my_delegators')}
+              onClick={() => history.push('/delegation?show_my_validators')}
               label="My validators"
               size="small"
             />

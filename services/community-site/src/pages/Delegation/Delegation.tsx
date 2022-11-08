@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { Notification, BaseCard, Switch, Text, Icons, Card } from '@taraxa_project/taraxa-ui';
-
 import {
   Box,
   Table,
@@ -12,132 +9,165 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-
-import { useAuth } from '../../services/useAuth';
-import { useDelegationApi } from '../../services/useApi';
-import PublicNode from '../../interfaces/PublicNode';
+import {
+  Text,
+  Notification,
+  Button,
+  Switch,
+  Card,
+  Icons,
+  BaseCard,
+} from '@taraxa_project/taraxa-ui';
 
 import Title from '../../components/Title/Title';
-import Modals from './Modal/Modals';
-import NodeRow from './Table/NodeRow';
+import WrongNetwork from '../../components/WrongNetwork';
+
 import useCMetamask from '../../services/useCMetamask';
+import useMainnet from '../../services/useMainnet';
+import useValidators from '../../services/useValidators';
+import useExplorerStats from '../../services/useExplorerStats';
+import useDelegation from '../../services/useDelegation';
+import useChain from '../../services/useChain';
+
+import Modals from './Modal/Modals';
+import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
+import { Validator } from '../../interfaces/Validator';
+import DelegationInterface from '../../interfaces/Delegation';
+import UndelegationInterface from '../../interfaces/Undelegation';
 
-const Delegation = () => {
+import { weiToEth } from '../../utils/eth';
+
+const Delegation = ({ location }: { location: Location }) => {
+  const { chainId, provider } = useChain();
   const { status, account } = useCMetamask();
-  const auth = useAuth();
-  const location = useLocation();
-  const delegationApi = useDelegationApi();
-  const isLoggedIn = !!auth.user?.id;
+  const { chainId: mainnetChainId } = useMainnet();
 
-  const showMyDelegatorsQuery =
-    new URLSearchParams(location.search).get('show_my_delegators') !== null;
+  const { getValidators, getValidatorsWith } = useValidators();
+  const { updateValidatorsStats } = useExplorerStats();
+  const { getDelegations, getUndelegations, confirmUndelegate } = useDelegation();
 
-  const [ownValidatorsHaveCommissionChange, setOwnValidatorsHaveCommissionChange] = useState(false);
-  const [showUserOwnValidators, setShowUserOwnValidators] = useState(
-    showMyDelegatorsQuery || false,
-  );
-  const [showFullyDelegatedNodes, setShowFullyDelegatedNodes] = useState(true);
-  const [availableBalance, setAvailableBalance] = useState(0);
-  const [averageDelegation, setAverageDelegation] = useState(0);
-  const [totalDelegation, setTotalDelegation] = useState(0);
-  const [totalValidators, setTotalValidators] = useState(0);
-  const [nodes, setNodes] = useState<PublicNode[]>([]);
-  const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
-  const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
+  const [validators, setValidators] = useState<Validator[]>([]);
+  const [delegations, setDelegations] = useState<DelegationInterface[]>([]);
+  const [undelegations, setUndelegations] = useState<UndelegationInterface[]>([]);
 
-  const canDelegate = isLoggedIn && status === 'connected' && !!account;
+  const showMyValidatorsQuery =
+    new URLSearchParams(location.search).get('show_my_validators') !== null;
+  const [showMyValidators, setShowMyValidators] = useState(showMyValidatorsQuery || false);
+  const [showFullyDelegatedValidators, setShowFullyDelegatedValidators] = useState(true);
 
-  const getStats = useCallback(async () => {
-    const data = await delegationApi.get(
-      '/validators?show_fully_delegated=true&show_my_validators=false',
-    );
-    if (data.success) {
-      let ownValidatorHasCommissionChange = false;
-      let totalDelegationAcc = 0;
-      data.response.forEach((node: any) => {
-        if (node.totalDelegation) {
-          totalDelegationAcc += node.totalDelegation;
-        }
+  const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
+  const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
+  const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
 
-        if (node.hasPendingCommissionChange && node.isOwnValidator) {
-          ownValidatorHasCommissionChange = true;
-        }
-      });
-
-      setOwnValidatorsHaveCommissionChange(ownValidatorHasCommissionChange);
-      setTotalDelegation(totalDelegationAcc);
-      if (data.response.length > 0) {
-        setAverageDelegation(Math.round(totalDelegationAcc / data.response.length));
-        setTotalValidators(data.response.length);
+  useEffect(() => {
+    (async () => {
+      if (status === 'connected' && account && provider) {
+        setBalance(await provider.getBalance(account));
       }
-    }
-  }, [isLoggedIn]);
+    })();
+  }, [status, account, provider]);
 
   useEffect(() => {
-    getStats();
-  }, []);
-
-  const getBalances = useCallback(async () => {
-    if (!canDelegate) {
-      return;
+    if (status === 'connected' && account) {
+      (async () => {
+        setDelegations(await getDelegations(account));
+      })();
     }
-    const data = await delegationApi.get(`/delegations/${account}/balances`);
-    if (data.success) {
-      setAvailableBalance(data.response.remaining);
-    }
-  }, [canDelegate, account]);
+  }, [status, account]);
 
   useEffect(() => {
-    getBalances();
-  }, [getBalances]);
-
-  const getValidators = useCallback(async () => {
-    const data = await delegationApi.get(
-      `/validators?show_fully_delegated=${showFullyDelegatedNodes}&show_my_validators=${showUserOwnValidators}`,
-      isLoggedIn,
-    );
-
-    if (!data.success) {
-      return;
+    if (status === 'connected' && account && provider) {
+      (async () => {
+        const latestBlock = await provider.getBlockNumber();
+        const un = await getUndelegations(account);
+        setUndelegations(un.filter((u) => u.block < latestBlock));
+      })();
     }
-
-    setNodes(data.response);
-  }, [isLoggedIn, showUserOwnValidators, showFullyDelegatedNodes]);
+  }, [status, account]);
 
   useEffect(() => {
-    getValidators();
-  }, [getValidators]);
+    (async () => {
+      let v;
+      if (showMyValidators) {
+        v = await getValidatorsWith(delegations.map((d) => d.address));
+      } else {
+        v = await getValidators();
+      }
+      setValidators(v);
 
-  const delegatableNodes = nodes.filter(({ remainingDelegation }) => remainingDelegation > 0);
-  const fullyDelegatedNodes = nodes.filter(({ remainingDelegation }) => remainingDelegation === 0);
+      const validatorsWithStats = await updateValidatorsStats(v);
+      setValidators(validatorsWithStats);
+    })();
+  }, [showMyValidators, delegations]);
+
+  const isOnWrongChain = chainId !== mainnetChainId;
+
+  const totalValidators = validators.length;
+  const totalDelegation = validators.reduce(
+    (prev, curr) => prev.add(curr.delegation),
+    ethers.BigNumber.from('0'),
+  );
+  const averageDelegation =
+    totalValidators === 0 ? ethers.BigNumber.from('0') : totalDelegation.div(totalValidators);
+
+  let filteredValidators = validators;
+  if (!showFullyDelegatedValidators) {
+    filteredValidators = filteredValidators.filter((validator) => !validator.isFullyDelegated);
+  }
+
+  const delegatableValidators = filteredValidators.filter(
+    ({ isFullyDelegated }) => !isFullyDelegated,
+  );
+  const fullyDelegatedValidators = filteredValidators.filter(
+    ({ isFullyDelegated }) => isFullyDelegated,
+  );
 
   return (
     <div className="runnode">
       <Modals
-        delegateToNode={delegateToNode}
-        undelegateFromNode={undelegateFromNode}
+        balance={balance}
+        delegateToValidator={delegateToValidator}
+        undelegateFromValidator={undelegateFromValidator}
         onDelegateSuccess={() => {
-          getBalances();
-          getValidators();
-          getStats();
+          // getBalances();
+          // getValidators();
+          // getStats();
         }}
         onUndelegateSuccess={() => {
-          getBalances();
-          getValidators();
-          getStats();
+          // getBalances();
+          // getValidators();
+          // getStats();
         }}
-        onDelegateClose={() => setDelegateToNode(null)}
-        onDelegateFinish={() => setDelegateToNode(null)}
-        onUndelegateClose={() => setUndelegateFromNode(null)}
-        onUndelegateFinish={() => setUndelegateFromNode(null)}
-        account={account}
-        availableBalance={availableBalance}
+        onDelegateClose={() => setDelegateToValidator(null)}
+        onDelegateFinish={() => setDelegateToValidator(null)}
+        onUndelegateClose={() => setUndelegateFromValidator(null)}
+        onUndelegateFinish={() => setUndelegateFromValidator(null)}
       />
       <div className="runnode-content">
         <Title title="Delegation" />
-        {isLoggedIn && ownValidatorsHaveCommissionChange && (
+        {status !== 'connected' && (
+          <div className="notification">
+            <Notification
+              title="Notice:"
+              text="You meed to connect to your Metamask wallet in order to participate in delegation."
+              variant="danger"
+            />
+          </div>
+        )}
+        {status === 'connected' && isOnWrongChain && (
+          <div className="notification">
+            <Notification
+              title="Notice:"
+              text="You meed to be connected to the Taraxa Mainnet network in order to delegate / un-delegate."
+              variant="danger"
+            >
+              <WrongNetwork />
+            </Notification>
+          </div>
+        )}
+        {/* {ownValidatorsHaveCommissionChange && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -157,63 +187,58 @@ const Delegation = () => {
               </a>
             </Notification>
           </div>
-        )}
-        {!isLoggedIn && (
-          <div className="notification">
-            <Notification
-              title="Notice:"
-              text="You need to sign in or sign up for a new account in order to participate in delegation."
-              variant="danger"
-            />
-          </div>
-        )}
-        {isLoggedIn && status !== 'connected' && (
-          <div className="notification">
-            <Notification
-              title="Notice:"
-              text="You meed to connect to your Metamask wallet in order to participate in delegation."
-              variant="danger"
-            />
-          </div>
-        )}
-        {totalValidators > 0 && (
-          <div className="cardContainer">
-            <BaseCard
-              title={ethers.utils.commify(totalValidators)}
-              description="Number of network validators"
-            />
-            <BaseCard
-              title={ethers.utils.commify(averageDelegation)}
-              description="Average TARA delegatated to validators"
-            />
-            <BaseCard
-              title={ethers.utils.commify(totalDelegation)}
-              description="Total TARA delegated to validators"
-            />
-          </div>
-        )}
+        )} */}
+        {undelegations.length > 0 &&
+          undelegations.map((undelegation: UndelegationInterface) => (
+            <div className="notification" key={undelegation.address}>
+              <Notification
+                title={`Undelegation from ${undelegation.address} has been confirmed.`}
+                text={`You can claim the ${ethers.utils.commify(
+                  weiToEth(undelegation.stake),
+                )} TARA or re-delegate it.`}
+                variant="success"
+              >
+                <Button
+                  variant="contained"
+                  color="primary"
+                  label="Claim"
+                  size="small"
+                  onClick={() => confirmUndelegate(undelegation.address)}
+                  disableElevation
+                />
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  label="Re-delegate"
+                  size="small"
+                  onClick={() => confirmUndelegate(undelegation.address)}
+                  disableElevation
+                />
+              </Notification>
+            </div>
+          ))}
         <div className="flexDiv">
           <div>
-            {isLoggedIn && (
+            {status === 'connected' && !isOnWrongChain && (
               <Switch
                 className="switch"
                 name="Only show my validators"
-                checked={showUserOwnValidators}
+                checked={showMyValidators}
                 label="Only show my validators"
                 labelPlacement="end"
                 onChange={() => {
-                  setShowUserOwnValidators((v) => !v);
+                  setShowMyValidators((v) => !v);
                 }}
               />
             )}
             <Switch
               className="switch"
               name="Show fully delegated nodes"
-              checked={showFullyDelegatedNodes}
+              checked={showFullyDelegatedValidators}
               label="Show fully delegated nodes"
               labelPlacement="end"
               onChange={() => {
-                setShowFullyDelegatedNodes((v) => !v);
+                setShowFullyDelegatedValidators((v) => !v);
               }}
             />
           </div>
@@ -225,7 +250,31 @@ const Delegation = () => {
             </Card>
           </div>
         </div>
-        {nodes.length > 0 ? (
+        {totalValidators > 0 && (
+          <div className="cardContainer">
+            <BaseCard
+              title={totalValidators.toString()}
+              description="Number of network validators"
+            />
+            <BaseCard
+              title={ethers.utils.commify(weiToEth(averageDelegation))}
+              description="Average TARA delegatated to validators"
+            />
+            <BaseCard
+              title={ethers.utils.commify(weiToEth(totalDelegation))}
+              description="Total TARA delegated to validators"
+            />
+          </div>
+        )}
+        {filteredValidators.length === 0 && (
+          <Text
+            label="No nodes found matching the selected filters"
+            variant="h6"
+            color="primary"
+            style={{ marginLeft: '20px', marginTop: '20px' }}
+          />
+        )}
+        {filteredValidators.length > 0 && (
           <TableContainer>
             <Table className="table">
               <TableHead>
@@ -241,34 +290,36 @@ const Delegation = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {delegatableNodes.length > 0 &&
-                  delegatableNodes.map((node) => (
-                    <NodeRow
-                      key={node.address}
-                      node={node}
-                      isLoggedIn={isLoggedIn}
-                      status={status}
-                      account={account}
-                      setDelegateToNode={setDelegateToNode}
-                      setUndelegateFromNode={setUndelegateFromNode}
+                {delegatableValidators.length > 0 &&
+                  delegatableValidators.map((validator) => (
+                    <ValidatorRow
+                      key={validator.address}
+                      validator={validator}
+                      actionsDisabled={status !== 'connected' || !account}
+                      ownDelegation={delegations
+                        .map((d) => d.address.toLowerCase())
+                        .includes(validator.address.toLowerCase())}
+                      setDelegateToValidator={setDelegateToValidator}
+                      setUndelegateFromValidator={setUndelegateFromValidator}
                     />
                   ))}
-                {fullyDelegatedNodes.length > 0 && (
+                {fullyDelegatedValidators.length > 0 && (
                   <>
                     <TableRow className="tableRow">
                       <TableCell className="tableCell tableSection" colSpan={6}>
                         <div className="fullyDelegatedSeparator">fully delegated</div>
                       </TableCell>
                     </TableRow>
-                    {fullyDelegatedNodes.map((node) => (
-                      <NodeRow
-                        key={node.address}
-                        node={node}
-                        isLoggedIn={isLoggedIn}
-                        status={status}
-                        account={account}
-                        setDelegateToNode={setDelegateToNode}
-                        setUndelegateFromNode={setUndelegateFromNode}
+                    {fullyDelegatedValidators.map((validator) => (
+                      <ValidatorRow
+                        key={validator.address}
+                        validator={validator}
+                        actionsDisabled={status !== 'connected' || !account}
+                        ownDelegation={delegations
+                          .map((d) => d.address.toLowerCase())
+                          .includes(validator.address.toLowerCase())}
+                        setDelegateToValidator={setDelegateToValidator}
+                        setUndelegateFromValidator={setUndelegateFromValidator}
                       />
                     ))}
                   </>
@@ -276,13 +327,6 @@ const Delegation = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        ) : (
-          <Text
-            label="No nodes found matching the selected filters"
-            variant="h6"
-            color="primary"
-            style={{ marginLeft: '20px', marginTop: '20px' }}
-          />
         )}
       </div>
     </div>

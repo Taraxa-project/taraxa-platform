@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
 import { useDelegationApi } from '../../../services/useApi';
+import useValidators from '../../../services/useValidators';
 
-type RegisterNodeProps = {
-  onSuccess: () => void;
+const RegisterNode = ({
+  type,
+  onSuccess,
+}: {
   type: 'mainnet' | 'testnet';
-};
-
-const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
+  onSuccess: () => void;
+}) => {
   const delegationApi = useDelegationApi();
+  const { registerValidator } = useValidators();
 
   const [error, setError] = useState('');
   const [address, setAddress] = useState('');
@@ -36,9 +39,10 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
     setCommissionError('');
 
     const payload: any = {
+      type,
       address,
       addressProof,
-      type,
+      vrfKey,
       commission: type === 'mainnet' ? parseInt(commission, 10) : null,
     };
 
@@ -46,48 +50,59 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
       payload.ip = ip;
     }
 
-    if (type === 'testnet') {
-      payload.vrfKey = vrfKey;
-    }
-
-    const result = await delegationApi.post(`/nodes`, payload, true);
-
-    if (result.success) {
-      onSuccess();
-    } else if (Array.isArray(result.response)) {
-      const generalErrors = result.response.filter((errMsg) => {
-        if (errMsg.startsWith('addressProof')) {
-          setAddressProofError(errMsg.slice('addressProof'.length + 1));
-          return false;
-        }
-        if (errMsg.startsWith('vrfKey')) {
-          setVrfKeyError(errMsg.slice('vrfKey'.length + 1));
-          return false;
-        }
-        if (errMsg.startsWith('address')) {
-          setAddressError(errMsg.slice('address'.length + 1));
-          return false;
-        }
-        if (errMsg.startsWith('commission')) {
-          setCommissionError(errMsg.slice('commission'.length + 1));
-          return false;
-        }
-        if (errMsg.startsWith('ip')) {
-          setIpError(errMsg.slice('ip'.length + 1));
-          return false;
-        }
-
-        return true;
-      });
-
-      if (generalErrors.length > 0) {
-        setError(generalErrors.join(', '));
+    if (type === 'mainnet') {
+      try {
+        await registerValidator(
+          payload.address,
+          payload.addressProof,
+          payload.vrfKey,
+          payload.commission,
+          '',
+          '',
+        );
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
       }
-    } else if (typeof result.response === 'string') {
-      if (result.response.includes("doesn't have a profile")) {
-        setError('Please setup your profile before registering a node.');
-      } else {
-        setError(result.response);
+    } else {
+      const result = await delegationApi.post(`/nodes`, payload, true);
+      if (result.success) {
+        onSuccess();
+      } else if (Array.isArray(result.response)) {
+        const generalErrors = result.response.filter((errMsg) => {
+          if (errMsg.startsWith('addressProof')) {
+            setAddressProofError(errMsg.slice('addressProof'.length + 1));
+            return false;
+          }
+          if (errMsg.startsWith('vrfKey')) {
+            setVrfKeyError(errMsg.slice('vrfKey'.length + 1));
+            return false;
+          }
+          if (errMsg.startsWith('address')) {
+            setAddressError(errMsg.slice('address'.length + 1));
+            return false;
+          }
+          if (errMsg.startsWith('commission')) {
+            setCommissionError(errMsg.slice('commission'.length + 1));
+            return false;
+          }
+          if (errMsg.startsWith('ip')) {
+            setIpError(errMsg.slice('ip'.length + 1));
+            return false;
+          }
+
+          return true;
+        });
+
+        if (generalErrors.length > 0) {
+          setError(generalErrors.join(', '));
+        }
+      } else if (typeof result.response === 'string') {
+        if (result.response.includes("doesn't have a profile")) {
+          setError('Please setup your profile before registering a node.');
+        } else {
+          setError(result.response);
+        }
       }
     }
   };
@@ -131,34 +146,34 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
             setAddressProof(event.target.value);
           }}
         />
-        {type === 'testnet' && (
-          <InputField
-            label="VRF Public Key"
-            error={!!vrfKeyError}
-            helperText={vrfKeyError}
-            value={vrfKey}
-            variant="outlined"
-            type="text"
-            fullWidth
-            margin="normal"
-            onChange={(event) => {
-              setVrfKey(event.target.value);
-            }}
-          />
-        )}
         <InputField
-          label="Node IP (optional)"
-          error={!!ipError}
-          helperText={ipError}
-          value={ip}
+          label="VRF Public Key"
+          error={!!vrfKeyError}
+          helperText={vrfKeyError}
+          value={vrfKey}
           variant="outlined"
           type="text"
           fullWidth
           margin="normal"
           onChange={(event) => {
-            setIp(event.target.value);
+            setVrfKey(event.target.value);
           }}
         />
+        {type === 'testnet' && (
+          <InputField
+            label="Node IP (optional)"
+            error={!!ipError}
+            helperText={ipError}
+            value={ip}
+            variant="outlined"
+            type="text"
+            fullWidth
+            margin="normal"
+            onChange={(event) => {
+              setIp(event.target.value);
+            }}
+          />
+        )}
         {type === 'mainnet' && (
           <InputField
             label="Commission"
@@ -206,22 +221,16 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
         }
         fullWidth
       />
-      {type === 'testnet' && (
-        <Button
-          label="How to find my node's VRF public key?"
-          variant="outlined"
-          color="secondary"
-          className="node-control-reference-button"
-          onClick={() =>
-            window.open(
-              `https://docs.taraxa.io/node-setup/vrf_key`,
-              '_blank',
-              'noreferrer noopener',
-            )
-          }
-          fullWidth
-        />
-      )}
+      <Button
+        label="How to find my node's VRF public key?"
+        variant="outlined"
+        color="secondary"
+        className="node-control-reference-button"
+        onClick={() =>
+          window.open(`https://docs.taraxa.io/node-setup/vrf_key`, '_blank', 'noreferrer noopener')
+        }
+        fullWidth
+      />
       <Button
         label="How do I get the proof of owership?"
         variant="outlined"

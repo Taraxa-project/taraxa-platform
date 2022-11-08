@@ -408,7 +408,7 @@ export class DelegationService {
     for (const node of ownNodes) {
       await this.ensureMainnetDelegation(
         node,
-        ethers.BigNumber.from(this.maxDelegationPerNode),
+        ethers.BigNumber.from(this.maxDelegationPerNode * 10),
       );
     }
   }

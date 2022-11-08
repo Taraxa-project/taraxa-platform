@@ -1,49 +1,46 @@
 import React from 'react';
+import { ethers } from 'ethers';
 import { Modal } from '@taraxa_project/taraxa-ui';
 import Delegate from './Delegate';
 import Undelegate from './Undelegate';
 import CloseIcon from '../../../assets/icons/close';
 
+import { Validator } from '../../../interfaces/Validator';
+
 interface ModalsProps {
-  delegateToNode: any;
-  undelegateFromNode: any;
+  balance: ethers.BigNumber;
+  delegateToValidator: Validator | null;
+  undelegateFromValidator: Validator | null;
   onDelegateSuccess: () => void;
   onUndelegateSuccess: () => void;
   onDelegateFinish: () => void;
   onUndelegateFinish: () => void;
-  account: any;
-  availableBalance: number;
   onDelegateClose: () => void;
   onUndelegateClose: () => void;
 }
 
 const Modals = ({
-  delegateToNode,
-  undelegateFromNode,
+  balance,
+  delegateToValidator,
+  undelegateFromValidator,
   onDelegateSuccess,
   onUndelegateSuccess,
   onDelegateFinish,
   onUndelegateFinish,
   onDelegateClose,
   onUndelegateClose,
-  account,
-  availableBalance,
 }: ModalsProps) => {
   return (
     <>
-      {delegateToNode && (
+      {delegateToValidator && (
         <Modal
           id="delegateModal"
           title="Delegate to..."
-          show={!!delegateToNode}
+          show={!!delegateToValidator}
           children={
             <Delegate
-              validatorId={delegateToNode.id}
-              validatorName={delegateToNode.name}
-              validatorAddress={delegateToNode.address}
-              delegatorAddress={account}
-              remainingDelegation={delegateToNode.remainingDelegation}
-              availableStakingBalance={availableBalance}
+              balance={balance}
+              validator={delegateToValidator}
               onSuccess={() => onDelegateSuccess()}
               onFinish={() => onDelegateFinish()}
             />
@@ -53,16 +50,14 @@ const Modals = ({
           closeIcon={CloseIcon}
         />
       )}
-      {undelegateFromNode && (
+      {undelegateFromValidator && (
         <Modal
           id="delegateModal"
           title="Undelegate from..."
-          show={!!undelegateFromNode}
+          show={!!undelegateFromValidator}
           children={
             <Undelegate
-              validatorId={undelegateFromNode.id}
-              validatorName={undelegateFromNode.name}
-              validatorAddress={undelegateFromNode.address}
+              validator={undelegateFromValidator}
               onSuccess={() => onUndelegateSuccess()}
               onFinish={() => onUndelegateFinish()}
             />

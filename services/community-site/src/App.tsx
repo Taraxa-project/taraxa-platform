@@ -24,7 +24,7 @@ import BountyDetails from './pages/Bounties/BountyDetails';
 import BountySubmit from './pages/Bounties/BountySubmit';
 import Redeem from './pages/Redeem/Redeem';
 import Profile from './pages/Profile/Profile';
-import RunNode from './pages/RunNode/RunNode';
+import RunValidator from './pages/RunNode/RunValidator';
 import Wallet from './pages/Wallet/Wallet';
 import useCMetamask from './services/useCMetamask';
 
@@ -110,13 +110,13 @@ const Root = () => {
               <Route exact path="/reset-password/:code" component={Home} />
               <Route exact path="/staking" component={Staking} />
               <Route exact path="/delegation" component={Delegation} />
-              <Route exact path="/delegation/:nodeId" component={NodeProfilePage} />
+              <Route exact path="/delegation/:address" component={NodeProfilePage} />
               <Route exact path="/bounties" component={Bounties} />
               <Route exact path="/bounties/:id" component={BountyDetails} />
               <Route exact path="/bounties/:id/submit" component={BountySubmit} />
               <Route exact path="/redeem" component={Redeem} />
               <Route exact path="/profile" component={Profile} />
-              <Route exact path="/node" component={RunNode} />
+              <Route exact path="/node" component={RunValidator} />
               <Route exact path="/wallet" component={Wallet} />
               <Route exact path="/" component={Home} />
             </Switch>
