@@ -82,6 +82,7 @@ export class PbftConsumer implements OnModuleInit {
         pbftPeriod,
         type,
       } as QueueData);
+      this.logger.log(`Pushed ${pbftPeriod} into DAG sync queue`);
       await job.progress(100);
     }
   }
