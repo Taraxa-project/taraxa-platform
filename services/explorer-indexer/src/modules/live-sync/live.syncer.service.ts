@@ -21,6 +21,7 @@ import { Queue } from 'bull';
 @Injectable()
 export default class LiveSyncerService {
   private readonly logger: Logger = new Logger(LiveSyncerService.name);
+  private isWsConnected: boolean;
   constructor(
     @InjectWebSocketProvider()
     private readonly ws: WebSocketClient,
@@ -28,6 +29,11 @@ export default class LiveSyncerService {
     private readonly pbftsQueue: Queue
   ) {
     this.logger.log('Starting NodeSyncronizer');
+    this.isWsConnected = false;
+  }
+
+  public getWsState() {
+    return this.isWsConnected;
   }
 
   @EventListener('open')
@@ -35,6 +41,7 @@ export default class LiveSyncerService {
     this.logger.log(
       `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
     );
+    this.isWsConnected = true;
 
     this.ws.send(
       JSON.stringify({
@@ -100,6 +107,7 @@ export default class LiveSyncerService {
     this.logger.error(
       `Server at ${this.ws.url} disconnected with code ${code}`
     );
+    this.isWsConnected = false;
   }
 
   @EventListener('ping')
@@ -136,7 +144,7 @@ export default class LiveSyncerService {
             pbftPeriod: formattedNumber,
             type: SyncTypes.LIVE,
           } as QueueData);
-          break;
+          this.logger.debug(`Pushed ${formattedNumber} into PBFT sync queue`);
       }
     } catch (error) {
       this.logger.error(`Could not persist incoming data. Cause: ${error}`);
