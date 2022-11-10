@@ -152,7 +152,7 @@ export class GraphQLConnectorService {
             }
           }
         `,
-        {
+        (number !== null || number !== undefined) && {
           number,
         }
       )
@@ -177,7 +177,7 @@ export class GraphQLConnectorService {
             }
           }
         `,
-        {
+        hash && {
           hash,
         }
       )
