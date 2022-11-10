@@ -30,8 +30,8 @@ export default class HistoricalSyncService implements OnModuleInit {
     this.logger.log('Historical syncer started.');
   }
   onModuleInit() {
-    const isProduer = this.configService.get<boolean>('general.isProducer');
-    if (isProduer) {
+    const isProducer = this.configService.get<boolean>('general.isProducer');
+    if (isProducer) {
       this.pbftsQueue.empty();
       this.dagsQueue.empty();
     }
@@ -194,9 +194,9 @@ export default class HistoricalSyncService implements OnModuleInit {
       },
     ];
     const foundBlockNumbers = await this.pbftService.getSavedPbftPeriods();
-    const count = foundBlockNumbers.length;
+    const maxVal = foundBlockNumbers.sort((a, b) => b - a)[0];
 
-    for (let i = 1; i <= count; i++) {
+    for (let i = 1; i <= maxVal; i++) {
       if (foundBlockNumbers.indexOf(i) == -1) {
         chuncks.push({
           name: QueueJobs.NEW_PBFT_BLOCKS,
