@@ -6,16 +6,16 @@ import {
   DiskHealthIndicator,
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
-import { SyncerHealthIndicator } from './syncerHealthIndicator';
+import { ProducerHealthIndicator } from './producerHealthIndicator';
 
 @Controller('health')
-export class HealthController {
+export class ProducerHealthController {
   constructor(
     private health: HealthCheckService,
     private db: TypeOrmHealthIndicator,
     private readonly disk: DiskHealthIndicator,
     private memory: MemoryHealthIndicator,
-    private syncerHealthIndicator: SyncerHealthIndicator
+    private syncerHealthIndicator: ProducerHealthIndicator
   ) {}
 
   @Get()

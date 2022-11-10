@@ -4,11 +4,19 @@ import { DagModule } from '../dag';
 import { LiveSyncerModule } from '../live-sync';
 import { PbftModule } from '../pbft';
 import { HealthController } from './health.controller';
-import { SyncerHealthIndicator } from './SyncerHealthIndicator';
+import { SyncerHealthIndicator } from './syncerHealthIndicator';
+import * as dotenv from 'dotenv';
+import { ProducerHealthController } from './producerHealth.controller';
+import { ProducerHealthIndicator } from './producerHealthIndicator';
+
+dotenv.config();
+const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 
 @Module({
-  imports: [TerminusModule, PbftModule, DagModule, LiveSyncerModule],
-  controllers: [HealthController],
-  providers: [SyncerHealthIndicator],
+  imports: isProducer
+    ? [TerminusModule, PbftModule, DagModule, LiveSyncerModule]
+    : [TerminusModule, PbftModule, DagModule],
+  controllers: isProducer ? [ProducerHealthController] : [HealthController],
+  providers: isProducer ? [ProducerHealthIndicator] : [SyncerHealthIndicator],
 })
 export class HealthModule {}
