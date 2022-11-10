@@ -82,7 +82,7 @@ export default class PbftService {
         .insert()
         .into(PbftEntity)
         .values(_pbft)
-        .orIgnore()
+        .orIgnore(true)
         .returning('*')
         .execute();
 
