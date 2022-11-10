@@ -5,18 +5,20 @@ import {
   HealthCheckError,
 } from '@nestjs/terminus';
 import DagService from '../dag/dag.service';
+import LiveSyncerService from '../live-sync/live.syncer.service';
 import PbftService from '../pbft/pbft.service';
 
 @Injectable()
 export class SyncerHealthIndicator extends HealthIndicator {
   constructor(
     private readonly pbftService: PbftService,
-    private readonly dagService: DagService
+    private readonly dagService: DagService,
+    private readonly liveSyncService: LiveSyncerService
   ) {
     super();
   }
   async isHealthy(
-    key: 'pbft' | 'dag' | 'queue_pbfts' | 'queue_dags'
+    key: 'pbft' | 'dag' | 'queue_pbfts' | 'queue_dags' | 'ws'
   ): Promise<HealthIndicatorResult> {
     switch (key) {
       case 'pbft': {
@@ -53,6 +55,11 @@ export class SyncerHealthIndicator extends HealthIndicator {
           return this.getStatus(key, this.dagService.getRedisConnectionState());
         }
         break;
+      }
+      case 'ws': {
+        if (this.liveSyncService) {
+          return this.getStatus(key, this.liveSyncService.getWsState());
+        }
       }
     }
   }

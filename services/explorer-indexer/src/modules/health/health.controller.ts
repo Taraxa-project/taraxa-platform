@@ -21,7 +21,6 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
-    // TODO: Add same check as we use on Slack
     return this.health.check([
       () => this.db.pingCheck('database'),
       () =>
@@ -35,6 +34,7 @@ export class HealthController {
       () => this.syncerHealthIndicator.isHealthy('dag'),
       () => this.syncerHealthIndicator.isHealthy('queue_pbfts'),
       () => this.syncerHealthIndicator.isHealthy('queue_dags'),
+      () => this.syncerHealthIndicator.isHealthy('ws'),
     ]);
   }
 }
