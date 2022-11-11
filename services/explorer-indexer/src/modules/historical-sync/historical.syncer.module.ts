@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { WebSocketModule } from 'nestjs-websocket';
+import { WebSocketModule } from '@0xelod/nestjs-websocket';
 import { DagModule } from '../dag';
 import { PbftModule } from '../pbft';
 import { TransactionModule } from '../transaction';
