@@ -81,6 +81,12 @@ export default class LiveSyncerService {
     ) {
       this.logger.log(`New Ws connection established at ${newConnection.url}`);
       this.ws = newConnection;
+      this.ws.on('open', () => this.onOpen());
+      this.ws.on('message', (data) => this.onMessage(data));
+      this.ws.on('close', (code) => this.onClose(code));
+      this.ws.on('error', () => this.onError());
+      this.ws.on('ping', (data) => this.onPing(data));
+      this.ws.on('pong', (data) => this.onPong(data));
       this.isWsConnected = true;
     } else {
       this.logger.log(
@@ -107,7 +113,7 @@ export default class LiveSyncerService {
   }
 
   @OnMessage()
-  message(data: WebSocketClient.Data) {
+  onMessage(data: WebSocketClient.Data) {
     const parsedData = toObject(
       data,
       (msg: string) => this.logger.warn(msg),
