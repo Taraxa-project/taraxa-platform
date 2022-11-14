@@ -70,29 +70,32 @@ export default class LiveSyncerService {
       `Server at ${this.ws.url} disconnected with code ${code}`
     );
     this.isWsConnected = false;
-    const newConnection = await createWebSocket({
-      url: this.ws.url,
-      options: { port: this.configService.get<number>('general.port') },
-    });
-    if (
-      newConnection &&
-      (newConnection.readyState === newConnection.OPEN ||
-        newConnection.readyState === newConnection.CONNECTING)
-    ) {
-      this.logger.log(`New Ws connection established at ${newConnection.url}`);
-      this.ws = newConnection;
-      this.ws.on('open', () => this.onOpen());
-      this.ws.on('message', (data) => this.onMessage(data));
-      this.ws.on('close', (code) => this.onClose(code));
-      this.ws.on('error', () => this.onError());
-      this.ws.on('ping', (data) => this.onPing(data));
-      this.ws.on('pong', (data) => this.onPong(data));
-      this.isWsConnected = true;
-    } else {
-      this.logger.log(
-        `New Ws connection establisment failed at ${newConnection.url}`
-      );
-    }
+    setTimeout(async () => {
+      const newConnection = await createWebSocket({
+        url: this.ws.url,
+        options: { port: this.configService.get<number>('general.port') },
+      });
+      if (
+        newConnection &&
+        (newConnection.readyState === newConnection.OPEN ||
+          newConnection.readyState === newConnection.CONNECTING)
+      ) {
+        this.logger.log(
+          `New Ws connection established at ${newConnection.url}`
+        );
+        this.ws = newConnection;
+        this.ws.on('open', () => this.onOpen());
+        this.ws.on('message', (data) => this.onMessage(data));
+        this.ws.on('close', (code) => this.onClose(code));
+        this.ws.on('error', () => this.onError());
+        this.ws.on('ping', (data) => this.onPing(data));
+        this.ws.on('pong', (data) => this.onPong(data));
+      } else {
+        this.logger.log(
+          `New Ws connection establisment failed at ${newConnection.url}`
+        );
+      }
+    }, this.configService.get<number>('general.wsReconnectInterval') || 3000);
   }
 
   @EventListener('ping')
