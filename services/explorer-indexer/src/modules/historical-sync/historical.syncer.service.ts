@@ -134,7 +134,7 @@ export default class HistoricalSyncService implements OnModuleInit {
     if (
       !this.chainState.genesis || //there is no genesys
       this.chainState.genesis !== this.syncState.genesis || // genesys hash is different
-      this.chainState.number < this.syncState.number // there has been a network reset
+      this.chainState.number < this.syncState.number - 100 // there has been a network reset not just a tip reformation
     ) {
       this.logger.warn(
         'New genesis block hash or network reset detected. Restarting chain sync.'
