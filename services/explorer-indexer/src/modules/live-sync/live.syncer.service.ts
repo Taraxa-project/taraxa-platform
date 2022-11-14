@@ -41,53 +41,9 @@ export default class LiveSyncerService {
 
   @EventListener('open')
   async onOpen() {
-    this.isWsConnected = true;
     this.logger.log(
       `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
     );
-
-    // this.ws.send(
-    //   JSON.stringify({
-    //     jsonrpc: '2.0',
-    //     id: 0,
-    //     method: 'eth_subscribe',
-    //     params: [Topics.NEW_DAG_BLOCKS],
-    //   }),
-    //   (err: Error) => {
-    //     if (err) this.logger.error(err);
-    //   }
-    // );
-    // this.logger.warn(
-    //   `Subscribed to eth_subscription method ${Topics.NEW_DAG_BLOCKS}`
-    // );
-    // this.ws.send(
-    //   JSON.stringify({
-    //     jsonrpc: '2.0',
-    //     id: 0,
-    //     method: 'eth_subscribe',
-    //     params: [Topics.NEW_DAG_BLOCKS_FINALIZED],
-    //   }),
-    //   (err: Error) => {
-    //     if (err) this.logger.error(err);
-    //   }
-    // );
-    // this.logger.warn(
-    //   `Subscribed to eth_subscription method ${Topics.NEW_DAG_BLOCKS_FINALIZED}`
-    // );
-    // this.ws.send(
-    //   JSON.stringify({
-    //     jsonrpc: '2.0',
-    //     id: 0,
-    //     method: 'eth_subscribe',
-    //     params: [Topics.NEW_PBFT_BLOCKS],
-    //   }),
-    //   (err: Error) => {
-    //     if (err) this.logger.error(err);
-    //   }
-    // );
-    // this.logger.warn(
-    //   `Subscribed to eth_subscription method ${Topics.NEW_PBFT_BLOCKS}`
-    // );
 
     if (this.ws.readyState === this.ws.OPEN && !this.isWsConnected) {
       this.ws.send(
