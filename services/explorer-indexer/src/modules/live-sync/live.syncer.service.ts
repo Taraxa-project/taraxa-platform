@@ -74,8 +74,13 @@ export default class LiveSyncerService {
       url: this.ws.url,
       options: { port: this.configService.get<number>('general.port') },
     });
-    if (newConnection) {
+    if (
+      newConnection &&
+      (newConnection.readyState === newConnection.OPEN ||
+        newConnection.readyState === newConnection.CONNECTING)
+    ) {
       this.logger.log(`New Ws connection established at ${newConnection.url}`);
+      this.isWsConnected = true;
     } else {
       this.logger.log(
         `New Ws connection establisment failed at ${newConnection.url}`
