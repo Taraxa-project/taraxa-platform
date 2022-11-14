@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   InjectWebSocketProvider,
   WebSocketClient,
   EventListener,
   OnMessage,
-} from 'nestjs-websocket';
+  createWebSocket,
+} from '@0xelod/nestjs-websocket';
 import {
   checkType,
   NewPbftBlockHeaderResponse,
@@ -24,9 +26,10 @@ export default class LiveSyncerService {
   private isWsConnected: boolean;
   constructor(
     @InjectWebSocketProvider()
-    private readonly ws: WebSocketClient,
+    private ws: WebSocketClient,
     @InjectQueue('new_pbfts')
-    private readonly pbftsQueue: Queue
+    private readonly pbftsQueue: Queue,
+    private readonly configService: ConfigService
   ) {
     this.logger.log('Starting NodeSyncronizer');
     this.isWsConnected = false;
@@ -41,73 +44,58 @@ export default class LiveSyncerService {
     this.logger.log(
       `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
     );
-    this.isWsConnected = true;
 
-    this.ws.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: 0,
-        method: 'eth_subscribe',
-        params: [Topics.NEW_DAG_BLOCKS],
-      }),
-      (err: Error) => {
-        if (err) this.logger.error(err);
-      }
-    );
-    this.logger.warn(
-      `Subscribed to eth_subscription method ${Topics.NEW_DAG_BLOCKS}`
-    );
-    this.ws.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: 0,
-        method: 'eth_subscribe',
-        params: [Topics.NEW_DAG_BLOCKS_FINALIZED],
-      }),
-      (err: Error) => {
-        if (err) this.logger.error(err);
-      }
-    );
-    this.logger.warn(
-      `Subscribed to eth_subscription method ${Topics.NEW_DAG_BLOCKS_FINALIZED}`
-    );
-    this.ws.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: 0,
-        method: 'eth_subscribe',
-        params: [Topics.NEW_PBFT_BLOCKS],
-      }),
-      (err: Error) => {
-        if (err) this.logger.error(err);
-      }
-    );
-    this.logger.warn(
-      `Subscribed to eth_subscription method ${Topics.NEW_PBFT_BLOCKS}`
-    );
-
-    this.ws.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: 0,
-        method: 'eth_subscribe',
-        params: [Topics.NEW_HEADS],
-      }),
-      (err: Error) => {
-        if (err) this.logger.error(err);
-      }
-    );
-    this.logger.warn(
-      `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
-    );
+    if (this.ws.readyState === this.ws.OPEN && !this.isWsConnected) {
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 0,
+          method: 'eth_subscribe',
+          params: [Topics.NEW_HEADS],
+        }),
+        (err: Error) => {
+          if (err) this.logger.error(err);
+        }
+      );
+      this.logger.warn(
+        `Subscribed to eth_subscription method ${Topics.NEW_HEADS}`
+      );
+      this.isWsConnected = true;
+    }
   }
 
   @EventListener('close')
-  onClose(code: number) {
+  async onClose(code: number) {
     this.logger.error(
       `Server at ${this.ws.url} disconnected with code ${code}`
     );
     this.isWsConnected = false;
+    setTimeout(async () => {
+      const newConnection = await createWebSocket({
+        url: this.ws.url,
+        options: { port: this.configService.get<number>('general.port') },
+      });
+      if (
+        newConnection &&
+        (newConnection.readyState === newConnection.OPEN ||
+          newConnection.readyState === newConnection.CONNECTING)
+      ) {
+        this.logger.log(
+          `New Ws connection established at ${newConnection.url}`
+        );
+        this.ws = newConnection;
+        this.ws.on('open', () => this.onOpen());
+        this.ws.on('message', (data) => this.onMessage(data));
+        this.ws.on('close', (code) => this.onClose(code));
+        this.ws.on('error', () => this.onError());
+        this.ws.on('ping', (data) => this.onPing(data));
+        this.ws.on('pong', (data) => this.onPong(data));
+      } else {
+        this.logger.log(
+          `New Ws connection establisment failed at ${newConnection.url}`
+        );
+      }
+    }, this.configService.get<number>('general.wsReconnectInterval') || 3000);
   }
 
   @EventListener('ping')
@@ -128,7 +116,7 @@ export default class LiveSyncerService {
   }
 
   @OnMessage()
-  message(data: WebSocketClient.Data) {
+  onMessage(data: WebSocketClient.Data) {
     const parsedData = toObject(
       data,
       (msg: string) => this.logger.warn(msg),

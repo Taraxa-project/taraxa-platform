@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { WebSocketModule } from 'nestjs-websocket';
+import { WebSocketModule } from '@0xelod/nestjs-websocket';
 import LiveSyncerService from './live.syncer.service';
 import general from 'src/config/general';
 import { BullModule } from '@nestjs/bull';
@@ -19,8 +19,6 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
         return {
           url: config.get<string>('general.wsConnectionURL'),
           port: config.get<number>('general.port'),
-          followRedirects: false,
-          handshakeTimeout: 10000,
         };
       },
     }),

@@ -130,11 +130,13 @@ export default class HistoricalSyncService implements OnModuleInit {
 
     let verifiedTip = false;
 
+    const reorgThreshold =
+      this.configService.get<number>('general.reorgThreshold') || 100;
     // if genesis block changes or the chain has lesser blocks than the syncer state(reset happened), resync
     if (
       !this.chainState.genesis || //there is no genesys
       this.chainState.genesis !== this.syncState.genesis || // genesys hash is different
-      this.chainState.number < this.syncState.number // there has been a network reset
+      this.chainState.number < this.syncState.number - reorgThreshold // there has been a network reset not just a tip reformation
     ) {
       this.logger.warn(
         'New genesis block hash or network reset detected. Restarting chain sync.'
