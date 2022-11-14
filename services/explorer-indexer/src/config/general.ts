@@ -9,4 +9,5 @@ export default registerAs('general', () => ({
   redisPort: Number(process.env.REDIS_PORT),
   port: Number(process.env.WS_SERVER_PORT),
   isProducer: process.env.ENABLE_PRODUCER_MODULE,
+  reorgThreshold: Number(process.env.REORG_THRESHOLD),
 }));
