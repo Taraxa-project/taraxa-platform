@@ -26,7 +26,7 @@ export default class LiveSyncerService {
   private isWsConnected: boolean;
   constructor(
     @InjectWebSocketProvider()
-    private readonly ws: WebSocketClient,
+    private ws: WebSocketClient,
     @InjectQueue('new_pbfts')
     private readonly pbftsQueue: Queue,
     private readonly configService: ConfigService
@@ -80,6 +80,7 @@ export default class LiveSyncerService {
         newConnection.readyState === newConnection.CONNECTING)
     ) {
       this.logger.log(`New Ws connection established at ${newConnection.url}`);
+      this.ws = newConnection;
       this.isWsConnected = true;
     } else {
       this.logger.log(
