@@ -1,12 +1,16 @@
 import { Job } from 'bull';
 import { Repository } from 'typeorm';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Processor, Process } from '@nestjs/bull';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Node } from './node.entity';
 import { NodeService } from './node.service';
 import { ENSURE_NODE_ONCHAIN_JOB } from './node.constants';
 import { EnsureNodeOnchainJob } from './job/ensure-node-onchain.job';
+import {
+  BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
+  BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
+} from '../blockchain/blockchain.constant';
 import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Injectable()
@@ -17,7 +21,10 @@ export class NodeConsumer implements OnModuleInit {
     @InjectRepository(Node)
     private nodeRepository: Repository<Node>,
     private nodeService: NodeService,
-    private blockchainService: BlockchainService,
+    @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
+    private testnetBlockchainService: BlockchainService,
+    @Inject(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN)
+    private mainnetBlockchainService: BlockchainService,
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${NodeConsumer.name} worker`);
@@ -40,27 +47,36 @@ export class NodeConsumer implements OnModuleInit {
       id: nodeId,
     });
 
-    if (node.isTestnet()) {
-      if (node.isCreatedOnchain) {
-        this.logger.debug(
-          `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} exist. Skipping create`,
-        );
-        return;
-      }
-      try {
-        const registeredValidator =
-          await this.blockchainService.registerValidator(
+    if (node.isCreatedOnchain) {
+      this.logger.debug(
+        `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} exist. Skipping create`,
+      );
+      return;
+    }
+
+    try {
+      if (node.isTestnet()) {
+        node.isCreatedOnchain =
+          await this.testnetBlockchainService.registerValidator(
             node.address,
             node.addressProof,
             node.vrfKey,
           );
-        node.isCreatedOnchain = registeredValidator;
-        await this.nodeRepository.save(node);
-      } catch (e) {
-        this.logger.error(
-          `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Failed to create onchain validator for ${node.address}.`,
-        );
       }
+
+      if (node.isMainnet()) {
+        node.isCreatedOnchain =
+          await this.mainnetBlockchainService.registerValidator(
+            node.address,
+            node.addressProof,
+            node.vrfKey,
+          );
+      }
+      await this.nodeRepository.save(node);
+    } catch (e) {
+      this.logger.error(
+        `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Failed to create onchain validator for ${node.address}.`,
+      );
     }
   }
 }

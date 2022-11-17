@@ -8,15 +8,18 @@ import {
   Raw,
   Repository,
 } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { HttpService } from '@nestjs/axios';
 import { ValidationException } from '../utils/exceptions/validation.exception';
 import { Node } from '../node/node.entity';
 import { NodeType } from '../node/node-type.enum';
 import { StakingService } from '../staking/staking.service';
+import {
+  BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
+  BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
+} from '../blockchain/blockchain.constant';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
@@ -35,8 +38,6 @@ import { BalancesByNodeDto } from './dto/balances-by-node.dto';
 
 @Injectable()
 export class DelegationService {
-  private mainnetEndpoint: string;
-  private testnetEndpoint: string;
   private testnetDelegationAmount: ethers.BigNumber;
   private mainnetDelegationAmount: ethers.BigNumber;
   private maxDelegationPerNode: number;
@@ -49,13 +50,13 @@ export class DelegationService {
     private nodeRepository: Repository<Node>,
     private eventEmitter: EventEmitter2,
     private config: ConfigService,
-    private httpService: HttpService,
     private stakingService: StakingService,
     private connection: Connection,
-    private blockchainService: BlockchainService,
+    @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
+    private testnetBlockchainService: BlockchainService,
+    @Inject(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN)
+    private mainnetBlockchainService: BlockchainService,
   ) {
-    this.mainnetEndpoint = this.config.get<string>('ethereum.mainnetEndpoint');
-    this.testnetEndpoint = this.config.get<string>('ethereum.testnetEndpoint');
     this.testnetDelegationAmount = this.config.get<ethers.BigNumber>(
       'delegation.testnetDelegation',
     );
@@ -276,6 +277,7 @@ export class DelegationService {
   }
 
   async ensureDelegation(nodeId: number, type: string, address: string) {
+    // Check if node exists in the database
     let node: Node;
     try {
       node = await this.nodeRepository.findOneOrFail({
@@ -286,130 +288,86 @@ export class DelegationService {
       node = null;
     }
 
+    // Amount of delegation the node should have
     let totalNodeDelegation = ethers.BigNumber.from(0);
-    if (node && type === NodeType.MAINNET) {
-      totalNodeDelegation = totalNodeDelegation
-        .add(await this.getTotalNodeDelegation(nodeId))
-        .mul(this.mainnetDelegationAmount);
+    if (node) {
+      if (type === NodeType.TESTNET) {
+        totalNodeDelegation = this.testnetDelegationAmount;
+      }
+
+      if (type === NodeType.MAINNET) {
+        totalNodeDelegation = totalNodeDelegation
+          .add(await this.getTotalNodeDelegation(nodeId))
+          .mul(this.mainnetDelegationAmount);
+      }
     }
 
-    if (type === NodeType.MAINNET) {
-      await this.ensureMainnetDelegation(address, totalNodeDelegation);
-    } else {
-      if (node) {
-        totalNodeDelegation = this.testnetDelegationAmount;
-      } else {
-        totalNodeDelegation = ethers.BigNumber.from(0);
-      }
-
-      let currentDelegation = ethers.BigNumber.from('0');
-      try {
-        const validator = await this.blockchainService.getValidator(address);
+    // Amount of delegation the node has
+    let currentDelegation = ethers.BigNumber.from('0');
+    let isNodeRegistered = false;
+    try {
+      if (type === NodeType.TESTNET) {
+        const validator = await this.testnetBlockchainService.getValidator(
+          address,
+        );
         currentDelegation = validator.total_stake;
-      } catch (e) {
-        currentDelegation = ethers.BigNumber.from('0');
+        isNodeRegistered = true;
       }
 
-      if (currentDelegation.eq(totalNodeDelegation)) {
-        return;
+      if (type === NodeType.MAINNET) {
+        const validator = await this.mainnetBlockchainService.getValidator(
+          address,
+        );
+        currentDelegation = validator.total_stake;
+        isNodeRegistered = true;
       }
+    } catch (e) {
+      currentDelegation = ethers.BigNumber.from('0');
+    }
 
-      if (currentDelegation.gt(totalNodeDelegation)) {
-        // await this.blockchainService.unregisterValidator(address);
-      } else {
-        const registeredValidator =
-          await this.blockchainService.registerValidator(
-            address,
-            node.addressProof,
-            node.vrfKey,
-          );
+    if (currentDelegation.eq(totalNodeDelegation)) {
+      return;
+    }
 
+    if (currentDelegation.gt(totalNodeDelegation)) {
+      // await this.blockchainService.unregisterValidator(address);
+    } else {
+      if (!isNodeRegistered) {
+        let isCreatedOnchain: boolean;
+        if (type === NodeType.TESTNET) {
+          isCreatedOnchain =
+            await this.testnetBlockchainService.registerValidator(
+              address,
+              node.addressProof,
+              node.vrfKey,
+            );
+        }
+        if (type === NodeType.MAINNET) {
+          isCreatedOnchain =
+            await this.mainnetBlockchainService.registerValidator(
+              address,
+              node.addressProof,
+              node.vrfKey,
+            );
+        }
         if (node) {
-          node.isCreatedOnchain = registeredValidator;
+          node.isCreatedOnchain = isCreatedOnchain;
           await this.nodeRepository.save(node);
         }
+
+        if (isCreatedOnchain) {
+          if (type === NodeType.MAINNET) {
+            const validator = await this.mainnetBlockchainService.getValidator(
+              address,
+            );
+
+            await this.mainnetBlockchainService.delegate(
+              address,
+              totalNodeDelegation.sub(validator.total_stake),
+            );
+          }
+        }
       }
-    }
-  }
-
-  async unDelegateAll(type: string, address: string) {
-    if (type === NodeType.MAINNET) {
-      await this.ensureMainnetDelegation(address, ethers.BigNumber.from(0));
-    } else {
-      // await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
-    }
-  }
-
-  async getDelegation(
-    address: string,
-    type: 'mainnet' | 'testnet',
-  ): Promise<ethers.BigNumber> {
-    const formattedAddress = address.toLowerCase();
-    const currentDelegations = await this.getDelegationsFor(type);
-    return currentDelegations[formattedAddress]
-      ? ethers.BigNumber.from(currentDelegations[formattedAddress])
-      : ethers.BigNumber.from(0);
-  }
-
-  async getDelegationsFor(
-    type: 'mainnet' | 'testnet',
-  ): Promise<{ [address: string]: string }> {
-    let endpoint: string;
-    let delegatorAddress: string;
-    if (type === 'mainnet') {
-      endpoint = this.mainnetEndpoint;
-      delegatorAddress = this.stakingService.mainnetWalletAddress;
-    } else {
-      endpoint = this.testnetEndpoint;
-      delegatorAddress = this.stakingService.testnetFaucetWalletAddress;
-    }
-    const formattedAddress = delegatorAddress.toLowerCase();
-    const state = await this.httpService
-      .post(
-        endpoint,
-        {
-          jsonrpc: '2.0',
-          method: 'taraxa_queryDPOS',
-          params: [
-            {
-              account_queries: {
-                [formattedAddress]: {
-                  inbound_deposits_addrs_only: false,
-                  outbound_deposits_addrs_only: false,
-                  with_inbound_deposits: true,
-                  with_outbound_deposits: true,
-                  with_staking_balance: true,
-                },
-              },
-              with_eligible_count: true,
-            },
-          ],
-          id: 1,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-      .toPromise();
-
-    if (state.status !== 200) {
-      throw new Error('Failed to get DPOS stake');
-    }
-
-    return state.data.result.account_results[formattedAddress]
-      .outbound_deposits;
-  }
-
-  async rebalanceMainnet() {
-    const ownNodes = await this.getOwnNodes('mainnet');
-
-    for (const node of ownNodes) {
-      await this.ensureMainnetDelegation(
-        node,
-        ethers.BigNumber.from(this.maxDelegationPerNode),
-      );
     }
   }
 
@@ -591,66 +549,6 @@ export class DelegationService {
 
     nonce.value = nonce.value + 1;
     await this.delegationNonceRepository.save(nonce);
-  }
-
-  private async ensureMainnetDelegation(
-    address: string,
-    totalNodeDelegation: ethers.BigNumber,
-  ): Promise<void> {
-    const currentDelegation = await this.getDelegation(
-      address,
-      NodeType.MAINNET,
-    );
-    if (currentDelegation.eq(totalNodeDelegation)) {
-      return;
-    }
-
-    if (currentDelegation.gt(totalNodeDelegation)) {
-      await this.stakingService.undelegateMainnetTransaction(
-        address,
-        currentDelegation.sub(totalNodeDelegation),
-      );
-    } else {
-      await this.stakingService.delegateMainnetTransaction(
-        address,
-        totalNodeDelegation.sub(currentDelegation),
-      );
-    }
-  }
-
-  private async getOwnNodes(type: 'mainnet' | 'testnet'): Promise<string[]> {
-    let endpoint: string;
-    if (type === 'mainnet') {
-      endpoint = this.mainnetEndpoint;
-    } else {
-      endpoint = this.testnetEndpoint;
-    }
-
-    const state = await this.httpService
-      .post(
-        endpoint,
-        {
-          jsonrpc: '2.0',
-          method: 'taraxa_getConfig',
-          params: [],
-          id: 1,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-      .toPromise();
-
-    if (state.status !== 200) {
-      throw new Error('Failed to get DPOS stake');
-    }
-
-    const genesisState = state.data.result.final_chain.state.dpos.genesis_state;
-    const genesisStateKey = Object.keys(genesisState)[0];
-
-    return Object.keys(genesisState[genesisStateKey]);
   }
 
   private async getTotalNodeDelegation(nodeId: number) {
