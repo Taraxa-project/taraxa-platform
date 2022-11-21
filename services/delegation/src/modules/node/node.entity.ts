@@ -282,11 +282,8 @@ export class Node {
     const node = new Node();
     node.type = dto.type;
     node.address = ethers.utils.getAddress(dto.address);
-
-    if (node.type === NodeType.TESTNET) {
-      node.addressProof = dto.addressProof;
-      node.vrfKey = dto.vrfKey;
-    }
+    node.addressProof = dto.addressProof;
+    node.vrfKey = dto.vrfKey;
 
     if (typeof dto.name !== 'undefined' && dto.name !== '') {
       node.name = dto.name;

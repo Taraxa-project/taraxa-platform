@@ -18,10 +18,11 @@ export default registerAs('delegation', () => {
 
   return {
     yield: 20,
-    coolingOffPeriodDays: 5,
     commissionChangeThreshold: 5,
-    minDelegation: 1000,
-    maxDelegation: 10000000,
+    minDelegation: ethers.BigNumber.from(1000).mul(
+      ethers.BigNumber.from(10).pow(18),
+    ),
+    maxDelegation: 80000000,
     eligibilityThreshold: 1000000,
     testnetDelegation: ethers.BigNumber.from(1000000).mul(
       ethers.BigNumber.from(10).pow(18),
