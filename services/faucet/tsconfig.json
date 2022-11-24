@@ -11,23 +11,25 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    "rootDir": "./",
     "paths": {
-      "@faucet/config": ["config"],
-      "@faucet/common": ["src/modules/common"],
-      "@faucet/blockchain": ["src/modules/blockchain"],
-      "@faucet/faucet": ["src/modules/faucet"]
+      "@faucet/config": [
+        "config"
+      ],
+      "@faucet/blockchain": [
+        "src/modules/blockchain"
+      ]
     }
   },
   "include": [
     "src/**/*",
-    "test/**/*",
+    "config/*",
     "migrations/*",
     "data-source.ts",
     ".eslintrc.js"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

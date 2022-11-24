@@ -1,7 +1,6 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Job } from 'bull';
-import { ethers } from 'ethers';
 import { FaucetService } from './faucet.service';
 import { TransactionRequest } from './types';
 
@@ -24,20 +23,8 @@ export class FaucetConsumer implements OnModuleInit {
         2
       )}`
     );
-    const { timestamp, ip, txRequest } = job.data;
-
-    await this.faucetService.broadcastTransaction({
-      timestamp,
-      ip,
-      txRequest,
-    });
-    this.logger.debug(
-      `Processed request from ${timestamp} for address ${
-        txRequest.to
-      }: dripping ${ethers.utils.parseEther(
-        txRequest.value?.toString()!
-      )} TARA.`
-    );
-    job.moveToCompleted();
+    const { id } = job.data;
+    await this.faucetService.broadcastTransaction(id);
+    this.logger.debug(`Stopping worker for job ${job.id}`);
   }
 }
