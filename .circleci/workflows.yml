@@ -497,7 +497,7 @@ workflows:
       - helm-release/chart-publish:
           develop: true
           charts-dir: services/explorer/charts
-          chart-name: explorer
+          chart-name: explorer-frontend
           chartmuseum-url: https://charts.gcp.taraxa.io
           chartmuseum-username: HELM_REPO_USERNAME
           chartmuseum-password: HELM_REPO_PASSWORD
@@ -514,7 +514,7 @@ workflows:
     jobs:
       - helm-release/chart-publish:
           charts-dir: services/explorer/charts
-          chart-name: explorer
+          chart-name: explorer-frontend
           chartmuseum-url: https://charts.gcp.taraxa.io
           chartmuseum-username: HELM_REPO_USERNAME
           chartmuseum-password: HELM_REPO_PASSWORD
