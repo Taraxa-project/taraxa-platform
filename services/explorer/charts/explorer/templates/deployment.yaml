@@ -1,72 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: custom-error-explorer
+  name: {{ include "explorer.fullname" . }}
   labels:
-    app: custom-error-explorer
+    {{- include "explorer.labels" . | nindent 4 }}
 spec:
-  replicas: 2
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
-      app: custom-error-explorer
+      {{- include "explorer.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-        app: custom-error-explorer
+        {{- include "explorer.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "explorer.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: custom-error-explorer
+        - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: hashicorp/http-echo
-          args:
-            - "-text=<HTML>
-
-<HEAD>
-
-<TITLE>We're sorry...</TITLE>
-
-</HEAD>
-
-<HR>
-
-<H1>We're sorry... </H1>
-
-Unfortunately United States persons are unable to participate in our activities.
-
-Please contact us at <a href='mailto:support@taraxa.io'>
-
-support@taraxa.io</a>.
-
-<HR>
-
-</BODY>
-
-</HTML>
-"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 5678
+              containerPort: 80
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /
               port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /
               port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
           resources:
-            {{- toYaml .Values.customError.resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -79,14 +59,3 @@ support@taraxa.io</a>.
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: custom-error-explorer-service
-spec:
-  selector:
-    app: custom-error-explorer
-  ports:
-    - port: 5678 # Default port for image

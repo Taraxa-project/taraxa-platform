@@ -26,6 +26,12 @@ parameters:
   build-faucet-helm-chart-workflow:
     type: boolean
     default: false
+  build-explorer-workflow:
+    type: boolean
+    default: false
+  build-explorer-helm-chart-workflow:
+    type: boolean
+    default: false
 
 aliases:
   - &config
@@ -294,6 +300,37 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa/faucet-develop:latest
             fi
+  build-explorer:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/explorer-frontend:${VERSION} -f services/explorer/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa/explorer-frontend:${VERSION} taraxa/explorer-frontend:latest
+              docker push taraxa/explorer-frontend:${VERSION}
+              docker push taraxa/explorer-frontend:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${VERSION}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:latest
+            fi
+
 workflows:
   community-site:
     when:
@@ -427,6 +464,57 @@ workflows:
       - helm-release/chart-publish:
           charts-dir: services/faucet/charts
           chart-name: faucet
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+  explorer:
+    when:
+      and:
+        - << pipeline.parameters.build-explorer-workflow >>
+        - not: << pipeline.parameters.build-explorer-helm-chart-workflow >>
+    jobs:
+      - build-explorer:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  explorer-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-explorer-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/explorer/charts
+          chart-name: explorer
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - develop
+  explorer-release-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-explorer-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          charts-dir: services/explorer/charts
+          chart-name: explorer
           chartmuseum-url: https://charts.gcp.taraxa.io
           chartmuseum-username: HELM_REPO_USERNAME
           chartmuseum-password: HELM_REPO_PASSWORD

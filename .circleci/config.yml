@@ -14,6 +14,8 @@ workflows:
             services/delegation/.* run-delegation-service-workflow true
             services/claim-backend/.* run-claim-backend-service-workflow true
             services/faucet/.* build-faucet-workflow true
-            services/faucet/charts.* build-faucet-helm-chart-workflow true
+            services/faucet/charts/.* build-faucet-helm-chart-workflow true
+            services/explorer/.* build-explorer-workflow true
+            services/explorer/charts/.* build-explorer-helm-chart-workflow true
           base-revision: << pipeline.git.branch >>
           config-path: .circleci/workflows.yml

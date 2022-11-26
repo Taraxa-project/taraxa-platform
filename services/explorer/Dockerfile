@@ -1,5 +1,11 @@
 # build environment
-FROM node:16-alpine as build
+FROM node:16.18.1-alpine as build
+
+# Default replace vars for entrypoint
+# Should be removed after we able to configure at runtime
+ARG REACT_APP_API_HOST=REACT_APP_API_HOST_STRING_REPLACE
+ARG REACT_APP_GRAPHQL_HOST=REACT_APP_GRAPHQL_HOST_STRING_REPLACE
+ARG REACT_APP_FAUCET_ROOT_URL=REACT_APP_FAUCET_ROOT_URL_STRING_REPLACE
 
 RUN apk --no-cache add --update python3 make g++\
     --virtual .build_deps \
@@ -9,13 +15,24 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json yarn.lock /app/
-COPY services/explorer/package.json /app/services/explorer/
 COPY packages/taraxa-ui/package.json /app/packages/taraxa-ui/
+COPY packages/explorer-shared/package.json /app/packages/explorer-shared/
+COPY services/explorer/package.json /app/services/explorer/
 
 RUN yarn install
 
-COPY . /app
+COPY tsconfig.json /app/
+COPY .prettierignore /app/
+COPY .prettierrc.js /app/
+COPY .eslintignore /app/
+COPY .eslintrc.js /app/
+
+COPY packages/taraxa-ui /app/packages/taraxa-ui
+COPY packages/explorer-shared /app/packages/explorer-shared
+COPY services/explorer /app/services/explorer
+
 RUN SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-ui build
+RUN SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer-shared build
 RUN SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer build
 
 # nginx
