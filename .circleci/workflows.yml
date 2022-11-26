@@ -426,7 +426,6 @@ workflows:
     when:
       and:
         - << pipeline.parameters.build-faucet-workflow >>
-        - not: << pipeline.parameters.build-faucet-helm-chart-workflow >>
     jobs:
       - build-faucet:
           filters:
@@ -477,7 +476,6 @@ workflows:
     when:
       and:
         - << pipeline.parameters.build-explorer-workflow >>
-        - not: << pipeline.parameters.build-explorer-helm-chart-workflow >>
     jobs:
       - build-explorer:
           filters:
