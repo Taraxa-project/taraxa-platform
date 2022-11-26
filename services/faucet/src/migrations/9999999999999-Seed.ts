@@ -8,15 +8,16 @@ require('dotenv').config({ path: '../../.env' });
 
 export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
+    const prefix = queryRunner.connection.options.entityPrefix ?? '';
     await this.seedPools(queryRunner);
     await queryRunner.query(
       `SELECT setval(
-        pg_get_serial_sequence('public.requests', 'id'),
+        pg_get_serial_sequence('${prefix}requests', 'id'),
         (
             SELECT MAX("id")
-            FROM public.requests
-        ) + 1
-    );`
+            FROM ${prefix}requests
+        )
+      );`
     );
   }
 
@@ -24,7 +25,8 @@ export class Seed9999999999999 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<any> {}
 
   private async seedPools(queryRunner: QueryRunner) {
-    const requestsTable = await queryRunner.getTable('public.requests');
+    const prefix = queryRunner.connection.options.entityPrefix ?? '';
+    const requestsTable = await queryRunner.getTable(`${prefix}requests`);
 
     if (!requestsTable) {
       console.log('requests table does not exist.');
@@ -34,7 +36,7 @@ export class Seed9999999999999 implements MigrationInterface {
     await Promise.all(
       (RequestsJSON as unknown as IRequest[]).map(async (request) => {
         queryRunner.query(
-          `INSERT INTO public.requests (
+          `INSERT INTO ${prefix}requests (
             "address", 
             "ip", 
             "txHash", 

@@ -1,130 +1,149 @@
-import { general } from '@faucet/config';
-import { InjectQueue } from '@nestjs/bull';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bull';
 import { ethers } from 'ethers';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
+import { general } from '@faucet/config';
+import { InjectQueue } from '@nestjs/bull';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { CreateRequestDto } from './dto';
-import { RequestEntity } from './entity';
+import { RequestEntity, RequestStatus } from './entity';
 import { TransactionRequest } from './types';
-import RequestLimit from './types/RequestLimit.enum';
-import { filterRequestsOfThisWeek } from './utils';
-import { toUTCDate } from './utils/utils';
 
 @Injectable()
 export class FaucetService {
-  private readonly logger = new Logger(FaucetService.name);
   constructor(
+    @Inject(general.KEY)
+    private readonly generalConfig: ConfigType<typeof general>,
     @InjectQueue('faucet')
     private readonly faucetQueue: Queue,
     @InjectRepository(RequestEntity)
     private readonly requestRepository: Repository<RequestEntity>,
-    @Inject(general.KEY)
-    private readonly generalConfig: ConfigType<typeof general>,
     private readonly blockchainService: BlockchainService
   ) {}
 
-  public async registerRequest(
-    requestDto: CreateRequestDto,
+  public async create(
+    createRequestDto: CreateRequestDto,
     ip: string
-  ): Promise<void> {
-    if (!(requestDto.amount in RequestLimit))
-      throw new BadRequestException(
-        `You must ask for either ${RequestLimit.ONE}; ${RequestLimit.TWO}; ${RequestLimit.FIVE} or ${RequestLimit.SEVEN}`
+  ): Promise<Omit<RequestEntity, 'id'>> {
+    if (this.generalConfig.disabled) {
+      throw new HttpException(
+        'Faucet temporarily disabled',
+        HttpStatus.SERVICE_UNAVAILABLE
       );
-    requestDto.address = ethers.utils.getAddress(requestDto.address);
-    const requestsForAddressOrIp = await this.requestRepository.find({
-      where: [{ address: requestDto.address }, { ip }],
-    });
-    const requestsOfThisWeek = filterRequestsOfThisWeek(requestsForAddressOrIp);
-    if (requestsOfThisWeek && requestsOfThisWeek.length > 0) {
-      const total = requestsOfThisWeek
-        .map((r) => r.amount)
-        .reduce((curr, next) => curr + next);
-      if (total >= +this.generalConfig.maxRewardPerWeek!)
-        throw new BadRequestException(
-          `You have exceeded the ${this.generalConfig.maxRewardPerWeek} TARA for this week. Please return nexgt week. Until then, happy hacking!`
-        );
-      const remainder = +this.generalConfig.maxRewardPerWeek! - total;
-      if (remainder < requestDto.amount)
-        throw new BadRequestException(
-          `You can withdraw ${remainder} TARA tokens for the current week only. Please choose an amount smaller or equal to it.`
-        );
     }
-    const sendTx: ethers.providers.TransactionRequest = {
-      to: requestDto.address,
-      value: ethers.utils.parseEther(`${requestDto.amount}`).toHexString(),
-      gasPrice: 0,
-      gasLimit: 100000000,
-    };
-    await this.faucetQueue.add(
-      'faucet',
-      new TransactionRequest(
-        toUTCDate(new Date(requestDto.timestamp)),
-        ip,
-        sendTx
-      ),
-      { attempts: 5 }
+
+    // Check number of requests and amount
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    // For IP
+    const [requestsForIp, requestsCountForIp] =
+      await this.requestRepository.findAndCount({
+        where: {
+          ip,
+          createdAt: MoreThan(oneWeekAgo),
+        },
+      });
+    // Number of requests
+    if (requestsCountForIp >= this.generalConfig.maxRequestsForIpPerWeek) {
+      throw new HttpException(
+        'Too many requests for ip',
+        HttpStatus.TOO_MANY_REQUESTS
+      );
+    }
+    // Amount
+    const requestsAmountForIp = requestsForIp.reduce(
+      (prev, curr) => prev + curr.amount,
+      0
     );
-  }
-
-  public async broadcastTransaction(
-    transaction: TransactionRequest
-  ): Promise<void> {
-    const request = new RequestEntity();
-    request.address = transaction.txRequest.to!;
-    request.amount = +ethers.utils.formatEther(transaction.txRequest.value!);
-    request.ip = transaction.ip;
-    request.createdAt = toUTCDate(new Date(transaction.timestamp));
-
-    if (request) {
-      const taraWallet = this.blockchainService.getWallet();
-      if (!taraWallet)
-        throw new InternalServerErrorException(
-          'TARA wallet cannot be initialized. Please try again later.'
-        );
-      try {
-        const transfer = await taraWallet.sendTransaction(
-          transaction.txRequest
-        );
-        while (!transfer.hash) {}
-        if (transfer && transfer.hash) {
-          request.txHash = transfer.hash;
-          const registered = await this.requestRepository.save(request);
-          this.logger.log(
-            `Transaction ${registered.txHash} was broadcasted for address ${registered.address}: ${registered.amount} TARA`
-          );
-          if (!registered)
-            throw new InternalServerErrorException(
-              'Database save was unsuccessful. Please try again later.'
-            );
-        } else
-          throw new InternalServerErrorException(
-            `${transfer.hash} was unsuccessful.`
-          );
-      } catch (error) {
-        throw new Error(`${error}`);
-      }
-    } else {
-      throw new InternalServerErrorException(
-        'Database connection cannot be initialized. Please try again later.'
+    if (
+      requestsAmountForIp >= this.generalConfig.maxAmountForIpPerWeek ||
+      requestsAmountForIp + createRequestDto.amount >
+        this.generalConfig.maxAmountForIpPerWeek
+    ) {
+      throw new HttpException(
+        'Too many tokens requested for ip',
+        HttpStatus.TOO_MANY_REQUESTS
       );
     }
+
+    // For address
+    const address = ethers.utils.getAddress(createRequestDto.address);
+    const [requestsForAddress, requestsCountForAddress] =
+      await this.requestRepository.findAndCount({
+        where: {
+          address,
+          createdAt: MoreThan(oneWeekAgo),
+        },
+      });
+    // Number of requests
+    if (
+      requestsCountForAddress >= this.generalConfig.maxRequestsForAddressPerWeek
+    ) {
+      throw new HttpException(
+        'Too many requests for address',
+        HttpStatus.TOO_MANY_REQUESTS
+      );
+    }
+    // Amount
+    const requestsAmountForAddress = requestsForAddress.reduce(
+      (prev, curr) => prev + curr.amount,
+      0
+    );
+    if (
+      requestsAmountForAddress >=
+        this.generalConfig.maxAmountForAddressPerWeek ||
+      requestsAmountForAddress + createRequestDto.amount >
+        this.generalConfig.maxAmountForAddressPerWeek
+    ) {
+      throw new HttpException(
+        'Too many tokens requested for address',
+        HttpStatus.TOO_MANY_REQUESTS
+      );
+    }
+
+    const request = new RequestEntity();
+    request.address = address;
+    request.amount = createRequestDto.amount;
+    request.ip = ip;
+    await this.requestRepository.save(request);
+    await this.faucetQueue.add('faucet', new TransactionRequest(request.id), {
+      attempts: 5,
+    });
+
+    const response = JSON.parse(JSON.stringify(request));
+    delete response.id;
+
+    return response;
   }
 
-  public getAllRequests = (): Promise<RequestEntity[]> => {
-    return this.requestRepository.find({});
-  };
-  public getByHash = (txHash: string): Promise<RequestEntity> => {
-    return this.requestRepository.findOneByOrFail({ txHash });
-  };
+  public async broadcastTransaction(id: number): Promise<void> {
+    const request = await this.requestRepository.findOneByOrFail({ id });
+
+    const wallet = this.blockchainService.getWallet();
+    try {
+      const transfer = await wallet.sendTransaction({
+        to: request.address,
+        value: ethers.utils.parseEther(`${request.amount}`).toHexString(),
+        gasLimit: 21000,
+      });
+      await transfer.wait();
+      request.status = RequestStatus.DRIPPED;
+    } catch (e) {
+      console.error(e);
+      request.status = RequestStatus.FAILED;
+    }
+
+    await this.requestRepository.save(request);
+  }
+
+  public async getById(uuid: string): Promise<Omit<RequestEntity, 'id'>> {
+    const request = await this.requestRepository.findOneByOrFail({ uuid });
+    const response = JSON.parse(JSON.stringify(request));
+    delete response.id;
+
+    return response;
+  }
 }

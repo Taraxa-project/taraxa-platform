@@ -13,8 +13,4 @@ export class CreateRequestDto {
     enum: RequestLimit,
   })
   amount: RequestLimit;
-
-  @IsNotEmpty()
-  @ApiProperty()
-  timestamp: Date;
 }
