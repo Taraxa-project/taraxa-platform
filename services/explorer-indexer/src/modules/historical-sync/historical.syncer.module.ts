@@ -5,7 +5,7 @@ import { DagModule } from '../dag';
 import { PbftModule } from '../pbft';
 import { TransactionModule } from '../transaction';
 import HistoricalSyncService from './historical.syncer.service';
-import general from 'src/config/general';
+import general from '../../config/general';
 import { ConnectorsModule } from '../connectors';
 import { BullModule } from '@nestjs/bull';
 import * as dotenv from 'dotenv';
@@ -21,7 +21,6 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
       useFactory: (config: ConfigService) => {
         return {
           url: config.get<string>('general.wsConnectionURL'),
-          port: config.get<number>('general.port'),
           followRedirects: false,
           handshakeTimeout: 10000,
         };

@@ -116,7 +116,9 @@ export default class DagService {
   }
 
   public async clearDagData() {
-    await this.dagRepository.query('DELETE FROM "dags"');
+    await this.dagRepository.query(
+      `DELETE FROM "${this.dagRepository.metadata.tableName}"`
+    );
   }
 
   public async getBlockByLevel(level: number) {

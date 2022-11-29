@@ -155,7 +155,9 @@ export default class PbftService {
   }
 
   public async clearPbftData() {
-    await this.pbftRepository.query('DELETE FROM "pbfts"');
+    await this.pbftRepository.query(
+      `DELETE FROM "${this.pbftRepository.metadata.tableName}"`
+    );
   }
 
   public async getPbftsOfLastLevel(limit: number) {

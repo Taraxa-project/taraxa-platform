@@ -45,7 +45,9 @@ export default class TransactionService {
   }
 
   public async clearTransactionData() {
-    await this.txRepository.query('DELETE FROM "transactions"');
+    await this.txRepository.query(
+      `DELETE FROM "${this.txRepository.metadata.tableName}"`
+    );
   }
 
   public async findTransactionsByHashesOrFill(transactions: ITransaction[]) {

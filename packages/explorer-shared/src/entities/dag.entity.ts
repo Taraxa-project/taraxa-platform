@@ -11,9 +11,7 @@ import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
 import { IDAG } from '../models';
 import { TransactionEntity } from './transaction.entity';
 
-const table_name = 'dags';
-
-@Entity(table_name)
+@Entity('dags')
 export class DagEntity extends BaseEntity implements IDAG {
   constructor(dag?: Partial<IDAG>) {
     super();
