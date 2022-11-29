@@ -6,7 +6,7 @@ import {
   DiskHealthIndicator,
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
-import { SyncerHealthIndicator } from './syncerHealthIndicator';
+import { SyncerHealthIndicator } from './SyncerHealthIndicator';
 
 @Controller('health')
 export class HealthController {

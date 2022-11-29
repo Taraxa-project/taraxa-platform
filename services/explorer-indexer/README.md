@@ -51,13 +51,3 @@ $ yarn start:dev
 # production mode
 $ yarn start:prod
 ```
-
-## Test
-
-```bash
-# unit tests
-$ yarn test
-
-# test coverage
-$ yarn test:cov
-```

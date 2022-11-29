@@ -73,7 +73,6 @@ export default class LiveSyncerService {
     setTimeout(async () => {
       const newConnection = await createWebSocket({
         url: this.ws.url,
-        options: { port: this.configService.get<number>('general.port') },
       });
       if (
         newConnection &&

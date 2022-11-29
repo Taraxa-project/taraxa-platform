@@ -10,9 +10,7 @@ import { IsNumber, IsString } from 'class-validator';
 import { ITransaction } from '../models';
 import { PbftEntity } from './pbft.entity';
 
-const table_name = 'transactions';
-
-@Entity(table_name)
+@Entity('transactions')
 export class TransactionEntity extends BaseEntity implements ITransaction {
   constructor(transaction?: Partial<ITransaction>) {
     super();
