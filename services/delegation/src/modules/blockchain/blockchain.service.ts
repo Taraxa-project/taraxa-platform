@@ -10,7 +10,7 @@ export class BlockchainService {
   constructor(
     endpoint: string,
     walletKey: string,
-    private defaultDelegationAmount: ethers.BigNumber,
+    public defaultDelegationAmount: ethers.BigNumber,
     private ownNodes: string[],
   ) {
     this.provider = new ethers.providers.JsonRpcProvider({

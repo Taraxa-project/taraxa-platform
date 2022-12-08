@@ -332,6 +332,7 @@ export class DelegationService {
     if (currentDelegation.gt(totalNodeDelegation)) {
       // await this.blockchainService.unregisterValidator(address);
     } else {
+      let toDelegate = totalNodeDelegation.sub(currentDelegation);
       if (!isNodeRegistered) {
         let isCreatedOnchain: boolean;
         if (type === NodeType.TESTNET) {
@@ -349,24 +350,22 @@ export class DelegationService {
               node.addressProof,
               node.vrfKey,
             );
+          if (isCreatedOnchain) {
+            toDelegate = totalNodeDelegation.sub(
+              this.mainnetBlockchainService.defaultDelegationAmount,
+            );
+          }
         }
         if (node) {
           node.isCreatedOnchain = isCreatedOnchain;
           await this.nodeRepository.save(node);
         }
-
-        if (isCreatedOnchain) {
-          if (type === NodeType.MAINNET) {
-            const validator = await this.mainnetBlockchainService.getValidator(
-              address,
-            );
-
-            await this.mainnetBlockchainService.delegate(
-              address,
-              totalNodeDelegation.sub(validator.total_stake),
-            );
-          }
-        }
+      }
+      if (type === NodeType.MAINNET && !toDelegate.isZero()) {
+        await this.mainnetBlockchainService.delegate(
+          address,
+          totalNodeDelegation.sub(toDelegate),
+        );
       }
     }
   }

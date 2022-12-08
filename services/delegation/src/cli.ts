@@ -106,9 +106,6 @@ async function bootstrap() {
       try {
         const validator = await mainnetBlockchainService.getValidator(address);
         console.log(`currentDelegation: ${validator.total_stake.toString()}`);
-        console.log({
-          validator,
-        });
       } catch (e) {
         console.log(`Node isn't registered as a validator.`);
       }
