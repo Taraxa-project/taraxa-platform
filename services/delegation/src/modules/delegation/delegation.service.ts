@@ -362,10 +362,7 @@ export class DelegationService {
         }
       }
       if (type === NodeType.MAINNET && !toDelegate.isZero()) {
-        await this.mainnetBlockchainService.delegate(
-          address,
-          totalNodeDelegation.sub(toDelegate),
-        );
+        await this.mainnetBlockchainService.delegate(address, toDelegate);
       }
     }
   }
