@@ -29,7 +29,7 @@ export const AddressInfo = ({
   transactions,
   dagBlocks,
   pbftBlocks,
-}: AddressInfoProps) => {
+}: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
   const onCopy = useCopyToClipboard();

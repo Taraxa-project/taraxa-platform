@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';

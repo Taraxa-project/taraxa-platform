@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Option } from '@taraxa_project/taraxa-ui/src/components/SearchInput/SearchInput';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';

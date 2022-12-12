@@ -25,7 +25,15 @@ const fetchNodes = async (params: FetchNodesFilter) => {
   return data as NodesPaginate;
 };
 
-export const useGetNodes = (params: FetchNodesPagination) => {
+export const useGetNodes = (
+  params: FetchNodesPagination
+): {
+  data: NodesPaginate;
+  isError: boolean;
+  error: unknown;
+  isLoading: boolean;
+  isFetching: boolean;
+} => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
     ['nodes', params],
     () => fetchNodes(computeFilters(params)),

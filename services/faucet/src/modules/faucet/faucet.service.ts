@@ -126,7 +126,7 @@ export class FaucetService {
     try {
       const transfer = await wallet.sendTransaction({
         to: request.address,
-        value: ethers.utils.parseEther(`${request.amount}`).toHexString(),
+        value: ethers.utils.parseEther(`${request.amount}`)?.toHexString(),
         gasLimit: 21000,
       });
       await transfer.wait();

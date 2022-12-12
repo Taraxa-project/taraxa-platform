@@ -1,28 +1,29 @@
 import { makeStyles } from '@mui/styles';
-import theme from '../theme';
+import { useTheme } from '@mui/material/styles';
 
-const useStyles = makeStyles(() => {
+export const useHeaderStyles = makeStyles(() => {
+  const theme = useTheme();
   return {
-    headerIconContainer: {
+    headerIconLink: {
       backgroundColor: theme.palette.grey[800],
       border: `1px solid ${theme.palette.info.main}`,
       borderRadius: '12px',
       padding: theme.spacing(1.375),
       display: 'flex',
-      marginRight: theme.spacing(1.75),
       justifyContent: 'center',
       alignContent: 'center',
       textDecoration: 'none',
     },
-    titleContainer: {
+    titleLink: {
       display: 'none',
       color: '#fff',
       textDecoration: 'none',
       [theme.breakpoints.up('sm')]: {
         display: 'block',
+        marginLeft: '1rem !important',
       },
     },
-    title: {
+    titleText: {
       fontSize: '16px !important',
       fontFamily: 'Inter',
       fontWeight: 700,
@@ -46,5 +47,3 @@ const useStyles = makeStyles(() => {
     },
   };
 });
-
-export default useStyles;

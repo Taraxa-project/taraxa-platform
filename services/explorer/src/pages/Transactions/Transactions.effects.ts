@@ -13,7 +13,11 @@ import { formatTransactionStatus } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
 import { displayThreshold } from '../../config';
 
-export const useTransactionEffects = () => {
+export const useTransactionEffects = (): {
+  data: TransactionTableData[];
+  columns: ColumnData[];
+  currentNetwork: string;
+} => {
   const [data, setData] = useState<TransactionTableData[]>();
   const { currentNetwork } = useExplorerNetwork();
   const { finalBlock } = useNodeStateContext();

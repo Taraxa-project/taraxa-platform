@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { AddressInfo, PageTitle } from '../../components';
 import { useAddressInfoEffects } from './AddressInfo.effects';
 
-const AddressInfoPage = () => {
+const AddressInfoPage = (): JSX.Element => {
   const { account } = useParams();
   const { transactions, addressInfoDetails, dagBlocks, pbftBlocks } =
     useAddressInfoEffects(account);

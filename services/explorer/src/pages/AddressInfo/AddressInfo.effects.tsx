@@ -24,7 +24,14 @@ export interface TransactionResponse {
   age: number;
 }
 
-export const useAddressInfoEffects = (account: string) => {
+export const useAddressInfoEffects = (
+  account: string
+): {
+  transactions: Transaction[];
+  addressInfoDetails: AddressInfoDetails;
+  dagBlocks: BlockData[];
+  pbftBlocks: BlockData[];
+} => {
   const [transactions, setTransactions] = useState<Transaction[]>();
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
   const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();

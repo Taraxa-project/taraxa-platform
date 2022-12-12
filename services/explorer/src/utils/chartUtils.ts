@@ -2,7 +2,7 @@ import { DagBlock, PbftBlock } from '../models';
 
 export const calculateTransactionsPerSecond = (
   last6PbftBlocks: PbftBlock[]
-) => {
+): number[] => {
   if (!last6PbftBlocks || last6PbftBlocks.length === 0) return [];
   const data = last6PbftBlocks.filter(Boolean).map((block) => {
     const timeOfBlockBefore = Number(
@@ -15,7 +15,9 @@ export const calculateTransactionsPerSecond = (
   return data.slice(0, data.length - 1);
 };
 
-export const calculatePBFTBlockTime = (last6PbftBlocks: PbftBlock[]) => {
+export const calculatePBFTBlockTime = (
+  last6PbftBlocks: PbftBlock[]
+): number[] => {
   if (!last6PbftBlocks || last6PbftBlocks.length === 0) return [];
   const data = last6PbftBlocks.map((block) => {
     const timeOfBlockBefore = Number(
@@ -27,14 +29,20 @@ export const calculatePBFTBlockTime = (last6PbftBlocks: PbftBlock[]) => {
   return data.slice(0, data.length - 1);
 };
 
-export const getLastNTimestamps = (dags: DagBlock[], amount: number) => {
+export const getLastNTimestamps = (
+  dags: DagBlock[],
+  amount: number
+): number[] => {
   return dags
     .flatMap((d) => d.timestamp)
     .sort((a, b) => a + b)
     .slice(0, amount);
 };
 
-export const getLastNDagBlocks = (dags: DagBlock[], amount: number) => {
+export const getLastNDagBlocks = (
+  dags: DagBlock[],
+  amount: number
+): DagBlock[] => {
   const onlyNLatestTimestamps = getLastNTimestamps(dags, amount);
   const last6Timestamps = dags
     .filter((b) => onlyNLatestTimestamps.includes(b.timestamp))
@@ -45,7 +53,7 @@ export const getLastNDagBlocks = (dags: DagBlock[], amount: number) => {
 export const calculateDagBlocksPerSecond = (
   last6DagBlocks: DagBlock[],
   last5Timestamps: number[]
-) => {
+): number[] => {
   return last5Timestamps.map((time) => {
     return last6DagBlocks.filter((dag) => dag.timestamp === time).length;
   });
@@ -54,7 +62,7 @@ export const calculateDagBlocksPerSecond = (
 export const calculateDagEfficiencyForPBFT = (
   pbfts: PbftBlock[],
   dags: DagBlock[]
-) => {
+): number[] => {
   interface PBFTWithDags {
     pbft: PbftBlock;
     dags: DagBlock[];

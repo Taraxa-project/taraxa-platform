@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import {

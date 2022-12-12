@@ -9,10 +9,12 @@ import {
   ThemeProvider,
   Box,
   Breakpoint,
+  Link,
+  StyledEngineProvider,
 } from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
-import useStyles from './Header.styles';
+import { useHeaderStyles } from './Header.styles';
 import SearchInput from '../SearchInput';
 import { SearchInputProps } from '../SearchInput/SearchInput';
 
@@ -35,57 +37,64 @@ function Header({
   searchPlaceholder = 'Hash or number...',
   ...props
 }: HeaderProps) {
-  const classes = useStyles();
+  const classes = useHeaderStyles();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AppBar {...props} variant='elevation'>
-        <Container maxWidth={maxWidth || false}>
-          <Toolbar variant='regular'>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              {Icon && (
-                <a className={classes.headerIconContainer} href='/'>
-                  <Icon />
-                </a>
-              )}
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AppBar {...props} variant='elevation'>
+          <Container maxWidth={maxWidth || false}>
+            <Toolbar variant='regular'>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                {Icon && (
+                  <Link
+                    className={classes.headerIconLink}
+                    href='/'
+                    underline='none'
+                  >
+                    <Icon />
+                  </Link>
+                )}
 
-              <a className={classes.titleContainer} href='/'>
-                <Typography variant='h2' noWrap className={classes.title}>
-                  <>{title}</>
-                </Typography>
-              </a>
-            </Box>
-            {withSearch && (
-              <SearchInput
-                className={classes.searchInput}
-                fullWidth
-                {...searchInputProps}
-                placeholder={searchPlaceholder}
-              />
-            )}
-            <div
-              className={
-                isMobile
-                  ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(
-                      ' '
-                    )
-                  : classes.sectionDesktop
-              }
-            >
-              {children}
-            </div>
-          </Toolbar>
-        </Container>
-      </AppBar>
-    </ThemeProvider>
+                <Link className={classes.titleLink} href='/' underline='none'>
+                  <Typography variant='h2' noWrap className={classes.titleText}>
+                    {title}
+                  </Typography>
+                </Link>
+              </Box>
+              {withSearch && (
+                <SearchInput
+                  className={classes.searchInput}
+                  fullWidth
+                  {...searchInputProps}
+                  placeholder={searchPlaceholder}
+                />
+              )}
+              <div
+                className={
+                  isMobile
+                    ? [
+                        classes.sectionDesktop,
+                        classes.sectionDesktopMobile,
+                      ].join(' ')
+                    : classes.sectionDesktop
+                }
+              >
+                {children}
+              </div>
+            </Toolbar>
+          </Container>
+        </AppBar>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }
 

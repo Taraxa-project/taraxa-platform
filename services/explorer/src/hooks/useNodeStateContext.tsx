@@ -20,7 +20,7 @@ export const NodeStateProvider = ({
   children,
 }: {
   children: React.ReactNode;
-}) => {
+}): JSX.Element => {
   const [{ data }] = useQuery({
     query: nodeStateQuery,
   });
@@ -43,6 +43,6 @@ export const NodeStateProvider = ({
   );
 };
 
-export const useNodeStateContext = () => {
+export const useNodeStateContext = (): Context => {
   return useContext(NodeStateContext);
 };

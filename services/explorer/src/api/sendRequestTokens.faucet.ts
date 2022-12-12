@@ -6,7 +6,7 @@ export async function sendRequestTokens(
   amount: number,
   currentNetwork: string,
   cb: (data: ToastData) => void
-) {
+): Promise<void> {
   try {
     const response = await fetch(`${faucetUri}/faucet`, {
       method: 'POST',

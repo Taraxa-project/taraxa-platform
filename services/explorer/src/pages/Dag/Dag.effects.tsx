@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { DagBlockFilters, dagBlocksQuery } from '../../api';

@@ -37,12 +37,12 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
         <Box className={classes.details}>
           <Block />
           {level && (
-            <Typography variant='body2' color='common.white'>
+            <Typography variant='body2' color='common.white' minWidth='125px'>
               <strong>Level: </strong> {level}
             </Typography>
           )}
           {blockNumber && (
-            <Typography variant='body2' color='common.white'>
+            <Typography variant='body2' color='common.white' minWidth='125px'>
               <strong>Block No.: </strong> {blockNumber}
             </Typography>
           )}

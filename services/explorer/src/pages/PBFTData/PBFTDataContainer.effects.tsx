@@ -9,7 +9,11 @@ import { PbftBlock, Transaction } from '../../models';
 export const usePBFTDataContainerEffects = (
   blockNumber?: number,
   txHash?: string
-) => {
+): {
+  blockData: PbftBlock;
+  transactions: Transaction[];
+  currentNetwork: string;
+} => {
   const { currentNetwork } = useExplorerNetwork();
   const [blockData, setBlockData] = useState<PbftBlock>({} as PbftBlock);
   const [transactions, setTransactions] = useState<Transaction[]>([
