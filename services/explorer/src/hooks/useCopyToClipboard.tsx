@@ -1,6 +1,6 @@
 import { useSnackbar } from 'notistack';
 
-export const useCopyToClipboard = () => {
+export const useCopyToClipboard = (): (() => void) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const onCopy = () => {

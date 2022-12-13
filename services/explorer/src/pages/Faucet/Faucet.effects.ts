@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import * as yup from 'yup';

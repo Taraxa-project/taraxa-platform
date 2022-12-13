@@ -1,6 +1,6 @@
 import { Network } from './Enums';
 
-export const getDomainName = () => {
+export const getDomainName = (): Network => {
   const hostName = window.location.hostname;
   const network = hostName.split('.')[0];
   if (network === 'mainnet') {

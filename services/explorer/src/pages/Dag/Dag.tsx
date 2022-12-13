@@ -4,7 +4,7 @@ import { useDagEffects } from './Dag.effects';
 import { PageTitle } from '../../components';
 import { toDagBlockTableRow } from '../../utils';
 
-export const DagPage = () => {
+export const DagPage = (): JSX.Element => {
   const {
     data,
     columns,

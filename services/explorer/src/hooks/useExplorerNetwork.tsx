@@ -43,7 +43,7 @@ export const ExplorerNetworkProvider = ({
   children,
 }: {
   children: React.ReactNode;
-}) => {
+}): JSX.Element => {
   const explorerNetwork = useNetworkSelection();
   return (
     <ExplorerNetworkContext.Provider value={explorerNetwork}>
@@ -52,6 +52,6 @@ export const ExplorerNetworkProvider = ({
   );
 };
 
-export const useExplorerNetwork = () => {
+export const useExplorerNetwork = (): Context => {
   return useContext(ExplorerNetworkContext);
 };

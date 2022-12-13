@@ -4,9 +4,8 @@ import { BlockCard } from '@taraxa_project/taraxa-ui';
 import { PageTitle } from '../../components';
 import { useHomeEffects } from './Home.effects';
 import ChartContainer from './ChartContainer';
-import useStyles from './Home.styles';
 
-const HomePage = () => {
+const HomePage = (): JSX.Element => {
   const {
     currentNetwork,
     dagBlocks,
@@ -15,7 +14,6 @@ const HomePage = () => {
     dagToDisplay,
     pbftToDisplay,
   } = useHomeEffects();
-  const classes = useStyles();
   const pbftsForCard = pbftBlocks ? [...pbftBlocks] : [];
   const pbftsForCharts = pbftBlocks ? [...pbftBlocks] : [];
   const dagsForCard = dagBlocks ? [...dagBlocks] : [];
@@ -32,7 +30,12 @@ const HomePage = () => {
         dagBlocks={dagsForCharts}
         dagsForLastTenPeriods={dagsForLastTenPeriods}
       />
-      <Box className={classes.blocksWrapper}>
+      <Box
+        display='flex'
+        gap='24px'
+        width='100%'
+        flexDirection={{ xs: 'column', md: 'column', lg: 'row' }}
+      >
         <BlockCard {...dagToDisplay(dagsForCard?.slice(0, 10))} />
         <BlockCard {...pbftToDisplay(pbftsForCard?.slice(0, 10).reverse())} />
       </Box>

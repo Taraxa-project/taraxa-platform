@@ -52,7 +52,17 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   );
 };
 
-export const toTransactionTableRow = (props: TransactionTableData) => {
+export const toTransactionTableRow = (
+  props: TransactionTableData
+): {
+  data: {
+    timestamp: string;
+    block: JSX.Element;
+    status: JSX.Element;
+    txHash: JSX.Element;
+    value: string;
+  }[];
+} => {
   const { timestamp, block, status: state, txHash, value, token } = props;
   const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
   const labelType = statusToLabel(state);
@@ -78,7 +88,7 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
   };
 };
 
-export const timestampToAge = (timestamp: string | number) => {
+export const timestampToAge = (timestamp: string | number): string => {
   if (!timestamp) return '0';
   let age = Math.floor(+new Date() / 1000 - +timestamp);
   const days = Math.floor(age / 86400);
@@ -94,7 +104,16 @@ export const timestampToAge = (timestamp: string | number) => {
   return ageString;
 };
 
-export const toBlockTableRow = (props: BlockData) => {
+export const toBlockTableRow = (
+  props: BlockData
+): {
+  data: {
+    timestamp: string;
+    block: JSX.Element;
+    hash: JSX.Element;
+    transactionCount: number;
+  }[];
+} => {
   const { timestamp, block, hash, transactionCount } = props;
 
   const ageString = timestampToAge(timestamp);
@@ -115,7 +134,16 @@ export const toBlockTableRow = (props: BlockData) => {
   };
 };
 
-export const toDagBlockTableRow = (props: BlockData) => {
+export const toDagBlockTableRow = (
+  props: BlockData
+): {
+  data: {
+    timestamp: string;
+    level: number;
+    hash: JSX.Element;
+    transactionCount: number;
+  }[];
+} => {
   const { timestamp, level, hash, transactionCount } = props;
 
   const ageString = timestampToAge(timestamp);
@@ -139,7 +167,13 @@ export const toNodeTableRow = ({
   rank,
   nodeAddress,
   blocksProduced,
-}: NodesTableData) => {
+}: NodesTableData): {
+  data: {
+    rank: number;
+    nodeAddress: JSX.Element;
+    blocksProduced: string;
+  }[];
+} => {
   const address = (
     <HashLink
       linkType={HashLinkType.ADDRESSES}

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
 import { API } from '../types';
 
@@ -11,7 +11,15 @@ const getByAddress = (address: string) => {
   return axios.get(url);
 };
 
-export const useGetTransactionsByAddress = (address: string) => {
+export const useGetTransactionsByAddress = (
+  address: string
+): {
+  data: AxiosResponse<any>;
+  isError: boolean;
+  error: unknown;
+  isLoading: boolean;
+  isFetching: boolean;
+} => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
     ['transactions-by-address', address],
     () => getByAddress(address),

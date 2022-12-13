@@ -5,7 +5,13 @@ import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { DagBlock, Transaction } from '../../models';
 
-export const useDAGDataContainerEffects = (hash: string) => {
+export const useDAGDataContainerEffects = (
+  hash: string
+): {
+  blockData: DagBlock;
+  transactions: Transaction[];
+  currentNetwork: string;
+} => {
   const { currentNetwork } = useExplorerNetwork();
   const [blockData, setBlockData] = useState<DagBlock>({} as DagBlock);
   const [transactions, setTransactions] = useState<Transaction[]>([
