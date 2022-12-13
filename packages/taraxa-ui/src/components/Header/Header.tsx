@@ -41,7 +41,7 @@ function Header({
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   return (
-    <StyledEngineProvider injectFirst>
+    <StyledEngineProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AppBar {...props} variant='elevation'>
