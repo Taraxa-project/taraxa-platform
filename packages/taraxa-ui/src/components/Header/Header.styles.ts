@@ -1,8 +1,7 @@
 import { makeStyles } from '@mui/styles';
-import { useTheme } from '@mui/material/styles';
+import theme from '../theme';
 
 export const useHeaderStyles = makeStyles(() => {
-  const theme = useTheme();
   return {
     headerIconLink: {
       backgroundColor: theme.palette.grey[800],
