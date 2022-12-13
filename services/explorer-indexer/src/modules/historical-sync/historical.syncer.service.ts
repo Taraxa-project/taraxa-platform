@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { zeroX } from '@taraxa_project/explorer-shared';
-import _ from 'lodash';
+import _, { add } from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
@@ -143,10 +143,15 @@ export default class HistoricalSyncService implements OnModuleInit {
       );
       // reset the database and remove the queue entries
       await this.txService.clearTransactionData();
+      this.logger.warn('Cleared Transaction table');
       await this.dagService.clearDagData();
+      this.logger.warn('Cleared DAG table');
       await this.pbftService.clearPbftData();
+      this.logger.warn('Cleared PBFT table');
       await this.pbftsQueue.empty();
+      this.logger.warn('Cleared PBFT queue');
       await this.dagsQueue.empty();
+      this.logger.warn('Cleared DAG queue');
       this.syncState = {
         number: 0,
         hash: '',
@@ -222,6 +227,13 @@ export default class HistoricalSyncService implements OnModuleInit {
         } as QueueData,
       });
     }
-    this.pbftsQueue.addBulk(chuncks);
+    try {
+      const added = await this.pbftsQueue.addBulk(chuncks);
+      if (added) {
+        this.logger.log(`Added ${chuncks.length} PBFT periods in Queue`);
+      }
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }
