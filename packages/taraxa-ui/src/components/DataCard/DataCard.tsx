@@ -50,7 +50,13 @@ const DataCard = ({
       >
         <CardContent>
           {tooltip && <div className={classes.tooltipIcon}>{tooltip}</div>}
-          <Typography variant='body1' className={classes.label} color='primary'>
+          <Typography
+            variant='body1'
+            className={classes.label}
+            color='primary'
+            fontSize='12px'
+            mt={2}
+          >
             {description}
           </Typography>
 
@@ -58,7 +64,10 @@ const DataCard = ({
             color='primary'
             variant='h4'
             component='h4'
+            fontWeight='700'
+            fontSize='36px'
             className={classes.title}
+            mt={3}
           >
             {title}
           </Typography>
@@ -67,6 +76,8 @@ const DataCard = ({
               className={classes.label}
               variant='body2'
               color='textSecondary'
+              fontSize='14px'
+              mt={2}
             >
               {label}
             </Typography>

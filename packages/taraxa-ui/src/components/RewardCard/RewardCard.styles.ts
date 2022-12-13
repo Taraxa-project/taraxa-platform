@@ -30,7 +30,7 @@ const useStyles = makeStyles(() => {
       flex: 1,
     },
     actionCard: {
-      width: '263px',
+      width: '370px',
     },
     title: {
       fontWeight: 700,

@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => {
       },
     },
     itemsContainer: {
-      overflowY: 'scroll',
+      overflowY: 'auto',
       height: 225,
       paddingRight: 10,
       '& .contentGrid': {

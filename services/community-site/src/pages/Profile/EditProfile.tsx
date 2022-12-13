@@ -197,8 +197,8 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
             <div className="profileDisabledInput">************</div>
           </div>
           <Button
-            className="profileEditButton"
-            variant="outlined"
+            className="profileEditButton smallGreyBtn"
+            variant="contained"
             color="secondary"
             size="small"
             label={updatingPassword ? 'Cancel' : 'Update'}
