@@ -197,7 +197,7 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
             <div className="profileDisabledInput">************</div>
           </div>
           <Button
-            className="profileEditButton smallGreyBtn"
+            className="profileEditButton smallBtn"
             variant="contained"
             color="secondary"
             size="small"

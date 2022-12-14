@@ -6,9 +6,9 @@ const useStyles = makeStyles(() => {
       width: '100%',
       minHeight: 180,
       textAlign: 'center',
-      backgroundColor: '#282C3E',
+      backgroundColor: '#282C3E !important',
       padding: '20px',
-      border: '1px solid #6A7085',
+      border: '1px solid #6A7085 !important',
     },
     content: {
       display: 'block',

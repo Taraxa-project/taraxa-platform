@@ -4,9 +4,9 @@ const useStyles = makeStyles(() => {
   return {
     root: {
       width: '100%',
-      backgroundColor: '#282C3E',
+      backgroundColor: '#282C3E !important',
       padding: '20px 24px',
-      border: '1px solid #40465F',
+      border: '1px solid #40465F !important',
       borderRadius: '4px',
     },
     content: {
