@@ -150,9 +150,12 @@ export class BlockchainService {
     const totalStakeCommunityNodes = this.defaultDelegationAmount.mul(
       numberOfCommunityNodes,
     );
+    const majorityStake = totalStakeCommunityNodes
+      .mul(2)
+      .add(this.defaultDelegationAmount);
 
     // If our node have 2 x stake of community nodes already, we exit
-    if (totalStakeOwnNodes.gte(totalStakeCommunityNodes.mul(2))) {
+    if (totalStakeOwnNodes.gte(majorityStake)) {
       return;
     }
 
@@ -167,10 +170,8 @@ export class BlockchainService {
       return -1;
     });
 
-    const avgStakeOwnNode = totalStakeCommunityNodes
-      .mul(2)
-      .div(ownNodes.length);
-    let left = totalStakeCommunityNodes.mul(2).sub(totalStakeOwnNodes);
+    const avgStakeOwnNode = majorityStake.div(ownNodes.length);
+    let left = majorityStake.sub(totalStakeOwnNodes);
     for (const ownNode of ownNodes) {
       if (left.isZero()) {
         break;
