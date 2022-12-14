@@ -192,7 +192,7 @@ export default class HistoricalSyncService implements OnModuleInit {
     // @note : Right now there is no way to get the genesis transactions to set:
     // Initial validators, initial balances for delegators and faucet.
     // big TODO
-    const chuncks = [
+    const chunks = [
       {
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
@@ -205,7 +205,7 @@ export default class HistoricalSyncService implements OnModuleInit {
 
     for (let i = 1; i <= maxVal; i++) {
       if (foundBlockNumbers.indexOf(i) == -1) {
-        chuncks.push({
+        chunks.push({
           name: QueueJobs.NEW_PBFT_BLOCKS,
           data: {
             pbftPeriod: i,
@@ -219,21 +219,28 @@ export default class HistoricalSyncService implements OnModuleInit {
       this.syncState.number < this.chainState.number;
       this.syncState.number++
     ) {
-      chuncks.push({
+      if (chunks.length === 1000) {
+        try {
+          const added = await this.pbftsQueue.addBulk(chunks);
+          if (added) {
+            this.logger.log(
+              `Added ${chunks.length} PBFT periods in Queue up until ${
+                chunks[chunks.length - 1].data.pbftPeriod
+              }`
+            );
+            chunks.length = 0;
+          }
+        } catch (error) {
+          this.logger.error(error);
+        }
+      }
+      chunks.push({
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
           pbftPeriod: this.syncState.number,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
       });
-    }
-    try {
-      const added = await this.pbftsQueue.addBulk(chuncks);
-      if (added) {
-        this.logger.log(`Added ${chuncks.length} PBFT periods in Queue`);
-      }
-    } catch (error) {
-      this.logger.error(error);
     }
   }
 }
