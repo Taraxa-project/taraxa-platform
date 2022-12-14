@@ -12,7 +12,8 @@ import { RewardController } from './reward.controller';
 import { AccountController } from './account.controller';
 import { ClaimController } from './claim.controller';
 import { ClaimService } from './claim.service';
-import { BlockchainModule } from '@taraxa-claim/blockchain';
+import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -30,7 +31,15 @@ import { BlockchainModule } from '@taraxa-claim/blockchain';
         maxRedirects: 5,
       }),
     }),
-    BlockchainModule,
+    GraphQLRequestModule.forRootAsync(GraphQLRequestModule, {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          endpoint: config.get<string>('reward.graphQLClaimUrl'),
+        };
+      },
+    }),
   ],
   controllers: [
     BatchController,
