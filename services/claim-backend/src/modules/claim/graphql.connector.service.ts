@@ -1,6 +1,5 @@
 import { InjectGraphQLClient } from '@golevelup/nestjs-graphql-request';
 import { Injectable } from '@nestjs/common';
-import { BigNumber } from 'ethers';
 import { gql, GraphQLClient } from 'graphql-request';
 import { ClaimDetails } from './type/ClaimDetails';
 

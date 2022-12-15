@@ -14,6 +14,7 @@ import { ClaimController } from './claim.controller';
 import { ClaimService } from './claim.service';
 import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GraphQLService } from './graphql.connector.service';
 
 @Module({
   imports: [
@@ -47,7 +48,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AccountController,
     ClaimController,
   ],
-  providers: [ClaimService],
-  exports: [ClaimService],
+  providers: [ClaimService, GraphQLService],
+  exports: [ClaimService, GraphQLService],
 })
 export class ClaimModule {}
