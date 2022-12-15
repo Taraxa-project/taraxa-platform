@@ -6,9 +6,9 @@ const useStyles = makeStyles(() => {
       width: 311,
       height: 314,
       textAlign: 'left',
-      backgroundColor: '#151823',
-      padding: '24px',
-      border: '2px solid #31364B',
+      backgroundColor: '#151823 !important',
+      padding: '24px !important',
+      border: '2px solid #31364B !important',
     },
     content: {
       padding: '0 !important',
@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => {
       },
     },
     itemsContainer: {
-      overflowY: 'scroll',
+      overflowY: 'auto',
       height: 225,
       paddingRight: 10,
       '& .contentGrid': {

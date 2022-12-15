@@ -24,8 +24,6 @@ const useStyles = makeStyles(() => {
       backgroundColor: 'rgba(72, 189, 255, 0.1)',
     },
     title: {
-      fontSize: '16px',
-      fontWeight: 700,
       lineHeight: '26px',
     },
     text: {

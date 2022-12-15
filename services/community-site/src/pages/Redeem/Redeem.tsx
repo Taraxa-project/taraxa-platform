@@ -278,6 +278,7 @@ function Redeem() {
                               variant="contained"
                               color="secondary"
                               label="Redeem"
+                              className="smallBtn"
                               disabled={row.numberOfTokens.eq(0) || row.claimed}
                               onClick={() => {
                                 setWarnOpen(true);

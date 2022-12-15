@@ -19,7 +19,7 @@ const Button = ({ label, Icon, ...props }: ButtonProps) => {
       <CssBaseline />
       <MButton {...props}>
         {Icon && <Icon />}
-        {label && <Typography ml={1}>{label}</Typography>}
+        {label && <Typography>{label}</Typography>}
       </MButton>
     </ThemeProvider>
   );

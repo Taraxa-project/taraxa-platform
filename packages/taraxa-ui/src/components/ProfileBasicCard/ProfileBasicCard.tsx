@@ -39,23 +39,24 @@ const ProfileBasicCard = ({
             <div className={classes.icon}>
               <Icon />
             </div>
-            <Typography
-              variant='body1'
-              className={classes.label}
-              color='primary'
-            >
+            <Typography variant='body1' fontWeight='400' color='primary'>
               {title}
             </Typography>
           </div>
         )}
         {!Icon && (
-          <Typography variant='body1' className={classes.label} color='primary'>
+          <Typography variant='body1' color='primary'>
             {title}
           </Typography>
         )}
         <CardContent className={classes.content}>
           {value && (
-            <Typography variant='h4' className={classes.value} color='primary'>
+            <Typography
+              variant='h4'
+              fontWeight='700'
+              className={classes.value}
+              color='primary'
+            >
               {value}
             </Typography>
           )}

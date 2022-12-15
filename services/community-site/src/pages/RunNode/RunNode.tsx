@@ -321,7 +321,10 @@ const RunNode = () => {
         <Button
           size="small"
           label="Edit"
-          className="edit"
+          variant="contained"
+          color="secondary"
+          className="smallBtn"
+          style={{ marginBottom: '5px' }}
           onClick={() => {
             setCurrentEditedNode(node);
           }}
@@ -329,7 +332,9 @@ const RunNode = () => {
         <Button
           size="small"
           label="Delete"
-          className="delete"
+          color="primary"
+          variant="outlined"
+          className="smallBtn"
           disabled={!node.canDelete}
           onClick={() => {
             const confirmation = window.confirm(
@@ -469,28 +474,30 @@ const RunNode = () => {
         )}
         {isLoggedIn && (
           <div className="nodeTypes">
-            <NodeIcon />
-            <Text label="My nodes" variant="h6" color="primary" className="box-title" />
+            <div className="nodeTitleContainer">
+              <NodeIcon />
+              <Text label="My nodes" variant="h6" color="primary" className="box-title" />
+              <Button
+                size="small"
+                className={clsx('nodeTypeTab', nodeType === 'mainnet' && 'active')}
+                label="Mainnet Candidate"
+                variant="contained"
+                onClick={() => {
+                  setNodeType('mainnet');
+                }}
+              />
+              <Button
+                size="small"
+                className={clsx('nodeTypeTab', nodeType === 'testnet' && 'active')}
+                label="Testnet"
+                variant="contained"
+                onClick={() => {
+                  setNodeType('testnet');
+                }}
+              />
+            </div>
             <Button
-              size="small"
-              className={clsx('nodeTypeTab', nodeType === 'mainnet' && 'active')}
-              label="Mainnet Candidate"
-              variant="contained"
-              onClick={() => {
-                setNodeType('mainnet');
-              }}
-            />
-            <Button
-              size="small"
-              className={clsx('nodeTypeTab', nodeType === 'testnet' && 'active')}
-              label="Testnet"
-              variant="contained"
-              onClick={() => {
-                setNodeType('testnet');
-              }}
-            />
-            <Button
-              size="small"
+              size="medium"
               className="registerNode"
               label={
                 nodeType === 'mainnet' && !profile

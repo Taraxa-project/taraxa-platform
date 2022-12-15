@@ -35,6 +35,7 @@ const theme: Theme = createTheme({
     },
   },
   typography: {
+    fontFamily: ['Inter', 'sans-serif'].join(','),
     h1: {
       fontFamily: ['Poppins', 'sans-serif'].join(','),
     },
@@ -64,7 +65,6 @@ const theme: Theme = createTheme({
     body2: {
       fontFamily: ['Inter', 'sans-serif'].join(','),
     },
-    fontFamily: ['Inter', 'sans-serif'].join(','),
   },
   components: {
     MuiAppBar: {
