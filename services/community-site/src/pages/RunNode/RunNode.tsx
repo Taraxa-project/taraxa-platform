@@ -321,7 +321,10 @@ const RunNode = () => {
         <Button
           size="small"
           label="Edit"
-          className="edit"
+          variant="contained"
+          color="secondary"
+          className="smallBtn"
+          style={{ marginBottom: '5px' }}
           onClick={() => {
             setCurrentEditedNode(node);
           }}
@@ -329,7 +332,9 @@ const RunNode = () => {
         <Button
           size="small"
           label="Delete"
-          className="delete"
+          color="primary"
+          variant="outlined"
+          className="smallBtn"
           disabled={!node.canDelete}
           onClick={() => {
             const confirmation = window.confirm(

@@ -27,6 +27,8 @@
     "indexer-start:prod": "cross-env SKIP_PREFLIGHT_CHECK=true yarn shared-build && yarn shared-typeorm:prod:run && yarn workspace @taraxa_project/explorer-indexer start:prod",
     "api-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer-api build",
     "api-start": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer-api start:dev",
+    "faucet-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/faucet build",
+    "faucet-start": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/faucet start:dev",
     "format": "prettier . --write && eslint --fix '*.{js,jsx,ts,tsx}'",
     "lint": "eslint services/community-site && eslint packages/taraxa-ui && eslint services/delegation && eslint services/claim-backend && eslint services/explorer && eslint services/explorer-api && eslint services/explorer-indexer",
     "lint:fix": "eslint services/community-site --fix && eslint packages/taraxa-ui --fix && eslint services/delegation --fix && eslint services/claim-backend --fix && eslint services/explorer --fix && eslint services/explorer-api --fix && eslint services/explorer-indexer --fix",
