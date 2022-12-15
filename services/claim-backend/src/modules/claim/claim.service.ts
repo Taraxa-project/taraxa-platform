@@ -341,20 +341,14 @@ export class ClaimService {
           claim.numberOfTokens,
           nonce,
         );
-        if (!indexedClaims)
-          throw new InternalServerErrorException(
-            `No such claim was indexed with nonce: ${nonce}`,
-          );
-        if (indexedClaims.length > 1)
-          throw new InternalServerErrorException(
-            `Multiple claims were indexed with nonce: ${nonce}`,
-          );
-        const confirmation = ethers.BigNumber.from(indexedClaims[0].amount);
-        if (
-          confirmation.gt(ethers.BigNumber.from('0')) &&
-          confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
-        ) {
-          await this.markAsClaimed(claim.id);
+        if (indexedClaims) {
+          const confirmation = ethers.BigNumber.from(indexedClaims[0].amount);
+          if (
+            confirmation.gt(ethers.BigNumber.from('0')) &&
+            confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
+          ) {
+            await this.markAsClaimed(claim.id);
+          }
         }
       }
     } catch (error) {
