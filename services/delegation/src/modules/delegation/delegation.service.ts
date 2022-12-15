@@ -1,6 +1,6 @@
 import * as ethUtil from 'ethereumjs-util';
 import moment from 'moment';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   Connection,
   FindConditions,
@@ -8,7 +8,11 @@ import {
   Raw,
   Repository,
 } from 'typeorm';
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -35,15 +39,19 @@ import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
 import { CreateUndelegationNonceDto } from './dto/create-undelegation-nonce.dto';
 import { BalancesDto } from './dto/balances.dto';
 import { BalancesByNodeDto } from './dto/balances-by-node.dto';
+import { Undelegation } from './undelegation.entity';
 
 @Injectable()
 export class DelegationService {
   private testnetDelegationAmount: ethers.BigNumber;
   private mainnetDelegationAmount: ethers.BigNumber;
   private maxDelegationPerNode: number;
+  private undelegationBlockDelay: number;
   constructor(
     @InjectRepository(Delegation)
     private delegationRepository: Repository<Delegation>,
+    @InjectRepository(Undelegation)
+    private undelegationRepository: Repository<Undelegation>,
     @InjectRepository(DelegationNonce)
     private delegationNonceRepository: Repository<DelegationNonce>,
     @InjectRepository(Node)
@@ -65,6 +73,9 @@ export class DelegationService {
     );
     this.maxDelegationPerNode = this.config.get<number>(
       'delegation.maxDelegation',
+    );
+    this.undelegationBlockDelay = this.config.get<number>(
+      'delegation.undelegationConfirmationDelay',
     );
   }
   async getBalances(address: string): Promise<BalancesDto> {
@@ -330,6 +341,9 @@ export class DelegationService {
     }
 
     if (currentDelegation.gt(totalNodeDelegation)) {
+      const amountToUndelegate = currentDelegation.sub(totalNodeDelegation);
+      await this.undelegateFromChain(nodeId, type, address, amountToUndelegate);
+      // add call to undelegation, create undelegation, save in db
       // await this.blockchainService.unregisterValidator(address);
     } else {
       let toDelegate = totalNodeDelegation.sub(currentDelegation);
@@ -589,5 +603,70 @@ export class DelegationService {
       })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
+  }
+
+  private async undelegateFromChain(
+    nodeId: number,
+    type: string,
+    address: string,
+    amount: BigNumber,
+  ) {
+    let undelegationBlockNumber;
+    const targetChain =
+      type === NodeType.MAINNET ? NodeType.MAINNET : NodeType.TESTNET;
+    if (type === NodeType.TESTNET) {
+      undelegationBlockNumber = await this.testnetBlockchainService.undelegate(
+        address,
+        amount,
+      );
+    }
+
+    if (type === NodeType.MAINNET) {
+      undelegationBlockNumber = await this.mainnetBlockchainService.undelegate(
+        address,
+        amount,
+      );
+    }
+    if (undelegationBlockNumber) {
+      const node = await this.nodeRepository.findOne({ id: nodeId });
+      const undelegation = this.undelegationRepository.create();
+      undelegation.address = address;
+      undelegation.value = amount.toString();
+      undelegation.creationBlock = undelegationBlockNumber;
+      undelegation.createdAt = new Date();
+      undelegation.node = node;
+      undelegation.chain = targetChain;
+      undelegation.confirmationBlock =
+        undelegationBlockNumber + this.undelegationBlockDelay;
+      const savedUndelegation = await this.undelegationRepository.save(
+        undelegation,
+      );
+      if (!savedUndelegation) {
+        throw new InternalServerErrorException(
+          `Could not save undelegation for ${address} with value ${amount} from node ${nodeId} on ${type}`,
+        );
+      }
+    }
+  }
+
+  public async confirmUndelegation(undelegation: Undelegation) {
+    if (undelegation.address) {
+      let confirmationBlock: number;
+      if (undelegation.chain === NodeType.MAINNET) {
+        confirmationBlock =
+          await this.mainnetBlockchainService.confirmUndelegate(
+            undelegation.address,
+          );
+      } else if (undelegation.chain === NodeType.TESTNET) {
+        confirmationBlock =
+          await this.testnetBlockchainService.confirmUndelegate(
+            undelegation.address,
+          );
+      }
+      if (!confirmationBlock)
+        throw new InternalServerErrorException(
+          `Could not confirm undelegation for validator ${undelegation.address}`,
+        );
+    }
   }
 }

@@ -18,12 +18,13 @@ import { DelegationTaskService } from './delegation-task.service';
 import { DelegationConsumer } from './delegation.consumer';
 import { DelegationCreatedListener } from './listener/delegation-created.listener';
 import { DelegationDeletedListener } from './listener/delegation-deleted.listener';
+import { Undelegation } from './undelegation.entity';
 
 @Module({
   imports: [
     ConfigModule.forFeature(delegationConfig),
     ConfigModule.forFeature(ethereumConfig),
-    TypeOrmModule.forFeature([Delegation, DelegationNonce, Node]),
+    TypeOrmModule.forFeature([Delegation, Undelegation, DelegationNonce, Node]),
     BullModule.registerQueue({
       name: 'delegation',
     }),
