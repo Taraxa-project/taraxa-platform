@@ -36,12 +36,14 @@ export default class PbftService {
 
   public async getSavedPbftPeriods() {
     return (
-      await this.pbftRepository.find({
-        select: {
-          number: true,
-        },
-      })
-    )?.map((entry) => entry.number);
+      await this.pbftRepository
+        .createQueryBuilder('pbfts')
+        .select('pbfts.number')
+        .orderBy('pbfts.number', 'DESC')
+        .getMany()
+    ).map((pbft) => {
+      return pbft.number;
+    });
   }
 
   public async safeSavePbft(pbft: IPBFT) {
