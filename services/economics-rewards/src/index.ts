@@ -5,6 +5,7 @@ import { Contract, ContractInterface, ethers, utils } from 'ethers';
 import DposAbi from './abi/DposAbi.json';
 import * as dotenv from 'dotenv';
 import { Delegation, Reward, Validator, ValidatorData } from './types';
+import { initializeConnection, saveReward } from './database';
 dotenv.config();
 
 const getContractInstance = async () => {
@@ -92,15 +93,17 @@ const getAllValidators = async (
   const formattedValidators: Reward[] = await Promise.all(
     res.validators.map(async (validator: ValidatorData) => {
       // const allDelegations = await getAllDelegations(validator.account, blockNumber);
-      return {
+      const formatted = {
         blockNumber,
         blockTimestamp: timestamp,
         blockHash: hash,
         account: validator.account,
-        commission: validator.info.commission,
+        commission: validator.info.commission.toString(),
         commissionReward: validator.info.commission_reward.toString(),
         // delegations: allDelegations
       };
+      await saveReward(formatted);
+      return formatted;
     })
   );
   return {
@@ -123,6 +126,7 @@ const getBlockValidators = async (block: number) => {
 };
 
 async function main() {
+  initializeConnection();
   const { currentBlock } = await getContractInstance();
   const blocks = [];
   for (let i = 1; i <= currentBlock; i++) {
