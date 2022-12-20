@@ -1,7 +1,7 @@
 import assert from 'assert';
 import moment from 'moment';
 import * as ethers from 'ethers';
-import { Raw, Repository } from 'typeorm';
+import { Raw } from 'typeorm';
 import { Interval } from '@flatten-js/interval-tree';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -147,6 +147,7 @@ export class RewardService {
     const isDelegationRewardsActive = epoch.epoch >= 2;
     const isDoubleNodeRewardsActive = epoch.epoch === 3;
     const isDelegationDelegatorsRewardsActive = epoch.epoch > 3;
+    const isMaxBetweenThisAndLastMonth = epoch.epoch === 13;
 
     // Calculate Staking Rewards
     console.group(`Calculating staking rewards`);
@@ -290,7 +291,125 @@ export class RewardService {
       }
     }
     console.groupEnd();
+
+    // Max between this month and the last
+    if (isMaxBetweenThisAndLastMonth) {
+      console.group(`Calculating max between this month and the last rewards`);
+      let i = 0;
+      const addresses = [];
+      for (const node of delegationData) {
+        i++;
+        console.log(`- ${i}/${delegationData.length} ${node.node.address}`);
+        addresses.push(node.node.address);
+        const delegations = node.delegations.values;
+        for (const delegation of delegations) {
+          addresses.push(delegation.value.address);
+        }
+      }
+      const uniqueAddresses = [
+        ...new Set(addresses.map((address) => address.toLowerCase())),
+      ];
+      const nodeRewards = new Map<string, number>();
+      const delegationRewards = new Map<string, number>();
+      for (const address of uniqueAddresses) {
+        const lastMonthsDelegatorRewards =
+          await this.getAddressAndTypeRewardsForEpoch(
+            address,
+            'delegator',
+            epoch.epoch - 1,
+          );
+        const thisMonthsDelegatorRewards =
+          await this.getAddressAndTypeRewardsForEpoch(
+            address,
+            'delegator',
+            epoch.epoch,
+          );
+        const lastMonthsNodeRewards =
+          await this.getAddressAndTypeRewardsForEpoch(
+            address,
+            'node',
+            epoch.epoch - 1,
+          );
+        const thisMonthsNodeRewards =
+          await this.getAddressAndTypeRewardsForEpoch(
+            address,
+            'node',
+            epoch.epoch,
+          );
+
+        if (
+          lastMonthsDelegatorRewards !== 0 ||
+          thisMonthsDelegatorRewards !== 0
+        ) {
+          delegationRewards.set(
+            address,
+            lastMonthsDelegatorRewards > thisMonthsDelegatorRewards
+              ? lastMonthsDelegatorRewards
+              : thisMonthsDelegatorRewards,
+          );
+        }
+
+        if (lastMonthsNodeRewards !== 0 || thisMonthsNodeRewards !== 0) {
+          nodeRewards.set(
+            address,
+            lastMonthsNodeRewards > thisMonthsNodeRewards
+              ? lastMonthsNodeRewards
+              : thisMonthsNodeRewards,
+          );
+        }
+      }
+
+      await this.rewardRepository.delete({
+        epoch: epoch.epoch,
+      });
+
+      for (const [address, value] of nodeRewards) {
+        const reward = this.getNewNodeRewardEntity(epoch, {
+          startsAt: epoch.startDate,
+          endsAt: epoch.endDate,
+        });
+        reward.userAddress = address;
+        reward.value = value;
+        await this.rewardRepository.save(reward);
+      }
+
+      for (const [address, value] of delegationRewards) {
+        const reward = this.getNewDelegatorRewardEntity(epoch, {
+          startsAt: epoch.startDate,
+          endsAt: epoch.endDate,
+        });
+        reward.userAddress = address;
+        reward.value = value;
+        await this.rewardRepository.save(reward);
+      }
+
+      console.groupEnd();
+    }
     console.groupEnd();
+  }
+  private async getAddressAndTypeRewardsForEpoch(
+    address: string,
+    type: 'node' | 'delegator',
+    epoch: number,
+  ) {
+    const rewards = await this.rewardRepository
+      .createQueryBuilder()
+      .select(['SUM(value) as amount'])
+      .where({
+        type,
+        epoch,
+        userAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
+      })
+      .getRawMany();
+    let amount = 0;
+    if (rewards && rewards.length > 0) {
+      if (rewards[0].amount) {
+        amount = rewards[0].amount;
+      }
+    }
+    return amount;
   }
   private getNewStakingRewardEntity(epoch: Epoch, period: Period) {
     const reward = this.getNewRewardEntity(epoch, period);
