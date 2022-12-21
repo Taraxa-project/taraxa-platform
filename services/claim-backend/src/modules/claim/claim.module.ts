@@ -49,6 +49,6 @@ import { GraphQLService } from './graphql.connector.service';
     ClaimController,
   ],
   providers: [ClaimService, GraphQLService],
-  exports: [ClaimService, GraphQLService],
+  exports: [ClaimService],
 })
 export class ClaimModule {}
