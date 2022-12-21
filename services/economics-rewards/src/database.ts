@@ -26,3 +26,22 @@ export const saveReward = async (reward: Reward) => {
   }
   return saved.raw[0];
 };
+
+export const fetchLatestBlockNumber = async (): Promise<number | undefined> => {
+  const block = await AppDataSource.manager
+    .getRepository(RewardsEntity)
+    .createQueryBuilder('b')
+    .select('MAX(b.blockNumber)', 'blockNumber')
+    .getRawOne();
+  return block?.blockNumber;
+};
+
+export const deleteLatestValidatorsWhereBlock = async (blockNumber: number) => {
+  await AppDataSource.manager
+    .getRepository(RewardsEntity)
+    .createQueryBuilder()
+    .delete()
+    .from(RewardsEntity)
+    .where('blockNumber = :blockNumber', { blockNumber })
+    .execute();
+};

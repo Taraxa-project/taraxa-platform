@@ -1,16 +1,21 @@
 #!/usr/bin/env node
-import * as fs from 'fs';
-
 import { Contract, ContractInterface, ethers, utils } from 'ethers';
 import DposAbi from './abi/DposAbi.json';
 import * as dotenv from 'dotenv';
 import { Delegation, Reward, Validator, ValidatorData } from './types';
-import { initializeConnection, saveReward } from './database';
+import {
+  fetchLatestBlockNumber,
+  initializeConnection,
+  saveReward,
+} from './database';
 dotenv.config();
 
 const getContractInstance = async () => {
+  if (!process.env.PROVIDER) {
+    throw new Error('Provider missing! Please add it to the .env file');
+  }
   const provider = new ethers.providers.WebSocketProvider(
-    process.env.PROVIDER || ''
+    `${process.env.PROVIDER}`
   );
   const signer = provider.getSigner();
   const contractAddress = process.env.DPOS_CONTRACT_ADDRESS || '';
@@ -78,23 +83,22 @@ const getAllDelegations = async (
 const getAllValidators = async (
   index: number,
   blockNumber: number
-): Promise<{
-  end: boolean;
-  validators: Reward[];
-}> => {
+): Promise<{ end: boolean; validators: Reward[] }> => {
   const { dposContract, provider } = await getContractInstance();
+  const { hash, timestamp } = await provider.getBlock(blockNumber);
+
   const res: {
     validators: ValidatorData[];
     end: boolean;
   } = await dposContract.getValidators(index, {
     blockTag: blockNumber,
   });
-  const { hash, timestamp } = await provider.getBlock(blockNumber);
+
   const formattedValidators: Reward[] = await Promise.all(
     res.validators.map(async (validator: ValidatorData) => {
       // const allDelegations = await getAllDelegations(validator.account, blockNumber);
       const formatted = {
-        blockNumber,
+        blockNumber: blockNumber,
         blockTimestamp: timestamp,
         blockHash: hash,
         account: validator.account,
@@ -112,12 +116,12 @@ const getAllValidators = async (
   };
 };
 
-const getBlockValidators = async (block: number) => {
+const getBlockValidators = async (blockNumber: number) => {
   let continueSearch = true;
   const allValidators: Validator[] = [];
   let index = 0;
   while (continueSearch) {
-    const { end, validators } = await getAllValidators(index, block);
+    const { end, validators } = await getAllValidators(index, blockNumber);
     allValidators.push(...validators);
     index++;
     continueSearch = !end;
@@ -128,16 +132,18 @@ const getBlockValidators = async (block: number) => {
 async function main() {
   initializeConnection();
   const { currentBlock } = await getContractInstance();
+  const latestBlock = await fetchLatestBlockNumber();
+  console.log('Final Block is: ', currentBlock);
+  console.log('Latest block is: ', latestBlock);
   const blocks = [];
-  for (let i = 1; i <= currentBlock; i++) {
+  const startBlock = latestBlock ? latestBlock + 1 : 1;
+  console.log('Start block os: ', startBlock);
+  for (let i = startBlock; i <= currentBlock; i++) {
     console.log('Current block: ', i);
     const validators = await getBlockValidators(i);
     blocks.push(...validators);
   }
-  fs.writeFile(`src/output/blocks.json`, JSON.stringify(blocks), 'utf8', () => {
-    console.log('File finished');
-  });
-  process.exit();
+  // process.exit();
 }
 
 main().catch((error) => {
