@@ -1,15 +1,15 @@
-import yargs, { Argv } from 'yargs';
-import { hideBin } from 'yargs/helpers';
-import { NestFactory } from '@nestjs/core';
+import yargs, { Argv } from "yargs";
+import { hideBin } from "yargs/helpers";
+import { NestFactory } from "@nestjs/core";
 
-import { AppCoreModule } from './modules/app-core.module';
-import { NodeService } from './modules/node/node.service';
-import { DelegationService } from './modules/delegation/delegation.service';
-import { RewardService } from './modules/reward/reward.service';
+import { AppCoreModule } from "./modules/app-core.module";
+import { NodeService } from "./modules/node/node.service";
+import { DelegationService } from "./modules/delegation/delegation.service";
+import { RewardService } from "./modules/reward/reward.service";
 import {
   BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
   BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
-} from './modules/blockchain/blockchain.constant';
+} from "./modules/blockchain/blockchain.constant";
 
 interface Node {
   id: number;
@@ -25,8 +25,8 @@ async function bootstrap() {
   const app = await NestFactory.createApplicationContext(
     AppCoreModule.forRoot(),
     {
-      logger: ['error', 'warn'],
-    },
+      logger: ["error", "warn"],
+    }
   );
   await app.init();
   const nodeService = app.get(NodeService);
@@ -41,7 +41,7 @@ async function bootstrap() {
 
   const ensureDelegation = async (
     nodes: Node[],
-    currentDelegations: Delegations,
+    currentDelegations: Delegations
   ) => {
     let count = 0;
     for (const node of nodes) {
@@ -60,12 +60,12 @@ async function bootstrap() {
   };
 
   const testnetNodes = async () => {
-    console.log(await nodes('testnet'));
+    console.log(await nodes("testnet"));
     return Promise.resolve();
   };
 
   const mainnetNodes = async () => {
-    console.log(await nodes('mainnet'));
+    console.log(await nodes("mainnet"));
     return Promise.resolve();
   };
 
@@ -78,7 +78,7 @@ async function bootstrap() {
       const isDeleted = deletedAt !== null;
       console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
       console.log(`ensuring delegation...`);
-      console.log(`Deleted: ${isDeleted ? 'Y' : 'N'}`);
+      console.log(`Deleted: ${isDeleted ? "Y" : "N"}`);
       try {
         const validator = await testnetBlockchainService.getValidator(address);
         console.log(`currentDelegation: ${validator.total_stake.toString()}`);
@@ -102,7 +102,7 @@ async function bootstrap() {
       const isDeleted = deletedAt !== null;
       console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
       console.log(`ensuring delegation...`);
-      console.log(`Deleted: ${isDeleted ? 'Y' : 'N'}`);
+      console.log(`Deleted: ${isDeleted ? "Y" : "N"}`);
       try {
         const validator = await mainnetBlockchainService.getValidator(address);
         console.log(`currentDelegation: ${validator.total_stake.toString()}`);
@@ -178,55 +178,55 @@ async function bootstrap() {
   };
 
   await yargs(hideBin(process.argv))
-    .command('testnet-nodes', 'get all testnet nodes', testnetNodes)
-    .command('mainnet-nodes', 'get all mainnets nodes', mainnetNodes)
+    .command("testnet-nodes", "get all testnet nodes", testnetNodes)
+    .command("mainnet-nodes", "get all mainnets nodes", mainnetNodes)
     .command(
-      'testnet-ensure-delegation',
-      'ensure delegation for all testnet nodes',
-      testnetEnsureDelegation,
+      "testnet-ensure-delegation",
+      "ensure delegation for all testnet nodes",
+      testnetEnsureDelegation
     )
     .command(
-      'mainnet-ensure-delegation',
-      'ensure delegation for all mainnet nodes',
-      mainnetEnsureDelegation,
+      "mainnet-ensure-delegation",
+      "ensure delegation for all mainnet nodes",
+      mainnetEnsureDelegation
     )
     .command(
-      'rebalance-mainnet',
-      'rebalances own node delegations for mainnet',
-      rebalanceMainnet,
+      "rebalance-mainnet",
+      "rebalances own node delegations for mainnet",
+      rebalanceMainnet
     )
     .command(
-      'rebalance-testnet',
-      'rebalances own node delegations for testnet',
-      rebalanceTestnet,
+      "rebalance-testnet",
+      "rebalances own node delegations for testnet",
+      rebalanceTestnet
     )
     .command(
-      'check-staking',
-      'checks staking balances for all addresses',
-      checkStaking,
+      "check-staking",
+      "checks staking balances for all addresses",
+      checkStaking
     )
     .command(
-      'rebalance-staking',
+      "rebalance-staking",
       "undelegates from all addresses that don't have enough stake",
-      rebalanceStaking,
+      rebalanceStaking
     )
     .command(
-      'calculate-rewards',
-      'calculates rewards for all nodes/delegators',
-      calculateRewards,
+      "calculate-rewards",
+      "calculates rewards for all nodes/delegators",
+      calculateRewards
     )
     .command(
-      'calculate-rewards-for-epoch [epoch]',
-      'calculates rewards for all nodes/delegators for a specific epoch',
+      "calculate-rewards-for-epoch [epoch]",
+      "calculates rewards for all nodes/delegators for a specific epoch",
       (yargs: Argv) => {
-        yargs.positional('epoch', {
-          type: 'number',
-          describe: 'epoch',
+        yargs.positional("epoch", {
+          type: "number",
+          describe: "epoch",
         });
       },
       async (argv) => {
         return await calculateRewardsForEpoch(argv.epoch as number);
-      },
+      }
     ).argv;
   await app.close();
 }

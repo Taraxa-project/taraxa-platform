@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEthereumAddress } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEthereumAddress } from "class-validator";
 
 export class CreateNonceDto {
   @IsEthereumAddress()

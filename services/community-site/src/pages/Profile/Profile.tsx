@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Modal } from '@taraxa_project/taraxa-ui';
-import { useMediaQuery } from 'react-responsive';
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { Modal } from "@taraxa_project/taraxa-ui";
+import { useMediaQuery } from "react-responsive";
 
-import CloseIcon from '../../assets/icons/close';
+import CloseIcon from "../../assets/icons/close";
 
-import { useAuth } from '../../services/useAuth';
+import { useAuth } from "../../services/useAuth";
 
-import Title from '../../components/Title/Title';
+import Title from "../../components/Title/Title";
 
-import KYC from './Modal/KYC';
-import KYCSuccess from './Modal/KYCSuccess';
-import KYCError from './Modal/KYCError';
+import KYC from "./Modal/KYC";
+import KYCSuccess from "./Modal/KYCSuccess";
+import KYCError from "./Modal/KYCError";
 
-import ViewProfile from './ViewProfile';
-import EditProfile from './EditProfile';
+import ViewProfile from "./ViewProfile";
+import EditProfile from "./EditProfile";
 
-import './profile.scss';
+import "./profile.scss";
 
 interface ProfileModalProps {
   isKYCModalOpen: boolean;
@@ -34,23 +34,23 @@ function ProfileModal({
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const resetModal = () => {
-    setModalContent('kyc');
+    setModalContent("kyc");
     setIsKYCModalOpen(false);
   };
 
   let content = <KYC onSuccess={resetModal} />;
 
-  if (modalContent === 'kyc-success') {
+  if (modalContent === "kyc-success") {
     content = <KYCSuccess onSuccess={resetModal} />;
   }
 
-  if (modalContent === 'kyc-error') {
+  if (modalContent === "kyc-error") {
     content = <KYCError onSuccess={resetModal} />;
   }
 
   return (
     <Modal
-      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+      id={isMobile ? "mobile-signinModal" : "signinModal"}
       title="Submit KYC"
       parentElementID="root"
       show={isKYCModalOpen}
@@ -70,7 +70,7 @@ const Profile = () => {
 
   const [editProfile, setEditProfile] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState('kyc');
+  const [modalContent, setModalContent] = useState("kyc");
 
   useEffect(() => {
     const getUser = () => auth.refreshUser!();
@@ -81,21 +81,21 @@ const Profile = () => {
     const params = location.search
       .substr(1)
       .toString()
-      .split('&')
+      .split("&")
       .reduce((previous: { [string: string]: string }, current: string) => {
-        const [key, value] = current.split('=');
+        const [key, value] = current.split("=");
         previous[key] = value;
         return previous;
       }, {});
 
     if (params.transactionStatus) {
       setIsKYCModalOpen(true);
-      if (params.transactionStatus === 'SUCCESS') {
-        setModalContent('kyc-success');
+      if (params.transactionStatus === "SUCCESS") {
+        setModalContent("kyc-success");
       }
 
-      if (params.transactionStatus !== 'SUCCESS') {
-        setModalContent('kyc-error');
+      if (params.transactionStatus !== "SUCCESS") {
+        setModalContent("kyc-error");
       }
     }
   }, []);
@@ -105,9 +105,9 @@ const Profile = () => {
   }
 
   return (
-    <div className={isMobile ? 'mobile-profile' : 'profile'}>
+    <div className={isMobile ? "mobile-profile" : "profile"}>
       <div className="profile-content">
-        <Title title={editProfile ? 'My profile - settings' : 'My profile'} />
+        <Title title={editProfile ? "My profile - settings" : "My profile"} />
         <ProfileModal
           isKYCModalOpen={isKYCModalOpen}
           modalContent={modalContent}

@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext } from "react";
 
 type Context = {
   isLoading: boolean;
@@ -21,9 +21,17 @@ function useProvideLoading() {
   return { isLoading: loadingCount > 0, startLoading, finishLoading };
 }
 
-export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
+export const LoadingProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const loading = useProvideLoading();
-  return <LoadingContext.Provider value={loading}>{children}</LoadingContext.Provider>;
+  return (
+    <LoadingContext.Provider value={loading}>
+      {children}
+    </LoadingContext.Provider>
+  );
 };
 
 export const useLoading = () => {

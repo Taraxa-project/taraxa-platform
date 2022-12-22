@@ -6,11 +6,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-} from 'typeorm';
-import { Node } from '../node/node.entity';
+} from "typeorm";
+import { Node } from "../node/node.entity";
 
 @Entity({
-  name: 'delegation_nonces',
+  name: "delegation_nonces",
 })
 export class DelegationNonce {
   @PrimaryGeneratedColumn()
@@ -33,12 +33,12 @@ export class DelegationNonce {
   value: number;
 
   @CreateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   updatedAt: Date;
 }

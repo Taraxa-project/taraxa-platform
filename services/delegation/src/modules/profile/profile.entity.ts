@@ -4,11 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-} from 'typeorm';
-import { CreateProfileDto } from './dto/create-profile.dto';
+} from "typeorm";
+import { CreateProfileDto } from "./dto/create-profile.dto";
 
 @Entity({
-  name: 'profiles',
+  name: "profiles",
 })
 export class Profile {
   @PrimaryGeneratedColumn()
@@ -20,33 +20,33 @@ export class Profile {
   user: number;
 
   @Column({
-    type: 'text',
+    type: "text",
     nullable: true,
     default: null,
   })
   description: string;
 
   @Column({
-    type: 'text',
+    type: "text",
     nullable: true,
     default: null,
   })
   website: string;
 
   @Column({
-    type: 'text',
+    type: "text",
     nullable: true,
     default: null,
   })
   social: string;
 
   @CreateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   updatedAt: Date;
 

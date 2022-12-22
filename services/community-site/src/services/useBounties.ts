@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
-import { useAuth } from './useAuth';
-import useApi from './useApi';
+import { useCallback } from "react";
+import { useAuth } from "./useAuth";
+import useApi from "./useApi";
 
 const useBounties = () => {
   const { get } = useApi();
@@ -15,7 +15,7 @@ const useBounties = () => {
     async (bountyId: number | string): Promise<number> => {
       if (isLoggedIn) {
         const userSubmissionsCountRequest = await get(
-          `/submissions/count?bounty=${bountyId}&user=${userId}`,
+          `/submissions/count?bounty=${bountyId}&user=${userId}`
         );
         if (userSubmissionsCountRequest.success) {
           return userSubmissionsCountRequest.response;
@@ -23,7 +23,7 @@ const useBounties = () => {
       }
       return 0;
     },
-    [get, isLoggedIn, userId],
+    [get, isLoggedIn, userId]
   );
 
   return { getBountyUserSubmissionsCount };

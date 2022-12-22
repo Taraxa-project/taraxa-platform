@@ -1,25 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
-import { BaseCard, Button, Label, Loading, Notification, Icons } from '@taraxa_project/taraxa-ui';
+import React, { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import {
+  BaseCard,
+  Button,
+  Label,
+  Loading,
+  Notification,
+  Icons,
+} from "@taraxa_project/taraxa-ui";
 
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import moment from 'moment';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import moment from "moment";
 
-import WhiteCheckIcon from '../../assets/icons/checkWhite';
-import NotFoundIcon from '../../assets/icons/notFound';
-import RedeemSidebar from '../../assets/icons/redeemSidebar';
-import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
-import { weiToEth, formatEth, roundEth } from '../../utils/eth';
+import WhiteCheckIcon from "../../assets/icons/checkWhite";
+import NotFoundIcon from "../../assets/icons/notFound";
+import RedeemSidebar from "../../assets/icons/redeemSidebar";
+import useRedeem, {
+  Claim,
+  ClaimData,
+  ClaimResponse,
+} from "../../services/useRedeem";
+import { weiToEth, formatEth, roundEth } from "../../utils/eth";
 
-import useToken from '../../services/useToken';
-import useClaim from '../../services/useClaim';
-import useApi from '../../services/useApi';
+import useToken from "../../services/useToken";
+import useClaim from "../../services/useClaim";
+import useApi from "../../services/useApi";
 
-import Title from '../../components/Title/Title';
+import Title from "../../components/Title/Title";
 
-import './redeem.scss';
-import useCMetamask from '../../services/useCMetamask';
-import RedeemModals from './Modal/Modals';
+import "./redeem.scss";
+import useCMetamask from "../../services/useCMetamask";
+import RedeemModals from "./Modal/Modals";
 
 const EmptyRewards = () => (
   <TableRow className="tableRow">
@@ -42,12 +60,17 @@ function Redeem() {
   const api = useApi();
   const redeem = useRedeem();
 
-  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
-  const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from('0'),
+  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from("0")
   );
-  const [locked, setLocked] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
-  const [claimed, setClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
+  const [availableToBeClaimed, setAvailableToBeClaimed] =
+    useState<ethers.BigNumber>(ethers.BigNumber.from("0"));
+  const [locked, setLocked] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from("0")
+  );
+  const [claimed, setClaimed] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from("0")
+  );
   const [isLoadingClaims, setLoadingClaims] = useState<boolean>(false);
   const [claims, setClaims] = useState<Claim[]>([]);
 
@@ -60,21 +83,23 @@ function Redeem() {
       try {
         const data = await api.post(
           `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/${account}`,
-          {},
+          {}
         );
         if (data.success) {
-          setAvailableToBeClaimed(ethers.BigNumber.from(`${data.response.availableToBeClaimed}`));
+          setAvailableToBeClaimed(
+            ethers.BigNumber.from(`${data.response.availableToBeClaimed}`)
+          );
           setLocked(ethers.BigNumber.from(`${data.response.totalLocked}`));
           setClaimed(ethers.BigNumber.from(`${data.response.totalClaimed}`));
         } else {
-          setAvailableToBeClaimed(ethers.BigNumber.from('0'));
-          setLocked(ethers.BigNumber.from('0'));
-          setClaimed(ethers.BigNumber.from('0'));
+          setAvailableToBeClaimed(ethers.BigNumber.from("0"));
+          setLocked(ethers.BigNumber.from("0"));
+          setClaimed(ethers.BigNumber.from("0"));
         }
       } catch (error) {
-        setAvailableToBeClaimed(ethers.BigNumber.from('0'));
-        setLocked(ethers.BigNumber.from('0'));
-        setClaimed(ethers.BigNumber.from('0'));
+        setAvailableToBeClaimed(ethers.BigNumber.from("0"));
+        setLocked(ethers.BigNumber.from("0"));
+        setClaimed(ethers.BigNumber.from("0"));
       }
     };
     if (account) {
@@ -87,13 +112,13 @@ function Redeem() {
       try {
         const claimData = await api.get(
           `${process.env.REACT_APP_API_CLAIM_HOST}/accounts/claims/${account}`,
-          undefined,
+          undefined
         );
         if (claimData.success) {
           const finalClaims = redeem.formatClaimsForTable(
             claimData.response.data,
             account,
-            availableToBeClaimed,
+            availableToBeClaimed
           );
           setClaims(finalClaims);
         } else {
@@ -119,7 +144,7 @@ function Redeem() {
         const balance = await token.balanceOf(account);
         setTokenBalance(balance);
       } catch (error) {
-        setTokenBalance(ethers.BigNumber.from('0'));
+        setTokenBalance(ethers.BigNumber.from("0"));
       }
     };
 
@@ -136,7 +161,7 @@ function Redeem() {
       if (ind === 0) {
         const claimData = await api.post<ClaimResponse>(
           `${process.env.REACT_APP_API_CLAIM_HOST}/claims/${account}`,
-          {},
+          {}
         );
         if (claimData && claimData.success) {
           claimObj = redeem.parseClaim(claimData.response);
@@ -150,25 +175,32 @@ function Redeem() {
       if (claimObj) {
         const claimPatchData = await api.patch<ClaimData>(
           `${process.env.REACT_APP_API_CLAIM_HOST}/claims/${claimObj.id}`,
-          {},
+          {}
         );
         if (claimPatchData.success) {
           const { availableToBeClaimed, nonce, hash } = claimPatchData.response;
-          const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
+          const claimTx = await claim.claim(
+            account,
+            availableToBeClaimed,
+            nonce,
+            hash
+          );
 
           await claimTx.wait(1);
 
-          setAvailableToBeClaimed(ethers.BigNumber.from('0'));
+          setAvailableToBeClaimed(ethers.BigNumber.from("0"));
           setClaimed((currentClaimed) =>
-            currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)),
+            currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed))
           );
-          setTokenBalance((balance) => balance.add(ethers.BigNumber.from(availableToBeClaimed)));
+          setTokenBalance((balance) =>
+            balance.add(ethers.BigNumber.from(availableToBeClaimed))
+          );
         }
       }
     } catch (e) {}
   };
 
-  const columns = ['TARA', 'Date', 'Status', ''];
+  const columns = ["TARA", "Date", "Status", ""];
 
   return (
     <div className="redeem">
@@ -194,7 +226,7 @@ function Redeem() {
                 variant="info"
               />
             </div>
-            {status !== 'connected' && (
+            {status !== "connected" && (
               <div className="notification">
                 <Notification
                   title="Notice:"
@@ -218,12 +250,16 @@ function Redeem() {
               />
             </div>
             <div className="cardContainer">
-              <BaseCard title={formatEth(roundEth(weiToEth(locked)))} description="Locked" />
+              <BaseCard
+                title={formatEth(roundEth(weiToEth(locked)))}
+                description="Locked"
+              />
             </div>
           </div>
         </div>
         <div className="tableHeader">
-          <WhiteCheckIcon /> <span style={{ marginLeft: '10px' }}>Redemption History</span>
+          <WhiteCheckIcon />{" "}
+          <span style={{ marginLeft: "10px" }}>Redemption History</span>
         </div>
         {claims ? (
           <TableContainer className="table">
@@ -251,9 +287,9 @@ function Redeem() {
                               ? row.claimedAt
                               : row.createdAt
                               ? row.createdAt
-                              : Date.now(),
+                              : Date.now()
                           )
-                            .format('ll')
+                            .format("ll")
                             .toUpperCase()}
                         </TableCell>
                         <TableCell className="tableCell">

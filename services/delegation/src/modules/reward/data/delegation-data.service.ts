@@ -1,13 +1,13 @@
-import moment from 'moment';
-import { Repository } from 'typeorm';
-import IntervalTree, { Interval } from '@flatten-js/interval-tree';
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import moment from "moment";
+import { Repository } from "typeorm";
+import IntervalTree, { Interval } from "@flatten-js/interval-tree";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 
-import { Node } from '../../node/node.entity';
-import { NodeType } from '../../node/node-type.enum';
-import { NodeCommission } from '../../node/node-commission.entity';
-import { Delegation } from '../../delegation/delegation.entity';
+import { Node } from "../../node/node.entity";
+import { NodeType } from "../../node/node-type.enum";
+import { NodeCommission } from "../../node/node-commission.entity";
+import { Delegation } from "../../delegation/delegation.entity";
 
 export interface DelegationIntervalValue {
   startsAt: number;
@@ -23,7 +23,7 @@ export class DelegationDataService {
     @InjectRepository(NodeCommission)
     private nodeCommissionRepository: Repository<NodeCommission>,
     @InjectRepository(Delegation)
-    private delegationRepository: Repository<Delegation>,
+    private delegationRepository: Repository<Delegation>
   ) {}
   async getData(endTime: number) {
     const nodes = await this.nodeRepository.find({
@@ -31,7 +31,7 @@ export class DelegationDataService {
         type: NodeType.MAINNET,
       },
       order: {
-        createdAt: 'ASC',
+        createdAt: "ASC",
       },
       loadEagerRelations: false,
       withDeleted: true,
@@ -41,19 +41,19 @@ export class DelegationDataService {
         node,
         commissions: await this.getCommissions(node, endTime),
         delegations: await this.getDelegations(node, endTime),
-      })),
+      }))
     );
   }
   private async getCommissions(
     node: Node,
-    endTime: number,
+    endTime: number
   ): Promise<IntervalTree<DelegationIntervalValue>> {
     const commissions = await this.nodeCommissionRepository.find({
       where: {
         node,
       },
       order: {
-        startsAt: 'DESC',
+        startsAt: "DESC",
       },
     });
 
@@ -73,14 +73,14 @@ export class DelegationDataService {
   }
   private async getDelegations(
     node: Node,
-    endTime: number,
+    endTime: number
   ): Promise<IntervalTree<DelegationIntervalValue>> {
     const delegations = await this.delegationRepository.find({
       where: {
         node,
       },
       order: {
-        startsAt: 'ASC',
+        startsAt: "ASC",
       },
       withDeleted: true,
     });

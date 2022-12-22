@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
-import SuccessIcon from '../../../assets/icons/success';
-import { useDelegationApi } from '../../../services/useApi';
-import useSigning from '../../../services/useSigning';
-import useCMetamask from '../../../services/useCMetamask';
+import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { Button, Text, InputField } from "@taraxa_project/taraxa-ui";
+import SuccessIcon from "../../../assets/icons/success";
+import { useDelegationApi } from "../../../services/useApi";
+import useSigning from "../../../services/useSigning";
+import useCMetamask from "../../../services/useCMetamask";
 
 type UndelegateProps = {
   validatorId: number;
@@ -24,14 +24,16 @@ const Undelegate = ({
   const [undelegationTotal, setUnDelegationTotal] = useState(``);
   const [totalDelegation, setTotalDelegation] = useState(0);
   const [step, setStep] = useState(1);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const delegationApi = useDelegationApi();
   const { account } = useCMetamask();
   const sign = useSigning();
 
   const getBalance = async () => {
-    const balance = await delegationApi.get(`/delegations/${account}/balances/${validatorId}`);
+    const balance = await delegationApi.get(
+      `/delegations/${account}/balances/${validatorId}`
+    );
     setTotalDelegation(balance.response.undelegatable);
   };
 
@@ -40,29 +42,29 @@ const Undelegate = ({
   }, []);
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
     const delegationNumber = parseInt(undelegationTotal, 10);
     if (delegationNumber > totalDelegation) {
-      setError('cannot exceed TARA available for delegation');
+      setError("cannot exceed TARA available for delegation");
       return;
     }
-    setError('');
+    setError("");
 
     const nonce = await delegationApi.post(
-      '/undelegations/nonces',
+      "/undelegations/nonces",
       { from: account, node: validatorId },
-      true,
+      true
     );
 
     const proof = await sign(nonce.response);
 
     const result = await delegationApi.post(
-      '/undelegations',
+      "/undelegations",
       { proof, from: account, value: delegationNumber, node: validatorId },
-      true,
+      true
     );
 
     if (result.success) {
@@ -76,7 +78,7 @@ const Undelegate = ({
       {step === 1 ? (
         <>
           <Text
-            style={{ marginBottom: '32px', fontSize: '18px' }}
+            style={{ marginBottom: "32px", fontSize: "18px" }}
             label="Undelegate from..."
             align="center"
             variant="h6"
@@ -90,7 +92,9 @@ const Undelegate = ({
           </div>
           <div className="taraInputWrapper">
             <p className="maxDelegatableDescription">Available to undelegate</p>
-            <p className="maxDelegatableTotal">{ethers.utils.commify(totalDelegation)}</p>
+            <p className="maxDelegatableTotal">
+              {ethers.utils.commify(totalDelegation)}
+            </p>
             <p className="maxDelegatableUnit">TARA</p>
             <InputField
               error={!!error}
@@ -156,13 +160,18 @@ const Undelegate = ({
         </>
       ) : (
         <>
-          <Text style={{ marginBottom: '2%' }} label="Success" variant="h6" color="primary" />
+          <Text
+            style={{ marginBottom: "2%" }}
+            label="Success"
+            variant="h6"
+            color="primary"
+          />
           <div className="successIcon">
             <SuccessIcon />
           </div>
           <p className="successText">
-            You've successfully undelegated {ethers.utils.commify(undelegationTotal)} TARA from
-            validator:
+            You've successfully undelegated{" "}
+            {ethers.utils.commify(undelegationTotal)} TARA from validator:
           </p>
           <div className="nodeDescriptor nodeDescriptorSuccess">
             {validatorName && <p className="nodeName">{validatorName}</p>}

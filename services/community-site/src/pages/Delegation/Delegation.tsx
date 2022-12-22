@@ -1,7 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
-import { ethers } from 'ethers';
-import { Notification, BaseCard, Switch, Text, Icons, Card } from '@taraxa_project/taraxa-ui';
+import React, { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
+import { ethers } from "ethers";
+import {
+  Notification,
+  BaseCard,
+  Switch,
+  Text,
+  Icons,
+  Card,
+} from "@taraxa_project/taraxa-ui";
 
 import {
   Box,
@@ -11,18 +18,18 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-} from '@mui/material';
+} from "@mui/material";
 
-import { useAuth } from '../../services/useAuth';
-import { useDelegationApi } from '../../services/useApi';
-import PublicNode from '../../interfaces/PublicNode';
+import { useAuth } from "../../services/useAuth";
+import { useDelegationApi } from "../../services/useApi";
+import PublicNode from "../../interfaces/PublicNode";
 
-import Title from '../../components/Title/Title';
-import Modals from './Modal/Modals';
-import NodeRow from './Table/NodeRow';
-import useCMetamask from '../../services/useCMetamask';
+import Title from "../../components/Title/Title";
+import Modals from "./Modal/Modals";
+import NodeRow from "./Table/NodeRow";
+import useCMetamask from "../../services/useCMetamask";
 
-import './delegation.scss';
+import "./delegation.scss";
 
 const Delegation = () => {
   const { status, account } = useCMetamask();
@@ -32,11 +39,14 @@ const Delegation = () => {
   const isLoggedIn = !!auth.user?.id;
 
   const showMyDelegatorsQuery =
-    new URLSearchParams(location.search).get('show_my_delegators') !== null;
+    new URLSearchParams(location.search).get("show_my_delegators") !== null;
 
-  const [ownValidatorsHaveCommissionChange, setOwnValidatorsHaveCommissionChange] = useState(false);
+  const [
+    ownValidatorsHaveCommissionChange,
+    setOwnValidatorsHaveCommissionChange,
+  ] = useState(false);
   const [showUserOwnValidators, setShowUserOwnValidators] = useState(
-    showMyDelegatorsQuery || false,
+    showMyDelegatorsQuery || false
   );
   const [showFullyDelegatedNodes, setShowFullyDelegatedNodes] = useState(true);
   const [availableBalance, setAvailableBalance] = useState(0);
@@ -45,13 +55,14 @@ const Delegation = () => {
   const [totalValidators, setTotalValidators] = useState(0);
   const [nodes, setNodes] = useState<PublicNode[]>([]);
   const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
-  const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
+  const [undelegateFromNode, setUndelegateFromNode] =
+    useState<PublicNode | null>(null);
 
-  const canDelegate = isLoggedIn && status === 'connected' && !!account;
+  const canDelegate = isLoggedIn && status === "connected" && !!account;
 
   const getStats = useCallback(async () => {
     const data = await delegationApi.get(
-      '/validators?show_fully_delegated=true&show_my_validators=false',
+      "/validators?show_fully_delegated=true&show_my_validators=false"
     );
     if (data.success) {
       let ownValidatorHasCommissionChange = false;
@@ -69,7 +80,9 @@ const Delegation = () => {
       setOwnValidatorsHaveCommissionChange(ownValidatorHasCommissionChange);
       setTotalDelegation(totalDelegationAcc);
       if (data.response.length > 0) {
-        setAverageDelegation(Math.round(totalDelegationAcc / data.response.length));
+        setAverageDelegation(
+          Math.round(totalDelegationAcc / data.response.length)
+        );
         setTotalValidators(data.response.length);
       }
     }
@@ -96,7 +109,7 @@ const Delegation = () => {
   const getValidators = useCallback(async () => {
     const data = await delegationApi.get(
       `/validators?show_fully_delegated=${showFullyDelegatedNodes}&show_my_validators=${showUserOwnValidators}`,
-      isLoggedIn,
+      isLoggedIn
     );
 
     if (!data.success) {
@@ -110,8 +123,12 @@ const Delegation = () => {
     getValidators();
   }, [getValidators]);
 
-  const delegatableNodes = nodes.filter(({ remainingDelegation }) => remainingDelegation > 0);
-  const fullyDelegatedNodes = nodes.filter(({ remainingDelegation }) => remainingDelegation === 0);
+  const delegatableNodes = nodes.filter(
+    ({ remainingDelegation }) => remainingDelegation > 0
+  );
+  const fullyDelegatedNodes = nodes.filter(
+    ({ remainingDelegation }) => remainingDelegation === 0
+  );
 
   return (
     <div className="runnode">
@@ -167,7 +184,7 @@ const Delegation = () => {
             />
           </div>
         )}
-        {isLoggedIn && status !== 'connected' && (
+        {isLoggedIn && status !== "connected" && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -220,7 +237,8 @@ const Delegation = () => {
           <div>
             <Card className="trophyLegend">
               <Box>
-                <Icons.Trophy /> Multiple weeks winner of the testnet block producer challenge
+                <Icons.Trophy /> Multiple weeks winner of the testnet block
+                producer challenge
               </Box>
             </Card>
           </div>
@@ -230,11 +248,19 @@ const Delegation = () => {
             <Table className="table">
               <TableHead>
                 <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
+                  <TableCell className="tableHeadCell statusCell">
+                    Status
+                  </TableCell>
                   <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Yield, %</TableCell>
-                  <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
-                  <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
+                  <TableCell className="tableHeadCell yieldCell">
+                    Yield, %
+                  </TableCell>
+                  <TableCell className="tableHeadCell commissionCell">
+                    Commission
+                  </TableCell>
+                  <TableCell className="tableHeadCell delegationCell">
+                    Delegation
+                  </TableCell>
                   <TableCell className="tableHeadCell availableDelegationActionsCell">
                     Available for Delegation
                   </TableCell>
@@ -257,7 +283,9 @@ const Delegation = () => {
                   <>
                     <TableRow className="tableRow">
                       <TableCell className="tableCell tableSection" colSpan={6}>
-                        <div className="fullyDelegatedSeparator">fully delegated</div>
+                        <div className="fullyDelegatedSeparator">
+                          fully delegated
+                        </div>
                       </TableCell>
                     </TableRow>
                     {fullyDelegatedNodes.map((node) => (
@@ -281,7 +309,7 @@ const Delegation = () => {
             label="No nodes found matching the selected filters"
             variant="h6"
             color="primary"
-            style={{ marginLeft: '20px', marginTop: '20px' }}
+            style={{ marginLeft: "20px", marginTop: "20px" }}
           />
         )}
       </div>

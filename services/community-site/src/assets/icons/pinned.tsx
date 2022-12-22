@@ -1,8 +1,14 @@
-import React from 'react';
+import React from "react";
 
 const PinnedIcon = () => {
   return (
-    <svg width="14" height="20" viewBox="0 0 14 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="14"
+      height="20"
+      viewBox="0 0 14 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, Loading } from '@taraxa_project/taraxa-ui';
+import React from "react";
+import { Text, Loading } from "@taraxa_project/taraxa-ui";
 
 interface IsUnstakingProps {
   amount: string;
@@ -12,7 +12,11 @@ const IsUnstaking = ({ amount }: IsUnstakingProps) => {
       <div className="iconContainer">
         <Loading />
       </div>
-      <Text label={`Un-staking ${amount} TARA...`} variant="body2" color="primary" />
+      <Text
+        label={`Un-staking ${amount} TARA...`}
+        variant="body2"
+        color="primary"
+      />
     </div>
   );
 };

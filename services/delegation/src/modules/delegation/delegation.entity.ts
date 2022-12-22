@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from "moment";
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -7,12 +7,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   ManyToOne,
-} from 'typeorm';
-import { Node } from '../node/node.entity';
-import { CreateDelegationDto } from './dto/create-delegation.dto';
+} from "typeorm";
+import { Node } from "../node/node.entity";
+import { CreateDelegationDto } from "./dto/create-delegation.dto";
 
 @Entity({
-  name: 'delegations',
+  name: "delegations",
 })
 export class Delegation {
   @PrimaryGeneratedColumn()
@@ -33,24 +33,24 @@ export class Delegation {
   value: number;
 
   @Column({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
     nullable: true,
   })
   startsAt?: Date;
 
   @Column({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
     nullable: true,
   })
   endsAt?: Date;
 
   @CreateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   createdAt: Date;
 
   @DeleteDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   deletedAt?: Date;
 

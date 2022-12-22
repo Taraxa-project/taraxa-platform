@@ -1,4 +1,4 @@
 export enum NodeType {
-  MAINNET = 'mainnet',
-  TESTNET = 'testnet',
+  MAINNET = "mainnet",
+  TESTNET = "testnet",
 }

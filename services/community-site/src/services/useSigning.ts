@@ -1,4 +1,4 @@
-import useChain from './useChain';
+import useChain from "./useChain";
 
 function useSigning() {
   const { signer } = useChain();

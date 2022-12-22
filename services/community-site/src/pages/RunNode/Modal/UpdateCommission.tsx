@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import React, { useState } from "react";
+import { Button, Text, InputField } from "@taraxa_project/taraxa-ui";
 
-import { useDelegationApi } from '../../../services/useApi';
+import { useDelegationApi } from "../../../services/useApi";
 
 type UpdateCommissionProps = {
   id: number;
@@ -9,35 +9,46 @@ type UpdateCommissionProps = {
   onSuccess: () => void;
 };
 
-const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommissionProps) => {
+const UpdateCommission = ({
+  id,
+  currentCommission,
+  onSuccess,
+}: UpdateCommissionProps) => {
   const delegationApi = useDelegationApi();
 
   const [step, setStep] = useState(1);
-  const [commission, setCommission] = useState('');
-  const [error, setError] = useState('');
+  const [commission, setCommission] = useState("");
+  const [error, setError] = useState("");
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
     const commissionNumber = parseInt(commission, 10);
-    if (Number.isNaN(commissionNumber) || commissionNumber > 100 || commissionNumber < 0) {
-      setError('must be an number between 0% and 100%');
+    if (
+      Number.isNaN(commissionNumber) ||
+      commissionNumber > 100 ||
+      commissionNumber < 0
+    ) {
+      setError("must be an number between 0% and 100%");
       return;
     }
 
-    if (currentCommission !== null && Math.abs(currentCommission - commissionNumber) > 5) {
-      setError('maximum change is ±5%');
+    if (
+      currentCommission !== null &&
+      Math.abs(currentCommission - commissionNumber) > 5
+    ) {
+      setError("maximum change is ±5%");
       return;
     }
 
-    setError('');
+    setError("");
 
     const result = await delegationApi.post(
       `/nodes/${id}/commissions`,
       { commission: commissionNumber },
-      true,
+      true
     );
 
     if (result.success) {
@@ -46,16 +57,21 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
     }
 
     if (
-      typeof result.response === 'string' &&
-      result.response.includes('already has a pending commission change')
+      typeof result.response === "string" &&
+      result.response.includes("already has a pending commission change")
     ) {
-      setError('this node already has a pending commission change');
+      setError("this node already has a pending commission change");
     }
   };
 
   return (
     <div>
-      <Text style={{ marginBottom: '2%' }} label="Change commission" variant="h6" color="primary" />
+      <Text
+        style={{ marginBottom: "2%" }}
+        label="Change commission"
+        variant="h6"
+        color="primary"
+      />
       {step === 1 ? (
         <>
           <p>
@@ -64,10 +80,12 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
           <ol>
             <li key="1">Maximum change cannot exceed ±5% per update.</li>
             <li key="2">
-              Actual change of the comission will take place 5 days after your update.
+              Actual change of the comission will take place 5 days after your
+              update.
             </li>
             <li key="3">
-              All of your delegators will be notified that you have changed the comission.
+              All of your delegators will be notified that you have changed the
+              comission.
             </li>
           </ol>
           <Button
@@ -88,7 +106,9 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
             helperText={error}
             label="Your new commission value"
             placeholder={
-              currentCommission !== null ? `Your current commission is ${currentCommission}%` : ''
+              currentCommission !== null
+                ? `Your current commission is ${currentCommission}%`
+                : ""
             }
             value={commission}
             variant="outlined"

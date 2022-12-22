@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, createContext } from 'react';
-import useApi from './useApi';
+import React, { useState, useEffect, useContext, createContext } from "react";
+import useApi from "./useApi";
 
 type User = {
   id: number;
@@ -24,11 +24,15 @@ type Context = {
     email: string,
     ethWallet: string,
     password: string,
-    token: string,
+    token: string
   ) => Promise<any>;
   signout?: () => void;
   sendPasswordResetEmail?: (email: string, token: string) => Promise<any>;
-  resetPassword?: (code: string, password: string, passwordConfirmation: string) => Promise<any>;
+  resetPassword?: (
+    code: string,
+    password: string,
+    passwordConfirmation: string
+  ) => Promise<any>;
   emailConfirmation?: (email?: string) => Promise<any>;
   updateUser?: (payload: Partial<UpdateUserPayload>) => Promise<any>;
   refreshUser?: () => Promise<any>;
@@ -50,19 +54,19 @@ function useProvideAuth() {
   const api = useApi();
 
   const signin = async (username: string, password: string) => {
-    const result = await api.post('/auth/local', {
+    const result = await api.post("/auth/local", {
       identifier: username,
       password,
     });
 
     if (result.success) {
       if (result.response.jwt) {
-        localStorage.setItem('auth', result.response.jwt);
+        localStorage.setItem("auth", result.response.jwt);
       }
 
       if (result.response.user) {
         const { user } = result.response;
-        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem("user", JSON.stringify(user));
         setUser(user);
       }
     }
@@ -74,9 +78,9 @@ function useProvideAuth() {
     email: string,
     ethWallet: string,
     password: string,
-    token: string,
+    token: string
   ) => {
-    return await api.post('/auth/local/register', {
+    return await api.post("/auth/local/register", {
       username,
       password,
       eth_wallet: ethWallet,
@@ -86,18 +90,22 @@ function useProvideAuth() {
     });
   };
   const signout = () => {
-    localStorage.removeItem('auth');
-    localStorage.removeItem('user');
+    localStorage.removeItem("auth");
+    localStorage.removeItem("user");
     setUser(null);
   };
   const sendPasswordResetEmail = async (email: string, token: string) => {
-    return await api.post('/auth/forgot-password', {
+    return await api.post("/auth/forgot-password", {
       email,
       token,
     });
   };
-  const resetPassword = async (code: string, password: string, passwordConfirmation: string) => {
-    const result = await api.post('/auth/reset-password', {
+  const resetPassword = async (
+    code: string,
+    password: string,
+    passwordConfirmation: string
+  ) => {
+    const result = await api.post("/auth/reset-password", {
       code,
       password,
       passwordConfirmation,
@@ -108,11 +116,11 @@ function useProvideAuth() {
 
       if (user.confirmed) {
         if (result.response.jwt) {
-          localStorage.setItem('auth', result.response.jwt);
+          localStorage.setItem("auth", result.response.jwt);
         }
 
         if (result.response.user) {
-          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem("user", JSON.stringify(user));
           setUser(user);
         }
       }
@@ -121,7 +129,7 @@ function useProvideAuth() {
     return result;
   };
   const emailConfirmation = async (email?: string) => {
-    const result = await api.post('/auth/send-email-confirmation', {
+    const result = await api.post("/auth/send-email-confirmation", {
       email: email ?? user!.email,
     });
     return result;
@@ -131,18 +139,18 @@ function useProvideAuth() {
 
     if (result.success) {
       const user = result.response;
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
     }
 
     return result;
   };
   const refreshUser = async () => {
-    const result = await api.get('/users/me', true);
+    const result = await api.get("/users/me", true);
     if (result.success) {
       if (result.response) {
         const user = result.response;
-        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem("user", JSON.stringify(user));
         setUser(user);
       }
     }
@@ -156,7 +164,7 @@ function useProvideAuth() {
   const clearSessionExpired = () => setIsSessionExpired(false);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem("user");
     if (user) {
       setUser(JSON.parse(user));
     }

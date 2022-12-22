@@ -1,5 +1,5 @@
-import moment from 'moment';
-import * as ethers from 'ethers';
+import moment from "moment";
+import * as ethers from "ethers";
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -11,16 +11,16 @@ import {
   DeleteDateColumn,
   AfterLoad,
   getRepository,
-} from 'typeorm';
-import { Delegation } from '../delegation/delegation.entity';
-import { CreateNodeDto } from './dto/create-node.dto';
-import { NodeCommission } from './node-commission.entity';
-import { NodeType } from './node-type.enum';
-import { TopUser } from './top-user.entity';
-import { Profile } from '../profile/profile.entity';
+} from "typeorm";
+import { Delegation } from "../delegation/delegation.entity";
+import { CreateNodeDto } from "./dto/create-node.dto";
+import { NodeCommission } from "./node-commission.entity";
+import { NodeType } from "./node-type.enum";
+import { TopUser } from "./top-user.entity";
+import { Profile } from "../profile/profile.entity";
 
 @Entity({
-  name: 'nodes',
+  name: "nodes",
 })
 export class Node {
   @PrimaryGeneratedColumn()
@@ -31,7 +31,7 @@ export class Node {
   user: number;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: NodeType,
   })
   @Index()
@@ -113,17 +113,17 @@ export class Node {
   delegations: Delegation[];
 
   @CreateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   updatedAt: Date;
 
   @DeleteDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   deletedAt?: Date;
 
@@ -152,7 +152,7 @@ export class Node {
     }
 
     const commissions = this.commissions.sort(
-      (a: NodeCommission, b: NodeCommission) => a.id - b.id,
+      (a: NodeCommission, b: NodeCommission) => a.id - b.id
     );
 
     const now = moment().utc();
@@ -180,7 +180,7 @@ export class Node {
 
     this.totalDelegation = this.delegations.reduce(
       (acc, delegation) => acc + delegation.value,
-      0,
+      0
     );
 
     this.ownDelegation = this.delegations.reduce((acc, delegation) => {
@@ -225,7 +225,7 @@ export class Node {
 
     const threshold = moment()
       .utc()
-      .subtract(24, 'hours')
+      .subtract(24, "hours")
       .utc()
       .toDate()
       .getTime();
@@ -270,7 +270,7 @@ export class Node {
         delegation.user === user &&
         moment()
           .utc()
-          .isAfter(moment(delegation.createdAt).utc().add(5, 'days').utc()),
+          .isAfter(moment(delegation.createdAt).utc().add(5, "days").utc())
     );
   }
 
@@ -285,11 +285,11 @@ export class Node {
     node.addressProof = dto.addressProof;
     node.vrfKey = dto.vrfKey;
 
-    if (typeof dto.name !== 'undefined' && dto.name !== '') {
+    if (typeof dto.name !== "undefined" && dto.name !== "") {
       node.name = dto.name;
     }
 
-    if (typeof dto.ip !== 'undefined') {
+    if (typeof dto.ip !== "undefined") {
       node.ip = dto.ip;
     }
 

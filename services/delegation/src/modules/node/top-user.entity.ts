@@ -4,10 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-} from 'typeorm';
+} from "typeorm";
 
 @Entity({
-  name: 'top_users',
+  name: "top_users",
 })
 export class TopUser {
   @PrimaryGeneratedColumn()
@@ -19,12 +19,12 @@ export class TopUser {
   user: number;
 
   @CreateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   updatedAt: Date;
 }

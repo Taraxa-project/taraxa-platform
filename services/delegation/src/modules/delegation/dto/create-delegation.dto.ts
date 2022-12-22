@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Min } from 'class-validator';
-import { DelegationDto } from './delegation.dto';
+import { ApiProperty } from "@nestjs/swagger";
+import { Min } from "class-validator";
+import { DelegationDto } from "./delegation.dto";
 
 export class CreateDelegationDto extends DelegationDto {
   @Min(1000)

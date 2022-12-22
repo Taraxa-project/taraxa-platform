@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ethers } from 'ethers';
-import { useHistory } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive';
+import React, { useState, useEffect, useCallback } from "react";
+import { ethers } from "ethers";
+import { useHistory } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
 
 import {
   Modal,
@@ -14,32 +14,32 @@ import {
   InputField,
   Button,
   Chip,
-} from '@taraxa_project/taraxa-ui';
-import { useDelegationApi } from '../../services/useApi';
-import PublicNode from '../../interfaces/PublicNode';
-import Reward from '../../interfaces/Reward';
+} from "@taraxa_project/taraxa-ui";
+import { useDelegationApi } from "../../services/useApi";
+import PublicNode from "../../interfaces/PublicNode";
+import Reward from "../../interfaces/Reward";
 
-import CloseIcon from '../../assets/icons/close';
-import InfoIcon from '../../assets/icons/info';
-import TrophyIcon from '../../assets/icons/trophy';
+import CloseIcon from "../../assets/icons/close";
+import InfoIcon from "../../assets/icons/info";
+import TrophyIcon from "../../assets/icons/trophy";
 
-import StakingSuccess from './Modal/StakingSuccess';
-import StakingError from './Modal/StakingError';
-import Approve from './Modal/Approve';
-import IsStaking from './Modal/IsStaking';
-import IsUnstaking from './Modal/IsUnstaking';
+import StakingSuccess from "./Modal/StakingSuccess";
+import StakingError from "./Modal/StakingError";
+import Approve from "./Modal/Approve";
+import IsStaking from "./Modal/IsStaking";
+import IsUnstaking from "./Modal/IsUnstaking";
 
-import { formatTime } from '../../utils/time';
-import { weiToEth, formatEth, roundEth } from '../../utils/eth';
+import { formatTime } from "../../utils/time";
+import { weiToEth, formatEth, roundEth } from "../../utils/eth";
 
-import useToken from '../../services/useToken';
-import useStaking from '../../services/useStaking';
-import { useAuth } from '../../services/useAuth';
+import useToken from "../../services/useToken";
+import useStaking from "../../services/useStaking";
+import { useAuth } from "../../services/useAuth";
 
-import Title from '../../components/Title/Title';
+import Title from "../../components/Title/Title";
 
-import './staking.scss';
-import useCMetamask from '../../services/useCMetamask';
+import "./staking.scss";
+import useCMetamask from "../../services/useCMetamask";
 
 interface StakingModalProps {
   isSuccess: boolean;
@@ -117,7 +117,7 @@ function StakingModal({
 
   return (
     <Modal
-      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+      id={isMobile ? "mobile-signinModal" : "signinModal"}
       title="Test"
       show={isStaking || isUnstaking || isApprove || isSuccess || isError}
       children={modal}
@@ -139,7 +139,7 @@ function StakingNotifications() {
   const auth = useAuth();
   return (
     <>
-      {status !== 'connected' && (
+      {status !== "connected" && (
         <div className="notification">
           <Notification
             title="Notice:"
@@ -149,7 +149,7 @@ function StakingNotifications() {
         </div>
       )}
 
-      {auth.user !== null && auth.user.kyc !== 'APPROVED' && (
+      {auth.user !== null && auth.user.kyc !== "APPROVED" && (
         <div className="notification">
           <Notification
             title="Notice:"
@@ -206,7 +206,11 @@ function StakingTop() {
   );
   return (
     <div>
-      <TopCard title="23,124,123" description="Total TARA Staked" topData={topData} />
+      <TopCard
+        title="23,124,123"
+        description="Total TARA Staked"
+        topData={topData}
+      />
     </div>
   );
 }
@@ -253,11 +257,13 @@ function Stake({
 
   const [hasStake, setHasStake] = useState(false);
   const [canClaimStake, setCanClaimStake] = useState(false);
-  const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(null);
-  const [unDelegatedStake, setUndelegatedStake] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from('0'),
+  const [currentStakeEndDate, setCurrentStakeEndDate] = useState<Date | null>(
+    null
   );
-  const [reward, setReward] = useState('0');
+  const [unDelegatedStake, setUndelegatedStake] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from("0")
+  );
+  const [reward, setReward] = useState("0");
 
   const [stakeInputError, setStakeInputError] = useState<string | null>(null);
 
@@ -266,15 +272,20 @@ function Stake({
   const resetStake = useCallback(() => {
     setHasStake(false);
     setCanClaimStake(false);
-    setCurrentStakeBalance(ethers.BigNumber.from('0'));
+    setCurrentStakeBalance(ethers.BigNumber.from("0"));
     setCurrentStakeEndDate(null);
-  }, [setHasStake, setCanClaimStake, setCurrentStakeBalance, setCurrentStakeEndDate]);
+  }, [
+    setHasStake,
+    setCanClaimStake,
+    setCurrentStakeBalance,
+    setCurrentStakeEndDate,
+  ]);
 
   const formatStakeInputValue = (value: string) => {
-    const stakeInputValue = value.replace(/[^\d.]/g, '');
+    const stakeInputValue = value.replace(/[^\d.]/g, "");
     let input;
-    if (stakeInputValue === '') {
-      input = ethers.BigNumber.from('0');
+    if (stakeInputValue === "") {
+      input = ethers.BigNumber.from("0");
     } else {
       input = ethers.utils.parseUnits(stakeInputValue);
     }
@@ -284,7 +295,10 @@ function Stake({
   useEffect(() => {
     if (isLoggedIn)
       delegationApi
-        .get('/validators?show_fully_delegated=true&show_my_validators=true', isLoggedIn)
+        .get(
+          "/validators?show_fully_delegated=true&show_my_validators=true",
+          isLoggedIn
+        )
         .then((data) => {
           if (data.success) {
             setDelegators(data.response);
@@ -294,11 +308,13 @@ function Stake({
 
   useEffect(() => {
     if (account) {
-      delegationApi.get(`/delegations/${account}/balances`, isLoggedIn).then((data) => {
-        if (data.success) {
-          setUndelegatedStake(ethers.BigNumber.from(data.response.remaining));
-        }
-      });
+      delegationApi
+        .get(`/delegations/${account}/balances`, isLoggedIn)
+        .then((data) => {
+          if (data.success) {
+            setUndelegatedStake(ethers.BigNumber.from(data.response.remaining));
+          }
+        });
     }
   }, [account]);
 
@@ -316,7 +332,7 @@ function Stake({
         let currentStakeEndDate = currentStake[2].toNumber();
 
         if (
-          currentStakeBalance.toString() === '0' ||
+          currentStakeBalance.toString() === "0" ||
           currentStakeStartDate === 0 ||
           currentStakeEndDate === 0
         ) {
@@ -367,7 +383,7 @@ function Stake({
     }
 
     if (value.gt(tokenBalance)) {
-      setStakeInputError('Not enough tokens available');
+      setStakeInputError("Not enough tokens available");
       return;
     }
 
@@ -375,12 +391,18 @@ function Stake({
       return;
     }
 
-    const allowance = await token.allowance(account, process.env.REACT_APP_STAKING_ADDRESS!);
+    const allowance = await token.allowance(
+      account,
+      process.env.REACT_APP_STAKING_ADDRESS!
+    );
 
     if (value.gt(allowance)) {
       setIsApprove(true);
       try {
-        const approveTx = await token.approve(process.env.REACT_APP_STAKING_ADDRESS!, value);
+        const approveTx = await token.approve(
+          process.env.REACT_APP_STAKING_ADDRESS!,
+          value
+        );
         await approveTx.wait(1);
       } catch (err) {
         return;
@@ -408,7 +430,9 @@ function Stake({
       setHasStake(true);
       setCanClaimStake(false);
       setCurrentStakeBalance(currentStakeBalance.add(value));
-      setCurrentStakeEndDate(new Date((currentTimestamp + lockingPeriod.toNumber()) * 1000));
+      setCurrentStakeEndDate(
+        new Date((currentTimestamp + lockingPeriod.toNumber()) * 1000)
+      );
     } catch (err) {
       setTransactionHash(null);
       setIsStaking(false);
@@ -443,20 +467,20 @@ function Stake({
     delegationApi.get(`/rewards?address=${account}`).then((data) => {
       if (data.success) {
         const header = [
-          'Type',
-          'Epoch',
-          'Start Date',
-          'End Date',
-          'Reward',
-          'Node ID',
-          'Node Name',
-          'Node Address',
-          'Node Commission',
-          'Original Amount',
+          "Type",
+          "Epoch",
+          "Start Date",
+          "End Date",
+          "Reward",
+          "Node ID",
+          "Node Name",
+          "Node Address",
+          "Node Commission",
+          "Original Amount",
         ];
 
         const csv: string[] = [];
-        csv.push(header.join(','));
+        csv.push(header.join(","));
 
         data.response.forEach((reward: Reward) => {
           const startsAt = new Date(reward.startsAt).toLocaleString();
@@ -464,23 +488,25 @@ function Stake({
           const row = [
             reward.type,
             reward.epoch,
-            ['"', startsAt, '"'].join(''),
-            ['"', endsAt, '"'].join(''),
+            ['"', startsAt, '"'].join(""),
+            ['"', endsAt, '"'].join(""),
             reward.value,
-            reward.node ? reward.node.id : '',
-            reward.node ? ['"', reward.node.name.replace(/[\r\n",]+/gm, ''), '"'].join('') : '',
-            reward.node ? reward.node.address : '',
+            reward.node ? reward.node.id : "",
+            reward.node
+              ? ['"', reward.node.name.replace(/[\r\n",]+/gm, ""), '"'].join("")
+              : "",
+            reward.node ? reward.node.address : "",
             reward.commission,
             reward.originalAmount,
           ];
-          csv.push(row.join(','));
+          csv.push(row.join(","));
         });
 
-        const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+        const blob = new Blob([csv.join("\n")], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.setAttribute('href', url);
-        a.setAttribute('download', `rewards-${account}.csv`);
+        const a = document.createElement("a");
+        a.setAttribute("href", url);
+        a.setAttribute("download", `rewards-${account}.csv`);
         a.click();
       }
     });
@@ -496,11 +522,11 @@ function Stake({
       variant="outlined"
       margin="normal"
       error={stakeInputError !== null}
-      helperText={stakeInputError !== null ? stakeInputError : ''}
+      helperText={stakeInputError !== null ? stakeInputError : ""}
       fullWidth
-      value={status !== 'connected' ? '' : stakeInput}
+      value={status !== "connected" ? "" : stakeInput}
       onChange={(event) => setStakeInput(event.target.value)}
-      disabled={auth.user !== null && auth.user.kyc !== 'APPROVED'}
+      disabled={auth.user !== null && auth.user.kyc !== "APPROVED"}
     />
   );
 
@@ -509,7 +535,9 @@ function Stake({
     const input = formatStakeInputValue(stakeInput);
 
     const chipsTrigger = (selectedPercentage: number) => {
-      const newValue = tokenBalance.mul(ethers.BigNumber.from(selectedPercentage)).div(100);
+      const newValue = tokenBalance
+        .mul(ethers.BigNumber.from(selectedPercentage))
+        .div(100);
       setStakeInput(formatEth(weiToEth(newValue)));
       setToStake(newValue);
     };
@@ -522,9 +550,11 @@ function Stake({
         variant="filled"
         clickable
         className={
-          value.gt(ethers.BigNumber.from('0')) && value.eq(input) ? 'chipSelected' : 'chip'
+          value.gt(ethers.BigNumber.from("0")) && value.eq(input)
+            ? "chipSelected"
+            : "chip"
         }
-        disabled={auth.user !== null && auth.user.kyc !== 'APPROVED'}
+        disabled={auth.user !== null && auth.user.kyc !== "APPROVED"}
       />
     );
   });
@@ -590,7 +620,7 @@ function Stake({
               disabled={delegators.length === 0}
               variant="contained"
               color="secondary"
-              onClick={() => history.push('/delegation?show_my_delegators')}
+              onClick={() => history.push("/delegation?show_my_delegators")}
               label="My validators"
               size="small"
             />
@@ -623,7 +653,11 @@ function Stake({
       </div>
       <div className="cardContainer">
         <DataCard
-          title={status === 'connected' ? formatEth(roundEth(weiToEth(tokenBalance))) : 'N/A'}
+          title={
+            status === "connected"
+              ? formatEth(roundEth(weiToEth(tokenBalance)))
+              : "N/A"
+          }
           description="Available to Stake"
           label="TARA"
           onClickButton={() => stakeTokens()}
@@ -636,13 +670,17 @@ function Stake({
             />
           }
           dataOptions={stakingchips}
-          disabled={auth.user !== null && auth.user.kyc !== 'APPROVED'}
+          disabled={auth.user !== null && auth.user.kyc !== "APPROVED"}
         />
         <DataCard
-          title={status === 'connected' ? formatEth(roundEth(weiToEth(unDelegatedStake))) : 'N/A'}
+          title={
+            status === "connected"
+              ? formatEth(roundEth(weiToEth(unDelegatedStake)))
+              : "N/A"
+          }
           description="Delegate"
           label="TARA"
-          onClickButton={() => history.push('/delegation')}
+          onClickButton={() => history.push("/delegation")}
           onClickText="Delegate to validators"
           descriptionLegend="You MUST delegate your stake to earn yields."
           tooltip={
@@ -675,15 +713,18 @@ function Staking() {
   const [isStaking, setIsStaking] = useState(false);
   const [isUnstaking, setIsUnstaking] = useState(false);
 
-  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
-  const [toStake, setToStake] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
-  const [stakeInput, setStakeInput] = useState('0.0');
-  const [currentStakeBalance, setCurrentStakeBalance] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from('0'),
+  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from("0")
   );
+  const [toStake, setToStake] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from("0")
+  );
+  const [stakeInput, setStakeInput] = useState("0.0");
+  const [currentStakeBalance, setCurrentStakeBalance] =
+    useState<ethers.BigNumber>(ethers.BigNumber.from("0"));
 
   const [lockingPeriod, setLockingPeriod] = useState<ethers.BigNumber>(
-    ethers.BigNumber.from(30 * 24 * 60 * 60),
+    ethers.BigNumber.from(30 * 24 * 60 * 60)
   );
 
   const [transactionHash, setTransactionHash] = useState<null | string>(null);
@@ -700,9 +741,9 @@ function Staking() {
         setToStake(balance);
         setStakeInput(formatEth(weiToEth(balance)));
       } catch (e) {
-        setTokenBalance(ethers.BigNumber.from('0'));
-        setToStake(ethers.BigNumber.from('0'));
-        setStakeInput('0.0');
+        setTokenBalance(ethers.BigNumber.from("0"));
+        setToStake(ethers.BigNumber.from("0"));
+        setStakeInput("0.0");
       }
     };
 

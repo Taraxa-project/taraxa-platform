@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from '@taraxa_project/taraxa-ui';
-import './warning.scss';
-import WarningSign from '../../../assets/icons/warningSign';
+import React from "react";
+import { Button } from "@taraxa_project/taraxa-ui";
+import "./warning.scss";
+import WarningSign from "../../../assets/icons/warningSign";
 
 interface RedeemWarningProps {
   amount: string;

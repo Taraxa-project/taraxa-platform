@@ -1,16 +1,16 @@
-import React from 'react';
-import { Text, Tooltip } from '@taraxa_project/taraxa-ui';
+import React from "react";
+import { Text, Tooltip } from "@taraxa_project/taraxa-ui";
 
-import InfoIcon from '../../assets/icons/info';
+import InfoIcon from "../../assets/icons/info";
 
-import './title.scss';
+import "./title.scss";
 
 interface TitleProps {
   title: string;
   subtitle?: string | JSX.Element;
   tooltip?: string;
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-  size?: 'default' | 'medium';
+  size?: "default" | "medium";
 }
 
 const Title = ({ title, subtitle, tooltip, Icon, size }: TitleProps) => {
@@ -25,13 +25,21 @@ const Title = ({ title, subtitle, tooltip, Icon, size }: TitleProps) => {
         <Text
           variant="h1"
           color="primary"
-          className={size === 'medium' ? 'page-medium-title-main' : 'page-title-main'}
+          className={
+            size === "medium" ? "page-medium-title-main" : "page-title-main"
+          }
         >
           {title}
-          {tooltip && <Tooltip className="page-title-tooltip" title={tooltip} Icon={InfoIcon} />}
+          {tooltip && (
+            <Tooltip
+              className="page-title-tooltip"
+              title={tooltip}
+              Icon={InfoIcon}
+            />
+          )}
         </Text>
       </div>
-      {subtitle && typeof subtitle === 'string' && (
+      {subtitle && typeof subtitle === "string" && (
         <Text
           label={subtitle}
           variant="body2"
@@ -39,7 +47,7 @@ const Title = ({ title, subtitle, tooltip, Icon, size }: TitleProps) => {
           className="page-title-subtitle"
         />
       )}
-      {subtitle && typeof subtitle !== 'string' && (
+      {subtitle && typeof subtitle !== "string" && (
         <div className="page-title-subtitle">{subtitle}</div>
       )}
     </div>

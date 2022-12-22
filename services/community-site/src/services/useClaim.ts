@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { ethers } from 'ethers';
-import useChain from './useChain';
+import { useMemo } from "react";
+import { ethers } from "ethers";
+import useChain from "./useChain";
 
 function useClaim() {
   const { provider, signer } = useChain();
@@ -13,11 +13,15 @@ function useClaim() {
     }
 
     const abi = [
-      'function claim(address,uint,uint,bytes)',
-      'function getClaimedAmount(address,uint,uint) view returns (uint)',
+      "function claim(address,uint,uint,bytes)",
+      "function getClaimedAmount(address,uint,uint) view returns (uint)",
     ];
     try {
-      const contract = new ethers.Contract(process.env.REACT_APP_CLAIM_ADDRESS!, abi, provider);
+      const contract = new ethers.Contract(
+        process.env.REACT_APP_CLAIM_ADDRESS!,
+        abi,
+        provider
+      );
       instance = contract.connect(signer);
     } catch (e) {
       instance = undefined;

@@ -15,10 +15,10 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { EntityNotFoundError } from 'typeorm';
-import { ValidationException } from './exceptions/validation.exception';
+} from "@nestjs/common";
+import { Response } from "express";
+import { EntityNotFoundError } from "typeorm";
+import { ValidationException } from "./exceptions/validation.exception";
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -27,8 +27,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = context.getResponse<Response>();
 
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
-    let error = 'Internal server error';
+    let message = "Internal server error";
+    let error = "Internal server error";
     let errorResponse;
 
     if (exception instanceof HttpException) {
@@ -37,7 +37,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error = exception.name;
 
       const res = exception.getResponse();
-      if (typeof res === 'object') {
+      if (typeof res === "object") {
         errorResponse = res;
       } else {
         message = res;
@@ -47,13 +47,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception instanceof ValidationException) {
       statusCode = HttpStatus.BAD_REQUEST;
       message = exception.message;
-      error = 'Bad Request';
+      error = "Bad Request";
     }
 
     if (exception instanceof EntityNotFoundError) {
       statusCode = HttpStatus.NOT_FOUND;
       message = exception.message;
-      error = 'Not Found';
+      error = "Not Found";
     }
 
     if (statusCode === HttpStatus.INTERNAL_SERVER_ERROR) {
@@ -65,7 +65,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         statusCode,
         message,
         error,
-      },
+      }
     );
   }
 }

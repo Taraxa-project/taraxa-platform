@@ -1,9 +1,9 @@
-import _ from 'lodash';
-import * as ethers from 'ethers';
-import { request, gql } from 'graphql-request';
-import IntervalTree, { Interval } from '@flatten-js/interval-tree';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import _ from "lodash";
+import * as ethers from "ethers";
+import { request, gql } from "graphql-request";
+import IntervalTree, { Interval } from "@flatten-js/interval-tree";
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 interface Event {
   id: string;
@@ -23,20 +23,20 @@ export interface StakingIntervalValue {
 export class StakingDataService {
   private stakingUrl: string;
   constructor(config: ConfigService) {
-    this.stakingUrl = config.get('indexer.stakingUrl');
+    this.stakingUrl = config.get("indexer.stakingUrl");
   }
   async getData(endTime: number) {
     const events = await this.getEvents();
     const groupedEvents = _.groupBy(events, (e) =>
-      ethers.utils.getAddress(e.user),
+      ethers.utils.getAddress(e.user)
     );
 
     return Object.keys(groupedEvents).map((user) => {
-      let events = _.sortBy(groupedEvents[user], 'timestamp');
+      let events = _.sortBy(groupedEvents[user], "timestamp");
 
       let currentBalance = 0;
       events = events.map((e) => {
-        if (e.type === 'DEPOSIT') {
+        if (e.type === "DEPOSIT") {
           currentBalance += e.amount;
         } else {
           currentBalance -= e.amount;

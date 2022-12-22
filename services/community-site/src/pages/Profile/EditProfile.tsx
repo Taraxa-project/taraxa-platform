@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Text, Button, InputField } from '@taraxa_project/taraxa-ui';
+import React, { useState } from "react";
+import { Text, Button, InputField } from "@taraxa_project/taraxa-ui";
 
-import { useAuth, UpdateUserPayload } from '../../services/useAuth';
+import { useAuth, UpdateUserPayload } from "../../services/useAuth";
 
 interface EditProfileProps {
   closeEditProfile: () => void;
@@ -10,38 +10,43 @@ interface EditProfileProps {
 const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
   const auth = useAuth();
 
-  const [nickname, setNickname] = useState((auth.user && auth.user.username) || '');
-  const [ethWallet, setEthWallet] = useState((auth.user && auth.user.eth_wallet) || '');
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [nickname, setNickname] = useState(
+    (auth.user && auth.user.username) || ""
+  );
+  const [ethWallet, setEthWallet] = useState(
+    (auth.user && auth.user.eth_wallet) || ""
+  );
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [changesMade, setChangesMade] = useState(false);
 
-  const email = (auth.user && auth.user.email) || '';
+  const email = (auth.user && auth.user.email) || "";
 
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
   const errIndex = errors.map((error) => error.key);
   const errValues = errors.map((error) => error.value);
 
-  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
+  const findErrorIndex = (field: string) =>
+    errIndex.findIndex((err) => err === field);
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
-  const hasNicknameError = hasError('username');
-  const nicknameErrorMessage = hasError('username')
-    ? errValues[findErrorIndex('username')]
+  const hasNicknameError = hasError("username");
+  const nicknameErrorMessage = hasError("username")
+    ? errValues[findErrorIndex("username")]
     : undefined;
-  const hasEthWalletError = hasError('eth_wallet');
-  const ethWalletErrorMessage = hasError('eth_wallet')
-    ? errValues[findErrorIndex('eth_wallet')]
+  const hasEthWalletError = hasError("eth_wallet");
+  const ethWalletErrorMessage = hasError("eth_wallet")
+    ? errValues[findErrorIndex("eth_wallet")]
     : undefined;
-  const hasPasswordError = hasError('password');
-  const passwordErrorMessage = hasError('password')
-    ? errValues[findErrorIndex('password')]
+  const hasPasswordError = hasError("password");
+  const passwordErrorMessage = hasError("password")
+    ? errValues[findErrorIndex("password")]
     : undefined;
-  const hasPasswordConfirmationError = hasError('password-confirmation');
-  const passwordConfirmationErrorMessage = hasError('password-confirmation')
-    ? errValues[findErrorIndex('password-confirmation')]
+  const hasPasswordConfirmationError = hasError("password-confirmation");
+  const passwordConfirmationErrorMessage = hasError("password-confirmation")
+    ? errValues[findErrorIndex("password-confirmation")]
     : undefined;
 
   let hasGeneralError = false;
@@ -59,7 +64,7 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
   }
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
@@ -69,15 +74,15 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
     if (updatingPassword) {
       if (password.length < 12) {
         errors.push({
-          key: 'password',
-          value: 'The password needs to have at least 12 characters.',
+          key: "password",
+          value: "The password needs to have at least 12 characters.",
         });
       }
 
       if (password !== passwordConfirmation) {
         errors.push({
-          key: 'password-confirmation',
-          value: 'Passwords do not match.',
+          key: "password-confirmation",
+          value: "Passwords do not match.",
         });
       }
     }
@@ -113,18 +118,18 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
       return;
     }
 
-    if (typeof result.response === 'string') {
+    if (typeof result.response === "string") {
       if (result.response.search(/wallet/i)) {
-        setErrors([{ key: 'general', value: result.response }]);
+        setErrors([{ key: "general", value: result.response }]);
       } else {
-        setErrors([{ key: 'eth_wallet', value: result.response }]);
+        setErrors([{ key: "eth_wallet", value: result.response }]);
       }
     } else {
       setErrors(
         result.response[0].messages.map((message: any) => ({
-          key: message.id.split('.')[3],
+          key: message.id.split(".")[3],
           value: message.message,
-        })),
+        }))
       );
     }
   };
@@ -134,7 +139,12 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
       <div className="editProfileForm">
         <div className="formInputContainer">
           <div>
-            <Text className="profile-inputLabel" label="Nickname" variant="body2" color="primary" />
+            <Text
+              className="profile-inputLabel"
+              label="Nickname"
+              variant="body2"
+              color="primary"
+            />
             <InputField
               type="string"
               error={hasNicknameError}
@@ -186,14 +196,24 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
 
         <div className="formInputContainer">
           <div>
-            <Text className="profile-inputLabel" label="Email" variant="body2" color="primary" />
+            <Text
+              className="profile-inputLabel"
+              label="Email"
+              variant="body2"
+              color="primary"
+            />
             <div className="profileDisabledInput">{email}</div>
           </div>
         </div>
 
         <div className="formInputContainer formProfileEditContainer">
           <div>
-            <Text className="profile-inputLabel" label="Password" variant="body2" color="primary" />
+            <Text
+              className="profile-inputLabel"
+              label="Password"
+              variant="body2"
+              color="primary"
+            />
             <div className="profileDisabledInput">************</div>
           </div>
           <Button
@@ -201,7 +221,7 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
             variant="contained"
             color="secondary"
             size="small"
-            label={updatingPassword ? 'Cancel' : 'Update'}
+            label={updatingPassword ? "Cancel" : "Update"}
             onClick={() => {
               setUpdatingPassword(!updatingPassword);
             }}
@@ -263,7 +283,9 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
             </div>
           </div>
         )}
-        {hasGeneralError && <Text label={generalErrorMessage!} variant="body1" color="error" />}
+        {hasGeneralError && (
+          <Text label={generalErrorMessage!} variant="body1" color="error" />
+        )}
       </div>
       <div id="buttonsContainer">
         <Button

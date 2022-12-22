@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { useHistory } from "react-router-dom";
 
 import {
   ProfileBasicCard,
@@ -10,23 +10,23 @@ import {
   Tooltip,
   ProfileSubmissionsCard,
   Checkbox,
-} from '@taraxa_project/taraxa-ui';
+} from "@taraxa_project/taraxa-ui";
 
-import { useDelegationApi, useClaimApi } from '../../services/useApi';
-import BountyIcon from '../../assets/icons/bounties';
-import TaraxaIcon from '../../assets/icons/taraxaIcon';
-import InfoIcon from '../../assets/icons/info';
-import KYCIcon from '../../assets/icons/kyc';
-import SuccessIcon from '../../assets/icons/success';
-import ErrorIcon from '../../assets/icons/error';
+import { useDelegationApi, useClaimApi } from "../../services/useApi";
+import BountyIcon from "../../assets/icons/bounties";
+import TaraxaIcon from "../../assets/icons/taraxaIcon";
+import InfoIcon from "../../assets/icons/info";
+import KYCIcon from "../../assets/icons/kyc";
+import SuccessIcon from "../../assets/icons/success";
+import ErrorIcon from "../../assets/icons/error";
 
-import { formatTime } from '../../utils/time';
+import { formatTime } from "../../utils/time";
 
-import { useAuth } from '../../services/useAuth';
-import useSubmissions from '../../services/useSubmissions';
-import Title from '../../components/Title/Title';
-import useCMetamask from '../../services/useCMetamask';
-import { formatEth, weiToEth } from '../../utils/eth';
+import { useAuth } from "../../services/useAuth";
+import useSubmissions from "../../services/useSubmissions";
+import Title from "../../components/Title/Title";
+import useCMetamask from "../../services/useCMetamask";
+import { formatEth, weiToEth } from "../../utils/eth";
 
 interface ViewProfileDetailsKYCProps {
   openKYCModal: () => void;
@@ -36,15 +36,15 @@ function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
   const auth = useAuth();
   const { kyc } = auth.user!;
 
-  const empty = [null, '', '-', 'NOT_STARTED'];
-  const hasKYC = ![...empty, 'VERIFYING'].includes(kyc);
-  const kycStatus = ![...empty].includes(kyc) ? kyc : 'NOT_STARTED';
+  const empty = [null, "", "-", "NOT_STARTED"];
+  const hasKYC = ![...empty, "VERIFYING"].includes(kyc);
+  const kycStatus = ![...empty].includes(kyc) ? kyc : "NOT_STARTED";
 
   const status: { [string: string]: string } = {
-    NOT_STARTED: 'Not sumbitted',
-    VERIFYING: 'Verifying...',
-    APPROVED: 'Approved',
-    DENIED: 'Denied',
+    NOT_STARTED: "Not sumbitted",
+    VERIFYING: "Verifying...",
+    APPROVED: "Approved",
+    DENIED: "Denied",
   };
 
   let kycButton;
@@ -62,11 +62,11 @@ function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
     );
   }
 
-  if (kycStatus === 'APPROVED') {
+  if (kycStatus === "APPROVED") {
     kycIcon = <SuccessIcon />;
   }
 
-  if (kycStatus === 'DENIED') {
+  if (kycStatus === "DENIED") {
     kycIcon = <ErrorIcon />;
   }
 
@@ -88,7 +88,11 @@ interface ViewProfileDetailsProps {
   openKYCModal: () => void;
 }
 
-function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfileDetailsProps) {
+function ViewProfileDetails({
+  points,
+  openEditProfile,
+  openKYCModal,
+}: ViewProfileDetailsProps) {
   const auth = useAuth();
   const { account } = useCMetamask();
   const history = useHistory();
@@ -107,7 +111,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
           if (data.success) {
             const { availableToBeClaimed } = data.response;
             setAvailableToBeClaimed(
-              parseFloat(weiToEth(ethers.BigNumber.from(availableToBeClaimed))),
+              parseFloat(weiToEth(ethers.BigNumber.from(availableToBeClaimed)))
             );
           } else {
             setAvailableToBeClaimed(0);
@@ -171,14 +175,14 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         onClick={() => openEditProfile()}
       />
       <Button
-        style={{ marginTop: '0.5rem' }}
+        style={{ marginTop: "0.5rem" }}
         color="primary"
         variant="text"
         label="Log out"
         fullWidth
         onClick={() => {
           auth.signout!();
-          history.push('/');
+          history.push("/");
         }}
       />
     </>
@@ -192,7 +196,9 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         username={auth.user!.username}
         email={auth.user!.email}
         wallet={
-          auth.user!.eth_wallet ? auth.user!.eth_wallet : 'No Ethereum Wallet Address was set'
+          auth.user!.eth_wallet
+            ? auth.user!.eth_wallet
+            : "No Ethereum Wallet Address was set"
         }
         Icon={TaraxaIcon}
         buttonOptions={buttons}
@@ -208,14 +214,14 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
             label="Go to redeem page"
             disabled={calculatedPoints === 0}
             fullWidth
-            onClick={() => history.push('/redeem')}
+            onClick={() => history.push("/redeem")}
           />
         }
       >
         <div className="flexExpand">
-          {!account && 'TARA'}
-          {account && isTotalPointsChecked && 'Total TARA'}
-          {account && !isTotalPointsChecked && 'Redeemable TARA'}
+          {!account && "TARA"}
+          {account && isTotalPointsChecked && "Total TARA"}
+          {account && !isTotalPointsChecked && "Redeemable TARA"}
           <div className="lockedPointsCheckbox">
             <Checkbox
               checked={isTotalPointsChecked}
@@ -236,7 +242,11 @@ interface ViewProfileBountiesProps {
   review: any[];
 }
 
-function ViewProfileBounties({ approved, rejected, review }: ViewProfileBountiesProps) {
+function ViewProfileBounties({
+  approved,
+  rejected,
+  review,
+}: ViewProfileBountiesProps) {
   const renderSubmission = (sub: any) => {
     const now = new Date();
     const date = new Date(sub.created_at);
@@ -245,17 +255,25 @@ function ViewProfileBounties({ approved, rejected, review }: ViewProfileBounties
       <div key={sub.id} className="contentGrid">
         <div className="gridLeft">
           <Text
-            label={(sub.bounty && sub.bounty.name) || '-'}
+            label={(sub.bounty && sub.bounty.name) || "-"}
             className="profileContentTitle"
             variant="body2"
             color="primary"
           />
           {sub.submission_reward && (
-            <Text label={`${sub.submission_reward} TARA`} variant="body2" color="textSecondary" />
+            <Text
+              label={`${sub.submission_reward} TARA`}
+              variant="body2"
+              color="textSecondary"
+            />
           )}
         </div>
         <div className="gridRight">
-          <Text label={`${formatTime(dateDiff)} ago`} variant="body2" color="textSecondary" />
+          <Text
+            label={`${formatTime(dateDiff)} ago`}
+            variant="body2"
+            color="textSecondary"
+          />
         </div>
       </div>
     );
@@ -290,7 +308,13 @@ function ViewProfileBounties({ approved, rejected, review }: ViewProfileBounties
 
   return (
     <>
-      <Title title="Bounty submissions" subtitle="" tooltip="" Icon={BountyIcon} size="medium" />
+      <Title
+        title="Bounty submissions"
+        subtitle=""
+        tooltip=""
+        Icon={BountyIcon}
+        size="medium"
+      />
       <div className="cardContainer">
         <ProfileSubmissionsCard
           title="Approved"
@@ -344,7 +368,11 @@ const ViewProfile = ({ openEditProfile, openKYCModal }: ViewProfileProps) => {
         openEditProfile={openEditProfile}
         openKYCModal={openKYCModal}
       />
-      <ViewProfileBounties approved={approved} rejected={rejected} review={review} />
+      <ViewProfileBounties
+        approved={approved}
+        rejected={rejected}
+        review={review}
+      />
     </>
   );
 };

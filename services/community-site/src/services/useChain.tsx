@@ -1,6 +1,6 @@
-import { ethers } from 'ethers';
-import { useMemo } from 'react';
-import useCMetamask from './useCMetamask';
+import { ethers } from "ethers";
+import { useMemo } from "react";
+import useCMetamask from "./useCMetamask";
 
 function useChain() {
   const { chainId, ethereum } = useCMetamask();

@@ -1,9 +1,9 @@
-import React from 'react';
-import { Button, Text } from '@taraxa_project/taraxa-ui';
+import React from "react";
+import { Button, Text } from "@taraxa_project/taraxa-ui";
 
-import SuccessIcon from '../../../assets/icons/success';
-import LockIcon from '../../../assets/icons/lock';
-import useCMetamask from '../../../services/useCMetamask';
+import SuccessIcon from "../../../assets/icons/success";
+import LockIcon from "../../../assets/icons/lock";
+import useCMetamask from "../../../services/useCMetamask";
 
 interface StakingSuccessProps {
   lockingPeriod: string;
@@ -11,7 +11,11 @@ interface StakingSuccessProps {
   onSuccess: () => void;
 }
 
-const StakingSuccess = ({ lockingPeriod, transactionHash, onSuccess }: StakingSuccessProps) => {
+const StakingSuccess = ({
+  lockingPeriod,
+  transactionHash,
+  onSuccess,
+}: StakingSuccessProps) => {
   const { chainId: hexChainId } = useCMetamask();
 
   let chainId = 1;
@@ -19,18 +23,18 @@ const StakingSuccess = ({ lockingPeriod, transactionHash, onSuccess }: StakingSu
     chainId = parseInt(hexChainId, 16);
   }
 
-  let etherscanBaseUrl = 'https://etherscan.io/tx/';
+  let etherscanBaseUrl = "https://etherscan.io/tx/";
   if (chainId === 3) {
-    etherscanBaseUrl = 'https://ropsten.etherscan.io/tx/';
+    etherscanBaseUrl = "https://ropsten.etherscan.io/tx/";
   }
   if (chainId === 4) {
-    etherscanBaseUrl = 'https://rinkeby.etherscan.io/tx/';
+    etherscanBaseUrl = "https://rinkeby.etherscan.io/tx/";
   }
   if (chainId === 42) {
-    etherscanBaseUrl = 'https://kovan.etherscan.io/tx/';
+    etherscanBaseUrl = "https://kovan.etherscan.io/tx/";
   }
   if (chainId === 5) {
-    etherscanBaseUrl = 'https://goerli.etherscan.io/tx/';
+    etherscanBaseUrl = "https://goerli.etherscan.io/tx/";
   }
   return (
     <div>
@@ -49,7 +53,11 @@ const StakingSuccess = ({ lockingPeriod, transactionHash, onSuccess }: StakingSu
         color="secondary"
         label="View on Etherscan"
         onClick={() =>
-          window.open(`${etherscanBaseUrl}${transactionHash}`, '_blank', 'noreferrer noopener')
+          window.open(
+            `${etherscanBaseUrl}${transactionHash}`,
+            "_blank",
+            "noreferrer noopener"
+          )
         }
       />
 
@@ -64,8 +72,8 @@ const StakingSuccess = ({ lockingPeriod, transactionHash, onSuccess }: StakingSu
           />
         </div>
         <Text color="textSecondary">
-          After {lockingPeriod} you will be able to withdraw your TARA (If you don’t withdraw, your
-          funds remain staked and unlocked).
+          After {lockingPeriod} you will be able to withdraw your TARA (If you
+          don’t withdraw, your funds remain staked and unlocked).
           <a
             href="https://taraxa.io/faq/staking"
             target="_blank"

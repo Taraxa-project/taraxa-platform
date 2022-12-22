@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useHistory } from "react-router-dom";
 
-import { Text, Button, Pagination } from '@taraxa_project/taraxa-ui';
+import { Text, Button, Pagination } from "@taraxa_project/taraxa-ui";
 
-import UserIcon from '../../assets/icons/user';
+import UserIcon from "../../assets/icons/user";
 
-import Title from '../../components/Title/Title';
-import Markdown from '../../components/Markdown';
+import Title from "../../components/Title/Title";
+import Markdown from "../../components/Markdown";
 
-import useApi from '../../services/useApi';
-import useBounties from '../../services/useBounties';
-import { formatTime } from '../../utils/time';
+import useApi from "../../services/useApi";
+import useBounties from "../../services/useBounties";
+import { formatTime } from "../../utils/time";
 
-import { Bounty, Submission } from './bounty';
-import BountyCard from './BountyCard';
+import { Bounty, Submission } from "./bounty";
+import BountyCard from "./BountyCard";
 
-import './bounties.scss';
+import "./bounties.scss";
 
 function BountyDetails() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +25,7 @@ function BountyDetails() {
 
   const { getBountyUserSubmissionsCount } = useBounties();
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
-  const [locale, setLocale] = useState('en');
+  const [locale, setLocale] = useState("en");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [page, setPage] = useState(1);
 
@@ -41,7 +41,9 @@ function BountyDetails() {
       const userSubmissionsCount = await getBountyUserSubmissionsCount(id);
 
       let submissionsCount = 0;
-      const submissionsCountRequest = await get(`/submissions/count?bounty=${id}`);
+      const submissionsCountRequest = await get(
+        `/submissions/count?bounty=${id}`
+      );
       if (submissionsCountRequest.success) {
         submissionsCount = submissionsCountRequest.response;
       }
@@ -68,7 +70,7 @@ function BountyDetails() {
               submission,
               reward_text,
             };
-          }),
+          })
         );
       }
       setBounty(bounty);
@@ -76,11 +78,14 @@ function BountyDetails() {
     getBounty(id);
   }, [get, id, getBountyUserSubmissionsCount]);
 
-  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
+  const submissionNeeded =
+    bounty.text_submission_needed || bounty.file_submission_needed;
 
   useEffect(() => {
     const getSubmissions = async (id: number) => {
-      const data = await get(`/submissions?bounty=${id}&_limit=-1&_sort=created_at:DESC`);
+      const data = await get(
+        `/submissions?bounty=${id}&_limit=-1&_sort=created_at:DESC`
+      );
       if (!data.success) {
         return;
       }
@@ -97,39 +102,51 @@ function BountyDetails() {
     const totalPages = Math.ceil(submissions.length / perPage);
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    const rows = submissions!.slice(start, end).map((submission: Submission) => (
-      <div className="submission-row" key={submission.id}>
-        <div className="submission-row-username">
-          <div className="submission-row-username-icon">
-            <UserIcon />
-          </div>
+    const rows = submissions!
+      .slice(start, end)
+      .map((submission: Submission) => (
+        <div className="submission-row" key={submission.id}>
+          <div className="submission-row-username">
+            <div className="submission-row-username-icon">
+              <UserIcon />
+            </div>
 
-          <Text variant="body2" label={(submission.user || {}).username || '-'} />
+            <Text
+              variant="body2"
+              label={(submission.user || {}).username || "-"}
+            />
+          </div>
+          <div className="submission-row-content">
+            <Text
+              className="wide-hash"
+              variant="body2"
+              label={submission.hashed_content || "-"}
+            />
+            <Text
+              title={submission.hashed_content || "-"}
+              variant="body2"
+              label={
+                submission.hashed_content
+                  ? `${submission?.hashed_content?.slice(
+                      0,
+                      8
+                    )}...${submission?.hashed_content?.slice(-5)}`
+                  : "-"
+              }
+            />
+          </div>
+          <div className="submission-row-date">
+            <Text
+              variant="body2"
+              label={`${formatTime(
+                Math.ceil(
+                  (now - new Date(submission.created_at).getTime()) / 1000
+                )
+              )} ago`}
+            />
+          </div>
         </div>
-        <div className="submission-row-content">
-          <Text className="wide-hash" variant="body2" label={submission.hashed_content || '-'} />
-          <Text
-            title={submission.hashed_content || '-'}
-            variant="body2"
-            label={
-              submission.hashed_content
-                ? `${submission?.hashed_content?.slice(0, 8)}...${submission?.hashed_content?.slice(
-                    -5,
-                  )}`
-                : '-'
-            }
-          />
-        </div>
-        <div className="submission-row-date">
-          <Text
-            variant="body2"
-            label={`${formatTime(
-              Math.ceil((now - new Date(submission.created_at).getTime()) / 1000),
-            )} ago`}
-          />
-        </div>
-      </div>
-    ));
+      ));
 
     if (rows.length > 0) {
       submissionsTable = (
@@ -156,19 +173,19 @@ function BountyDetails() {
   }
 
   const localeNames: { [key: string]: string } = {
-    en: 'EN',
-    'ru-RU': 'RU',
-    'zh-CN': 'CN',
+    en: "EN",
+    "ru-RU": "RU",
+    "zh-CN": "CN",
   };
 
   if (!bounty) {
     return null;
   }
 
-  let description = bounty.description || '';
-  let rewardText = bounty.reward_text || '';
+  let description = bounty.description || "";
+  let rewardText = bounty.reward_text || "";
 
-  if (locale !== 'en') {
+  if (locale !== "en") {
     const bt = bounty.localizations!.find((b) => b.locale === locale);
     if (bt) {
       description = bt.description;
@@ -195,9 +212,9 @@ function BountyDetails() {
                     color="primary"
                     variant="outlined"
                     label="EN"
-                    onClick={() => setLocale('en')}
+                    onClick={() => setLocale("en")}
                     size="small"
-                    disabled={locale === 'en'}
+                    disabled={locale === "en"}
                   />
                   {bounty.localizations!.map((l) => (
                     <Button
@@ -218,7 +235,7 @@ function BountyDetails() {
                 Description
               </Text>
               <Markdown>{description}</Markdown>
-              {rewardText && rewardText.trim() !== '' && (
+              {rewardText && rewardText.trim() !== "" && (
                 <>
                   <Text variant="h5" color="primary">
                     Reward

@@ -1,17 +1,17 @@
-import React, { useState, useContext, createContext } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive';
-import { Modal } from '@taraxa_project/taraxa-ui';
-import { useAuth } from './useAuth';
-import SignIn from '../components/Modal/SignIn';
-import EmailConfirmed from '../components/Modal/EmailConfirmed';
-import SignUp from '../components/Modal/SignUp';
-import SignUpSuccess from '../components/Modal/SignUpSuccess';
-import ForgotPassword from '../components/Modal/ForgotPassword';
-import ForgotPasswordSuccess from '../components/Modal/ForgotPasswordSuccess';
-import ResetPassword from '../components/Modal/ResetPassword';
+import React, { useState, useContext, createContext } from "react";
+import { useHistory } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
+import { Modal } from "@taraxa_project/taraxa-ui";
+import { useAuth } from "./useAuth";
+import SignIn from "../components/Modal/SignIn";
+import EmailConfirmed from "../components/Modal/EmailConfirmed";
+import SignUp from "../components/Modal/SignUp";
+import SignUpSuccess from "../components/Modal/SignUpSuccess";
+import ForgotPassword from "../components/Modal/ForgotPassword";
+import ForgotPasswordSuccess from "../components/Modal/ForgotPasswordSuccess";
+import ResetPassword from "../components/Modal/ResetPassword";
 
-import CloseIcon from '../assets/icons/close';
+import CloseIcon from "../assets/icons/close";
 
 type Context = {
   isOpen: boolean;
@@ -27,7 +27,7 @@ type Context = {
 
 const initialState: Context = {
   isOpen: false,
-  content: 'sign-in',
+  content: "sign-in",
   code: undefined,
   modal: null,
 };
@@ -40,11 +40,11 @@ function useProvideModal() {
   const isSessionExpired = auth.isSessionExpired!;
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   const [isOpen, setIsOpen] = useState(isSessionExpired);
-  const [content, setContent] = useState('sign-in');
+  const [content, setContent] = useState("sign-in");
   const [code, setCode] = useState<undefined | string>();
 
   const signIn = () => {
-    setContent('sign-in');
+    setContent("sign-in");
     setIsOpen(true);
   };
 
@@ -52,18 +52,18 @@ function useProvideModal() {
     if (isSessionExpired) {
       auth.clearSessionExpired!();
     }
-    setContent('sign-in');
+    setContent("sign-in");
     setIsOpen(false);
     setCode(undefined);
-    history.push('/');
+    history.push("/");
   };
 
   let modal: JSX.Element;
   let title: string;
 
   switch (content) {
-    case 'email-confirmed':
-      title = 'Create an account';
+    case "email-confirmed":
+      title = "Create an account";
       modal = (
         <EmailConfirmed
           onSuccess={() => {
@@ -72,18 +72,18 @@ function useProvideModal() {
         />
       );
       break;
-    case 'sign-up':
-      title = 'Create an account';
+    case "sign-up":
+      title = "Create an account";
       modal = (
         <SignUp
           onSuccess={() => {
-            setContent!('sign-up-success');
+            setContent!("sign-up-success");
           }}
         />
       );
       break;
-    case 'sign-up-success':
-      title = 'Create an account';
+    case "sign-up-success":
+      title = "Create an account";
       modal = (
         <SignUpSuccess
           onSuccess={() => {
@@ -92,18 +92,18 @@ function useProvideModal() {
         />
       );
       break;
-    case 'forgot-password':
-      title = 'Forgot password';
+    case "forgot-password":
+      title = "Forgot password";
       modal = (
         <ForgotPassword
           onSuccess={() => {
-            setContent!('forgot-password-success');
+            setContent!("forgot-password-success");
           }}
         />
       );
       break;
-    case 'forgot-password-success':
-      title = 'Forgot password';
+    case "forgot-password-success":
+      title = "Forgot password";
       modal = (
         <ForgotPasswordSuccess
           onSuccess={() => {
@@ -112,8 +112,8 @@ function useProvideModal() {
         />
       );
       break;
-    case 'reset-password':
-      title = 'Enter your new password';
+    case "reset-password":
+      title = "Enter your new password";
       modal = (
         <ResetPassword
           code={code}
@@ -123,19 +123,19 @@ function useProvideModal() {
         />
       );
       break;
-    case 'sign-in':
+    case "sign-in":
     default:
-      title = 'Sign in';
+      title = "Sign in";
       modal = (
         <SignIn
           onSuccess={() => {
             setIsOpen!(false);
           }}
           onForgotPassword={() => {
-            setContent!('forgot-password');
+            setContent!("forgot-password");
           }}
           onCreateAccount={() => {
-            setContent!('sign-up');
+            setContent!("sign-up");
           }}
           isSessionExpired={isSessionExpired}
         />
@@ -153,7 +153,7 @@ function useProvideModal() {
     reset,
     modal: (
       <Modal
-        id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+        id={isMobile ? "mobile-signinModal" : "signinModal"}
         title={title}
         show={isOpen}
         children={modal!}
@@ -167,7 +167,9 @@ function useProvideModal() {
 
 export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   const modal = useProvideModal();
-  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>;
+  return (
+    <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>
+  );
 };
 
 export const useModal = () => {

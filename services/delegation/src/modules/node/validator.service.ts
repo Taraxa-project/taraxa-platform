@@ -1,23 +1,23 @@
-import _ from 'lodash';
-import { Equal, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
-import { NodeType } from './node-type.enum';
-import { Node } from './node.entity';
-import { NodeService } from './node.service';
-import { Delegation } from '../delegation/delegation.entity';
+import _ from "lodash";
+import { Equal, Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Injectable } from "@nestjs/common";
+import { NodeType } from "./node-type.enum";
+import { Node } from "./node.entity";
+import { NodeService } from "./node.service";
+import { Delegation } from "../delegation/delegation.entity";
 
 @Injectable()
 export class ValidatorService {
   constructor(
     private nodeService: NodeService,
     @InjectRepository(Delegation)
-    private delegationRepository: Repository<Delegation>,
+    private delegationRepository: Repository<Delegation>
   ) {}
   async find(
     user: number | null,
     showMyValidators: boolean,
-    showFullyDelegated: boolean,
+    showFullyDelegated: boolean
   ): Promise<Partial<Node>[]> {
     let nodes = await this.nodeService.findAllMainnetNodes();
     if (showMyValidators && user !== null) {
@@ -30,11 +30,11 @@ export class ValidatorService {
     }
     const decoratedNodes = nodes.map((node) => this.decorateNode(node, user));
     let sortedNodes = _.sortBy(decoratedNodes, [
-      'remainingDelegation',
-      'currentCommission',
+      "remainingDelegation",
+      "currentCommission",
     ]);
-    sortedNodes = _.sortBy(decoratedNodes, ['isActive']).reverse();
-    sortedNodes = _.sortBy(decoratedNodes, ['isTopNode']).reverse();
+    sortedNodes = _.sortBy(decoratedNodes, ["isActive"]).reverse();
+    sortedNodes = _.sortBy(decoratedNodes, ["isTopNode"]).reverse();
     return sortedNodes;
   }
   async get(id: number, user: number | null): Promise<Partial<Node>> {
@@ -48,7 +48,7 @@ export class ValidatorService {
     id: number,
     user: number | null,
     showMyDelegationAtTheTop = false,
-    page = 1,
+    page = 1
   ): Promise<{ count: number; data: Partial<Delegation>[] }> {
     const node = await this.nodeService.findNodeByOrFail({
       id,
@@ -57,14 +57,14 @@ export class ValidatorService {
 
     const perPage = 20;
     let q = this.delegationRepository
-      .createQueryBuilder('d')
+      .createQueryBuilder("d")
       .where('"d"."nodeId" = :node', { node: node.id })
       .take(perPage)
       .skip((page - 1) * perPage)
-      .orderBy(`d.user = ${node.user}`, 'DESC');
+      .orderBy(`d.user = ${node.user}`, "DESC");
 
     if (showMyDelegationAtTheTop && user !== null) {
-      q = q.orderBy(`d.user == ${user}`, 'DESC');
+      q = q.orderBy(`d.user == ${user}`, "DESC");
     }
 
     const [result, total] = await q.getManyAndCount();
@@ -81,30 +81,30 @@ export class ValidatorService {
   private decorateNode(node: Node, user: number | null): Partial<Node> {
     return {
       ..._.pick(node, [
-        'id',
-        'user',
-        'name',
-        'address',
-        'blocksProduced',
-        'weeklyBlocksProduced',
-        'weeklyRank',
-        'firstBlockCreatedAt',
-        'lastBlockCreatedAt',
-        'yield',
-        'hasPendingCommissionChange',
-        'pendingCommission',
-        'currentCommission',
-        'totalDelegation',
-        'ownDelegation',
-        'remainingDelegation',
-        'isActive',
-        'isTopNode',
+        "id",
+        "user",
+        "name",
+        "address",
+        "blocksProduced",
+        "weeklyBlocksProduced",
+        "weeklyRank",
+        "firstBlockCreatedAt",
+        "lastBlockCreatedAt",
+        "yield",
+        "hasPendingCommissionChange",
+        "pendingCommission",
+        "currentCommission",
+        "totalDelegation",
+        "ownDelegation",
+        "remainingDelegation",
+        "isActive",
+        "isTopNode",
       ]),
       canUndelegate: node.canUserUndelegate(user),
       isOwnValidator: node.isUserOwnValidator(user),
       profile: node.profile
         ? {
-            ..._.pick(node.profile, ['description', 'website', 'social']),
+            ..._.pick(node.profile, ["description", "website", "social"]),
           }
         : null,
     };

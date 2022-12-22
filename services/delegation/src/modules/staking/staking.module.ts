@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios';
-import ethereumConfig from '../../config/ethereum';
-import stakingConfig from '../../config/staking';
-import { StakingService } from './staking.service';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { HttpModule } from "@nestjs/axios";
+import ethereumConfig from "../../config/ethereum";
+import stakingConfig from "../../config/staking";
+import { StakingService } from "./staking.service";
 
 @Module({
   imports: [

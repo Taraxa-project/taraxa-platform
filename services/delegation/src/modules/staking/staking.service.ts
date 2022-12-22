@@ -1,9 +1,9 @@
-import { ethers } from 'ethers';
-import Web3 from 'web3';
-import { Account } from 'web3-core';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
+import { ethers } from "ethers";
+import Web3 from "web3";
+import { Account } from "web3-core";
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { HttpService } from "@nestjs/axios";
 
 @Injectable()
 export class StakingService {
@@ -16,27 +16,27 @@ export class StakingService {
 
   constructor(private config: ConfigService, private httpService: HttpService) {
     this.ethProvider = new ethers.providers.JsonRpcProvider(
-      this.config.get<string>('ethereum.ethEndpoint'),
+      this.config.get<string>("ethereum.ethEndpoint")
     );
 
     this.stakingContract = new ethers.Contract(
-      this.config.get<string>('staking.contract'),
-      ['function stakeOf(address) view returns (uint,uint,uint)'],
-      this.ethProvider,
+      this.config.get<string>("staking.contract"),
+      ["function stakeOf(address) view returns (uint,uint,uint)"],
+      this.ethProvider
     );
 
     this.mainnetProvider = new Web3(
-      this.config.get<string>('ethereum.mainnetEndpoint'),
+      this.config.get<string>("ethereum.mainnetEndpoint")
     );
     this.mainnetWallet = this.mainnetProvider.eth.accounts.privateKeyToAccount(
-      this.config.get<string>('ethereum.mainnetWallet'),
+      this.config.get<string>("ethereum.mainnetWallet")
     );
 
     this.testnetProvider = new Web3(
-      this.config.get<string>('ethereum.testnetEndpoint'),
+      this.config.get<string>("ethereum.testnetEndpoint")
     );
     this.testnetWallet = this.testnetProvider.eth.accounts.privateKeyToAccount(
-      this.config.get<string>('ethereum.testnetWallet'),
+      this.config.get<string>("ethereum.testnetWallet")
     );
   }
   get mainnetWalletAddress(): string {

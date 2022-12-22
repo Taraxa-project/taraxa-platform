@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, Loading } from '@taraxa_project/taraxa-ui';
+import React from "react";
+import { Text, Loading } from "@taraxa_project/taraxa-ui";
 
 interface IsStakingProps {
   amount: string;
@@ -12,7 +12,11 @@ const IsStaking = ({ amount }: IsStakingProps) => {
       <div className="iconContainer">
         <Loading />
       </div>
-      <Text label={`Staking ${amount} TARA from your account...`} variant="body2" color="primary" />
+      <Text
+        label={`Staking ${amount} TARA from your account...`}
+        variant="body2"
+        color="primary"
+      />
     </div>
   );
 };

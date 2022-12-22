@@ -1,27 +1,27 @@
-import React, { useEffect } from 'react';
-import { withRouter, useHistory } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive';
-import { Button, Sidebar as MSidebar } from '@taraxa_project/taraxa-ui';
-import useCMetamask from '../../services/useCMetamask';
+import React, { useEffect } from "react";
+import { withRouter, useHistory } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
+import { Button, Sidebar as MSidebar } from "@taraxa_project/taraxa-ui";
+import useCMetamask from "../../services/useCMetamask";
 
-import BountiesSidebar from '../../assets/icons/bountiesSidebar';
-import DelegationSidebar from '../../assets/icons/delegationSidebar';
-import DeploySidebar from '../../assets/icons/deploySidebar';
-import ExplorerSidebar from '../../assets/icons/explorerSidebar';
-import GetStarted from '../../assets/icons/getStarted';
-import NodeSidebar from '../../assets/icons/nodeSidebar';
-import RedeemSidebar from '../../assets/icons/redeemSidebar';
-import StakingSidebar from '../../assets/icons/stakingSidebar';
+import BountiesSidebar from "../../assets/icons/bountiesSidebar";
+import DelegationSidebar from "../../assets/icons/delegationSidebar";
+import DeploySidebar from "../../assets/icons/deploySidebar";
+import ExplorerSidebar from "../../assets/icons/explorerSidebar";
+import GetStarted from "../../assets/icons/getStarted";
+import NodeSidebar from "../../assets/icons/nodeSidebar";
+import RedeemSidebar from "../../assets/icons/redeemSidebar";
+import StakingSidebar from "../../assets/icons/stakingSidebar";
 // import WalletSidebar from "../../assets/icons/walletSidebar";
-import HamburgerIcon from '../../assets/icons/hamburger';
+import HamburgerIcon from "../../assets/icons/hamburger";
 
-import NavLink from '../NavLink/NavLink';
+import NavLink from "../NavLink/NavLink";
 
-import { useAuth } from '../../services/useAuth';
-import { useModal } from '../../services/useModal';
-import { useSidebar } from '../../services/useSidebar';
+import { useAuth } from "../../services/useAuth";
+import { useModal } from "../../services/useModal";
+import { useSidebar } from "../../services/useSidebar";
 
-import './sidebar.scss';
+import "./sidebar.scss";
 
 const Sidebar = () => {
   const auth = useAuth();
@@ -45,40 +45,51 @@ const Sidebar = () => {
   const menu = [
     {
       Link: <NavLink label="Get Started" Icon={GetStarted} to="/" />,
-      name: 'dashboard',
+      name: "dashboard",
     },
     {
-      label: 'Earn',
+      label: "Earn",
       items: [
         {
           Link: <NavLink label="Staking" Icon={StakingSidebar} to="/staking" />,
-          name: 'staking',
+          name: "staking",
         },
         {
-          Link: <NavLink label="Delegation" Icon={DelegationSidebar} to="/delegation" />,
-          name: 'delegation',
+          Link: (
+            <NavLink
+              label="Delegation"
+              Icon={DelegationSidebar}
+              to="/delegation"
+            />
+          ),
+          name: "delegation",
         },
         {
-          Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />,
-          name: 'bounties',
+          Link: (
+            <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />
+          ),
+          name: "bounties",
         },
-        { Link: <NavLink label="Redeem" Icon={RedeemSidebar} to="/redeem" />, name: 'redeem' },
+        {
+          Link: <NavLink label="Redeem" Icon={RedeemSidebar} to="/redeem" />,
+          name: "redeem",
+        },
       ],
     },
     {
-      name: 'testnet',
-      label: 'Testnet',
+      name: "testnet",
+      label: "Testnet",
       items: [
         {
           Link: <NavLink label="Run a node" Icon={NodeSidebar} to="/node" />,
-          name: 'node',
+          name: "node",
         },
         {
           Link: (
             <NavLink
               label="Taraxa Explorer"
               Icon={ExplorerSidebar}
-              to={{ pathname: 'https://explorer.testnet.taraxa.io/' }}
+              to={{ pathname: "https://explorer.testnet.taraxa.io/" }}
               target="_blank"
               rel="noopener noreferrer"
             />
@@ -89,7 +100,7 @@ const Sidebar = () => {
             <NavLink
               label="Deploy DApps"
               Icon={DeploySidebar}
-              to={{ pathname: 'https://sandbox.testnet.taraxa.io/' }}
+              to={{ pathname: "https://sandbox.testnet.taraxa.io/" }}
               target="_blank"
               rel="noopener noreferrer"
             />
@@ -109,7 +120,7 @@ const Sidebar = () => {
 
   const goToProfile = () => {
     close!();
-    push('/profile');
+    push("/profile");
   };
 
   const button = !isLoggedIn ? (
@@ -132,7 +143,7 @@ const Sidebar = () => {
 
   const mobileButtons = (
     <>
-      {status === 'notConnected' && (
+      {status === "notConnected" && (
         <Button
           label="Connect Wallet"
           variant="outlined"
@@ -151,13 +162,23 @@ const Sidebar = () => {
   );
 
   const hamburger = (
-    <div className="hamburger" style={{ cursor: 'pointer' }} onClick={() => close!()}>
+    <div
+      className="hamburger"
+      style={{ cursor: "pointer" }}
+      onClick={() => close!()}
+    >
       <HamburgerIcon />
     </div>
   );
 
   return (
-    <MSidebar disablePadding dense items={menu} open={isOpen} onClose={() => close!()}>
+    <MSidebar
+      disablePadding
+      dense
+      items={menu}
+      open={isOpen}
+      onClose={() => close!()}
+    >
       {hamburger}
       {isMobile && mobileButtons}
     </MSidebar>

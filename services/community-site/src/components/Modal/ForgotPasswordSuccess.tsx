@@ -1,6 +1,6 @@
-import React from 'react';
-import { Button, Text } from '@taraxa_project/taraxa-ui';
-import EmailIcon from '../../assets/icons/email';
+import React from "react";
+import { Button, Text } from "@taraxa_project/taraxa-ui";
+import EmailIcon from "../../assets/icons/email";
 
 const ForgotPasswordSuccess = ({ onSuccess }: { onSuccess: () => void }) => {
   return (
@@ -16,14 +16,14 @@ const ForgotPasswordSuccess = ({ onSuccess }: { onSuccess: () => void }) => {
         label="We have sent you a link to your registration e-mail."
         variant="body1"
         color="primary"
-        style={{ marginBottom: '10%' }}
+        style={{ marginBottom: "10%" }}
       />
 
       <Text
         label="Please click the link in order to reset your password."
         variant="body2"
         color="textSecondary"
-        style={{ marginBottom: '5%' }}
+        style={{ marginBottom: "5%" }}
       />
       <Button
         label="OK"

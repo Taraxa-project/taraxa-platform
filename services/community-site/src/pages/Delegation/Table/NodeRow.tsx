@@ -1,11 +1,11 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import clsx from 'clsx';
-import { ethers } from 'ethers';
-import { Button, Icons } from '@taraxa_project/taraxa-ui';
-import { TableCell, TableRow } from '@mui/material';
-import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
-import PublicNode from '../../../interfaces/PublicNode';
+import React from "react";
+import { useHistory } from "react-router-dom";
+import clsx from "clsx";
+import { ethers } from "ethers";
+import { Button, Icons } from "@taraxa_project/taraxa-ui";
+import { TableCell, TableRow } from "@mui/material";
+import NodeCommissionChangeIcon from "../../../assets/icons/nodeCommissionChange";
+import PublicNode from "../../../interfaces/PublicNode";
 
 type NodeRowProps = {
   node: PublicNode;
@@ -32,18 +32,24 @@ const NodeRow = ({
   setUndelegateFromNode,
 }: NodeRowProps) => {
   const history = useHistory();
-  const canDelegate = isLoggedIn && status === 'connected' && !!account;
-  const canUndelegate = isLoggedIn && status === 'connected' && !!account && node.canUndelegate;
+  const canDelegate = isLoggedIn && status === "connected" && !!account;
+  const canUndelegate =
+    isLoggedIn && status === "connected" && !!account && node.canUndelegate;
 
   return (
-    <TableRow className={clsx('tableRow', node.isOwnValidator && 'userValidator')}>
+    <TableRow
+      className={clsx("tableRow", node.isOwnValidator && "userValidator")}
+    >
       <TableCell className="tableCell statusCell">
         <div className="status">
-          <div className={clsx('dot', node.isActive && 'active')} />
+          <div className={clsx("dot", node.isActive && "active")} />
         </div>
       </TableCell>
       <TableCell className="tableCell nameCell">
-        <div className="flexCell nodeLink" onClick={() => history.push(`/delegation/${node.id}`)}>
+        <div
+          className="flexCell nodeLink"
+          onClick={() => history.push(`/delegation/${node.id}`)}
+        >
           <div>{formatNodeName(!node.name ? node.address : node.name)}</div>
           {node.isTopNode && (
             <div>
@@ -56,7 +62,7 @@ const NodeRow = ({
       <TableCell className="tableCell commissionCell">
         {node.hasPendingCommissionChange ? (
           <div className="commissionDisplayPendingChangeWrapper">
-            <NodeCommissionChangeIcon />{' '}
+            <NodeCommissionChangeIcon />{" "}
             <span className="commissionDisplayPendingChange">
               {`${node.currentCommission}%`} ➞ {`${node.pendingCommission}%`}
             </span>
@@ -72,7 +78,7 @@ const NodeRow = ({
         <div className="availableDelegation">
           {node.remainingDelegation > 0
             ? ethers.utils.commify(node.remainingDelegation)
-            : '0 (Fully delegated)'}
+            : "0 (Fully delegated)"}
         </div>
         <div className="validatorActions">
           <Button

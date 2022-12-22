@@ -1,5 +1,5 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { RewardType } from '../reward-type.enum';
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { RewardType } from "../reward-type.enum";
 
 export class RewardQueryDto {
   @ApiPropertyOptional({

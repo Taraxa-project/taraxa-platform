@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
-import { useAuth } from '../../services/useAuth';
+import React, { useState } from "react";
+import { Button, Text, InputField } from "@taraxa_project/taraxa-ui";
+import { useAuth } from "../../services/useAuth";
 
 const ResetPassword = ({
   code,
@@ -11,24 +11,25 @@ const ResetPassword = ({
 }) => {
   const auth = useAuth();
 
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
   const errIndex = errors.map((error) => error.key);
   const errValues = errors.map((error) => error.value);
 
-  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
+  const findErrorIndex = (field: string) =>
+    errIndex.findIndex((err) => err === field);
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
-  const hasPasswordError = hasError('password');
-  const passwordErrorMessage = hasError('password')
-    ? errValues[findErrorIndex('password')]
+  const hasPasswordError = hasError("password");
+  const passwordErrorMessage = hasError("password")
+    ? errValues[findErrorIndex("password")]
     : undefined;
-  const hasPasswordConfirmationError = hasError('password-confirmation');
-  const passwordConfirmationErrorMessage = hasError('password-confirmation')
-    ? errValues[findErrorIndex('password-confirmation')]
+  const hasPasswordConfirmationError = hasError("password-confirmation");
+  const passwordConfirmationErrorMessage = hasError("password-confirmation")
+    ? errValues[findErrorIndex("password-confirmation")]
     : undefined;
 
   let hasGeneralError = false;
@@ -40,7 +41,7 @@ const ResetPassword = ({
   }
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
@@ -49,15 +50,15 @@ const ResetPassword = ({
 
     if (password.length < 12) {
       errors.push({
-        key: 'password',
-        value: 'The password needs to have at least 12 characters.',
+        key: "password",
+        value: "The password needs to have at least 12 characters.",
       });
     }
 
     if (password !== passwordConfirmation) {
       errors.push({
-        key: 'password-confirmation',
-        value: 'Passwords do not match.',
+        key: "password-confirmation",
+        value: "Passwords do not match.",
       });
     }
 
@@ -66,7 +67,11 @@ const ResetPassword = ({
       return;
     }
 
-    const result = await auth.resetPassword!(code!, password, passwordConfirmation);
+    const result = await auth.resetPassword!(
+      code!,
+      password,
+      passwordConfirmation
+    );
 
     if (result.success) {
       onSuccess();
@@ -75,16 +80,20 @@ const ResetPassword = ({
 
     setErrors(
       result.response[0].messages.map((message: any) => ({
-        key: message.id.split('.')[3],
+        key: message.id.split(".")[3],
         value: message.message,
-      })),
+      }))
     );
   };
 
   return (
     <div>
       <Text label="Enter your new password" variant="h6" color="primary" />
-      <Text label="Please, enter a new password." variant="body2" color="textSecondary" />
+      <Text
+        label="Please, enter a new password."
+        variant="body2"
+        color="textSecondary"
+      />
 
       <form onSubmit={submit}>
         <InputField
@@ -116,7 +125,9 @@ const ResetPassword = ({
           margin="normal"
         />
 
-        {hasGeneralError && <Text label={generalErrorMessage!} variant="body1" color="error" />}
+        {hasGeneralError && (
+          <Text label={generalErrorMessage!} variant="body1" color="error" />
+        )}
 
         <Button
           type="submit"

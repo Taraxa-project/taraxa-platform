@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Button, Text, Checkbox } from '@taraxa_project/taraxa-ui';
+import React, { useState } from "react";
+import { Button, Text, Checkbox } from "@taraxa_project/taraxa-ui";
 
-import KYCIcon from '../../../assets/icons/kyc';
+import KYCIcon from "../../../assets/icons/kyc";
 
-import useApi from '../../../services/useApi';
+import useApi from "../../../services/useApi";
 
 type KYCProps = {
   onSuccess: () => void;
@@ -21,10 +21,15 @@ const KYC = ({ onSuccess }: KYCProps) => {
   return (
     <div>
       <div className="kycTopContainer">
-        <Text style={{ marginBottom: '2%' }} label="Submit KYC" variant="h6" color="primary" />
+        <Text
+          style={{ marginBottom: "2%" }}
+          label="Submit KYC"
+          variant="h6"
+          color="primary"
+        />
         <KYCIcon />
         <Text
-          style={{ margin: '2% 0 2% 0' }}
+          style={{ margin: "2% 0 2% 0" }}
           label="To continue please upload an image of your ID / passport"
           variant="body2"
           color="textSecondary"
@@ -71,7 +76,11 @@ const KYC = ({ onSuccess }: KYCProps) => {
       </ul>
 
       <div className="checkboxContainer">
-        <Checkbox name="agreement" onChange={agreementTrigger} checked={agreement} />
+        <Checkbox
+          name="agreement"
+          onChange={agreementTrigger}
+          checked={agreement}
+        />
         <Text
           label="I agree to the processing of my personal data"
           variant="body2"

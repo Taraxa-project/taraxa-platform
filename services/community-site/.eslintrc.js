@@ -2,13 +2,13 @@ module.exports = {
   overrides: [
     {
       // JavaScript and JSX
-      files: ['*.{ts,tsx}'],
+      files: ["*.{ts,tsx}"],
       parserOptions: {
-        project: './tsconfig.json',
+        project: "./tsconfig.json",
         tsconfigRootDir: __dirname,
       },
       rules: {
-        'no-restricted-exports': 'off',
+        "no-restricted-exports": "off",
       },
     },
   ],

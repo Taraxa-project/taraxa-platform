@@ -1,9 +1,9 @@
-import React from 'react';
-import { Modal } from '@taraxa_project/taraxa-ui';
-import { ethers } from 'ethers';
-import { formatEth, roundEth, weiToEth } from '../../../utils/eth';
-import CloseIcon from '../../../assets/icons/close';
-import RedeemWarning from './RedeemWarning';
+import React from "react";
+import { Modal } from "@taraxa_project/taraxa-ui";
+import { ethers } from "ethers";
+import { formatEth, roundEth, weiToEth } from "../../../utils/eth";
+import CloseIcon from "../../../assets/icons/close";
+import RedeemWarning from "./RedeemWarning";
 
 export interface RedeemModalsProps {
   warningModal: boolean;
@@ -13,7 +13,12 @@ export interface RedeemModalsProps {
 }
 
 const RedeemModals = (props: RedeemModalsProps) => {
-  const { warningModal, onWarningModalClose, onWarningModalAccept, taraAmount } = props;
+  const {
+    warningModal,
+    onWarningModalClose,
+    onWarningModalAccept,
+    taraAmount,
+  } = props;
   return (
     <>
       {warningModal && (

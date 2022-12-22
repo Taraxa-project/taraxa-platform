@@ -1,15 +1,15 @@
-import moment from 'moment';
+import moment from "moment";
 import {
   PrimaryGeneratedColumn,
   Entity,
   ManyToOne,
   CreateDateColumn,
   Column,
-} from 'typeorm';
-import { Node } from './node.entity';
+} from "typeorm";
+import { Node } from "./node.entity";
 
 @Entity({
-  name: 'node_commissions',
+  name: "node_commissions",
 })
 export class NodeCommission {
   @PrimaryGeneratedColumn()
@@ -24,13 +24,13 @@ export class NodeCommission {
   node: Node;
 
   @Column({
-    type: 'timestamp with time zone',
-    default: 'now()',
+    type: "timestamp with time zone",
+    default: "now()",
   })
   startsAt: Date;
 
   @CreateDateColumn({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   createdAt: Date;
 
@@ -48,7 +48,7 @@ export class NodeCommission {
 
   static fromValueUpdate(value: number): NodeCommission {
     const commission = NodeCommission.fromValue(value);
-    commission.startsAt = moment().add(5, 'days').utc().toDate();
+    commission.startsAt = moment().add(5, "days").utc().toDate();
     return commission;
   }
 }

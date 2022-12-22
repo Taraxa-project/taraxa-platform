@@ -1,20 +1,20 @@
-import * as ethers from 'ethers';
-import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
-import { Repository, Connection, FindConditions } from 'typeorm';
-import { ProfileService } from '../profile/profile.service';
-import { NODE_CREATED_EVENT, NODE_DELETED_EVENT } from './node.constants';
-import { Node } from './node.entity';
-import { NodeType } from './node-type.enum';
-import { NodeCommission } from './node-commission.entity';
-import { CreateNodeDto } from './dto/create-node.dto';
-import { UpdateNodeDto } from './dto/update-node.dto';
-import { CreateCommissionDto } from './dto/create-commission.dto';
-import { ValidationException } from '../utils/exceptions/validation.exception';
-import { NodeCreatedEvent } from './event/node-created.event';
-import { NodeDeletedEvent } from './event/node-deleted.event';
+import * as ethers from "ethers";
+import { Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ConfigService } from "@nestjs/config";
+import { Repository, Connection, FindConditions } from "typeorm";
+import { ProfileService } from "../profile/profile.service";
+import { NODE_CREATED_EVENT, NODE_DELETED_EVENT } from "./node.constants";
+import { Node } from "./node.entity";
+import { NodeType } from "./node-type.enum";
+import { NodeCommission } from "./node-commission.entity";
+import { CreateNodeDto } from "./dto/create-node.dto";
+import { UpdateNodeDto } from "./dto/update-node.dto";
+import { CreateCommissionDto } from "./dto/create-commission.dto";
+import { ValidationException } from "../utils/exceptions/validation.exception";
+import { NodeCreatedEvent } from "./event/node-created.event";
+import { NodeDeletedEvent } from "./event/node-deleted.event";
 
 @Injectable()
 export class NodeService {
@@ -26,7 +26,7 @@ export class NodeService {
     private nodeCommissionRepository: Repository<NodeCommission>,
     private connection: Connection,
     private config: ConfigService,
-    private profileService: ProfileService,
+    private profileService: ProfileService
   ) {}
 
   async createNode(user: number, nodeDto: CreateNodeDto): Promise<Node> {
@@ -36,7 +36,7 @@ export class NodeService {
       const digest = ethers.utils.keccak256(address);
       const recoveredAddress = ethers.utils.recoverAddress(
         digest,
-        nodeDto.addressProof,
+        nodeDto.addressProof
       );
 
       if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
@@ -47,8 +47,8 @@ export class NodeService {
     }
 
     const existingNode = await this.nodeRepository
-      .createQueryBuilder('n')
-      .select('COUNT("n"."id")', 'count')
+      .createQueryBuilder("n")
+      .select('COUNT("n"."id")', "count")
       .where('LOWER("n"."address") = :address', {
         address: address.toLowerCase(),
       })
@@ -58,7 +58,7 @@ export class NodeService {
 
     if (existingNodeCount > 0) {
       throw new ValidationException(
-        `Node with address ${address} already exists.`,
+        `Node with address ${address} already exists.`
       );
     }
 
@@ -83,7 +83,7 @@ export class NodeService {
 
     this.eventEmitter.emit(
       NODE_CREATED_EVENT,
-      new NodeCreatedEvent(node.id, node.type, node.address),
+      new NodeCreatedEvent(node.id, node.type, node.address)
     );
 
     return this.findNodeByOrFail({
@@ -94,18 +94,18 @@ export class NodeService {
   async updateNode(
     user: number,
     nodeId: number,
-    nodeDto: UpdateNodeDto,
+    nodeDto: UpdateNodeDto
   ): Promise<Node> {
     const node = await this.findNodeByOrFail({
       id: nodeId,
       user,
     });
 
-    if (typeof nodeDto.name !== 'undefined') {
+    if (typeof nodeDto.name !== "undefined") {
       node.name = nodeDto.name;
     }
 
-    if (typeof nodeDto.ip !== 'undefined') {
+    if (typeof nodeDto.ip !== "undefined") {
       node.ip = nodeDto.ip;
     }
 
@@ -119,7 +119,7 @@ export class NodeService {
   async createCommission(
     user: number,
     nodeId: number,
-    commissionDto: CreateCommissionDto,
+    commissionDto: CreateCommissionDto
   ): Promise<Node> {
     const node = await this.findNodeByOrFail({
       id: nodeId,
@@ -129,31 +129,31 @@ export class NodeService {
 
     if (node.hasPendingCommissionChange) {
       throw new ValidationException(
-        `Node with id ${node.id} already has a pending commission change.`,
+        `Node with id ${node.id} already has a pending commission change.`
       );
     }
 
     if (Math.floor(commissionDto.commission) !== commissionDto.commission) {
       throw new ValidationException(
-        `New commission has to be between 0 and 100.`,
+        `New commission has to be between 0 and 100.`
       );
     }
 
     if (node.currentCommission === commissionDto.commission) {
       throw new ValidationException(
-        `New commission can't be the same as the current commission.`,
+        `New commission can't be the same as the current commission.`
       );
     }
 
     const commissionChangeThreshold = this.config.get<number>(
-      'delegation.commissionChangeThreshold',
+      "delegation.commissionChangeThreshold"
     );
     if (
       Math.abs(node.currentCommission - commissionDto.commission) >
       commissionChangeThreshold
     ) {
       throw new ValidationException(
-        'New commission must be within 5% of the current commission.',
+        "New commission must be within 5% of the current commission."
       );
     }
 
@@ -183,7 +183,7 @@ export class NodeService {
 
     this.eventEmitter.emit(
       NODE_DELETED_EVENT,
-      new NodeDeletedEvent(n.id, n.type, n.address),
+      new NodeDeletedEvent(n.id, n.type, n.address)
     );
 
     return n;
@@ -191,7 +191,7 @@ export class NodeService {
 
   async findAllNodesByUserAndType(
     user: number,
-    type: NodeType = NodeType.TESTNET,
+    type: NodeType = NodeType.TESTNET
   ): Promise<Node[]> {
     const nodes = await this.nodeRepository.find({ user, type });
     return this.decorateNodes(nodes);
@@ -225,7 +225,7 @@ export class NodeService {
 
   async findAllCommissionsByNode(
     user: number,
-    node: number,
+    node: number
   ): Promise<NodeCommission[]> {
     const n = await this.findNodeByOrFail({
       id: node,
@@ -246,8 +246,8 @@ export class NodeService {
   }
 
   private decorateNode(node: Node): Node {
-    const delegationYield = this.config.get<number>('delegation.yield');
-    const maxDelegation = this.config.get<number>('delegation.maxDelegation');
+    const delegationYield = this.config.get<number>("delegation.yield");
+    const maxDelegation = this.config.get<number>("delegation.maxDelegation");
 
     node.yield = delegationYield;
     node.remainingDelegation = maxDelegation - node.totalDelegation;

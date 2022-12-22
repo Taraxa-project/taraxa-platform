@@ -1,23 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useMediaQuery } from 'react-responsive';
-import { useHistory, withRouter, RouteComponentProps } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useMediaQuery } from "react-responsive";
+import { useHistory, withRouter, RouteComponentProps } from "react-router-dom";
 
-import { IconCard, ToggleButton, Notification } from '@taraxa_project/taraxa-ui';
+import {
+  IconCard,
+  ToggleButton,
+  Notification,
+} from "@taraxa_project/taraxa-ui";
 
-import StakingIcon from '../../assets/icons/staking';
-import DelegationIcon from '../../assets/icons/delegation';
-import BountiesIcon from '../../assets/icons/bounties';
-import RedeemIcon from '../../assets/icons/redeem';
-import NodeIcon from '../../assets/icons/node';
-import ExplorerIcon from '../../assets/icons/explorer';
-import DeployIcon from '../../assets/icons/deploy';
+import StakingIcon from "../../assets/icons/staking";
+import DelegationIcon from "../../assets/icons/delegation";
+import BountiesIcon from "../../assets/icons/bounties";
+import RedeemIcon from "../../assets/icons/redeem";
+import NodeIcon from "../../assets/icons/node";
+import ExplorerIcon from "../../assets/icons/explorer";
+import DeployIcon from "../../assets/icons/deploy";
 
-import { useAuth } from '../../services/useAuth';
-import { useModal } from '../../services/useModal';
+import { useAuth } from "../../services/useAuth";
+import { useModal } from "../../services/useModal";
 
-import Title from '../../components/Title/Title';
+import Title from "../../components/Title/Title";
 
-import './home.scss';
+import "./home.scss";
 
 interface HomeProps {
   code: string | undefined;
@@ -28,28 +32,28 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
   const { setIsOpen, setContent, setCode } = useModal();
 
   useEffect(() => {
-    if (match.path.includes('/first-login')) {
+    if (match.path.includes("/first-login")) {
       if (auth.user !== null) {
         auth.refreshUser!();
       }
 
       setIsOpen!(true);
-      setContent!('email-confirmed');
+      setContent!("email-confirmed");
     }
-    if (match.path.includes('/reset-password')) {
+    if (match.path.includes("/reset-password")) {
       setIsOpen!(true);
-      setContent!('reset-password');
+      setContent!("reset-password");
       setCode!(match.params.code);
     }
   }, []);
 
   const history = useHistory();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
-  const [toggleValue, setToggleValue] = useState('earn');
+  const [toggleValue, setToggleValue] = useState("earn");
 
   const toggleOptions = [
-    { value: 'earn', label: 'Earn' },
-    { value: 'testnet', label: 'Testnet' },
+    { value: "earn", label: "Earn" },
+    { value: "testnet", label: "Testnet" },
   ];
 
   const onToggle = (event: React.MouseEvent<HTMLElement>, value: string) => {
@@ -60,9 +64,12 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
   };
 
   return (
-    <div className={isMobile ? 'home-mobile' : 'home'}>
+    <div className={isMobile ? "home-mobile" : "home"}>
       <div className="home-content">
-        <Title title="Get started" subtitle="Welcome to Taraxa's community site!" />
+        <Title
+          title="Get started"
+          subtitle="Welcome to Taraxa's community site!"
+        />
         {isMobile && (
           <ToggleButton
             exclusive
@@ -75,50 +82,64 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
         <div
           className="notification"
           style={{
-            display: isMobile && toggleValue !== 'earn' ? 'none' : 'inherit',
+            display: isMobile && toggleValue !== "earn" ? "none" : "inherit",
           }}
         >
-          <Notification title="EARN" text="Earn rewards while helping us grow." variant="success" />
+          <Notification
+            title="EARN"
+            text="Earn rewards while helping us grow."
+            variant="success"
+          />
         </div>
         <div
           className="cardContainer"
           style={{
-            display: isMobile && toggleValue !== 'earn' ? 'none' : isMobile ? 'inherit' : 'flex',
+            display:
+              isMobile && toggleValue !== "earn"
+                ? "none"
+                : isMobile
+                ? "inherit"
+                : "flex",
           }}
         >
           <IconCard
             title="Staking"
             description="Earn rewards while helping to secure Taraxa’s network."
             onClickText="Get Started"
-            onClickButton={() => history.push('/staking')}
+            onClickButton={() => history.push("/staking")}
             Icon={StakingIcon}
           />
           <IconCard
             title="Delegation"
             description="Earn rewards and help test & secure the Taraxa’s network."
             onClickText="Get Started"
-            onClickButton={() => history.push('/delegation')}
+            onClickButton={() => history.push("/delegation")}
             Icon={DelegationIcon}
           />
           <IconCard
             title="Bounties"
             description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
             onClickText="Get Started"
-            onClickButton={() => history.push('/bounties')}
+            onClickButton={() => history.push("/bounties")}
             Icon={BountiesIcon}
           />
         </div>
         <div
           className="cardContainer"
           style={{
-            display: isMobile && toggleValue !== 'earn' ? 'none' : isMobile ? 'inherit' : 'flex',
+            display:
+              isMobile && toggleValue !== "earn"
+                ? "none"
+                : isMobile
+                ? "inherit"
+                : "flex",
           }}
         >
           <IconCard
             title="Redeem"
             description="Redeem TARA points for $TARA tokens and cool Taraxa swag."
             onClickText="Get Started"
-            onClickButton={() => history.push('/redeem')}
+            onClickButton={() => history.push("/redeem")}
             Icon={RedeemIcon}
           />
         </div>
@@ -126,22 +147,31 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
         <div
           className="notification"
           style={{
-            display: isMobile && toggleValue !== 'testnet' ? 'none' : 'inherit',
+            display: isMobile && toggleValue !== "testnet" ? "none" : "inherit",
           }}
         >
-          <Notification title="TESTNET" text="Join Taraxa’s public testnet." variant="success" />
+          <Notification
+            title="TESTNET"
+            text="Join Taraxa’s public testnet."
+            variant="success"
+          />
         </div>
         <div
           className="cardContainer"
           style={{
-            display: isMobile && toggleValue !== 'testnet' ? 'none' : isMobile ? 'inherit' : 'flex',
+            display:
+              isMobile && toggleValue !== "testnet"
+                ? "none"
+                : isMobile
+                ? "inherit"
+                : "flex",
           }}
         >
           <IconCard
             title="Run a node"
             description="Earn rewards while helping to secure Taraxa’s network."
             onClickText="Get Started"
-            onClickButton={() => history.push('/node')}
+            onClickButton={() => history.push("/node")}
             Icon={NodeIcon}
           />
           <IconCard
@@ -149,7 +179,11 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Explore the ledger and find the transaction’s data."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open('https://explorer.testnet.taraxa.io/', '_blank', 'noreferrer noopener')
+              window.open(
+                "https://explorer.testnet.taraxa.io/",
+                "_blank",
+                "noreferrer noopener"
+              )
             }
             Icon={ExplorerIcon}
           />
@@ -158,7 +192,11 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open('https://sandbox.testnet.taraxa.io/', '_blank', 'noreferrer noopener')
+              window.open(
+                "https://sandbox.testnet.taraxa.io/",
+                "_blank",
+                "noreferrer noopener"
+              )
             }
             Icon={DeployIcon}
           />

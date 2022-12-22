@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext } from "react";
 
 type Context = {
   isOpen: boolean;
@@ -27,9 +27,17 @@ function useProvideSidebar() {
   };
 }
 
-export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
+export const SidebarProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const sidebar = useProvideSidebar();
-  return <SidebarContext.Provider value={sidebar}>{children}</SidebarContext.Provider>;
+  return (
+    <SidebarContext.Provider value={sidebar}>
+      {children}
+    </SidebarContext.Provider>
+  );
 };
 
 export const useSidebar = () => {

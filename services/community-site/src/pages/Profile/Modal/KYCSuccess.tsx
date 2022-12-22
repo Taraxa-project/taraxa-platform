@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Text } from '@taraxa_project/taraxa-ui';
+import React from "react";
+import { Button, Text } from "@taraxa_project/taraxa-ui";
 
 type KYCSuccessProps = {
   onSuccess: () => void;
@@ -9,9 +9,14 @@ const KYCSuccess = ({ onSuccess }: KYCSuccessProps) => {
   return (
     <div>
       <div className="kycTopContainer">
-        <Text style={{ marginBottom: '2%' }} label="Submit KYC" variant="h6" color="primary" />
         <Text
-          style={{ marginBottom: '5%' }}
+          style={{ marginBottom: "2%" }}
+          label="Submit KYC"
+          variant="h6"
+          color="primary"
+        />
+        <Text
+          style={{ marginBottom: "5%" }}
           label="Thank you! We will contact you via e-mail."
           color="primary"
           variant="body1"

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Text, Button, InputField } from '@taraxa_project/taraxa-ui';
-import Title from '../../../components/Title/Title';
-import { useDelegationApi } from '../../../services/useApi';
+import React, { useState } from "react";
+import { Text, Button, InputField } from "@taraxa_project/taraxa-ui";
+import Title from "../../../components/Title/Title";
+import { useDelegationApi } from "../../../services/useApi";
 
 interface Profile {
   description: string;
@@ -10,7 +10,7 @@ interface Profile {
 }
 interface CreateOrEditProfileProps {
   closeCreateOrEditProfile: (refreshProfile: boolean) => void;
-  action: 'create' | 'edit';
+  action: "create" | "edit";
   profile?: Profile;
 }
 
@@ -19,26 +19,28 @@ const CreateOrEditProfile = ({
   action,
   profile,
 }: CreateOrEditProfileProps) => {
-  const [description, setDescription] = useState(profile ? profile.description : '');
-  const [descriptionError, setDescriptionError] = useState('');
-  const [website, setWebsite] = useState(profile ? profile.website : '');
-  const [websiteError, setWebsiteError] = useState('');
-  const [social, setSocial] = useState(profile ? profile.social : '');
-  const [socialError, setSocialError] = useState('');
+  const [description, setDescription] = useState(
+    profile ? profile.description : ""
+  );
+  const [descriptionError, setDescriptionError] = useState("");
+  const [website, setWebsite] = useState(profile ? profile.website : "");
+  const [websiteError, setWebsiteError] = useState("");
+  const [social, setSocial] = useState(profile ? profile.social : "");
+  const [socialError, setSocialError] = useState("");
   const delegationApi = useDelegationApi();
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-    setDescriptionError('');
+    setDescriptionError("");
 
     const payload = { description, social, website };
     let result;
-    if (action === 'create') {
-      result = await delegationApi.post('/profiles', payload, true);
+    if (action === "create") {
+      result = await delegationApi.post("/profiles", payload, true);
     } else {
-      result = await delegationApi.put('/profiles', payload, true);
+      result = await delegationApi.put("/profiles", payload, true);
     }
 
     if (result.success) {
@@ -48,14 +50,14 @@ const CreateOrEditProfile = ({
 
     if (Array.isArray(result.response)) {
       result.response.forEach((errMsg) => {
-        if (errMsg.startsWith('description')) {
-          setDescriptionError(errMsg.slice('description'.length + 1));
+        if (errMsg.startsWith("description")) {
+          setDescriptionError(errMsg.slice("description".length + 1));
         }
-        if (errMsg.startsWith('website')) {
-          setWebsiteError(errMsg.slice('website'.length + 1));
+        if (errMsg.startsWith("website")) {
+          setWebsiteError(errMsg.slice("website".length + 1));
         }
-        if (errMsg.startsWith('social')) {
-          setSocialError(errMsg.slice('social'.length + 1));
+        if (errMsg.startsWith("social")) {
+          setSocialError(errMsg.slice("social".length + 1));
         }
       });
     }
@@ -63,7 +65,9 @@ const CreateOrEditProfile = ({
 
   return (
     <>
-      <Title title={action === 'create' ? 'Create profile' : 'Update profile'} />
+      <Title
+        title={action === "create" ? "Create profile" : "Update profile"}
+      />
       <form onSubmit={submit}>
         <div className="editProfileForm">
           <div className="formInputContainer">
@@ -142,7 +146,7 @@ const CreateOrEditProfile = ({
         <div id="buttonsContainer">
           <Button
             type="submit"
-            label={action === 'create' ? 'Create profile' : 'Update profile'}
+            label={action === "create" ? "Create profile" : "Update profile"}
             variant="contained"
             color="secondary"
             onClick={submit}

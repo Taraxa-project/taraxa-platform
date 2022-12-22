@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
-import { useModal } from '../../services/useModal';
-import { useAuth } from '../../services/useAuth';
+import React, { useState } from "react";
+import { Button, Text, InputField } from "@taraxa_project/taraxa-ui";
+import { useModal } from "../../services/useModal";
+import { useAuth } from "../../services/useAuth";
 
 type SignInProps = {
   onSuccess: () => void;
@@ -19,8 +19,8 @@ const SignIn = ({
   const { setIsOpen, setContent } = useModal();
   const auth = useAuth();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
@@ -29,20 +29,23 @@ const SignIn = ({
     await auth.emailConfirmation!(username);
 
     setIsOpen!(true);
-    setContent!('sign-up-success');
+    setContent!("sign-up-success");
   };
 
   const errIndex = errors.map((error) => error.key);
   const errValues = errors.map((error) => error.value);
 
-  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
+  const findErrorIndex = (field: string) =>
+    errIndex.findIndex((err) => err === field);
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
-  const hasEmailError = hasError('email');
-  const emailErrorMessage = hasError('email') ? errValues[findErrorIndex('email')] : undefined;
-  const hasPasswordError = hasError('password');
-  const passwordErrorMessage = hasError('password')
-    ? errValues[findErrorIndex('password')]
+  const hasEmailError = hasError("email");
+  const emailErrorMessage = hasError("email")
+    ? errValues[findErrorIndex("email")]
+    : undefined;
+  const hasPasswordError = hasError("password");
+  const passwordErrorMessage = hasError("password")
+    ? errValues[findErrorIndex("password")]
     : undefined;
 
   let hasGeneralError = false;
@@ -50,10 +53,10 @@ const SignIn = ({
   if (errors.length > 0 && !hasEmailError && !hasPasswordError) {
     hasGeneralError = true;
     generalErrorMessage = errValues[0];
-    if (errIndex[0] === 'confirmed') {
+    if (errIndex[0] === "confirmed") {
       generalErrorMessage = (
         <>
-          Email not confirmed.{' '}
+          Email not confirmed.{" "}
           <a href="#" className="default-link" onClick={confirmEmail}>
             Confirm your email
           </a>
@@ -63,7 +66,7 @@ const SignIn = ({
   }
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
     if (isSessionExpired) {
@@ -80,9 +83,9 @@ const SignIn = ({
 
     setErrors(
       result.response[0].messages.map((message: any) => ({
-        key: message.id.split('.')[3],
+        key: message.id.split(".")[3],
         value: message.message,
-      })),
+      }))
     );
   };
 

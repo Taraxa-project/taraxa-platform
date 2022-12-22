@@ -1,13 +1,13 @@
-import { ValidationOptions, buildMessage, ValidateBy } from 'class-validator';
+import { ValidationOptions, buildMessage, ValidateBy } from "class-validator";
 
-export const STARTS_WITH = 'startsWith';
+export const STARTS_WITH = "startsWith";
 
 /**
  * Checks if the string starts with the seed.
  * If given value is not a string, then it returns false.
  */
 export function startsWith(value: unknown, seed: string): boolean {
-  return typeof value === 'string' && value.startsWith(seed);
+  return typeof value === "string" && value.startsWith(seed);
 }
 
 /**
@@ -16,7 +16,7 @@ export function startsWith(value: unknown, seed: string): boolean {
  */
 export function StartsWith(
   seed: string,
-  validationOptions?: ValidationOptions,
+  validationOptions?: ValidationOptions
 ): PropertyDecorator {
   return ValidateBy(
     {
@@ -26,11 +26,11 @@ export function StartsWith(
         validate: (value, args): boolean =>
           startsWith(value, args.constraints[0]),
         defaultMessage: buildMessage(
-          (eachPrefix) => eachPrefix + '$property must start with $constraint1',
-          validationOptions,
+          (eachPrefix) => eachPrefix + "$property must start with $constraint1",
+          validationOptions
         ),
       },
     },
-    validationOptions,
+    validationOptions
   );
 }

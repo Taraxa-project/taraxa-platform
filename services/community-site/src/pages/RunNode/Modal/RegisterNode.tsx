@@ -1,46 +1,46 @@
-import React, { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import React, { useState } from "react";
+import { Button, Text, InputField } from "@taraxa_project/taraxa-ui";
 
-import { useDelegationApi } from '../../../services/useApi';
+import { useDelegationApi } from "../../../services/useApi";
 
 type RegisterNodeProps = {
   onSuccess: () => void;
-  type: 'mainnet' | 'testnet';
+  type: "mainnet" | "testnet";
 };
 
 const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
   const delegationApi = useDelegationApi();
 
-  const [error, setError] = useState('');
-  const [address, setAddress] = useState('');
-  const [addressError, setAddressError] = useState('');
-  const [addressProof, setAddressProof] = useState('');
-  const [addressProofError, setAddressProofError] = useState('');
-  const [vrfKey, setVrfKey] = useState('');
-  const [vrfKeyError, setVrfKeyError] = useState('');
-  const [commission, setCommission] = useState('');
-  const [commissionError, setCommissionError] = useState('');
-  const [ip, setIp] = useState('');
-  const [ipError, setIpError] = useState('');
+  const [error, setError] = useState("");
+  const [address, setAddress] = useState("");
+  const [addressError, setAddressError] = useState("");
+  const [addressProof, setAddressProof] = useState("");
+  const [addressProofError, setAddressProofError] = useState("");
+  const [vrfKey, setVrfKey] = useState("");
+  const [vrfKeyError, setVrfKeyError] = useState("");
+  const [commission, setCommission] = useState("");
+  const [commissionError, setCommissionError] = useState("");
+  const [ip, setIp] = useState("");
+  const [ipError, setIpError] = useState("");
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
-    setError('');
-    setAddressError('');
-    setAddressProofError('');
-    setVrfKeyError('');
-    setIpError('');
-    setCommissionError('');
+    setError("");
+    setAddressError("");
+    setAddressProofError("");
+    setVrfKeyError("");
+    setIpError("");
+    setCommissionError("");
 
     const payload: any = {
       address,
       addressProof,
       type,
       vrfKey,
-      commission: type === 'mainnet' ? parseInt(commission, 10) : null,
+      commission: type === "mainnet" ? parseInt(commission, 10) : null,
     };
 
     if (ip) {
@@ -53,24 +53,24 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
       onSuccess();
     } else if (Array.isArray(result.response)) {
       const generalErrors = result.response.filter((errMsg) => {
-        if (errMsg.startsWith('addressProof')) {
-          setAddressProofError(errMsg.slice('addressProof'.length + 1));
+        if (errMsg.startsWith("addressProof")) {
+          setAddressProofError(errMsg.slice("addressProof".length + 1));
           return false;
         }
-        if (errMsg.startsWith('vrfKey')) {
-          setVrfKeyError(errMsg.slice('vrfKey'.length + 1));
+        if (errMsg.startsWith("vrfKey")) {
+          setVrfKeyError(errMsg.slice("vrfKey".length + 1));
           return false;
         }
-        if (errMsg.startsWith('address')) {
-          setAddressError(errMsg.slice('address'.length + 1));
+        if (errMsg.startsWith("address")) {
+          setAddressError(errMsg.slice("address".length + 1));
           return false;
         }
-        if (errMsg.startsWith('commission')) {
-          setCommissionError(errMsg.slice('commission'.length + 1));
+        if (errMsg.startsWith("commission")) {
+          setCommissionError(errMsg.slice("commission".length + 1));
           return false;
         }
-        if (errMsg.startsWith('ip')) {
-          setIpError(errMsg.slice('ip'.length + 1));
+        if (errMsg.startsWith("ip")) {
+          setIpError(errMsg.slice("ip".length + 1));
           return false;
         }
 
@@ -78,11 +78,11 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
       });
 
       if (generalErrors.length > 0) {
-        setError(generalErrors.join(', '));
+        setError(generalErrors.join(", "));
       }
-    } else if (typeof result.response === 'string') {
+    } else if (typeof result.response === "string") {
       if (result.response.includes("doesn't have a profile")) {
-        setError('Please setup your profile before registering a node.');
+        setError("Please setup your profile before registering a node.");
       } else {
         setError(result.response);
       }
@@ -93,9 +93,9 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
     <div>
       <Text
         style={{
-          marginBottom: '2%',
-          fontFamily: 'Inter, san-serif',
-          fontSize: '18px',
+          marginBottom: "2%",
+          fontFamily: "Inter, san-serif",
+          fontSize: "18px",
         }}
         label="Register a node"
         variant="h6"
@@ -154,7 +154,7 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
             setIp(event.target.value);
           }}
         />
-        {type === 'mainnet' && (
+        {type === "mainnet" && (
           <InputField
             label="Commission"
             error={!!commissionError}
@@ -185,7 +185,12 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
         />
       </form>
 
-      <Text style={{ margin: '5% 0' }} label="References:" variant="body1" color="primary" />
+      <Text
+        style={{ margin: "5% 0" }}
+        label="References:"
+        variant="body1"
+        color="primary"
+      />
 
       <Button
         label="How to find my node's address?"
@@ -195,8 +200,8 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
         onClick={() =>
           window.open(
             `https://docs.taraxa.io/node-setup/node_address`,
-            '_blank',
-            'noreferrer noopener',
+            "_blank",
+            "noreferrer noopener"
           )
         }
         fullWidth
@@ -207,7 +212,11 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
         color="secondary"
         className="node-control-reference-button"
         onClick={() =>
-          window.open(`https://docs.taraxa.io/node-setup/vrf_key`, '_blank', 'noreferrer noopener')
+          window.open(
+            `https://docs.taraxa.io/node-setup/vrf_key`,
+            "_blank",
+            "noreferrer noopener"
+          )
         }
         fullWidth
       />
@@ -219,8 +228,8 @@ const RegisterNode = ({ onSuccess, type }: RegisterNodeProps) => {
         onClick={() =>
           window.open(
             `https://docs.taraxa.io/node-setup/proof_owership`,
-            '_blank',
-            'noreferrer noopener',
+            "_blank",
+            "noreferrer noopener"
           )
         }
         fullWidth

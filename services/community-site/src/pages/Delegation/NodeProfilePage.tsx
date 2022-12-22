@@ -1,19 +1,25 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import { useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { useParams } from "react-router-dom";
 
-import { AmountCard, Button, Checkbox, Icons, ProfileIcon } from '@taraxa_project/taraxa-ui';
+import {
+  AmountCard,
+  Button,
+  Checkbox,
+  Icons,
+  ProfileIcon,
+} from "@taraxa_project/taraxa-ui";
 
-import { useAuth } from '../../services/useAuth';
+import { useAuth } from "../../services/useAuth";
 
-import Title from '../../components/Title/Title';
-import { useDelegationApi } from '../../services/useApi';
-import Delegation from '../../interfaces/Delegation';
-import PublicNode from '../../interfaces/PublicNode';
+import Title from "../../components/Title/Title";
+import { useDelegationApi } from "../../services/useApi";
+import Delegation from "../../interfaces/Delegation";
+import PublicNode from "../../interfaces/PublicNode";
 
-import './node-profile-page.scss';
-import Modals from './Modal/Modals';
-import useCMetamask from '../../services/useCMetamask';
+import "./node-profile-page.scss";
+import Modals from "./Modal/Modals";
+import useCMetamask from "../../services/useCMetamask";
 
 interface BarFlexProps {
   communityDelegated: number;
@@ -21,7 +27,11 @@ interface BarFlexProps {
   availableDelegation: number;
 }
 
-const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
+const BarFlex = ({
+  communityDelegated,
+  selfDelegated,
+  availableDelegation,
+}: BarFlexProps) => {
   let cdParsed = communityDelegated;
   let sdParsed = selfDelegated;
   let adParsed = availableDelegation;
@@ -29,9 +39,12 @@ const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: Bar
     /**
      * Highest number = 100 - sum of lowest numbers
      */
-    if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
-    if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
-    if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
+    if (cdParsed >= sdParsed && cdParsed >= adParsed)
+      cdParsed = 100 - (sdParsed + adParsed);
+    if (sdParsed >= cdParsed && sdParsed >= adParsed)
+      sdParsed = 100 - (cdParsed + adParsed);
+    if (adParsed >= cdParsed && adParsed >= sdParsed)
+      adParsed = 100 - (sdParsed + cdParsed);
   }
   return (
     <div className="barFlex">
@@ -41,7 +54,7 @@ const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: Bar
           width: `${cdParsed}%`,
         }}
       >
-        <div className="barPercentage" style={{ background: '#15AC5B' }} />
+        <div className="barPercentage" style={{ background: "#15AC5B" }} />
       </div>
       <div
         className="percentageAmount"
@@ -49,7 +62,7 @@ const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: Bar
           width: `${sdParsed}%`,
         }}
       >
-        <div className="barPercentage" style={{ background: '#8E8E8E' }} />
+        <div className="barPercentage" style={{ background: "#8E8E8E" }} />
       </div>
       <div
         className="percentageAmount"
@@ -57,7 +70,7 @@ const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: Bar
           width: `${adParsed}%`,
         }}
       >
-        <div className="barPercentage" style={{ background: '#48BDFF' }} />
+        <div className="barPercentage" style={{ background: "#48BDFF" }} />
       </div>
     </div>
   );
@@ -73,13 +86,15 @@ const NodeProfilePage = () => {
   const [delegations, setDelegations] = useState<Delegation[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
   const [delegateToNode, setDelegateToNode] = useState<PublicNode | null>(null);
-  const [undelegateFromNode, setUndelegateFromNode] = useState<PublicNode | null>(null);
+  const [undelegateFromNode, setUndelegateFromNode] =
+    useState<PublicNode | null>(null);
   const { nodeId } = useParams<{ nodeId?: string }>();
   const delegationApi = useDelegationApi();
 
   const isLoggedIn = !!auth.user?.id;
-  const canDelegate = isLoggedIn && status === 'connected' && !!account;
-  const canUndelegate = isLoggedIn && status === 'connected' && !!account && node?.canUndelegate;
+  const canDelegate = isLoggedIn && status === "connected" && !!account;
+  const canUndelegate =
+    isLoggedIn && status === "connected" && !!account && node?.canUndelegate;
 
   const getBalances = useCallback(async () => {
     if (!canDelegate) {
@@ -100,7 +115,7 @@ const NodeProfilePage = () => {
 
   const fetchDelegators = useCallback(async () => {
     const data = await delegationApi.get(
-      `/validators/${nodeId}/delegations?show_my_delegation_at_the_top=${delegationAtTop}&page=${delegationPage}`,
+      `/validators/${nodeId}/delegations?show_my_delegation_at_the_top=${delegationAtTop}&page=${delegationPage}`
     );
     if (data.success) {
       setDelegations(data.response.data);
@@ -117,20 +132,23 @@ const NodeProfilePage = () => {
     fetchDelegators();
   }, [fetchNode, fetchDelegators, getBalances]);
 
-  const delegationPossible = (node?.totalDelegation || 0) + (node?.remainingDelegation || 0);
+  const delegationPossible =
+    (node?.totalDelegation || 0) + (node?.remainingDelegation || 0);
   const communityDelegated = Math.max(
     Math.round(
-      (((node?.totalDelegation || 0) - (node?.ownDelegation || 0)) / delegationPossible) * 100,
+      (((node?.totalDelegation || 0) - (node?.ownDelegation || 0)) /
+        delegationPossible) *
+        100
     ),
-    1,
+    1
   );
   const selfDelegated = Math.max(
     Math.round(((node?.ownDelegation || 0) / delegationPossible) * 100),
-    1,
+    1
   );
   const availableDelegation = Math.max(
     Math.round(((node?.remainingDelegation || 0) / delegationPossible) * 100),
-    1,
+    1
   );
   const delegationTotalPages = Math.ceil(delegationCount / 20);
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
@@ -173,11 +191,15 @@ const NodeProfilePage = () => {
             <div className="nodeInfoTitle">expected yield</div>
             <div className="nodeInfoContent">{node?.yield.toFixed(2)}%</div>
             <div className="nodeInfoTitle">commission</div>
-            <div className="nodeInfoContent">{node?.currentCommission?.toFixed(2)}%</div>
+            <div className="nodeInfoContent">
+              {node?.currentCommission?.toFixed(2)}%
+            </div>
             {node?.profile?.description && (
               <>
                 <div className="nodeInfoTitle">node operator description</div>
-                <div className="nodeInfoContent">{node?.profile?.description}</div>
+                <div className="nodeInfoContent">
+                  {node?.profile?.description}
+                </div>
               </>
             )}
             {node?.profile?.website && (
@@ -194,20 +216,33 @@ const NodeProfilePage = () => {
               <>
                 <div className="nodeInfoTitle">node active since</div>
                 <div className="nodeInfoContent">{`${nodeActiveSince.getDay()} ${nodeActiveSince
-                  .toLocaleString('en-US', { month: 'short' })
-                  .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
+                  .toLocaleString("en-US", { month: "short" })
+                  .toUpperCase()} ${nodeActiveSince
+                  .getFullYear()
+                  .toString()
+                  .substring(2)}`}</div>
               </>
             )}
           </div>
           <div className="nodeDelegationColumn">
             <div className="taraContainerWrapper">
               <div className="taraContainer">
-                <AmountCard amount={ethers.utils.commify(node?.remainingDelegation)} unit="TARA" />
-                <div className="taraContainerAmountDescription">Available for delegation</div>
+                <AmountCard
+                  amount={ethers.utils.commify(node?.remainingDelegation)}
+                  unit="TARA"
+                />
+                <div className="taraContainerAmountDescription">
+                  Available for delegation
+                </div>
               </div>
               <div className="taraContainer">
-                <AmountCard amount={ethers.utils.commify(node?.totalDelegation)} unit="TARA" />
-                <div className="taraContainerAmountDescription">Total delegated</div>
+                <AmountCard
+                  amount={ethers.utils.commify(node?.totalDelegation)}
+                  unit="TARA"
+                />
+                <div className="taraContainerAmountDescription">
+                  Total delegated
+                </div>
               </div>
             </div>
             <div className="nodeDelegationSplit">
@@ -225,15 +260,24 @@ const NodeProfilePage = () => {
               </div>
               <div className="percentageLegends">
                 <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#15AC5B' }} />
+                  <div
+                    className="legendColor"
+                    style={{ background: "#15AC5B" }}
+                  />
                   community-delegated
                 </div>
                 <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#8E8E8E' }} />
+                  <div
+                    className="legendColor"
+                    style={{ background: "#8E8E8E" }}
+                  />
                   self-delegated
                 </div>
                 <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#48BDFF' }} />
+                  <div
+                    className="legendColor"
+                    style={{ background: "#48BDFF" }}
+                  />
                   available for delegation
                 </div>
               </div>
@@ -278,7 +322,10 @@ const NodeProfilePage = () => {
                 <Button
                   className="paginationButton"
                   onClick={() => setDelegationPage(delegationPage + 1)}
-                  disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
+                  disabled={
+                    delegationCount <= 20 ||
+                    delegationPage === delegationTotalPages
+                  }
                   Icon={Icons.Right}
                 />
               </div>
@@ -294,10 +341,16 @@ const NodeProfilePage = () => {
                     <span>{id + 1 + offsetIndex}.</span> {delegator.address}
                   </div>
                   <div className="badges">
-                    {delegator.isSelfDelegation && <div className="selfStake">self-stake</div>}
-                    {delegator.isOwnDelegation && <div className="ownStake">your delegation</div>}
+                    {delegator.isSelfDelegation && (
+                      <div className="selfStake">self-stake</div>
+                    )}
+                    {delegator.isOwnDelegation && (
+                      <div className="ownStake">your delegation</div>
+                    )}
                   </div>
-                  <div className="amount">{ethers.utils.commify(delegator.value)} TARA</div>
+                  <div className="amount">
+                    {ethers.utils.commify(delegator.value)} TARA
+                  </div>
                 </div>
               ))}
             </div>

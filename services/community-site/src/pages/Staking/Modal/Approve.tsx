@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, Loading } from '@taraxa_project/taraxa-ui';
+import React from "react";
+import { Text, Loading } from "@taraxa_project/taraxa-ui";
 
 interface ApproveProps {
   amount: string;

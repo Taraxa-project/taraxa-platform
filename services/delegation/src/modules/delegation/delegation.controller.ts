@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -7,50 +7,50 @@ import {
   ApiSecurity,
   ApiTags,
   ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
-import { User } from '../user/user.decorator';
-import { JwtUser } from '../user/jwt-user.type';
-import { DelegationService } from './delegation.service';
-import { Delegation } from './delegation.entity';
-import { CreateDelegationDto } from './dto/create-delegation.dto';
-import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
+} from "@nestjs/swagger";
+import { User } from "../user/user.decorator";
+import { JwtUser } from "../user/jwt-user.type";
+import { DelegationService } from "./delegation.service";
+import { Delegation } from "./delegation.entity";
+import { CreateDelegationDto } from "./dto/create-delegation.dto";
+import { CreateDelegationNonceDto } from "./dto/create-delegation-nonce.dto";
 
-@ApiTags('delegations')
-@ApiSecurity('bearer')
-@Controller('delegations')
+@ApiTags("delegations")
+@ApiSecurity("bearer")
+@Controller("delegations")
 export class DelegationController {
   constructor(private delegationService: DelegationService) {}
 
-  @ApiOkResponse({ description: 'Delegations found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ description: "Delegations found" })
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
   @Get()
   find(@User() user: JwtUser): Promise<Delegation[]> {
     return this.delegationService.find(user.id);
   }
 
   @ApiCreatedResponse({
-    description: 'The nonce has been successfully created',
+    description: "The nonce has been successfully created",
   })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @Post('nonces')
+  @ApiBadRequestResponse({ description: "Validation failed" })
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
+  @Post("nonces")
   async createNonce(
     @User() user: JwtUser,
-    @Body() nonceDto: CreateDelegationNonceDto,
+    @Body() nonceDto: CreateDelegationNonceDto
   ): Promise<string> {
     return this.delegationService.createDelegationNonce(user.id, nonceDto);
   }
 
   @ApiCreatedResponse({
-    description: 'The delegation has been successfully created',
+    description: "The delegation has been successfully created",
   })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
-  @ApiNotFoundResponse({ description: 'Not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: "Validation failed" })
+  @ApiNotFoundResponse({ description: "Not found" })
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
   @Post()
   create(
     @User() user: JwtUser,
-    @Body() delegation: CreateDelegationDto,
+    @Body() delegation: CreateDelegationDto
   ): Promise<Delegation> {
     return this.delegationService.create(user.id, delegation);
   }

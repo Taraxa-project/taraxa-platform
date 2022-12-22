@@ -1,40 +1,40 @@
-import * as ethUtil from 'ethereumjs-util';
-import moment from 'moment';
-import { ethers } from 'ethers';
+import * as ethUtil from "ethereumjs-util";
+import moment from "moment";
+import { ethers } from "ethers";
 import {
   Connection,
   FindConditions,
   FindOneOptions,
   Raw,
   Repository,
-} from 'typeorm';
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ValidationException } from '../utils/exceptions/validation.exception';
-import { Node } from '../node/node.entity';
-import { NodeType } from '../node/node-type.enum';
-import { StakingService } from '../staking/staking.service';
+} from "typeorm";
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { ValidationException } from "../utils/exceptions/validation.exception";
+import { Node } from "../node/node.entity";
+import { NodeType } from "../node/node-type.enum";
+import { StakingService } from "../staking/staking.service";
 import {
   BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
   BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
-} from '../blockchain/blockchain.constant';
-import { BlockchainService } from '../blockchain/blockchain.service';
-import { Delegation } from './delegation.entity';
-import { DelegationNonce } from './delegation-nonce.entity';
+} from "../blockchain/blockchain.constant";
+import { BlockchainService } from "../blockchain/blockchain.service";
+import { Delegation } from "./delegation.entity";
+import { DelegationNonce } from "./delegation-nonce.entity";
 import {
   DELEGATION_CREATED_EVENT,
   DELEGATION_DELETED_EVENT,
-} from './delegation.constants';
-import { DelegationCreatedEvent } from './event/delegation-created.event';
-import { DelegationDeletedEvent } from './event/delegation-deleted.event';
-import { CreateDelegationDto } from './dto/create-delegation.dto';
-import { CreateUndelegationDto } from './dto/create-undelegation.dto';
-import { CreateDelegationNonceDto } from './dto/create-delegation-nonce.dto';
-import { CreateUndelegationNonceDto } from './dto/create-undelegation-nonce.dto';
-import { BalancesDto } from './dto/balances.dto';
-import { BalancesByNodeDto } from './dto/balances-by-node.dto';
+} from "./delegation.constants";
+import { DelegationCreatedEvent } from "./event/delegation-created.event";
+import { DelegationDeletedEvent } from "./event/delegation-deleted.event";
+import { CreateDelegationDto } from "./dto/create-delegation.dto";
+import { CreateUndelegationDto } from "./dto/create-undelegation.dto";
+import { CreateDelegationNonceDto } from "./dto/create-delegation-nonce.dto";
+import { CreateUndelegationNonceDto } from "./dto/create-undelegation-nonce.dto";
+import { BalancesDto } from "./dto/balances.dto";
+import { BalancesByNodeDto } from "./dto/balances-by-node.dto";
 
 @Injectable()
 export class DelegationService {
@@ -55,16 +55,16 @@ export class DelegationService {
     @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
     private testnetBlockchainService: BlockchainService,
     @Inject(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN)
-    private mainnetBlockchainService: BlockchainService,
+    private mainnetBlockchainService: BlockchainService
   ) {
     this.testnetDelegationAmount = this.config.get<ethers.BigNumber>(
-      'delegation.testnetDelegation',
+      "delegation.testnetDelegation"
     );
     this.mainnetDelegationAmount = this.config.get<ethers.BigNumber>(
-      'delegation.mainnetDelegation',
+      "delegation.mainnetDelegation"
     );
     this.maxDelegationPerNode = this.config.get<number>(
-      'delegation.maxDelegation',
+      "delegation.maxDelegation"
     );
   }
   async getBalances(address: string): Promise<BalancesDto> {
@@ -78,12 +78,12 @@ export class DelegationService {
   }
   async getBalancesByNode(
     wallet: string,
-    node: number,
+    node: number
   ): Promise<BalancesByNodeDto> {
     const delegated = await this.getUserDelegationsToNode(wallet, node);
     const undelegatable = await this.getUserUndelegatableDelegationsToNode(
       wallet,
-      node,
+      node
     );
     return {
       delegated,
@@ -99,7 +99,7 @@ export class DelegationService {
   async getAndUpdateDelegationNonce(
     user: number,
     address: string,
-    nodeId: number,
+    nodeId: number
   ): Promise<string> {
     const nonceString = await this.getDelegationNonce(user, address, nodeId);
     await this.incrementNonce(user, address, nodeId);
@@ -110,7 +110,7 @@ export class DelegationService {
   async getAndUpdateUndelegationNonce(
     user: number,
     address: string,
-    nodeId: number,
+    nodeId: number
   ): Promise<string> {
     const nonceString = await this.getUndelegationNonce(user, address, nodeId);
     await this.incrementNonce(user, address, nodeId);
@@ -120,7 +120,7 @@ export class DelegationService {
 
   async createDelegationNonce(
     user: number,
-    delegationNonceDto: CreateDelegationNonceDto,
+    delegationNonceDto: CreateDelegationNonceDto
   ): Promise<string> {
     const { from, node } = delegationNonceDto;
     await this.createNonce(user, from, node);
@@ -129,7 +129,7 @@ export class DelegationService {
 
   async createUndelegationNonce(
     user: number,
-    delegationNonceDto: CreateUndelegationNonceDto,
+    delegationNonceDto: CreateUndelegationNonceDto
   ): Promise<string> {
     const { from, node } = delegationNonceDto;
     await this.createNonce(user, from, node);
@@ -138,7 +138,7 @@ export class DelegationService {
 
   async create(
     user: number,
-    delegationDto: CreateDelegationDto,
+    delegationDto: CreateDelegationDto
   ): Promise<Delegation> {
     const node = await this.nodeRepository.findOneOrFail({
       id: delegationDto.node,
@@ -151,10 +151,10 @@ export class DelegationService {
       nonce = await this.getAndUpdateDelegationNonce(
         user,
         delegationDto.from,
-        node.id,
+        node.id
       );
     } catch (e) {
-      throw new ValidationException('Nonce not found');
+      throw new ValidationException("Nonce not found");
     }
 
     const nonceBuffer = ethUtil.toBuffer(ethUtil.fromUtf8(nonce));
@@ -164,36 +164,36 @@ export class DelegationService {
     try {
       const { v, r, s } = ethUtil.fromRpcSig(delegationDto.proof);
       address = ethUtil.bufferToHex(
-        ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
+        ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s))
       );
     } catch (e) {
-      throw new ValidationException('Invalid proof');
+      throw new ValidationException("Invalid proof");
     }
 
     if (
       address.toLocaleLowerCase() !== delegationDto.from.toLocaleLowerCase()
     ) {
-      throw new ValidationException('Invalid proof');
+      throw new ValidationException("Invalid proof");
     }
 
     const totalUserStake = await this.stakingService.getStakingAmount(
-      delegationDto.from,
+      delegationDto.from
     );
     const userDelegations = await this.getUserDelegations(delegationDto.from);
     if (userDelegations + delegationDto.value > totalUserStake) {
       throw new ValidationException(
-        'Maximum stake exceeded. User can only delegate ' +
+        "Maximum stake exceeded. User can only delegate " +
           (totalUserStake - userDelegations) +
-          ' more tokens.',
+          " more tokens."
       );
     }
 
     const nodeDelegations = await this.getTotalNodeDelegation(node.id);
     if (nodeDelegations + delegationDto.value > this.maxDelegationPerNode) {
       throw new ValidationException(
-        'Maximum delegation exceeded. Node can only be delegated ' +
+        "Maximum delegation exceeded. Node can only be delegated " +
           (this.maxDelegationPerNode - nodeDelegations) +
-          ' more tokens.',
+          " more tokens."
       );
     }
 
@@ -205,7 +205,7 @@ export class DelegationService {
 
     this.eventEmitter.emit(
       DELEGATION_CREATED_EVENT,
-      new DelegationCreatedEvent(createdDelegation.id),
+      new DelegationCreatedEvent(createdDelegation.id)
     );
 
     return createdDelegation;
@@ -213,7 +213,7 @@ export class DelegationService {
 
   async delete(
     user: number,
-    undelegationDto: CreateUndelegationDto,
+    undelegationDto: CreateUndelegationDto
   ): Promise<void> {
     const node = await this.nodeRepository.findOneOrFail({
       id: undelegationDto.node,
@@ -226,10 +226,10 @@ export class DelegationService {
       nonce = await this.getAndUpdateUndelegationNonce(
         user,
         undelegationDto.from,
-        node.id,
+        node.id
       );
     } catch (e) {
-      throw new ValidationException('Nonce not found');
+      throw new ValidationException("Nonce not found");
     }
 
     const nonceBuffer = ethUtil.toBuffer(ethUtil.fromUtf8(nonce));
@@ -239,25 +239,25 @@ export class DelegationService {
     try {
       const { v, r, s } = ethUtil.fromRpcSig(undelegationDto.proof);
       address = ethUtil.bufferToHex(
-        ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s)),
+        ethUtil.pubToAddress(ethUtil.ecrecover(nonceHash, v, r, s))
       );
     } catch (e) {
-      throw new ValidationException('Invalid proof');
+      throw new ValidationException("Invalid proof");
     }
 
     if (
       address.toLocaleLowerCase() !== undelegationDto.from.toLocaleLowerCase()
     ) {
-      throw new ValidationException('Invalid proof');
+      throw new ValidationException("Invalid proof");
     }
 
     const totalUndelegatable = await this.getUserUndelegatableDelegationsToNode(
       undelegationDto.from,
-      node.id,
+      node.id
     );
     if (undelegationDto.value > totalUndelegatable) {
       throw new ValidationException(
-        `Can only undelegate ${totalUndelegatable} tokens`,
+        `Can only undelegate ${totalUndelegatable} tokens`
       );
     }
 
@@ -265,13 +265,13 @@ export class DelegationService {
       undelegationDto.from,
       undelegationDto.value,
       user,
-      node,
+      node
     );
   }
 
   async findDelegationByOrFail(
     conditions: FindConditions<Delegation>,
-    options?: FindOneOptions<Delegation>,
+    options?: FindOneOptions<Delegation>
   ): Promise<Delegation> {
     return this.delegationRepository.findOneOrFail(conditions, options);
   }
@@ -303,12 +303,12 @@ export class DelegationService {
     }
 
     // Amount of delegation the node has
-    let currentDelegation = ethers.BigNumber.from('0');
+    let currentDelegation = ethers.BigNumber.from("0");
     let isNodeRegistered = false;
     try {
       if (type === NodeType.TESTNET) {
         const validator = await this.testnetBlockchainService.getValidator(
-          address,
+          address
         );
         currentDelegation = validator.total_stake;
         isNodeRegistered = true;
@@ -316,13 +316,13 @@ export class DelegationService {
 
       if (type === NodeType.MAINNET) {
         const validator = await this.mainnetBlockchainService.getValidator(
-          address,
+          address
         );
         currentDelegation = validator.total_stake;
         isNodeRegistered = true;
       }
     } catch (e) {
-      currentDelegation = ethers.BigNumber.from('0');
+      currentDelegation = ethers.BigNumber.from("0");
     }
 
     if (currentDelegation.eq(totalNodeDelegation)) {
@@ -340,7 +340,7 @@ export class DelegationService {
             await this.testnetBlockchainService.registerValidator(
               address,
               node.addressProof,
-              node.vrfKey,
+              node.vrfKey
             );
         }
         if (type === NodeType.MAINNET) {
@@ -348,11 +348,11 @@ export class DelegationService {
             await this.mainnetBlockchainService.registerValidator(
               address,
               node.addressProof,
-              node.vrfKey,
+              node.vrfKey
             );
           if (isCreatedOnchain) {
             toDelegate = totalNodeDelegation.sub(
-              this.mainnetBlockchainService.defaultDelegationAmount,
+              this.mainnetBlockchainService.defaultDelegationAmount
             );
           }
         }
@@ -369,7 +369,7 @@ export class DelegationService {
 
   async getDelegators() {
     const d = this.delegationRepository
-      .createQueryBuilder('d')
+      .createQueryBuilder("d")
       .select('"d"."address"')
       .groupBy('"d"."address"')
       .getRawMany();
@@ -380,7 +380,7 @@ export class DelegationService {
     from: string,
     value: number,
     user?: number,
-    node?: Node,
+    node?: Node
   ): Promise<void> {
     const deleteEvents: number[] = [];
     const createEvents: number[] = [];
@@ -388,7 +388,7 @@ export class DelegationService {
     let delegations: Delegation[];
     await this.connection.transaction(async (manager) => {
       const delegationRepository =
-        manager.getRepository<Delegation>('Delegation');
+        manager.getRepository<Delegation>("Delegation");
       let where: {
         user?: number;
         node?: Node;
@@ -414,9 +414,9 @@ export class DelegationService {
           }),
         },
         order: {
-          createdAt: 'ASC',
+          createdAt: "ASC",
         },
-        relations: ['node'],
+        relations: ["node"],
       });
 
       let remaining = value;
@@ -451,7 +451,7 @@ export class DelegationService {
     for (const deleteEvent of deleteEvents) {
       this.eventEmitter.emit(
         DELEGATION_DELETED_EVENT,
-        new DelegationDeletedEvent(deleteEvent),
+        new DelegationDeletedEvent(deleteEvent)
       );
       console.log(new DelegationDeletedEvent(deleteEvent));
     }
@@ -459,7 +459,7 @@ export class DelegationService {
     for (const createEvent of createEvents) {
       this.eventEmitter.emit(
         DELEGATION_CREATED_EVENT,
-        new DelegationCreatedEvent(createEvent),
+        new DelegationCreatedEvent(createEvent)
       );
       console.log(new DelegationCreatedEvent(createEvent));
     }
@@ -468,7 +468,7 @@ export class DelegationService {
   private async getDelegationNonce(
     user: number,
     address: string,
-    nodeId: number,
+    nodeId: number
   ): Promise<string> {
     const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
@@ -486,7 +486,7 @@ export class DelegationService {
   private async getUndelegationNonce(
     user: number,
     address: string,
-    nodeId: number,
+    nodeId: number
   ): Promise<string> {
     const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
@@ -504,7 +504,7 @@ export class DelegationService {
   private async createNonce(
     user: number,
     address: string,
-    nodeId: number,
+    nodeId: number
   ): Promise<void> {
     const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
@@ -530,7 +530,7 @@ export class DelegationService {
   private async incrementNonce(
     user: number,
     address: string,
-    nodeId: number,
+    nodeId: number
   ): Promise<void> {
     const node = await this.nodeRepository.findOneOrFail({
       id: nodeId,
@@ -549,8 +549,8 @@ export class DelegationService {
 
   private async getTotalNodeDelegation(nodeId: number) {
     const d = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
+      .createQueryBuilder("d")
+      .select('SUM("d"."value")', "total")
       .where('"d"."nodeId" = :node', { node: nodeId })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
@@ -558,8 +558,8 @@ export class DelegationService {
 
   private async getUserDelegations(address: string) {
     const d = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
+      .createQueryBuilder("d")
+      .select('SUM("d"."value")', "total")
       .where('LOWER("d"."address") = LOWER(:address)', { address })
       .getRawOne();
     return parseInt(d.total, 10) || 0;
@@ -567,8 +567,8 @@ export class DelegationService {
 
   private async getUserDelegationsToNode(address: string, node: number) {
     const d = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
+      .createQueryBuilder("d")
+      .select('SUM("d"."value")', "total")
       .where('LOWER("d"."address") = LOWER(:address)', { address })
       .andWhere('"d"."nodeId" = :node', { node })
       .getRawOne();
@@ -577,15 +577,15 @@ export class DelegationService {
 
   private async getUserUndelegatableDelegationsToNode(
     address: string,
-    node: number,
+    node: number
   ) {
     const d = await this.delegationRepository
-      .createQueryBuilder('d')
-      .select('SUM("d"."value")', 'total')
+      .createQueryBuilder("d")
+      .select('SUM("d"."value")', "total")
       .where('LOWER("d"."address") = LOWER(:address)', { address })
       .andWhere('"d"."nodeId" = :node', { node })
       .andWhere('"d"."createdAt" < :date', {
-        date: moment().utc().subtract(5, 'days').utc().toDate(),
+        date: moment().utc().subtract(5, "days").utc().toDate(),
       })
       .getRawOne();
     return parseInt(d.total, 10) || 0;

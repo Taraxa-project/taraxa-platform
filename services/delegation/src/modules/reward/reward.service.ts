@@ -1,28 +1,28 @@
-import assert from 'assert';
-import moment from 'moment';
-import * as ethers from 'ethers';
-import { Raw, Repository } from 'typeorm';
-import { Interval } from '@flatten-js/interval-tree';
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
-import { UserService } from '../user/user.service';
-import { RewardQueryDto } from './dto/reward-query.dto';
-import { StakingDataService } from './data/staking-data.service';
+import assert from "assert";
+import moment from "moment";
+import * as ethers from "ethers";
+import { Raw, Repository } from "typeorm";
+import { Interval } from "@flatten-js/interval-tree";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ConfigService } from "@nestjs/config";
+import { UserService } from "../user/user.service";
+import { RewardQueryDto } from "./dto/reward-query.dto";
+import { StakingDataService } from "./data/staking-data.service";
 import {
   DelegationIntervalValue,
   DelegationDataService,
-} from './data/delegation-data.service';
-import { Epoch, getEpochs } from './helper/epoch';
-import { Period, getPeriods } from './helper/period';
-import { calculateYieldFor } from './helper/yield';
+} from "./data/delegation-data.service";
+import { Epoch, getEpochs } from "./helper/epoch";
+import { Period, getPeriods } from "./helper/period";
+import { calculateYieldFor } from "./helper/yield";
 
-import { Delegation } from '../delegation/delegation.entity';
-import { Node } from '../node/node.entity';
-import { NodeCommission } from '../node/node-commission.entity';
-import { Reward } from './reward.entity';
-import { RewardRepository } from './reward.repository';
-import { RewardType } from './reward-type.enum';
+import { Delegation } from "../delegation/delegation.entity";
+import { Node } from "../node/node.entity";
+import { NodeCommission } from "../node/node-commission.entity";
+import { Reward } from "./reward.entity";
+import { RewardRepository } from "./reward.repository";
+import { RewardType } from "./reward-type.enum";
 
 @Injectable()
 export class RewardService {
@@ -33,16 +33,16 @@ export class RewardService {
     @InjectRepository(Reward)
     private rewardRepository: RewardRepository,
     private config: ConfigService,
-    private userService: UserService,
+    private userService: UserService
   ) {
     this.eligibilityThreshold = this.config.get<number>(
-      'delegation.eligibilityThreshold',
+      "delegation.eligibilityThreshold"
     );
   }
   async calculateRewardsForNextEpoch(endTime = moment().utc().unix()) {
     const e = await this.rewardRepository
-      .createQueryBuilder('r')
-      .select('MAX("r"."epoch")', 'epoch')
+      .createQueryBuilder("r")
+      .select('MAX("r"."epoch")', "epoch")
       .getRawOne();
     const epoch = parseInt(e.epoch, 10) + 1 || 0;
 
@@ -62,7 +62,7 @@ export class RewardService {
   }
   async calculateRewardsForEpoch(
     epoch: number,
-    endTime = moment().utc().unix(),
+    endTime = moment().utc().unix()
   ) {
     await this.rewardRepository.delete({
       epoch,
@@ -87,26 +87,26 @@ export class RewardService {
     for (const epoch of epochs) {
       await this.calculateForEpoch(epoch, stakingData, delegationData);
     }
-    console.log('done');
+    console.log("done");
   }
   async getRewards(query: RewardQueryDto) {
     const { type, epoch, user, address } = query;
 
     let rewardsQuery = this.rewardRepository
-      .createQueryBuilder('r')
-      .leftJoinAndMapOne('r.node', Node, 'n', 'r.node = n.id')
-      .orderBy('r.epoch', 'ASC')
-      .addOrderBy('r.startsAt', 'ASC')
+      .createQueryBuilder("r")
+      .leftJoinAndMapOne("r.node", Node, "n", "r.node = n.id")
+      .orderBy("r.epoch", "ASC")
+      .addOrderBy("r.startsAt", "ASC")
       .withDeleted();
 
     if (type) {
-      rewardsQuery = rewardsQuery.andWhere('r.type = :type', { type });
+      rewardsQuery = rewardsQuery.andWhere("r.type = :type", { type });
     }
     if (epoch) {
-      rewardsQuery = rewardsQuery.andWhere('r.epoch = :epoch', { epoch });
+      rewardsQuery = rewardsQuery.andWhere("r.epoch = :epoch", { epoch });
     }
     if (user) {
-      rewardsQuery = rewardsQuery.andWhere('r.user = :user', { user });
+      rewardsQuery = rewardsQuery.andWhere("r.user = :user", { user });
     }
 
     if (address) {
@@ -138,7 +138,7 @@ export class RewardService {
     console.group(
       `Calculating rewards for epoch ${epoch.epoch} (${moment
         .unix(epoch.startDate)
-        .utc()} - ${moment.unix(epoch.endDate).utc()})`,
+        .utc()} - ${moment.unix(epoch.endDate).utc()})`
     );
     const filterInEpoch = (i: number) =>
       i >= epoch.startDate && i <= epoch.endDate;
@@ -161,18 +161,16 @@ export class RewardService {
           ...stake.events.items
             .map((i) => i.value.startsAt)
             .filter(filterInEpoch),
-          ...stake.events.items
-            .map((i) => i.value.endsAt)
-            .filter(filterInEpoch),
+          ...stake.events.items.map((i) => i.value.endsAt).filter(filterInEpoch)
         );
 
         for (const period of periods) {
           const currentStake = stake.events.search(
-            new Interval(period.startsAt, period.endsAt),
+            new Interval(period.startsAt, period.endsAt)
           );
           assert(
             currentStake.length <= 1,
-            'There should be only one event in the interval',
+            "There should be only one event in the interval"
           );
           if (currentStake.length === 0) {
             continue;
@@ -180,7 +178,7 @@ export class RewardService {
           const currentEvent = currentStake[0].value;
           const stakingReward = calculateYieldFor(
             currentEvent.amount,
-            period.endsAt - period.startsAt,
+            period.endsAt - period.startsAt
           );
 
           if (stakingReward > 0) {
@@ -215,16 +213,16 @@ export class RewardService {
             .filter(filterInEpoch),
           ...node.delegations.items
             .map((i) => i.value.endsAt)
-            .filter(filterInEpoch),
+            .filter(filterInEpoch)
         );
         for (const period of periods) {
           const currentCommissions = node.commissions.search(
-            new Interval(period.startsAt, period.endsAt),
+            new Interval(period.startsAt, period.endsAt)
           );
 
           assert(
             currentCommissions.length <= 1,
-            'There should be only one commission in the interval',
+            "There should be only one commission in the interval"
           );
           if (currentCommissions.length === 0) {
             continue;
@@ -233,7 +231,7 @@ export class RewardService {
           const currentCommission = currentCommissions[0];
           const currentDelegations: DelegationIntervalValue[] = [
             ...node.delegations.search(
-              new Interval(period.startsAt, period.endsAt),
+              new Interval(period.startsAt, period.endsAt)
             ),
           ];
           const totalDelegationAmount = currentDelegations.reduce(
@@ -241,7 +239,7 @@ export class RewardService {
               const delegation = cur.value as Delegation;
               return acc + delegation.value;
             },
-            0,
+            0
           );
 
           if (totalDelegationAmount < this.eligibilityThreshold) {
@@ -253,7 +251,7 @@ export class RewardService {
             const delegationEntity = currentDelegation.value as Delegation;
             const totalBalance = calculateYieldFor(
               delegationEntity.value,
-              period.endsAt - period.startsAt,
+              period.endsAt - period.startsAt
             );
 
             const nodeCommission =
@@ -267,7 +265,7 @@ export class RewardService {
               reward.node = node.node.id;
               reward.user = node.node.user;
               reward.userAddress = await this.getUserAddressById(
-                node.node.user,
+                node.node.user
               );
               reward.value = nodeRewards;
               reward.commission = commissionEntity.value;

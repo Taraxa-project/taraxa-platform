@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import clsx from 'clsx';
-import { ethers } from 'ethers';
-import { useMediaQuery } from 'react-responsive';
+import React, { useState, useEffect, useCallback } from "react";
+import clsx from "clsx";
+import { ethers } from "ethers";
+import { useMediaQuery } from "react-responsive";
 import {
   Modal,
   Notification,
@@ -13,31 +13,38 @@ import {
   Card,
   ProfileIcon,
   AmountCard,
-} from '@taraxa_project/taraxa-ui';
+} from "@taraxa_project/taraxa-ui";
 
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 
-import CloseIcon from '../../assets/icons/close';
-import NodeCommissionChangeIcon from '../../assets/icons/nodeCommissionChange';
-import NodeIcon from '../../assets/icons/node';
-import InfoIcon from '../../assets/icons/info';
+import CloseIcon from "../../assets/icons/close";
+import NodeCommissionChangeIcon from "../../assets/icons/nodeCommissionChange";
+import NodeIcon from "../../assets/icons/node";
+import InfoIcon from "../../assets/icons/info";
 
-import { useAuth } from '../../services/useAuth';
-import { useDelegationApi } from '../../services/useApi';
-import OwnNode from '../../interfaces/OwnNode';
-import Title from '../../components/Title/Title';
+import { useAuth } from "../../services/useAuth";
+import { useDelegationApi } from "../../services/useApi";
+import OwnNode from "../../interfaces/OwnNode";
+import Title from "../../components/Title/Title";
 
-import RegisterNode from './Modal/RegisterNode';
-import CreateOrEditProfile, { Profile } from './Screen/CreateOrEditProfile';
-import EditNode from './Screen/EditNode';
+import RegisterNode from "./Modal/RegisterNode";
+import CreateOrEditProfile, { Profile } from "./Screen/CreateOrEditProfile";
+import EditNode from "./Screen/EditNode";
 
-import './runnode.scss';
+import "./runnode.scss";
 
 interface RunNodeModalProps {
   hasRegisterNodeModal: boolean;
   setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
   getNodes: () => void;
-  nodeType: 'mainnet' | 'testnet';
+  nodeType: "mainnet" | "testnet";
 }
 
 const RunNodeModal = ({
@@ -64,7 +71,7 @@ const RunNodeModal = ({
 
   return (
     <Modal
-      id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+      id={isMobile ? "mobile-signinModal" : "signinModal"}
       title="Register Node"
       show={hasRegisterNodeModal}
       children={modal}
@@ -82,19 +89,27 @@ interface ReferencesProps {
   setHasRegisterNodeModal: (hasRegisterNodeModal: boolean) => void;
 }
 
-const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) => {
+const References = ({
+  isLoggedIn,
+  setHasRegisterNodeModal,
+}: ReferencesProps) => {
   return (
     <div className="box">
-      <Text label="References" variant="h6" color="primary" className="box-title" />
+      <Text
+        label="References"
+        variant="h6"
+        color="primary"
+        className="box-title"
+      />
       <Button
         label="How do I install a node?"
         className="referenceButton"
         variant="contained"
         onClick={() =>
           window.open(
-            'https://docs.taraxa.io/node-setup/testnet_node_setup',
-            '_blank',
-            'noreferrer noopener',
+            "https://docs.taraxa.io/node-setup/testnet_node_setup",
+            "_blank",
+            "noreferrer noopener"
           )
         }
       />
@@ -104,9 +119,9 @@ const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) =>
         variant="contained"
         onClick={() =>
           window.open(
-            'https://docs.taraxa.io/node-setup/node_address',
-            '_blank',
-            'noreferrer noopener',
+            "https://docs.taraxa.io/node-setup/node_address",
+            "_blank",
+            "noreferrer noopener"
           )
         }
       />
@@ -123,9 +138,9 @@ const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) =>
         variant="contained"
         onClick={() =>
           window.open(
-            'https://docs.taraxa.io/node-setup/upgrade-a-node/software-upgrade',
-            '_blank',
-            'noreferrer noopener',
+            "https://docs.taraxa.io/node-setup/upgrade-a-node/software-upgrade",
+            "_blank",
+            "noreferrer noopener"
           )
         }
       />
@@ -135,9 +150,9 @@ const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) =>
         variant="contained"
         onClick={() =>
           window.open(
-            'https://docs.taraxa.io/node-setup/upgrade-a-node/data-reset',
-            '_blank',
-            'noreferrer noopener',
+            "https://docs.taraxa.io/node-setup/upgrade-a-node/data-reset",
+            "_blank",
+            "noreferrer noopener"
           )
         }
       />
@@ -145,7 +160,13 @@ const References = ({ isLoggedIn, setHasRegisterNodeModal }: ReferencesProps) =>
         label="I need help!"
         className="referenceButton"
         variant="contained"
-        onClick={() => window.open('https://taraxa.io/discord', '_blank', 'noreferrer noopener')}
+        onClick={() =>
+          window.open(
+            "https://taraxa.io/discord",
+            "_blank",
+            "noreferrer noopener"
+          )
+        }
       />
     </div>
   );
@@ -159,15 +180,17 @@ const RunNode = () => {
 
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [nodeType, setNodeType] = useState<'mainnet' | 'testnet'>('mainnet');
+  const [nodeType, setNodeType] = useState<"mainnet" | "testnet">("mainnet");
   const [hasRegisterNodeModal, setHasRegisterNodeModal] = useState(false);
-  const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
+  const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(
+    null
+  );
 
   const [nodes, setNodes] = useState<OwnNode[]>([]);
   const [mainnetNodes, setMainnetNodes] = useState<OwnNode[]>([]);
   const [testnetNodes, setTestnetNodes] = useState<OwnNode[]>([]);
-  const [blocksProduced, setBlocksProduced] = useState('0');
-  const [weeklyRating, setWeeklyRating] = useState('N/A');
+  const [blocksProduced, setBlocksProduced] = useState("0");
+  const [weeklyRating, setWeeklyRating] = useState("N/A");
   const [profile, setProfile] = useState<Profile | undefined>(undefined);
 
   const getProfile = useCallback(async () => {
@@ -175,7 +198,7 @@ const RunNode = () => {
       return;
     }
 
-    const data = await delegationApi.get('/profiles', true);
+    const data = await delegationApi.get("/profiles", true);
     if (!data.success) {
       return;
     }
@@ -296,9 +319,9 @@ const RunNode = () => {
   }
 
   const rows = nodes.map((node: OwnNode) => {
-    let className = 'dot';
+    let className = "dot";
     if (node.isActive) {
-      className += ' active';
+      className += " active";
     }
     const status = (
       <div className="status">
@@ -306,14 +329,19 @@ const RunNode = () => {
       </div>
     );
 
-    const name = formatNodeName(!node.name || node.name === '' ? node.address : node.name);
+    const name = formatNodeName(
+      !node.name || node.name === "" ? node.address : node.name
+    );
     const expectedYield = `${node.yield}%`;
-    const currentCommission = node.type === 'mainnet' ? `${node.currentCommission}%` : null;
-    const pendingCommission = node.hasPendingCommissionChange ? `${node.pendingCommission}%` : null;
+    const currentCommission =
+      node.type === "mainnet" ? `${node.currentCommission}%` : null;
+    const pendingCommission = node.hasPendingCommissionChange
+      ? `${node.pendingCommission}%`
+      : null;
     const hasPendingCommissionChange = node.hasPendingCommissionChange;
     const totalDelegation = ethers.utils.commify(node.totalDelegation);
     const remainingDelegation = ethers.utils.commify(node.remainingDelegation);
-    const weeklyRank = node.weeklyRank ? `#${node.weeklyRank}` : 'N/A';
+    const weeklyRank = node.weeklyRank ? `#${node.weeklyRank}` : "N/A";
     const weeklyBlocksProduced = node.weeklyBlocksProduced;
 
     const actions = (
@@ -324,7 +352,7 @@ const RunNode = () => {
           variant="contained"
           color="secondary"
           className="smallBtn"
-          style={{ marginBottom: '5px' }}
+          style={{ marginBottom: "5px" }}
           onClick={() => {
             setCurrentEditedNode(node);
           }}
@@ -338,7 +366,7 @@ const RunNode = () => {
           disabled={!node.canDelete}
           onClick={() => {
             const confirmation = window.confirm(
-              "Are you sure you want to delete this node? You won't be able to add a node with the same wallet address.",
+              "Are you sure you want to delete this node? You won't be able to add a node with the same wallet address."
             );
             if (confirmation) {
               deleteNode(node);
@@ -363,7 +391,8 @@ const RunNode = () => {
     };
   });
 
-  const nodeTypeLabel = nodeType === 'mainnet' ? 'Mainnet Candidate' : 'Testnet';
+  const nodeTypeLabel =
+    nodeType === "mainnet" ? "Mainnet Candidate" : "Testnet";
 
   return (
     <div className="runnode">
@@ -408,7 +437,11 @@ const RunNode = () => {
                       className="profileSubtitle"
                     />
                     <p>
-                      <a href={profile.website} rel="noreferrer" target="_blank">
+                      <a
+                        href={profile.website}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
                         {profile.website}
                       </a>
                     </p>
@@ -416,7 +449,12 @@ const RunNode = () => {
                 )}
                 {profile.social && (
                   <>
-                    <Text label="Social" variant="h6" color="primary" className="profileSubtitle" />
+                    <Text
+                      label="Social"
+                      variant="h6"
+                      color="primary"
+                      className="profileSubtitle"
+                    />
                     <p>
                       <a href={profile.social} rel="noreferrer" target="_blank">
                         {profile.social}
@@ -427,17 +465,29 @@ const RunNode = () => {
               </div>
               <div className="nodeProfileNodesInfo">
                 <div className="userNodeInfo">
-                  <AmountCard unit="Mainnet nodes" amount={mainnetNodes.length.toString()} />
-                  <AmountCard unit="Testnet nodes" amount={testnetNodes.length.toString()} />
                   <AmountCard
-                    unit="TARA"
-                    amount={mainnetNodes.reduce((a, b) => a + b.totalDelegation, 0).toString()}
+                    unit="Mainnet nodes"
+                    amount={mainnetNodes.length.toString()}
+                  />
+                  <AmountCard
+                    unit="Testnet nodes"
+                    amount={testnetNodes.length.toString()}
                   />
                   <AmountCard
                     unit="TARA"
-                    amount={mainnetNodes.reduce((a, b) => a + b.remainingDelegation, 0).toString()}
+                    amount={mainnetNodes
+                      .reduce((a, b) => a + b.totalDelegation, 0)
+                      .toString()}
                   />
-                  <div className="boxLegend">Delegation received on mainnet</div>
+                  <AmountCard
+                    unit="TARA"
+                    amount={mainnetNodes
+                      .reduce((a, b) => a + b.remainingDelegation, 0)
+                      .toString()}
+                  />
+                  <div className="boxLegend">
+                    Delegation received on mainnet
+                  </div>
                   <div className="boxLegend">Open delegation on mainnet</div>
                 </div>
                 <Button
@@ -450,7 +500,10 @@ const RunNode = () => {
             </Card>
           ) : (
             <Card className="noProfile">
-              <p>Setup your node runner profile to be able to register Mainnet nodes.</p>
+              <p>
+                Setup your node runner profile to be able to register Mainnet
+                nodes.
+              </p>
               <Button
                 type="submit"
                 label="Create profile"
@@ -476,23 +529,34 @@ const RunNode = () => {
           <div className="nodeTypes">
             <div className="nodeTitleContainer">
               <NodeIcon />
-              <Text label="My nodes" variant="h6" color="primary" className="box-title" />
+              <Text
+                label="My nodes"
+                variant="h6"
+                color="primary"
+                className="box-title"
+              />
               <Button
                 size="small"
-                className={clsx('nodeTypeTab', nodeType === 'mainnet' && 'active')}
+                className={clsx(
+                  "nodeTypeTab",
+                  nodeType === "mainnet" && "active"
+                )}
                 label="Mainnet Candidate"
                 variant="contained"
                 onClick={() => {
-                  setNodeType('mainnet');
+                  setNodeType("mainnet");
                 }}
               />
               <Button
                 size="small"
-                className={clsx('nodeTypeTab', nodeType === 'testnet' && 'active')}
+                className={clsx(
+                  "nodeTypeTab",
+                  nodeType === "testnet" && "active"
+                )}
                 label="Testnet"
                 variant="contained"
                 onClick={() => {
-                  setNodeType('testnet');
+                  setNodeType("testnet");
                 }}
               />
             </div>
@@ -500,13 +564,13 @@ const RunNode = () => {
               size="medium"
               className="registerNode"
               label={
-                nodeType === 'mainnet' && !profile
+                nodeType === "mainnet" && !profile
                   ? `Please create your profile to register a node (on the ${nodeTypeLabel})`
                   : `Register a node (on the ${nodeTypeLabel})`
               }
               variant="contained"
               color="secondary"
-              disabled={nodeType === 'mainnet' && !profile}
+              disabled={nodeType === "mainnet" && !profile}
               onClick={() => setHasRegisterNodeModal(true)}
             />
           </div>
@@ -536,14 +600,14 @@ const RunNode = () => {
               <IconCard
                 title="Register a node"
                 description={
-                  nodeType === 'mainnet' && !profile
-                    ? 'Please create your profile to register a node.'
-                    : 'Register a node you’ve aleady set up.'
+                  nodeType === "mainnet" && !profile
+                    ? "Please create your profile to register a node."
+                    : "Register a node you’ve aleady set up."
                 }
                 onClickText={`Register a node (on the ${nodeTypeLabel})`}
                 onClickButton={() => setHasRegisterNodeModal(true)}
                 Icon={NodeIcon}
-                disabled={!isLoggedIn || (nodeType === 'mainnet' && !profile)}
+                disabled={!isLoggedIn || (nodeType === "mainnet" && !profile)}
               />
               <IconCard
                 title="Set up a node"
@@ -551,9 +615,9 @@ const RunNode = () => {
                 onClickText="Set up a node"
                 onClickButton={() =>
                   window.open(
-                    'https://docs.taraxa.io/node-setup/testnet_node_setup',
-                    '_blank',
-                    'noreferrer noopener',
+                    "https://docs.taraxa.io/node-setup/testnet_node_setup",
+                    "_blank",
+                    "noreferrer noopener"
                   )
                 }
                 Icon={NodeIcon}
@@ -568,16 +632,26 @@ const RunNode = () => {
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell">Status</TableCell>
                   <TableCell className="tableHeadCell">Name</TableCell>
-                  <TableCell className="tableHeadCell">Expected Yield</TableCell>
-                  {nodeType === 'mainnet' && (
+                  <TableCell className="tableHeadCell">
+                    Expected Yield
+                  </TableCell>
+                  {nodeType === "mainnet" && (
                     <>
-                      <TableCell className="tableHeadCell">Commission</TableCell>
-                      <TableCell className="tableHeadCell">Delegation</TableCell>
-                      <TableCell className="tableHeadCell">Available for Delegation</TableCell>
+                      <TableCell className="tableHeadCell">
+                        Commission
+                      </TableCell>
+                      <TableCell className="tableHeadCell">
+                        Delegation
+                      </TableCell>
+                      <TableCell className="tableHeadCell">
+                        Available for Delegation
+                      </TableCell>
                     </>
                   )}
-                  {nodeType === 'testnet' && (
-                    <TableCell className="tableHeadCell">Number of blocks produced</TableCell>
+                  {nodeType === "testnet" && (
+                    <TableCell className="tableHeadCell">
+                      Number of blocks produced
+                    </TableCell>
                   )}
                   <TableCell className="tableHeadCell" colSpan={2}>
                     Ranking
@@ -589,29 +663,40 @@ const RunNode = () => {
                   <TableRow className="tableRow" key={id}>
                     <TableCell className="tableCell">{row.status}</TableCell>
                     <TableCell className="tableCell">{row.name}</TableCell>
-                    <TableCell className="tableCell">{row.expectedYield}</TableCell>
-                    {nodeType === 'mainnet' && (
+                    <TableCell className="tableCell">
+                      {row.expectedYield}
+                    </TableCell>
+                    {nodeType === "mainnet" && (
                       <>
                         <TableCell className="tableCell">
                           {row.hasPendingCommissionChange ? (
                             <>
-                              <NodeCommissionChangeIcon />{' '}
+                              <NodeCommissionChangeIcon />{" "}
                               <span className="commissionDisplayPendingChange">
-                                {row.currentCommission} ➞ {row.pendingCommission}
+                                {row.currentCommission} ➞{" "}
+                                {row.pendingCommission}
                               </span>
                             </>
                           ) : (
                             row.currentCommission
                           )}
                         </TableCell>
-                        <TableCell className="tableCell">{row.totalDelegation}</TableCell>
-                        <TableCell className="tableCell">{row.remainingDelegation}</TableCell>
+                        <TableCell className="tableCell">
+                          {row.totalDelegation}
+                        </TableCell>
+                        <TableCell className="tableCell">
+                          {row.remainingDelegation}
+                        </TableCell>
                       </>
                     )}
-                    {nodeType === 'testnet' && (
-                      <TableCell className="tableCell">{row.weeklyBlocksProduced}</TableCell>
+                    {nodeType === "testnet" && (
+                      <TableCell className="tableCell">
+                        {row.weeklyBlocksProduced}
+                      </TableCell>
                     )}
-                    <TableCell className="tableCell">{row.weeklyRank}</TableCell>
+                    <TableCell className="tableCell">
+                      {row.weeklyRank}
+                    </TableCell>
                     <TableCell className="tableCell" align="right">
                       {row.actions}
                     </TableCell>
@@ -621,7 +706,10 @@ const RunNode = () => {
             </Table>
           </TableContainer>
         )}
-        <References isLoggedIn={isLoggedIn} setHasRegisterNodeModal={setHasRegisterNodeModal} />
+        <References
+          isLoggedIn={isLoggedIn}
+          setHasRegisterNodeModal={setHasRegisterNodeModal}
+        />
       </div>
     </div>
   );

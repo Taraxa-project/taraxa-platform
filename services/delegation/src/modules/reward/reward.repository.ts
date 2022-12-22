@@ -1,6 +1,6 @@
-import { EntityRepository, Raw, Repository } from 'typeorm';
-import { RewardQueryDto } from './dto/reward-query.dto';
-import { Reward } from './reward.entity';
+import { EntityRepository, Raw, Repository } from "typeorm";
+import { RewardQueryDto } from "./dto/reward-query.dto";
+import { Reward } from "./reward.entity";
 
 export interface TotalReward {
   address: string;
@@ -13,19 +13,19 @@ export class RewardRepository extends Repository<Reward> {
     const { type, epoch, user, address } = query;
 
     let rewardsQuery = this.createQueryBuilder()
-      .select(['SUM(value) as amount', 'LOWER(user_address) as address'])
-      .groupBy('address')
-      .where('user_address IS NOT NULL')
-      .orderBy('amount', 'DESC');
+      .select(["SUM(value) as amount", "LOWER(user_address) as address"])
+      .groupBy("address")
+      .where("user_address IS NOT NULL")
+      .orderBy("amount", "DESC");
 
     if (type) {
-      rewardsQuery = rewardsQuery.andWhere('type = :type', { type });
+      rewardsQuery = rewardsQuery.andWhere("type = :type", { type });
     }
     if (epoch) {
-      rewardsQuery = rewardsQuery.andWhere('epoch = :epoch', { epoch });
+      rewardsQuery = rewardsQuery.andWhere("epoch = :epoch", { epoch });
     }
     if (user) {
-      rewardsQuery = rewardsQuery.andWhere('user = :user', { user });
+      rewardsQuery = rewardsQuery.andWhere("user = :user", { user });
     }
 
     if (address) {

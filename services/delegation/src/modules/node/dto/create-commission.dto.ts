@@ -1,5 +1,5 @@
-import { Min, Max } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { Min, Max } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateCommissionDto {
   @Min(0)

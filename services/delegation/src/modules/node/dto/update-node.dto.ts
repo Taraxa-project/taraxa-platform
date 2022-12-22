@@ -1,7 +1,7 @@
-import { PickType } from '@nestjs/swagger';
-import { CreateNodeDto } from './create-node.dto';
+import { PickType } from "@nestjs/swagger";
+import { CreateNodeDto } from "./create-node.dto";
 
 export class UpdateNodeDto extends PickType(CreateNodeDto, [
-  'name',
-  'ip',
+  "name",
+  "ip",
 ] as const) {}

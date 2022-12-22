@@ -1,3 +1,3 @@
-import { CreateNonceDto } from './create-nonce.dto';
+import { CreateNonceDto } from "./create-nonce.dto";
 
 export class CreateDelegationNonceDto extends CreateNonceDto {}

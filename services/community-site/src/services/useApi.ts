@@ -1,7 +1,7 @@
-import { useCallback } from 'react';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { useLoading } from './useLoading';
-import { useAuth } from './useAuth';
+import { useCallback } from "react";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { useLoading } from "./useLoading";
+import { useAuth } from "./useAuth";
 
 abstract class ResponseHandler<T> {
   handleResponse(response: AxiosResponse<any>) {
@@ -29,7 +29,7 @@ class TypedResponseHandler<T> extends ResponseHandler<T> {
 const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
   const { startLoading, finishLoading } = useLoading();
   const auth = useAuth();
-  const token = localStorage.getItem('auth');
+  const token = localStorage.getItem("auth");
 
   const getUrl = useCallback(
     (url: string) => {
@@ -42,7 +42,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
         return parsedUrl.toString();
       }
     },
-    [baseUrl],
+    [baseUrl]
   );
 
   const getOptions = useCallback(
@@ -61,7 +61,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
 
       return options;
     },
-    [token],
+    [token]
   );
 
   const getErrorResponse = useCallback((err: AxiosError) => {
@@ -76,7 +76,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
       auth.setSessionExpired!();
       return {
         success: false,
-        response: 'Session expired',
+        response: "Session expired",
       };
     }
 
@@ -90,7 +90,11 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
   }, []);
 
   const post = useCallback(
-    async <T>(url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
+    async <T>(
+      url: string,
+      data: Record<string, unknown> | FormData,
+      includeToken = false
+    ) => {
       const responseHandler = new TypedResponseHandler<T>();
       const options = getOptions(includeToken);
       startLoading!();
@@ -100,11 +104,15 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
-    [getOptions, getUrl, getErrorResponse],
+    [getOptions, getUrl, getErrorResponse]
   );
 
   const patch = useCallback(
-    async <T>(url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
+    async <T>(
+      url: string,
+      data: Record<string, unknown> | FormData,
+      includeToken = false
+    ) => {
       const responseHandler = new TypedResponseHandler<T>();
       const options = getOptions(includeToken);
       startLoading!();
@@ -114,11 +122,15 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
-    [getOptions, getUrl, getErrorResponse],
+    [getOptions, getUrl, getErrorResponse]
   );
 
   const put = useCallback(
-    async (url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
+    async (
+      url: string,
+      data: Record<string, unknown> | FormData,
+      includeToken = false
+    ) => {
       const responseHandler = new RawResponseHandler();
       const options = getOptions(includeToken);
       startLoading!();
@@ -128,7 +140,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
-    [getOptions, getUrl, getErrorResponse],
+    [getOptions, getUrl, getErrorResponse]
   );
 
   const del = useCallback(
@@ -142,7 +154,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
-    [getOptions, getUrl, getErrorResponse],
+    [getOptions, getUrl, getErrorResponse]
   );
 
   const get = useCallback(
@@ -156,7 +168,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
         .catch((err) => getErrorResponse(err))
         .finally(() => finishLoading!());
     },
-    [getOptions, getUrl, getErrorResponse],
+    [getOptions, getUrl, getErrorResponse]
   );
 
   return { post, put, patch, del, get };

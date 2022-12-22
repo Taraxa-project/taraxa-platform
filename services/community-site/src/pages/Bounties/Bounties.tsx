@@ -1,19 +1,25 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import stringify from 'qs-stringify';
-import { Text, Switch, Pagination } from '@taraxa_project/taraxa-ui';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from "react";
+import stringify from "qs-stringify";
+import { Text, Switch, Pagination } from "@taraxa_project/taraxa-ui";
+import { useHistory } from "react-router-dom";
 
-import PinnedIcon from '../../assets/icons/pinned';
+import PinnedIcon from "../../assets/icons/pinned";
 
-import Title from '../../components/Title/Title';
+import Title from "../../components/Title/Title";
 
-import useApi from '../../services/useApi';
+import useApi from "../../services/useApi";
 
-import { Bounty } from './bounty';
-import BountyCard from './BountyCard';
-import './bounties.scss';
+import { Bounty } from "./bounty";
+import BountyCard from "./BountyCard";
+import "./bounties.scss";
 
-function PinnedBounties({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
+function PinnedBounties({
+  bounties,
+  goTo,
+}: {
+  bounties: Bounty[];
+  goTo: (url: string) => void;
+}) {
   if (bounties.length === 0) {
     return null;
   }
@@ -27,7 +33,12 @@ function PinnedBounties({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: st
       <div className="list-header">
         <div className="legend">
           <PinnedIcon />
-          <Text label="Pinned" variant="body1" color="primary" className="icon-title" />
+          <Text
+            label="Pinned"
+            variant="body1"
+            color="primary"
+            className="icon-title"
+          />
         </div>
       </div>
       <div className="cardContainer pinned">{pinnedBounties}</div>
@@ -35,7 +46,13 @@ function PinnedBounties({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: st
   );
 }
 
-function BountyList({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string) => void }) {
+function BountyList({
+  bounties,
+  goTo,
+}: {
+  bounties: Bounty[];
+  goTo: (url: string) => void;
+}) {
   return (
     <>
       {Array.apply(null, Array(Math.ceil(bounties.length / 3)))
@@ -43,7 +60,9 @@ function BountyList({ bounties, goTo }: { bounties: Bounty[]; goTo: (url: string
         .map((row) => {
           const rows = bounties
             .slice(row * 3, row * 3 + 3)
-            .map((bounty) => <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />);
+            .map((bounty) => (
+              <BountyCard key={bounty.id} bounty={bounty} goTo={goTo} />
+            ));
           return (
             <div key={row} className="cardContainer regular">
               {rows}
@@ -60,7 +79,8 @@ function Bounties() {
 
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [getPinnedBountiesSubmissions, setGetPinnedBountiesSubmissions] = useState(false);
+  const [getPinnedBountiesSubmissions, setGetPinnedBountiesSubmissions] =
+    useState(false);
   const [getBountiesSubmissions, setGetBountiesSubmissions] = useState(false);
   const [pinnedBounties, setPinnedBounties] = useState<Bounty[]>([]);
   const [bounties, setBounties] = useState<Bounty[]>([]);
@@ -89,7 +109,9 @@ function Bounties() {
     async (bounties: Bounty[]): Promise<Bounty[]> => {
       const bountiesWithSubmissions = bounties.map(async (bounty: Bounty) => {
         let submissionsCount = 0;
-        const submissionsCountRequest = await get(`/submissions/count?bounty=${bounty.id}`);
+        const submissionsCountRequest = await get(
+          `/submissions/count?bounty=${bounty.id}`
+        );
         if (submissionsCountRequest.success) {
           submissionsCount = submissionsCountRequest.response;
         }
@@ -102,7 +124,7 @@ function Bounties() {
 
       return await Promise.all(bountiesWithSubmissions);
     },
-    [get],
+    [get]
   );
 
   const getPinnedBounties = useCallback(async () => {
@@ -115,9 +137,13 @@ function Bounties() {
   }, [get, decorateBounties]);
 
   const getBountiesFilter = useCallback(() => {
-    const pinnedFilter = stringify({ _where: { _or: [{ is_pinned_null: 1 }, { is_pinned: 0 }] } });
-    const stateFilter = inactive ? 'state.id=2' : 'state.id=1';
-    return `${stateFilter}&${pinnedFilter}&_limit=${perPage}&_start=${(page - 1) * perPage}`;
+    const pinnedFilter = stringify({
+      _where: { _or: [{ is_pinned_null: 1 }, { is_pinned: 0 }] },
+    });
+    const stateFilter = inactive ? "state.id=2" : "state.id=1";
+    return `${stateFilter}&${pinnedFilter}&_limit=${perPage}&_start=${
+      (page - 1) * perPage
+    }`;
   }, [inactive, page]);
 
   const getBounties = useCallback(async () => {
@@ -177,9 +203,9 @@ function Bounties() {
         <div className="list-header">
           <div className="list-header-left">
             <div className="legend">
-              <span className={`dot ${inactive ? 'inactive' : 'active'}`} />
+              <span className={`dot ${inactive ? "inactive" : "active"}`} />
               <Text
-                label={`${inactive ? 'Inactive' : 'Active'} Bounties`}
+                label={`${inactive ? "Inactive" : "Active"} Bounties`}
                 variant="body1"
                 color="primary"
                 className="icon-title"
@@ -206,7 +232,7 @@ function Bounties() {
         {bounties.length === 0 && (
           <div>
             <Text
-              label={`No ${inactive ? 'inactive' : 'active'} bounties`}
+              label={`No ${inactive ? "inactive" : "active"} bounties`}
               variant="body2"
               color="textSecondary"
             />

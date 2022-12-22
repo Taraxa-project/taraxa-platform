@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import useApi from './useApi';
-import { useAuth } from './useAuth';
+import { useState, useEffect } from "react";
+import useApi from "./useApi";
+import { useAuth } from "./useAuth";
 
 const useSubmissions = () => {
   const auth = useAuth();
@@ -24,19 +24,20 @@ const useSubmissions = () => {
     setApproved(
       data.response.filter(
         (sub: { reviewed: boolean; accepted: boolean }) =>
-          sub.reviewed === true && sub.accepted === true,
-      ),
+          sub.reviewed === true && sub.accepted === true
+      )
     );
     setRejected(
       data.response.filter(
         (sub: { reviewed: boolean; accepted: boolean }) =>
-          sub.reviewed === true && sub.accepted === false,
-      ),
+          sub.reviewed === true && sub.accepted === false
+      )
     );
     setReview(
       data.response.filter(
-        (sub: { reviewed: boolean | null }) => sub.reviewed === null || sub.reviewed === false,
-      ),
+        (sub: { reviewed: boolean | null }) =>
+          sub.reviewed === null || sub.reviewed === false
+      )
     );
   };
 

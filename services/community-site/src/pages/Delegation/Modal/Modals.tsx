@@ -1,8 +1,8 @@
-import React from 'react';
-import { Modal } from '@taraxa_project/taraxa-ui';
-import Delegate from './Delegate';
-import Undelegate from './Undelegate';
-import CloseIcon from '../../../assets/icons/close';
+import React from "react";
+import { Modal } from "@taraxa_project/taraxa-ui";
+import Delegate from "./Delegate";
+import Undelegate from "./Undelegate";
+import CloseIcon from "../../../assets/icons/close";
 
 interface ModalsProps {
   delegateToNode: any;

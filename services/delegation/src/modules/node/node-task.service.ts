@@ -1,11 +1,11 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Cron } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { HttpService } from '@nestjs/axios';
-import { Node } from './node.entity';
-import { NodeType } from './node-type.enum';
-import { Repository } from 'typeorm';
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Cron } from "@nestjs/schedule";
+import { InjectRepository } from "@nestjs/typeorm";
+import { HttpService } from "@nestjs/axios";
+import { Node } from "./node.entity";
+import { NodeType } from "./node-type.enum";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class NodeTaskService implements OnModuleInit {
@@ -14,20 +14,20 @@ export class NodeTaskService implements OnModuleInit {
     @InjectRepository(Node)
     private nodeRepository: Repository<Node>,
     private configService: ConfigService,
-    private httpService: HttpService,
+    private httpService: HttpService
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${NodeTaskService.name} cron`);
   }
 
-  @Cron('*/15 * * * *')
+  @Cron("*/15 * * * *")
   async getStats() {
-    this.logger.debug('Starting stats worker...');
+    this.logger.debug("Starting stats worker...");
     const mainnetExplorerUrl = this.configService.get<string>(
-      'ethereum.mainnetExplorerUrl',
+      "ethereum.mainnetExplorerUrl"
     );
     const testnetExplorerUrl = this.configService.get<string>(
-      'ethereum.testnetExplorerUrl',
+      "ethereum.testnetExplorerUrl"
     );
 
     const nodes = await this.nodeRepository.find();
@@ -40,7 +40,7 @@ export class NodeTaskService implements OnModuleInit {
       const stats = await this.httpService
         .get(url, {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         })
         .toPromise();

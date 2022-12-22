@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { NODE_DELETED_EVENT } from '../node.constants';
-import { NodeDeletedEvent } from '../event/node-deleted.event';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
+import { NODE_DELETED_EVENT } from "../node.constants";
+import { NodeDeletedEvent } from "../event/node-deleted.event";
 
 @Injectable()
 export class NodeDeletedListener {
@@ -12,8 +12,8 @@ export class NodeDeletedListener {
       `Received ${NODE_DELETED_EVENT} event, data: ${JSON.stringify(
         event,
         null,
-        2,
-      )}`,
+        2
+      )}`
     );
   }
 }

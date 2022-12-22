@@ -1,8 +1,8 @@
-import { PrimaryGeneratedColumn, Entity, Column, Index } from 'typeorm';
-import { RewardType } from './reward-type.enum';
+import { PrimaryGeneratedColumn, Entity, Column, Index } from "typeorm";
+import { RewardType } from "./reward-type.enum";
 
 @Entity({
-  name: 'rewards',
+  name: "rewards",
 })
 export class Reward {
   @PrimaryGeneratedColumn()
@@ -15,7 +15,7 @@ export class Reward {
   user?: number;
 
   @Column({
-    name: 'user_address',
+    name: "user_address",
     nullable: true,
   })
   @Index()
@@ -28,7 +28,7 @@ export class Reward {
   node?: number;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: RewardType,
   })
   @Index()
@@ -38,7 +38,7 @@ export class Reward {
   epoch: number;
 
   @Column({
-    type: 'double precision',
+    type: "double precision",
   })
   value: number;
 
@@ -53,12 +53,12 @@ export class Reward {
   originalAmount?: number;
 
   @Column({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   startsAt: Date;
 
   @Column({
-    type: 'timestamp with time zone',
+    type: "timestamp with time zone",
   })
   endsAt: Date;
 

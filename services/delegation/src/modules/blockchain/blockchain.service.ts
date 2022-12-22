@@ -1,5 +1,5 @@
-import * as ethers from 'ethers';
-import { Injectable } from '@nestjs/common';
+import * as ethers from "ethers";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class BlockchainService {
@@ -11,7 +11,7 @@ export class BlockchainService {
     endpoint: string,
     walletKey: string,
     public defaultDelegationAmount: ethers.BigNumber,
-    private ownNodes: string[],
+    private ownNodes: string[]
   ) {
     this.provider = new ethers.providers.JsonRpcProvider({
       url: endpoint,
@@ -21,14 +21,14 @@ export class BlockchainService {
     this.wallet = new ethers.Wallet(walletKey, this.provider);
 
     this.contract = new ethers.Contract(
-      '0x00000000000000000000000000000000000000fe',
+      "0x00000000000000000000000000000000000000fe",
       [
-        'function delegate(address validator) payable',
-        'function getValidator(address validator) view returns (tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) validator_info)',
-        'function getValidators(uint32 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)',
-        'function registerValidator(address validator, bytes proof, bytes vrf_key, uint16 commission, string description, string endpoint) payable',
+        "function delegate(address validator) payable",
+        "function getValidator(address validator) view returns (tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) validator_info)",
+        "function getValidators(uint32 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)",
+        "function registerValidator(address validator, bytes proof, bytes vrf_key, uint16 commission, string description, string endpoint) payable",
       ],
-      this.provider,
+      this.provider
     ).connect(this.wallet);
   }
 
@@ -36,13 +36,13 @@ export class BlockchainService {
     endpoint: string,
     walletKey: string,
     defaultDelegationAmount: ethers.BigNumber,
-    ownNodes: string[],
+    ownNodes: string[]
   ) {
     return new BlockchainService(
       endpoint,
       walletKey,
       defaultDelegationAmount,
-      ownNodes,
+      ownNodes
     );
   }
 
@@ -66,7 +66,7 @@ export class BlockchainService {
   async registerValidator(
     address: string,
     addressProof: string,
-    vrfKey: string,
+    vrfKey: string
   ) {
     await this.rebalanceOwnNodes(true);
 
@@ -76,12 +76,12 @@ export class BlockchainService {
         addressProof,
         vrfKey,
         0,
-        '',
-        '',
+        "",
+        "",
         {
           gasPrice: this.provider.getGasPrice(),
           value: this.defaultDelegationAmount,
-        },
+        }
       );
       await tx.wait();
       return true;
@@ -103,7 +103,7 @@ export class BlockchainService {
     } catch (e) {
       console.error(
         `Could not delegate ${amount.toString()} TARA to validator ${address}`,
-        e,
+        e
       );
     }
 
@@ -128,7 +128,7 @@ export class BlockchainService {
       .filter((validator) =>
         this.ownNodes
           .map((node) => node.toLowerCase())
-          .includes(validator.account.toLowerCase()),
+          .includes(validator.account.toLowerCase())
       )
       .map((validator) => ({
         address: validator.account,
@@ -148,7 +148,7 @@ export class BlockchainService {
     }
 
     const totalStakeCommunityNodes = this.defaultDelegationAmount.mul(
-      numberOfCommunityNodes,
+      numberOfCommunityNodes
     );
     const majorityStake = totalStakeCommunityNodes
       .mul(2)
@@ -199,7 +199,7 @@ export class BlockchainService {
         await tx.wait();
       } catch (e) {
         console.error(
-          `Can't delegate to own nodes - delegation call failed for node ${ownNode.address}`,
+          `Can't delegate to own nodes - delegation call failed for node ${ownNode.address}`
         );
         break;
       }

@@ -1,16 +1,16 @@
-import { Repository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Profile } from './profile.entity';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ValidationException } from '../utils/exceptions/validation.exception';
+import { Repository } from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Profile } from "./profile.entity";
+import { CreateProfileDto } from "./dto/create-profile.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
+import { ValidationException } from "../utils/exceptions/validation.exception";
 
 @Injectable()
 export class ProfileService {
   constructor(
     @InjectRepository(Profile)
-    private profileRepository: Repository<Profile>,
+    private profileRepository: Repository<Profile>
   ) {}
 
   get(user: number): Promise<Profile> {
@@ -32,15 +32,15 @@ export class ProfileService {
   async update(user: number, profileDto: UpdateProfileDto): Promise<Profile> {
     const profile = await this.profileRepository.findOneOrFail({ user });
 
-    if (typeof profileDto.description !== 'undefined') {
+    if (typeof profileDto.description !== "undefined") {
       profile.description = profileDto.description;
     }
 
-    if (typeof profileDto.website !== 'undefined') {
+    if (typeof profileDto.website !== "undefined") {
       profile.website = profileDto.website;
     }
 
-    if (typeof profileDto.social !== 'undefined') {
+    if (typeof profileDto.social !== "undefined") {
       profile.social = profileDto.social;
     }
 

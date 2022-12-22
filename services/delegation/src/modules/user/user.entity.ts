@@ -1,7 +1,7 @@
-import { PrimaryGeneratedColumn, Entity, Column, Index } from 'typeorm';
+import { PrimaryGeneratedColumn, Entity, Column, Index } from "typeorm";
 
 @Entity({
-  name: 'users-permissions_user',
+  name: "users-permissions_user",
 })
 export class User {
   @PrimaryGeneratedColumn()
@@ -14,7 +14,7 @@ export class User {
   username: string;
 
   @Column({
-    name: 'eth_wallet',
+    name: "eth_wallet",
     nullable: true,
   })
   ethWallet?: string;

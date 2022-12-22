@@ -11,7 +11,7 @@
 // opt-in, read https://bit.ly/CRA-PWA
 
 function unregister() {
-  if ('serviceWorker' in navigator) {
+  if ("serviceWorker" in navigator) {
     navigator.serviceWorker.ready.then((registration) => {
       registration.unregister();
     });

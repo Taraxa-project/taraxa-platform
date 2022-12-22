@@ -1,20 +1,20 @@
-import { Job } from 'bull';
-import { Repository } from 'typeorm';
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Processor, Process } from '@nestjs/bull';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Node } from './node.entity';
-import { NodeService } from './node.service';
-import { ENSURE_NODE_ONCHAIN_JOB } from './node.constants';
-import { EnsureNodeOnchainJob } from './job/ensure-node-onchain.job';
+import { Job } from "bull";
+import { Repository } from "typeorm";
+import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Processor, Process } from "@nestjs/bull";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Node } from "./node.entity";
+import { NodeService } from "./node.service";
+import { ENSURE_NODE_ONCHAIN_JOB } from "./node.constants";
+import { EnsureNodeOnchainJob } from "./job/ensure-node-onchain.job";
 import {
   BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
   BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
-} from '../blockchain/blockchain.constant';
-import { BlockchainService } from '../blockchain/blockchain.service';
+} from "../blockchain/blockchain.constant";
+import { BlockchainService } from "../blockchain/blockchain.service";
 
 @Injectable()
-@Processor('node')
+@Processor("node")
 export class NodeConsumer implements OnModuleInit {
   private readonly logger = new Logger(NodeConsumer.name);
   constructor(
@@ -24,7 +24,7 @@ export class NodeConsumer implements OnModuleInit {
     @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
     private testnetBlockchainService: BlockchainService,
     @Inject(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN)
-    private mainnetBlockchainService: BlockchainService,
+    private mainnetBlockchainService: BlockchainService
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${NodeConsumer.name} worker`);
@@ -34,13 +34,13 @@ export class NodeConsumer implements OnModuleInit {
     this.logger.debug(
       `Starting ${ENSURE_NODE_ONCHAIN_JOB} worker for job ${
         job.id
-      }, data: ${JSON.stringify(job.data, null, 2)}`,
+      }, data: ${JSON.stringify(job.data, null, 2)}`
     );
 
     const { nodeId } = job.data;
 
     this.logger.debug(
-      `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Ensuring node ${nodeId} is onchain`,
+      `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Ensuring node ${nodeId} is onchain`
     );
 
     const node = await this.nodeService.findNodeByOrFail({
@@ -49,7 +49,7 @@ export class NodeConsumer implements OnModuleInit {
 
     if (node.isCreatedOnchain) {
       this.logger.debug(
-        `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} exist. Skipping create`,
+        `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} exist. Skipping create`
       );
       return;
     }
@@ -60,7 +60,7 @@ export class NodeConsumer implements OnModuleInit {
           await this.testnetBlockchainService.registerValidator(
             node.address,
             node.addressProof,
-            node.vrfKey,
+            node.vrfKey
           );
       }
 
@@ -69,13 +69,13 @@ export class NodeConsumer implements OnModuleInit {
           await this.mainnetBlockchainService.registerValidator(
             node.address,
             node.addressProof,
-            node.vrfKey,
+            node.vrfKey
           );
       }
       await this.nodeRepository.save(node);
     } catch (e) {
       this.logger.error(
-        `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Failed to create onchain validator for ${node.address}.`,
+        `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Failed to create onchain validator for ${node.address}.`
       );
     }
   }

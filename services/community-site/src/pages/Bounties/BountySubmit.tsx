@@ -1,19 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useHistory, Redirect } from 'react-router-dom';
-import * as CryptoJS from 'crypto-js';
+import React, { useEffect, useState } from "react";
+import { useParams, useHistory, Redirect } from "react-router-dom";
+import * as CryptoJS from "crypto-js";
 
-import { Text, Card, Button, File, Icons, InputField } from '@taraxa_project/taraxa-ui';
+import {
+  Text,
+  Card,
+  Button,
+  File,
+  Icons,
+  InputField,
+} from "@taraxa_project/taraxa-ui";
 
-import Title from '../../components/Title/Title';
-import Markdown from '../../components/Markdown';
+import Title from "../../components/Title/Title";
+import Markdown from "../../components/Markdown";
 
-import useApi from '../../services/useApi';
-import { useAuth } from '../../services/useAuth';
-import useBounties from '../../services/useBounties';
+import useApi from "../../services/useApi";
+import { useAuth } from "../../services/useAuth";
+import useBounties from "../../services/useBounties";
 
-import { Bounty } from './bounty';
+import { Bounty } from "./bounty";
 
-import './bounties.scss';
+import "./bounties.scss";
 
 function BountySubmit() {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +34,7 @@ function BountySubmit() {
   const history = useHistory();
   const { getBountyUserSubmissionsCount } = useBounties();
   const [bounty, setBounty] = useState<Partial<Bounty>>({});
-  const [submitText, setSubmitText] = useState('');
+  const [submitText, setSubmitText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
 
@@ -38,7 +45,9 @@ function BountySubmit() {
         return;
       }
 
-      const userSubmissionsCount = await getBountyUserSubmissionsCount(data.response.id);
+      const userSubmissionsCount = await getBountyUserSubmissionsCount(
+        data.response.id
+      );
 
       setBounty({
         ...data.response,
@@ -49,14 +58,16 @@ function BountySubmit() {
     getBounty(id);
   }, [id, getBountyUserSubmissionsCount]);
 
-  const submissionNeeded = bounty.text_submission_needed || bounty.file_submission_needed;
+  const submissionNeeded =
+    bounty.text_submission_needed || bounty.file_submission_needed;
 
   if (
     !auth.isLoggedIn ||
     (bounty.id &&
       (!submissionNeeded ||
         !bounty.active ||
-        (!bounty.allow_multiple_submissions && bounty.userSubmissionsCount! >= 1)))
+        (!bounty.allow_multiple_submissions &&
+          bounty.userSubmissionsCount! >= 1)))
   ) {
     return <Redirect to={`/bounties/${id}`} />;
   }
@@ -64,15 +75,18 @@ function BountySubmit() {
   const errIndex = errors.map((error) => error.key);
   const errValues = errors.map((error) => error.value);
 
-  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
+  const findErrorIndex = (field: string) =>
+    errIndex.findIndex((err) => err === field);
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
-  const hasSubmissionError = hasError('submission');
-  const submissionErrorMessage = hasError('submission')
-    ? errValues[findErrorIndex('submission')]
+  const hasSubmissionError = hasError("submission");
+  const submissionErrorMessage = hasError("submission")
+    ? errValues[findErrorIndex("submission")]
     : undefined;
-  const hasFileError = hasError('file');
-  const fileErrorMessage = hasError('file') ? errValues[findErrorIndex('file')] : undefined;
+  const hasFileError = hasError("file");
+  const fileErrorMessage = hasError("file")
+    ? errValues[findErrorIndex("file")]
+    : undefined;
 
   let hasGeneralError = false;
   let generalErrorMessage;
@@ -83,43 +97,43 @@ function BountySubmit() {
   }
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
     setErrors([]);
 
-    if (bounty.text_submission_needed && submitText === '') {
-      setErrors([{ key: 'submission', value: 'Submission text is required' }]);
+    if (bounty.text_submission_needed && submitText === "") {
+      setErrors([{ key: "submission", value: "Submission text is required" }]);
       return;
     }
 
     if (bounty.file_submission_needed && file === null) {
-      setErrors([{ key: 'file', value: 'File is required' }]);
+      setErrors([{ key: "file", value: "File is required" }]);
       return;
     }
 
     let uploadedFile;
     if (file !== null) {
       const formData = new FormData();
-      formData.append('files', file!);
+      formData.append("files", file!);
 
-      const result = await api.post('/upload', formData, true);
+      const result = await api.post("/upload", formData, true);
       if (result.success) {
         uploadedFile = result.response[0];
-      } else if (typeof result.response === 'string') {
-        setErrors([{ key: 'file', value: result.response }]);
+      } else if (typeof result.response === "string") {
+        setErrors([{ key: "file", value: result.response }]);
         return;
       }
 
       if (!uploadedFile) {
-        setErrors([{ key: 'file', value: 'File upload failed' }]);
+        setErrors([{ key: "file", value: "File upload failed" }]);
         return;
       }
     }
 
     let ciphertext = CryptoJS.AES.encrypt(
       submitText,
-      '255826e3232d021e830f3dd19e77055f',
+      "255826e3232d021e830f3dd19e77055f"
     ).toString();
     ciphertext = CryptoJS.SHA3(ciphertext).toString();
 
@@ -142,18 +156,18 @@ function BountySubmit() {
       };
     }
 
-    if (submitText !== '') {
+    if (submitText !== "") {
       s = {
         ...s,
         text_proof: submitText,
       };
     }
 
-    const resultSubmission = await api.post('/submissions', s, true);
+    const resultSubmission = await api.post("/submissions", s, true);
 
     if (!resultSubmission.success) {
-      if (typeof resultSubmission.response === 'string') {
-        setErrors([{ key: 'submission', value: resultSubmission.response }]);
+      if (typeof resultSubmission.response === "string") {
+        setErrors([{ key: "submission", value: resultSubmission.response }]);
         return;
       }
     }
@@ -163,12 +177,12 @@ function BountySubmit() {
       {
         users: userId!,
       },
-      true,
+      true
     );
 
     if (!resultBounty.success) {
-      if (typeof resultBounty.response === 'string') {
-        setErrors([{ key: 'general', value: resultBounty.response }]);
+      if (typeof resultBounty.response === "string") {
+        setErrors([{ key: "general", value: resultBounty.response }]);
         return;
       }
     }
@@ -188,7 +202,7 @@ function BountySubmit() {
             <Card
               actions={
                 <>
-                  {bounty.proof_file && bounty.proof_file.trim() !== '' && (
+                  {bounty.proof_file && bounty.proof_file.trim() !== "" && (
                     <Text variant="body2" color="primary">
                       {bounty.proof_file}
                     </Text>
@@ -216,7 +230,12 @@ function BountySubmit() {
               }
             >
               <Text variant="h5" color="primary" className="title">
-                <span className={['dot', bounty.active ? 'active' : 'inactive'].join(' ')} />
+                <span
+                  className={[
+                    "dot",
+                    bounty.active ? "active" : "inactive",
+                  ].join(" ")}
+                />
                 {bounty.name!}
               </Text>
               <Markdown>{bounty.submission!}</Markdown>
@@ -224,7 +243,7 @@ function BountySubmit() {
                 <Icons.Submit />
                 Submit bounty
               </Text>
-              {bounty.proof_text && bounty.proof_text.trim() !== '' && (
+              {bounty.proof_text && bounty.proof_text.trim() !== "" && (
                 <Text variant="body2" color="primary">
                   {bounty.proof_text}
                 </Text>

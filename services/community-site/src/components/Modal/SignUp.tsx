@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { Button, Text, InputField, Checkbox } from '@taraxa_project/taraxa-ui';
-import { useAuth } from '../../services/useAuth';
+import React, { useState } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { Button, Text, InputField, Checkbox } from "@taraxa_project/taraxa-ui";
+import { useAuth } from "../../services/useAuth";
 
 type SignUpProps = {
   onSuccess: () => void;
@@ -11,11 +11,11 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
   const auth = useAuth();
   const { executeRecaptcha } = useGoogleReCaptcha();
 
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [ethWallet, setEthWallet] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [ethWallet, setEthWallet] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [tc, setTc] = useState(false);
 
   const [errors, setErrors] = useState<{ key: string; value: string }[]>([]);
@@ -23,22 +23,25 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
   const errIndex = errors.map((error) => error.key);
   const errValues = errors.map((error) => error.value);
 
-  const findErrorIndex = (field: string) => errIndex.findIndex((err) => err === field);
+  const findErrorIndex = (field: string) =>
+    errIndex.findIndex((err) => err === field);
   const hasError = (field: string) => findErrorIndex(field) !== -1;
 
-  const hasUsernameError = hasError('username');
-  const usernameErrorMessage = hasError('username')
-    ? errValues[findErrorIndex('username')]
+  const hasUsernameError = hasError("username");
+  const usernameErrorMessage = hasError("username")
+    ? errValues[findErrorIndex("username")]
     : undefined;
-  const hasEmailError = hasError('email');
-  const emailErrorMessage = hasError('email') ? errValues[findErrorIndex('email')] : undefined;
-  const hasPasswordError = hasError('password');
-  const passwordErrorMessage = hasError('password')
-    ? errValues[findErrorIndex('password')]
+  const hasEmailError = hasError("email");
+  const emailErrorMessage = hasError("email")
+    ? errValues[findErrorIndex("email")]
     : undefined;
-  const hasPasswordConfirmationError = hasError('password-confirmation');
-  const passwordConfirmationErrorMessage = hasError('password-confirmation')
-    ? errValues[findErrorIndex('password-confirmation')]
+  const hasPasswordError = hasError("password");
+  const passwordErrorMessage = hasError("password")
+    ? errValues[findErrorIndex("password")]
+    : undefined;
+  const hasPasswordConfirmationError = hasError("password-confirmation");
+  const passwordConfirmationErrorMessage = hasError("password-confirmation")
+    ? errValues[findErrorIndex("password-confirmation")]
     : undefined;
 
   let hasGeneralError = false;
@@ -56,7 +59,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
   }
 
   const submit = async (
-    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
+    event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
@@ -65,26 +68,26 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
 
     if (password.length < 12) {
       errors.push({
-        key: 'password',
-        value: 'The password needs to have at least 12 characters.',
+        key: "password",
+        value: "The password needs to have at least 12 characters.",
       });
     }
 
     if (password !== passwordConfirmation) {
       errors.push({
-        key: 'password-confirmation',
-        value: 'Passwords do not match.',
+        key: "password-confirmation",
+        value: "Passwords do not match.",
       });
     }
 
-    if (username.trim() === '') {
-      errors.push({ key: 'username', value: 'Username not set.' });
+    if (username.trim() === "") {
+      errors.push({ key: "username", value: "Username not set." });
     }
 
     if (tc === false) {
       errors.push({
-        key: 'tc',
-        value: 'You must accept the terms and conditions.',
+        key: "tc",
+        value: "You must accept the terms and conditions.",
       });
     }
 
@@ -93,8 +96,14 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
       return;
     }
 
-    const token = await executeRecaptcha!('signup');
-    const result = await auth.signup!(username, email, ethWallet, password, token);
+    const token = await executeRecaptcha!("signup");
+    const result = await auth.signup!(
+      username,
+      email,
+      ethWallet,
+      password,
+      token
+    );
 
     if (result.success) {
       onSuccess();
@@ -103,9 +112,9 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
 
     setErrors(
       result.response[0].messages.map((message: any) => ({
-        key: message.id.split('.')[3],
+        key: message.id.split(".")[3],
         value: message.message,
-      })),
+      }))
     );
   };
 
@@ -183,7 +192,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           margin="normal"
         />
 
-        <div style={{ textAlign: 'left', display: 'flex', height: '42px' }}>
+        <div style={{ textAlign: "left", display: "flex", height: "42px" }}>
           <Checkbox
             name="conditions"
             onChange={(event) => {
@@ -192,7 +201,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
             checked={tc}
           />
           <Text
-            style={{ lineHeight: '42px' }}
+            style={{ lineHeight: "42px" }}
             label="I agree to the"
             variant="body2"
             color="primary"
@@ -200,7 +209,7 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           &nbsp;
           <a href="https://taraxa.io/privacy" target="_blank" rel="noreferrer">
             <Text
-              style={{ lineHeight: '42px' }}
+              style={{ lineHeight: "42px" }}
               label="Privacy Policy"
               variant="body2"
               color="primary"
@@ -208,7 +217,9 @@ const SignUp = ({ onSuccess }: SignUpProps) => {
           </a>
         </div>
 
-        {hasGeneralError && <Text label={generalErrorMessage!} variant="body1" color="error" />}
+        {hasGeneralError && (
+          <Text label={generalErrorMessage!} variant="body1" color="error" />
+        )}
 
         <Button
           type="submit"
