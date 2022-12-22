@@ -67,6 +67,17 @@ export class DelegationTaskService implements OnModuleInit {
   }
 
   @Cron('*/10 * * * *')
+  async triggerUndelegations() {
+    this.logger.debug('Starting undelegation triggers...');
+    const undelegationsNotTriggered = await this.undelegationRepository.find({
+      triggered: false,
+    });
+    for (const undelegation of undelegationsNotTriggered) {
+      await this.delegationService.undelegateFromChain(undelegation);
+    }
+  }
+
+  @Cron('*/10 * * * *')
   async confirmUndelegation() {
     this.logger.debug('Starting undelegation confirmation worker...');
     const currentTestnetBlock =

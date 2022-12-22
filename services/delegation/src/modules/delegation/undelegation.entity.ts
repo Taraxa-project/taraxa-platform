@@ -24,12 +24,15 @@ export class Undelegation {
   address: string;
 
   @Column({ nullable: false, default: false })
-  confirmed: boolean;
+  triggered: boolean; // set when the undelegate method was called for this entity
+
+  @Column({ nullable: false, default: false })
+  confirmed: boolean; // set when the confirmUdelegation method was called for this entity
 
   @Column({ nullable: false })
   chain: NodeType;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true, default: 0 })
   @Index()
   creationBlock: number;
 

@@ -339,7 +339,12 @@ export class DelegationService {
 
     if (currentDelegation.gt(totalNodeDelegation)) {
       const amountToUndelegate = currentDelegation.sub(totalNodeDelegation);
-      await this.undelegateFromChain(nodeId, type, address, amountToUndelegate);
+      await this.registerUndelegation(
+        nodeId,
+        type,
+        address,
+        amountToUndelegate,
+      );
       // add call to undelegation, create undelegation, save in db
       // await this.blockchainService.unregisterValidator(address);
     } else {
@@ -602,45 +607,59 @@ export class DelegationService {
     return parseInt(d.total, 10) || 0;
   }
 
-  private async undelegateFromChain(
+  private async registerUndelegation(
     nodeId: number,
     type: string,
     address: string,
     amount: BigNumber,
   ) {
-    let undelegationBlockNumber;
+    const node = await this.nodeRepository.findOne({ id: nodeId });
+    const undelegation = this.undelegationRepository.create();
+    undelegation.address = address;
+    undelegation.value = amount.toString();
+    undelegation.createdAt = new Date();
+    undelegation.node = node;
+    undelegation.chain = type as NodeType;
+    const savedUndelegation = await this.undelegationRepository.save(
+      undelegation,
+    );
+    if (!savedUndelegation) {
+      throw new Error(
+        `Could not save undelegation for ${address} with value ${amount} from node ${nodeId} on ${type}`,
+      );
+    }
+  }
+
+  public async undelegateFromChain(undelegation: Undelegation) {
+    let undelegationBlockNumber: number;
     const targetChain =
-      type === NodeType.MAINNET ? NodeType.MAINNET : NodeType.TESTNET;
+      undelegation.chain === NodeType.MAINNET
+        ? NodeType.MAINNET
+        : NodeType.TESTNET;
     if (targetChain === NodeType.TESTNET) {
       undelegationBlockNumber = await this.testnetBlockchainService.undelegate(
-        address,
-        amount,
+        undelegation.address,
+        BigNumber.from(undelegation.value),
       );
     }
 
     if (targetChain === NodeType.MAINNET) {
       undelegationBlockNumber = await this.mainnetBlockchainService.undelegate(
-        address,
-        amount,
+        undelegation.address,
+        BigNumber.from(undelegation.value),
       );
     }
     if (undelegationBlockNumber) {
-      const node = await this.nodeRepository.findOne({ id: nodeId });
-      const undelegation = this.undelegationRepository.create();
-      undelegation.address = address;
-      undelegation.value = amount.toString();
       undelegation.creationBlock = undelegationBlockNumber;
-      undelegation.createdAt = new Date();
-      undelegation.node = node;
-      undelegation.chain = targetChain;
       undelegation.confirmationBlock =
         undelegationBlockNumber + this.undelegationBlockDelay;
+      undelegation.triggered = true;
       const savedUndelegation = await this.undelegationRepository.save(
         undelegation,
       );
       if (!savedUndelegation) {
         throw new Error(
-          `Could not save undelegation for ${address} with value ${amount} from node ${nodeId} on ${type}`,
+          `Could not call undelegation for ${undelegation.address} with value ${undelegation.value} from node ${undelegation.node.id} on ${undelegation.chain}`,
         );
       }
     }
