@@ -5111,7 +5111,7 @@
     semver "^7.3.5"
     tsutils "^3.21.0"
 
-"@typescript-eslint/eslint-plugin@^5.0.0", "@typescript-eslint/eslint-plugin@^5.6.0":
+"@typescript-eslint/eslint-plugin@^5.6.0":
   version "5.44.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.44.0.tgz#105788f299050c917eb85c4d9fd04b089e3740de"
   integrity sha512-j5ULd7FmmekcyWeArx+i8x7sdRHzAtXTkmDPthE4amxZOWKFK7bomoJ4r7PJ8K7PoMzD16U8MmuZFAonr1ERvw==
