@@ -8,11 +8,7 @@ import {
   Raw,
   Repository,
 } from 'typeorm';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -43,6 +39,7 @@ import { Undelegation } from './undelegation.entity';
 
 @Injectable()
 export class DelegationService {
+  private readonly logger = new Logger(DelegationService.name);
   private testnetDelegationAmount: ethers.BigNumber;
   private mainnetDelegationAmount: ethers.BigNumber;
   private maxDelegationPerNode: number;
@@ -614,14 +611,14 @@ export class DelegationService {
     let undelegationBlockNumber;
     const targetChain =
       type === NodeType.MAINNET ? NodeType.MAINNET : NodeType.TESTNET;
-    if (type === NodeType.TESTNET) {
+    if (targetChain === NodeType.TESTNET) {
       undelegationBlockNumber = await this.testnetBlockchainService.undelegate(
         address,
         amount,
       );
     }
 
-    if (type === NodeType.MAINNET) {
+    if (targetChain === NodeType.MAINNET) {
       undelegationBlockNumber = await this.mainnetBlockchainService.undelegate(
         address,
         amount,
@@ -642,7 +639,7 @@ export class DelegationService {
         undelegation,
       );
       if (!savedUndelegation) {
-        throw new InternalServerErrorException(
+        throw new Error(
           `Could not save undelegation for ${address} with value ${amount} from node ${nodeId} on ${type}`,
         );
       }
@@ -664,9 +661,16 @@ export class DelegationService {
           );
       }
       if (!confirmationBlock)
-        throw new InternalServerErrorException(
+        throw new Error(
           `Could not confirm undelegation for validator ${undelegation.address}`,
         );
-    }
+      undelegation.confirmed = true;
+      const saved = await this.undelegationRepository.save(undelegation);
+      if (!saved)
+        throw new Error(
+          `Could not update undelegation ${undelegation.id} in the database.`,
+        );
+    } else
+      this.logger.error(`Undelegation ${undelegation.id} has no address set!`);
   }
 }

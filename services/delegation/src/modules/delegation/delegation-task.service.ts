@@ -73,30 +73,34 @@ export class DelegationTaskService implements OnModuleInit {
       await this.testnetBlockchainService.getCurrentBlockNumber();
     const currentMainnetBlock =
       await this.mainnetBlockchainService.getCurrentBlockNumber();
-    if (currentMainnetBlock && currentTestnetBlock) {
-      const testnetUndelegationsInScope =
-        await this.undelegationRepository.find({
-          where: {
-            confirmationBlock: LessThan(currentTestnetBlock),
-            chain: NodeType.TESTNET,
-          },
-        });
-      const mainnetnetUndelegationsInScope =
-        await this.undelegationRepository.find({
-          where: {
-            confirmationBlock: LessThan(currentTestnetBlock),
-            chain: NodeType.MAINNET,
-          },
-        });
-      const undelegationsInScope = testnetUndelegationsInScope.concat(
-        mainnetnetUndelegationsInScope,
+    let mainnetnetUndelegationsInScope = [];
+    let testnetUndelegationsInScope = [];
+    if (currentMainnetBlock) {
+      mainnetnetUndelegationsInScope = await this.undelegationRepository.find({
+        where: {
+          confirmationBlock: LessThan(currentMainnetBlock),
+          chain: NodeType.MAINNET,
+          confirmed: false,
+        },
+      });
+    }
+    if (currentTestnetBlock) {
+      testnetUndelegationsInScope = await this.undelegationRepository.find({
+        where: {
+          confirmationBlock: LessThan(currentTestnetBlock),
+          chain: NodeType.TESTNET,
+          confirmed: false,
+        },
+      });
+    }
+    const undelegationsInScope = testnetUndelegationsInScope.concat(
+      mainnetnetUndelegationsInScope,
+    );
+    for (const undelegation of undelegationsInScope) {
+      await this.delegationService.confirmUndelegation(undelegation);
+      this.logger.log(
+        `Confirmed undelegation for validator ${undelegation.address}`,
       );
-      for (const undelegation of undelegationsInScope) {
-        await this.delegationService.confirmUndelegation(undelegation);
-        this.logger.log(
-          `Confirmed undelegation for validator ${undelegation.address}`,
-        );
-      }
     }
   }
 }

@@ -126,15 +126,11 @@ export class BlockchainService {
 
   async undelegate(address: string, amount: ethers.BigNumber) {
     try {
-      const tx = await this.contract.undelegate(address, {
+      const tx = await this.contract.undelegate(address, amount, {
         gasPrice: this.provider.getGasPrice(),
-        value: amount,
       });
-      await tx.wait();
-      if (tx) {
-        const receipt = await this.provider.getTransactionReceipt(tx.hash);
-        return receipt.blockNumber;
-      }
+      const receipt = await tx.wait();
+      return receipt.blockNumber;
     } catch (e) {
       console.error(
         `Could not undelegate ${amount.toString()} TARA to validator ${address}`,
@@ -145,14 +141,11 @@ export class BlockchainService {
 
   async confirmUndelegate(address: string) {
     try {
-      const tx = await this.contract.undelegate(address, {
+      const tx = await this.contract.confirmUndelegate(address, {
         gasPrice: this.provider.getGasPrice(),
       });
-      await tx.wait();
-      if (tx) {
-        const receipt = await this.provider.getTransactionReceipt(tx.hash);
-        return receipt.blockNumber;
-      }
+      const receipt = await tx.wait();
+      return receipt.blockNumber;
     } catch (e) {
       console.error(
         `Could not confirm undelegation for validator ${address}`,
