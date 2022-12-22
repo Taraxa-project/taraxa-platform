@@ -34,16 +34,20 @@ export default class PbftService {
     this.isRedisConnected = state;
   }
 
-  public async getSavedPbftPeriods() {
-    return (
-      await this.pbftRepository
-        .createQueryBuilder('pbfts')
-        .select('pbfts.number')
-        .orderBy('pbfts.number', 'DESC')
-        .getMany()
-    ).map((pbft) => {
-      return pbft.number;
-    });
+  public async getMissingPbftPeriods() {
+    const lastBlockSaved = (
+      await this.pbftRepository.query(
+        'SELECT MAX("number") as "last_saved" FROM public.pbfts'
+      )
+    )[0].last_saved;
+    const missingNumbers: number[] = (
+      await this.pbftRepository.query(
+        `SELECT s.i AS "missing_number" FROM generate_series(0, ${
+          lastBlockSaved || 0
+        }) s(i) WHERE NOT EXISTS (SELECT 1 FROM public.pbfts WHERE number = s.i)`
+      )
+    ).map((res: { missing_number: number }) => res.missing_number);
+    return missingNumbers;
   }
 
   public async safeSavePbft(pbft: IPBFT) {
