@@ -1,12 +1,15 @@
-export interface DelegationData {
-  stake: string | number;
-  block: number;
-  validator: string;
+export interface DelegatorInfo {
+  // Number of tokens that were staked
+  stake: string;
+  // Number of tokens that were rewarded
+  rewards: string;
 }
 
-export interface Delegation {
+export interface DelegationData {
+  // Validator's(in case of getDelegations) or Delegator's (in case of getValidatorDelegations) account address
   account: string;
-  delegation: DelegationData;
+  // Delegation info
+  delegation: DelegatorInfo;
 }
 
 export interface Delegator {
@@ -16,6 +19,6 @@ export interface Delegator {
   blockHash: string;
   delegator: string;
   validator: string;
-  stake: number;
-  rewards: number;
+  stake: string;
+  rewards: string;
 }

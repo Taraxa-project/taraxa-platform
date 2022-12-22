@@ -1,9 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
-import { Reward } from '../types';
+import { Validator } from '../types';
 
-@Entity('rewards')
-export class RewardsEntity implements Reward {
+@Unique(['blockNumber', 'account', 'blockTimestamp'])
+@Entity('validator')
+// Might be a good idea to create a composed unique key with blockNumber, account etc. so we ignore duplicates
+export class ValidatorEntity implements Validator {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { RewardsEntity } from './entities/rewards.entity';
+import { DelegatorEntity, ValidatorEntity } from './entities';
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'economics',
   synchronize: true,
   logging: false,
-  entities: [RewardsEntity],
+  entities: [ValidatorEntity, DelegatorEntity],
   migrations: [],
   subscribers: [],
 });

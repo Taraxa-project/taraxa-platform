@@ -14,6 +14,10 @@ export interface ValidatorData {
 }
 
 export interface Validator {
+  id?: number;
+  blockNumber: number;
+  blockTimestamp: number;
+  blockHash: string;
   account: string;
   commission: string;
   commissionReward: string;
