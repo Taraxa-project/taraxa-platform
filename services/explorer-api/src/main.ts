@@ -33,7 +33,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('apidocs', app, document);
 
   await app.listen(PORT);
   logger.log(`Application listening on port ${PORT}`);
