@@ -80,6 +80,27 @@ const getAllDelegations = async (
   return allDelegations;
 };
 
+const getDelegatorsAddresses = async (blockNumber: number) => {
+  const { dposContract } = await getContractInstance();
+
+  let continueSearch = true;
+  const allDelegators: any = [];
+  let index = 0;
+  while (continueSearch) {
+    const { end, delegators } = await dposContract.getDelegatorsAddresses(
+      index,
+      {
+        blockTag: blockNumber,
+      }
+    );
+
+    allDelegators.push(...delegators);
+    index++;
+    continueSearch = !end;
+  }
+  return allDelegators;
+};
+
 const getAllValidators = async (
   index: number,
   blockNumber: number
@@ -130,20 +151,23 @@ const getBlockValidators = async (blockNumber: number) => {
 };
 
 async function main() {
-  initializeConnection();
+  await initializeConnection();
   const { currentBlock } = await getContractInstance();
   const latestBlock = await fetchLatestBlockNumber();
   console.log('Final Block is: ', currentBlock);
   console.log('Latest block is: ', latestBlock);
   const blocks = [];
-  const startBlock = latestBlock ? latestBlock + 1 : 1;
+  const startBlock = latestBlock ? latestBlock + 1 : 0;
   console.log('Start block os: ', startBlock);
   for (let i = startBlock; i <= currentBlock; i++) {
     console.log('Current block: ', i);
-    const validators = await getBlockValidators(i);
-    blocks.push(...validators);
+    // const validators = await getBlockValidators(i);
+    const delegators = await getDelegatorsAddresses(i);
+    console.log('Delegators: ', delegators);
+    // const delegators = await getBlockDelegators(i);
+    // blocks.push(...validators);
   }
-  // process.exit();
+  process.exit();
 }
 
 main().catch((error) => {

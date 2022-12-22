@@ -118,6 +118,30 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "batch",
+                "type": "uint32"
+            }
+        ],
+        "name": "getDelegatorsAddresses",
+        "outputs": [
+            {
+                "internalType": "address[]",
+                "name": "delegators",
+                "type": "address[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "end",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "getTotalEligibleVotesCount",
         "outputs": [

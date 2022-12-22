@@ -2,8 +2,8 @@ import { Reward } from './types';
 import { RewardsEntity } from './entities/rewards.entity';
 import { AppDataSource } from './data-source';
 
-export const initializeConnection = () => {
-  AppDataSource.initialize()
+export const initializeConnection = async () => {
+  await AppDataSource.initialize()
     .then(() => {
       console.log('Data Source has been initialized!');
     })
