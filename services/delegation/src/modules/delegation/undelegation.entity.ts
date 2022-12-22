@@ -19,14 +19,12 @@ export class Undelegation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @rattrap do we need this, and if so, where do we get it from?
-  // @Column({ nullable: false })
-  // @Index()
-  // user: number;
-
   @Column({ nullable: false })
   @Index()
   address: string;
+
+  @Column({ nullable: false, default: false })
+  confirmed: boolean;
 
   @Column({ nullable: false })
   chain: NodeType;
