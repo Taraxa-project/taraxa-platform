@@ -632,18 +632,14 @@ export class DelegationService {
 
   public async undelegateFromChain(undelegation: Undelegation) {
     let undelegationBlockNumber: number;
-    const targetChain =
-      undelegation.chain === NodeType.MAINNET
-        ? NodeType.MAINNET
-        : NodeType.TESTNET;
-    if (targetChain === NodeType.TESTNET) {
+    if (undelegation.chain === NodeType.TESTNET) {
       undelegationBlockNumber = await this.testnetBlockchainService.undelegate(
         undelegation.address,
         BigNumber.from(undelegation.value),
       );
     }
 
-    if (targetChain === NodeType.MAINNET) {
+    if (undelegation.chain === NodeType.MAINNET) {
       undelegationBlockNumber = await this.mainnetBlockchainService.undelegate(
         undelegation.address,
         BigNumber.from(undelegation.value),
