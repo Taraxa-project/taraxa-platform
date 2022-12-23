@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { zeroX } from '@taraxa_project/explorer-shared';
-import _, { add } from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
@@ -10,6 +9,8 @@ import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { QueueData, QueueJobs, SyncTypes } from '../../types';
+import QueuePopulatorCache from './queuePopulatorCache';
+
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -217,47 +218,30 @@ export default class HistoricalSyncService implements OnModuleInit {
     // @note : Right now there is no way to get the genesis transactions to set:
     // Initial validators, initial balances for delegators and faucet.
     // big TODO
-    const chunks = [
-      {
-        name: QueueJobs.NEW_PBFT_BLOCKS,
-        data: {
-          pbftPeriod: 0,
-        },
+    // initialize a cache taht takes care of bulk sending
+    const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
+    await queueCache.add({
+      name: QueueJobs.NEW_PBFT_BLOCKS,
+      data: {
+        pbftPeriod: 0,
       },
-    ];
+    });
     const missingBlockNumbers = await this.pbftService.getMissingPbftPeriods();
-
     for (const blockNumber of missingBlockNumbers) {
-      chunks.push({
+      await queueCache.add({
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
           pbftPeriod: blockNumber,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
       });
-      if (chunks.length === 1000) {
-        await this.pushChunksBulk(
-          chunks,
-          `Added periods ${chunks[0].data.pbftPeriod} to ${
-            chunks[chunks.length - 1].data.pbftPeriod
-          } to the PBFTs queue from between the first and last saved block number in the database`
-        );
-      }
     }
     for (
       this.syncState.number;
       this.syncState.number < this.chainState.number;
       this.syncState.number++
     ) {
-      if (chunks.length === 1000) {
-        await this.pushChunksBulk(
-          chunks,
-          `Added ${chunks.length} PBFT periods in Queue up until ${
-            chunks[chunks.length - 1].data.pbftPeriod
-          }`
-        );
-      }
-      chunks.push({
+      await queueCache.add({
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
           pbftPeriod: this.syncState.number,
@@ -265,11 +249,7 @@ export default class HistoricalSyncService implements OnModuleInit {
         } as QueueData,
       });
     }
-    await this.pushChunksBulk(
-      chunks,
-      `Added ${chunks.length} PBFT periods in Queue up until ${
-        chunks[chunks.length - 1].data.pbftPeriod
-      }`
-    );
+    // at the end of iteration, clear the cache
+    await queueCache.clearCache();
   }
 }
