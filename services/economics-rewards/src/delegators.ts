@@ -2,7 +2,7 @@ import { DelegationData, Delegator } from './types';
 import { getContractInstance } from './contract';
 import { saveDelegator } from './database';
 
-const getDelegations = async (
+const getAndPersistDelegations = async (
   delegator: string,
   blockNumber: number,
   index: number
@@ -45,7 +45,7 @@ const getAllDelegations = async (
   const allDelegations: Delegator[] = [];
   let index = 0;
   while (continueSearch) {
-    const { end, delegations } = await getDelegations(
+    const { end, delegations } = await getAndPersistDelegations(
       validator,
       blockNumber,
       index

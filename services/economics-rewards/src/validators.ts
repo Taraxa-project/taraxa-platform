@@ -2,7 +2,7 @@ import { Validator, ValidatorData } from './types';
 import { saveValidator } from './database';
 import { getContractInstance } from './contract';
 
-const getAllValidators = async (
+const getAndPersistValidators = async (
   index: number,
   blockNumber: number
 ): Promise<{ end: boolean; validators: Validator[] }> => {
@@ -41,7 +41,10 @@ export const getBlockValidators = async (blockNumber: number) => {
   const allValidators: Validator[] = [];
   let index = 0;
   while (continueSearch) {
-    const { end, validators } = await getAllValidators(index, blockNumber);
+    const { end, validators } = await getAndPersistValidators(
+      index,
+      blockNumber
+    );
     allValidators.push(...validators);
     index++;
     continueSearch = !end;
