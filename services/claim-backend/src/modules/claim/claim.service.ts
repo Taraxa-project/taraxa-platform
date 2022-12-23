@@ -3,13 +3,17 @@ import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
 import { In, LessThan, Raw, Repository } from 'typeorm';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
 import { ethereum, general, reward } from '@taraxa-claim/config';
 import { CollectionResponse, QueryDto } from '@taraxa-claim/common';
-import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
 import { BatchTypes } from './type/batch-type';
 import { BatchEntity } from './entity/batch.entity';
 import { PendingRewardEntity } from './entity/pending-reward.entity';
@@ -21,6 +25,7 @@ import { AddressChangesEntity } from './entity/address-changes.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
 import { PendingRewardsDto } from './dto/pending-rewards.dto';
+import { GraphQLService } from './graphql.connector.service';
 
 interface CommunityRewardResponse {
   address: string;
@@ -71,7 +76,7 @@ export class ClaimService {
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
     @Inject(reward.KEY)
     private readonly rewardConfig: ConfigType<typeof reward>,
-    private readonly blockchainService: BlockchainService,
+    private readonly graphService: GraphQLService,
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
@@ -441,21 +446,19 @@ export class ClaimService {
       if (claim) {
         const nonce = claim.id * 13;
 
-        const claimContractInstance =
-          this.blockchainService.getContractInstance(
-            ContractTypes.CLAIM,
-            this.ethereumConfig.claimContractAddress,
-          );
-        const confirmation = await claimContractInstance.getClaimedAmount(
+        const indexedClaims = await this.graphService.getIndexedClaim(
           address,
           claim.numberOfTokens,
           nonce,
         );
-        if (
-          confirmation.gt(ethers.BigNumber.from('0')) &&
-          confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
-        ) {
-          await this.markAsClaimed(claim.id);
+        if (indexedClaims) {
+          const confirmation = ethers.BigNumber.from(indexedClaims[0].amount);
+          if (
+            confirmation.gt(ethers.BigNumber.from('0')) &&
+            confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
+          ) {
+            await this.markAsClaimed(claim.id);
+          }
         }
       }
     } catch (error) {
