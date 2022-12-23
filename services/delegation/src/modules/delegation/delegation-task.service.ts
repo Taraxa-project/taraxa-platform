@@ -1,6 +1,6 @@
 import { Queue } from 'bull';
-import { Repository } from 'typeorm';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { LessThan, Repository } from 'typeorm';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bull';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,13 @@ import { Node } from '../node/node.entity';
 import { DelegationService } from './delegation.service';
 import { ENSURE_DELEGATION_JOB } from './delegation.constants';
 import { EnsureDelegationJob } from './job/ensure-delegation.job';
+import {
+  BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
+  BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
+} from '../blockchain/blockchain.constant';
+import { BlockchainService } from '../blockchain/blockchain.service';
+import { Undelegation } from './undelegation.entity';
+import { NodeType } from '../node/node-type.enum';
 
 @Injectable()
 export class DelegationTaskService implements OnModuleInit {
@@ -16,9 +23,15 @@ export class DelegationTaskService implements OnModuleInit {
   constructor(
     @InjectRepository(Node)
     private nodeRepository: Repository<Node>,
+    @InjectRepository(Undelegation)
+    private undelegationRepository: Repository<Undelegation>,
     @InjectQueue('delegation')
     private delegationQueue: Queue,
     private delegationService: DelegationService,
+    @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
+    private testnetBlockchainService: BlockchainService,
+    @Inject(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN)
+    private mainnetBlockchainService: BlockchainService,
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${DelegationTaskService.name} cron`);
@@ -50,6 +63,55 @@ export class DelegationTaskService implements OnModuleInit {
         const diff = balances.delegated - balances.total;
         await this.delegationService.undelegate(address, diff);
       }
+    }
+  }
+
+  @Cron('*/10 * * * *')
+  async triggerUndelegations() {
+    this.logger.debug('Starting undelegation triggers...');
+    const undelegationsNotTriggered = await this.undelegationRepository.find({
+      triggered: false,
+    });
+    for (const undelegation of undelegationsNotTriggered) {
+      await this.delegationService.undelegateFromChain(undelegation);
+    }
+  }
+
+  @Cron('*/10 * * * *')
+  async confirmUndelegation() {
+    this.logger.debug('Starting undelegation confirmation worker...');
+    const currentTestnetBlock =
+      await this.testnetBlockchainService.getCurrentBlockNumber();
+    const currentMainnetBlock =
+      await this.mainnetBlockchainService.getCurrentBlockNumber();
+    let mainnetnetUndelegationsInScope = [];
+    let testnetUndelegationsInScope = [];
+    if (currentMainnetBlock) {
+      mainnetnetUndelegationsInScope = await this.undelegationRepository.find({
+        where: {
+          confirmationBlock: LessThan(currentMainnetBlock),
+          chain: NodeType.MAINNET,
+          confirmed: false,
+        },
+      });
+    }
+    if (currentTestnetBlock) {
+      testnetUndelegationsInScope = await this.undelegationRepository.find({
+        where: {
+          confirmationBlock: LessThan(currentTestnetBlock),
+          chain: NodeType.TESTNET,
+          confirmed: false,
+        },
+      });
+    }
+    const undelegationsInScope = testnetUndelegationsInScope.concat(
+      mainnetnetUndelegationsInScope,
+    );
+    for (const undelegation of undelegationsInScope) {
+      await this.delegationService.confirmUndelegation(undelegation);
+      this.logger.log(
+        `Confirmed undelegation for validator ${undelegation.address}`,
+      );
     }
   }
 }

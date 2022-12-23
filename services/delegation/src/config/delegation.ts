@@ -29,5 +29,8 @@ export default registerAs('delegation', () => {
     ),
     mainnetDelegation: ethers.BigNumber.from(10).pow(18),
     testnetOwnNodes: ownNodes,
+    undelegationConfirmationDelay: Number(
+      process.env.NR_BLOCKS_UNDELEGATION_DELAY || 5,
+    ),
   };
 });
