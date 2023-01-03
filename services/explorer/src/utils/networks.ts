@@ -1,31 +1,30 @@
-import { SELECTED_NETWORK, Network } from './Enums';
+import { Network, NetworkGraphQLEndpoints, SELECTED_NETWORK } from './Enums';
 import {
-  GRAPHQL_API_TESTNET,
-  GRAPHQL_API_DEVNET,
-  GRAPHQL_API_MAINNET,
   MAINNET_API,
   TESTNET_API,
   DEVNET_API,
+  TESTNET_FAUCET_API,
+  DEVNET_FAUCET_API,
 } from '../api';
 
 export const recreateGraphQLConnection = (): string => {
-  const network = localStorage.getItem(SELECTED_NETWORK);
+  const network = localStorage.getItem(SELECTED_NETWORK) || '';
   let connectionString: string;
   switch (network) {
     case Network.MAINNET: {
-      connectionString = GRAPHQL_API_MAINNET;
+      connectionString = NetworkGraphQLEndpoints.MAINNET;
       break;
     }
     case Network.TESTNET: {
-      connectionString = GRAPHQL_API_TESTNET;
+      connectionString = NetworkGraphQLEndpoints.TESTNET;
       break;
     }
     case Network.DEVNET: {
-      connectionString = GRAPHQL_API_DEVNET;
+      connectionString = NetworkGraphQLEndpoints.DEVNET;
       break;
     }
     default: {
-      connectionString = GRAPHQL_API_TESTNET;
+      connectionString = NetworkGraphQLEndpoints.TESTNET;
       break;
     }
   }
@@ -50,6 +49,30 @@ export const recreateAPIConnection = (): string => {
     }
     default: {
       connectionString = TESTNET_API;
+      break;
+    }
+  }
+  return connectionString;
+};
+
+export const recreateFaucetConnection = (): string => {
+  const network = localStorage.getItem(SELECTED_NETWORK);
+  let connectionString: string;
+  switch (network) {
+    case Network.MAINNET: {
+      connectionString = TESTNET_FAUCET_API;
+      break;
+    }
+    case Network.TESTNET: {
+      connectionString = TESTNET_FAUCET_API;
+      break;
+    }
+    case Network.DEVNET: {
+      connectionString = DEVNET_FAUCET_API;
+      break;
+    }
+    default: {
+      connectionString = TESTNET_FAUCET_API;
       break;
     }
   }

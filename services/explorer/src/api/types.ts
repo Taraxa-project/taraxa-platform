@@ -1,11 +1,11 @@
 import { ITaraxaNode } from '@taraxa_project/explorer-shared';
 
-export const GRAPHQL_API_MAINNET = `${process.env.REACT_APP_GRAPHQL_MAINNET}`;
-export const GRAPHQL_API_TESTNET = `${process.env.REACT_APP_GRAPHQL_TESTNET}`;
-export const GRAPHQL_API_DEVNET = `${process.env.REACT_APP_GRAPHQL_DEVNET}`;
-export const MAINNET_API = `${process.env.REACT_APP_API_HOST}`;
-export const TESTNET_API = `${process.env.REACT_APP_API_HOST}`;
-export const DEVNET_API = `${process.env.REACT_APP_API_HOST}`;
+export const MAINNET_API = `${process.env.REACT_APP_MAINNET_API_HOST}`;
+export const TESTNET_API = `${process.env.REACT_APP_TESTNET_API_HOST}`;
+export const DEVNET_API = `${process.env.REACT_APP_DEVNET_API_HOST}`;
+
+export const TESTNET_FAUCET_API = `${process.env.REACT_APP_TESTNET_FAUCET_HOST}`;
+export const DEVNET_FAUCET_API = `${process.env.REACT_APP_DEVNET_FAUCET_HOST}`;
 
 export type DagBlockFilters = {
   dagLevel: number;
