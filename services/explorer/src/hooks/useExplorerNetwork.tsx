@@ -1,11 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import {
-  Network,
-  getDomainName,
-  SELECTED_NETWORK,
-  recreateGraphQLConnection,
-  recreateAPIConnection,
-} from '../utils';
+import { Network, getDomainName, SELECTED_NETWORK } from '../utils';
 
 type Context = {
   networks: string[];
@@ -35,8 +29,6 @@ const useNetworkSelection = () => {
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
     localStorage.setItem(SELECTED_NETWORK, network);
-    recreateGraphQLConnection();
-    recreateAPIConnection();
     // unfortunately we need to reload
     window.location.reload();
   };
