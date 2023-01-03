@@ -1,5 +1,7 @@
 node_modules/
+bin/
 lib/
+data/
 yarn-error.log
 
 # compiled output
