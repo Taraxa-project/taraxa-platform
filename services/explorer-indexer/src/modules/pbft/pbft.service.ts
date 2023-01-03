@@ -7,6 +7,7 @@ import {
   toChecksumAddress,
   PbftEntity,
 } from '@taraxa_project/explorer-shared';
+import dataSourceOptions from 'src/data-source.options';
 import { IGQLPBFT } from 'src/types';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import DagService from '../dag/dag.service';
@@ -37,14 +38,16 @@ export default class PbftService {
   public async getMissingPbftPeriods() {
     const lastBlockSaved = (
       await this.pbftRepository.query(
-        'SELECT MAX("number") as "last_saved" FROM public.pbfts'
+        `SELECT MAX("number") as "last_saved" FROM public.${dataSourceOptions.entityPrefix}pbfts`
       )
     )[0].last_saved;
     const missingNumbers: number[] = (
       await this.pbftRepository.query(
         `SELECT s.i AS "missing_number" FROM generate_series(0, ${
           lastBlockSaved || 0
-        }) s(i) WHERE NOT EXISTS (SELECT 1 FROM public.pbfts WHERE number = s.i)`
+        }) s(i) WHERE NOT EXISTS (SELECT 1 FROM public.${
+          dataSourceOptions.entityPrefix
+        }pbfts WHERE number = s.i)`
       )
     ).map((res: { missing_number: number }) => res.missing_number);
     return missingNumbers;
