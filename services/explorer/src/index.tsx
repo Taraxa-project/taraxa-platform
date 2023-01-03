@@ -3,22 +3,34 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import {
-  createClient as urqlCreatClient,
+  createClient as urqlCreateClient,
   Provider as UrqlProvider,
 } from 'urql';
 import { QueryClientProvider, QueryClient } from 'react-query';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ExplorerThemeProvider } from './theme-provider';
-import { GRAPHQL_API } from './api';
+
 import {
   ExplorerNetworkProvider,
   ExplorerLoaderProvider,
   NodeStateProvider,
 } from './hooks';
+import { recreateAPIConnection, recreateGraphQLConnection } from './utils';
+import { TESTNET_API } from './api';
 
-export const graphQLClient = urqlCreatClient({
-  url: GRAPHQL_API,
+export let API = TESTNET_API;
+
+export let graphQLClient = urqlCreateClient({
+  url: recreateGraphQLConnection(),
+});
+
+window.addEventListener('storage', () => {
+  // When local storage changes, recreate the connections
+  graphQLClient = urqlCreateClient({
+    url: recreateGraphQLConnection(),
+  });
+  API = recreateAPIConnection();
 });
 
 const queryClient = new QueryClient({
