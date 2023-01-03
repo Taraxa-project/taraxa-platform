@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { zeroX } from '@taraxa_project/explorer-shared';
-import _, { add } from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
@@ -10,6 +9,8 @@ import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { QueueData, QueueJobs, SyncTypes } from '../../types';
+import QueuePopulatorCache from './queuePopulatorCache';
+
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
@@ -115,6 +116,21 @@ export default class HistoricalSyncService implements OnModuleInit {
     this.syncState = _syncState;
   }
 
+  private async pushChunksBulk(
+    chunks: { name: QueueJobs; data: { pbftPeriod: number } }[],
+    message: string
+  ) {
+    try {
+      const added = await this.pbftsQueue.addBulk(chunks);
+      if (added) {
+        this.logger.log(message);
+        chunks.length = 0;
+      }
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
   /**
    * Syncs the missing chain history to the explorer's database using the new Taraxa Node GraphQL inteface.
    * @returns void
@@ -133,13 +149,23 @@ export default class HistoricalSyncService implements OnModuleInit {
     const reorgThreshold =
       this.configService.get<number>('general.reorgThreshold') || 100;
     // if genesis block changes or the chain has lesser blocks than the syncer state(reset happened), resync
+    const isGenesys = this.chainState.genesis;
+    const genesysNotMatching =
+      this.chainState.genesis.toLowerCase() !==
+      this.syncState.genesis.toLowerCase();
+    const reorgDetected =
+      this.chainState.number < this.syncState.number - reorgThreshold;
     if (
-      !this.chainState.genesis || //there is no genesys
-      this.chainState.genesis !== this.syncState.genesis || // genesys hash is different
-      this.chainState.number < this.syncState.number - reorgThreshold // there has been a network reset not just a tip reformation
+      !isGenesys || //there is no genesys
+      genesysNotMatching || // genesys hash is different
+      reorgDetected // there has been a network reset not just a tip reformation
     ) {
       this.logger.warn(
-        'New genesis block hash or network reset detected. Restarting chain sync.'
+        `${isGenesys && 'No genesis block hash'}
+             ${genesysNotMatching && 'New genesis block hash'}
+            ${
+              reorgDetected && ', Network reset'
+            } detected. Restarting chain sync.`
       );
       // reset the database and remove the queue entries
       await this.txService.clearTransactionData();
@@ -192,34 +218,30 @@ export default class HistoricalSyncService implements OnModuleInit {
     // @note : Right now there is no way to get the genesis transactions to set:
     // Initial validators, initial balances for delegators and faucet.
     // big TODO
-    const chuncks = [
-      {
+    // initialize a cache taht takes care of bulk sending
+    const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
+    await queueCache.add({
+      name: QueueJobs.NEW_PBFT_BLOCKS,
+      data: {
+        pbftPeriod: 0,
+      },
+    });
+    const missingBlockNumbers = await this.pbftService.getMissingPbftPeriods();
+    for (const blockNumber of missingBlockNumbers) {
+      await queueCache.add({
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
-          pbftPeriod: 0,
-        },
-      },
-    ];
-    const foundBlockNumbers = await this.pbftService.getSavedPbftPeriods();
-    const maxVal = foundBlockNumbers.sort((a, b) => b - a)[0];
-
-    for (let i = 1; i <= maxVal; i++) {
-      if (foundBlockNumbers.indexOf(i) == -1) {
-        chuncks.push({
-          name: QueueJobs.NEW_PBFT_BLOCKS,
-          data: {
-            pbftPeriod: i,
-            type: SyncTypes.HISTORICAL,
-          } as QueueData,
-        });
-      }
+          pbftPeriod: blockNumber,
+          type: SyncTypes.HISTORICAL,
+        } as QueueData,
+      });
     }
     for (
       this.syncState.number;
       this.syncState.number < this.chainState.number;
       this.syncState.number++
     ) {
-      chuncks.push({
+      await queueCache.add({
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
           pbftPeriod: this.syncState.number,
@@ -227,13 +249,7 @@ export default class HistoricalSyncService implements OnModuleInit {
         } as QueueData,
       });
     }
-    try {
-      const added = await this.pbftsQueue.addBulk(chuncks);
-      if (added) {
-        this.logger.log(`Added ${chuncks.length} PBFT periods in Queue`);
-      }
-    } catch (error) {
-      this.logger.error(error);
-    }
+    // at the end of iteration, clear the cache
+    await queueCache.clearCache();
   }
 }

@@ -4,7 +4,7 @@ import { DagModule } from '../dag';
 import { LiveSyncerModule } from '../live-sync';
 import { PbftModule } from '../pbft';
 import { HealthController } from './health.controller';
-import { SyncerHealthIndicator } from './SyncerHealthIndicator';
+import { SyncerHealthIndicator } from './syncerHealthIndicator';
 import * as dotenv from 'dotenv';
 import { ProducerHealthController } from './producerHealth.controller';
 import { ProducerHealthIndicator } from './producerHealthIndicator';
