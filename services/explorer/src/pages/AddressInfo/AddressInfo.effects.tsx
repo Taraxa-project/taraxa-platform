@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
+import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { accountQuery } from '../../api/graphql/queries/account';
-import { useExplorerLoader } from '../../hooks/useLoader';
+import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
   useGetBlocksByAddress,
@@ -11,7 +12,6 @@ import {
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
-import { useExplorerNetwork } from 'src/hooks';
 
 export interface TransactionResponse {
   hash: string;
@@ -44,7 +44,10 @@ export const useAddressInfoEffects = (
     pause: !account,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
-  const { backendEndpoint } = useExplorerNetwork();
+  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
+  const navigate = useNavigate();
+  const [network] = useState(currentNetwork);
+
   const {
     data: nodeData,
     isFetching: isFetchingBlocks,
@@ -187,6 +190,12 @@ export const useAddressInfoEffects = (
     }
     setAddressInfoDetails(addressDetails);
   }, [details, data, nodeData, txData]);
+
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      navigate('/');
+    }
+  }, [currentNetwork, network]);
 
   return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };
 };
