@@ -1,10 +1,10 @@
 import { ToastData } from '../utils';
-import { faucetUri } from '../config';
 
 export async function sendRequestTokens(
   address: string,
   amount: number,
   currentNetwork: string,
+  faucetUri: string,
   cb: (data: ToastData) => void
 ): Promise<void> {
   try {

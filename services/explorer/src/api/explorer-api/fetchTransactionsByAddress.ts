@@ -1,17 +1,17 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
-import { API } from '../../index';
 
-const getByAddress = (address: string) => {
+const getByAddress = (endpoint: string, address: string) => {
   if (!address) {
     return;
   }
-  const url = `${API}/address/${address}/transactions`;
+  const url = `${endpoint}/address/${address}/transactions`;
   // eslint-disable-next-line consistent-return
   return axios.get(url);
 };
 
 export const useGetTransactionsByAddress = (
+  endpoint: string,
   address: string
 ): {
   data: AxiosResponse<any>;
@@ -22,7 +22,7 @@ export const useGetTransactionsByAddress = (
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
     ['transactions-by-address', address],
-    () => getByAddress(address),
+    () => getByAddress(endpoint, address),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

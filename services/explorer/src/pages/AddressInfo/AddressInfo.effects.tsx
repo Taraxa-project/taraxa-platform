@@ -11,6 +11,7 @@ import {
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
+import { useExplorerNetwork } from 'src/hooks';
 
 export interface TransactionResponse {
   hash: string;
@@ -43,32 +44,33 @@ export const useAddressInfoEffects = (
     pause: !account,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const { backendEndpoint } = useExplorerNetwork();
   const {
     data: nodeData,
     isFetching: isFetchingBlocks,
     isLoading: isLoadingBlocks,
-  } = useGetBlocksByAddress(account);
+  } = useGetBlocksByAddress(backendEndpoint, account);
   const {
     data: dagsData,
     isFetching: isFetchingDags,
     isLoading: isLoadingDags,
-  } = useGetDagsByAddress(account);
+  } = useGetDagsByAddress(backendEndpoint, account);
   const {
     data: pbftsData,
     isFetching: isFetchingPbfts,
     isLoading: isLoadingPbfts,
-  } = useGetPbftsByAddress(account);
+  } = useGetPbftsByAddress(backendEndpoint, account);
   const {
     data: txData,
     isFetching: isFetchingTx,
     isLoading: isLoadingTx,
-  } = useGetTransactionsByAddress(account);
+  } = useGetTransactionsByAddress(backendEndpoint, account);
 
   const {
     data: details,
     isFetching: isFetchingDetails,
     isLoading: isLoadingDetails,
-  } = useGetDetailsForAddress(account);
+  } = useGetDetailsForAddress(backendEndpoint, account);
 
   useEffect(() => {
     if (

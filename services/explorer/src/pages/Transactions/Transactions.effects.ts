@@ -11,8 +11,8 @@ import {
 import { blocksQueryWithTransactions } from '../../api';
 import { formatTransactionStatus } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
-import { displayThreshold } from '../../config';
 
+export const displayThreshold = process.env.DISPLAY_TXES_FOR_LAST_BLOCK || 25;
 export const useTransactionEffects = (): {
   data: TransactionTableData[];
   columns: ColumnData[];
