@@ -28,12 +28,7 @@ import { NodeDeletedListener } from './listener/node-deleted.listener';
 
 @Module({
   imports: [
-    HttpModule.registerAsync({
-      useFactory: () => ({
-        timeout: 5000,
-        maxRedirects: 5,
-      }),
-    }),
+    HttpModule.register({}),
     BullModule.registerQueue({
       name: 'node',
     }),
