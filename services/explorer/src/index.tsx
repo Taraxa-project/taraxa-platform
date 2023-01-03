@@ -15,15 +15,15 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ExplorerThemeProvider>
-      <ExplorerNetworkProvider>
-        <ExplorerLoaderProvider>
-          <BrowserRouter>
+      <BrowserRouter>
+        <ExplorerNetworkProvider>
+          <ExplorerLoaderProvider>
             <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
               <App />
             </SnackbarProvider>
-          </BrowserRouter>
-        </ExplorerLoaderProvider>
-      </ExplorerNetworkProvider>
+          </ExplorerLoaderProvider>
+        </ExplorerNetworkProvider>
+      </BrowserRouter>
     </ExplorerThemeProvider>
   </React.StrictMode>
 );
