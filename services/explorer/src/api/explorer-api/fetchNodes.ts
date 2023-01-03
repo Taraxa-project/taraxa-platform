@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import {
-  API,
   FetchNodesFilter,
   FetchNodesPagination,
   NodesPaginate,
 } from '../types';
+import { API } from '../../index';
 
 const computeFilters = ({
   rowsPerPage,

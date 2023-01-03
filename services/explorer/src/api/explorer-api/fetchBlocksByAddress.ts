@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
-import { API } from '../types';
+import { API } from '../../index';
 
 const getByAddress = (address: string) => {
   if (!address) {
