@@ -13,6 +13,7 @@ services:
     environment:
       PROVIDER: ws://taraxa-node:8777
       DB_DATABASE: /app/data/economics.sql
+      DPOS_CONTRACT_ADDRESS: "0x00000000000000000000000000000000000000fe"
     depends_on:
       taraxa-node:
         condition: service_healthy
