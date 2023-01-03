@@ -20,7 +20,9 @@ const NodesPage = (): JSX.Element => {
     totalCount,
   } = useNodesEffects();
 
-  const rows = tableData ? tableData.map((row) => toNodeTableRow(row)) : [];
+  const rows = tableData
+    ? [...tableData.map((row) => toNodeTableRow(row))]
+    : [];
 
   return (
     <>

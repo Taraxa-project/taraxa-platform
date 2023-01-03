@@ -15,7 +15,7 @@ const cols: ColumnData[] = [
 
 export const useNodesEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
-  const { backendEndpoint } = useExplorerNetwork();
+  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
 
   const weekNo = DateTime.now().weekNumber;
   const year = DateTime.now().year;
@@ -85,6 +85,11 @@ export const useNodesEffects = () => {
       setBlocks(totalBlocks.data);
     }
   }, [totalBlocks]);
+
+  useEffect(() => {
+    setTableData([]);
+    setBlocks(0);
+  }, [currentNetwork]);
 
   const handleChangePage = (newPage: number) => {
     setPage(newPage);

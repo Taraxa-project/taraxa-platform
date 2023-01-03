@@ -2,11 +2,16 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { DagBlockFilters, dagBlocksQuery } from '../../api';
-import { useExplorerLoader, useNodeStateContext } from '../../hooks';
+import {
+  useExplorerLoader,
+  useExplorerNetwork,
+  useNodeStateContext,
+} from '../../hooks';
 import { BlockData, ColumnData, DagBlock } from '../../models';
 
 export const useDagEffects = () => {
   const { dagBlockLevel } = useNodeStateContext();
+  const { currentNetwork } = useExplorerNetwork();
   const [data, setData] = useState<BlockData[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);
@@ -92,6 +97,10 @@ export const useDagEffects = () => {
       setData(data.concat(formatBlocksToTable(dagBlocksData?.dagBlocks)));
     }
   }, [dagBlocksData]);
+
+  useEffect(() => {
+    setData([]);
+  }, [currentNetwork]);
 
   return {
     data,

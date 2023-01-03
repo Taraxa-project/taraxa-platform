@@ -70,5 +70,9 @@ export const useTransactionEffects = (): {
     }
   }, [blockData]);
 
+  useEffect(() => {
+    setData([]);
+  }, [currentNetwork]);
+
   return { data, columns, currentNetwork };
 };
