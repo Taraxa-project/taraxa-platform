@@ -15,10 +15,10 @@
   "author": "Florin Georgescu <florin.georgescu@taraxa.io>",
   "license": "UNLICENSED",
   "dependencies": {
+    "better-sqlite3": "^8.0.1",
     "class-validator": "^0.14.0",
     "ethers": "^5.7.2",
     "reflect-metadata": "^0.1.13",
-    "sqlite3": "^5.1.4",
     "typeorm": "^0.3.11"
   },
   "devDependencies": {
