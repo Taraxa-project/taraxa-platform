@@ -18,6 +18,7 @@ services:
       taraxa-node:
         condition: service_healthy
     restart: always
+    network_mode: host
   taraxa-node:
     image: gcr.io/jovial-meridian-249123/taraxa-node:pr-2253-9150
     restart: always
