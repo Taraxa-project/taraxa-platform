@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { resolve } from 'path';
-import { existsSync } from 'fs';
 import { NodeModule, PbftModule, HealthModule, AddressModule } from './modules';
 import {
   NodeEntity,
@@ -10,18 +8,7 @@ import {
   DagEntity,
   TransactionEntity,
 } from '@taraxa_project/explorer-shared';
-
-const getEnvFilePath = () => {
-  const pathsToTest = ['../.env', '../../.env', '../../../.env'];
-
-  for (const pathToTest of pathsToTest) {
-    const resolvedPath = resolve(__dirname, pathToTest);
-
-    if (existsSync(resolvedPath)) {
-      return resolvedPath;
-    }
-  }
-};
+import generalConfig from './config/general';
 
 export const entities = [NodeEntity, PbftEntity, DagEntity, TransactionEntity];
 
@@ -40,9 +27,9 @@ const IndexerTypeOrmModule = () => {
         type: 'postgres',
         host: process.env.DB_HOST ?? 'localhost',
         port: Number(process.env.DB_PORT) || 5432,
-        username: process.env.DB_USERNAME || 'postgres',
+        username: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_DATABASE || 'explorer_indexer',
+        database: process.env.DB_NAME || 'explorer_indexer',
         entities,
         synchronize: false,
         autoLoadEntities: true,
@@ -66,8 +53,8 @@ const IndexerTypeOrmModule = () => {
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: getEnvFilePath(),
       isGlobal: true,
+      load: [generalConfig],
     }),
     IndexerTypeOrmModule(),
     NodeModule,

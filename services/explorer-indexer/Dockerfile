@@ -9,8 +9,6 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json yarn.lock ./
-
-COPY package.json yarn.lock ./
 COPY packages/explorer-shared/package.json ./packages/explorer-shared/
 COPY services/explorer-indexer/package.json ./services/explorer-indexer/
 

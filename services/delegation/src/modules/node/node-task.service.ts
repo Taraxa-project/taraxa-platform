@@ -31,39 +31,51 @@ export class NodeTaskService implements OnModuleInit {
     );
 
     const nodes = await this.nodeRepository.find();
+    let count = 0;
     for (const node of nodes) {
+      count++;
+      this.logger.debug(
+        `- ${count} / ${
+          nodes.length
+        }: getting stats for node ${node.address.toLowerCase()}`,
+      );
       const uri = `/api/address/${node.address.toLowerCase()}/stats`;
       const url =
         node.type === NodeType.MAINNET
           ? `${mainnetExplorerUrl}${uri}`
           : `${testnetExplorerUrl}${uri}`;
-      const stats = await this.httpService
-        .get(url, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        .toPromise();
-      if (stats.status !== 200) {
+
+      try {
+        const stats = await this.httpService
+          .get(url, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+          .toPromise();
+        if (stats.status !== 200) {
+          this.logger.error(`Could not get stats for node ${node.address}`);
+        }
+
+        const {
+          totalProduced,
+          firstBlockTimestamp,
+          lastBlockTimestamp,
+          rank,
+          produced,
+        } = stats.data;
+
+        const n = await this.nodeRepository.findOneOrFail(node.id);
+        n.blocksProduced = totalProduced;
+        n.firstBlockCreatedAt = firstBlockTimestamp;
+        n.lastBlockCreatedAt = lastBlockTimestamp;
+        n.weeklyRank = rank;
+        n.weeklyBlocksProduced = produced;
+
+        await this.nodeRepository.save(n);
+      } catch (e) {
         this.logger.error(`Could not get stats for node ${node.address}`);
       }
-
-      const {
-        totalProduced,
-        firstBlockTimestamp,
-        lastBlockTimestamp,
-        rank,
-        produced,
-      } = stats.data;
-
-      const n = await this.nodeRepository.findOneOrFail(node.id);
-      n.blocksProduced = totalProduced;
-      n.firstBlockCreatedAt = firstBlockTimestamp;
-      n.lastBlockCreatedAt = lastBlockTimestamp;
-      n.weeklyRank = rank;
-      n.weeklyBlocksProduced = produced;
-
-      await this.nodeRepository.save(n);
     }
   }
 }
