@@ -48,6 +48,7 @@
     "watch:status": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn status-start\"",
     "watch:ui": "nodemon -w \"packages/taraxa-ui/src/*\" -x \"yarn ui-build && yarn community-build \"",
     "economics:start": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/economics-rewards start",
+    "economics:generate:csv": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/economics-rewards generate:csv",
     "economics:run": "nodemon \"services/economics-rewards/src/*\" -x \"yarn economics:start || touch index.ts \""
   },
   "lint-staged": {

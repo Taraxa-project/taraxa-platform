@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
+    "generate:csv": "ts-node src/writer.ts",
     "start:prod": "node bin/src/index.js",
     "build": "tsc"
   },
@@ -17,6 +18,7 @@
   "dependencies": {
     "better-sqlite3": "^8.0.1",
     "class-validator": "^0.14.0",
+    "csv-writer": "^1.6.0",
     "ethers": "^5.7.2",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.11"

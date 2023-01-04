@@ -62,3 +62,19 @@ export const deleteLatestValidatorsWhereBlock = async (blockNumber: number) => {
     .where('blockNumber = :blockNumber', { blockNumber })
     .execute();
 };
+
+export const getValidators = async (): Promise<ValidatorEntity[]> => {
+  return await AppDataSource.manager
+    .getRepository(ValidatorEntity)
+    .createQueryBuilder()
+    .select()
+    .getMany();
+};
+
+export const getDelegators = async (): Promise<DelegatorEntity[]> => {
+  return await AppDataSource.manager
+    .getRepository(DelegatorEntity)
+    .createQueryBuilder()
+    .select()
+    .getMany();
+};
