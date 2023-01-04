@@ -2,6 +2,8 @@ node_modules/
 bin/
 lib/
 data/
+!data/economics/.gitkeep
+!data/node/.gitkeep
 yarn-error.log
 
 # compiled output

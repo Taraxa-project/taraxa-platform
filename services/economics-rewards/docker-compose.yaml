@@ -8,10 +8,10 @@ services:
       dockerfile: services/economics-rewards/Dockerfile
     command: yarn workspace @taraxa_project/economics-rewards start:prod
     volumes:
-      - ./data:/app/data
+      - ./data/economics:/app/data
       - /app/node_modules
     environment:
-      PROVIDER: ws://taraxa-node:8777
+      PROVIDER: ws://127.0.0.1:8777
       DB_DATABASE: /app/data/economics.sql
       DPOS_CONTRACT_ADDRESS: "0x00000000000000000000000000000000000000fe"
     depends_on:
@@ -29,12 +29,11 @@ services:
       - 7777:7777
       - 8777:8777
     volumes:
-      - node-data:/opt/taraxa_data/data
+      - ./data/node:/opt/taraxa_data/data
+    network_mode: host
     healthcheck:
       test: curl --silent --show-error http://127.0.0.1:8777 || exit 1
       interval: 10s
       retries: 5
       start_period: 20s
       timeout: 10s
-volumes:
-  node-data:
