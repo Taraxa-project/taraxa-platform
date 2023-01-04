@@ -15,6 +15,7 @@ async function main() {
   for (let i = startBlock; i <= currentBlock; i++) {
     await getBlockValidators(i);
     await getBlockDelegators(i);
+    console.log('Finishing block: ', i);
   }
   process.exit();
 }

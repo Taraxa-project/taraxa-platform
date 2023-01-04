@@ -22,10 +22,10 @@ export const saveValidator = async (validator: Validator) => {
     .orIgnore(true)
     .execute();
 
-  if (saved.raw[0]) {
+  if (saved.raw) {
     console.log('Registered new reward entry');
   }
-  return saved.raw[0];
+  return saved.raw;
 };
 
 export const saveDelegator = async (delegator: Delegator) => {
@@ -38,10 +38,10 @@ export const saveDelegator = async (delegator: Delegator) => {
     .orIgnore(true)
     .execute();
 
-  if (saved.raw[0]) {
+  if (saved.raw) {
     console.log('Registered new delegator entry');
   }
-  return saved.raw[0];
+  return saved.raw;
 };
 
 export const fetchLatestBlockNumber = async (): Promise<number | undefined> => {
