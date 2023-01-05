@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import {
-  API,
   FetchNodesFilter,
   FetchNodesPagination,
   NodesPaginate,
@@ -19,13 +18,14 @@ const computeFilters = ({
   };
 };
 
-const fetchNodes = async (params: FetchNodesFilter) => {
-  const url = `${API}/nodes`;
+const fetchNodes = async (endpoint: string, params: FetchNodesFilter) => {
+  const url = `${endpoint}/nodes`;
   const { data } = await axios.get(url, { params });
   return data as NodesPaginate;
 };
 
 export const useGetNodes = (
+  endpoint: string,
   params: FetchNodesPagination
 ): {
   data: NodesPaginate;
@@ -36,7 +36,7 @@ export const useGetNodes = (
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
     ['nodes', params],
-    () => fetchNodes(computeFilters(params)),
+    () => fetchNodes(endpoint, computeFilters(params)),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

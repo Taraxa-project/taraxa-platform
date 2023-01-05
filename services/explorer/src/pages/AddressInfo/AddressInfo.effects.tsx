@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
+import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { accountQuery } from '../../api/graphql/queries/account';
-import { useExplorerLoader } from '../../hooks/useLoader';
+import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
   useGetBlocksByAddress,
@@ -43,32 +44,36 @@ export const useAddressInfoEffects = (
     pause: !account,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
+  const navigate = useNavigate();
+  const [network] = useState(currentNetwork);
+
   const {
     data: nodeData,
     isFetching: isFetchingBlocks,
     isLoading: isLoadingBlocks,
-  } = useGetBlocksByAddress(account);
+  } = useGetBlocksByAddress(backendEndpoint, account);
   const {
     data: dagsData,
     isFetching: isFetchingDags,
     isLoading: isLoadingDags,
-  } = useGetDagsByAddress(account);
+  } = useGetDagsByAddress(backendEndpoint, account);
   const {
     data: pbftsData,
     isFetching: isFetchingPbfts,
     isLoading: isLoadingPbfts,
-  } = useGetPbftsByAddress(account);
+  } = useGetPbftsByAddress(backendEndpoint, account);
   const {
     data: txData,
     isFetching: isFetchingTx,
     isLoading: isLoadingTx,
-  } = useGetTransactionsByAddress(account);
+  } = useGetTransactionsByAddress(backendEndpoint, account);
 
   const {
     data: details,
     isFetching: isFetchingDetails,
     isLoading: isLoadingDetails,
-  } = useGetDetailsForAddress(account);
+  } = useGetDetailsForAddress(backendEndpoint, account);
 
   useEffect(() => {
     if (
@@ -185,6 +190,12 @@ export const useAddressInfoEffects = (
     }
     setAddressInfoDetails(addressDetails);
   }, [details, data, nodeData, txData]);
+
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      navigate('/');
+    }
+  }, [currentNetwork, network]);
 
   return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };
 };

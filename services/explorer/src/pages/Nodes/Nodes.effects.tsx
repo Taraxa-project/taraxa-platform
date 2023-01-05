@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import { ColumnData, NodesTableData } from '../../models';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { RankedNode, useGetBlocksThisWeek, useGetNodes } from '../../api';
+import { useExplorerNetwork } from 'src/hooks';
 
 const cols: ColumnData[] = [
   { path: 'rank', name: 'Rank' },
@@ -14,6 +15,7 @@ const cols: ColumnData[] = [
 
 export const useNodesEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
+  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
 
   const weekNo = DateTime.now().weekNumber;
   const year = DateTime.now().year;
@@ -33,12 +35,12 @@ export const useNodesEffects = () => {
     data: nodesResult,
     isFetching,
     isLoading,
-  } = useGetNodes({ rowsPerPage, page });
+  } = useGetNodes(backendEndpoint, { rowsPerPage, page });
   const {
     data: totalBlocks,
     isFetching: isFetchingTotalBlocks,
     isLoading: isLoadingTotalBlocks,
-  } = useGetBlocksThisWeek();
+  } = useGetBlocksThisWeek(backendEndpoint);
 
   const formatNodesToTable = (nodes: RankedNode[]): NodesTableData[] => {
     if (!nodes?.length) {
@@ -83,6 +85,11 @@ export const useNodesEffects = () => {
       setBlocks(totalBlocks.data);
     }
   }, [totalBlocks]);
+
+  useEffect(() => {
+    setTableData([]);
+    setBlocks(0);
+  }, [currentNetwork]);
 
   const handleChangePage = (newPage: number) => {
     setPage(newPage);

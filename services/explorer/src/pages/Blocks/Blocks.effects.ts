@@ -83,6 +83,10 @@ export const useBlockEffects = () => {
   }, [blocksData]);
 
   useEffect(() => {
+    setData([]);
+  }, [currentNetwork]);
+
+  useEffect(() => {
     if (finalBlock) {
       setBlocksFilter({ from: finalBlock, to: finalBlock - (rowsPerPage - 1) });
     }
