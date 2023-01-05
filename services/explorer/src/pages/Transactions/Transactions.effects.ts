@@ -53,7 +53,7 @@ export const useTransactionEffects = (): {
         if (block) {
           const transactions = block?.transactions;
           if (transactions?.length) {
-            const rows = transactions.map((transaction: Transaction) => {
+            const rows = transactions?.map((transaction: Transaction) => {
               return {
                 timestamp: Number(block?.timestamp),
                 block: `${block?.number}`,

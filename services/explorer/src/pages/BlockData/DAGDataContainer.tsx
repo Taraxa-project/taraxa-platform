@@ -91,7 +91,7 @@ const DAGDataContainer = (): JSX.Element => {
               title='Pivot'
               data={
                 <HashLink
-                  linkType={HashLinkType.TRANSACTIONS}
+                  linkType={HashLinkType.BLOCKS}
                   width='auto'
                   hash={blockData?.pivot}
                 />

@@ -62,7 +62,7 @@ export const useDagEffects = () => {
       return [];
     }
     const formattedBlocks: BlockData[] = blocks
-      .map((block: DagBlock) => {
+      ?.map((block: DagBlock) => {
         return {
           timestamp: block.timestamp,
           level: block.level,

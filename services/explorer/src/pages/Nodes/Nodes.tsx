@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
 import { toNodeTableRow } from '../../utils';
+import { NodesTableData } from '../../models';
 
 const NodesPage = (): JSX.Element => {
   const {
@@ -20,9 +21,10 @@ const NodesPage = (): JSX.Element => {
     totalCount,
   } = useNodesEffects();
 
-  const rows = tableData
-    ? [...tableData.map((row) => toNodeTableRow(row))]
-    : [];
+  const rows =
+    tableData && tableData.length > 0
+      ? [...tableData.map((row: NodesTableData) => toNodeTableRow(row))]
+      : [];
 
   return (
     <>
