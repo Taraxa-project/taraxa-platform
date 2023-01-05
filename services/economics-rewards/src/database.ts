@@ -78,3 +78,20 @@ export const getDelegators = async (): Promise<DelegatorEntity[]> => {
     .select()
     .getMany();
 };
+
+export const getRewards = async (): Promise<any> => {
+  const leftTableName = 'validator';
+  const rightTableName = 'delegator';
+  const commonColumn1 = 'blockNumber';
+  const commonLeftColumn2 = 'account';
+  const commonRightColumn2 = 'validator';
+
+  const results = await AppDataSource.manager.query(`
+    SELECT ${leftTableName}.blockNumber, ${leftTableName}.blockTimestamp, ${leftTableName}.blockHash, ${leftTableName}.commission, ${leftTableName}.commissionReward, ${rightTableName}.validator, ${rightTableName}.delegator, ${rightTableName}.stake, ${rightTableName}.rewards
+    FROM ${leftTableName}
+    INNER JOIN ${rightTableName}
+    ON ${leftTableName}.${commonColumn1} = ${rightTableName}.${commonColumn1} AND ${leftTableName}.${commonLeftColumn2} = ${rightTableName}.${commonRightColumn2}
+  `);
+
+  return results;
+};
