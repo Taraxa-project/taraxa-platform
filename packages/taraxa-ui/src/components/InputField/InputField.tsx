@@ -6,10 +6,10 @@ import {
   ThemeProvider,
 } from '@mui/material';
 import theme from '../theme';
-import './inputfield.scss';
+import useStyles from './InputField.styles';
 
 export type InputFieldProps = {
-  label: string;
+  label?: string;
   id?: string;
   color?: 'primary' | 'secondary';
   defaultValue?: string;
@@ -34,10 +34,14 @@ export type InputFieldProps = {
 } & TextFieldProps;
 
 const InputField = ({ max, min, ...props }: InputFieldProps) => {
+  const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <TextField
+        classes={{
+          root: classes.input,
+        }}
         InputProps={
           max && min
             ? {

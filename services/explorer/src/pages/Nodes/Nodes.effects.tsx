@@ -26,7 +26,7 @@ export const useNodesEffects = () => {
   const description = 'Total blocks produced this week';
 
   const [tableData, setTableData] = useState<NodesTableData[]>([]);
-  const [totalCount, setTotalCount] = useState<number>();
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [blocks, setBlocks] = useState<number>(0);
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -43,15 +43,15 @@ export const useNodesEffects = () => {
   } = useGetBlocksThisWeek(backendEndpoint);
 
   const formatNodesToTable = (nodes: RankedNode[]): NodesTableData[] => {
-    if (!nodes?.length) {
+    if (nodes?.length === 0) {
       return [];
     }
-    const formattedNodes: NodesTableData[] = nodes.map(
+    const formattedNodes: NodesTableData[] = nodes?.map(
       (node: RankedNode, i: number) => {
         return {
           rank: tableData?.length > 0 ? tableData.length + i + 1 : i + 1,
-          nodeAddress: node.address,
-          blocksProduced: node.pbftCount,
+          nodeAddress: node?.address,
+          blocksProduced: node?.pbftCount,
         };
       }
     );
@@ -81,7 +81,7 @@ export const useNodesEffects = () => {
   }, [nodesResult]);
 
   useEffect(() => {
-    if (totalBlocks?.data) {
+    if (totalBlocks?.data && !isNaN(totalBlocks?.data)) {
       setBlocks(totalBlocks.data);
     }
   }, [totalBlocks]);

@@ -120,7 +120,10 @@ export const useAddressInfoEffects = (
   const formatToTransaction = (
     transactions: TransactionResponse[]
   ): Transaction[] => {
-    return transactions.map((tx) => {
+    if (transactions?.length === 0) {
+      return [];
+    }
+    return transactions?.map((tx) => {
       return {
         hash: tx.hash,
         block: {

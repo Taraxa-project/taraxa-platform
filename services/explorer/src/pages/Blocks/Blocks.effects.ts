@@ -55,7 +55,7 @@ export const useBlockEffects = () => {
       return [];
     }
     const formattedBlocks: BlockData[] = blocks
-      .map((block: PbftBlock) => {
+      ?.map((block: PbftBlock) => {
         return {
           timestamp: block.timestamp,
           block: block.number,
