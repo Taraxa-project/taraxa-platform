@@ -42,7 +42,7 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
             </Typography>
           )}
           {blockNumber && (
-            <Typography variant='body2' color='common.white' minWidth='125px'>
+            <Typography variant='body2' color='common.white' minWidth='135px'>
               <strong>Block No.: </strong> {blockNumber}
             </Typography>
           )}

@@ -41,7 +41,7 @@ export const useHeaderEffects = () => {
   const { networks, currentNetwork, setNetwork, disableNetworkSelection } =
     useExplorerNetwork();
   const [drawerState, setDrawerState] = useState<boolean>(false);
-  const [searchString, setSearchString] = useState<string>(null);
+  const [searchString, setSearchString] = useState<string>('');
   const [searchHash, setSearchHash] = useState<string>(null);
   const [searchBlockNumber, setSearchBlockNumber] = useState<number>(null);
   const [searchAddress, setSearchAddress] = useState<string>(null);
@@ -233,7 +233,7 @@ export const useHeaderEffects = () => {
 
   const onLabelSelect = (option: Option) => {
     setSearchOptions([]);
-    setSearchString(null);
+    setSearchString('');
     if (!option) {
       return;
     }
@@ -265,6 +265,12 @@ export const useHeaderEffects = () => {
     );
   }, [location]);
 
+  const onClear = () => {
+    clearSearch();
+    setSearchOptions([]);
+    setSearchString('');
+  };
+
   return {
     headerButtons,
     buttons,
@@ -279,5 +285,6 @@ export const useHeaderEffects = () => {
     searchString,
     setNetwork,
     disableNetworkSelection,
+    onClear,
   };
 };

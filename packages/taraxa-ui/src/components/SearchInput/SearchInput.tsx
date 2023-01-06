@@ -1,14 +1,19 @@
-import React, { ChangeEvent, useEffect, useMemo } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 import {
+  Box,
   CssBaseline,
+  IconButton,
   InputAdornment,
-  InputBase,
-  ListItem,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  MenuList,
+  Paper,
+  TextField,
+  TextFieldProps,
   ThemeProvider,
 } from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
+import CloseIcon from '@mui/icons-material/Close';
 import debounce from 'lodash.debounce';
 import useStyles from './SearchInput.styles';
 import { Search, RightArrow, NotFound } from '../Icons';
@@ -26,26 +31,31 @@ export interface SearchInputProps {
   fullWidth?: boolean;
   onChange?: (value: Option | null) => void;
   onInputChange?: (value: string) => void;
+  onClear?: () => void;
   className?: string;
   open?: boolean;
   options?: Option[];
   loading?: boolean;
+  value?: string;
 }
 
 const SearchOption = ({
   type,
   label,
+  onClick,
   ...props
 }: {
   type: string;
   label: string;
+  onClick: () => void;
   props?: React.HTMLAttributes<HTMLLIElement>;
 }) => {
   const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <ListItem
+      <MenuItem
+        onClick={onClick}
         disableGutters
         classes={{
           root: classes.listItem,
@@ -65,10 +75,50 @@ const SearchOption = ({
         <ListItemIcon classes={{ root: classes.listItemSecondaryRoot }}>
           <RightArrow />
         </ListItemIcon>
-      </ListItem>
+      </MenuItem>
     </ThemeProvider>
   );
 };
+
+interface AbsolutePaperProps {
+  children?: React.ReactNode;
+  classes: string;
+  visibility: 'visible' | 'hidden' | 'collapse';
+}
+
+const AbsolutePaper: React.ForwardRefRenderFunction<
+  HTMLDivElement,
+  AbsolutePaperProps
+> = ({ children, classes, visibility, ...props }, ref) => {
+  return (
+    <Paper ref={ref} className={classes} {...props} style={{ visibility }}>
+      {children}
+    </Paper>
+  );
+};
+
+const AbsolutePaperWithRef = forwardRef(AbsolutePaper);
+
+export type SearchTextFieldProps = {
+  rootClass: string;
+} & TextFieldProps;
+
+const CustomInputField: React.ForwardRefRenderFunction<
+  HTMLInputElement,
+  SearchTextFieldProps
+> = ({ rootClass, ...props }, ref) => {
+  return (
+    <TextField
+      ref={ref}
+      {...props}
+      classes={{
+        root: rootClass,
+      }}
+    />
+  );
+};
+
+const CustomInputFieldWithRef = forwardRef(CustomInputField);
 
 const SearchInput = ({
   placeholder,
@@ -79,13 +129,21 @@ const SearchInput = ({
   className,
   onChange,
   onInputChange,
+  onClear,
+  value,
 }: SearchInputProps) => {
   const classes = useStyles();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const absoluteElementRef = useRef<HTMLDivElement>(null);
 
-  const handleOptionSelect = (
-    event: ChangeEvent<any>,
-    value: Option | null
-  ) => {
+  useEffect(() => {
+    const searchInputWidth = searchInputRef.current?.offsetWidth;
+    if (searchInputWidth && absoluteElementRef.current) {
+      absoluteElementRef.current.style.width = `${searchInputWidth}px`;
+    }
+  }, [window.innerWidth]);
+
+  const handleOptionSelect = (value: Option | null) => {
     if (typeof onChange === 'function') onChange(value);
   };
 
@@ -106,57 +164,61 @@ const SearchInput = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Autocomplete
-        open={open}
-        options={options}
-        loading={loading}
-        fullWidth={fullWidth}
-        onChange={(e, value) => handleOptionSelect(e, value)}
-        classes={{
-          loading: classes.loading,
-          paper: classes.paper,
-          listbox: classes.listBox,
-          option: classes.option,
-          noOptions: classes.noOptions,
-        }}
-        loadingText={<Loading size={28} color='#6A7085' />}
-        noOptionsText={
-          <>
-            <NotFound /> Nothing found...
-          </>
-        }
-        renderOption={(props, option) => (
-          <SearchOption type={option.type} label={option.label} {...props} />
-        )}
-        getOptionLabel={(option) => option.label}
-        renderInput={(params) => {
-          return (
-            <InputBase
-              ref={params.InputProps.ref}
-              inputProps={params.inputProps}
-              fullWidth={fullWidth}
-              className={className}
-              placeholder={placeholder}
-              // onChange={debouncedResults}
-              // onChange={(e) => handleInputChange(e.target.value)}
-              onChange={(e) => debouncedResults(e.target.value)}
-              startAdornment={
-                <InputAdornment
-                  classes={{ root: classes.iconRoot }}
-                  position='start'
-                >
-                  <Search />
-                </InputAdornment>
-              }
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              id={params.id}
-            />
-          );
-        }}
-      />
+      <Box width='100%'>
+        <CustomInputFieldWithRef
+          ref={searchInputRef}
+          variant='outlined'
+          type='text'
+          fullWidth={fullWidth}
+          className={className}
+          rootClass={classes.input}
+          placeholder={placeholder}
+          value={value || ''}
+          onChange={(e) => debouncedResults(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment
+                classes={{ root: classes.iconRoot }}
+                position='start'
+              >
+                {loading ? <Loading size={28} color='#6A7085' /> : <Search />}
+              </InputAdornment>
+            ),
+            endAdornment: value && (
+              <InputAdornment position='end'>
+                <IconButton onClick={onClear} edge='end'>
+                  <CloseIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        <AbsolutePaperWithRef
+          ref={absoluteElementRef}
+          classes={classes.paper}
+          visibility={open ? 'visible' : 'hidden'}
+          // style={{ visibility: open ? 'visible' : 'hidden' }}
+        >
+          {open && (
+            <MenuList>
+              {options?.length > 0 ? (
+                options.map((option: Option) => (
+                  <SearchOption
+                    onClick={() => handleOptionSelect(option)}
+                    key={`${option.type}-${option.value}`}
+                    type={option.type}
+                    label={option.label}
+                  />
+                ))
+              ) : (
+                <MenuItem>
+                  <NotFound /> Nothing found...
+                </MenuItem>
+              )}
+            </MenuList>
+          )}
+        </AbsolutePaperWithRef>
+      </Box>
     </ThemeProvider>
   );
 };

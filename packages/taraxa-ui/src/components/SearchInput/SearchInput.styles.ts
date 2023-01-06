@@ -13,11 +13,10 @@ const useStyles = makeStyles(() => {
       height: theme.spacing(2.5),
       marginRight: theme.spacing(1.5),
     },
-    inputRoot: {
-      color: 'inherit',
-      backgroundColor: theme.palette.grey.A100,
-      padding: theme.spacing(1.5, 2.25, 1.5, 2.25),
-      borderRadius: theme.spacing(0.75),
+    input: {
+      backgroundColor: '#202534',
+      border: '1px solid #4f5368',
+      borderRadius: '4px',
     },
     inputInput: {
       // vertical padding + font size from searchIcon
@@ -31,11 +30,14 @@ const useStyles = makeStyles(() => {
       '&::placeholder': {
         color: theme.palette.text.secondary,
       },
-      backgroundColor: 'transparent !important',
+      backgroundColor: theme.palette.grey.A100,
       border: 'unset !important',
     },
     paper: {
+      position: 'absolute',
+      zIndex: 10,
       border: `1px solid ${theme.palette.grey.A200}`,
+      paddingLeft: '10px',
       borderRadius: theme.spacing(1),
       backgroundColor: theme.palette.grey.A100,
     },

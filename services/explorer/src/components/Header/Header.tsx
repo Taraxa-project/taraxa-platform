@@ -26,6 +26,7 @@ export const Header = (): JSX.Element => {
     searchString,
     onLabelSelect,
     setNetwork,
+    onClear,
     disableNetworkSelection,
   } = useHeaderEffects();
 
@@ -87,8 +88,10 @@ export const Header = (): JSX.Element => {
         onInputChange,
         onChange: onLabelSelect,
         loading: isLoading,
-        open: isLoading || !!searchString,
+        open: !!searchString,
         options: searchOptions,
+        onClear,
+        value: searchString,
       }}
     >
       {isMobile ? hamburger : buttons}
