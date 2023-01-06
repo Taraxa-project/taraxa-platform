@@ -18,8 +18,9 @@ export const useTransactionEffects = (): {
   columns: ColumnData[];
   currentNetwork: string;
 } => {
-  const [data, setData] = useState<TransactionTableData[]>();
+  const [data, setData] = useState<TransactionTableData[]>([]);
   const { currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
   const { finalBlock } = useNodeStateContext();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: blockData }] = useQuery({
@@ -52,7 +53,7 @@ export const useTransactionEffects = (): {
       blocks.forEach((block) => {
         if (block) {
           const transactions = block?.transactions;
-          if (transactions?.length) {
+          if (transactions?.length > 0) {
             const rows = transactions?.map((transaction: Transaction) => {
               return {
                 timestamp: Number(block?.timestamp),
@@ -63,7 +64,7 @@ export const useTransactionEffects = (): {
                 token: 'TARA',
               };
             });
-            setData(rows);
+            setData(data.concat(rows));
           }
         }
       });
@@ -71,8 +72,10 @@ export const useTransactionEffects = (): {
   }, [blockData]);
 
   useEffect(() => {
-    setData([]);
-  }, [currentNetwork]);
+    if (currentNetwork !== network) {
+      setData([]);
+    }
+  }, [currentNetwork, network]);
 
   return { data, columns, currentNetwork };
 };

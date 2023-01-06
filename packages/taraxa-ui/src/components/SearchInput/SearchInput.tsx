@@ -36,7 +36,7 @@ export interface SearchInputProps {
   open?: boolean;
   options?: Option[];
   loading?: boolean;
-  value?: string;
+  searchString?: string;
 }
 
 const SearchOption = ({
@@ -116,6 +116,7 @@ const CustomInputField: React.ForwardRefRenderFunction<
     <TextField
       ref={ref}
       {...props}
+      value={props.value}
       classes={{
         root: rootClass,
       }}
@@ -135,7 +136,7 @@ const SearchInput = ({
   onChange,
   onInputChange,
   onClear,
-  value,
+  searchString,
 }: SearchInputProps) => {
   const classes = useStyles();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -156,6 +157,13 @@ const SearchInput = ({
     if (typeof onInputChange === 'function') onInputChange(value);
   };
 
+  const handleClear = () => {
+    if (typeof onClear === 'function') onClear();
+    if (searchInputRef.current) {
+      searchInputRef.current.value = '';
+    }
+  };
+
   const debouncedResults = useMemo(() => {
     return debounce(handleInputChange, 300);
   }, []);
@@ -174,11 +182,11 @@ const SearchInput = ({
           ref={searchInputRef}
           variant='outlined'
           type='text'
+          name='search-field'
           fullWidth={fullWidth}
           className={className}
           rootClass={classes.input}
           placeholder={placeholder}
-          value={value || ''}
           onChange={(e) => debouncedResults(e.target.value)}
           InputProps={{
             startAdornment: (
@@ -189,9 +197,9 @@ const SearchInput = ({
                 {loading ? <Loading size={28} color='#6A7085' /> : <Search />}
               </InputAdornment>
             ),
-            endAdornment: value && (
+            endAdornment: searchString && (
               <InputAdornment position='end'>
-                <IconButton onClick={onClear} edge='end'>
+                <IconButton onClick={handleClear} edge='end'>
                   <CloseIcon />
                 </IconButton>
               </InputAdornment>

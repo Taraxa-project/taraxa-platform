@@ -29,7 +29,7 @@ export const useNodesEffects = () => {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [blocks, setBlocks] = useState<number>(0);
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = React.useState(0);
   const {
     data: nodesResult,

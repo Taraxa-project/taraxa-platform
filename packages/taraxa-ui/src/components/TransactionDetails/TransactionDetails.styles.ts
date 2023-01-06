@@ -23,6 +23,7 @@ const useStyles = makeStyles(() => {
       [theme.breakpoints.down('sm')]: {
         flexDirection: 'column',
         alignItems: 'start',
+        gap: '0.2rem',
       },
     },
   };

@@ -91,7 +91,7 @@ export const Header = (): JSX.Element => {
         open: !!searchString,
         options: searchOptions,
         onClear,
-        value: searchString,
+        searchString,
       }}
     >
       {isMobile ? hamburger : buttons}

@@ -12,9 +12,10 @@ import { blocksQuery, PbftBlocksFilters } from '../../api';
 export const useBlockEffects = () => {
   const { finalBlock } = useNodeStateContext();
   const [data, setData] = useState<BlockData[]>([]);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = useState(0);
   const { currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
   const { initLoading, finishLoading } = useExplorerLoader();
 
   const columns: ColumnData[] = [
@@ -83,8 +84,10 @@ export const useBlockEffects = () => {
   }, [blocksData]);
 
   useEffect(() => {
-    setData([]);
-  }, [currentNetwork]);
+    if (currentNetwork !== network) {
+      setData([]);
+    }
+  }, [currentNetwork, network]);
 
   useEffect(() => {
     if (finalBlock) {
