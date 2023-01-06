@@ -55,7 +55,6 @@ export const useHeaderEffects = () => {
       number: searchBlockNumber,
       hash: searchHash,
     }),
-    // pause: !searchBlockNumber && !searchHash,
   });
 
   const [{ fetching: fetchingDagBlock, data: dagBlockData }] = useQuery({
@@ -71,7 +70,6 @@ export const useHeaderEffects = () => {
     variables: {
       hash: searchHash,
     },
-    // pause: !searchHash,
   });
 
   const [{ fetching: fetchingAddress, data: addressData }] = useQuery({
@@ -79,7 +77,6 @@ export const useHeaderEffects = () => {
     variables: {
       address: searchAddress,
     },
-    // pause: !searchAddress,
   });
 
   useEffect(() => {

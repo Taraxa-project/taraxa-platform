@@ -202,7 +202,6 @@ const SearchInput = ({
           ref={absoluteElementRef}
           classes={classes.paper}
           visibility={open ? 'visible' : 'hidden'}
-          // style={{ visibility: open ? 'visible' : 'hidden' }}
         >
           {open && (
             <MenuList>
