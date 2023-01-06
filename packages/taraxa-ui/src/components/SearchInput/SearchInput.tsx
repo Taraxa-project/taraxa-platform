@@ -71,6 +71,11 @@ const SearchOption = ({
           }}
           primary={`${type}:`}
           secondary={label}
+          style={{
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            marginLeft: '10px',
+          }}
         />
         <ListItemIcon classes={{ root: classes.listItemSecondaryRoot }}>
           <RightArrow />

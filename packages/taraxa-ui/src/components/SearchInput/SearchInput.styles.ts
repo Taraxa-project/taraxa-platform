@@ -37,7 +37,6 @@ const useStyles = makeStyles(() => {
       position: 'absolute',
       zIndex: 10,
       border: `1px solid ${theme.palette.grey.A200}`,
-      paddingLeft: '10px',
       borderRadius: theme.spacing(1),
       backgroundColor: theme.palette.grey.A100,
     },
