@@ -91,40 +91,29 @@ interface AbsolutePaperProps {
   visibility: 'visible' | 'hidden' | 'collapse';
 }
 
-const AbsolutePaper: React.ForwardRefRenderFunction<
-  HTMLDivElement,
-  AbsolutePaperProps
-> = ({ children, classes, visibility, ...props }, ref) => {
-  return (
+const AbsolutePaperWithRef = forwardRef<HTMLDivElement, AbsolutePaperProps>(
+  ({ children, classes, visibility, ...props }, ref) => (
     <Paper ref={ref} className={classes} {...props} style={{ visibility }}>
       {children}
     </Paper>
-  );
-};
-
-const AbsolutePaperWithRef = forwardRef(AbsolutePaper);
+  )
+);
 
 export type SearchTextFieldProps = {
   rootClass: string;
 } & TextFieldProps;
 
-const CustomInputField: React.ForwardRefRenderFunction<
-  HTMLInputElement,
-  SearchTextFieldProps
-> = ({ rootClass, ...props }, ref) => {
-  return (
+const TextFieldWithRef = forwardRef<HTMLInputElement, SearchTextFieldProps>(
+  ({ rootClass, ...props }, ref) => (
     <TextField
-      ref={ref}
       {...props}
-      value={props.value}
       classes={{
         root: rootClass,
       }}
+      inputRef={ref}
     />
-  );
-};
-
-const CustomInputFieldWithRef = forwardRef(CustomInputField);
+  )
+);
 
 const SearchInput = ({
   placeholder,
@@ -145,7 +134,7 @@ const SearchInput = ({
   useEffect(() => {
     const searchInputWidth = searchInputRef.current?.offsetWidth;
     if (searchInputWidth && absoluteElementRef.current) {
-      absoluteElementRef.current.style.width = `${searchInputWidth}px`;
+      absoluteElementRef.current.style.width = `${searchInputWidth + 39}px`;
     }
   }, [window.innerWidth]);
 
@@ -159,9 +148,7 @@ const SearchInput = ({
 
   const handleClear = () => {
     if (typeof onClear === 'function') onClear();
-    if (searchInputRef.current) {
-      searchInputRef.current.value = '';
-    }
+    searchInputRef.current!.value = '';
   };
 
   const debouncedResults = useMemo(() => {
@@ -178,7 +165,7 @@ const SearchInput = ({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box width='100%'>
-        <CustomInputFieldWithRef
+        <TextFieldWithRef
           ref={searchInputRef}
           variant='outlined'
           type='text'
@@ -216,7 +203,10 @@ const SearchInput = ({
               {options?.length > 0 ? (
                 options.map((option: Option) => (
                   <SearchOption
-                    onClick={() => handleOptionSelect(option)}
+                    onClick={() => {
+                      handleOptionSelect(option);
+                      handleClear();
+                    }}
                     key={`${option.type}-${option.value}`}
                     type={option.type}
                     label={option.label}
