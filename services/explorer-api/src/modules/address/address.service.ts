@@ -164,6 +164,8 @@ export class AddressService {
     }
     const parsedAddress = toChecksumAddress(address);
     let balance = toBN('0');
+    let totalSent = toBN('0');
+    let totalReceived = toBN('0');
     try {
       const [{ total_sent }] = await this.txRepository.query(
         `select sum(value::REAL) as total_sent from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.from) = lower('${parsedAddress}');`
@@ -176,8 +178,8 @@ export class AddressService {
       );
       const padSentToWei = toWei(String(total_sent || '0'), 'ether');
       const padReceivedToWei = toWei(String(total_received || '0'), 'ether');
-      const totalSent = toBN(padSentToWei);
-      const totalReceived = toBN(padReceivedToWei);
+      totalSent = toBN(padSentToWei);
+      totalReceived = toBN(padReceivedToWei);
       const fromScietificToString =
         Intl.NumberFormat('en-US').format(total_mined);
       const clear = fromScietificToString.replace(/\D+/g, '');
@@ -185,7 +187,16 @@ export class AddressService {
       balance = balance.add(totalMined);
       balance = balance.add(totalReceived);
       balance = balance.sub(totalSent);
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException(
+        'Fetching details unsuccessful. Please try again later.'
+      );
+    }
 
+    let price = 0;
+    let currentValue = 0;
+    try {
       const realTimePrice = await firstValueFrom(
         this.httpService
           .get(this.configService.get<string>('general.tokenPriceURL'))
@@ -200,20 +211,21 @@ export class AddressService {
             })
           )
       );
-      const price = realTimePrice[0].current_price as number;
-      const currentValue = +fromWei(balance, 'ether') * price;
-      return {
-        totalSent: totalSent.toString(),
-        totalReceived: totalReceived.toString(),
-        priceAtTimeOfCalculation: price.toFixed(6).toString(),
-        currentBalance: balance.toString(),
-        currentValue: currentValue.toString(),
-        currency: 'USD',
-      };
+      price = realTimePrice[0].current_price as number;
+      currentValue = +fromWei(balance, 'ether') * price;
     } catch (error) {
+      this.logger.error(error);
       throw new InternalServerErrorException(
         'Fetching details unsuccessful. Please try again later.'
       );
     }
+    return {
+      totalSent: totalSent.toString(),
+      totalReceived: totalReceived.toString(),
+      priceAtTimeOfCalculation: price.toFixed(6).toString(),
+      currentBalance: balance.toString(),
+      currentValue: currentValue.toString(),
+      currency: 'USD',
+    };
   }
 }
