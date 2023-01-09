@@ -81,6 +81,9 @@ aliases:
         fi
         echo "export GCP_REGISTRY=gcr.io/${GOOGLE_PROJECT_ID}" >> $BASH_ENV
         echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
+        echo "export DOCKER_BRANCH_TAG=$(echo $CIRCLE_BRANCH | tr "[:upper:]" "[:lower:]" | sed 's/[^a-zA-Z0-9_-]/-/g')" >> $BASH_ENV
+        echo "export START_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)" >> $BASH_ENV
+        echo "export TIMESTAMP=$(date +%s)" >> $BASH_ENV
 jobs:
   build-community-site:
     <<: *config
@@ -301,10 +304,20 @@ jobs:
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${VERSION}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${CIRCLE_SHA1}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:latest
-              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${VERSION}
+
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker push ${GCP_REGISTRY}/taraxa/faucet-develop:latest
+
             fi
   build-explorer:
     <<: *config
@@ -331,9 +344,18 @@ jobs:
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${VERSION}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${CIRCLE_SHA1}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:latest
-              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${VERSION}
+
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:latest
             fi
   build-explorer-indexer:
@@ -361,9 +383,18 @@ jobs:
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${VERSION}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${CIRCLE_SHA1}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:latest
-              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${VERSION}
+
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:latest
             fi
 
