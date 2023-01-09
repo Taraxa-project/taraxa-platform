@@ -166,10 +166,10 @@ export class AddressService {
     let balance = toBN('0');
     try {
       const [{ total_sent }] = await this.txRepository.query(
-        `select sum(value::REAL) as total_sent from ${this.txRepository.metadata.tableName} where lower(transactions.from) = lower('${parsedAddress}');`
+        `select sum(value::REAL) as total_sent from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.from) = lower('${parsedAddress}');`
       );
       const [{ total_received }] = await this.txRepository.query(
-        `select sum(value::REAL) as total_received from ${this.txRepository.metadata.tableName} where lower(transactions.to) = lower('${parsedAddress}');`
+        `select sum(value::REAL) as total_received from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.to) = lower('${parsedAddress}');`
       );
       const [{ total_mined }] = await this.txRepository.query(
         `select sum(reward::REAL) as total_mined from ${this.pbftRepository.metadata.tableName} where lower(miner) = lower('${parsedAddress}');`
