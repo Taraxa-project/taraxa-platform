@@ -78,9 +78,10 @@ export const BlocksTable: React.FC<{
           </TableHead>
           <TableBody>
             {blocksData &&
+              blocksData.length > 0 &&
               blocksData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((block, i) => (
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                ?.map((block, i) => (
                   <TableRow key={`${block.hash}-${i}`}>
                     <TableCell variant='body'>
                       {timestampToAge(block.timestamp)}
