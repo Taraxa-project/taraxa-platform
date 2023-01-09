@@ -336,6 +336,27 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:latest
             fi
+  deploy-explorer:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_install_deploy_deps
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Deploy
+          shell: /bin/bash -eo pipefail
+          command: |
+            export NS=platform-qa
+            export HELM_NAME=explorer-frontend
+            export HELM_CONFIG=values.yaml
+
+            helm upgrade -i ${HELM_NAME} services/explorer/charts/explorer-frontend/ \
+              --namespace ${NS} \
+              -f services/explorer/charts/explorer-frontend/values.yaml \
+              -f services/explorer/charts/${HELM_CONFIG} \
+              --set frontend.image.tag=${VERSION}
   build-explorer-indexer:
     <<: *config
     steps:
@@ -523,6 +544,16 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
+      - deploy-explorer:
+          requires:
+            - build-explorer
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - K8S
   explorer-helm-chart:
     when:
       or:
