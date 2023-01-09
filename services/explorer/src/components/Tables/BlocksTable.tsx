@@ -19,7 +19,7 @@ export const BlocksTable: React.FC<{
   blocksData: BlockData[];
   type: 'pbft' | 'dag';
 }> = ({ blocksData, type }) => {
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [page, setPage] = React.useState(0);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -37,7 +37,7 @@ export const BlocksTable: React.FC<{
     <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
       <Box display='flex' flexDirection='row' justifyContent='flex-end'>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[25, 50, 75, 100]}
           component='div'
           count={blocksData?.length || 0}
           rowsPerPage={rowsPerPage}

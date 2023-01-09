@@ -23,7 +23,7 @@ export interface TransactionsTableProps {
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({
   transactionsData,
 }) => {
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [page, setPage] = React.useState(0);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -74,7 +74,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
           />
         </Box> */}
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[25, 50, 75, 100]}
           component='div'
           count={transactionsData?.length || 0}
           rowsPerPage={rowsPerPage}

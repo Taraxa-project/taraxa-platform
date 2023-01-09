@@ -32,7 +32,7 @@ const ChartContainer = ({
         display='grid'
         justifyContent='start'
         alignItems='start'
-        gridTemplateColumns='repeat(auto-fill, minmax(19rem, max-content))'
+        gridTemplateColumns='repeat(auto-fill, minmax(20rem, max-content))'
         gap='2rem'
         style={{ marginBottom: '2rem' }}
       >

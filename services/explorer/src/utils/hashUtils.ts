@@ -24,7 +24,6 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
   if (isHash(identifier)) {
     ret.txHash = deZeroX(identifier);
   }
-  console.log('Ret: ', ret);
   return ret;
 };
 

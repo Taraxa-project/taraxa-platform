@@ -36,7 +36,7 @@ export interface SearchInputProps {
   open?: boolean;
   options?: Option[];
   loading?: boolean;
-  value?: string;
+  searchString?: string;
 }
 
 const SearchOption = ({
@@ -91,39 +91,29 @@ interface AbsolutePaperProps {
   visibility: 'visible' | 'hidden' | 'collapse';
 }
 
-const AbsolutePaper: React.ForwardRefRenderFunction<
-  HTMLDivElement,
-  AbsolutePaperProps
-> = ({ children, classes, visibility, ...props }, ref) => {
-  return (
+const AbsolutePaperWithRef = forwardRef<HTMLDivElement, AbsolutePaperProps>(
+  ({ children, classes, visibility, ...props }, ref) => (
     <Paper ref={ref} className={classes} {...props} style={{ visibility }}>
       {children}
     </Paper>
-  );
-};
-
-const AbsolutePaperWithRef = forwardRef(AbsolutePaper);
+  )
+);
 
 export type SearchTextFieldProps = {
   rootClass: string;
 } & TextFieldProps;
 
-const CustomInputField: React.ForwardRefRenderFunction<
-  HTMLInputElement,
-  SearchTextFieldProps
-> = ({ rootClass, ...props }, ref) => {
-  return (
+const TextFieldWithRef = forwardRef<HTMLInputElement, SearchTextFieldProps>(
+  ({ rootClass, ...props }, ref) => (
     <TextField
-      ref={ref}
       {...props}
       classes={{
         root: rootClass,
       }}
+      inputRef={ref}
     />
-  );
-};
-
-const CustomInputFieldWithRef = forwardRef(CustomInputField);
+  )
+);
 
 const SearchInput = ({
   placeholder,
@@ -135,7 +125,7 @@ const SearchInput = ({
   onChange,
   onInputChange,
   onClear,
-  value,
+  searchString,
 }: SearchInputProps) => {
   const classes = useStyles();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -144,7 +134,7 @@ const SearchInput = ({
   useEffect(() => {
     const searchInputWidth = searchInputRef.current?.offsetWidth;
     if (searchInputWidth && absoluteElementRef.current) {
-      absoluteElementRef.current.style.width = `${searchInputWidth}px`;
+      absoluteElementRef.current.style.width = `${searchInputWidth + 39}px`;
     }
   }, [window.innerWidth]);
 
@@ -156,8 +146,13 @@ const SearchInput = ({
     if (typeof onInputChange === 'function') onInputChange(value);
   };
 
+  const handleClear = () => {
+    if (typeof onClear === 'function') onClear();
+    searchInputRef.current!.value = '';
+  };
+
   const debouncedResults = useMemo(() => {
-    return debounce(handleInputChange, 300);
+    return debounce(handleInputChange, 50);
   }, []);
 
   useEffect(() => {
@@ -170,15 +165,15 @@ const SearchInput = ({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box width='100%'>
-        <CustomInputFieldWithRef
+        <TextFieldWithRef
           ref={searchInputRef}
           variant='outlined'
           type='text'
+          name='search-field'
           fullWidth={fullWidth}
           className={className}
           rootClass={classes.input}
           placeholder={placeholder}
-          value={value || ''}
           onChange={(e) => debouncedResults(e.target.value)}
           InputProps={{
             startAdornment: (
@@ -189,9 +184,9 @@ const SearchInput = ({
                 {loading ? <Loading size={28} color='#6A7085' /> : <Search />}
               </InputAdornment>
             ),
-            endAdornment: value && (
+            endAdornment: searchString && (
               <InputAdornment position='end'>
-                <IconButton onClick={onClear} edge='end'>
+                <IconButton onClick={handleClear} edge='end'>
                   <CloseIcon />
                 </IconButton>
               </InputAdornment>
@@ -208,7 +203,10 @@ const SearchInput = ({
               {options?.length > 0 ? (
                 options.map((option: Option) => (
                   <SearchOption
-                    onClick={() => handleOptionSelect(option)}
+                    onClick={() => {
+                      handleOptionSelect(option);
+                      handleClear();
+                    }}
                     key={`${option.type}-${option.value}`}
                     type={option.type}
                     label={option.label}
