@@ -12,42 +12,49 @@ import generalConfig from './config/general';
 
 export const entities = [NodeEntity, PbftEntity, DagEntity, TransactionEntity];
 
-const IndexerTypeOrmModule = () => {
-  let typeOrmOptions: TypeOrmModuleOptions;
-  const baseConnectionOptions: TypeOrmModuleOptions = process.env.DATABASE_URL
+const getDataSourceConnectionOptions = (): TypeOrmModuleOptions => {
+  let ssl: {
+    rejectUnauthorized: boolean;
+    ca?: string;
+  } = {
+    rejectUnauthorized: false,
+  };
+
+  if (process.env.DATABASE_CERT) {
+    ssl = {
+      ...ssl,
+      ca: process.env.DATABASE_CERT,
+    };
+  }
+
+  return process.env.DATABASE_URL
     ? {
+        ssl,
         type: 'postgres',
         url: process.env.DATABASE_URL,
-        entities,
-        synchronize: false,
-        autoLoadEntities: true,
-        logging: ['info'],
       }
     : {
         type: 'postgres',
-        host: process.env.DB_HOST ?? 'localhost',
+        host: process.env.DB_HOST || 'localhost',
         port: Number(process.env.DB_PORT) || 5432,
         username: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_NAME || 'explorer_indexer',
-        entities,
-        synchronize: false,
-        autoLoadEntities: true,
-        logging: ['info'],
+        database: process.env.DB_NAME || 'explorer-indexer',
       };
+};
 
-  if (!!process.env.DATABASE_CERT) {
-    typeOrmOptions = {
-      ...baseConnectionOptions,
-      ssl: {
-        rejectUnauthorized: false,
-        ca: process.env.DATABASE_CERT,
-      },
-    };
-  } else {
-    typeOrmOptions = { ...baseConnectionOptions };
-  }
-  return TypeOrmModule.forRoot(typeOrmOptions);
+const dataSourceOptions: TypeOrmModuleOptions = {
+  ...getDataSourceConnectionOptions(),
+  entityPrefix: process.env.APP_PREFIX ? `${process.env.APP_PREFIX}_` : '',
+  synchronize: false,
+  logging: ['info'],
+  entities,
+  migrationsTableName: process.env.APP_PREFIX
+    ? `${process.env.APP_PREFIX}_typeorm_migrations`
+    : 'typeorm_migrations',
+  metadataTableName: process.env.APP_PREFIX
+    ? `${process.env.APP_PREFIX}_typeorm_metadata`
+    : 'typeorm_metadata',
 };
 
 @Module({
@@ -56,7 +63,10 @@ const IndexerTypeOrmModule = () => {
       isGlobal: true,
       load: [generalConfig],
     }),
-    IndexerTypeOrmModule(),
+    TypeOrmModule.forRoot({
+      ...dataSourceOptions,
+      autoLoadEntities: true,
+    }),
     NodeModule,
     PbftModule,
     HealthModule,
