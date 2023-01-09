@@ -11,3 +11,4 @@ data:
   DB_HOST: {{ .Values.app.dbHost | quote }}
   DB_PORT: {{ .Values.app.dbPort | quote }}
   DB_NAME: {{ .Values.app.dbName | quote }}
+  TOKEN_PRICE_API_ENDPOINT: {{ .Values.app.tokenPriceApiEndpoint | quote }}
