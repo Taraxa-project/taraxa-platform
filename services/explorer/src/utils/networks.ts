@@ -3,6 +3,7 @@ import {
   MAINNET_API,
   TESTNET_API,
   DEVNET_API,
+  MAINNET_FAUCET_API,
   TESTNET_FAUCET_API,
   DEVNET_FAUCET_API,
 } from '../api';
@@ -60,7 +61,7 @@ export const recreateFaucetConnection = (): string => {
   let connectionString: string;
   switch (network) {
     case Network.MAINNET: {
-      connectionString = TESTNET_FAUCET_API;
+      connectionString = MAINNET_FAUCET_API;
       break;
     }
     case Network.TESTNET: {
