@@ -152,7 +152,7 @@ const SearchInput = ({
   };
 
   const debouncedResults = useMemo(() => {
-    return debounce(handleInputChange, 300);
+    return debounce(handleInputChange, 50);
   }, []);
 
   useEffect(() => {
