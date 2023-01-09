@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Raw, Repository } from 'typeorm';
-import { fromWei, toBN, toWei } from 'web3-utils';
+import { fromWei, isAddress, toBN, toWei } from 'web3-utils';
 import {
   PbftEntity,
   DagEntity,
@@ -42,6 +42,7 @@ export class AddressService {
   ) {}
 
   public async getStats(address: string): Promise<StatsResponse> {
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     const parsedAddress = toChecksumAddress(address);
 
     let totalProduced = 0;
@@ -113,6 +114,7 @@ export class AddressService {
   }
 
   public async getBlocksProduced(address: string): Promise<BlocksCount> {
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     const parsedAddress = toChecksumAddress(address);
 
     const [{ pbfts_mined }] = await this.pbftRepository.query(
@@ -129,6 +131,7 @@ export class AddressService {
   }
 
   public async getDags(address: string): Promise<DagEntity[]> {
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     return await this.dagRepository.find({
       select: ['timestamp', 'level', 'hash', 'transactionCount'],
       where: {
@@ -138,6 +141,7 @@ export class AddressService {
   }
 
   public async getPbfts(address: string): Promise<PbftEntity[]> {
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     return await this.pbftRepository.find({
       select: ['timestamp', 'number', 'hash', 'transactionCount'],
       where: {
@@ -149,6 +153,7 @@ export class AddressService {
   public async getTransactions(
     address: string
   ): Promise<TransactionResponse[]> {
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     const parsedAddress = toChecksumAddress(address);
     // Don't test with Swagger as it will break
     const res = await this.txRepository.query(
@@ -162,6 +167,7 @@ export class AddressService {
     if (!address) {
       throw new BadRequestException('Address not supplied!');
     }
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     const parsedAddress = toChecksumAddress(address);
     let balance = toBN('0');
     let totalSent = toBN('0');
