@@ -38,6 +38,12 @@ parameters:
   build-explorer-indexer-helm-chart-workflow:
     type: boolean
     default: false
+  build-explorer-api-workflow:
+    type: boolean
+    default: false
+  build-explorer-api-helm-chart-workflow:
+    type: boolean
+    default: false
 
 aliases:
   - &config
