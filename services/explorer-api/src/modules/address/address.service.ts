@@ -52,17 +52,12 @@ export class AddressService {
     let produced = 0;
 
     const query = this.pbftRepository
-      .createQueryBuilder(this.pbftRepository.metadata.tableName)
-      .select([
-        `${this.pbftRepository.metadata.tableName}.miner`,
-        `${this.pbftRepository.metadata.tableName}.timestamp`,
-      ])
-      .where(`${this.pbftRepository.metadata.tableName}.miner = :address`, {
-        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          parsedAddress,
-        }),
-      })
-      .orderBy(`${this.pbftRepository.metadata.tableName}.timestamp`, 'ASC');
+      .createQueryBuilder('pbfts')
+      .select(['miner', 'timestamp'])
+      .where(`lower(miner) = lower('${parsedAddress}')`)
+      .orderBy('timestamp', 'ASC');
+
+    this.logger.log(query.getSql());
 
     try {
       const [blocksProduced, total] = await query.getManyAndCount();
@@ -92,8 +87,8 @@ export class AddressService {
             (rank: { rank: number; address: string; count: number }) =>
               rank.address === parsedAddress
           );
-          rank = Number(addressRank.rank);
-          produced = Number(addressRank.count);
+          rank = Number(addressRank?.rank || 0);
+          produced = Number(addressRank?.count || 0);
         } catch (error) {
           this.logger.error(`Failed to get ranks`, error);
           throw new InternalServerErrorException('Internal server exception');
@@ -135,7 +130,9 @@ export class AddressService {
     return await this.dagRepository.find({
       select: ['timestamp', 'level', 'hash', 'transactionCount'],
       where: {
-        author: toChecksumAddress(address),
+        author: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
       },
     });
   }
@@ -145,7 +142,9 @@ export class AddressService {
     return await this.pbftRepository.find({
       select: ['timestamp', 'number', 'hash', 'transactionCount'],
       where: {
-        miner: toChecksumAddress(address),
+        miner: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address,
+        }),
       },
     });
   }
