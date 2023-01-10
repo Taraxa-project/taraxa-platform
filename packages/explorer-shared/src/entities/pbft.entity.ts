@@ -22,6 +22,7 @@ export class PbftEntity extends BaseEntity implements IPBFT {
 
   @Column({ unique: true })
   @IsString()
+  @Index()
   hash: string;
 
   @Column({ nullable: false })
