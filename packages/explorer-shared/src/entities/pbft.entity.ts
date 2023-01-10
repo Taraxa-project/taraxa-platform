@@ -18,6 +18,7 @@ export class PbftEntity extends BaseEntity implements IPBFT {
   }
 
   @PrimaryGeneratedColumn()
+  @Index()
   id: number;
 
   @Column({ unique: true })

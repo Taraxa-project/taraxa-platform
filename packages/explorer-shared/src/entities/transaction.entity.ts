@@ -18,6 +18,7 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   }
 
   @PrimaryGeneratedColumn()
+  @Index()
   id: number;
 
   @Column({ unique: true })
@@ -57,6 +58,7 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   @IsString()
   inputData?: string;
 
+  @Index()
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions, {
     onDelete: 'CASCADE',
   })
