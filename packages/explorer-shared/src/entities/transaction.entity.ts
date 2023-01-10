@@ -57,6 +57,7 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   @IsString()
   inputData?: string;
 
+  @Index()
   @ManyToOne(() => PbftEntity, (pbft) => pbft.transactions, {
     onDelete: 'CASCADE',
   })
