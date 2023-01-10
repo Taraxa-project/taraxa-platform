@@ -19,7 +19,6 @@ export class DagEntity extends BaseEntity implements IDAG {
   }
 
   @PrimaryGeneratedColumn()
-  @Index()
   id: number;
 
   @Column({ unique: true })

@@ -18,7 +18,6 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   }
 
   @PrimaryGeneratedColumn()
-  @Index()
   id: number;
 
   @Column({ unique: true })

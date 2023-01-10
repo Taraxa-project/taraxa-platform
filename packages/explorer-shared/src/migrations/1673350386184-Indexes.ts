@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Indexes1673348204962 implements MigrationInterface {
-  name = 'Indexes1673348204962';
+export class Indexes1673350386184 implements MigrationInterface {
+  name = 'Indexes1673350386184';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -22,9 +22,6 @@ export class Indexes1673348204962 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "public"."dags_index_timestamp"`);
     await queryRunner.query(`DROP INDEX "public"."dags_index_author"`);
     await queryRunner.query(
-      `CREATE INDEX "IDX_6f76845d0ce6ec5233cc8eab5e" ON "pbfts" ("id") `
-    );
-    await queryRunner.query(
       `CREATE INDEX "IDX_35a84f8058f83feff8f2941de6" ON "pbfts" ("hash") `
     );
     await queryRunner.query(
@@ -37,9 +34,6 @@ export class Indexes1673348204962 implements MigrationInterface {
       `CREATE INDEX "IDX_365541c9f1664c4ec74fe276d8" ON "pbfts" ("miner") `
     );
     await queryRunner.query(
-      `CREATE INDEX "IDX_a219afd8dd77ed80f5a862f1db" ON "transactions" ("id") `
-    );
-    await queryRunner.query(
       `CREATE INDEX "IDX_6f30cde2f4cf5a630e05375840" ON "transactions" ("hash") `
     );
     await queryRunner.query(
@@ -50,9 +44,6 @@ export class Indexes1673348204962 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_2fdb5277f14e26e749075fcdd7" ON "transactions" ("to") `
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_e5bdea0a5a07a8377a7c0bc943" ON "dags" ("id") `
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_95e9749d3714fff0524c436fc0" ON "dags" ("pbftPeriod") `
@@ -106,9 +97,6 @@ export class Indexes1673348204962 implements MigrationInterface {
       `DROP INDEX "public"."IDX_95e9749d3714fff0524c436fc0"`
     );
     await queryRunner.query(
-      `DROP INDEX "public"."IDX_e5bdea0a5a07a8377a7c0bc943"`
-    );
-    await queryRunner.query(
       `DROP INDEX "public"."IDX_2fdb5277f14e26e749075fcdd7"`
     );
     await queryRunner.query(
@@ -121,9 +109,6 @@ export class Indexes1673348204962 implements MigrationInterface {
       `DROP INDEX "public"."IDX_6f30cde2f4cf5a630e05375840"`
     );
     await queryRunner.query(
-      `DROP INDEX "public"."IDX_a219afd8dd77ed80f5a862f1db"`
-    );
-    await queryRunner.query(
       `DROP INDEX "public"."IDX_365541c9f1664c4ec74fe276d8"`
     );
     await queryRunner.query(
@@ -134,9 +119,6 @@ export class Indexes1673348204962 implements MigrationInterface {
     );
     await queryRunner.query(
       `DROP INDEX "public"."IDX_35a84f8058f83feff8f2941de6"`
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_6f76845d0ce6ec5233cc8eab5e"`
     );
     await queryRunner.query(
       `CREATE INDEX "dags_index_author" ON "dags" ("author") `
