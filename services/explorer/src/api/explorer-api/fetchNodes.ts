@@ -1,15 +1,11 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import {
-  FetchNodesFilter,
-  FetchNodesPagination,
-  NodesPaginate,
-} from '../types';
+import { PaginationFilter, FetchWithPagination, NodesPaginate } from '../types';
 
 const computeFilters = ({
   rowsPerPage,
   page,
-}: FetchNodesPagination): FetchNodesFilter => {
+}: FetchWithPagination): PaginationFilter => {
   const take = rowsPerPage;
   const skip = page * rowsPerPage;
   return {
@@ -18,7 +14,7 @@ const computeFilters = ({
   };
 };
 
-const fetchNodes = async (endpoint: string, params: FetchNodesFilter) => {
+const fetchNodes = async (endpoint: string, params: PaginationFilter) => {
   if (!endpoint) {
     return;
   }
@@ -29,7 +25,7 @@ const fetchNodes = async (endpoint: string, params: FetchNodesFilter) => {
 
 export const useGetNodes = (
   endpoint: string,
-  params: FetchNodesPagination
+  params: FetchWithPagination
 ): {
   data: NodesPaginate;
   isError: boolean;

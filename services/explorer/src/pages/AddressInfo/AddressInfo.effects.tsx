@@ -32,10 +32,22 @@ export const useAddressInfoEffects = (
   addressInfoDetails: AddressInfoDetails;
   dagBlocks: BlockData[];
   pbftBlocks: BlockData[];
+  totalPbftCount: number;
+  rowsPbftPerPage: number;
+  pbftPage: number;
+  handlePbftChangePage: (newPage: number) => void;
+  handlePbftChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 } => {
-  const [transactions, setTransactions] = useState<Transaction[]>();
-  const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
-  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
+  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>([]);
+
+  const [totalPbftCount, setTotalPbftCount] = useState<number>(0);
+  const [rowsPbftPerPage, setPbftRowsPerPage] = useState<number>(25);
+  const [pbftPage, setPbftPage] = useState(0);
+
   const [addressInfoDetails, setAddressInfoDetails] =
     useState<AddressInfoDetails>();
   const [{ fetching, data }] = useQuery({
@@ -62,7 +74,10 @@ export const useAddressInfoEffects = (
     data: pbftsData,
     isFetching: isFetchingPbfts,
     isLoading: isLoadingPbfts,
-  } = useGetPbftsByAddress(backendEndpoint, account);
+  } = useGetPbftsByAddress(backendEndpoint, account, {
+    rowsPerPage: rowsPbftPerPage,
+    page: pbftPage,
+  });
   const {
     data: txData,
     isFetching: isFetchingTx,
@@ -114,8 +129,9 @@ export const useAddressInfoEffects = (
   }, [dagsData]);
 
   useEffect(() => {
-    if (pbftsData?.data) {
-      setPbftBlocks(pbftsData?.data);
+    if (pbftsData?.data && pbftsData?.total) {
+      setPbftBlocks(pbftsData?.data as BlockData[]);
+      setTotalPbftCount(pbftsData?.total);
     }
   }, [pbftsData]);
 
@@ -202,5 +218,26 @@ export const useAddressInfoEffects = (
     }
   }, [currentNetwork, network]);
 
-  return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };
+  const handlePbftChangePage = (newPage: number) => {
+    setPbftPage(newPage);
+  };
+
+  const handlePbftChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setPbftRowsPerPage(parseInt(event.target.value, 10));
+    setPbftPage(0);
+  };
+
+  return {
+    transactions,
+    addressInfoDetails,
+    dagBlocks,
+    pbftBlocks,
+    totalPbftCount,
+    rowsPbftPerPage,
+    pbftPage,
+    handlePbftChangePage,
+    handlePbftChangeRowsPerPage,
+  };
 };

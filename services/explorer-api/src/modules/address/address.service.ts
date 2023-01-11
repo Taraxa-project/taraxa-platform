@@ -19,12 +19,15 @@ import {
 } from '@taraxa_project/explorer-shared';
 import {
   StatsResponse,
-  TransactionResponse,
   BlocksCount,
   AddressDetailsResponse,
+  TransactionsPaginate,
+  PbftsPaginate,
+  DagsPaginate,
 } from './responses';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
 export class AddressService {
@@ -125,41 +128,95 @@ export class AddressService {
     };
   }
 
-  public async getDags(address: string): Promise<DagEntity[]> {
+  public async getDags(
+    address: string,
+    filterDto: PaginationDto
+  ): Promise<DagsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
-    return await this.dagRepository.find({
+    const { take, skip } = filterDto;
+    const parsedAddress = toChecksumAddress(address);
+    const [data, total] = await this.dagRepository.findAndCount({
       select: ['timestamp', 'level', 'hash', 'transactionCount'],
       where: {
-        author: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          address,
+        author: Raw((alias) => `LOWER(${alias}) = LOWER(:parsedAddress)`, {
+          parsedAddress,
         }),
       },
+      order: {
+        hash: 'ASC',
+      },
+      take,
+      skip,
     });
+    return {
+      data: data,
+      total: total,
+    };
   }
 
-  public async getPbfts(address: string): Promise<PbftEntity[]> {
+  public async getPbfts(
+    address: string,
+    filterDto: PaginationDto
+  ): Promise<PbftsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
-    return await this.pbftRepository.find({
+    const { take, skip } = filterDto;
+    const parsedAddress = toChecksumAddress(address);
+    const [data, total] = await this.pbftRepository.findAndCount({
       select: ['timestamp', 'number', 'hash', 'transactionCount'],
       where: {
-        miner: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          address,
+        miner: Raw((alias) => `LOWER(${alias}) = LOWER(:parsedAddress)`, {
+          parsedAddress,
         }),
       },
+      order: {
+        hash: 'ASC',
+      },
+      take,
+      skip,
     });
+    return {
+      data: data,
+      total: total,
+    };
   }
 
   public async getTransactions(
-    address: string
-  ): Promise<TransactionResponse[]> {
+    address: string,
+    filterDto: PaginationDto
+  ): Promise<TransactionsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
+    const { take, skip } = filterDto;
     const parsedAddress = toChecksumAddress(address);
-    // Don't test with Swagger as it will break
-    const res = await this.txRepository.query(
-      `SELECT t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age from ${this.txRepository.metadata.tableName} t LEFT JOIN ${this.pbftRepository.metadata.tableName} p ON t."blockId" = p.id WHERE LOWER(t.from) = LOWER('${parsedAddress}') or LOWER(t.to) = LOWER('${parsedAddress}')`
-    );
 
-    return res;
+    const totalQuery = `SELECT COUNT(*) as total
+      FROM ${this.txRepository.metadata.tableName} t
+      INNER JOIN ${this.pbftRepository.metadata.tableName} p ON t."blockId" = p.id
+      WHERE t.from = $1 OR t.to = $1`;
+
+    const totalRes = await this.txRepository.query(totalQuery, [parsedAddress]);
+    if (totalRes[0].total > 0) {
+      const query = `
+        SELECT t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age
+        FROM ${this.txRepository.metadata.tableName} t
+        INNER JOIN ${this.pbftRepository.metadata.tableName} p ON t."blockId" = p.id
+        WHERE t.from = $1 OR t.to = $1
+        ORDER BY t.hash
+        LIMIT $2 OFFSET $3`;
+      const res = await this.txRepository.query(query, [
+        parsedAddress,
+        take,
+        skip,
+      ]);
+      return {
+        data: res,
+        total: totalRes[0].total,
+      };
+    } else {
+      return {
+        data: [],
+        total: 0,
+      };
+    }
   }
 
   public async getDetails(address: string): Promise<AddressDetailsResponse> {
@@ -172,15 +229,22 @@ export class AddressService {
     let totalSent = toBN('0');
     let totalReceived = toBN('0');
     try {
-      const [{ total_sent }] = await this.txRepository.query(
+      const totalSentPromise = this.txRepository.query(
         `select sum(value::REAL) as total_sent from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.from) = lower('${parsedAddress}');`
       );
-      const [{ total_received }] = await this.txRepository.query(
+      const totalReceivedPromise = this.txRepository.query(
         `select sum(value::REAL) as total_received from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.to) = lower('${parsedAddress}');`
       );
-      const [{ total_mined }] = await this.txRepository.query(
+      const totalMinedPromise = this.txRepository.query(
         `select sum(reward::REAL) as total_mined from ${this.pbftRepository.metadata.tableName} where lower(miner) = lower('${parsedAddress}');`
       );
+
+      const [[{ total_sent }], [{ total_received }], [{ total_mined }]] =
+        await Promise.all([
+          totalSentPromise,
+          totalReceivedPromise,
+          totalMinedPromise,
+        ]);
 
       const padSentToWei = toWei(String(total_sent || '0'), 'ether');
       const padReceivedToWei = toWei(String(total_received || '0'), 'ether');

@@ -31,8 +31,6 @@ export const useGetDetailsForAddress = (
       enabled: !!address,
     }
   );
-  console.log('HOOK: isFetching: ', isFetching);
-  console.log('HOOK: isLoading: ', isLoading);
   return {
     data,
     isError,

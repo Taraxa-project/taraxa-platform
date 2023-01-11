@@ -9,7 +9,7 @@ import {
   TablePagination,
 } from '@mui/material';
 import { theme } from '@taraxa_project/taraxa-ui';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashLink } from '..';
 import { BlockData } from '../../models';
 import { HashLinkType } from '../../utils';
@@ -18,11 +18,35 @@ import { timestampToAge } from '../../utils/TransactionRow';
 export const BlocksTable: React.FC<{
   blocksData: BlockData[];
   type: 'pbft' | 'dag';
-}> = ({ blocksData, type }) => {
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const [page, setPage] = React.useState(0);
+  totalCount?: number;
+  pageNo?: number;
+  rowsPage?: number;
+  changePage?: (pageNo: number) => void;
+  changeRows?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}> = ({
+  blocksData,
+  type,
+  totalCount,
+  pageNo,
+  rowsPage,
+  changePage,
+  changeRows,
+}) => {
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [page, setPage] = useState(0);
+  const [data, setData] = useState<BlockData[]>([]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  useEffect(() => {
+    if (!pageNo && !rowsPage) {
+      setData(
+        blocksData?.slice(pageNo * rowsPage, pageNo * rowsPage + rowsPage)
+      );
+    } else {
+      setData(blocksData);
+    }
+  }, [blocksData, page, rowsPerPage]);
+
+  const handleChangePage = (newPage: number) => {
     setPage(newPage);
   };
 
@@ -33,17 +57,33 @@ export const BlocksTable: React.FC<{
     setPage(0);
   };
 
+  const onRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (typeof changeRows === 'function') {
+      changeRows(event);
+    } else {
+      handleChangeRowsPerPage(event);
+    }
+  };
+
+  const onPageChange = (event: unknown, newPage: number) => {
+    if (typeof changePage === 'function') {
+      changePage(newPage);
+    } else {
+      handleChangePage(newPage);
+    }
+  };
+
   return (
     <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
       <Box display='flex' flexDirection='row' justifyContent='flex-end'>
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
           component='div'
-          count={blocksData?.length || 0}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          count={totalCount || blocksData?.length || 0}
+          rowsPerPage={rowsPage || rowsPerPage}
+          page={pageNo || page}
+          onPageChange={onPageChange}
+          onRowsPerPageChange={onRowsPerPageChange}
         />
       </Box>
       <TableContainer sx={{ marginBottom: '2rem' }}>
@@ -56,12 +96,22 @@ export const BlocksTable: React.FC<{
               >
                 Timestamp
               </TableCell>
-              <TableCell
-                variant='head'
-                style={{ backgroundColor: theme.palette.grey.A100 }}
-              >
-                Level
-              </TableCell>
+              {type === 'dag' && (
+                <TableCell
+                  variant='head'
+                  style={{ backgroundColor: theme.palette.grey.A100 }}
+                >
+                  Level
+                </TableCell>
+              )}
+              {type === 'pbft' && (
+                <TableCell
+                  variant='head'
+                  style={{ backgroundColor: theme.palette.grey.A100 }}
+                >
+                  Number
+                </TableCell>
+              )}
               <TableCell
                 variant='head'
                 style={{ backgroundColor: theme.palette.grey.A100 }}
@@ -77,35 +127,31 @@ export const BlocksTable: React.FC<{
             </TableRow>
           </TableHead>
           <TableBody>
-            {blocksData &&
-              blocksData.length > 0 &&
-              blocksData
-                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                ?.map((block, i) => (
-                  <TableRow key={`${block.hash}-${i}`}>
-                    <TableCell variant='body'>
-                      {timestampToAge(block.timestamp)}
-                    </TableCell>
-                    <TableCell variant='body'>{block.level}</TableCell>
-                    <TableCell variant='body'>
-                      {type === 'pbft' && (
-                        <HashLink
-                          linkType={HashLinkType.PBFT}
-                          hash={block.hash}
-                        />
-                      )}
-                      {type === 'dag' && (
-                        <HashLink
-                          linkType={HashLinkType.BLOCKS}
-                          hash={block.hash}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell variant='body'>
-                      {block.transactionCount}
-                    </TableCell>
-                  </TableRow>
-                ))}
+            {data?.map((block, i) => (
+              <TableRow key={`${block.hash}-${i}`}>
+                <TableCell variant='body'>
+                  {timestampToAge(block.timestamp)}
+                </TableCell>
+                {type === 'dag' && (
+                  <TableCell variant='body'>{block.level}</TableCell>
+                )}
+                {type === 'pbft' && (
+                  <TableCell variant='body'>{block.number}</TableCell>
+                )}
+                <TableCell variant='body'>
+                  {type === 'pbft' && (
+                    <HashLink linkType={HashLinkType.PBFT} hash={block.hash} />
+                  )}
+                  {type === 'dag' && (
+                    <HashLink
+                      linkType={HashLinkType.BLOCKS}
+                      hash={block.hash}
+                    />
+                  )}
+                </TableCell>
+                <TableCell variant='body'>{block.transactionCount}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

@@ -24,18 +24,42 @@ export type PbftBlockDetailsFilters = {
   number?: number;
 };
 
-export type FetchNodesFilter = {
+export type PaginationFilter = {
   take: number;
   skip: number;
 };
 
-export type FetchNodesPagination = {
+export type FetchWithPagination = {
   rowsPerPage: number;
   page: number;
 };
 
 export interface NodesPaginate {
   data: ITaraxaNode[];
+  total: number;
+}
+
+export interface AddressPbftsResponse {
+  hash: string;
+  number: number;
+  timestamp: number;
+  transactionCount: number;
+}
+
+export interface AddressDagsResponse {
+  hash: string;
+  level: number;
+  timestamp: number;
+  transactionCount: number;
+}
+
+export interface PbftsPaginate {
+  data: AddressPbftsResponse[];
+  total: number;
+}
+
+export interface DagsPaginate {
+  data: AddressDagsResponse[];
   total: number;
 }
 
