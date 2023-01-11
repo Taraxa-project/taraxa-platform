@@ -181,6 +181,7 @@ export class AddressService {
       const [{ total_mined }] = await this.txRepository.query(
         `select sum(reward::REAL) as total_mined from ${this.pbftRepository.metadata.tableName} where lower(miner) = lower('${parsedAddress}');`
       );
+
       const padSentToWei = toWei(String(total_sent || '0'), 'ether');
       const padReceivedToWei = toWei(String(total_received || '0'), 'ether');
       totalSent = toBN(padSentToWei);
@@ -201,28 +202,27 @@ export class AddressService {
 
     let price = 0;
     let currentValue = 0;
+    const url = this.configService.get<string>('general.tokenPriceURL');
     try {
+      const headersRequest = {
+        'Content-Type': 'application/json',
+        'Accept-Encoding': 'gzip,deflate,compress',
+      };
       const realTimePrice = await firstValueFrom(
-        this.httpService
-          .get(this.configService.get<string>('general.tokenPriceURL'))
-          .pipe(
-            catchError(() => {
-              throw new ForbiddenException('API not available');
-            })
-          )
-          .pipe(
-            map((res: AxiosResponse) => {
-              return res.data;
-            })
-          )
+        this.httpService.get(url, { headers: headersRequest }).pipe(
+          map((resp: AxiosResponse) => {
+            return resp.data;
+          }),
+          catchError((err: any) => {
+            this.logger.error(`Error calling Token API: ${err}`);
+            throw new ForbiddenException('API not available');
+          })
+        )
       );
       price = realTimePrice[0].current_price as number;
       currentValue = +fromWei(balance, 'ether') * price;
     } catch (error) {
       this.logger.error(error);
-      throw new InternalServerErrorException(
-        'Fetching details unsuccessful. Please try again later.'
-      );
     }
     return {
       totalSent: totalSent.toString(),

@@ -9,6 +9,8 @@ import {
   TransactionEntity,
 } from '@taraxa_project/explorer-shared';
 import generalConfig from './config/general';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const entities = [NodeEntity, PbftEntity, DagEntity, TransactionEntity];
 

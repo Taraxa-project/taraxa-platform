@@ -124,9 +124,7 @@ export const AddressInfo = ({
               data={`$${
                 details?.value ? Number(details?.value).toLocaleString() : ''
               } ${details?.valueCurrency || ''} ( ${
-                details?.pricePerTara
-                  ? Number(details?.pricePerTara).toLocaleString()
-                  : ''
+                details?.pricePerTara ? Number(details?.pricePerTara) : ''
               } / TARA )`}
             />
             <DataRow

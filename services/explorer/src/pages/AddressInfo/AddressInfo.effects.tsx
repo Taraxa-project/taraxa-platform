@@ -103,6 +103,8 @@ export const useAddressInfoEffects = (
     isLoadingPbfts,
     isFetchingTx,
     isLoadingTx,
+    isFetchingDetails,
+    isLoadingDetails,
   ]);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { Network, NetworkGraphQLEndpoints, SELECTED_NETWORK } from './Enums';
+import { Network, NetworkGraphQLEndpoints } from './Enums';
 import {
   MAINNET_API,
   TESTNET_API,
@@ -8,8 +8,7 @@ import {
   DEVNET_FAUCET_API,
 } from '../api';
 
-export const recreateGraphQLConnection = (): string => {
-  const network = localStorage.getItem(SELECTED_NETWORK) || '';
+export const recreateGraphQLConnection = (network: string): string => {
   let connectionString: string;
   switch (network) {
     case Network.MAINNET: {
@@ -32,8 +31,7 @@ export const recreateGraphQLConnection = (): string => {
   return connectionString;
 };
 
-export const recreateAPIConnection = (): string => {
-  const network = localStorage.getItem(SELECTED_NETWORK);
+export const recreateAPIConnection = (network: string): string => {
   let connectionString: string;
   switch (network) {
     case Network.MAINNET: {
@@ -56,8 +54,7 @@ export const recreateAPIConnection = (): string => {
   return connectionString;
 };
 
-export const recreateFaucetConnection = (): string => {
-  const network = localStorage.getItem(SELECTED_NETWORK);
+export const recreateFaucetConnection = (network: string): string => {
   let connectionString: string;
   switch (network) {
     case Network.MAINNET: {

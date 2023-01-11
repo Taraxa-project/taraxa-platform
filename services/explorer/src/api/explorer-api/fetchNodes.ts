@@ -19,6 +19,9 @@ const computeFilters = ({
 };
 
 const fetchNodes = async (endpoint: string, params: FetchNodesFilter) => {
+  if (!endpoint) {
+    return;
+  }
   const url = `${endpoint}/nodes`;
   const { data } = await axios.get(url, { params });
   return data as NodesPaginate;

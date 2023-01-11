@@ -26,9 +26,9 @@ const createClient = (endpoint: string): Client =>
 const initialState: Context = {
   networks: Object.values(Network),
   currentNetwork: Network.MAINNET,
-  graphQLClient: createClient(recreateGraphQLConnection()),
-  backendEndpoint: recreateAPIConnection(),
-  faucetEndpoint: recreateFaucetConnection(),
+  graphQLClient: createClient(recreateGraphQLConnection(Network.DEVNET)),
+  backendEndpoint: recreateAPIConnection(Network.DEVNET),
+  faucetEndpoint: recreateFaucetConnection(Network.DEVNET),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   disableNetworkSelection: false,
@@ -45,13 +45,13 @@ const useNetworkSelection = () => {
   );
 
   const [graphQLClient, setGraphQLClient] = useState<Client>(
-    createClient(recreateGraphQLConnection())
+    createClient(recreateGraphQLConnection(currentNetwork))
   );
   const [backendEndpoint, setBackendEndpoint] = useState<string>(
-    recreateAPIConnection()
+    recreateAPIConnection(currentNetwork)
   );
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
-    recreateFaucetConnection()
+    recreateFaucetConnection(currentNetwork)
   );
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
@@ -64,9 +64,9 @@ const useNetworkSelection = () => {
   useEffect(() => {
     // connector.resetClient(recreateGraphQLConnection());
     // connector.backendEndpoint = recreateAPIConnection();
-    setGraphQLClient(createClient(recreateGraphQLConnection()));
-    setBackendEndpoint(recreateAPIConnection());
-    setFaucetEndpoint(recreateFaucetConnection());
+    setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
+    setBackendEndpoint(recreateAPIConnection(currentNetwork));
+    setFaucetEndpoint(recreateFaucetConnection(currentNetwork));
   }, [currentNetwork]);
 
   return {

@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
 
 const getByAddress = (endpoint: string, address: string) => {
-  if (!address) {
+  if (!address || !endpoint) {
     return;
   }
   const url = `${endpoint}/address/${address}/details`;
@@ -31,6 +31,8 @@ export const useGetDetailsForAddress = (
       enabled: !!address,
     }
   );
+  console.log('HOOK: isFetching: ', isFetching);
+  console.log('HOOK: isLoading: ', isLoading);
   return {
     data,
     isError,
