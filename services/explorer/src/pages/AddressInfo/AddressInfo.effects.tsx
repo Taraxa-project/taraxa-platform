@@ -39,6 +39,13 @@ export const useAddressInfoEffects = (
   handlePbftChangeRowsPerPage: (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
+  totalDagCount: number;
+  rowsDagPerPage: number;
+  dagPage: number;
+  handleDagChangePage: (newPage: number) => void;
+  handleDagChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 } => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
@@ -47,6 +54,10 @@ export const useAddressInfoEffects = (
   const [totalPbftCount, setTotalPbftCount] = useState<number>(0);
   const [rowsPbftPerPage, setPbftRowsPerPage] = useState<number>(25);
   const [pbftPage, setPbftPage] = useState(0);
+
+  const [totalDagCount, setTotalDagCount] = useState<number>(0);
+  const [rowsDagPerPage, setDagRowsPerPage] = useState<number>(25);
+  const [dagPage, setDagPage] = useState(0);
 
   const [addressInfoDetails, setAddressInfoDetails] =
     useState<AddressInfoDetails>();
@@ -69,7 +80,10 @@ export const useAddressInfoEffects = (
     data: dagsData,
     isFetching: isFetchingDags,
     isLoading: isLoadingDags,
-  } = useGetDagsByAddress(backendEndpoint, account);
+  } = useGetDagsByAddress(backendEndpoint, account, {
+    rowsPerPage: rowsDagPerPage,
+    page: dagPage,
+  });
   const {
     data: pbftsData,
     isFetching: isFetchingPbfts,
@@ -123,8 +137,9 @@ export const useAddressInfoEffects = (
   ]);
 
   useEffect(() => {
-    if (dagsData?.data) {
-      setDagBlocks(dagsData?.data);
+    if (dagsData?.data && dagsData?.total) {
+      setDagBlocks(dagsData?.data as BlockData[]);
+      setTotalDagCount(dagsData?.total);
     }
   }, [dagsData]);
 
@@ -229,6 +244,17 @@ export const useAddressInfoEffects = (
     setPbftPage(0);
   };
 
+  const handleDagChangePage = (newPage: number) => {
+    setDagPage(newPage);
+  };
+
+  const handleDagChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setDagRowsPerPage(parseInt(event.target.value, 10));
+    setDagPage(0);
+  };
+
   return {
     transactions,
     addressInfoDetails,
@@ -239,5 +265,10 @@ export const useAddressInfoEffects = (
     pbftPage,
     handlePbftChangePage,
     handlePbftChangeRowsPerPage,
+    totalDagCount,
+    rowsDagPerPage,
+    dagPage,
+    handleDagChangePage,
+    handleDagChangeRowsPerPage,
   };
 };

@@ -29,6 +29,13 @@ export interface AddressInfoProps {
   handlePbftChangeRowsPerPage: (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
+  totalDagCount: number;
+  rowsDagPerPage: number;
+  dagPage: number;
+  handleDagChangePage: (newPage: number) => void;
+  handleDagChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 }
 
 export const AddressInfo = ({
@@ -41,6 +48,11 @@ export const AddressInfo = ({
   pbftPage,
   handlePbftChangePage,
   handlePbftChangeRowsPerPage,
+  totalDagCount,
+  rowsDagPerPage,
+  dagPage,
+  handleDagChangePage,
+  handleDagChangeRowsPerPage,
 }: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
@@ -68,7 +80,17 @@ export const AddressInfo = ({
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={dagBlocks} type='dag' />,
+        children: (
+          <BlocksTable
+            blocksData={dagBlocks}
+            type='dag'
+            totalCount={totalDagCount}
+            pageNo={dagPage}
+            rowsPage={rowsDagPerPage}
+            changePage={handleDagChangePage}
+            changeRows={handleDagChangeRowsPerPage}
+          />
+        ),
       },
       {
         label: 'PBFT Blocks',

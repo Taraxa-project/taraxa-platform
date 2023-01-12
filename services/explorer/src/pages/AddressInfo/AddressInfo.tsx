@@ -15,6 +15,11 @@ const AddressInfoPage = (): JSX.Element => {
     rowsPbftPerPage,
     handlePbftChangePage,
     handlePbftChangeRowsPerPage,
+    totalDagCount,
+    rowsDagPerPage,
+    dagPage,
+    handleDagChangePage,
+    handleDagChangeRowsPerPage,
   } = useAddressInfoEffects(account);
 
   return (
@@ -33,6 +38,11 @@ const AddressInfoPage = (): JSX.Element => {
         pbftPage={pbftPage}
         handlePbftChangePage={handlePbftChangePage}
         handlePbftChangeRowsPerPage={handlePbftChangeRowsPerPage}
+        totalDagCount={totalDagCount}
+        rowsDagPerPage={rowsDagPerPage}
+        dagPage={dagPage}
+        handleDagChangePage={handleDagChangePage}
+        handleDagChangeRowsPerPage={handleDagChangeRowsPerPage}
       />
     </>
   );
