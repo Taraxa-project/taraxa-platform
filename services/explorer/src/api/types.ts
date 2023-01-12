@@ -53,6 +53,18 @@ export interface AddressDagsResponse {
   transactionCount: number;
 }
 
+export interface AddressTxResponse {
+  hash: string;
+  from: string;
+  to: string;
+  status: number;
+  gasUsed: string;
+  gasPrice: string;
+  value: string;
+  block: number;
+  age: number;
+}
+
 export interface PbftsPaginate {
   data: AddressPbftsResponse[];
   total: number;
@@ -60,6 +72,11 @@ export interface PbftsPaginate {
 
 export interface DagsPaginate {
   data: AddressDagsResponse[];
+  total: number;
+}
+
+export interface TxPaginate {
+  data: AddressTxResponse[];
   total: number;
 }
 

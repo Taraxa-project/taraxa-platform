@@ -36,6 +36,13 @@ export interface AddressInfoProps {
   handleDagChangeRowsPerPage: (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
+  totalTxCount: number;
+  rowsTxPerPage: number;
+  txPage: number;
+  handleTxChangePage: (newPage: number) => void;
+  handleTxChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 }
 
 export const AddressInfo = ({
@@ -53,6 +60,11 @@ export const AddressInfo = ({
   dagPage,
   handleDagChangePage,
   handleDagChangeRowsPerPage,
+  totalTxCount,
+  rowsTxPerPage,
+  txPage,
+  handleTxChangePage,
+  handleTxChangeRowsPerPage,
 }: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
@@ -69,7 +81,16 @@ export const AddressInfo = ({
           </Box>
         ),
         iconPosition: 'start',
-        children: <TransactionsTable transactionsData={transactions} />,
+        children: (
+          <TransactionsTable
+            transactionsData={transactions}
+            totalCount={totalTxCount}
+            pageNo={txPage}
+            rowsPage={rowsTxPerPage}
+            changePage={handleTxChangePage}
+            changeRows={handleTxChangeRowsPerPage}
+          />
+        ),
       },
       {
         label: 'DAG Blocks',

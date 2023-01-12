@@ -20,6 +20,11 @@ const AddressInfoPage = (): JSX.Element => {
     dagPage,
     handleDagChangePage,
     handleDagChangeRowsPerPage,
+    totalTxCount,
+    rowsTxPerPage,
+    txPage,
+    handleTxChangePage,
+    handleTxChangeRowsPerPage,
   } = useAddressInfoEffects(account);
 
   return (
@@ -43,6 +48,11 @@ const AddressInfoPage = (): JSX.Element => {
         dagPage={dagPage}
         handleDagChangePage={handleDagChangePage}
         handleDagChangeRowsPerPage={handleDagChangeRowsPerPage}
+        totalTxCount={totalTxCount}
+        rowsTxPerPage={rowsTxPerPage}
+        txPage={txPage}
+        handleTxChangePage={handleTxChangePage}
+        handleTxChangeRowsPerPage={handleTxChangeRowsPerPage}
       />
     </>
   );

@@ -46,6 +46,13 @@ export const useAddressInfoEffects = (
   handleDagChangeRowsPerPage: (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
+  totalTxCount: number;
+  rowsTxPerPage: number;
+  txPage: number;
+  handleTxChangePage: (newPage: number) => void;
+  handleTxChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 } => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
@@ -58,6 +65,10 @@ export const useAddressInfoEffects = (
   const [totalDagCount, setTotalDagCount] = useState<number>(0);
   const [rowsDagPerPage, setDagRowsPerPage] = useState<number>(25);
   const [dagPage, setDagPage] = useState(0);
+
+  const [totalTxCount, setTotalTxCount] = useState<number>(0);
+  const [rowsTxPerPage, setTxRowsPerPage] = useState<number>(25);
+  const [txPage, setTxPage] = useState(0);
 
   const [addressInfoDetails, setAddressInfoDetails] =
     useState<AddressInfoDetails>();
@@ -96,7 +107,10 @@ export const useAddressInfoEffects = (
     data: txData,
     isFetching: isFetchingTx,
     isLoading: isLoadingTx,
-  } = useGetTransactionsByAddress(backendEndpoint, account);
+  } = useGetTransactionsByAddress(backendEndpoint, account, {
+    rowsPerPage: rowsTxPerPage,
+    page: txPage,
+  });
 
   const {
     data: details,
@@ -178,8 +192,9 @@ export const useAddressInfoEffects = (
   };
 
   useEffect(() => {
-    if (txData?.data) {
+    if (txData?.data && txData?.total) {
       setTransactions(formatToTransaction(txData.data));
+      setTotalTxCount(txData?.total);
     }
   }, [txData]);
 
@@ -255,6 +270,17 @@ export const useAddressInfoEffects = (
     setDagPage(0);
   };
 
+  const handleTxChangePage = (newPage: number) => {
+    setTxPage(newPage);
+  };
+
+  const handleTxChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTxRowsPerPage(parseInt(event.target.value, 10));
+    setTxPage(0);
+  };
+
   return {
     transactions,
     addressInfoDetails,
@@ -270,5 +296,10 @@ export const useAddressInfoEffects = (
     dagPage,
     handleDagChangePage,
     handleDagChangeRowsPerPage,
+    totalTxCount,
+    rowsTxPerPage,
+    txPage,
+    handleTxChangePage,
+    handleTxChangeRowsPerPage,
   };
 };
