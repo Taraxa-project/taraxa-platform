@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import { nodeStateQuery } from '../api';
+import { nodeStateQuery, POOLING_INTERVAL } from '../api';
 
 type Context = {
   finalBlock: number;
@@ -21,7 +21,7 @@ export const NodeStateProvider = ({
 }: {
   children: React.ReactNode;
 }): JSX.Element => {
-  const [{ data }] = useQuery({
+  const [{ fetching, data }, reexecuteQuery] = useQuery({
     query: nodeStateQuery,
   });
   const [currentNodeState, setCurrentNodeState] = useState<Context>({
@@ -35,6 +35,16 @@ export const NodeStateProvider = ({
       setCurrentNodeState(data?.nodeState);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (fetching) return;
+
+    const timerId = setTimeout(() => {
+      reexecuteQuery({ requestPolicy: 'network-only' });
+    }, POOLING_INTERVAL);
+
+    return () => clearTimeout(timerId);
+  }, [fetching, reexecuteQuery]);
 
   return (
     <NodeStateContext.Provider value={currentNodeState}>
