@@ -22,6 +22,7 @@ type Context = {
 const createClient = (endpoint: string): Client =>
   urqlCreateClient({
     url: endpoint,
+    requestPolicy: 'network-only',
   });
 const initialState: Context = {
   networks: Object.values(Network),
@@ -56,9 +57,6 @@ const useNetworkSelection = () => {
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
     localStorage.setItem(SELECTED_NETWORK, network);
-
-    // unfortunately we need to reload
-    // window.location.reload();
   };
 
   useEffect(() => {
