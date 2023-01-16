@@ -12,7 +12,7 @@ export const AddressLink = ({
 }): JSX.Element => {
   return (
     <Link
-      to={`/address/${address}`}
+      to={`/address/${zeroX(address)}`}
       style={{
         textDecoration: 'none',
         color: theme.palette.secondary.main,

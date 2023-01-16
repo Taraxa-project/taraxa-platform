@@ -99,6 +99,18 @@ const AbsolutePaperWithRef = forwardRef<HTMLDivElement, AbsolutePaperProps>(
   )
 );
 
+interface AbsoluteBoxWithRefProps {
+  children?: React.ReactNode;
+}
+
+const AbsoluteBoxWithRef = forwardRef<HTMLDivElement, AbsoluteBoxWithRefProps>(
+  ({ children, ...props }, ref) => (
+    <Box ref={ref} {...props} width='100%'>
+      {children}
+    </Box>
+  )
+);
+
 export type SearchTextFieldProps = {
   rootClass: string;
 } & TextFieldProps;
@@ -129,12 +141,13 @@ const SearchInput = ({
 }: SearchInputProps) => {
   const classes = useStyles();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const boxElementRef = useRef<HTMLDivElement>(null);
   const absoluteElementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const searchInputWidth = searchInputRef.current?.offsetWidth;
-    if (searchInputWidth && absoluteElementRef.current) {
-      absoluteElementRef.current.style.width = `${searchInputWidth + 39}px`;
+    const boxElementWidth = boxElementRef.current?.offsetWidth;
+    if (boxElementWidth && absoluteElementRef.current) {
+      absoluteElementRef.current.style.width = `${boxElementWidth}px`;
     }
   }, [window.innerWidth]);
 
@@ -164,7 +177,7 @@ const SearchInput = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box width='100%'>
+      <AbsoluteBoxWithRef ref={boxElementRef}>
         <TextFieldWithRef
           ref={searchInputRef}
           variant='outlined'
@@ -220,7 +233,7 @@ const SearchInput = ({
             </MenuList>
           )}
         </AbsolutePaperWithRef>
-      </Box>
+      </AbsoluteBoxWithRef>
     </ThemeProvider>
   );
 };

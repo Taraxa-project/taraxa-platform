@@ -2,6 +2,9 @@ import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
 
 const getBlocksNumber = (endpoint: string) => {
+  if (!endpoint) {
+    return;
+  }
   const url = `${endpoint}/pbft/total-this-week`;
   return axios.get(url);
 };

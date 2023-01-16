@@ -22,6 +22,27 @@ export interface AddressInfoProps {
   dagBlocks: BlockData[];
   pbftBlocks: BlockData[];
   details: AddressInfoDetails;
+  totalPbftCount: number;
+  rowsPbftPerPage: number;
+  pbftPage: number;
+  handlePbftChangePage: (newPage: number) => void;
+  handlePbftChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
+  totalDagCount: number;
+  rowsDagPerPage: number;
+  dagPage: number;
+  handleDagChangePage: (newPage: number) => void;
+  handleDagChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
+  totalTxCount: number;
+  rowsTxPerPage: number;
+  txPage: number;
+  handleTxChangePage: (newPage: number) => void;
+  handleTxChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 }
 
 export const AddressInfo = ({
@@ -29,6 +50,21 @@ export const AddressInfo = ({
   transactions,
   dagBlocks,
   pbftBlocks,
+  totalPbftCount,
+  rowsPbftPerPage,
+  pbftPage,
+  handlePbftChangePage,
+  handlePbftChangeRowsPerPage,
+  totalDagCount,
+  rowsDagPerPage,
+  dagPage,
+  handleDagChangePage,
+  handleDagChangeRowsPerPage,
+  totalTxCount,
+  rowsTxPerPage,
+  txPage,
+  handleTxChangePage,
+  handleTxChangeRowsPerPage,
 }: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
@@ -45,7 +81,16 @@ export const AddressInfo = ({
           </Box>
         ),
         iconPosition: 'start',
-        children: <TransactionsTable transactionsData={transactions} />,
+        children: (
+          <TransactionsTable
+            transactionsData={transactions}
+            totalCount={totalTxCount}
+            pageNo={txPage}
+            rowsPage={rowsTxPerPage}
+            changePage={handleTxChangePage}
+            changeRows={handleTxChangeRowsPerPage}
+          />
+        ),
       },
       {
         label: 'DAG Blocks',
@@ -56,7 +101,17 @@ export const AddressInfo = ({
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={dagBlocks} type='dag' />,
+        children: (
+          <BlocksTable
+            blocksData={dagBlocks}
+            type='dag'
+            totalCount={totalDagCount}
+            pageNo={dagPage}
+            rowsPage={rowsDagPerPage}
+            changePage={handleDagChangePage}
+            changeRows={handleDagChangeRowsPerPage}
+          />
+        ),
       },
       {
         label: 'PBFT Blocks',
@@ -67,7 +122,17 @@ export const AddressInfo = ({
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={pbftBlocks} type='pbft' />,
+        children: (
+          <BlocksTable
+            blocksData={pbftBlocks}
+            type='pbft'
+            totalCount={totalPbftCount}
+            pageNo={pbftPage}
+            rowsPage={rowsPbftPerPage}
+            changePage={handlePbftChangePage}
+            changeRows={handlePbftChangeRowsPerPage}
+          />
+        ),
       },
     ],
     initialValue: 0,
@@ -124,9 +189,7 @@ export const AddressInfo = ({
               data={`$${
                 details?.value ? Number(details?.value).toLocaleString() : ''
               } ${details?.valueCurrency || ''} ( ${
-                details?.pricePerTara
-                  ? Number(details?.pricePerTara).toLocaleString()
-                  : ''
+                details?.pricePerTara ? Number(details?.pricePerTara) : ''
               } / TARA )`}
             />
             <DataRow

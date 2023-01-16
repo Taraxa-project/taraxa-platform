@@ -8,6 +8,8 @@ export const MAINNET_FAUCET_API = `${process.env.REACT_APP_MAINNET_FAUCET_HOST}`
 export const TESTNET_FAUCET_API = `${process.env.REACT_APP_TESTNET_FAUCET_HOST}`;
 export const DEVNET_FAUCET_API = `${process.env.REACT_APP_DEVNET_FAUCET_HOST}`;
 
+export const POOLING_INTERVAL = 15000; // 15 seconds
+
 export type DagBlockFilters = {
   dagLevel: number;
   count?: number;
@@ -24,18 +26,59 @@ export type PbftBlockDetailsFilters = {
   number?: number;
 };
 
-export type FetchNodesFilter = {
+export type PaginationFilter = {
   take: number;
   skip: number;
 };
 
-export type FetchNodesPagination = {
+export type FetchWithPagination = {
   rowsPerPage: number;
   page: number;
 };
 
 export interface NodesPaginate {
   data: ITaraxaNode[];
+  total: number;
+}
+
+export interface AddressPbftsResponse {
+  hash: string;
+  number: number;
+  timestamp: number;
+  transactionCount: number;
+}
+
+export interface AddressDagsResponse {
+  hash: string;
+  level: number;
+  timestamp: number;
+  transactionCount: number;
+}
+
+export interface AddressTxResponse {
+  hash: string;
+  from: string;
+  to: string;
+  status: number;
+  gasUsed: string;
+  gasPrice: string;
+  value: string;
+  block: number;
+  age: number;
+}
+
+export interface PbftsPaginate {
+  data: AddressPbftsResponse[];
+  total: number;
+}
+
+export interface DagsPaginate {
+  data: AddressDagsResponse[];
+  total: number;
+}
+
+export interface TxPaginate {
+  data: AddressTxResponse[];
   total: number;
 }
 

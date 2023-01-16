@@ -12,7 +12,7 @@ export const calculateTransactionsPerSecond = (
     const tps = block.transactionCount / timeBetween;
     return tps;
   });
-  return data.slice(0, data.length - 1);
+  return data?.slice(0, data.length - 1);
 };
 
 export const calculatePBFTBlockTime = (
@@ -26,7 +26,7 @@ export const calculatePBFTBlockTime = (
     const timeBetween = Number(block.timestamp) - timeOfBlockBefore;
     return timeBetween;
   });
-  return data.slice(0, data.length - 1);
+  return data?.slice(0, data.length - 1);
 };
 
 export const getLastNTimestamps = (
@@ -34,9 +34,9 @@ export const getLastNTimestamps = (
   amount: number
 ): number[] => {
   return dags
-    .flatMap((d) => d.timestamp)
-    .sort((a, b) => a + b)
-    .slice(0, amount);
+    ?.flatMap((d) => d.timestamp)
+    ?.sort((a, b) => a + b)
+    ?.slice(0, amount);
 };
 
 export const getLastNDagBlocks = (
@@ -45,8 +45,8 @@ export const getLastNDagBlocks = (
 ): DagBlock[] => {
   const onlyNLatestTimestamps = getLastNTimestamps(dags, amount);
   const last6Timestamps = dags
-    .filter((b) => onlyNLatestTimestamps.includes(b.timestamp))
-    .sort((a, b) => a.timestamp + b.timestamp);
+    ?.filter((b) => onlyNLatestTimestamps.includes(b.timestamp))
+    ?.sort((a, b) => a.timestamp + b.timestamp);
   return last6Timestamps;
 };
 

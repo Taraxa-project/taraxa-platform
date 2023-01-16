@@ -1,28 +1,46 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { useQuery } from 'react-query';
+import { DagsPaginate, FetchWithPagination, PaginationFilter } from '../types';
 
-const getByAddress = (endpoint: string, address: string) => {
-  if (!address) {
+const computeFilters = ({
+  rowsPerPage,
+  page,
+}: FetchWithPagination): PaginationFilter => {
+  const take = rowsPerPage;
+  const skip = page * rowsPerPage;
+  return {
+    take,
+    skip,
+  };
+};
+
+const getByAddress = async (
+  endpoint: string,
+  address: string,
+  params: PaginationFilter
+) => {
+  if (!address || !endpoint) {
     return;
   }
   const url = `${endpoint}/address/${address}/dags`;
-  // eslint-disable-next-line consistent-return
-  return axios.get(url);
+  const { data } = await axios.get(url, { params });
+  return data as DagsPaginate;
 };
 
 export const useGetDagsByAddress = (
   endpoint: string,
-  address: string
+  address: string,
+  params: FetchWithPagination
 ): {
-  data: AxiosResponse<any>;
+  data: DagsPaginate;
   isError: boolean;
   error: unknown;
   isLoading: boolean;
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['dags-by-address', address],
-    () => getByAddress(endpoint, address),
+    ['dags-by-address', address, params],
+    () => getByAddress(endpoint, address, computeFilters(params)),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

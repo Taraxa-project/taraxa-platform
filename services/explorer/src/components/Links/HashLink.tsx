@@ -20,7 +20,7 @@ export const HashLink = ({
   return (
     <Box sx={{ display: 'flex', justifyContent: 'start' }}>
       <Link
-        to={`/${linkType}/${hash || blockNumber}`}
+        to={`/${linkType}/${zeroX(hash) || blockNumber}`}
         style={{
           textDecoration: 'none',
           color: theme.palette.secondary.main,

@@ -73,9 +73,10 @@ export const useNodesEffects = () => {
 
   useEffect(() => {
     if (nodesResult?.data && nodesResult?.total) {
-      setTableData(
-        tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
-      );
+      // setTableData(
+      //   tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
+      // );
+      setTableData(formatNodesToTable(nodesResult.data as RankedNode[]));
       setTotalCount(nodesResult?.total);
     }
   }, [nodesResult]);
