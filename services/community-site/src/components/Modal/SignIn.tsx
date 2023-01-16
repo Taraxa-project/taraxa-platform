@@ -26,7 +26,7 @@ const SignIn = ({
 }: SignInProps) => {
   const { setIsOpen, setContent } = useModal();
   const auth = useAuth();
-  const { account } = useCMetamask();
+  const { account, connect } = useCMetamask();
   const { isAuthorized, authorizeAddress } = useWalletAuth();
   const history = useHistory();
 
@@ -85,10 +85,10 @@ const SignIn = ({
 
     const result = await auth.signin!(username, password);
     if (result.success) {
-      if (isAuthorized) {
-        onSuccess();
-        return;
-      }
+      // if (isAuthorized) {
+      onSuccess();
+      return;
+      // }
     }
     setErrors(
       result.response[0].messages.map((message: any) => ({
@@ -99,7 +99,9 @@ const SignIn = ({
   };
 
   const registerMM = async () => {
-    if (!account) return;
+    if (!account) {
+      await connect();
+    }
     await authorizeAddress();
     setMMRegistration(isAuthorized);
   };
@@ -123,8 +125,8 @@ const SignIn = ({
               variant="contained"
               className="marginButton"
               onClick={() => {
-                history.push('/profile');
                 onSuccess();
+                history.push('/profile');
               }}
               fullWidth
             />
@@ -232,9 +234,10 @@ const SignIn = ({
             color="primary"
           />
           <Button
-            label="Create an account using MetaMask"
+            label="(Coming Soon) Create an account using MetaMask"
             variant="contained"
             onClick={() => registerMM()}
+            disabled
             fullWidth
             Icon={MetamaskIcon}
             className="marginButton greyButton"

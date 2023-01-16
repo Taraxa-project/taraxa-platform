@@ -17,18 +17,22 @@ interface PresetProps {
 
 const Preset = (props: PresetProps) => {
   const [isRegistered, setRegistered] = useState(false);
-  const { account } = useCMetamask();
+  const { account, connect } = useCMetamask();
   const history = useHistory();
   const { authorizeAddress, isAuthorized } = useWalletAuth();
   const { onMM, onClassic, onSuccess } = props;
 
   const registerMM = async () => {
-    if (!account) return;
+    if (!account) {
+      await connect();
+    }
     if (isAuthorized) {
       setRegistered(true);
     } else {
       await authorizeAddress();
       setRegistered(isAuthorized);
+      onSuccess();
+      history.push('/profile');
     }
   };
   return (
@@ -49,8 +53,8 @@ const Preset = (props: PresetProps) => {
             variant="contained"
             className="marginButton"
             onClick={() => {
-              history.push('/profile');
               onSuccess();
+              history.push('/profile');
             }}
             fullWidth
           />
@@ -81,7 +85,8 @@ const Preset = (props: PresetProps) => {
           <ModalText marginTop="5%" marginBottom="5%" text="Don’t have an account yet?" />
           <Button
             type="submit"
-            label="Create an account using MetaMask"
+            label="(Coming Soon) Create an account using MetaMask"
+            disabled
             variant="contained"
             className="marginButton greyButton"
             onClick={registerMM}
