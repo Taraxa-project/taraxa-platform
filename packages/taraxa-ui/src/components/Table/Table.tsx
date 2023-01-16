@@ -116,13 +116,13 @@ export default function Table({
               </TableHead>
               <TableBody>
                 {rows
-                  .slice(
+                  ?.slice(
                     (currentPage || page) * (initialRowsPerPage || rowsPerPage),
                     (currentPage || page) *
                       (initialRowsPerPage || rowsPerPage) +
                       (initialRowsPerPage || rowsPerPage)
                   )
-                  .map((row, index) =>
+                  ?.map((row, index) =>
                     row.data.map((rowData: any) =>
                       isMobile ? (
                         <TableRow tabIndex={-1} key={index}>

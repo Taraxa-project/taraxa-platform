@@ -228,15 +228,16 @@ export class AddressService {
     let balance = toBN('0');
     let totalSent = toBN('0');
     let totalReceived = toBN('0');
+
     try {
       const totalSentPromise = this.txRepository.query(
-        `select sum(value::REAL) as total_sent from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.from) = lower('${parsedAddress}');`
+        `select cast(sum(value::REAL) as numeric) as total_sent from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.from) = lower('${parsedAddress}');`
       );
       const totalReceivedPromise = this.txRepository.query(
-        `select sum(value::REAL) as total_received from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.to) = lower('${parsedAddress}');`
+        `select cast(sum(value::REAL) as numeric) as total_received from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.to) = lower('${parsedAddress}');`
       );
       const totalMinedPromise = this.txRepository.query(
-        `select sum(reward::REAL) as total_mined from ${this.pbftRepository.metadata.tableName} where lower(miner) = lower('${parsedAddress}');`
+        `select cast(sum(reward::REAL) as numeric) as total_mined from ${this.pbftRepository.metadata.tableName} where lower(miner) = lower('${parsedAddress}');`
       );
 
       const [[{ total_sent }], [{ total_received }], [{ total_mined }]] =

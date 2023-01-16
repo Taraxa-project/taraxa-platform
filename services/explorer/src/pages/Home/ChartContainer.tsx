@@ -39,13 +39,13 @@ const ChartContainer = ({
         <BarChart
           title='Transactions per second'
           labels={[...pbftBlocks]
-            .reverse()
-            .slice(0, 5)
-            .map((block) => block.number.toString())}
+            ?.reverse()
+            ?.slice(0, 5)
+            ?.map((block) => block.number.toString())}
           datasets={[
             {
               data: calculateTransactionsPerSecond(
-                [...pbftBlocks].reverse().slice(0, 6)
+                [...pbftBlocks]?.reverse()?.slice(0, 6)
               ),
               borderRadius: 5,
               barThickness: 20,
@@ -57,13 +57,13 @@ const ChartContainer = ({
           title='Block Time'
           tick='s'
           labels={[...pbftBlocks]
-            .reverse()
-            .slice(0, 5)
-            .map((block) => block.number.toString())}
+            ?.reverse()
+            ?.slice(0, 5)
+            ?.map((block) => block.number.toString())}
           datasets={[
             {
               data: calculatePBFTBlockTime(
-                [...pbftBlocks].reverse().slice(0, 6)
+                [...pbftBlocks]?.reverse()?.slice(0, 6)
               ),
               borderRadius: 5,
               barThickness: 20,

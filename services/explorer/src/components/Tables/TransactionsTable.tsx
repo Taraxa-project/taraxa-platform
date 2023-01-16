@@ -40,7 +40,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
   useEffect(() => {
     if (!pageNo && !rowsPage) {
       setData(
-        transactionsData.slice(
+        transactionsData?.slice(
           page * rowsPerPage,
           page * rowsPerPage + rowsPerPage
         )

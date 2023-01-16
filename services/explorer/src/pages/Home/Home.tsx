@@ -37,7 +37,7 @@ const HomePage = (): JSX.Element => {
         flexDirection={{ xs: 'column', md: 'column', lg: 'row' }}
       >
         <BlockCard {...dagToDisplay(dagsForCard?.slice(0, 10))} />
-        <BlockCard {...pbftToDisplay(pbftsForCard?.slice(0, 10).reverse())} />
+        <BlockCard {...pbftToDisplay(pbftsForCard?.slice(0, 10)?.reverse())} />
       </Box>
     </>
   );
