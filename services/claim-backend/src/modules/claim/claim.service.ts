@@ -3,13 +3,17 @@ import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
 import { In, LessThan, Raw, Repository } from 'typeorm';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
 import { ethereum, general, reward } from '@taraxa-claim/config';
 import { CollectionResponse, QueryDto } from '@taraxa-claim/common';
-import { BlockchainService, ContractTypes } from '@taraxa-claim/blockchain';
 import { BatchTypes } from './type/batch-type';
 import { BatchEntity } from './entity/batch.entity';
 import { PendingRewardEntity } from './entity/pending-reward.entity';
@@ -21,6 +25,7 @@ import { AddressChangesEntity } from './entity/address-changes.entity';
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
 import { PendingRewardsDto } from './dto/pending-rewards.dto';
+import { GraphQLService } from './graphql.connector.service';
 
 interface CommunityRewardResponse {
   address: string;
@@ -37,9 +42,15 @@ interface DelegationRewardResponse {
   amount: number;
 }
 
+enum RewardType {
+  COMMUNITY = 'COMMUNITY',
+  DELEGATION = 'DELEGATION',
+}
+
 interface Reward {
   address: string;
   total: number;
+  type: RewardType;
 }
 
 @Injectable()
@@ -65,7 +76,7 @@ export class ClaimService {
     private readonly ethereumConfig: ConfigType<typeof ethereum>,
     @Inject(reward.KEY)
     private readonly rewardConfig: ConfigType<typeof reward>,
-    private readonly blockchainService: BlockchainService,
+    private readonly graphService: GraphQLService,
   ) {
     this.privateKey = Buffer.from(this.ethereumConfig.privateSigningKey, 'hex');
   }
@@ -79,27 +90,131 @@ export class ClaimService {
 
     if (batch.type === BatchTypes.COMMUNITY_ACTIVITY) {
       const kyc = await this.getKycStatus();
-      await this.pendingRewardRepository.save(
-        await this.getPendingRewardsFor(
-          batch,
-          await this.getCommunityRewards(),
-          kyc,
-          'community',
-        ),
-      );
+      const rewards = [
+        ...(await this.getCommunityRewards()),
+        ...(await this.getDelegationRewards()),
+      ];
+      for (const reward of rewards) {
+        const address = this.toChecksumAddress(reward.address);
 
-      await this.pendingRewardRepository.save(
-        await this.getPendingRewardsFor(
+        let total = new BigNumber(0);
+        let claimable = new BigNumber(0);
+        let communityTotal = new BigNumber(0);
+        let delegationTotal = new BigNumber(0);
+
+        let isValid = true;
+        let invalidReason = null;
+
+        let pendingReward = await this.pendingRewardRepository.findOne({
+          address,
           batch,
-          await this.getDelegationRewards(),
-          kyc,
-          'delegation',
-        ),
-      );
+        });
+
+        if (pendingReward) {
+          total = total.plus(new BigNumber(pendingReward.total));
+          communityTotal = communityTotal.plus(
+            new BigNumber(pendingReward.communityTotal),
+          );
+          delegationTotal = delegationTotal.plus(
+            new BigNumber(pendingReward.delegationTotal),
+          );
+        } else {
+          pendingReward = new PendingRewardEntity();
+          pendingReward.batch = batch;
+          pendingReward.address = address;
+        }
+
+        total = total.plus(this.floatToBn(reward.total));
+        claimable = claimable.plus(total);
+
+        if (reward.type === RewardType.COMMUNITY) {
+          communityTotal = communityTotal.plus(this.floatToBn(reward.total));
+        }
+
+        if (reward.type === RewardType.DELEGATION) {
+          delegationTotal = delegationTotal.plus(this.floatToBn(reward.total));
+        }
+
+        const calculateTotalAccount = (a: AccountEntity) =>
+          new BigNumber(a.availableToBeClaimed)
+            .plus(new BigNumber(a.totalLocked))
+            .plus(new BigNumber(a.totalClaimed));
+
+        const account = await this.accountRepository.findOne({
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+        });
+
+        if (account) {
+          const totalBefore = calculateTotalAccount(account);
+          claimable = claimable.minus(totalBefore);
+        }
+
+        if (!ethUtil.isValidAddress(address)) {
+          isValid = false;
+          invalidReason = 'Invalid address';
+        }
+
+        if (!kyc.has(address)) {
+          isValid = false;
+          invalidReason = 'KYC not approved';
+        }
+
+        if (claimable.isNegative()) {
+          isValid = false;
+          invalidReason = 'Negative balance';
+        }
+
+        pendingReward.claimable = claimable.toString(10);
+        pendingReward.total = total.toString(10);
+        pendingReward.communityTotal = communityTotal.toString(10);
+        pendingReward.delegationTotal = delegationTotal.toString(10);
+        pendingReward.isValid = isValid;
+        pendingReward.invalidReason = invalidReason;
+
+        await this.pendingRewardRepository.save(pendingReward);
+      }
+
+      const changedAddresses = (
+        await this.addressChangeRepository.find()
+      ).reduce((prev: Map<string, string>, curr: AddressChangesEntity) => {
+        prev.set(
+          this.toChecksumAddress(curr.oldAddress),
+          this.toChecksumAddress(curr.newAddress),
+        );
+        return prev;
+      }, new Map<string, string>());
+
+      for (const [oldAddress, newAddress] of changedAddresses.entries()) {
+        const oldAddressReward = await this.pendingRewardRepository.findOne({
+          address: oldAddress,
+        });
+        let claimable = new BigNumber('0');
+        if (oldAddressReward) {
+          oldAddressReward.isValid = false;
+          oldAddressReward.invalidReason = 'Changed Address';
+          claimable.plus(new BigNumber(oldAddressReward.claimable));
+          await this.pendingRewardRepository.save(oldAddressReward);
+        }
+        const newAddressReward = await this.pendingRewardRepository.findOne({
+          address: newAddress,
+        });
+        if (newAddressReward) {
+          claimable = claimable.plus(new BigNumber(newAddressReward.claimable));
+          newAddressReward.claimable = claimable.toString(10);
+          if (claimable.isNegative()) {
+            newAddressReward.isValid = false;
+            newAddressReward.invalidReason = 'Negative balance';
+          }
+          await this.pendingRewardRepository.save(newAddressReward);
+        }
+      }
     }
 
     return batch;
   }
+
   public async batch(id: number): Promise<BatchEntity> {
     return this.batchRepository.findOneOrFail({ id });
   }
@@ -331,21 +446,19 @@ export class ClaimService {
       if (claim) {
         const nonce = claim.id * 13;
 
-        const claimContractInstance =
-          this.blockchainService.getContractInstance(
-            ContractTypes.CLAIM,
-            this.ethereumConfig.claimContractAddress,
-          );
-        const confirmation = await claimContractInstance.getClaimedAmount(
+        const indexedClaims = await this.graphService.getIndexedClaim(
           address,
           claim.numberOfTokens,
           nonce,
         );
-        if (
-          confirmation.gt(ethers.BigNumber.from('0')) &&
-          confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
-        ) {
-          await this.markAsClaimed(claim.id);
+        if (indexedClaims) {
+          const confirmation = ethers.BigNumber.from(indexedClaims[0].amount);
+          if (
+            confirmation.gt(ethers.BigNumber.from('0')) &&
+            confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
+          ) {
+            await this.markAsClaimed(claim.id);
+          }
         }
       }
     } catch (error) {
@@ -536,7 +649,10 @@ export class ClaimService {
       throw new Error('Failed to get community rewards');
     }
 
-    const rewards = response.data;
+    const rewards = response.data.map((r) => ({
+      ...r,
+      type: RewardType.COMMUNITY,
+    }));
     return rewards;
   }
   private async getDelegationRewards(): Promise<Reward[]> {
@@ -552,144 +668,13 @@ export class ClaimService {
 
     const rewards = response.data;
     return rewards.map((reward: DelegationRewardResponse) => ({
-      ...reward,
+      address: reward.address,
       total: reward.amount,
+      type: RewardType.DELEGATION,
     }));
   }
-  private async getPendingRewardsFor(
-    batch: BatchEntity,
-    rewards: Reward[],
-    kyc: Map<string, boolean>,
-    type: 'community' | 'delegation',
-  ): Promise<PendingRewardEntity[]> {
-    const uniqueUsers = rewards.reduce(
-      (prev: Map<string, number>, curr: Reward) => {
-        const address = this.toChecksumAddress(curr.address);
-
-        let total = curr.total;
-        if (prev.has(address)) {
-          const prevReward = prev.get(address);
-          total += prevReward;
-        }
-        prev.set(address, total);
-        return prev;
-      },
-      new Map<string, number>(),
-    );
-
-    const pendingRewards: PendingRewardEntity[] = [];
-    for (const [address, rewardTotal] of uniqueUsers.entries()) {
-      let pendingReward = await this.pendingRewardRepository.findOne({
-        address,
-        batch,
-      });
-
-      let total = new BigNumber(0);
-      let isValid = true;
-      let invalidReason = null;
-
-      if (pendingReward) {
-        total = total
-          .plus(new BigNumber(pendingReward.total))
-          .plus(this.floatToBn(rewardTotal));
-        pendingReward.total = total.toString(10);
-      } else {
-        total = total.plus(this.floatToBn(rewardTotal));
-        pendingReward = new PendingRewardEntity();
-        pendingReward.batch = batch;
-        pendingReward.address = address;
-        pendingReward.total = total.toString(10);
-        pendingReward.communityTotal = '0';
-        pendingReward.delegationTotal = '0';
-
-        if (!ethUtil.isValidAddress(address)) {
-          isValid = false;
-          invalidReason = 'Invalid address';
-        }
-
-        if (!kyc.has(address)) {
-          isValid = false;
-          invalidReason = 'KYC not approved';
-        }
-
-        const oldAddress = await this.addressChangeRepository.findOne({
-          oldAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-            address,
-          }),
-        });
-
-        if (oldAddress) {
-          isValid = false;
-          invalidReason = 'Changed Address';
-        }
-      }
-
-      if (type === 'community') {
-        pendingReward.communityTotal = new BigNumber(
-          pendingReward.communityTotal,
-        )
-          .plus(this.floatToBn(rewardTotal))
-          .toString(10);
-      } else {
-        pendingReward.delegationTotal = new BigNumber(
-          pendingReward.delegationTotal,
-        )
-          .plus(this.floatToBn(rewardTotal))
-          .toString(10);
-      }
-
-      let claimable = new BigNumber(total.toString(10));
-
-      const newAddress = await this.addressChangeRepository.findOne({
-        newAddress: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          address,
-        }),
-      });
-
-      const calculateTotalAccount = (a: AccountEntity) =>
-        new BigNumber(a.availableToBeClaimed)
-          .plus(new BigNumber(a.totalLocked))
-          .plus(new BigNumber(a.totalClaimed));
-
-      if (newAddress) {
-        const oldAccount = await this.accountRepository.findOne({
-          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-            address: newAddress.oldAddress,
-          }),
-        });
-        if (oldAccount) {
-          const oldAccountTotal = calculateTotalAccount(oldAccount);
-          claimable = claimable.minus(oldAccountTotal);
-        }
-      }
-
-      const account = await this.accountRepository.findOne({
-        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          address,
-        }),
-      });
-      if (account) {
-        const totalBefore = calculateTotalAccount(account);
-        claimable = claimable.minus(totalBefore);
-      }
-
-      if (claimable.isNegative()) {
-        isValid = false;
-        invalidReason = 'Negative balance';
-      } else if (isValid && claimable.isPositive()) {
-        isValid = true;
-        invalidReason = null;
-      }
-
-      pendingReward.claimable = claimable.toString(10);
-      pendingReward.isValid = isValid;
-      pendingReward.invalidReason = invalidReason;
-      pendingRewards.push(pendingReward);
-    }
-    return pendingRewards;
-  }
   private toChecksumAddress(address: string): string {
-    const trimmedAddress = address.trim();
+    const trimmedAddress = address.trim().toLowerCase();
     return ethUtil.isValidAddress(trimmedAddress)
       ? ethUtil.toChecksumAddress(trimmedAddress)
       : trimmedAddress;

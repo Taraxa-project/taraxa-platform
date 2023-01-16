@@ -1,11 +1,11 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import Text from '../Text';
 import { Exclamation } from '../Icons';
 
 import theme from '../theme';
 
-import useStyles from './notification-styles';
+import useStyles from './Notification.styles';
 
 export interface NotificationProps {
   title?: string;
@@ -47,11 +47,25 @@ const Notification = ({
         </div>
         <div>
           {title && (
-            <Text label={title} variant="body1" color="primary" className={classes.title} />
+            <Text
+              label={title}
+              variant='body1'
+              color='primary'
+              fontWeight='700'
+              fontSize='16px'
+              className={classes.title}
+            />
           )}
-          {text && <Text label={text} variant="body2" color="primary" className={classes.text} />}
+          {text && (
+            <Text
+              label={text}
+              variant='body2'
+              color='primary'
+              className={classes.text}
+            />
+          )}
           {children && (
-            <Text variant="body2" color="primary" className={classes.text}>
+            <Text variant='body2' color='primary' className={classes.text}>
               {children}
             </Text>
           )}

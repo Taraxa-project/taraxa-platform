@@ -52,6 +52,18 @@ export class Node {
     nullable: true,
     default: null,
   })
+  addressProof: string | null = null;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  vrfKey: string | null = null;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
   ip: string | null = null;
 
   @Column({
@@ -83,6 +95,11 @@ export class Node {
     default: null,
   })
   lastBlockCreatedAt?: Date;
+
+  @Column({
+    default: false,
+  })
+  isCreatedOnchain: boolean;
 
   @OneToMany(() => NodeCommission, (commission) => commission.node, {
     eager: true,
@@ -265,6 +282,8 @@ export class Node {
     const node = new Node();
     node.type = dto.type;
     node.address = ethers.utils.getAddress(dto.address);
+    node.addressProof = dto.addressProof;
+    node.vrfKey = dto.vrfKey;
 
     if (typeof dto.name !== 'undefined' && dto.name !== '') {
       node.name = dto.name;

@@ -4,7 +4,7 @@ import {
   ThemeProvider,
   Menu as MMenu,
   MenuItem as MMenuItem,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import theme from '../theme';
 

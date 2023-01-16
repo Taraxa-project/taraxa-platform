@@ -33,6 +33,19 @@ import File from './components/File';
 import LoadingWidget from './components/LoadingWidget';
 import ProfileIcon from './components/ProfileIcon';
 import AmountCard from './components/AmountCard';
+import SearchInput from './components/SearchInput';
+import NetworkMenu from './components/NetworkMenu';
+import Label from './components/Label';
+import PageTitle from './components/PageTitle';
+import BarChart from './components/BarChart';
+import {
+  TransactionDetails,
+  shortenHash,
+} from './components/TransactionDetails';
+import { BlockCard } from './components/BlockCard';
+import { AwardCard } from './components/AwardCard';
+import CopyTo from './components/CopyTo';
+import theme from './components/theme';
 
 export {
   AmountCard,
@@ -70,4 +83,15 @@ export {
   Icons,
   File,
   LoadingWidget,
+  SearchInput,
+  NetworkMenu,
+  Label,
+  PageTitle,
+  BarChart,
+  TransactionDetails,
+  shortenHash,
+  BlockCard,
+  AwardCard,
+  CopyTo,
+  theme,
 };

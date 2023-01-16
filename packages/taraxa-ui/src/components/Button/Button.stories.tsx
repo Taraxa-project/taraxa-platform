@@ -14,7 +14,25 @@ export default {
 const Template: Story<ButtonProps> = (args) => <Button {...args} />;
 
 export const Primary = Template.bind({});
-Primary.args = { label: 'Primary', size: 'large' };
+Primary.args = {
+  label: 'Primary',
+  size: 'large',
+  color: 'primary',
+  variant: 'contained',
+};
 
 export const Secondary = Template.bind({});
-Secondary.args = { label: 'Secondary', size: 'large' };
+Secondary.args = {
+  label: 'Secondary',
+  size: 'large',
+  color: 'secondary',
+  variant: 'contained',
+};
+
+export const Disabled = Template.bind({});
+Disabled.args = {
+  label: 'Disabled',
+  size: 'large',
+  variant: 'contained',
+  disabled: true,
+};

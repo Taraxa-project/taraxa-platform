@@ -13,6 +13,13 @@ app:
   mainnetExplorerUrl: "https://explorer.mainnet.taraxa.io"
   testnetExplorerUrl: "https://explorer.testnet.taraxa.io"
   indexerStakingUrl: http://prod-taraxa-indexer:8000/subgraphs/name/taraxa_project/staking
+  testnetOwnNodes:
+    - "0x18551e353aa65bc0ffbdf9d93b7ad4a8fe29cf95"
+    - "0xc578bb5fc3dac3e96a8c4cb126c71d2dc9082817"
+    - "0x5c9afb23fba3967ca6102fb60c9949f6a38cd9e8"
+    - "0x403480c2b2ade0851c62bd1ff7a594c416aff7ce"
+    - "0x5042fa2711fe547e46c2f64852fdaa5982c80697"
+    - "0x6258d8f51ea17e873f69a2a978fe311fd95743dd"
 
 image:
   repository: taraxa/delegation

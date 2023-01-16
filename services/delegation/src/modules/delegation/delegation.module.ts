@@ -5,8 +5,8 @@ import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
 import delegationConfig from '../../config/delegation';
 import ethereumConfig from '../../config/ethereum';
-import { NodeModule } from '../node/node.module';
 import { StakingModule } from '../staking/staking.module';
+import { BlockchainModule } from '../blockchain/blockchain.module';
 import { Node } from '../node/node.entity';
 import { Delegation } from './delegation.entity';
 import { DelegationNonce } from './delegation-nonce.entity';
@@ -16,16 +16,15 @@ import { BalanceController } from './balance.controller';
 import { DelegationService } from './delegation.service';
 import { DelegationTaskService } from './delegation-task.service';
 import { DelegationConsumer } from './delegation.consumer';
-import { NodeCreatedListener } from './listener/node-created.listener';
-import { NodeDeletedListener } from './listener/node-deleted.listener';
 import { DelegationCreatedListener } from './listener/delegation-created.listener';
 import { DelegationDeletedListener } from './listener/delegation-deleted.listener';
+import { Undelegation } from './undelegation.entity';
 
 @Module({
   imports: [
     ConfigModule.forFeature(delegationConfig),
     ConfigModule.forFeature(ethereumConfig),
-    TypeOrmModule.forFeature([Delegation, DelegationNonce, Node]),
+    TypeOrmModule.forFeature([Delegation, Undelegation, DelegationNonce, Node]),
     BullModule.registerQueue({
       name: 'delegation',
     }),
@@ -35,8 +34,8 @@ import { DelegationDeletedListener } from './listener/delegation-deleted.listene
         maxRedirects: 5,
       }),
     }),
-    NodeModule,
     StakingModule,
+    BlockchainModule,
   ],
   controllers: [
     DelegationController,
@@ -47,8 +46,6 @@ import { DelegationDeletedListener } from './listener/delegation-deleted.listene
     DelegationService,
     DelegationCreatedListener,
     DelegationDeletedListener,
-    NodeCreatedListener,
-    NodeDeletedListener,
   ],
   exports: [TypeOrmModule],
 })

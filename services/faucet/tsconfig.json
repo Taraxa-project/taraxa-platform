@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "rootDir": "./",
+    "paths": {
+      "@faucet/config": ["config"],
+      "@faucet/blockchain": ["src/modules/blockchain"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "config/*",
+    "migrations/*",
+    "data-source.ts",
+    ".eslintrc.js"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

@@ -2,9 +2,10 @@ import React from 'react';
 import {
   Button as MButton,
   CssBaseline,
-  ThemeProvider,
   ButtonProps as MButtonProps,
-} from '@material-ui/core';
+  ThemeProvider,
+  Typography,
+} from '@mui/material';
 import theme from '../theme';
 
 export interface ButtonProps extends MButtonProps {
@@ -18,7 +19,7 @@ const Button = ({ label, Icon, ...props }: ButtonProps) => {
       <CssBaseline />
       <MButton {...props}>
         {Icon && <Icon />}
-        {label && label}
+        {label && <Typography>{label}</Typography>}
       </MButton>
     </ThemeProvider>
   );

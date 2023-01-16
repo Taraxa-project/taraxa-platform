@@ -4,13 +4,14 @@ import { ethers } from 'ethers';
 import { Notification, BaseCard, Switch, Text, Icons, Card } from '@taraxa_project/taraxa-ui';
 
 import {
+  Box,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import { useAuth } from '../../services/useAuth';
 import { useDelegationApi } from '../../services/useApi';
@@ -218,7 +219,9 @@ const Delegation = () => {
           </div>
           <div>
             <Card className="trophyLegend">
-              <Icons.Trophy /> Multiple weeks winner of the testnet block producer challenge
+              <Box>
+                <Icons.Trophy /> Multiple weeks winner of the testnet block producer challenge
+              </Box>
             </Card>
           </div>
         </div>

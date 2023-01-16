@@ -172,9 +172,10 @@ a.commissionChangeCheck {
     justify-content: space-between;
     margin-bottom: 20px;
     max-width: 1000px;
+    align-items: center;
 
     .trophyLegend {
-      padding: 12px 12px 12px 15px;
+      padding: 0 0 16px 0 !important;
       font-size: 12px;
       border: 1px solid #282c3e;
       background-color: #181b27 !important;
@@ -281,10 +282,6 @@ a.commissionChangeCheck {
     .validatorActions {
       float: right;
 
-      button {
-        border-radius: 8px;
-      }
-
       button:disabled,
       button[disabled] {
         background: #202534;
@@ -298,18 +295,6 @@ a.commissionChangeCheck {
 
     .notification {
       margin-bottom: 40px;
-    }
-
-    .delete,
-    .edit {
-      background-color: #31364b;
-      border: 1px solid #6a7085;
-      border-radius: 4px;
-      padding: 0px 15px;
-      font-size: 12px;
-      line-height: 16px;
-      min-width: auto;
-      margin-left: 9px;
     }
 
     .box {
@@ -399,40 +384,6 @@ a.commissionChangeCheck {
   .nodeProfile {
     a {
       color: #48bdff;
-    }
-  }
-  .nodeTypes {
-    clear: both;
-    height: 50px;
-    margin: 25px 0;
-    svg {
-      float: left;
-      width: 15px;
-      height: 15px;
-      margin-top: 18px;
-    }
-    h6 {
-      float: left;
-      margin-top: 10px;
-      margin-left: 10px;
-      margin-right: 35px;
-    }
-
-    button.nodeTypeTab {
-      float: left;
-      border-radius: 32px;
-      margin-left: 5px;
-      background: #31364b;
-      color: #fff;
-      margin-top: 10px;
-    }
-    button.nodeTypeTab.active {
-      background: #15ac5b;
-    }
-    button.registerNode {
-      float: right;
-      height: 40px;
-      margin-top: 5px;
     }
   }
 }

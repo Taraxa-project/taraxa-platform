@@ -161,7 +161,7 @@ function StakingNotifications() {
       <div className="notification">
         <Notification
           title="Info:"
-          text="Please Note: Lifetime yield is now updated monthly after 15th of each month, including both staking yields and node commissions."
+          text="Please Note: Lifetime yield is now updated monthly after 20th of each month, including both staking yields and node commissions."
           variant="info"
         />
       </div>
@@ -519,7 +519,7 @@ function Stake({
         key={percentage}
         label={`${percentage}%`}
         onClick={() => chipsTrigger(percentage)}
-        variant="default"
+        variant="filled"
         clickable
         className={
           value.gt(ethers.BigNumber.from('0')) && value.eq(input) ? 'chipSelected' : 'chip'
@@ -546,7 +546,7 @@ function Stake({
           button={
             <Button
               disabled={!account}
-              variant="outlined"
+              variant="contained"
               color="secondary"
               onClick={() => downloadRewards()}
               label="Download rewards"
@@ -567,7 +567,7 @@ function Stake({
           button={
             <Button
               disabled={!canClaimStake}
-              variant="outlined"
+              variant="contained"
               color="secondary"
               onClick={() => unstakeTokens()}
               label="Unstake"
@@ -588,7 +588,7 @@ function Stake({
           button={
             <Button
               disabled={delegators.length === 0}
-              variant="outlined"
+              variant="contained"
               color="secondary"
               onClick={() => history.push('/delegation?show_my_delegators')}
               label="My validators"

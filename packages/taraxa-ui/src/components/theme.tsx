@@ -1,8 +1,41 @@
-import { createTheme } from '@material-ui/core/styles';
+import { createTheme, Theme, ThemeOptions } from '@mui/material/styles';
 
-const defaultTheme = createTheme();
-const theme = createTheme({
+const theme: Theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#FFFFFF',
+      contrastText: '#000000',
+    },
+    secondary: {
+      main: '#15AC5B',
+      contrastText: '#FFFFFF',
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: '#878CA4',
+    },
+    info: {
+      main: '#40465F',
+      contrastText: '#FFFFFF',
+    },
+    grey: {
+      A100: '#31364B',
+      100: '#6A7085',
+      A200: '#40465F',
+      800: '#202534',
+      900: '#282C3E',
+      A400: '#181B27',
+      A700: '#151823',
+      700: '#4F5368',
+    },
+    background: {
+      default: '#151823',
+      paper: '#1E2231',
+    },
+  },
   typography: {
+    fontFamily: ['Inter', 'sans-serif'].join(','),
     h1: {
       fontFamily: ['Poppins', 'sans-serif'].join(','),
     },
@@ -32,97 +65,126 @@ const theme = createTheme({
     body2: {
       fontFamily: ['Inter', 'sans-serif'].join(','),
     },
-    fontFamily: ['Inter', 'sans-serif'].join(','),
   },
-  palette: {
-    primary: {
-      main: '#FFF',
-    },
-    secondary: {
-      main: '#15AC5B',
-      contrastText: '#FFF',
-    },
-    text: {
-      primary: '#FFF',
-      secondary: '#878CA4',
-    },
-    action: {
-      disabledBackground: '',
-      disabled: '#FFF',
-      disabledOpacity: 50,
-    },
-  },
-  overrides: {
+  components: {
     MuiAppBar: {
-      colorPrimary: {
-        fontFamily: 'Inter',
-        backgroundColor: '#282C3E',
-        color: '#FFF',
+      styleOverrides: {
+        colorPrimary: {
+          fontFamily: 'Inter',
+          backgroundColor: '#282C3E',
+          color: '#FFF',
+          minHeight: '4.5rem',
+        },
       },
     },
     MuiToolbar: {
-      regular: {
-        minHeight: '72px',
-        [defaultTheme.breakpoints.up('xs')]: {
+      styleOverrides: {
+        root: {
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
           minHeight: '72px',
+          '@media (min-width: 600px)': {
+            minHeight: '4.5rem',
+          },
+          gap: '2rem',
         },
-        fontFamily: 'Inter',
+        regular: {
+          minHeight: '72px',
+          fontFamily: 'Inter',
+        },
       },
     },
     MuiButtonBase: {
-      root: {
-        '&.Mui-disabled': {
-          opacity: 0.7,
+      styleOverrides: {
+        root: {
+          '&.Mui-disabled': {
+            opacity: 0.7,
+          },
         },
       },
     },
     MuiButton: {
-      root: {
-        height: '52px',
-      },
-      outlinedSizeSmall: {
-        height: '32px',
-        padding: '8px 16px',
-      },
-      outlinedSecondary: {
-        backgroundColor: '#31364B',
-        borderColor: '#6A7085',
-        color: '#FFF',
-        borderRadius: '8px',
-        '&:hover': {
-          borderColor: '#6A7085',
+      styleOverrides: {
+        root: {
+          padding: '12px 16px',
         },
-        '&.Mui-disabled': {
-          backgroundColor: '#202534',
-          borderColor: '#282C3E',
-          color: '#40465F',
+        textSizeSmall: {
+          fontSize: '1rem',
+          padding: '8px 16px',
         },
-      },
-      containedSizeSmall: {
-        height: '32px',
-        padding: '8px 16px',
-      },
-      textSizeSmall: {
-        height: '32px',
-        padding: '8px 16px',
       },
     },
     MuiCssBaseline: {
-      '@global': {
-        '*::-webkit-scrollbar': {
-          width: '3px',
-        },
-        '*::-webkit-scrollbar-thumb': {
-          backgroundColor: '#878CA4',
+      styleOverrides: {
+        '@global': {
+          '*::-webkit-scrollbar': {
+            width: '3px',
+          },
+          '*::-webkit-scrollbar-thumb': {
+            backgroundColor: '#878CA4',
+          },
         },
       },
     },
     MuiFormControlLabel: {
-      label: {
-        color: '#FFF',
+      styleOverrides: {
+        label: {
+          color: '#FFF',
+        },
+      },
+    },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          width: '100%',
+          color: '#ffffff',
+          tableLayout: 'fixed',
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid #40465F',
+          background: '#1B1E2B',
+          color: '#878CA4',
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid #282C3E',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          textAlign: 'left',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+          overflow: 'hidden',
+        },
+        head: {
+          color: '#878CA4',
+          background: '#1B1E2B',
+        },
+        body: {
+          border: 'none',
+          height: 'auto',
+        },
+      },
+    },
+    MuiDrawerPaper: {
+      styleOverrides: {
+        root: {
+          background: '#202534 !important',
+        },
       },
     },
   },
-});
+} as ThemeOptions);
 
 export default theme;

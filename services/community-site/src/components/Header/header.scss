@@ -77,6 +77,7 @@
 .header {
   #noWalletContainer {
     margin-right: 16px;
+    width: fit-content;
   }
 }
 
@@ -109,6 +110,7 @@
 
 .profile-container {
   position: relative;
+  z-index: 999;
 }
 
 .profile-modal {

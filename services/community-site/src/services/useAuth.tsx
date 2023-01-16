@@ -34,7 +34,7 @@ type Context = {
   refreshUser?: () => Promise<any>;
   setSessionExpired?: () => void;
   clearSessionExpired?: () => void;
-  isSessionExpired?: () => boolean;
+  isSessionExpired?: boolean;
   isLoggedIn?: boolean;
 };
 
@@ -46,6 +46,7 @@ const AuthContext = createContext<Context>(initialState);
 
 function useProvideAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
   const api = useApi();
 
   const signin = async (username: string, password: string) => {
@@ -148,14 +149,11 @@ function useProvideAuth() {
   };
 
   const setSessionExpired = () => {
-    localStorage.setItem('sessionExpired', 'true');
+    setIsSessionExpired(true);
     signout();
-    window.location.reload();
   };
 
-  const clearSessionExpired = () => localStorage.removeItem('sessionExpired');
-
-  const isSessionExpired = () => localStorage.getItem('sessionExpired') === 'true';
+  const clearSessionExpired = () => setIsSessionExpired(false);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -177,9 +175,9 @@ function useProvideAuth() {
     updateUser,
     refreshUser,
     setSessionExpired,
-    isSessionExpired,
     clearSessionExpired,
     isLoggedIn,
+    isSessionExpired,
   };
 }
 

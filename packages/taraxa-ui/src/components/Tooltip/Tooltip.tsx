@@ -1,18 +1,8 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider, Tooltip as MTooltip } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
+import { CssBaseline, ThemeProvider, Tooltip as MTooltip } from '@mui/material';
 import theme from '../theme';
-import useStyles from './tooltip-styles';
+import useStyles from './Tooltip.styles';
 import Text from '../Text';
-
-const HtmlTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: '#40465F',
-    color: 'white',
-    minWidth: 400,
-    fontSize: theme.typography.pxToRem(10),
-  },
-}))(MTooltip);
 
 export interface TooltipProps {
   title: string;
@@ -26,12 +16,12 @@ const Tooltip = ({ title, Icon, className, id }: TooltipProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <HtmlTooltip
+      <MTooltip
         className={className}
         id={id}
         title={
           <div className={classes.tooltip}>
-            <Text label={title} variant="body1" color="primary" />
+            <Text label={title} variant='body1' color='primary' />
           </div>
         }
         enterTouchDelay={100}
@@ -39,7 +29,7 @@ const Tooltip = ({ title, Icon, className, id }: TooltipProps) => {
         <span>
           <Icon />
         </span>
-      </HtmlTooltip>
+      </MTooltip>
     </ThemeProvider>
   );
 };

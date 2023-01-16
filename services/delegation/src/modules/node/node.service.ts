@@ -204,6 +204,16 @@ export class NodeService {
     return this.decorateNodes(nodes);
   }
 
+  async findAllTestnetNodes(): Promise<Node[]> {
+    const nodes = await this.nodeRepository.find({
+      where: {
+        type: NodeType.TESTNET,
+      },
+      withDeleted: true,
+    });
+    return this.decorateNodes(nodes);
+  }
+
   async findNodeByUserAndId(user: number, nodeId: number): Promise<Node> {
     const node = await this.nodeRepository.findOneOrFail({
       user,

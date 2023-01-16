@@ -22,7 +22,11 @@
     "jsx": "react-jsx",
     "paths": {
       "@taraxa_project/taraxa-ui": ["packages/taraxa-ui/src/index.ts"],
-      "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"]
+      "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"],
+      "@taraxa_project/explorer": ["services/explorer/src/index.ts"],
+      "@taraxa_project/faucet": ["services/faucet/src/index.ts"],
+      "@taraxa_project/explorer-shared": ["packages/explorer-shared/src/index.ts"],
+      "@taraxa_project/delegation-analysis": ["services/delegation-analysis/src/main.ts"]
     }
   },
   "references": [
@@ -30,7 +34,16 @@
       "path": "packages/taraxa-ui"
     },
     {
+      "path": "packages/explorer-shared"
+    },
+    {
       "path": "services/community-site"
+    },
+    {
+      "path": "services/explorer"
+    },
+    {
+      "path": "services/delegation-analysis"
     }
   ],
   "exclude": ["node_modules", "lib", "*.d.ts"]

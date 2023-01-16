@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { BaseCard, Button, Loading, Notification } from '@taraxa_project/taraxa-ui';
+import { BaseCard, Button, Label, Loading, Notification, Icons } from '@taraxa_project/taraxa-ui';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@material-ui/core';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import moment from 'moment';
 
 import WhiteCheckIcon from '../../assets/icons/checkWhite';
 import NotFoundIcon from '../../assets/icons/notFound';
 import RedeemSidebar from '../../assets/icons/redeemSidebar';
-import GreenCircledCheckIcon from '../../assets/icons/greenCircularCheck';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
@@ -198,7 +190,7 @@ function Redeem() {
             <div className="notification">
               <Notification
                 title="Info:"
-                text="We release the rewards once a month, usually on the 15th."
+                text="We release the rewards once a month, usually on the 20th."
                 variant="info"
               />
             </div>
@@ -266,15 +258,17 @@ function Redeem() {
                         </TableCell>
                         <TableCell className="tableCell">
                           {!row.claimed ? (
-                            <div className="container-row">
-                              <RedeemSidebar />
-                              <div className="redeemable">Not redeemed</div>
-                            </div>
+                            <Label
+                              variant="secondary"
+                              label="Not redeemed"
+                              icon={<RedeemSidebar />}
+                            />
                           ) : (
-                            <div className="container-row">
-                              <GreenCircledCheckIcon />
-                              <div className="redeemed">Redeemed</div>
-                            </div>
+                            <Label
+                              variant="success"
+                              label="Redeemed"
+                              icon={<Icons.GreenCircledCheck />}
+                            />
                           )}
                         </TableCell>
                         <TableCell className="tableCell">
@@ -284,6 +278,7 @@ function Redeem() {
                               variant="contained"
                               color="secondary"
                               label="Redeem"
+                              className="smallBtn"
                               disabled={row.numberOfTokens.eq(0) || row.claimed}
                               onClick={() => {
                                 setWarnOpen(true);

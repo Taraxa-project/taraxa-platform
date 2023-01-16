@@ -1,0 +1,63 @@
+{
+  "name": "@taraxa_project/faucet",
+  "version": "0.0.1",
+  "description": "",
+  "author": "Varga Előd <elod.varga@taraxa.io>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "yarn typeorm:run && nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "yarn typeorm:prod:run && node dist/src/main",
+    "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
+    "typeorm": "yarn typeorm-ts-node-esm -d data-source.ts",
+    "typeorm:run": "yarn typeorm migration:run",
+    "typeorm:prod": "yarn typeorm-ts-node-esm -d dist/data-source.js",
+    "typeorm:prod:run": "yarn typeorm:prod migration:run",
+    "typeorm:drop": "yarn typeorm schema:drop",
+    "typeorm:revert": "yarn typeorm migration:revert",
+    "typeorm:generate": "yarn typeorm migration:generate",
+    "migration:create": "yarn typeorm migration:create -n"
+  },
+  "dependencies": {
+    "@nestjs/bull": "^0.6.1",
+    "@nestjs/common": "^8.4.4",
+    "@nestjs/config": "^1.2.1",
+    "@nestjs/core": "^8.4.4",
+    "@nestjs/platform-express": "^8.4.4",
+    "@nestjs/swagger": "^5.2.1",
+    "@nestjs/throttler": "^3.0.0",
+    "@nestjs/typeorm": "^8.1.0",
+    "bull": "^4.10.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "ethers": "^5.6.4",
+    "helmet": "^6.0.0",
+    "ioredis": "^5.2.4",
+    "nestjs-throttler-storage-redis": "^0.1.20",
+    "pg": "^8.7.3",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "rxjs": "^7.5.7",
+    "swagger-ui-express": "^4.3.0",
+    "typeorm": "^0.3.6"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^8.2.5",
+    "@nestjs/schematics": "^8.0.10",
+    "@types/bull": "^3.15.9",
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.25",
+    "ts-loader": "^9.2.8",
+    "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.14.1",
+    "typescript": "^4.6.3"
+  },
+  "moduleNameMapper": {
+    "@faucet/config": "<rootDir>/config",
+    "@faucet/blockchain": "<rootDir>/src/modules/blockchain"
+  }
+}

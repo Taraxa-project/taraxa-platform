@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es5", "es6"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "rootDir": ".",
+    "outDir": "./lib",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./lib",
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "target": "es2016",
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true
+  },
+  "include": ["src/**/*", "src/migrations/*", "data-source.ts"],
+  "exclude": ["node_modules", "lib", "*.d.ts"]
+}

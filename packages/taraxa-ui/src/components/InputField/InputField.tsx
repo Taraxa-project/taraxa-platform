@@ -1,10 +1,15 @@
 import React, { ChangeEventHandler } from 'react';
-import { TextField, TextFieldProps, CssBaseline, ThemeProvider } from '@material-ui/core';
+import {
+  TextField,
+  TextFieldProps,
+  CssBaseline,
+  ThemeProvider,
+} from '@mui/material';
 import theme from '../theme';
-import './inputfield.scss';
+import useStyles from './InputField.styles';
 
 export type InputFieldProps = {
-  label: string;
+  label?: string;
   id?: string;
   color?: 'primary' | 'secondary';
   defaultValue?: string;
@@ -12,7 +17,9 @@ export type InputFieldProps = {
   fullWidth?: boolean;
   margin?: 'dense' | 'none' | 'normal';
   multiline?: boolean;
-  onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> | undefined;
+  onChange?:
+    | ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
+    | undefined;
   required?: boolean;
   placeholder?: string;
   size?: 'medium' | 'small';
@@ -20,17 +27,21 @@ export type InputFieldProps = {
   variant?: 'filled' | 'outlined' | 'standard';
   className?: string;
   type?: string;
-  min?: number;
-  max?: number;
+  min?: string | number;
+  max?: string | number;
   error?: boolean;
   helperText?: string;
 } & TextFieldProps;
 
 const InputField = ({ max, min, ...props }: InputFieldProps) => {
+  const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <TextField
+        classes={{
+          root: classes.input,
+        }}
         InputProps={
           max && min
             ? {
