@@ -12,6 +12,15 @@ export default function useWalletAuth() {
   const sign = useSigning();
   const api = useWalletAuthorizationApi();
 
+  function storageEventHandler() {
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) setLogged(true);
+  }
+
+  useEffect(() => {
+    window.addEventListener('storage', storageEventHandler);
+  }, []);
+
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
     if (jwt) setLogged(true);
