@@ -29,7 +29,7 @@ class TypedResponseHandler<T> extends ResponseHandler<T> {
 const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
   const { startLoading, finishLoading } = useLoading();
   const auth = useAuth();
-  const token = localStorage.getItem('auth');
+  const token = localStorage.getItem('auth') || localStorage.getItem('jwt');
 
   const getUrl = useCallback(
     (url: string) => {
