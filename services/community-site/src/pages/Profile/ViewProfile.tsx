@@ -94,7 +94,7 @@ interface ViewProfileDetailsProps {
 
 function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfileDetailsProps) {
   const auth = useAuth();
-  const { account } = useCMetamask();
+  const { account, connect } = useCMetamask();
   const history = useHistory();
   const delegationApi = useDelegationApi();
   const claimApi = useClaimApi();
@@ -197,6 +197,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         <ProfileCard
           username={auth.user!.username}
           email={auth.user!.email}
+          addressWarning={!isAuthorized}
           wallet={
             auth.user!.eth_wallet ? auth.user!.eth_wallet : 'No Ethereum Wallet Address was set'
           }
@@ -260,10 +261,16 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
               <Button
                 variant="contained"
                 color="secondary"
-                label="Authorize via MetaMask"
-                disabled={!account}
+                label={account ? 'Authorize via MetaMask' : 'Connect your configured account'}
+                // disabled={!account}
                 fullWidth
-                onClick={authorizeWallet}
+                onClick={() => {
+                  if (account) {
+                    authorizeWallet();
+                  } else {
+                    connect();
+                  }
+                }}
               />
             }
           >

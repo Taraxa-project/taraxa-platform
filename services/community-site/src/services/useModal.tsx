@@ -34,7 +34,7 @@ type Context = {
   content: LoginContentTypes;
   setContent?: (content: LoginContentTypes) => void;
   signIn?: () => void;
-  authorizeWallet?: () => void;
+  authorizeWallet: () => void;
   reset?: () => void;
   code: string | undefined;
   setCode?: (code: string | undefined) => void;
@@ -45,6 +45,7 @@ const initialState: Context = {
   isOpen: false,
   content: 'preset',
   code: undefined,
+  authorizeWallet: () => null,
   modal: null,
 };
 
@@ -104,7 +105,13 @@ function useProvideModal() {
         break;
       case 'mm-sign-in':
         setTitle('Sign in / Sign up');
-        setModal(<WalletSignIn isSigning onClassic={() => setContent!('sign-in')} />);
+        setModal(
+          <WalletSignIn
+            isSigning
+            onClassic={() => setContent!('sign-in')}
+            onSuccess={() => setIsOpen(false)}
+          />,
+        );
         break;
       case 'verify-wallet':
         setTitle('IMPORTANT NOTICE');

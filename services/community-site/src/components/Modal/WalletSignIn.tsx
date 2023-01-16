@@ -13,10 +13,11 @@ import ModalText from './subcomponents/ModalText';
 interface WalletSigninProps {
   isSigning: boolean;
   onClassic: () => void;
+  onSuccess: () => void;
 }
 
 const WalletSignIn = (props: WalletSigninProps) => {
-  const { isSigning, onClassic } = props;
+  const { isSigning, onClassic, onSuccess } = props;
   const [isLoading, setLoading] = React.useState(!!isSigning);
   const [isRegistered, setRegistered] = React.useState(false);
   const api = useDelegationApi();
@@ -99,7 +100,10 @@ const WalletSignIn = (props: WalletSigninProps) => {
             color="secondary"
             variant="contained"
             className="marginButton"
-            onClick={() => history.push('/profile')}
+            onClick={() => {
+              onSuccess();
+              history.push('/profile');
+            }}
             fullWidth
           />
         </>
