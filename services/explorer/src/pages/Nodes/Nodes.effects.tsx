@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import { ColumnData, NodesTableData } from '../../models';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { RankedNode, useGetBlocksThisWeek, useGetNodes } from '../../api';
+import { useExplorerNetwork } from 'src/hooks';
 
 const cols: ColumnData[] = [
   { path: 'rank', name: 'Rank' },
@@ -14,6 +15,7 @@ const cols: ColumnData[] = [
 
 export const useNodesEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
+  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
 
   const weekNo = DateTime.now().weekNumber;
   const year = DateTime.now().year;
@@ -24,32 +26,32 @@ export const useNodesEffects = () => {
   const description = 'Total blocks produced this week';
 
   const [tableData, setTableData] = useState<NodesTableData[]>([]);
-  const [totalCount, setTotalCount] = useState<number>();
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [blocks, setBlocks] = useState<number>(0);
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = React.useState(0);
   const {
     data: nodesResult,
     isFetching,
     isLoading,
-  } = useGetNodes({ rowsPerPage, page });
+  } = useGetNodes(backendEndpoint, { rowsPerPage, page });
   const {
     data: totalBlocks,
     isFetching: isFetchingTotalBlocks,
     isLoading: isLoadingTotalBlocks,
-  } = useGetBlocksThisWeek();
+  } = useGetBlocksThisWeek(backendEndpoint);
 
   const formatNodesToTable = (nodes: RankedNode[]): NodesTableData[] => {
-    if (!nodes?.length) {
+    if (nodes?.length === 0) {
       return [];
     }
-    const formattedNodes: NodesTableData[] = nodes.map(
+    const formattedNodes: NodesTableData[] = nodes?.map(
       (node: RankedNode, i: number) => {
         return {
           rank: tableData?.length > 0 ? tableData.length + i + 1 : i + 1,
-          nodeAddress: node.address,
-          blocksProduced: node.pbftCount,
+          nodeAddress: node?.address,
+          blocksProduced: node?.pbftCount,
         };
       }
     );
@@ -71,18 +73,24 @@ export const useNodesEffects = () => {
 
   useEffect(() => {
     if (nodesResult?.data && nodesResult?.total) {
-      setTableData(
-        tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
-      );
+      // setTableData(
+      //   tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
+      // );
+      setTableData(formatNodesToTable(nodesResult.data as RankedNode[]));
       setTotalCount(nodesResult?.total);
     }
   }, [nodesResult]);
 
   useEffect(() => {
-    if (totalBlocks?.data) {
+    if (totalBlocks?.data && !isNaN(totalBlocks?.data)) {
       setBlocks(totalBlocks.data);
     }
   }, [totalBlocks]);
+
+  useEffect(() => {
+    setTableData([]);
+    setBlocks(0);
+  }, [currentNetwork]);
 
   const handleChangePage = (newPage: number) => {
     setPage(newPage);

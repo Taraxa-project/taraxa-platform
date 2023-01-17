@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'urql';
 import { deZeroX } from '../../utils';
 import { BlockData, Transaction } from '../../models';
@@ -10,10 +11,12 @@ import { transactionQuery } from '../../api';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
-  const [events, setEvents] = useState<
+  const navigate = useNavigate();
+  const [network] = useState(currentNetwork);
+  const [events] = useState<
     { name?: string; from?: string; to?: string; value?: string }[]
   >([]);
-  const [dagData, setDagData] = useState<BlockData[]>();
+  const [dagData] = useState<BlockData[]>();
   const [transactionData, setTransactionData] = useState<Transaction>();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: transactiondata }] = useQuery({
@@ -37,6 +40,12 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
       finishLoading();
     }
   }, [fetching]);
+
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      navigate(-1);
+    }
+  }, [currentNetwork, network]);
 
   return { transactionData, dagData, events, currentNetwork };
 };

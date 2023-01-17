@@ -41,14 +41,20 @@ export class NodeService {
     const orderDirection: 'ASC' | 'DESC' = 'DESC';
 
     const query = this.repository
-      .createQueryBuilder('nodes')
-      .select(['nodes.address', 'nodes.pbftCount']);
+      .createQueryBuilder(this.repository.metadata.tableName)
+      .select([
+        `${this.repository.metadata.tableName}.address`,
+        `${this.repository.metadata.tableName}.pbftCount`,
+      ]);
 
     try {
       const results = await query
         .skip(offset)
         .take(limit)
-        .orderBy(`nodes.${orderByType}`, orderDirection)
+        .orderBy(
+          `${this.repository.metadata.tableName}.${orderByType}`,
+          orderDirection
+        )
         .getManyAndCount();
 
       return results;

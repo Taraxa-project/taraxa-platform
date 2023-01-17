@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
+import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { accountQuery } from '../../api/graphql/queries/account';
-import { useExplorerLoader } from '../../hooks/useLoader';
+import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
   useGetBlocksByAddress,
@@ -31,10 +32,44 @@ export const useAddressInfoEffects = (
   addressInfoDetails: AddressInfoDetails;
   dagBlocks: BlockData[];
   pbftBlocks: BlockData[];
+  totalPbftCount: number;
+  rowsPbftPerPage: number;
+  pbftPage: number;
+  handlePbftChangePage: (newPage: number) => void;
+  handlePbftChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
+  totalDagCount: number;
+  rowsDagPerPage: number;
+  dagPage: number;
+  handleDagChangePage: (newPage: number) => void;
+  handleDagChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
+  totalTxCount: number;
+  rowsTxPerPage: number;
+  txPage: number;
+  handleTxChangePage: (newPage: number) => void;
+  handleTxChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 } => {
-  const [transactions, setTransactions] = useState<Transaction[]>();
-  const [dagBlocks, setDagBlocks] = useState<BlockData[]>();
-  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
+  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>([]);
+
+  const [totalPbftCount, setTotalPbftCount] = useState<number>(0);
+  const [rowsPbftPerPage, setPbftRowsPerPage] = useState<number>(25);
+  const [pbftPage, setPbftPage] = useState(0);
+
+  const [totalDagCount, setTotalDagCount] = useState<number>(0);
+  const [rowsDagPerPage, setDagRowsPerPage] = useState<number>(25);
+  const [dagPage, setDagPage] = useState(0);
+
+  const [totalTxCount, setTotalTxCount] = useState<number>(0);
+  const [rowsTxPerPage, setTxRowsPerPage] = useState<number>(25);
+  const [txPage, setTxPage] = useState(0);
+
   const [addressInfoDetails, setAddressInfoDetails] =
     useState<AddressInfoDetails>();
   const [{ fetching, data }] = useQuery({
@@ -43,32 +78,45 @@ export const useAddressInfoEffects = (
     pause: !account,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
+  const navigate = useNavigate();
+  const [network] = useState(currentNetwork);
+
   const {
     data: nodeData,
     isFetching: isFetchingBlocks,
     isLoading: isLoadingBlocks,
-  } = useGetBlocksByAddress(account);
+  } = useGetBlocksByAddress(backendEndpoint, account);
   const {
     data: dagsData,
     isFetching: isFetchingDags,
     isLoading: isLoadingDags,
-  } = useGetDagsByAddress(account);
+  } = useGetDagsByAddress(backendEndpoint, account, {
+    rowsPerPage: rowsDagPerPage,
+    page: dagPage,
+  });
   const {
     data: pbftsData,
     isFetching: isFetchingPbfts,
     isLoading: isLoadingPbfts,
-  } = useGetPbftsByAddress(account);
+  } = useGetPbftsByAddress(backendEndpoint, account, {
+    rowsPerPage: rowsPbftPerPage,
+    page: pbftPage,
+  });
   const {
     data: txData,
     isFetching: isFetchingTx,
     isLoading: isLoadingTx,
-  } = useGetTransactionsByAddress(account);
+  } = useGetTransactionsByAddress(backendEndpoint, account, {
+    rowsPerPage: rowsTxPerPage,
+    page: txPage,
+  });
 
   const {
     data: details,
     isFetching: isFetchingDetails,
     isLoading: isLoadingDetails,
-  } = useGetDetailsForAddress(account);
+  } = useGetDetailsForAddress(backendEndpoint, account);
 
   useEffect(() => {
     if (
@@ -98,24 +146,31 @@ export const useAddressInfoEffects = (
     isLoadingPbfts,
     isFetchingTx,
     isLoadingTx,
+    isFetchingDetails,
+    isLoadingDetails,
   ]);
 
   useEffect(() => {
-    if (dagsData?.data) {
-      setDagBlocks(dagsData?.data);
+    if (dagsData?.data && dagsData?.total) {
+      setDagBlocks(dagsData?.data as BlockData[]);
+      setTotalDagCount(dagsData?.total);
     }
   }, [dagsData]);
 
   useEffect(() => {
-    if (pbftsData?.data) {
-      setPbftBlocks(pbftsData?.data);
+    if (pbftsData?.data && pbftsData?.total) {
+      setPbftBlocks(pbftsData?.data as BlockData[]);
+      setTotalPbftCount(pbftsData?.total);
     }
   }, [pbftsData]);
 
   const formatToTransaction = (
     transactions: TransactionResponse[]
   ): Transaction[] => {
-    return transactions.map((tx) => {
+    if (transactions?.length === 0) {
+      return [];
+    }
+    return transactions?.map((tx) => {
       return {
         hash: tx.hash,
         block: {
@@ -137,8 +192,9 @@ export const useAddressInfoEffects = (
   };
 
   useEffect(() => {
-    if (txData?.data) {
+    if (txData?.data && txData?.total) {
       setTransactions(formatToTransaction(txData.data));
+      setTotalTxCount(txData?.total);
     }
   }, [txData]);
 
@@ -186,5 +242,64 @@ export const useAddressInfoEffects = (
     setAddressInfoDetails(addressDetails);
   }, [details, data, nodeData, txData]);
 
-  return { transactions, addressInfoDetails, dagBlocks, pbftBlocks };
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      navigate('/');
+    }
+  }, [currentNetwork, network]);
+
+  const handlePbftChangePage = (newPage: number) => {
+    setPbftPage(newPage);
+  };
+
+  const handlePbftChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setPbftRowsPerPage(parseInt(event.target.value, 10));
+    setPbftPage(0);
+  };
+
+  const handleDagChangePage = (newPage: number) => {
+    setDagPage(newPage);
+  };
+
+  const handleDagChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setDagRowsPerPage(parseInt(event.target.value, 10));
+    setDagPage(0);
+  };
+
+  const handleTxChangePage = (newPage: number) => {
+    setTxPage(newPage);
+  };
+
+  const handleTxChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTxRowsPerPage(parseInt(event.target.value, 10));
+    setTxPage(0);
+  };
+
+  return {
+    transactions,
+    addressInfoDetails,
+    dagBlocks,
+    pbftBlocks,
+    totalPbftCount,
+    rowsPbftPerPage,
+    pbftPage,
+    handlePbftChangePage,
+    handlePbftChangeRowsPerPage,
+    totalDagCount,
+    rowsDagPerPage,
+    dagPage,
+    handleDagChangePage,
+    handleDagChangeRowsPerPage,
+    totalTxCount,
+    rowsTxPerPage,
+    txPage,
+    handleTxChangePage,
+    handleTxChangeRowsPerPage,
+  };
 };

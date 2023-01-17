@@ -29,6 +29,7 @@ export interface BlockData {
   timestamp: number | string;
   block?: number;
   level?: number;
+  number?: number;
   hash: string;
   transactionCount: number;
 }

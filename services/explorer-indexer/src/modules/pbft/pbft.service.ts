@@ -7,7 +7,6 @@ import {
   toChecksumAddress,
   PbftEntity,
 } from '@taraxa_project/explorer-shared';
-import dataSourceOptions from 'src/data-source.options';
 import { IGQLPBFT } from 'src/types';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import DagService from '../dag/dag.service';

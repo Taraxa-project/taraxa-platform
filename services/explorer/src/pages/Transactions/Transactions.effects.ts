@@ -11,15 +11,16 @@ import {
 import { blocksQueryWithTransactions } from '../../api';
 import { formatTransactionStatus } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
-import { displayThreshold } from '../../config';
 
+export const displayThreshold = process.env.DISPLAY_TXES_FOR_LAST_BLOCK || 25;
 export const useTransactionEffects = (): {
   data: TransactionTableData[];
   columns: ColumnData[];
   currentNetwork: string;
 } => {
-  const [data, setData] = useState<TransactionTableData[]>();
+  const [data, setData] = useState<TransactionTableData[]>([]);
   const { currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
   const { finalBlock } = useNodeStateContext();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: blockData }] = useQuery({
@@ -52,8 +53,8 @@ export const useTransactionEffects = (): {
       blocks.forEach((block) => {
         if (block) {
           const transactions = block?.transactions;
-          if (transactions?.length) {
-            const rows = transactions.map((transaction: Transaction) => {
+          if (transactions?.length > 0) {
+            const rows = transactions?.map((transaction: Transaction) => {
               return {
                 timestamp: Number(block?.timestamp),
                 block: `${block?.number}`,
@@ -63,12 +64,18 @@ export const useTransactionEffects = (): {
                 token: 'TARA',
               };
             });
-            setData(rows);
+            setData(data.concat(rows));
           }
         }
       });
     }
   }, [blockData]);
+
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      setData([]);
+    }
+  }, [currentNetwork, network]);
 
   return { data, columns, currentNetwork };
 };

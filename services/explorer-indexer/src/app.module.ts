@@ -35,6 +35,9 @@ import dataSourceOptions from './data-source.options';
           port: config.get<number>('general.redisPort'),
           password: config.get<string>('general.redisPassword'),
         },
+        settings: {
+          lockDuration: config.get<number>('general.maxLockDuration'),
+        },
       }),
     }),
     LiveSyncerModule,

@@ -11,8 +11,10 @@ import {
   blocksQuery,
   dagBlocksForPeriodQuery,
   dagBlocksQuery,
+  POOLING_INTERVAL,
 } from '../../api';
 import { DagBlock, PbftBlock } from '../../models';
+import cleanDeep from 'clean-deep';
 
 export const useHomeEffects = () => {
   const { finalBlock, dagBlockPeriod } = useNodeStateContext();
@@ -27,14 +29,17 @@ export const useHomeEffects = () => {
 
   const [{ fetching: fetchingBlocks, data: blocksData }] = useQuery({
     query: blocksQuery,
-    variables: {
+    variables: cleanDeep({
       from: finalBlock ? finalBlock - 9 : null,
-      to: finalBlock || null,
-    },
+      to: finalBlock,
+    }),
     pause: !finalBlock,
   });
 
-  const [{ fetching: fetchingDagBlocks, data: dagBlocksData }] = useQuery({
+  const [
+    { fetching: fetchingDagBlocks, data: dagBlocksData },
+    reexecuteDagQuery,
+  ] = useQuery({
     query: dagBlocksQuery,
     variables: {
       count: 100,
@@ -51,6 +56,16 @@ export const useHomeEffects = () => {
     },
     pause: !currentPeriod,
   });
+
+  useEffect(() => {
+    if (fetchingDagBlocks) return;
+
+    const timerId = setTimeout(() => {
+      reexecuteDagQuery({ requestPolicy: 'network-only' });
+    }, POOLING_INTERVAL);
+
+    return () => clearTimeout(timerId);
+  }, [fetchingDagBlocks, fetchingBlocks, reexecuteDagQuery]);
 
   useEffect(() => {
     setCurrentPeriod(dagBlockPeriod);

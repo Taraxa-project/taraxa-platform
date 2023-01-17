@@ -32,20 +32,20 @@ const ChartContainer = ({
         display='grid'
         justifyContent='start'
         alignItems='start'
-        gridTemplateColumns='repeat(auto-fill, minmax(19rem, max-content))'
+        gridTemplateColumns='repeat(auto-fill, minmax(20rem, max-content))'
         gap='2rem'
         style={{ marginBottom: '2rem' }}
       >
         <BarChart
           title='Transactions per second'
           labels={[...pbftBlocks]
-            .reverse()
-            .slice(0, 5)
-            .map((block) => block.number.toString())}
+            ?.reverse()
+            ?.slice(0, 5)
+            ?.map((block) => block.number.toString())}
           datasets={[
             {
               data: calculateTransactionsPerSecond(
-                [...pbftBlocks].reverse().slice(0, 6)
+                [...pbftBlocks]?.reverse()?.slice(0, 6)
               ),
               borderRadius: 5,
               barThickness: 20,
@@ -57,13 +57,13 @@ const ChartContainer = ({
           title='Block Time'
           tick='s'
           labels={[...pbftBlocks]
-            .reverse()
-            .slice(0, 5)
-            .map((block) => block.number.toString())}
+            ?.reverse()
+            ?.slice(0, 5)
+            ?.map((block) => block.number.toString())}
           datasets={[
             {
               data: calculatePBFTBlockTime(
-                [...pbftBlocks].reverse().slice(0, 6)
+                [...pbftBlocks]?.reverse()?.slice(0, 6)
               ),
               borderRadius: 5,
               barThickness: 20,

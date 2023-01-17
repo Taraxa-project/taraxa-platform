@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'urql';
 import cleanDeep from 'clean-deep';
 import { blockQuery } from '../../api';
-import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import { useExplorerLoader } from '../../hooks/useLoader';
+import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { PbftBlock, Transaction } from '../../models';
 
 export const usePBFTDataContainerEffects = (
@@ -15,6 +15,9 @@ export const usePBFTDataContainerEffects = (
   currentNetwork: string;
 } => {
   const { currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
+  const navigate = useNavigate();
+
   const [blockData, setBlockData] = useState<PbftBlock>({} as PbftBlock);
   const [transactions, setTransactions] = useState<Transaction[]>([
     {} as Transaction,
@@ -43,6 +46,12 @@ export const usePBFTDataContainerEffects = (
       setTransactions(data.block.transactions);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      navigate(-1);
+    }
+  }, [currentNetwork, network]);
 
   return { blockData, transactions, currentNetwork };
 };

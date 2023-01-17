@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Box } from '@mui/material';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Provider as UrqlProvider } from 'urql';
 import { Header, Footer } from './components';
 import TransactionsPage from './pages/Transactions/Transactions';
 import BlocksPage from './pages/Blocks/Blocks';
@@ -13,6 +14,8 @@ import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import HomePage from './pages/Home/Home';
 import { DagPage } from './pages/Dag/Dag';
 import PBFTDataContainer from './pages/PBFTData/PBFTDataContainer';
+import { NodeStateProvider, useExplorerNetwork } from './hooks';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 declare global {
   interface Window {
@@ -48,7 +51,24 @@ const Root = (): JSX.Element => {
 };
 
 function App(): JSX.Element {
-  return <Root />;
+  const { graphQLClient } = useExplorerNetwork();
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+  return (
+    <UrqlProvider value={graphQLClient}>
+      <QueryClientProvider client={queryClient}>
+        <NodeStateProvider>
+          <Root />
+        </NodeStateProvider>
+      </QueryClientProvider>
+    </UrqlProvider>
+  );
 }
 
 export default App;

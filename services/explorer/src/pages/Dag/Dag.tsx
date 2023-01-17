@@ -15,7 +15,7 @@ export const DagPage = (): JSX.Element => {
     totalCount,
   } = useDagEffects();
 
-  const rows = data ? data.map((row) => toDagBlockTableRow(row)) : [];
+  const rows = data ? [...data.map((row) => toDagBlockTableRow(row))] : [];
 
   return (
     <>

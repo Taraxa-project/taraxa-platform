@@ -1,21 +1,26 @@
-import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiNotFoundResponse,
   ApiTooManyRequestsResponse,
   ApiResponse,
 } from '@nestjs/swagger';
-import {
-  PbftEntity,
-  DagEntity,
-  TransactionEntity,
-} from '@taraxa_project/explorer-shared';
 import { AddressService } from './address.service';
+import { PaginationDto } from './dto/pagination.dto';
 import {
   AddressDetailsResponse,
   BlocksCount,
+  DagsPaginate,
+  PbftsPaginate,
   StatsResponse,
-  TransactionResponse,
+  TransactionsPaginate,
 } from './responses';
 
 @ApiTags('address')
@@ -45,23 +50,28 @@ export class AddressController {
   @ApiNotFoundResponse({
     description: `Can't find any dags for given address`,
   })
-  async getDags(@Param('address') address: string): Promise<DagEntity[]> {
-    return this.service.getDags(address);
+  async getDags(
+    @Param('address') address: string,
+    @Query(ValidationPipe) filterDto: PaginationDto
+  ): Promise<DagsPaginate> {
+    return this.service.getDags(address, filterDto);
   }
 
   @Get(':address/pbfts')
   @ApiNotFoundResponse({
     description: `Can't find any pbfts for given address`,
   })
-  async getPbfts(@Param('address') address: string): Promise<PbftEntity[]> {
-    return this.service.getPbfts(address);
+  async getPbfts(
+    @Param('address') address: string,
+    @Query(ValidationPipe) filterDto: PaginationDto
+  ): Promise<PbftsPaginate> {
+    return this.service.getPbfts(address, filterDto);
   }
 
   // Will return too many responses so please use this with caution when testing with Swagger
   @Get(':address/transactions')
   @ApiResponse({
     status: HttpStatus.OK,
-    type: [TransactionEntity],
     description:
       'Will return too many responses so please use this with caution',
   })
@@ -70,9 +80,10 @@ export class AddressController {
     description: `Can't find any transactions for given address`,
   })
   async getTransactions(
-    @Param('address') address: string
-  ): Promise<TransactionResponse[]> {
-    return this.service.getTransactions(address);
+    @Param('address') address: string,
+    @Query(ValidationPipe) filterDto: PaginationDto
+  ): Promise<TransactionsPaginate> {
+    return this.service.getTransactions(address, filterDto);
   }
 
   @Get(':address/details')

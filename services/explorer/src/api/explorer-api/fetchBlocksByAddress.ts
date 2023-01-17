@@ -1,17 +1,17 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
-import { API } from '../types';
 
-const getByAddress = (address: string) => {
-  if (!address) {
+const getByAddress = (endpoint: string, address: string) => {
+  if (!address || !endpoint) {
     return;
   }
-  const url = `${API}/address/${address}/blocks`;
+  const url = `${endpoint}/address/${address}/blocks`;
   // eslint-disable-next-line consistent-return
   return axios.get(url);
 };
 
 export const useGetBlocksByAddress = (
+  endpoint: string,
   address: string
 ): {
   data: AxiosResponse<any>;
@@ -22,7 +22,7 @@ export const useGetBlocksByAddress = (
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
     ['blocks-by-address', address],
-    () => getByAddress(address),
+    () => getByAddress(endpoint, address),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

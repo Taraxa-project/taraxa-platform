@@ -1,16 +1,11 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import {
-  API,
-  FetchNodesFilter,
-  FetchNodesPagination,
-  NodesPaginate,
-} from '../types';
+import { PaginationFilter, FetchWithPagination, NodesPaginate } from '../types';
 
 const computeFilters = ({
   rowsPerPage,
   page,
-}: FetchNodesPagination): FetchNodesFilter => {
+}: FetchWithPagination): PaginationFilter => {
   const take = rowsPerPage;
   const skip = page * rowsPerPage;
   return {
@@ -19,14 +14,18 @@ const computeFilters = ({
   };
 };
 
-const fetchNodes = async (params: FetchNodesFilter) => {
-  const url = `${API}/nodes`;
+const fetchNodes = async (endpoint: string, params: PaginationFilter) => {
+  if (!endpoint) {
+    return;
+  }
+  const url = `${endpoint}/nodes`;
   const { data } = await axios.get(url, { params });
   return data as NodesPaginate;
 };
 
 export const useGetNodes = (
-  params: FetchNodesPagination
+  endpoint: string,
+  params: FetchWithPagination
 ): {
   data: NodesPaginate;
   isError: boolean;
@@ -36,7 +35,7 @@ export const useGetNodes = (
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
     ['nodes', params],
-    () => fetchNodes(computeFilters(params)),
+    () => fetchNodes(endpoint, computeFilters(params)),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

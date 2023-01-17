@@ -19,3 +19,9 @@ export enum Network {
   DEVNET = 'Californicum Devnet',
   MAINNET = 'Mainnet Candidate',
 }
+
+export enum NetworkGraphQLEndpoints {
+  MAINNET = 'https://graphql.mainnet.taraxa.io/',
+  TESTNET = 'https://graphql.testnet.taraxa.io/',
+  DEVNET = 'https://graphql.devnet.taraxa.io/',
+}

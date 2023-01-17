@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableHead,
@@ -18,15 +18,39 @@ import { Transaction } from '../../models';
 
 export interface TransactionsTableProps {
   transactionsData: Transaction[];
+  totalCount?: number;
+  pageNo?: number;
+  rowsPage?: number;
+  changePage?: (pageNo: number) => void;
+  changeRows?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({
   transactionsData,
+  totalCount,
+  pageNo,
+  rowsPage,
+  changePage,
+  changeRows,
 }) => {
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [page, setPage] = useState(0);
+  const [data, setData] = useState<Transaction[]>([]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  useEffect(() => {
+    if (!pageNo && !rowsPage) {
+      setData(
+        transactionsData?.slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage
+        )
+      );
+    } else {
+      setData(transactionsData);
+    }
+  }, [transactionsData, page, rowsPerPage]);
+
+  const handleChangePage = (newPage: number) => {
     setPage(newPage);
   };
 
@@ -36,6 +60,23 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  const onRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (typeof changeRows === 'function') {
+      changeRows(event);
+    } else {
+      handleChangeRowsPerPage(event);
+    }
+  };
+
+  const onPageChange = (event: unknown, newPage: number) => {
+    if (typeof changePage === 'function') {
+      changePage(newPage);
+    } else {
+      handleChangePage(newPage);
+    }
+  };
+
   return (
     <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
       <Box
@@ -43,44 +84,14 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
         flexDirection={{ xs: 'column', md: 'row', lg: 'row', xl: 'row' }}
         justifyContent='flex-end'
       >
-        {/* <Box
-          display='flex'
-          gap={2}
-          flexDirection={{ xs: 'column', md: 'column', lg: 'row', xl: 'row' }}
-        >
-          <Button
-            Icon={TransactionIcon}
-            label='Transactions'
-            onClick={onFilter}
-            size='medium'
-            variant='contained'
-            color='info'
-          />
-          <Button
-            Icon={Icons.TransactionBlock}
-            label='Transactions'
-            onClick={onDAGFilter}
-            size='medium'
-            variant='contained'
-            color='info'
-          />
-          <Button
-            Icon={Icons.TransactionBlock}
-            label='Transactions'
-            onClick={onPBFTFilter}
-            size='medium'
-            variant='contained'
-            color='info'
-          />
-        </Box> */}
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[25, 50, 75, 100]}
           component='div'
-          count={transactionsData?.length || 0}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          count={totalCount || transactionsData?.length || 0}
+          rowsPerPage={rowsPage || rowsPerPage}
+          page={pageNo || page}
+          onPageChange={onPageChange}
+          onRowsPerPageChange={onRowsPerPageChange}
         />
       </Box>
       <TableContainer sx={{ marginBottom: '2rem' }}>
@@ -145,53 +156,48 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactionsData &&
-              transactionsData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((tx, i) => (
-                  <TableRow key={`${tx.hash}-${i}`}>
-                    <TableCell variant='body'>
-                      <HashLink
-                        linkType={HashLinkType.TRANSACTIONS}
-                        hash={tx.hash}
-                        wrap
-                      />
-                    </TableCell>
-                    <TableCell variant='body'>
-                      {tx.block?.number || 0}
-                    </TableCell>
-                    <TableCell variant='body'>
-                      {tx.value ? 'Transfer' : 'Method call'}
-                    </TableCell>
-                    <TableCell variant='body'>
-                      <Box
-                        display='flex'
-                        flexDirection='row'
-                        alignItems='center'
-                        alignContent='center'
-                        justifyContent='space-evenly'
-                        maxWidth='20rem'
-                        gap='0.2rem'
-                      >
-                        <AddressLink address={tx.from?.address} />
-                        <Icons.GreenRightArrow />
-                        <AddressLink address={tx.to?.address} />
-                      </Box>
-                    </TableCell>
-                    <TableCell variant='body' width='5rem !important'>
-                      {statusToLabel(formatTransactionStatus(tx.status))}
-                    </TableCell>
-                    <TableCell variant='body' width='5rem !important'>
-                      {timestampToAge(tx.block?.timestamp)}
-                    </TableCell>
-                    <TableCell variant='body' width='5rem !important'>
-                      {tx.value?.toString()}
-                    </TableCell>
-                    <TableCell variant='body' width='5rem !important'>
-                      {tx.gasUsed || 0}
-                    </TableCell>
-                  </TableRow>
-                ))}
+            {data?.map((tx, i) => (
+              <TableRow key={`${tx.hash}-${i}`}>
+                <TableCell variant='body'>
+                  <HashLink
+                    linkType={HashLinkType.TRANSACTIONS}
+                    hash={tx.hash}
+                    wrap
+                  />
+                </TableCell>
+                <TableCell variant='body'>{tx.block?.number || 0}</TableCell>
+                <TableCell variant='body'>
+                  {tx.value ? 'Transfer' : 'Method call'}
+                </TableCell>
+                <TableCell variant='body'>
+                  <Box
+                    display='flex'
+                    flexDirection='row'
+                    alignItems='center'
+                    alignContent='center'
+                    justifyContent='space-evenly'
+                    maxWidth='20rem'
+                    gap='0.2rem'
+                  >
+                    <AddressLink address={tx.from?.address} />
+                    <Icons.GreenRightArrow />
+                    <AddressLink address={tx.to?.address} />
+                  </Box>
+                </TableCell>
+                <TableCell variant='body' width='5rem !important'>
+                  {statusToLabel(formatTransactionStatus(tx.status))}
+                </TableCell>
+                <TableCell variant='body' width='5rem !important'>
+                  {timestampToAge(tx.block?.timestamp)}
+                </TableCell>
+                <TableCell variant='body' width='5rem !important'>
+                  {tx.value?.toString()}
+                </TableCell>
+                <TableCell variant='body' width='5rem !important'>
+                  {tx.gasUsed || 0}
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

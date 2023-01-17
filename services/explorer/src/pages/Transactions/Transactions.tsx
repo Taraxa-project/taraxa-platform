@@ -6,7 +6,8 @@ import { PageTitle } from '../../components';
 
 const TransactionsPage = (): JSX.Element => {
   const { data, columns, currentNetwork } = useTransactionEffects();
-  const rows = data ? data.map((row) => toTransactionTableRow(row)) : [];
+  const rows = data ? [...data.map((row) => toTransactionTableRow(row))] : [];
+
   return (
     <>
       <PageTitle

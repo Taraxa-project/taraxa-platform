@@ -43,7 +43,9 @@ export default function Table({
 }: TableProps) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage || 5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(
+    initialRowsPerPage || 25
+  );
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -74,7 +76,7 @@ export default function Table({
           elevation={0}
         >
           <TablePagination
-            rowsPerPageOptions={[5, 10, 15, 20, 25]}
+            rowsPerPageOptions={[25, 50, 75, 100]}
             component='div'
             count={totalCount || rows.length}
             rowsPerPage={initialRowsPerPage || rowsPerPage}
@@ -114,13 +116,13 @@ export default function Table({
               </TableHead>
               <TableBody>
                 {rows
-                  .slice(
+                  ?.slice(
                     (currentPage || page) * (initialRowsPerPage || rowsPerPage),
                     (currentPage || page) *
                       (initialRowsPerPage || rowsPerPage) +
                       (initialRowsPerPage || rowsPerPage)
                   )
-                  .map((row, index) =>
+                  ?.map((row, index) =>
                     row.data.map((rowData: any) =>
                       isMobile ? (
                         <TableRow tabIndex={-1} key={index}>

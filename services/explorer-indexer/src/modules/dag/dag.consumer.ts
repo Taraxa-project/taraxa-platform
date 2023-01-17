@@ -1,6 +1,6 @@
 import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
-import { Processor, Process, OnQueueError } from '@nestjs/bull';
+import { Processor, Process, OnQueueError, OnQueueStalled } from '@nestjs/bull';
 import { QueueData, IGQLDag, QueueJobs, Queues } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
@@ -15,6 +15,11 @@ export class DagConsumer implements OnModuleInit {
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${DagConsumer.name} worker`);
+  }
+
+  @OnQueueStalled({ name: Queues.NEW_DAGS })
+  async handleQueueStalled(error: Error) {
+    this.logger.debug('DAG queue stalled: ', error);
   }
 
   @OnQueueError({ name: Queues.NEW_DAGS })
