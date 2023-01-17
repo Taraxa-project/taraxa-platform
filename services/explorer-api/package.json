@@ -28,7 +28,7 @@
     "class-transformer": "^0.5.1",
     "graphql-request": "^5.1.0",
     "helmet": "^6.0.0",
-    "luxon": "^3.0.4",
+    "luxon": "^3.2.1",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
