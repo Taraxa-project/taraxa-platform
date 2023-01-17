@@ -11,6 +11,7 @@ type GqNodeState = {
 
 export type CurrentNodeState = GqNodeState & {
   latestIndexedBlock: number;
+  totalBlocks: number;
 };
 
 @Injectable()
@@ -36,9 +37,11 @@ export class HealthService {
       `
     );
     const latestIndexedBlock = await this.pbftService.getLatestIndexedBlock();
+    const totalBlocks = await this.pbftService.getBlocksCount();
     return {
       ...result?.nodeState,
       latestIndexedBlock,
+      totalBlocks: +totalBlocks,
     };
   }
 }
