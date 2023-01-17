@@ -32,7 +32,7 @@ export class PbftService {
 
   public async getLatestIndexedBlock(): Promise<number> {
     const res = await this.repository.query(
-      `SELECT p.number FROM ${this.repository.metadata.tableName} p ORDER BY id DESC LIMIT 1`
+      `SELECT MAX(p.number) as number FROM ${this.repository.metadata.tableName} p`
     );
     return res[0]?.number;
   }
