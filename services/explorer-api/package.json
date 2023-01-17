@@ -16,6 +16,7 @@
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix"
   },
   "dependencies": {
+    "@golevelup/nestjs-graphql-request": "^0.1.13",
     "@nestjs/axios": "^0.1.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.2.0",
@@ -25,6 +26,7 @@
     "@nestjs/terminus": "^9.1.2",
     "@nestjs/typeorm": "^9.0.1",
     "class-transformer": "^0.5.1",
+    "graphql-request": "^5.1.0",
     "helmet": "^6.0.0",
     "luxon": "^3.0.4",
     "pg": "^8.8.0",

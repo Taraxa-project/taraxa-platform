@@ -8,5 +8,6 @@ import { PbftEntity } from '@taraxa_project/explorer-shared';
   imports: [TypeOrmModule.forFeature([PbftEntity])],
   providers: [PbftService],
   controllers: [PbftController],
+  exports: [PbftService],
 })
 export class PbftModule {}

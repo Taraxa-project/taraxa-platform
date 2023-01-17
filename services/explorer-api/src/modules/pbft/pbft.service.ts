@@ -29,4 +29,11 @@ export class PbftService {
     });
     return total.length;
   }
+
+  public async getLatestIndexedBlock(): Promise<number> {
+    const res = await this.repository.query(
+      `SELECT p.number FROM ${this.repository.metadata.tableName} p ORDER BY id DESC LIMIT 1`
+    );
+    return res[0]?.number;
+  }
 }
