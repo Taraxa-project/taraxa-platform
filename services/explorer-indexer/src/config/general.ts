@@ -13,6 +13,6 @@ export default registerAs('general', () => {
     redisPassword: process.env.QUEUE_PASS,
     isProducer: process.env.ENABLE_PRODUCER_MODULE,
     reorgThreshold: Number(process.env.REORG_THRESHOLD),
-    maxLockDuration: Number(process.env.REDIS_MAX_LOCK_DURATION || 30000),
+    maxLockDuration: Number(process.env.QUEUE_MAX_LOCK_DURATION || 30000),
   };
 });
