@@ -41,7 +41,7 @@ export class HealthService {
     return {
       ...result?.nodeState,
       latestIndexedBlock,
-      totalBlocks: totalBlocks,
+      totalBlocks: +totalBlocks,
     };
   }
 }
