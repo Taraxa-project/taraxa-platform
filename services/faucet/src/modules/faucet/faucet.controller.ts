@@ -24,8 +24,9 @@ export class FaucetController {
     @Req() request: Record<string, any>,
     @Body() requestDto: CreateRequestDto
   ): Promise<Omit<RequestEntity, 'id'>> {
+    const fwdIp = request.headers['x-forwarded-for'];
     const ip = request.ips.length ? request.ips[0] : request.ip;
-    return await this.faucetService.create(requestDto, ip);
+    return await this.faucetService.create(requestDto, fwdIp || ip);
   }
 
   @SkipThrottle()
