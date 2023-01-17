@@ -12,6 +12,7 @@ app:
   dbPort: 5432
   dbName: explorer-indexer
   tokenPriceApiEndpoint: http://token-api/markets?vs_currency=usd&ids=taraxa
+  graphQLEndpoint: "https://graphql.default.taraxa.io/"
 
 image:
   repository: gcr.io/jovial-meridian-249123/taraxa/explorer-api-develop
