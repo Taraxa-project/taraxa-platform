@@ -1,15 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createObjectCsvWriter } from 'csv-writer';
 import { config } from 'dotenv';
 import {
+  clearRewardsRowCount,
   getDelegators,
   getRewards,
+  getRewardsRowCount,
   getValidators,
   initializeConnection,
+  saveRewardsRowCount,
 } from './database';
+import fs from 'fs';
 
 config();
 
 const outputDir = 'output';
+
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir);
+}
 
 const generateValidatorsCsv = async () => {
   const filePath = `${outputDir}/validators.csv`;
@@ -61,6 +70,18 @@ const generateDelegatorsCsv = async () => {
 };
 
 const generateRewardsCsv = async () => {
+  const chunkSize = 1000;
+  let offset = 0;
+  let done = false;
+  let rowCount = 0;
+  const savedRowCount = await getRewardsRowCount();
+  console.log('Starting at row: ', savedRowCount);
+
+  if (savedRowCount && savedRowCount > 0) {
+    rowCount = savedRowCount;
+    offset = rowCount;
+  }
+
   const filePath = `${outputDir}/rewards.csv`;
 
   const csvWriter = createObjectCsvWriter({
@@ -77,20 +98,34 @@ const generateRewardsCsv = async () => {
       { id: 'rewards', title: 'Rewards' },
     ],
   });
+  while (!done) {
+    // execute the query with the current offset and limit
+    const rewards = await getRewards(` LIMIT ${chunkSize} OFFSET ${offset}`);
 
-  const rewards = await getRewards();
+    // if no rows are returned, we've fetched all the data
+    if (rewards.length === 0) {
+      done = true;
+      continue;
+    }
+    // write the rows to the CSV file
+    await csvWriter.writeRecords(rewards);
 
-  await csvWriter
-    .writeRecords(rewards)
-    .then(() => console.log(`Successfully wrote rewards to ${filePath}`))
-    .catch((error) => console.error(error));
+    // update the offset for the next iteration
+    offset += chunkSize;
+    rowCount += rewards.length;
+
+    await saveRewardsRowCount(rowCount);
+  }
+
+  console.log(`Successfully wrote rewards to ${filePath}`);
+  await clearRewardsRowCount();
   return filePath;
 };
 
 async function main() {
   await initializeConnection();
-  await generateValidatorsCsv();
-  await generateDelegatorsCsv();
+  // await generateValidatorsCsv();
+  // await generateDelegatorsCsv();
   await generateRewardsCsv();
 }
 

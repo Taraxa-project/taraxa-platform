@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
 import { Delegator } from '../types';
 
@@ -9,6 +9,7 @@ export class DelegatorEntity implements Delegator {
   id: number;
 
   @Column()
+  @Index()
   @IsNumber()
   blockNumber: number;
 
@@ -21,6 +22,7 @@ export class DelegatorEntity implements Delegator {
   blockHash: string;
 
   @Column()
+  @Index()
   @IsString()
   validator: string;
 

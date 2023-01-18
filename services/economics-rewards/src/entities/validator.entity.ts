@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { IsNumber, IsString } from 'class-validator';
 import { Validator } from '../types';
 
@@ -10,6 +10,7 @@ export class ValidatorEntity implements Validator {
   id: number;
 
   @Column()
+  @Index()
   @IsNumber()
   blockNumber: number;
 
@@ -22,6 +23,7 @@ export class ValidatorEntity implements Validator {
   blockHash: string;
 
   @Column()
+  @Index()
   @IsString()
   account: string;
 

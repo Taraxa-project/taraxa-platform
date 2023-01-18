@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { DelegatorEntity, ValidatorEntity } from './entities';
+import { DelegatorEntity, RewardsEntity, ValidatorEntity } from './entities';
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   },
   synchronize: true,
   logging: false,
-  entities: [ValidatorEntity, DelegatorEntity],
+  entities: [ValidatorEntity, DelegatorEntity, RewardsEntity],
   migrations: [],
   subscribers: [],
 });

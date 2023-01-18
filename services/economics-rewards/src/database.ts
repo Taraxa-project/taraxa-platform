@@ -1,8 +1,8 @@
 import { Validator, Delegator } from './types';
 import { AppDataSource } from './data-source';
-import { ValidatorEntity, DelegatorEntity } from './entities';
+import { ValidatorEntity, DelegatorEntity, RewardsEntity } from './entities';
 
-export const initializeConnection = async () => {
+export const initializeConnection = async (): Promise<void> => {
   await AppDataSource.initialize()
     .then(() => {
       console.log('Data Source has been initialized!');
@@ -12,7 +12,9 @@ export const initializeConnection = async () => {
     });
 };
 
-export const saveValidator = async (validator: Validator) => {
+export const saveValidator = async (
+  validator: Validator
+): Promise<ValidatorEntity> => {
   const saved = await AppDataSource.manager
     .getRepository(ValidatorEntity)
     .createQueryBuilder()
@@ -28,7 +30,9 @@ export const saveValidator = async (validator: Validator) => {
   return saved.raw;
 };
 
-export const saveDelegator = async (delegator: Delegator) => {
+export const saveDelegator = async (
+  delegator: Delegator
+): Promise<DelegatorEntity> => {
   const saved = await AppDataSource.manager
     .getRepository(DelegatorEntity)
     .createQueryBuilder()
@@ -53,7 +57,9 @@ export const fetchLatestBlockNumber = async (): Promise<number | undefined> => {
   return block?.blockNumber;
 };
 
-export const deleteLatestValidatorsWhereBlock = async (blockNumber: number) => {
+export const deleteLatestValidatorsWhereBlock = async (
+  blockNumber: number
+): Promise<void> => {
   await AppDataSource.manager
     .getRepository(ValidatorEntity)
     .createQueryBuilder()
@@ -79,7 +85,7 @@ export const getDelegators = async (): Promise<DelegatorEntity[]> => {
     .getMany();
 };
 
-export const getRewards = async (): Promise<any> => {
+export const getRewards = async (query: string): Promise<any> => {
   const leftTableName = 'validator';
   const rightTableName = 'delegator';
   const commonColumn1 = 'blockNumber';
@@ -91,7 +97,52 @@ export const getRewards = async (): Promise<any> => {
     FROM ${leftTableName}
     INNER JOIN ${rightTableName}
     ON ${leftTableName}.${commonColumn1} = ${rightTableName}.${commonColumn1} AND ${leftTableName}.${commonLeftColumn2} = ${rightTableName}.${commonRightColumn2}
+    ${query}
   `);
 
   return results;
+};
+
+export const saveRewardsRowCount = async (rowCount: number): Promise<void> => {
+  const rewards = await AppDataSource.manager
+    .getRepository(RewardsEntity)
+    .createQueryBuilder()
+    .select()
+    .where('id = :id', { id: 1 })
+    .getOne();
+
+  if (!rewards) {
+    // Insert the row
+    await AppDataSource.manager
+      .getRepository(RewardsEntity)
+      .createQueryBuilder()
+      .insert()
+      .into(RewardsEntity)
+      .values({ id: 1, rowCount: rowCount })
+      .execute();
+  } else {
+    // Update the row
+    await AppDataSource.manager
+      .getRepository(RewardsEntity)
+      .createQueryBuilder()
+      .update(RewardsEntity)
+      .set({ rowCount: rowCount })
+      .where('id = :id', { id: 1 })
+      .execute();
+  }
+  console.log('Saved last row count: ', rowCount);
+  return;
+};
+
+export const getRewardsRowCount = async (): Promise<number> => {
+  const results = await AppDataSource.manager.query(
+    `SELECT "rowCount" FROM rewards`
+  );
+  console.log('Fetched last row count: ', results);
+
+  return results[0]?.rowCount;
+};
+
+export const clearRewardsRowCount = async (): Promise<void> => {
+  return await AppDataSource.manager.query(`DELETE FROM rewards`);
 };
