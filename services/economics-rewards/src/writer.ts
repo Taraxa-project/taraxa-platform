@@ -11,6 +11,8 @@ import {
   saveRewardsRowCount,
 } from './database';
 import fs from 'fs';
+import * as path from 'path';
+import { CsvFile } from './CsvFile';
 
 config();
 
@@ -70,10 +72,11 @@ const generateDelegatorsCsv = async () => {
 };
 
 const generateRewardsCsv = async () => {
-  const chunkSize = 1000;
+  const chunkSize = 10000;
   let offset = 0;
   let done = false;
   let rowCount = 0;
+
   const savedRowCount = await getRewardsRowCount();
   console.log('Starting at row: ', savedRowCount);
 
@@ -82,22 +85,52 @@ const generateRewardsCsv = async () => {
     offset = rowCount;
   }
 
-  const filePath = `${outputDir}/rewards.csv`;
+  const filePath = `${outputDir}/rewards-stream.csv`;
 
-  const csvWriter = createObjectCsvWriter({
-    path: filePath,
-    header: [
-      { id: 'blockNumber', title: 'Block Number' },
-      { id: 'blockTimestamp', title: 'Block Timestamp' },
-      { id: 'blockHash', title: 'Block Hash' },
-      { id: 'validator', title: 'Validator' },
-      { id: 'delegator', title: 'Delegator' },
-      { id: 'commission', title: 'Commission' },
-      { id: 'commissionReward', title: 'Commission Reward' },
-      { id: 'stake', title: 'Stake' },
-      { id: 'rewards', title: 'Rewards' },
+  // const csvWriter = createObjectCsvWriter({
+  //   path: filePath,
+  //   header: [
+  //     { id: 'blockNumber', title: 'Block Number' },
+  //     { id: 'blockTimestamp', title: 'Block Timestamp' },
+  //     { id: 'blockHash', title: 'Block Hash' },
+  //     { id: 'validator', title: 'Validator' },
+  //     { id: 'delegator', title: 'Delegator' },
+  //     { id: 'commission', title: 'Commission' },
+  //     { id: 'commissionReward', title: 'Commission Reward' },
+  //     { id: 'stake', title: 'Stake' },
+  //     { id: 'rewards', title: 'Rewards' },
+  //   ],
+  // });
+
+  const csvFile = new CsvFile({
+    path: path.resolve(__dirname, '..', filePath),
+    // headers to write
+    headers: [
+      'blockNumber',
+      'blockTimestamp',
+      'blockHash',
+      'validator',
+      'delegator',
+      'commission',
+      'commissionReward',
+      'stake',
+      'rewards',
     ],
   });
+  await csvFile.create([
+    {
+      blockNumber: null,
+      blockTimestamp: null,
+      blockHash: null,
+      validator: null,
+      delegator: null,
+      commission: null,
+      commissionReward: null,
+      stake: null,
+      rewards: null,
+    },
+  ]);
+
   while (!done) {
     // execute the query with the current offset and limit
     const rewards = await getRewards(` LIMIT ${chunkSize} OFFSET ${offset}`);
@@ -108,7 +141,8 @@ const generateRewardsCsv = async () => {
       continue;
     }
     // write the rows to the CSV file
-    await csvWriter.writeRecords(rewards);
+    await csvFile.append(rewards);
+    // await csvWriter.writeRecords(rewards);
 
     // update the offset for the next iteration
     offset += chunkSize;

@@ -97,7 +97,7 @@ export const getRewards = async (query: string): Promise<any> => {
     FROM ${leftTableName}
     INNER JOIN ${rightTableName}
     ON ${leftTableName}.${commonColumn1} = ${rightTableName}.${commonColumn1} AND ${leftTableName}.${commonLeftColumn2} = ${rightTableName}.${commonRightColumn2}
-    ${query}
+    ${query} ORDER BY ${leftTableName}.blockNumber DESC
   `);
 
   return results;

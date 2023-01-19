@@ -16,10 +16,12 @@
   "author": "Florin Georgescu <florin.georgescu@taraxa.io>",
   "license": "UNLICENSED",
   "dependencies": {
+    "@fast-csv/format": "^4.3.5",
     "better-sqlite3": "^8.0.1",
     "class-validator": "^0.14.0",
     "csv-writer": "^1.6.0",
     "ethers": "^5.7.2",
+    "fast-csv": "^4.3.6",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.11"
   },
