@@ -6,6 +6,8 @@ import {
   getDelegators,
   getRewards,
   getRewardsRowCount,
+  getTotalNumberDelegators,
+  getTotalNumberValidators,
   getValidators,
   initializeConnection,
   saveRewardsRowCount,
@@ -78,14 +80,17 @@ const generateRewardsCsv = async () => {
   let rowCount = 0;
 
   const savedRowCount = await getRewardsRowCount();
-  console.log('Starting at row: ', savedRowCount);
 
   if (savedRowCount && savedRowCount > 0) {
     rowCount = savedRowCount;
     offset = rowCount;
   }
+  console.log('Starting at row: ', rowCount);
 
-  const filePath = `${outputDir}/rewards-stream.csv`;
+  const filePath = `${outputDir}/rewards.csv`;
+
+  // await clearRewardsRowCount();
+  // return filePath;
 
   // const csvWriter = createObjectCsvWriter({
   //   path: filePath,
@@ -117,19 +122,6 @@ const generateRewardsCsv = async () => {
       'rewards',
     ],
   });
-  await csvFile.create([
-    {
-      blockNumber: null,
-      blockTimestamp: null,
-      blockHash: null,
-      validator: null,
-      delegator: null,
-      commission: null,
-      commissionReward: null,
-      stake: null,
-      rewards: null,
-    },
-  ]);
 
   while (!done) {
     // execute the query with the current offset and limit
@@ -158,6 +150,8 @@ const generateRewardsCsv = async () => {
 
 async function main() {
   await initializeConnection();
+  // await getTotalNumberValidators();
+  // await getTotalNumberDelegators();
   // await generateValidatorsCsv();
   // await generateDelegatorsCsv();
   await generateRewardsCsv();

@@ -33,7 +33,7 @@ export class CsvFile {
     this.writeOpts = {
       headers: this.headers,
       includeEndRowDelimiter: true,
-      writeHeaders: true,
+      alwaysWriteHeaders: true,
     };
   }
 
@@ -50,7 +50,7 @@ export class CsvFile {
       {
         ...this.writeOpts,
         // dont write the headers when appending
-        writeHeaders: false,
+        // writeHeaders: false,
       } as FormatterOptionsArgs<Row, Row>
     );
   }

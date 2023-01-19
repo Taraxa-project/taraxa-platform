@@ -85,21 +85,31 @@ export const getDelegators = async (): Promise<DelegatorEntity[]> => {
     .getMany();
 };
 
+export const getTotalNumberDelegators = async (): Promise<number> => {
+  const result = await AppDataSource.manager.query(
+    `SELECT COUNT(*) as total FROM delegator;`
+  );
+  console.log('Delegators number: ', result[0]?.total);
+  return result[0]?.total;
+};
+
+export const getTotalNumberValidators = async (): Promise<number> => {
+  const result = await AppDataSource.manager.query(
+    `SELECT COUNT(*) as total FROM validator;`
+  );
+  console.log('Validators number: ', result[0]?.total);
+  return result[0]?.total;
+};
+
 export const getRewards = async (query: string): Promise<any> => {
-  const leftTableName = 'validator';
-  const rightTableName = 'delegator';
-  const commonColumn1 = 'blockNumber';
-  const commonLeftColumn2 = 'account';
-  const commonRightColumn2 = 'validator';
-
   const results = await AppDataSource.manager.query(`
-    SELECT ${leftTableName}.blockNumber, ${leftTableName}.blockTimestamp, ${leftTableName}.blockHash, ${leftTableName}.commission, ${leftTableName}.commissionReward, ${rightTableName}.validator, ${rightTableName}.delegator, ${rightTableName}.stake, ${rightTableName}.rewards
-    FROM ${leftTableName}
-    INNER JOIN ${rightTableName}
-    ON ${leftTableName}.${commonColumn1} = ${rightTableName}.${commonColumn1} AND ${leftTableName}.${commonLeftColumn2} = ${rightTableName}.${commonRightColumn2}
-    ${query} ORDER BY ${leftTableName}.blockNumber DESC
+      SELECT v.blockNumber, v.blockTimestamp, v.blockHash, v.commission, v.commissionReward, d.validator, d.delegator, d.stake, d.rewards
+        FROM validator v
+          INNER JOIN delegator d
+            ON v.blockNumber = d.blockNumber AND v.account = d.validator
+        ORDER BY v.id ASC
+        ${query}
   `);
-
   return results;
 };
 
