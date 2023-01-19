@@ -565,24 +565,8 @@ workflows:
           filters:
             branches:
               only:
-                - develop
-  faucet-release-helm-chart:
-    when:
-      or:
-        - << pipeline.parameters.build-faucet-helm-chart-workflow >>
-    jobs:
-      - helm-release/chart-publish:
-          charts-dir: services/faucet/charts
-          chart-name: faucet
-          chartmuseum-url: https://charts.gcp.taraxa.io
-          chartmuseum-username: HELM_REPO_USERNAME
-          chartmuseum-password: HELM_REPO_PASSWORD
-          context:
-            - CHARTSREPO
-          filters:
-            branches:
-              only:
                 - main
+                - develop
   explorer:
     when:
       and:
@@ -615,24 +599,8 @@ workflows:
           filters:
             branches:
               only:
-                - develop
-  explorer-release-helm-chart:
-    when:
-      or:
-        - << pipeline.parameters.build-explorer-helm-chart-workflow >>
-    jobs:
-      - helm-release/chart-publish:
-          charts-dir: services/explorer/charts
-          chart-name: explorer-frontend
-          chartmuseum-url: https://charts.gcp.taraxa.io
-          chartmuseum-username: HELM_REPO_USERNAME
-          chartmuseum-password: HELM_REPO_PASSWORD
-          context:
-            - CHARTSREPO
-          filters:
-            branches:
-              only:
                 - main
+                - develop
   explorer-indexer:
     when:
       and:
@@ -665,24 +633,8 @@ workflows:
           filters:
             branches:
               only:
-                - develop
-  explorer-indexer-release-helm-chart:
-    when:
-      or:
-        - << pipeline.parameters.build-explorer-indexer-helm-chart-workflow >>
-    jobs:
-      - helm-release/chart-publish:
-          charts-dir: services/explorer-indexer/charts
-          chart-name: explorer-indexer
-          chartmuseum-url: https://charts.gcp.taraxa.io
-          chartmuseum-username: HELM_REPO_USERNAME
-          chartmuseum-password: HELM_REPO_PASSWORD
-          context:
-            - CHARTSREPO
-          filters:
-            branches:
-              only:
                 - main
+                - develop
   explorer-api:
     when:
       and:
@@ -715,21 +667,5 @@ workflows:
           filters:
             branches:
               only:
-                - develop
-  explorer-api-release-helm-chart:
-    when:
-      or:
-        - << pipeline.parameters.build-explorer-api-helm-chart-workflow >>
-    jobs:
-      - helm-release/chart-publish:
-          charts-dir: services/explorer-api/charts
-          chart-name: explorer-api
-          chartmuseum-url: https://charts.gcp.taraxa.io
-          chartmuseum-username: HELM_REPO_USERNAME
-          chartmuseum-password: HELM_REPO_PASSWORD
-          context:
-            - CHARTSREPO
-          filters:
-            branches:
-              only:
                 - main
+                - develop
