@@ -229,13 +229,13 @@ export class AddressService {
 
     try {
       const totalSentPromise = this.txRepository.query(
-        `select cast(sum(value::REAL) as numeric) as total_sent from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.from) = lower('${parsedAddress}');`
+        `select sum(value::bigint) as total_sent from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.from = '${parsedAddress}';`
       );
       const totalReceivedPromise = this.txRepository.query(
-        `select cast(sum(value::REAL) as numeric) as total_received from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.to) = lower('${parsedAddress}');`
+        `select sum(value::bigint) as total_received from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.to = '${parsedAddress}';`
       );
       const totalMinedPromise = this.txRepository.query(
-        `select cast(sum(reward::REAL) as numeric) as total_mined from ${this.pbftRepository.metadata.tableName} where lower(miner) = lower('${parsedAddress}');`
+        `select sum(reward::bigint) as total_mined from ${this.pbftRepository.metadata.tableName} where miner = '${parsedAddress}';`
       );
 
       const [[{ total_sent }], [{ total_received }], [{ total_mined }]] =
