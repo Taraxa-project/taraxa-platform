@@ -116,10 +116,10 @@ export class AddressService {
     const parsedAddress = toChecksumAddress(address);
 
     const [{ pbfts_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(distinct hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE LOWER(miner) = lower('${parsedAddress}')`
+      `SELECT COUNT(hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE LOWER(miner) = lower('${parsedAddress}') GROUP BY miner;`
     );
     const [{ dags_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(distinct hash) as dags_mined from ${this.dagRepository.metadata.tableName}  WHERE LOWER(author) = lower('${parsedAddress}')`
+      `SELECT COUNT(hash) as dags_mined from ${this.dagRepository.metadata.tableName}  WHERE LOWER(author) = lower('${parsedAddress}') GROUP BY author;`
     );
 
     return {
