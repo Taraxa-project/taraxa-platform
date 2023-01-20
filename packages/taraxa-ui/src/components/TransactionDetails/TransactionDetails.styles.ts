@@ -16,7 +16,10 @@ const useStyles = makeStyles(() => {
       },
     },
     hash: {
-      wordBreak: 'break-all',
+      textDecoration: 'none',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
     },
     details: {
       display: 'flex',

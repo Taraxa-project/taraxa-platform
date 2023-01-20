@@ -8,8 +8,7 @@ export const MAINNET_FAUCET_API = `${process.env.REACT_APP_MAINNET_FAUCET_HOST}`
 export const TESTNET_FAUCET_API = `${process.env.REACT_APP_TESTNET_FAUCET_HOST}`;
 export const DEVNET_FAUCET_API = `${process.env.REACT_APP_DEVNET_FAUCET_HOST}`;
 
-// export const POOLING_INTERVAL = 15000; // 15 seconds
-export const POOLING_INTERVAL = 15000000; // 15 seconds
+export const POOLING_INTERVAL = 15000; // 15 seconds
 
 export type DagBlockFilters = {
   dagLevel: number;
