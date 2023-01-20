@@ -6,7 +6,6 @@ import { accountQuery } from '../../api/graphql/queries/account';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
-  useGetBlocksByAddress,
   useGetDagsByAddress,
   useGetDetailsForAddress,
   useGetPbftsByAddress,
@@ -83,11 +82,6 @@ export const useAddressInfoEffects = (
   const [network] = useState(currentNetwork);
 
   const {
-    data: nodeData,
-    isFetching: isFetchingBlocks,
-    isLoading: isLoadingBlocks,
-  } = useGetBlocksByAddress(backendEndpoint, account);
-  const {
     data: dagsData,
     isFetching: isFetchingDags,
     isLoading: isLoadingDags,
@@ -121,8 +115,6 @@ export const useAddressInfoEffects = (
   useEffect(() => {
     if (
       fetching ||
-      isFetchingBlocks ||
-      isLoadingBlocks ||
       isFetchingDags ||
       isLoadingDags ||
       isFetchingPbfts ||
@@ -138,8 +130,6 @@ export const useAddressInfoEffects = (
     }
   }, [
     fetching,
-    isFetchingBlocks,
-    isLoadingBlocks,
     isFetchingDags,
     isLoadingDags,
     isFetchingPbfts,
@@ -214,6 +204,10 @@ export const useAddressInfoEffects = (
   useEffect(() => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
     addressDetails.address = account;
+
+    addressDetails.dagBlocks = dagsData?.total || 0;
+    addressDetails.pbftBlocks = pbftsData?.total || 0;
+
     if (details?.data) {
       addressDetails.balance = ethers.utils.formatEther(
         ethers.BigNumber.from(details?.data.currentBalance)
@@ -231,16 +225,12 @@ export const useAddressInfoEffects = (
     if (data?.block) {
       addressDetails.address = data?.block?.account?.address;
     }
-    if (nodeData?.data) {
-      addressDetails.dagBlocks = nodeData?.data?.dags;
-      addressDetails.pbftBlocks = nodeData?.data?.pbft;
-    }
     if (txData?.data) {
-      addressDetails.transactionCount = txData.data.length;
-      addressDetails.fees = `${getFees(txData.data, account)}`;
+      addressDetails.transactionCount = txData?.total;
+      addressDetails.fees = `${getFees(txData.data, account)}`; // To Do this might need to be calculated on the backend from a different API
     }
     setAddressInfoDetails(addressDetails);
-  }, [details, data, nodeData, txData]);
+  }, [details, data, dagsData, pbftsData, txData]);
 
   useEffect(() => {
     if (currentNetwork !== network) {

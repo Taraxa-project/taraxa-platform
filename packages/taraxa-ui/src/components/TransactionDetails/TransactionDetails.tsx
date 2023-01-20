@@ -35,7 +35,9 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
       <CssBaseline />
       <Box className={classes.wrapper}>
         <Box className={classes.details}>
-          <Block />
+          <Box width='20px'>
+            <Block />
+          </Box>
           {level && (
             <Typography variant='body2' color='common.white' minWidth='125px'>
               <strong>Level: </strong> {level}
@@ -49,13 +51,19 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
           {hashElement ? (
             <Box className={classes.hashContainer}>{hashElement}</Box>
           ) : (
-            <Typography variant='body2' color='secondary'>
+            <Typography
+              variant='body2'
+              color='secondary'
+              className={classes.hash}
+            >
               {shortenHash(hash)}
             </Typography>
           )}
         </Box>
         <Box className={classes.details}>
-          <Route />
+          <Box width='16px'>
+            <Route />
+          </Box>
           <Typography variant='body2' color='grey.100'>
             {transactionCount || 0} transactions - {timeSince} ago
           </Typography>

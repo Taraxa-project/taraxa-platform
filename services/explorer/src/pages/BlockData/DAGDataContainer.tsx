@@ -120,7 +120,7 @@ const DAGDataContainer = (): JSX.Element => {
           />
           <DataRow
             title='Verifiable Delay Function'
-            data={blockData?.vdf ? `${blockData?.vdf}` : 'Loading...'}
+            data={blockData?.vdf?.toString() || '0'}
           />
           <Divider light />
           <Box

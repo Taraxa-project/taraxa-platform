@@ -15,6 +15,7 @@ import {
   statusToLabel,
   timestampToAge,
   formatTransactionStatus,
+  fromWeiToTara,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { BlocksTable } from '../../components/Tables';
@@ -49,7 +50,7 @@ const TransactionDataContainer = (): JSX.Element => {
   return (
     <>
       <PageTitle
-        title='Transaction hash'
+        title='Transaction'
         subtitle={`Detailed information about this transaction hash on the ${currentNetwork}.`}
       />
       <Paper elevation={1}>
@@ -114,7 +115,7 @@ const TransactionDataContainer = (): JSX.Element => {
           {transactionData?.value && (
             <DataRow
               title='Value'
-              data={(+transactionData.value)?.toLocaleString()}
+              data={fromWeiToTara(`${transactionData.value}`)?.toLocaleString()}
             />
           )}
           {transactionData?.from && transactionData?.to && (
@@ -157,7 +158,9 @@ const TransactionDataContainer = (): JSX.Element => {
           {transactionData?.gasPrice && (
             <DataRow
               title='Gas Price'
-              data={`${(+transactionData.gasPrice)?.toLocaleString()} TARA`}
+              data={`${fromWeiToTara(
+                `${transactionData.gasPrice}`
+              )?.toLocaleString()} TARA`}
             />
           )}
           <DataRow title='Nonce' data={`${transactionData?.nonce}`} />

@@ -15,6 +15,9 @@ const useStyles = makeStyles(() => {
         width: '100%',
       },
     },
+    hash: {
+      wordBreak: 'break-all',
+    },
     details: {
       display: 'flex',
       flexDirection: 'row',

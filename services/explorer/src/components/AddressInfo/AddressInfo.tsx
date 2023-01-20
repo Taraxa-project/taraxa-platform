@@ -84,7 +84,7 @@ export const AddressInfo = ({
         children: (
           <TransactionsTable
             transactionsData={transactions}
-            totalCount={totalTxCount}
+            totalCount={+totalTxCount}
             pageNo={txPage}
             rowsPage={rowsTxPerPage}
             changePage={handleTxChangePage}
@@ -105,7 +105,7 @@ export const AddressInfo = ({
           <BlocksTable
             blocksData={dagBlocks}
             type='dag'
-            totalCount={totalDagCount}
+            totalCount={+totalDagCount}
             pageNo={dagPage}
             rowsPage={rowsDagPerPage}
             changePage={handleDagChangePage}
@@ -126,7 +126,7 @@ export const AddressInfo = ({
           <BlocksTable
             blocksData={pbftBlocks}
             type='pbft'
-            totalCount={totalPbftCount}
+            totalCount={+totalPbftCount}
             pageNo={pbftPage}
             rowsPage={rowsPbftPerPage}
             changePage={handlePbftChangePage}
