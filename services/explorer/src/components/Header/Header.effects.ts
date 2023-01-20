@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import cleanDeep from 'clean-deep';
 import { useQuery } from 'urql';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import { unwrapIdentifier } from '../../utils';
+import { Network, unwrapIdentifier } from '../../utils';
 import {
   searchAccountAddressQuery,
   searchBlockQuery,
@@ -204,14 +204,16 @@ export const useHeaderEffects = () => {
       selected: false,
       onAction: () => onClick('node'),
     },
-    {
+  ];
+  if (currentNetwork !== Network.MAINNET) {
+    headerButtons.push({
       label: 'Faucet',
       color: 'primary',
       variant: 'text',
       selected: false,
       onAction: () => onClick('faucet'),
-    },
-  ];
+    });
+  }
   const [buttons, setButtons] = useState<HeaderBtn[]>(headerButtons);
 
   const clearSearch = () => {
@@ -253,6 +255,26 @@ export const useHeaderEffects = () => {
         break;
     }
   };
+
+  useEffect(() => {
+    let _buttons = buttons;
+    if (currentNetwork !== Network.MAINNET) {
+      if (!_buttons.find((b) => b.label === 'Faucet')) {
+        _buttons.push({
+          label: 'Faucet',
+          color: 'primary',
+          variant: 'text',
+          selected: false,
+          onAction: () => onClick('faucet'),
+        });
+      }
+    } else {
+      if (_buttons.find((b) => b.label === 'Faucet')) {
+        _buttons = _buttons.filter((b) => b.label !== 'Faucet');
+      }
+    }
+    setButtons(_buttons);
+  }, [currentNetwork]);
 
   useEffect(() => {
     setButtons(
