@@ -121,10 +121,7 @@ const TransactionDataContainer = (): JSX.Element => {
               />
             )}
             {transactionData?.value && (
-              <DataRow
-                title='Value'
-                data={transactionData.value?.toLocaleString()}
-              />
+              <DataRow title='Value' data={`${transactionData.value}`} />
             )}
             {transactionData?.from && transactionData?.to && (
               <DataRow
@@ -159,14 +156,11 @@ const TransactionDataContainer = (): JSX.Element => {
             {transactionData?.gas && transactionData?.gasPrice && (
               <DataRow
                 title='Gas Limit/ Gas Used'
-                data={transactionData.gasUsed?.toLocaleString()}
+                data={`${transactionData.gasUsed}`}
               />
             )}
             {transactionData?.gasPrice && (
-              <DataRow
-                title='Gas Price'
-                data={transactionData.gasPrice?.toLocaleString()}
-              />
+              <DataRow title='Gas Price' data={`${transactionData.gasPrice}`} />
             )}
             <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
             <Divider light />

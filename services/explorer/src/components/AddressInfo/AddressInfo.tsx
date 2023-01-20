@@ -178,17 +178,13 @@ export const AddressInfo = ({
           >
             <DataRow
               title='Balance'
-              data={`${
-                details?.balance
-                  ? Number(details?.balance)?.toLocaleString()
-                  : ''
-              } TARA`}
+              data={`${details?.balance ? Number(details?.balance) : ''} TARA`}
             />
             <DataRow
               title='Value'
-              data={`$${
-                details?.value ? Number(details?.value).toLocaleString() : ''
-              } ${details?.valueCurrency || ''} ( ${
+              data={`$${details?.value ? Number(details?.value) : ''} ${
+                details?.valueCurrency || ''
+              } ( ${
                 details?.pricePerTara ? Number(details?.pricePerTara) : ''
               } / TARA )`}
             />
@@ -221,25 +217,14 @@ export const AddressInfo = ({
         <DataRow
           title='Total received'
           data={`${
-            details?.totalReceived
-              ? Number(details?.totalReceived).toLocaleString()
-              : ''
+            details?.totalReceived ? Number(details?.totalReceived) : ''
           } TARA`}
         />
         <DataRow
           title='Total sent'
-          data={`${
-            details?.totalSent
-              ? Number(details?.totalSent).toLocaleString()
-              : ''
-          } TARA`}
+          data={`${details?.totalSent ? Number(details?.totalSent) : ''} TARA`}
         />
-        <DataRow
-          title='Fees'
-          data={`${
-            details?.fees ? Number(details?.fees).toLocaleString() : ''
-          } TARA`}
-        />
+        <DataRow title='Fees' data={`${details?.fees}`} />
         <Divider light />
         <Box
           display='flex'
