@@ -64,6 +64,12 @@ export default class LiveSyncerService {
       chainGenesis &&
       storedGenesis.hash?.toLowerCase() !== chainGenesis.hash?.toLowerCase()
     ) {
+      this.logger.warn(
+        `Stored genesis hash is ${storedGenesis.hash?.toLowerCase()}`
+      );
+      this.logger.warn(
+        `Chain genesis hash is ${chainGenesis.hash?.toLowerCase()}`
+      );
       this.logger.warn('New genesis block hash detected. Wiping database.');
       await this.txService.clearTransactionData();
       this.logger.warn('Cleared Transaction table');
