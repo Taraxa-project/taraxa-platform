@@ -5,6 +5,10 @@ import LiveSyncerService from './live.syncer.service';
 import general from 'src/config/general';
 import { BullModule } from '@nestjs/bull';
 import * as dotenv from 'dotenv';
+import { ConnectorsModule } from '../connectors';
+import { DagModule } from '../dag';
+import { PbftModule } from '../pbft';
+import { TransactionModule } from '../transaction';
 
 dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
@@ -25,6 +29,10 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
     BullModule.registerQueue({
       name: 'new_pbfts',
     }),
+    DagModule,
+    PbftModule,
+    TransactionModule,
+    ConnectorsModule,
   ],
   providers: isProducer ? [LiveSyncerService] : [],
   controllers: [],
