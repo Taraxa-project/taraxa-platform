@@ -13,6 +13,7 @@ export const useDAGDataContainerEffects = (
   blockData: DagBlock;
   transactions: Transaction[];
   currentNetwork: string;
+  showLoadingSkeleton: boolean;
 } => {
   const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
@@ -30,6 +31,8 @@ export const useDAGDataContainerEffects = (
     pause: !hash,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const [showLoadingSkeleton, setShowLoadingSkeleton] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (data?.dagBlock) {
@@ -55,8 +58,10 @@ export const useDAGDataContainerEffects = (
   useEffect(() => {
     if (fetching) {
       initLoading();
+      setShowLoadingSkeleton(true);
     } else {
       finishLoading();
+      setShowLoadingSkeleton(false);
     }
   }, [fetching, currentNetwork]);
 
@@ -66,5 +71,5 @@ export const useDAGDataContainerEffects = (
     }
   }, [currentNetwork, network]);
 
-  return { blockData, transactions, currentNetwork };
+  return { blockData, transactions, currentNetwork, showLoadingSkeleton };
 };

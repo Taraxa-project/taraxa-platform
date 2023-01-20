@@ -53,6 +53,7 @@ export const useAddressInfoEffects = (
   handleTxChangeRowsPerPage: (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
+  showLoadingSkeleton: boolean;
 } => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
@@ -81,6 +82,8 @@ export const useAddressInfoEffects = (
   const { backendEndpoint, currentNetwork } = useExplorerNetwork();
   const navigate = useNavigate();
   const [network] = useState(currentNetwork);
+  const [showLoadingSkeleton, setShowLoadingSkeleton] =
+    useState<boolean>(false);
 
   const {
     data: dagsData,
@@ -126,8 +129,10 @@ export const useAddressInfoEffects = (
       isLoadingDetails
     ) {
       initLoading();
+      setShowLoadingSkeleton(true);
     } else {
       finishLoading();
+      setShowLoadingSkeleton(false);
     }
   }, [
     fetching,
@@ -292,5 +297,6 @@ export const useAddressInfoEffects = (
     txPage,
     handleTxChangePage,
     handleTxChangeRowsPerPage,
+    showLoadingSkeleton,
   };
 };

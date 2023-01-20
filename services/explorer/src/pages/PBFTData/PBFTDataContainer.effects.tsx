@@ -15,6 +15,7 @@ export const usePBFTDataContainerEffects = (
   blockData: PbftBlock;
   transactions: Transaction[];
   currentNetwork: string;
+  showLoadingSkeleton: boolean;
 } => {
   const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
@@ -33,12 +34,16 @@ export const usePBFTDataContainerEffects = (
     pause: !blockNumber && !txHash,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const [showLoadingSkeleton, setShowLoadingSkeleton] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (fetching) {
       initLoading();
+      setShowLoadingSkeleton(true);
     } else {
       finishLoading();
+      setShowLoadingSkeleton(false);
     }
   }, [currentNetwork, fetching]);
 
@@ -69,5 +74,5 @@ export const usePBFTDataContainerEffects = (
     }
   }, [currentNetwork, network]);
 
-  return { blockData, transactions, currentNetwork };
+  return { blockData, transactions, currentNetwork, showLoadingSkeleton };
 };

@@ -27,6 +27,8 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     },
     pause: !txHash,
   });
+  const [showLoadingSkeleton, setShowLoadingSkeleton] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (transactiondata?.transaction) {
@@ -57,8 +59,10 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   useEffect(() => {
     if (fetching) {
       initLoading();
+      setShowLoadingSkeleton(true);
     } else {
       finishLoading();
+      setShowLoadingSkeleton(false);
     }
   }, [fetching]);
 
@@ -68,5 +72,11 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     }
   }, [currentNetwork, network]);
 
-  return { transactionData, dagData, events, currentNetwork };
+  return {
+    transactionData,
+    dagData,
+    events,
+    currentNetwork,
+    showLoadingSkeleton,
+  };
 };
