@@ -12,6 +12,7 @@ import {
   NewPbftBlockHeaderResponse,
   QueueData,
   QueueJobs,
+  Queues,
   ResponseTypes,
   SyncTypes,
   toObject,
@@ -19,6 +20,10 @@ import {
 } from 'src/types';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { GraphQLConnectorService } from '../connectors';
+import DagService from '../dag/dag.service';
+import PbftService from '../pbft/pbft.service';
+import TransactionService from '../transaction/transaction.service';
 
 @Injectable()
 export default class LiveSyncerService {
@@ -27,9 +32,15 @@ export default class LiveSyncerService {
   constructor(
     @InjectWebSocketProvider()
     private ws: WebSocketClient,
-    @InjectQueue('new_pbfts')
+    @InjectQueue(Queues.NEW_PBFTS)
     private readonly pbftsQueue: Queue,
-    private readonly configService: ConfigService
+    @InjectQueue(Queues.NEW_DAGS)
+    private readonly dagsQueue: Queue,
+    private readonly configService: ConfigService,
+    private readonly dagService: DagService,
+    private readonly pbftService: PbftService,
+    private readonly txService: TransactionService,
+    private readonly graphQLConnector: GraphQLConnectorService
   ) {
     this.logger.log('Starting NodeSyncronizer');
     this.isWsConnected = false;
@@ -44,7 +55,27 @@ export default class LiveSyncerService {
     this.logger.log(
       `Connected to WS server at ${this.ws.url}. Blockchain sync started.`
     );
-
+    const storedGenesis = await this.pbftService.getBlockByNumber(0);
+    const chainGenesis = (
+      await this.graphQLConnector.getPBFTBlocksByNumberFromTo(0, 0)
+    )[0];
+    if (
+      storedGenesis &&
+      chainGenesis &&
+      storedGenesis.hash?.toLowerCase() !== chainGenesis.hash?.toLowerCase()
+    ) {
+      this.logger.warn('New genesis block hash detected. Wiping database.');
+      await this.txService.clearTransactionData();
+      this.logger.warn('Cleared Transaction table');
+      await this.dagService.clearDagData();
+      this.logger.warn('Cleared DAG table');
+      await this.pbftService.clearPbftData();
+      this.logger.warn('Cleared PBFT table');
+      await this.pbftsQueue.empty();
+      this.logger.warn('Cleared PBFT queue');
+      await this.dagsQueue.empty();
+      this.logger.warn('Cleared DAG queue');
+    }
     if (this.ws.readyState === this.ws.OPEN && !this.isWsConnected) {
       this.ws.send(
         JSON.stringify({

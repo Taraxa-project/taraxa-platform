@@ -116,21 +116,6 @@ export default class HistoricalSyncService implements OnModuleInit {
     this.syncState = _syncState;
   }
 
-  private async pushChunksBulk(
-    chunks: { name: QueueJobs; data: { pbftPeriod: number } }[],
-    message: string
-  ) {
-    try {
-      const added = await this.pbftsQueue.addBulk(chunks);
-      if (added) {
-        this.logger.log(message);
-        chunks.length = 0;
-      }
-    } catch (error) {
-      this.logger.error(error);
-    }
-  }
-
   /**
    * Syncs the missing chain history to the explorer's database using the new Taraxa Node GraphQL inteface.
    * @returns void
