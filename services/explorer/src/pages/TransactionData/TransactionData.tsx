@@ -15,7 +15,6 @@ import {
   statusToLabel,
   timestampToAge,
   formatTransactionStatus,
-  fromWeiToTara,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { BlocksTable } from '../../components/Tables';

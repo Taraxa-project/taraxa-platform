@@ -7,5 +7,5 @@ export const fromWeiToTara = (amount: string | number | BigNumber): string => {
     return;
   }
   const result = Number(ethers.utils.formatEther(amount));
-  return result === 0 ? `${result}` : result?.toFixed(4);
+  return result === 0 || result % 1 === 0 ? `${result}` : result?.toFixed(4);
 };
