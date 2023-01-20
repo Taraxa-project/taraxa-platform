@@ -151,7 +151,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 variant='head'
                 style={{ backgroundColor: theme.palette.grey.A100 }}
               >
-                Fee (TARA)
+                Fee
               </TableCell>
             </TableRow>
           </TableHead>
@@ -194,7 +194,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   {tx.value?.toString()}
                 </TableCell>
                 <TableCell variant='body' width='5rem !important'>
-                  {tx.gasUsed || 0}
+                  {tx.gasUsed}
                 </TableCell>
               </TableRow>
             ))}

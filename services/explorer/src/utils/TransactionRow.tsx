@@ -100,7 +100,7 @@ export const timestampToAge = (timestamp: string | number): string => {
 
   const ageString = `${days > 0 ? `${days} day(s), ` : ''}${
     hours > 0 ? `${hours} hour(s), ` : ''
-  } ${minutes ? `${minutes} minute(s), ` : ''} ${age ? `${age}s` : 'ago'}`;
+  } ${minutes ? `${minutes} minute(s), ` : ''} ${age ? `${age}s` : ''}`;
   return ageString;
 };
 

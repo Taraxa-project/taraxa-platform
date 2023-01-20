@@ -5,6 +5,8 @@ import cleanDeep from 'clean-deep';
 import { blockQuery } from '../../api';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { PbftBlock, Transaction } from '../../models';
+import { fromWeiToTara, MIN_WEI_TO_CONVERT } from '../../utils';
+import { ethers } from 'ethers';
 
 export const usePBFTDataContainerEffects = (
   blockNumber?: number,
@@ -13,6 +15,7 @@ export const usePBFTDataContainerEffects = (
   blockData: PbftBlock;
   transactions: Transaction[];
   currentNetwork: string;
+  showLoadingSkeleton: boolean;
 } => {
   const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
@@ -31,19 +34,37 @@ export const usePBFTDataContainerEffects = (
     pause: !blockNumber && !txHash,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const [showLoadingSkeleton, setShowLoadingSkeleton] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (fetching) {
       initLoading();
+      setShowLoadingSkeleton(true);
     } else {
       finishLoading();
+      setShowLoadingSkeleton(false);
     }
   }, [currentNetwork, fetching]);
 
   useEffect(() => {
     if (data?.block) {
       setBlockData(data.block);
-      setTransactions(data.block.transactions);
+      setTransactions(
+        data?.block?.transactions?.map((tx: Transaction) => {
+          return {
+            ...tx,
+            value:
+              Number(tx.value) < MIN_WEI_TO_CONVERT
+                ? `${tx.value} Wei`
+                : `${fromWeiToTara(ethers.BigNumber.from(tx.value))} TARA`,
+            gasUsed:
+              Number(tx.gasUsed) < MIN_WEI_TO_CONVERT
+                ? `${tx.gasUsed} Wei`
+                : `${fromWeiToTara(ethers.BigNumber.from(tx.gasUsed))} TARA`,
+          };
+        })
+      );
     }
   }, [data]);
 
@@ -53,5 +74,5 @@ export const usePBFTDataContainerEffects = (
     }
   }, [currentNetwork, network]);
 
-  return { blockData, transactions, currentNetwork };
+  return { blockData, transactions, currentNetwork, showLoadingSkeleton };
 };

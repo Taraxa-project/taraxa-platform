@@ -9,8 +9,13 @@ import {
   TransactionTableData,
 } from '../../models';
 import { blocksQueryWithTransactions } from '../../api';
-import { formatTransactionStatus } from '../../utils';
+import {
+  formatTransactionStatus,
+  fromWeiToTara,
+  MIN_WEI_TO_CONVERT,
+} from '../../utils';
 import { useNodeStateContext } from '../../hooks';
+import { ethers } from 'ethers';
 
 export const displayThreshold = process.env.DISPLAY_TXES_FOR_LAST_BLOCK || 25;
 export const useTransactionEffects = (): {
@@ -54,14 +59,17 @@ export const useTransactionEffects = (): {
         if (block) {
           const transactions = block?.transactions;
           if (transactions?.length > 0) {
-            const rows = transactions?.map((transaction: Transaction) => {
+            const rows = transactions?.map((tx: Transaction) => {
               return {
                 timestamp: Number(block?.timestamp),
                 block: `${block?.number}`,
-                status: formatTransactionStatus(transaction.status),
-                txHash: transaction.hash,
-                value: `${transaction.value}`,
-                token: 'TARA',
+                status: formatTransactionStatus(tx.status),
+                txHash: tx.hash,
+                value:
+                  Number(tx.value) < MIN_WEI_TO_CONVERT
+                    ? `${tx.value}`
+                    : `${fromWeiToTara(ethers.BigNumber.from(tx.value))}`,
+                token: Number(tx.value) < MIN_WEI_TO_CONVERT ? `Wei` : `TARA`,
               };
             });
             setData(data.concat(rows));

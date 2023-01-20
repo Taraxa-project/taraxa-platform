@@ -16,12 +16,13 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { TableTabsProps } from '../../models';
 import useStyles from './PBFTDataContainer.styles';
 import { TransactionsTable } from '../../components/Tables';
+import PbftLoadingSkeleton from './PbftLoadingSkeleton';
 
 const PBFTDataContainer = (): JSX.Element => {
   const { identifier } = useParams();
   const classes = useStyles();
   const { txHash, blockNumber } = unwrapIdentifier(identifier);
-  const { blockData, transactions, currentNetwork } =
+  const { blockData, transactions, currentNetwork, showLoadingSkeleton } =
     usePBFTDataContainerEffects(blockNumber, txHash);
   const onCopy = useCopyToClipboard();
 
@@ -48,93 +49,97 @@ const PBFTDataContainer = (): JSX.Element => {
         title='PBFT Block Info'
         subtitle={`Detailed TARAXA PBFT block information on the ${currentNetwork}.`}
       />
-      <Paper elevation={1}>
-        <Box
-          display='flex'
-          flexDirection='column'
-          alignItems='left'
-          margin='2rem 2rem 2rem'
-          gap='1.5rem'
-        >
-          <Box
-            display='flex'
-            flexDirection='row'
-            alignItems='center'
-            justifyContent='flex-start'
-            gap='2rem'
-            mt={3}
-          >
-            <Icons.Block />
-            <Typography
-              variant='h6'
-              component='h6'
-              style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
-            >
-              {zeroX(blockData?.hash)}
-            </Typography>
-            <CopyTo text={blockData?.hash} onCopy={onCopy} />
-          </Box>
-          {blockData?.number && (
-            <DataRow title='Number' data={`${blockData?.number}`} />
-          )}
-          {blockData?.nonce && (
-            <DataRow title='Nonce' data={blockData?.nonce} />
-          )}
-          {blockData?.timestamp && (
-            <DataRow
-              title='Timestamp'
-              data={`${moment
-                .unix(+(blockData?.timestamp || 0))
-                .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
-            />
-          )}
-          {(blockData?.number || blockData?.nonce || blockData.timestamp) && (
-            <Divider light />
-          )}
-          <DataRow
-            title='Parent'
-            data={
-              <HashLink
-                linkType={HashLinkType.PBFT}
-                width='auto'
-                hash={blockData?.parent?.hash}
-              />
-            }
-          />
-          <DataRow
-            title='Miner'
-            data={
-              <HashLink
-                linkType={HashLinkType.ADDRESSES}
-                width='auto'
-                hash={blockData?.miner?.address}
-              />
-            }
-          />
-          <DataRow
-            title='Difficulty'
-            data={
-              <Typography style={{ wordBreak: 'break-all' }}>
-                {blockData?.difficulty}
-              </Typography>
-            }
-          />
-          <DataRow
-            title='Transaction Count'
-            data={`${blockData?.transactionCount}`}
-          />
-          <Divider light />
+      {showLoadingSkeleton ? (
+        <PbftLoadingSkeleton />
+      ) : (
+        <Paper elevation={1}>
           <Box
             display='flex'
             flexDirection='column'
-            alignItems='flex-start'
-            alignContent='center'
-            style={{ overflowWrap: 'anywhere' }}
+            alignItems='left'
+            margin='2rem 2rem 2rem'
+            gap='1.5rem'
           >
-            <TableTabs {...tableTabs} />
+            <Box
+              display='flex'
+              flexDirection='row'
+              alignItems='center'
+              justifyContent='flex-start'
+              gap='2rem'
+              mt={3}
+            >
+              <Icons.Block />
+              <Typography
+                variant='h6'
+                component='h6'
+                style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
+              >
+                {zeroX(blockData?.hash)}
+              </Typography>
+              <CopyTo text={blockData?.hash} onCopy={onCopy} />
+            </Box>
+            {blockData?.number && (
+              <DataRow title='Number' data={`${blockData?.number}`} />
+            )}
+            {blockData?.nonce && (
+              <DataRow title='Nonce' data={blockData?.nonce} />
+            )}
+            {blockData?.timestamp && (
+              <DataRow
+                title='Timestamp'
+                data={`${moment
+                  .unix(+(blockData?.timestamp || 0))
+                  .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+              />
+            )}
+            {(blockData?.number || blockData?.nonce || blockData.timestamp) && (
+              <Divider light />
+            )}
+            <DataRow
+              title='Parent'
+              data={
+                <HashLink
+                  linkType={HashLinkType.PBFT}
+                  width='auto'
+                  hash={blockData?.parent?.hash}
+                />
+              }
+            />
+            <DataRow
+              title='Miner'
+              data={
+                <HashLink
+                  linkType={HashLinkType.ADDRESSES}
+                  width='auto'
+                  hash={blockData?.miner?.address}
+                />
+              }
+            />
+            <DataRow
+              title='Difficulty'
+              data={
+                <Typography style={{ wordBreak: 'break-all' }}>
+                  {blockData?.difficulty}
+                </Typography>
+              }
+            />
+            <DataRow
+              title='Transaction Count'
+              data={`${blockData?.transactionCount}`}
+            />
+            <Divider light />
+            <Box
+              display='flex'
+              flexDirection='column'
+              alignItems='flex-start'
+              alignContent='center'
+              style={{ overflowWrap: 'anywhere' }}
+            >
+              <TableTabs {...tableTabs} />
+            </Box>
           </Box>
-        </Box>
-      </Paper>
+        </Paper>
+      )}
     </>
   );
 };

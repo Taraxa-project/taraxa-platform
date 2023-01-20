@@ -6,3 +6,4 @@ export * from './hashUtils';
 export * from './getDomainName';
 export * from './chartUtils';
 export * from './networks';
+export * from './fromWeiToTara';

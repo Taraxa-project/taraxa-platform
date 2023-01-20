@@ -15,6 +15,12 @@ const useStyles = makeStyles(() => {
         width: '100%',
       },
     },
+    hash: {
+      textDecoration: 'none',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
+    },
     details: {
       display: 'flex',
       flexDirection: 'row',
