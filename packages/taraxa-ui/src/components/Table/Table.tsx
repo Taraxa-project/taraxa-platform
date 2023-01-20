@@ -50,7 +50,7 @@ export default function Table({
 
   const handleChangePage = (event: unknown, newPage: number) => {
     if (typeof onPageChange === 'function') {
-      onPageChange(newPage);
+      setTimeout(() => onPageChange(newPage), 300);
     } else {
       setPage(newPage);
     }
