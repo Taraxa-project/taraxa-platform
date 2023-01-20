@@ -12,6 +12,7 @@ import {
   NewPbftBlockHeaderResponse,
   QueueData,
   QueueJobs,
+  Queues,
   ResponseTypes,
   SyncTypes,
   toObject,
@@ -31,8 +32,10 @@ export default class LiveSyncerService {
   constructor(
     @InjectWebSocketProvider()
     private ws: WebSocketClient,
-    @InjectQueue('new_pbfts')
+    @InjectQueue(Queues.NEW_PBFTS)
     private readonly pbftsQueue: Queue,
+    @InjectQueue(Queues.NEW_DAGS)
+    private readonly dagsQueue: Queue,
     private readonly configService: ConfigService,
     private readonly dagService: DagService,
     private readonly pbftService: PbftService,
@@ -59,7 +62,7 @@ export default class LiveSyncerService {
     if (
       storedGenesis &&
       chainGenesis &&
-      storedGenesis.hash.toLowerCase() !== chainGenesis.hash.toLowerCase()
+      storedGenesis.hash?.toLowerCase() !== chainGenesis.hash?.toLowerCase()
     ) {
       this.logger.warn('New genesis block hash detected. Wiping database.');
       await this.txService.clearTransactionData();
@@ -68,6 +71,10 @@ export default class LiveSyncerService {
       this.logger.warn('Cleared DAG table');
       await this.pbftService.clearPbftData();
       this.logger.warn('Cleared PBFT table');
+      await this.pbftsQueue.empty();
+      this.logger.warn('Cleared PBFT queue');
+      await this.dagsQueue.empty();
+      this.logger.warn('Cleared DAG queue');
     }
     if (this.ws.readyState === this.ws.OPEN && !this.isWsConnected) {
       this.ws.send(
