@@ -5,6 +5,8 @@ import cleanDeep from 'clean-deep';
 import { blockQuery } from '../../api';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { PbftBlock, Transaction } from '../../models';
+import { fromWeiToTara, MIN_WEI_TO_CONVERT } from '../../utils';
+import { ethers } from 'ethers';
 
 export const usePBFTDataContainerEffects = (
   blockNumber?: number,
@@ -43,7 +45,21 @@ export const usePBFTDataContainerEffects = (
   useEffect(() => {
     if (data?.block) {
       setBlockData(data.block);
-      setTransactions(data.block.transactions);
+      setTransactions(
+        data?.block?.transactions?.map((tx: Transaction) => {
+          return {
+            ...tx,
+            value:
+              Number(tx.value) < MIN_WEI_TO_CONVERT
+                ? `${tx.value} Wei`
+                : `${fromWeiToTara(ethers.BigNumber.from(tx.value))} TARA`,
+            gasUsed:
+              Number(tx.gasUsed) < MIN_WEI_TO_CONVERT
+                ? `${tx.gasUsed} Wei`
+                : `${fromWeiToTara(ethers.BigNumber.from(tx.gasUsed))} TARA`,
+          };
+        })
+      );
     }
   }, [data]);
 

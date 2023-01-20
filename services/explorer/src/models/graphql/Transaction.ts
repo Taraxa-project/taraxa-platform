@@ -7,9 +7,9 @@ export interface Transaction {
   hash: string;
   nonce?: number;
   index?: number;
-  value?: number | BigNumber;
-  gasPrice?: number | BigNumber;
-  gas?: number | BigNumber;
+  value?: number | BigNumber | string;
+  gasPrice?: number | BigNumber | string;
+  gas?: number | BigNumber | string;
   inputData?: number;
   block?: Partial<PbftBlock>;
   status?: number;

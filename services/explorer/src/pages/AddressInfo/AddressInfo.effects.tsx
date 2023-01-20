@@ -11,6 +11,7 @@ import {
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
+import { fromWeiToTara } from '../../utils';
 
 export interface TransactionResponse {
   hash: string;
@@ -167,9 +168,9 @@ export const useAddressInfoEffects = (
           number: tx.block,
           timestamp: tx.age,
         },
-        value: ethers.BigNumber.from(tx.value),
-        gasPrice: ethers.BigNumber.from(tx.gasPrice),
-        gas: ethers.BigNumber.from(tx.gasUsed),
+        value: fromWeiToTara(ethers.BigNumber.from(tx.value)),
+        gasPrice: fromWeiToTara(ethers.BigNumber.from(tx.gasPrice)),
+        gas: fromWeiToTara(ethers.BigNumber.from(tx.gasUsed)),
         status: tx.status,
         from: {
           address: tx.from,
@@ -209,15 +210,15 @@ export const useAddressInfoEffects = (
     addressDetails.pbftBlocks = pbftsData?.total || 0;
 
     if (details?.data) {
-      addressDetails.balance = ethers.utils.formatEther(
+      addressDetails.balance = fromWeiToTara(
         ethers.BigNumber.from(details?.data.currentBalance)
       );
       addressDetails.value = details?.data.currentValue;
       addressDetails.valueCurrency = details?.data?.currency;
-      addressDetails.totalReceived = ethers.utils.formatEther(
+      addressDetails.totalReceived = fromWeiToTara(
         ethers.BigNumber.from(details?.data.totalReceived)
       );
-      addressDetails.totalSent = ethers.utils.formatEther(
+      addressDetails.totalSent = fromWeiToTara(
         ethers.BigNumber.from(details?.data.totalSent)
       );
       addressDetails.pricePerTara = details?.data?.priceAtTimeOfCalculation;
