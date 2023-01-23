@@ -18,6 +18,7 @@ import {
 } from '../../models';
 
 export interface AddressInfoProps {
+  isContract: boolean;
   transactions: Transaction[];
   dagBlocks: BlockData[];
   pbftBlocks: BlockData[];
@@ -46,6 +47,7 @@ export interface AddressInfoProps {
 }
 
 export const AddressInfo = ({
+  isContract,
   details,
   transactions,
   dagBlocks,
@@ -165,6 +167,7 @@ export const AddressInfo = ({
             component='h6'
             style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
           >
+            {isContract && <img src='/contract.png' alt='Contract Icon' />}
             {zeroX(details?.address)}
           </Typography>
           <CopyTo text={zeroX(details?.address)} onCopy={onCopy} />
