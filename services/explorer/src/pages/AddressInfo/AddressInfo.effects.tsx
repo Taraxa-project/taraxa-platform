@@ -12,6 +12,7 @@ import {
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
+import useChain from '../../hooks/useEthers';
 import { displayWeiOrTara, fromWeiToTara } from '../../utils';
 
 export interface TransactionResponse {
@@ -29,6 +30,7 @@ export interface TransactionResponse {
 export const useAddressInfoEffects = (
   account: string
 ): {
+  isContract: boolean;
   transactions: Transaction[];
   addressInfoDetails: AddressInfoDetails;
   dagBlocks: BlockData[];
@@ -68,6 +70,8 @@ export const useAddressInfoEffects = (
   const [rowsDagPerPage, setDagRowsPerPage] = useState<number>(25);
   const [dagPage, setDagPage] = useState(0);
 
+  const [isContract, setContract] = useState(false);
+
   const [totalTxCount, setTotalTxCount] = useState<number>(0);
   const [rowsTxPerPage, setTxRowsPerPage] = useState<number>(25);
   const [txPage, setTxPage] = useState(0);
@@ -81,6 +85,7 @@ export const useAddressInfoEffects = (
   });
   const { initLoading, finishLoading } = useExplorerLoader();
   const { backendEndpoint, currentNetwork } = useExplorerNetwork();
+  const { provider } = useChain();
   const navigate = useNavigate();
   const [network] = useState(currentNetwork);
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
@@ -199,6 +204,20 @@ export const useAddressInfoEffects = (
   };
 
   useEffect(() => {
+    const checkCode = async () => {
+      if (account) {
+        const code = await provider.getCode(`0x${account}`);
+        if (code && code !== '0x') {
+          setContract(true);
+        } else {
+          setContract(false);
+        }
+      }
+    };
+    checkCode();
+  }, [account]);
+
+  useEffect(() => {
     if (txData?.data && txData?.total) {
       setTransactions(formatToTransaction(txData.data));
       setTotalTxCount(txData?.total);
@@ -278,6 +297,7 @@ export const useAddressInfoEffects = (
   };
 
   return {
+    isContract,
     transactions,
     addressInfoDetails,
     dagBlocks,

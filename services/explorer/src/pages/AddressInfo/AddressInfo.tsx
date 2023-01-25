@@ -7,6 +7,7 @@ import AddressLoadingSkeleton from './AddressLoadingSkeleton';
 const AddressInfoPage = (): JSX.Element => {
   const { account } = useParams();
   const {
+    isContract,
     transactions,
     addressInfoDetails,
     dagBlocks,
@@ -39,6 +40,7 @@ const AddressInfoPage = (): JSX.Element => {
         <AddressLoadingSkeleton />
       ) : (
         <AddressInfo
+          isContract={isContract}
           details={addressInfoDetails}
           transactions={transactions}
           dagBlocks={dagBlocks}

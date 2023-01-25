@@ -18,6 +18,7 @@ import {
 } from '../../models';
 
 export interface AddressInfoProps {
+  isContract: boolean;
   transactions: Transaction[];
   dagBlocks: BlockData[];
   pbftBlocks: BlockData[];
@@ -46,6 +47,7 @@ export interface AddressInfoProps {
 }
 
 export const AddressInfo = ({
+  isContract,
   details,
   transactions,
   dagBlocks,
@@ -155,11 +157,17 @@ export const AddressInfo = ({
           gap='2rem'
           mt={3}
         >
-          <div
-            className={classes.iconContainer}
-            // eslint-disable-next-line
-            dangerouslySetInnerHTML={{ __html: addressIcon }}
-          />
+          {isContract ? (
+            <div className={classes.iconContainer}>
+              <img src='/contract.png' alt='Contract Icon' />
+            </div>
+          ) : (
+            <div
+              className={classes.iconContainer}
+              // eslint-disable-next-line
+              dangerouslySetInnerHTML={{ __html: addressIcon }}
+            />
+          )}
           <Typography
             variant='h6'
             component='h6'
