@@ -55,6 +55,7 @@ export const useTransactionEffects = (): {
   useEffect(() => {
     if (blockData?.blocks) {
       const blocks = blockData?.blocks as PbftBlock[];
+      let txData: TransactionTableData[] = [...data];
       blocks.forEach((block) => {
         if (block) {
           const transactions = block?.transactions;
@@ -72,10 +73,11 @@ export const useTransactionEffects = (): {
                 token: Number(tx.value) < MIN_WEI_TO_CONVERT ? `Wei` : `TARA`,
               };
             });
-            setData(data.concat(rows));
+            txData = [...txData, ...rows];
           }
         }
       });
+      setData(txData);
     }
   }, [blockData]);
 
