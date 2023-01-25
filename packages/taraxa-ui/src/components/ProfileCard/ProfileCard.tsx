@@ -13,6 +13,7 @@ import { toSvg } from 'jdenticon';
 
 import theme from '../theme';
 
+import ExcalamtionTriangle from '../Icons/ExclamationTriangle';
 import useStyles from './ProfileCard.styles';
 
 export interface ProfileCardProps extends MCardProps {
@@ -20,6 +21,7 @@ export interface ProfileCardProps extends MCardProps {
   username: string;
   email: string;
   wallet?: string;
+  addressWarning?: boolean;
   buttonOptions?: JSX.Element;
 }
 
@@ -28,6 +30,7 @@ const ProfileCard = ({
   username,
   email,
   wallet,
+  addressWarning,
   buttonOptions,
 }: ProfileCardProps) => {
   const classes = useStyles();
@@ -70,14 +73,28 @@ const ProfileCard = ({
                 className={classes.label}
                 color='textSecondary'
               >
-                TARA address (ERC20):
+                {addressWarning ? (
+                  <>
+                    TARA address (ERC20):{' '}
+                    <ExcalamtionTriangle color='#E96828' />{' '}
+                  </>
+                ) : (
+                  `TARA address (ERC20):`
+                )}
               </Typography>
               <Typography
                 variant='body1'
                 className={classes.label}
                 color='primary'
               >
-                {wallet}
+                {addressWarning ? (
+                  <>
+                    {wallet}
+                    <span style={{ color: '#E96828' }}>(not authorized)</span>
+                  </>
+                ) : (
+                  wallet
+                )}
               </Typography>
             </>
           )}

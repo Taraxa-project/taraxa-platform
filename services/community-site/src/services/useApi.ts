@@ -29,7 +29,7 @@ class TypedResponseHandler<T> extends ResponseHandler<T> {
 const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
   const { startLoading, finishLoading } = useLoading();
   const auth = useAuth();
-  const token = localStorage.getItem('auth');
+  const token = localStorage.getItem('auth') || localStorage.getItem('jwt');
 
   const getUrl = useCallback(
     (url: string) => {
@@ -73,7 +73,7 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
     }
 
     if (err.response!.status === 401) {
-      auth.setSessionExpired!();
+      if (auth && auth.setSessionExpired) auth.setSessionExpired();
       return {
         success: false,
         response: 'Session expired',
@@ -168,6 +168,10 @@ export const useDelegationApi = () => {
 
 export const useClaimApi = () => {
   return useApi(process.env.REACT_APP_API_CLAIM_HOST);
+};
+
+export const useWalletAuthorizationApi = () => {
+  return useApi(process.env.REACT_APP_API_WALLET_AUTHORIZATION_HOST);
 };
 
 export default useApi;

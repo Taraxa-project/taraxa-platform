@@ -1,7 +1,10 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import { Modal } from '@taraxa_project/taraxa-ui';
+import VerifyWallet from '../components/Modal/VerifyWallet';
+import WalletSignIn from '../components/Modal/WalletSignIn';
+import Preset from '../components/Modal/Preset';
 import { useAuth } from './useAuth';
 import SignIn from '../components/Modal/SignIn';
 import EmailConfirmed from '../components/Modal/EmailConfirmed';
@@ -13,12 +16,25 @@ import ResetPassword from '../components/Modal/ResetPassword';
 
 import CloseIcon from '../assets/icons/close';
 
+type LoginContentTypes =
+  | 'preset'
+  | 'mm-sign-in'
+  | 'sign-in'
+  | 'sign-up'
+  | 'sign-up-success'
+  | 'forgot-password'
+  | 'forgot-password-success'
+  | 'email-confirmed'
+  | 'reset-password'
+  | 'verify-wallet';
+
 type Context = {
   isOpen: boolean;
   setIsOpen?: (isOpen: boolean) => void;
-  content: string;
-  setContent?: (content: string) => void;
+  content: LoginContentTypes;
+  setContent?: (content: LoginContentTypes) => void;
   signIn?: () => void;
+  authorizeWallet: () => void;
   reset?: () => void;
   code: string | undefined;
   setCode?: (code: string | undefined) => void;
@@ -27,8 +43,9 @@ type Context = {
 
 const initialState: Context = {
   isOpen: false,
-  content: 'sign-in',
+  content: 'preset',
   code: undefined,
+  authorizeWallet: () => null,
   modal: null,
 };
 
@@ -40,11 +57,26 @@ function useProvideModal() {
   const isSessionExpired = auth.isSessionExpired!;
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   const [isOpen, setIsOpen] = useState(isSessionExpired);
-  const [content, setContent] = useState('sign-in');
+  const [content, setContent] = useState<LoginContentTypes>('preset');
+  const [title, setTitle] = useState<string>('Sign in / Sign up');
+  const [modal, setModal] = useState<JSX.Element>(
+    <Preset
+      onMM={() => setContent!('mm-sign-in')}
+      onClassic={() => setContent!('sign-in')}
+      onSuccess={() => setIsOpen(false)}
+    />,
+  );
   const [code, setCode] = useState<undefined | string>();
 
+  const authorizeWallet = () => {
+    setContent('verify-wallet');
+    setTitle('IMPORTANT NOTICE');
+    setIsOpen(true);
+  };
+
   const signIn = () => {
-    setContent('sign-in');
+    setContent('preset');
+    setTitle('Sign in / Sign up');
     setIsOpen(true);
   };
 
@@ -52,95 +84,116 @@ function useProvideModal() {
     if (isSessionExpired) {
       auth.clearSessionExpired!();
     }
-    setContent('sign-in');
+    setContent('preset');
+    setTitle('Sign in / Sign up');
     setIsOpen(false);
     setCode(undefined);
     history.push('/');
   };
 
-  let modal: JSX.Element;
-  let title: string;
-
-  switch (content) {
-    case 'email-confirmed':
-      title = 'Create an account';
-      modal = (
-        <EmailConfirmed
-          onSuccess={() => {
-            reset!();
-          }}
-        />
-      );
-      break;
-    case 'sign-up':
-      title = 'Create an account';
-      modal = (
-        <SignUp
-          onSuccess={() => {
-            setContent!('sign-up-success');
-          }}
-        />
-      );
-      break;
-    case 'sign-up-success':
-      title = 'Create an account';
-      modal = (
-        <SignUpSuccess
-          onSuccess={() => {
-            reset!();
-          }}
-        />
-      );
-      break;
-    case 'forgot-password':
-      title = 'Forgot password';
-      modal = (
-        <ForgotPassword
-          onSuccess={() => {
-            setContent!('forgot-password-success');
-          }}
-        />
-      );
-      break;
-    case 'forgot-password-success':
-      title = 'Forgot password';
-      modal = (
-        <ForgotPasswordSuccess
-          onSuccess={() => {
-            reset!();
-          }}
-        />
-      );
-      break;
-    case 'reset-password':
-      title = 'Enter your new password';
-      modal = (
-        <ResetPassword
-          code={code}
-          onSuccess={() => {
-            reset!();
-          }}
-        />
-      );
-      break;
-    case 'sign-in':
-    default:
-      title = 'Sign in';
-      modal = (
-        <SignIn
-          onSuccess={() => {
-            setIsOpen!(false);
-          }}
-          onForgotPassword={() => {
-            setContent!('forgot-password');
-          }}
-          onCreateAccount={() => {
-            setContent!('sign-up');
-          }}
-          isSessionExpired={isSessionExpired}
-        />
-      );
-  }
+  useEffect(() => {
+    switch (content) {
+      case 'preset':
+        setTitle('Sign in');
+        setModal(
+          <Preset
+            onMM={() => setContent!('mm-sign-in')}
+            onClassic={() => setContent!('sign-in')}
+            onSuccess={() => setIsOpen(false)}
+          />,
+        );
+        break;
+      case 'mm-sign-in':
+        setTitle('Sign in / Sign up');
+        setModal(
+          <WalletSignIn
+            isSigning
+            onClassic={() => setContent!('sign-in')}
+            onSuccess={() => setIsOpen(false)}
+          />,
+        );
+        break;
+      case 'verify-wallet':
+        setTitle('IMPORTANT NOTICE');
+        setModal(<VerifyWallet onSuccess={() => setIsOpen(false)} />);
+        break;
+      case 'email-confirmed':
+        setTitle('Create an account');
+        setModal(
+          <EmailConfirmed
+            onSuccess={() => {
+              reset!();
+            }}
+          />,
+        );
+        break;
+      case 'sign-up':
+        setTitle('Create an account');
+        setModal(
+          <SignUp
+            onSuccess={() => {
+              setContent!('sign-up-success');
+            }}
+          />,
+        );
+        break;
+      case 'sign-up-success':
+        setTitle('Create an account');
+        setModal(
+          <SignUpSuccess
+            onSuccess={() => {
+              reset!();
+            }}
+          />,
+        );
+        break;
+      case 'forgot-password':
+        setTitle('Forgot password');
+        setModal(
+          <ForgotPassword
+            onSuccess={() => {
+              setContent!('forgot-password-success');
+            }}
+          />,
+        );
+        break;
+      case 'forgot-password-success':
+        setTitle('Forgot password');
+        setModal(
+          <ForgotPasswordSuccess
+            onSuccess={() => {
+              reset!();
+            }}
+          />,
+        );
+        break;
+      case 'reset-password':
+        setTitle('Enter your new password');
+        setModal(
+          <ResetPassword
+            code={code}
+            onSuccess={() => {
+              reset!();
+            }}
+          />,
+        );
+        break;
+      case 'sign-in':
+      default:
+        setTitle('Sign in');
+        setModal(
+          <SignIn
+            onSuccess={() => {
+              setIsOpen(false);
+            }}
+            onForgotPassword={() => {
+              setContent!('forgot-password');
+            }}
+            isSessionExpired={isSessionExpired}
+          />,
+        );
+    }
+  }, [content]);
 
   return {
     isOpen,
@@ -150,6 +203,7 @@ function useProvideModal() {
     code,
     setCode,
     signIn,
+    authorizeWallet,
     reset,
     modal: (
       <Modal
