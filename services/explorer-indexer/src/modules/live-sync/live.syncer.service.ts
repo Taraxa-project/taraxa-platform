@@ -24,6 +24,7 @@ import { GraphQLConnectorService } from '../connectors';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
+import { deZeroX } from '@taraxa_project/explorer-shared';
 
 @Injectable()
 export default class LiveSyncerService {
@@ -62,13 +63,14 @@ export default class LiveSyncerService {
     if (
       storedGenesis &&
       chainGenesis &&
-      storedGenesis.hash?.toLowerCase() !== chainGenesis.hash?.toLowerCase()
+      deZeroX(storedGenesis.hash?.toLowerCase()) !==
+        deZeroX(chainGenesis.hash?.toLowerCase())
     ) {
       this.logger.warn(
-        `Stored genesis hash is ${storedGenesis.hash?.toLowerCase()}`
+        `Stored genesis hash is ${deZeroX(storedGenesis.hash?.toLowerCase())}`
       );
       this.logger.warn(
-        `Chain genesis hash is ${chainGenesis.hash?.toLowerCase()}`
+        `Chain genesis hash is ${deZeroX(chainGenesis.hash?.toLowerCase())}`
       );
       this.logger.warn('New genesis block hash detected. Wiping database.');
       await this.txService.clearTransactionData();
