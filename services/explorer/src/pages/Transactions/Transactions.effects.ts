@@ -17,7 +17,8 @@ import {
 import { useNodeStateContext } from '../../hooks';
 import { ethers } from 'ethers';
 
-export const displayThreshold = process.env.DISPLAY_TXES_FOR_LAST_BLOCK || 25;
+export const displayThreshold =
+  process.env.REACT_APP_DISPLAY_TXES_FOR_LAST_BLOCK || 25;
 export const useTransactionEffects = (): {
   data: TransactionTableData[];
   columns: ColumnData[];
