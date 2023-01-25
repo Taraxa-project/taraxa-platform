@@ -232,7 +232,7 @@ export const useAddressInfoEffects = (
     if (txData?.data) {
       addressDetails.transactionCount = txData?.total;
     }
-    if (feesData?.data) {
+    if (feesData?.data !== null && feesData?.data !== undefined) {
       addressDetails.fees = displayWeiOrTara(feesData?.data);
     }
     setAddressInfoDetails(addressDetails);
