@@ -8,11 +8,12 @@ import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
   useGetDagsByAddress,
   useGetDetailsForAddress,
+  useGetFeesByAddress,
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
-import { fromWeiToTara } from '../../utils';
-import useChain from 'src/hooks/useEthers';
+import useChain from '../../hooks/useEthers';
+import { displayWeiOrTara, fromWeiToTara } from '../../utils';
 
 export interface TransactionResponse {
   hash: string;
@@ -91,6 +92,12 @@ export const useAddressInfoEffects = (
     useState<boolean>(false);
 
   const {
+    data: feesData,
+    isFetching: isFetchingFees,
+    isLoading: isLoadingFees,
+  } = useGetFeesByAddress(backendEndpoint, account);
+
+  const {
     data: dagsData,
     isFetching: isFetchingDags,
     isLoading: isLoadingDags,
@@ -124,6 +131,8 @@ export const useAddressInfoEffects = (
   useEffect(() => {
     if (
       fetching ||
+      isFetchingFees ||
+      isLoadingFees ||
       isFetchingDags ||
       isLoadingDags ||
       isFetchingPbfts ||
@@ -141,6 +150,8 @@ export const useAddressInfoEffects = (
     }
   }, [
     fetching,
+    isFetchingFees,
+    isLoadingFees,
     isFetchingDags,
     isLoadingDags,
     isFetchingPbfts,
@@ -178,9 +189,9 @@ export const useAddressInfoEffects = (
           number: tx.block,
           timestamp: tx.age,
         },
-        value: fromWeiToTara(ethers.BigNumber.from(tx.value)),
-        gasPrice: fromWeiToTara(ethers.BigNumber.from(tx.gasPrice)),
-        gas: fromWeiToTara(ethers.BigNumber.from(tx.gasUsed)),
+        value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
+        gasPrice: displayWeiOrTara(ethers.BigNumber.from(tx.gasPrice)),
+        gas: displayWeiOrTara(ethers.BigNumber.from(tx.gasUsed)),
         status: tx.status,
         from: {
           address: tx.from,
@@ -213,19 +224,6 @@ export const useAddressInfoEffects = (
     }
   }, [txData]);
 
-  const getFees = (transactions: TransactionResponse[], address: string) => {
-    if (!transactions || !transactions?.length) {
-      return 0;
-    }
-    const fromTransactions: TransactionResponse[] = transactions.filter(
-      (tx: TransactionResponse) => tx.from === address
-    );
-    const sum = fromTransactions.reduce((accumulator: any, object) => {
-      return Number(accumulator) + Number(object.gasUsed);
-    }, 0);
-    return sum;
-  };
-
   useEffect(() => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
     addressDetails.address = account;
@@ -252,10 +250,12 @@ export const useAddressInfoEffects = (
     }
     if (txData?.data) {
       addressDetails.transactionCount = txData?.total;
-      addressDetails.fees = `${getFees(txData.data, account)}`; // To Do this might need to be calculated on the backend from a different API
+    }
+    if (feesData?.data !== null && feesData?.data !== undefined) {
+      addressDetails.fees = displayWeiOrTara(feesData?.data);
     }
     setAddressInfoDetails(addressDetails);
-  }, [details, data, dagsData, pbftsData, txData]);
+  }, [details, data, dagsData, pbftsData, txData, feesData]);
 
   useEffect(() => {
     if (currentNetwork !== network) {

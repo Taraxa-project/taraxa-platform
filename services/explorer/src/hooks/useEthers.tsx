@@ -3,7 +3,10 @@ import { useMemo } from 'react';
 import { Network } from 'src/utils';
 import { useExplorerNetwork } from './useExplorerNetwork';
 
-function useChain() {
+function useChain(): {
+  provider: ethers.providers.JsonRpcProvider | null;
+  signer: ethers.providers.JsonRpcSigner | null;
+} {
   const { currentNetwork } = useExplorerNetwork();
 
   const provider = useMemo(() => {
@@ -31,8 +34,6 @@ function useChain() {
           break;
         }
       }
-      console.log(`Provider: ${currentProvider}`);
-      console.log(`Details: ${networkDetails}`);
       provider = new ethers.providers.JsonRpcProvider(
         currentProvider,
         networkDetails
