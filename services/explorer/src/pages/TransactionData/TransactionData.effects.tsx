@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'urql';
-import { deZeroX, fromWeiToTara, MIN_WEI_TO_CONVERT } from '../../utils';
+import { deZeroX, displayWeiOrTara } from '../../utils';
 import { BlockData, Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
@@ -34,24 +34,9 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     if (transactiondata?.transaction) {
       setTransactionData({
         ...transactiondata?.transaction,
-        value:
-          Number(transactiondata?.transaction.value) < MIN_WEI_TO_CONVERT
-            ? `${transactiondata?.transaction.value} Wei`
-            : `${fromWeiToTara(
-                ethers.BigNumber.from(transactiondata?.transaction.value)
-              )} TARA`,
-        gasUsed:
-          Number(transactiondata?.transaction.gasUsed) < MIN_WEI_TO_CONVERT
-            ? `${transactiondata?.transaction.gasUsed} Wei`
-            : `${fromWeiToTara(
-                ethers.BigNumber.from(transactiondata?.transaction.gasUsed)
-              )} TARA`,
-        gasPrice:
-          Number(transactiondata?.transaction.gasUsed) < MIN_WEI_TO_CONVERT
-            ? `${transactiondata?.transaction.gasUsed} Wei`
-            : `${fromWeiToTara(
-                ethers.BigNumber.from(transactiondata?.transaction.gasUsed)
-              )} TARA`,
+        value: displayWeiOrTara(transactiondata?.transaction.value),
+        gasUsed: displayWeiOrTara(transactiondata?.transaction.gasUsed),
+        gasPrice: displayWeiOrTara(transactiondata?.transaction.gasPrice),
       });
     }
   }, [transactiondata]);

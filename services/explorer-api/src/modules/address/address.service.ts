@@ -60,8 +60,6 @@ export class AddressService {
       .where(`lower(miner) = lower('${parsedAddress}')`)
       .orderBy('timestamp', 'ASC');
 
-    this.logger.log(query.getSql());
-
     try {
       const [blocksProduced, total] = await query.getManyAndCount();
 
@@ -231,13 +229,13 @@ export class AddressService {
 
     try {
       const totalSentPromise = this.txRepository.query(
-        `select cast(sum(value::REAL) as numeric) as total_sent from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.from) = lower('${parsedAddress}');`
+        `select sum(value::bigint) as total_sent from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.from = '${parsedAddress}';`
       );
       const totalReceivedPromise = this.txRepository.query(
-        `select cast(sum(value::REAL) as numeric) as total_received from ${this.txRepository.metadata.tableName} where lower(${this.txRepository.metadata.tableName}.to) = lower('${parsedAddress}');`
+        `select sum(value::bigint) as total_received from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.to = '${parsedAddress}';`
       );
       const totalMinedPromise = this.txRepository.query(
-        `select cast(sum(reward::REAL) as numeric) as total_mined from ${this.pbftRepository.metadata.tableName} where lower(miner) = lower('${parsedAddress}');`
+        `select sum(reward::bigint) as total_mined from ${this.pbftRepository.metadata.tableName} where miner = '${parsedAddress}';`
       );
 
       const [[{ total_sent }], [{ total_received }], [{ total_mined }]] =
@@ -297,5 +295,20 @@ export class AddressService {
       currentValue: currentValue.toString(),
       currency: 'USD',
     };
+  }
+
+  public async getFees(address: string): Promise<number> {
+    if (!address) {
+      throw new BadRequestException('Address not supplied!');
+    }
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
+    const parsedAddress = toChecksumAddress(address);
+
+    const query = `
+      SELECT SUM(t."gasUsed"::bigint) AS "gasUsedSum" 
+      FROM ${this.txRepository.metadata.tableName} t
+      WHERE t.from = $1`; // If not working use  WHERE lower(t.from) = lower($1) but it will affect performance
+    const result = await this.txRepository.query(query, [parsedAddress]);
+    return result[0].gasUsedSum || 0;
   }
 }

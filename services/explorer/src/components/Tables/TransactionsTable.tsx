@@ -194,7 +194,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   {tx.value?.toString()}
                 </TableCell>
                 <TableCell variant='body' width='5rem !important'>
-                  {tx.gasUsed}
+                  {tx.gas?.toString()}
                 </TableCell>
               </TableRow>
             ))}

@@ -39,14 +39,14 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
             <Block />
           </Box>
           {level && (
-            <Box flexGrow={1} maxWidth='auto' minWidth='auto'>
+            <Box flexGrow={1} maxWidth='auto' minWidth='135px'>
               <Typography variant='body2' color='common.white'>
                 <strong>Level: </strong> {level}
               </Typography>
             </Box>
           )}
           {blockNumber && (
-            <Box flexGrow={1} maxWidth='auto' minWidth='auto'>
+            <Box flexGrow={1} maxWidth='auto' minWidth='135px'>
               <Typography variant='body2' color='common.white'>
                 <strong>Block No.: </strong> {blockNumber}
               </Typography>

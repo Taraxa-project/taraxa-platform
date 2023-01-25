@@ -1,11 +1,10 @@
-import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'urql';
 import { dagDetailsQuery } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { DagBlock, Transaction } from '../../models';
-import { fromWeiToTara, MIN_WEI_TO_CONVERT } from '../../utils';
+import { displayWeiOrTara } from '../../utils';
 
 export const useDAGDataContainerEffects = (
   hash: string
@@ -41,14 +40,8 @@ export const useDAGDataContainerEffects = (
         data?.dagBlock?.transactions?.map((tx: Transaction) => {
           return {
             ...tx,
-            value:
-              Number(tx.value) < MIN_WEI_TO_CONVERT
-                ? `${tx.value} Wei`
-                : `${fromWeiToTara(ethers.BigNumber.from(tx.value))} TARA`,
-            gasUsed:
-              Number(tx.gasUsed) < MIN_WEI_TO_CONVERT
-                ? `${tx.gasUsed} Wei`
-                : `${fromWeiToTara(ethers.BigNumber.from(tx.gasUsed))} TARA`,
+            value: displayWeiOrTara(tx.value),
+            gasUsed: displayWeiOrTara(tx.gasUsed),
           };
         })
       );

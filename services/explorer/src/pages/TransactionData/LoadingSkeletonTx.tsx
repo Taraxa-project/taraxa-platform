@@ -8,7 +8,7 @@ const LoadingSkeletonTx = (): JSX.Element => {
     <>
       <Paper elevation={1} style={{ padding: '2rem' }}>
         <Stack spacing={3}>
-          <Skeleton variant='rectangular' />
+          <Skeleton variant='text' sx={{ fontSize: '1rem' }} />
           <Skeleton variant='rectangular' />
           <Skeleton variant='rectangular' />
           <Skeleton variant='rectangular' />
