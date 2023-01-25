@@ -229,13 +229,13 @@ export class AddressService {
 
     try {
       const totalSentPromise = this.txRepository.query(
-        `select sum(value::bigint) as total_sent from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.from = '${parsedAddress}';`
+        `select sum(value::decimal) as total_sent from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.from = '${parsedAddress}';`
       );
       const totalReceivedPromise = this.txRepository.query(
-        `select sum(value::bigint) as total_received from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.to = '${parsedAddress}';`
+        `select sum(value::decimal) as total_received from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.to = '${parsedAddress}';`
       );
       const totalMinedPromise = this.txRepository.query(
-        `select sum(reward::bigint) as total_mined from ${this.pbftRepository.metadata.tableName} where miner = '${parsedAddress}';`
+        `select sum(reward::decimal) as total_mined from ${this.pbftRepository.metadata.tableName} where miner = '${parsedAddress}';`
       );
 
       const [[{ total_sent }], [{ total_received }], [{ total_mined }]] =
@@ -305,7 +305,7 @@ export class AddressService {
     const parsedAddress = toChecksumAddress(address);
 
     const query = `
-      SELECT SUM(t."gasUsed"::bigint) AS "gasUsedSum" 
+      SELECT SUM(t."gasUsed"::decimal) AS "gasUsedSum" 
       FROM ${this.txRepository.metadata.tableName} t
       WHERE t.from = $1`; // If not working use  WHERE lower(t.from) = lower($1) but it will affect performance
     const result = await this.txRepository.query(query, [parsedAddress]);
