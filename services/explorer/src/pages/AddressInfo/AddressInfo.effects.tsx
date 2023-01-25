@@ -184,9 +184,9 @@ export const useAddressInfoEffects = (
           number: tx.block,
           timestamp: tx.age,
         },
-        value: fromWeiToTara(ethers.BigNumber.from(tx.value)),
-        gasPrice: fromWeiToTara(ethers.BigNumber.from(tx.gasPrice)),
-        gas: fromWeiToTara(ethers.BigNumber.from(tx.gasUsed)),
+        value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
+        gasPrice: displayWeiOrTara(ethers.BigNumber.from(tx.gasPrice)),
+        gas: displayWeiOrTara(ethers.BigNumber.from(tx.gasUsed)),
         status: tx.status,
         from: {
           address: tx.from,
