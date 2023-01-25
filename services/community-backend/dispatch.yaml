@@ -58,4 +58,3 @@ dispatch:
 
    - url: community.taraxa.io/*
      service: prod-community-frontend
-
