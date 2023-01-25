@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  deZeroX,
   IPBFT,
   ITransaction,
   PbftEntity,
@@ -117,5 +118,26 @@ export default class TransactionService {
       }
     }
     return tx;
+  }
+
+  public createSyntheticTransaction(
+    address: string,
+    value: string,
+    block: IPBFT
+  ): ITransaction {
+    const hash = `GENESIS_${deZeroX(address)}`;
+    return {
+      hash,
+      value,
+      from: 'GENESIS',
+      to: address,
+      block,
+      gas: '0',
+      gasPrice: '0',
+      gasUsed: '0',
+      cumulativeGasUsed: 0,
+      status: 1,
+      blockNumber: '0',
+    };
   }
 }

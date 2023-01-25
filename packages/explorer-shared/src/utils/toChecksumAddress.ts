@@ -9,7 +9,7 @@ export const toChecksumAddress = (address: any) => {
   if (utils.isAddress(address)) {
     address = utils.toChecksumAddress(address);
   } else {
-    throw new Error('Address is not valid.');
+    console.error('Address is not valid.');
   }
   return address;
 };
