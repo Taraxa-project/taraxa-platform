@@ -6,6 +6,7 @@ import { useExplorerNetwork } from './useExplorerNetwork';
 function useChain(): {
   provider: ethers.providers.JsonRpcProvider | undefined;
   signer: ethers.providers.JsonRpcSigner | undefined;
+  checkCode: (account: string) => Promise<boolean>;
 } {
   const { currentNetwork } = useExplorerNetwork();
 
@@ -60,7 +61,21 @@ function useChain(): {
     return signer;
   }, [provider]);
 
-  return { provider, signer };
+  const checkCode = async (account: string): Promise<boolean> => {
+    if (account && provider) {
+      try {
+        const code = await provider.getCode(`0x${account}`);
+        if (code && code !== '0x') {
+          return true;
+        }
+        return false;
+      } catch (err) {
+        return false;
+      }
+    }
+  };
+
+  return { provider, signer, checkCode };
 }
 
 export default useChain;
