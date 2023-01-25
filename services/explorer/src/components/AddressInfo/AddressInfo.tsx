@@ -157,17 +157,22 @@ export const AddressInfo = ({
           gap='2rem'
           mt={3}
         >
-          <div
-            className={classes.iconContainer}
-            // eslint-disable-next-line
-            dangerouslySetInnerHTML={{ __html: addressIcon }}
-          />
+          {isContract ? (
+            <div className={classes.iconContainer}>
+              <img src='/contract.png' alt='Contract Icon' />
+            </div>
+          ) : (
+            <div
+              className={classes.iconContainer}
+              // eslint-disable-next-line
+              dangerouslySetInnerHTML={{ __html: addressIcon }}
+            />
+          )}
           <Typography
             variant='h6'
             component='h6'
             style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
           >
-            {isContract && <img src='/contract.png' alt='Contract Icon' />}
             {zeroX(details?.address)}
           </Typography>
           <CopyTo text={zeroX(details?.address)} onCopy={onCopy} />
