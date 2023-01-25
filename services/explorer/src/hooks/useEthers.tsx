@@ -4,8 +4,8 @@ import { Network } from 'src/utils';
 import { useExplorerNetwork } from './useExplorerNetwork';
 
 function useChain(): {
-  provider: ethers.providers.JsonRpcProvider | null;
-  signer: ethers.providers.JsonRpcSigner | null;
+  provider: ethers.providers.JsonRpcProvider | undefined;
+  signer: ethers.providers.JsonRpcSigner | undefined;
 } {
   const { currentNetwork } = useExplorerNetwork();
 
