@@ -517,6 +517,7 @@ workflows:
               only:
                 - main
                 - develop
+                - chore/import-community-backend
           context:
             - TARAXA
             - DOCKERHUB

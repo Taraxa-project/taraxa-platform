@@ -3,11 +3,8 @@ WORKDIR /app
 
 ENV PATH /app/node_modules/.bin:$PATH
 
-COPY package.json yarn.lock ./
-COPY services/community-backend/package.json /app/services/community-backend/
-
 COPY package.json yarn.lock /app/
-COPY services/claim-backend/package.json /app/services/claim-backend/
+COPY services/community-backend/package.json /app/services/community-backend/
 
 RUN yarn install
 
