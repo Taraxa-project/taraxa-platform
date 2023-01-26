@@ -14,6 +14,9 @@ parameters:
   run-community-backend-service-workflow:
     type: boolean
     default: false
+  build-community-backend-helm-chart-workflow:
+    type: boolean
+    default: false
   run-node-status-service-workflow:
     type: boolean
     default: false
@@ -519,6 +522,25 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
+  community-backend-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-community-backend-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/community-backend/charts
+          chart-name: community-backend
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
   node-status:
     when:
       or:
