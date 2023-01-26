@@ -1,4 +1,4 @@
-FROM node:12.20
+FROM node:12.22.0
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install
