@@ -11,6 +11,7 @@ import {
 } from '@taraxa_project/explorer-shared';
 import { IGQLTransaction } from 'src/types';
 import { Repository } from 'typeorm';
+import { fromWei, toBN } from 'web3-utils';
 
 @Injectable()
 export default class TransactionService {
@@ -128,7 +129,7 @@ export default class TransactionService {
     const hash = `GENESIS_${deZeroX(address)}`;
     return {
       hash,
-      value,
+      value: fromWei(toBN(value), 'ether'),
       from: 'GENESIS',
       to: address,
       block,
