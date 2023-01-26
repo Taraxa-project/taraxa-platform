@@ -65,10 +65,7 @@ function useChain(): {
     if (account && provider) {
       try {
         const code = await provider.getCode(`0x${account}`);
-        if (code && code !== '0x') {
-          return true;
-        }
-        return false;
+        return code && code !== '0x';
       } catch (err) {
         return false;
       }
