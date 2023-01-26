@@ -13,7 +13,7 @@ import { Icons } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
-import { formatTransactionStatus, HashLinkType } from '../../utils';
+import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
 import { Transaction } from '../../models';
 
 export interface TransactionsTableProps {
@@ -162,6 +162,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   <HashLink
                     linkType={HashLinkType.TRANSACTIONS}
                     hash={tx.hash}
+                    disabled={tx.hash.startsWith('0xgenesis')}
                     wrap
                   />
                 </TableCell>
@@ -179,9 +180,19 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     maxWidth='20rem'
                     gap='0.2rem'
                   >
-                    <AddressLink address={tx.from?.address} />
+                    <AddressLink
+                      disabled={zeroX(tx.from?.address)
+                        ?.toLowerCase()
+                        .startsWith('0xgenesis')}
+                      address={tx.from?.address}
+                    />
                     <Icons.GreenRightArrow />
-                    <AddressLink address={tx.to?.address} />
+                    <AddressLink
+                      disabled={zeroX(tx.to?.address)
+                        ?.toLowerCase()
+                        .startsWith('0xgenesis')}
+                      address={tx.to?.address}
+                    />
                   </Box>
                 </TableCell>
                 <TableCell variant='body' width='5rem !important'>

@@ -30,10 +30,14 @@ const a11yProps = (index: string | number) => {
 export const TableTabs: FC<TableTabsProps> = ({
   tabs,
   initialValue,
+  setTabsStep,
 }: TableTabsProps) => {
   const [value, setValue] = useState<string | number>(initialValue);
   const handleChange = (event: SyntheticEvent, newValue: string | number) => {
     setValue(newValue);
+    if (typeof setTabsStep === 'function') {
+      setTabsStep(+newValue);
+    }
   };
 
   return (

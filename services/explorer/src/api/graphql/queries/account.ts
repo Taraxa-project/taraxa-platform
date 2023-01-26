@@ -8,7 +8,6 @@ query get_address_data($account: Address!, $hash:  Bytes32!, $slot: Bytes32!){
 			balance
 			transactionCount
 			code
-			storage(slot: $slot)
 		}
 	}
 }

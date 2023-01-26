@@ -4,9 +4,6 @@ export interface AddressInfoDetails {
   value: string;
   valueCurrency: string;
   transactionCount: number;
-  totalReceived: string;
-  totalSent: string;
-  fees: string;
   dagBlocks: number;
   pbftBlocks: number;
   pricePerTara: number;

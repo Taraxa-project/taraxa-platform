@@ -10,12 +10,14 @@ export const HashLink = ({
   blockNumber,
   wrap,
   width,
+  disabled = false,
 }: {
   linkType: HashLinkType;
   hash?: string;
   blockNumber?: number;
   wrap?: boolean;
   width?: string;
+  disabled?: boolean;
 }): JSX.Element => {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'start' }}>
@@ -28,6 +30,7 @@ export const HashLink = ({
           textOverflow: 'ellipsis',
           overflow: 'hidden',
           width,
+          pointerEvents: disabled ? 'none' : 'auto',
         }}
       >
         {hash ? (wrap ? `${zeroX(hash).slice(0, 8)}...` : zeroX(hash)) : hash}

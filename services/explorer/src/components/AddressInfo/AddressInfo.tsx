@@ -18,7 +18,6 @@ import {
 } from '../../models';
 
 export interface AddressInfoProps {
-  isContract: boolean;
   transactions: Transaction[];
   dagBlocks: BlockData[];
   pbftBlocks: BlockData[];
@@ -44,10 +43,11 @@ export interface AddressInfoProps {
   handleTxChangeRowsPerPage: (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
+  tabsStep: number;
+  setTabsStep: (step: number) => void;
 }
 
 export const AddressInfo = ({
-  isContract,
   details,
   transactions,
   dagBlocks,
@@ -67,78 +67,88 @@ export const AddressInfo = ({
   txPage,
   handleTxChangePage,
   handleTxChangeRowsPerPage,
+  tabsStep,
+  setTabsStep,
 }: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
   const onCopy = useCopyToClipboard();
 
   const tableTabs: TableTabsProps = {
-    tabs: [
-      {
-        label: 'Transactions',
-        index: 0,
-        icon: (
-          <Box className={classes.tabIconContainer}>
-            <TransactionIcon />
-          </Box>
-        ),
-        iconPosition: 'start',
-        children: (
-          <TransactionsTable
-            transactionsData={transactions}
-            totalCount={+totalTxCount}
-            pageNo={txPage}
-            rowsPage={rowsTxPerPage}
-            changePage={handleTxChangePage}
-            changeRows={handleTxChangeRowsPerPage}
-          />
-        ),
-      },
-      {
-        label: 'DAG Blocks',
-        index: 1,
-        icon: (
-          <Box className={classes.tabIconContainer}>
-            <Icons.Block />
-          </Box>
-        ),
-        iconPosition: 'start',
-        children: (
-          <BlocksTable
-            blocksData={dagBlocks}
-            type='dag'
-            totalCount={+totalDagCount}
-            pageNo={dagPage}
-            rowsPage={rowsDagPerPage}
-            changePage={handleDagChangePage}
-            changeRows={handleDagChangeRowsPerPage}
-          />
-        ),
-      },
-      {
-        label: 'PBFT Blocks',
-        index: 2,
-        icon: (
-          <Box className={classes.tabIconContainer}>
-            <Icons.Block />
-          </Box>
-        ),
-        iconPosition: 'start',
-        children: (
-          <BlocksTable
-            blocksData={pbftBlocks}
-            type='pbft'
-            totalCount={+totalPbftCount}
-            pageNo={pbftPage}
-            rowsPage={rowsPbftPerPage}
-            changePage={handlePbftChangePage}
-            changeRows={handlePbftChangeRowsPerPage}
-          />
-        ),
-      },
-    ],
-    initialValue: 0,
+    tabs: [],
+    initialValue: tabsStep || 0,
   };
+
+  if (totalTxCount > 0) {
+    tableTabs.tabs.push({
+      label: 'Transactions',
+      index: 0,
+      icon: (
+        <Box className={classes.tabIconContainer}>
+          <TransactionIcon />
+        </Box>
+      ),
+      iconPosition: 'start',
+      children: (
+        <TransactionsTable
+          transactionsData={transactions}
+          totalCount={+totalTxCount}
+          pageNo={txPage}
+          rowsPage={rowsTxPerPage}
+          changePage={handleTxChangePage}
+          changeRows={handleTxChangeRowsPerPage}
+        />
+      ),
+    });
+  }
+
+  if (totalDagCount > 0) {
+    tableTabs.tabs.push({
+      label: 'DAG Blocks',
+      index: totalTxCount > 0 ? 1 : 0,
+      icon: (
+        <Box className={classes.tabIconContainer}>
+          <Icons.Block />
+        </Box>
+      ),
+      iconPosition: 'start',
+      children: (
+        <BlocksTable
+          blocksData={dagBlocks}
+          type='dag'
+          totalCount={+totalDagCount}
+          pageNo={dagPage}
+          rowsPage={rowsDagPerPage}
+          changePage={handleDagChangePage}
+          changeRows={handleDagChangeRowsPerPage}
+        />
+      ),
+    });
+  }
+
+  if (totalPbftCount > 0) {
+    tableTabs.tabs.push({
+      label: 'PBFT Blocks',
+      index: totalTxCount > 0 ? (totalDagCount > 0 ? 2 : 1) : 1,
+      icon: (
+        <Box className={classes.tabIconContainer}>
+          <Icons.Block />
+        </Box>
+      ),
+      iconPosition: 'start',
+      children: (
+        <BlocksTable
+          blocksData={pbftBlocks}
+          type='pbft'
+          totalCount={+totalPbftCount}
+          pageNo={pbftPage}
+          rowsPage={rowsPbftPerPage}
+          changePage={handlePbftChangePage}
+          changeRows={handlePbftChangeRowsPerPage}
+        />
+      ),
+    });
+  }
 
   return (
     <Paper elevation={1}>
@@ -157,17 +167,11 @@ export const AddressInfo = ({
           gap='2rem'
           mt={3}
         >
-          {isContract ? (
-            <div className={classes.iconContainer}>
-              <img src='/contract.png' alt='Contract Icon' />
-            </div>
-          ) : (
-            <div
-              className={classes.iconContainer}
-              // eslint-disable-next-line
-              dangerouslySetInnerHTML={{ __html: addressIcon }}
-            />
-          )}
+          <div
+            className={classes.iconContainer}
+            // eslint-disable-next-line
+            dangerouslySetInnerHTML={{ __html: addressIcon }}
+          />
           <Typography
             variant='h6'
             component='h6'
@@ -221,28 +225,20 @@ export const AddressInfo = ({
             </Grid>
           </div>
         </Box>
-        <Divider light />
-        <DataRow
-          title='Total received'
-          data={`${
-            details?.totalReceived ? Number(details?.totalReceived) : ''
-          } TARA`}
-        />
-        <DataRow
-          title='Total sent'
-          data={`${details?.totalSent ? Number(details?.totalSent) : ''} TARA`}
-        />
-        <DataRow title='Fees' data={`${details?.fees}`} />
-        <Divider light />
-        <Box
-          display='flex'
-          flexDirection='column'
-          alignItems='flex-start'
-          alignContent='center'
-          style={{ overflowWrap: 'anywhere' }}
-        >
-          <TableTabs {...tableTabs} />
-        </Box>
+        {(totalTxCount > 0 || totalDagCount > 0 || totalPbftCount > 0) && (
+          <>
+            <Divider light />
+            <Box
+              display='flex'
+              flexDirection='column'
+              alignItems='flex-start'
+              alignContent='center'
+              style={{ overflowWrap: 'anywhere' }}
+            >
+              <TableTabs {...tableTabs} setTabsStep={setTabsStep} />
+            </Box>
+          </>
+        )}
       </Box>
     </Paper>
   );

@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from 'urql';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
-import { accountQuery } from '../../api/graphql/queries/account';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
   useGetDagsByAddress,
   useGetDetailsForAddress,
-  useGetFeesByAddress,
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
-import useChain from '../../hooks/useEthers';
 import { displayWeiOrTara, fromWeiToTara } from '../../utils';
 
 export interface TransactionResponse {
@@ -30,7 +26,6 @@ export interface TransactionResponse {
 export const useAddressInfoEffects = (
   account: string
 ): {
-  isContract: boolean;
   transactions: Transaction[];
   addressInfoDetails: AddressInfoDetails;
   dagBlocks: BlockData[];
@@ -57,10 +52,13 @@ export const useAddressInfoEffects = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
   showLoadingSkeleton: boolean;
+  tabsStep: number;
+  setTabsStep: (step: number) => void;
 } => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
   const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>([]);
+  const [tabsStep, setTabsStep] = useState<number>(0);
 
   const [totalPbftCount, setTotalPbftCount] = useState<number>(0);
   const [rowsPbftPerPage, setPbftRowsPerPage] = useState<number>(25);
@@ -70,32 +68,19 @@ export const useAddressInfoEffects = (
   const [rowsDagPerPage, setDagRowsPerPage] = useState<number>(25);
   const [dagPage, setDagPage] = useState(0);
 
-  const [isContract, setIsContract] = useState(false);
-
   const [totalTxCount, setTotalTxCount] = useState<number>(0);
   const [rowsTxPerPage, setTxRowsPerPage] = useState<number>(25);
   const [txPage, setTxPage] = useState(0);
 
   const [addressInfoDetails, setAddressInfoDetails] =
     useState<AddressInfoDetails>();
-  const [{ fetching, data }] = useQuery({
-    query: accountQuery,
-    variables: { account },
-    pause: !account,
-  });
+
   const { initLoading, finishLoading } = useExplorerLoader();
   const { backendEndpoint, currentNetwork } = useExplorerNetwork();
-  const { checkCode } = useChain();
   const navigate = useNavigate();
   const [network] = useState(currentNetwork);
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
-
-  const {
-    data: feesData,
-    isFetching: isFetchingFees,
-    isLoading: isLoadingFees,
-  } = useGetFeesByAddress(backendEndpoint, account);
 
   const {
     data: dagsData,
@@ -130,9 +115,6 @@ export const useAddressInfoEffects = (
 
   useEffect(() => {
     if (
-      fetching ||
-      isFetchingFees ||
-      isLoadingFees ||
       isFetchingDags ||
       isLoadingDags ||
       isFetchingPbfts ||
@@ -149,9 +131,6 @@ export const useAddressInfoEffects = (
       setShowLoadingSkeleton(false);
     }
   }, [
-    fetching,
-    isFetchingFees,
-    isLoadingFees,
     isFetchingDags,
     isLoadingDags,
     isFetchingPbfts,
@@ -204,14 +183,6 @@ export const useAddressInfoEffects = (
   };
 
   useEffect(() => {
-    checkCode(account)
-      .then((res: boolean) => {
-        setIsContract(res);
-      })
-      .catch((err) => console.log(err));
-  }, [account]);
-
-  useEffect(() => {
     if (txData?.data && txData?.total) {
       setTransactions(formatToTransaction(txData.data));
       setTotalTxCount(txData?.total);
@@ -231,25 +202,13 @@ export const useAddressInfoEffects = (
       );
       addressDetails.value = details?.data.currentValue;
       addressDetails.valueCurrency = details?.data?.currency;
-      addressDetails.totalReceived = fromWeiToTara(
-        ethers.BigNumber.from(details?.data.totalReceived)
-      );
-      addressDetails.totalSent = fromWeiToTara(
-        ethers.BigNumber.from(details?.data.totalSent)
-      );
       addressDetails.pricePerTara = details?.data?.priceAtTimeOfCalculation;
-    }
-    if (data?.block) {
-      addressDetails.address = data?.block?.account?.address;
     }
     if (txData?.data) {
       addressDetails.transactionCount = txData?.total;
     }
-    if (feesData?.data !== null && feesData?.data !== undefined) {
-      addressDetails.fees = displayWeiOrTara(feesData?.data);
-    }
     setAddressInfoDetails(addressDetails);
-  }, [details, data, dagsData, pbftsData, txData, feesData]);
+  }, [details, dagsData, pbftsData, txData]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
@@ -291,7 +250,6 @@ export const useAddressInfoEffects = (
   };
 
   return {
-    isContract,
     transactions,
     addressInfoDetails,
     dagBlocks,
@@ -312,5 +270,7 @@ export const useAddressInfoEffects = (
     handleTxChangePage,
     handleTxChangeRowsPerPage,
     showLoadingSkeleton,
+    tabsStep,
+    setTabsStep,
   };
 };
