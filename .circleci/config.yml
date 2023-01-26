@@ -11,6 +11,7 @@ workflows:
             packages/taraxa-ui/.* ui-package-modified true
             services/community-site/.* run-community-site-service-workflow true
             services/community-backend/.* run-community-backend-service-workflow true
+            services/community-backend/charts/.* build-community-backend-helm-chart-workflow true
             services/node-status/.* run-node-status-service-workflow true
             services/delegation/.* run-delegation-service-workflow true
             services/claim-backend/.* run-claim-backend-service-workflow true
