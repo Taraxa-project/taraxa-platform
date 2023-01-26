@@ -136,7 +136,7 @@ export class AddressService {
     const [data, total] = await this.dagRepository.findAndCount({
       select: ['timestamp', 'level', 'hash', 'transactionCount'],
       where: {
-        author: Raw((alias) => `LOWER(${alias}) = LOWER(:parsedAddress)`, {
+        author: Raw((alias) => `${alias} = :parsedAddress`, {
           parsedAddress,
         }),
       },
@@ -162,7 +162,7 @@ export class AddressService {
     const [data, total] = await this.pbftRepository.findAndCount({
       select: ['timestamp', 'number', 'hash', 'transactionCount'],
       where: {
-        miner: Raw((alias) => `LOWER(${alias}) = LOWER(:parsedAddress)`, {
+        miner: Raw((alias) => `${alias} = :parsedAddress`, {
           parsedAddress,
         }),
       },
