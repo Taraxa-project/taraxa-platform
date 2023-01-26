@@ -510,7 +510,6 @@ workflows:
     when:
       or:
         - << pipeline.parameters.run-community-backend-service-workflow >>
-        - << pipeline.parameters.ui-package-modified >>
     jobs:
       - build-community-backend:
           filters:
