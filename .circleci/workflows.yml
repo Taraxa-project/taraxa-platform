@@ -154,10 +154,10 @@ jobs:
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
-              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
-              # docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
-              # docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
+              docker tag taraxa-community-backend:${VERSION} ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
+              docker tag taraxa-community-backend:${VERSION} ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
+              # docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
+              # docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
             fi
   deploy-community-site:
     <<: *config
