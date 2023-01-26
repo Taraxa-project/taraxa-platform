@@ -23,6 +23,7 @@
     "paths": {
       "@taraxa_project/taraxa-ui": ["packages/taraxa-ui/src/index.ts"],
       "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"],
+      "@taraxa_project/taraxa-community-backend": ["services/community-backend/config/server.js"],
       "@taraxa_project/explorer": ["services/explorer/src/index.ts"],
       "@taraxa_project/faucet": ["services/faucet/src/index.ts"],
       "@taraxa_project/explorer-shared": ["packages/explorer-shared/src/index.ts"],
@@ -38,6 +39,9 @@
     },
     {
       "path": "services/community-site"
+    },
+    {
+      "path": "services/community-backend"
     },
     {
       "path": "services/explorer"
