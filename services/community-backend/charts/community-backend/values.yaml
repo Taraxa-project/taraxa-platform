@@ -1,0 +1,71 @@
+replicaCount: 2
+
+app:
+  name: community-backend
+  component: api
+
+  environment: default
+  url: https://api.default.community.taraxa.io
+  dbHost: default-db.address
+  dbName: taraxa-community-default
+  uploadBucketName: taraxa-community-default
+  explorerUrl: http://explorer.default.taraxa.io
+
+  serverPort: 1337
+  dbPort: 5432
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: taraxa-community-default
+
+image:
+  repository: gcr.io/jovial-meridian-249123/taraxa-community-server-develop
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+tolerations: []
+
+affinity: {}
