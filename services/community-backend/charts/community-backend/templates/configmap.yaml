@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.app.environment }}-{{ include "community-backend.fullname" . }}
+  labels:
+    {{- include "community-backend.labels" . | nindent 4 }}
+data:
+  PUBLIC_URL: {{ .Values.app.url | quote }}
+  DATABASE_HOST: {{ .Values.app.dbHost | quote }}
+  DATABASE_NAME: {{ .Values.app.dbName | quote }}
+  UPLOAD_BUCKET_NAME: {{ .Values.app.uploadBucketName | quote }}
+  NODE_ENV: {{ .Values.app.environment | quote }}
+  EXPLORER_URL: {{ .Values.app.explorerUrl | quote }}

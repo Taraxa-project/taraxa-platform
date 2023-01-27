@@ -1,0 +1,34 @@
+{
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/users/kyc",
+      "handler": "User.kyc",
+      "config": {
+        "policies": [],
+        "prefix": "",
+        "description": "Retrieve the KYC URL for a user",
+        "tag": {
+          "plugin": "users-permissions",
+          "name": "User",
+          "actionType": "update"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/users/kyc-callback",
+      "handler": "User.kycCallback",
+      "config": {
+        "policies": [],
+        "prefix": "",
+        "description": "Set the KYC status for a user",
+        "tag": {
+          "plugin": "users-permissions",
+          "name": "User",
+          "actionType": "update"
+        }
+      }
+    }
+  ]
+}

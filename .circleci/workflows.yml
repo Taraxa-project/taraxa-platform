@@ -11,6 +11,12 @@ parameters:
   run-community-site-service-workflow:
     type: boolean
     default: false
+  run-community-backend-service-workflow:
+    type: boolean
+    default: false
+  build-community-backend-helm-chart-workflow:
+    type: boolean
+    default: false
   run-node-status-service-workflow:
     type: boolean
     default: false
@@ -121,6 +127,37 @@ jobs:
               docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
               docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
+            fi
+  build-community-backend:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build --build-arg NODE_ENV=${ENV} -t taraxa-community-backend:${VERSION} -f services/community-backend/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa-community-backend:${VERSION} taraxa/taraxa-community-backend:${VERSION}
+              docker tag taraxa-community-backend:${VERSION} taraxa/taraxa-community-backend:latest
+              docker push taraxa/taraxa-community-backend:${VERSION}
+              docker push taraxa/taraxa-community-backend:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa-community-backend:${VERSION} ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
+              docker tag taraxa-community-backend:${VERSION} ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
             fi
   deploy-community-site:
     <<: *config
@@ -469,6 +506,40 @@ workflows:
                 - develop
           context:
             - K8S
+  community-backend:
+    when:
+      or:
+        - << pipeline.parameters.run-community-backend-service-workflow >>
+    jobs:
+      - build-community-backend:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  community-backend-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-community-backend-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/community-backend/charts
+          chart-name: community-backend
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
   node-status:
     when:
       or:
