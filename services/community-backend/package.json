@@ -14,7 +14,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "ethereumjs-util": "^7.0.10",
-    "knex": "<0.20.0",
+    "knex": "<2.5.0",
     "pg": "^8.5.1",
     "sqlite3": "5.0.0",
     "strapi": "3.6.8",
