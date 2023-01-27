@@ -168,7 +168,9 @@ export const useAddressInfoEffects = (
           number: tx.block,
           timestamp: tx.age,
         },
-        value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
+        value: displayWeiOrTara(
+          ethers.BigNumber.from(BigInt(Math.round(+tx.value)))
+        ),
         gasPrice: displayWeiOrTara(ethers.BigNumber.from(tx.gasPrice)),
         gas: displayWeiOrTara(ethers.BigNumber.from(tx.gasUsed)),
         status: tx.status,
