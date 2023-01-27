@@ -129,7 +129,7 @@ export default class TransactionService {
     const hash = `GENESIS_${deZeroX(address)}`;
     return {
       hash,
-      value,
+      value: toBN(value).toString(),
       from: 'GENESIS',
       to: address,
       block,

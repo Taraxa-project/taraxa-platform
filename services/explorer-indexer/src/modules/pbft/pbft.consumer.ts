@@ -39,9 +39,6 @@ export class PbftConsumer implements OnModuleInit {
     );
 
     const { pbftPeriod, type } = job.data;
-    if (pbftPeriod == 0) {
-      console.log('Were at zero');
-    }
     const newBlock: IGQLPBFT =
       await this.graphQLConnector.getPBFTBlockForNumber(pbftPeriod);
     try {
