@@ -226,7 +226,6 @@ export class AddressService {
     let balance = toBN('0');
     let totalSent = toBN('0');
     let totalReceived = toBN('0');
-
     try {
       const totalSentPromise = this.txRepository.query(
         `select sum(value::decimal) as total_sent from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.from = '${parsedAddress}';`
@@ -245,10 +244,8 @@ export class AddressService {
           totalMinedPromise,
         ]);
 
-      const padSentToWei = toWei(String(total_sent || '0'), 'ether');
-      const padReceivedToWei = toWei(String(total_received || '0'), 'ether');
-      totalSent = toBN(padSentToWei);
-      totalReceived = toBN(padReceivedToWei);
+      totalSent = toBN(String(total_sent || '0'));
+      totalReceived = toBN(String(total_received || '0'));
       const fromScietificToString =
         Intl.NumberFormat('en-US').format(total_mined);
       const clear = fromScietificToString.replace(/\D+/g, '');
