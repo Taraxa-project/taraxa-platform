@@ -17,7 +17,9 @@ export const AddressLink = ({
       to={`/address/${zeroX(address)}`}
       style={{
         textDecoration: 'none',
-        color: theme.palette.secondary.main,
+        color: disabled
+          ? theme.palette.grey[500]
+          : theme.palette.secondary.main,
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',

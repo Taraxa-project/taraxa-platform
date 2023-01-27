@@ -25,7 +25,9 @@ export const HashLink = ({
         to={`/${linkType}/${zeroX(hash) || blockNumber}`}
         style={{
           textDecoration: 'none',
-          color: theme.palette.secondary.main,
+          color: disabled
+            ? theme.palette.grey[500]
+            : theme.palette.secondary.main,
           whiteSpace: 'nowrap',
           textOverflow: 'ellipsis',
           overflow: 'hidden',
