@@ -190,13 +190,17 @@ export const AddressInfo = ({
           >
             <DataRow
               title='Balance'
-              data={`${details?.balance ? Number(details?.balance) : ''} TARA`}
+              data={`${
+                details?.balance
+                  ? Number(details?.balance)?.toLocaleString()
+                  : ''
+              } TARA`}
             />
             <DataRow
               title='Value'
-              data={`$${details?.value ? Number(details?.value) : ''} ${
-                details?.valueCurrency || ''
-              } ( ${
+              data={`${
+                details?.value ? Number(details?.value)?.toLocaleString() : ''
+              } ${details?.valueCurrency || ''} ( ${
                 details?.pricePerTara ? Number(details?.pricePerTara) : ''
               } / TARA )`}
             />
