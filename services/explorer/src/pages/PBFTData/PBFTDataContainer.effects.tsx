@@ -30,7 +30,7 @@ export const usePBFTDataContainerEffects = (
       number: blockNumber,
       hash: txHash,
     }),
-    pause: !blockNumber && !txHash,
+    pause: !(blockNumber !== null || blockNumber !== undefined) && !txHash,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
   const [showLoadingSkeleton, setShowLoadingSkeleton] =

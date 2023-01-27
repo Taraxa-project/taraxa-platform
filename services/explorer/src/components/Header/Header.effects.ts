@@ -54,7 +54,10 @@ export const useHeaderEffects = () => {
       number: searchBlockNumber,
       hash: searchHash,
     }),
-    pause: !(searchHash || searchBlockNumber),
+    pause: !(
+      searchHash ||
+      (searchBlockNumber !== null && searchBlockNumber !== undefined)
+    ),
   });
 
   const [{ fetching: fetchingDagBlock, data: dagBlockData }] = useQuery({

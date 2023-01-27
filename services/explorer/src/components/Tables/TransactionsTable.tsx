@@ -162,7 +162,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   <HashLink
                     linkType={HashLinkType.TRANSACTIONS}
                     hash={tx.hash}
-                    disabled={tx.hash.startsWith('0xgenesis')}
+                    disabled={tx.hash?.startsWith('0xgenesis')}
                     wrap
                   />
                 </TableCell>
