@@ -7,7 +7,6 @@ import AddressLoadingSkeleton from './AddressLoadingSkeleton';
 const AddressInfoPage = (): JSX.Element => {
   const { account } = useParams();
   const {
-    isContract,
     transactions,
     addressInfoDetails,
     dagBlocks,
@@ -28,6 +27,8 @@ const AddressInfoPage = (): JSX.Element => {
     handleTxChangePage,
     handleTxChangeRowsPerPage,
     showLoadingSkeleton,
+    tabsStep,
+    setTabsStep,
   } = useAddressInfoEffects(account);
 
   return (
@@ -40,7 +41,6 @@ const AddressInfoPage = (): JSX.Element => {
         <AddressLoadingSkeleton />
       ) : (
         <AddressInfo
-          isContract={isContract}
           details={addressInfoDetails}
           transactions={transactions}
           dagBlocks={dagBlocks}
@@ -60,6 +60,8 @@ const AddressInfoPage = (): JSX.Element => {
           txPage={txPage}
           handleTxChangePage={handleTxChangePage}
           handleTxChangeRowsPerPage={handleTxChangeRowsPerPage}
+          tabsStep={tabsStep}
+          setTabsStep={setTabsStep}
         />
       )}
     </>

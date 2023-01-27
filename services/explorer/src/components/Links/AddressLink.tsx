@@ -6,9 +6,11 @@ import { zeroX } from '../../utils';
 export const AddressLink = ({
   address,
   width = '30%',
+  disabled = false,
 }: {
   address: string;
   width?: string;
+  disabled?: boolean;
 }): JSX.Element => {
   return (
     <Link
@@ -20,6 +22,7 @@ export const AddressLink = ({
         textOverflow: 'ellipsis',
         overflow: 'hidden',
         width,
+        pointerEvents: disabled ? 'none' : 'auto',
       }}
     >
       {zeroX(address)}

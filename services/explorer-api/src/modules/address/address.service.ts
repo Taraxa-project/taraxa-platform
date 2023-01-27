@@ -58,7 +58,7 @@ export class AddressService {
       .createQueryBuilder('pbfts')
       .select(['miner', 'timestamp'])
       .where(`lower(miner) = lower('${parsedAddress}')`)
-      .orderBy('timestamp', 'ASC');
+      .orderBy('timestamp', 'DESC');
 
     try {
       const [blocksProduced, total] = await query.getManyAndCount();
@@ -141,7 +141,7 @@ export class AddressService {
         }),
       },
       order: {
-        hash: 'ASC',
+        timestamp: 'DESC',
       },
       take,
       skip,
@@ -167,7 +167,7 @@ export class AddressService {
         }),
       },
       order: {
-        hash: 'ASC',
+        timestamp: 'DESC',
       },
       take,
       skip,
@@ -194,11 +194,11 @@ export class AddressService {
     const totalRes = await this.txRepository.query(totalQuery, [parsedAddress]);
     if (totalRes[0].total > 0) {
       const query = `
-        SELECT t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age
+        SELECT t.id, t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age
         FROM ${this.txRepository.metadata.tableName} t
         INNER JOIN ${this.pbftRepository.metadata.tableName} p ON t."blockId" = p.id
         WHERE t.from = $1 OR t.to = $1
-        ORDER BY t.hash
+        ORDER BY p.timestamp DESC
         LIMIT $2 OFFSET $3`;
       const res = await this.txRepository.query(query, [
         parsedAddress,
@@ -288,27 +288,10 @@ export class AddressService {
       this.logger.error(error);
     }
     return {
-      totalSent: totalSent.toString(),
-      totalReceived: totalReceived.toString(),
       priceAtTimeOfCalculation: price.toFixed(6).toString(),
       currentBalance: balance.toString(),
       currentValue: currentValue.toString(),
       currency: 'USD',
     };
-  }
-
-  public async getFees(address: string): Promise<number> {
-    if (!address) {
-      throw new BadRequestException('Address not supplied!');
-    }
-    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
-    const parsedAddress = toChecksumAddress(address);
-
-    const query = `
-      SELECT SUM(t."gasUsed"::decimal) AS "gasUsedSum" 
-      FROM ${this.txRepository.metadata.tableName} t
-      WHERE t.from = $1`; // If not working use  WHERE lower(t.from) = lower($1) but it will affect performance
-    const result = await this.txRepository.query(query, [parsedAddress]);
-    return result[0].gasUsedSum || 0;
   }
 }

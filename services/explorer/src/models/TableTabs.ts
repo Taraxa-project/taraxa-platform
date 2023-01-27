@@ -15,4 +15,5 @@ export interface TabPanelProps {
 export interface TableTabsProps {
   tabs: TabModel[];
   initialValue: string | number;
+  setTabsStep?: (step: number) => void;
 }

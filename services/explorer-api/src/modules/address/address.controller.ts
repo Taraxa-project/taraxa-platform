@@ -101,13 +101,4 @@ export class AddressController {
   ): Promise<AddressDetailsResponse> {
     return this.service.getDetails(address);
   }
-
-  @Get(':address/fees')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Returns cumulative fees about the address ',
-  })
-  async getFees(@Param('address') address: string): Promise<number> {
-    return this.service.getFees(address);
-  }
 }
