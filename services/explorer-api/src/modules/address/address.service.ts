@@ -58,7 +58,7 @@ export class AddressService {
       .createQueryBuilder('pbfts')
       .select(['miner', 'timestamp'])
       .where(`lower(miner) = lower('${parsedAddress}')`)
-      .orderBy('timestamp', 'ASC');
+      .orderBy('timestamp', 'DESC');
 
     try {
       const [blocksProduced, total] = await query.getManyAndCount();
@@ -141,7 +141,7 @@ export class AddressService {
         }),
       },
       order: {
-        timestamp: 'ASC',
+        timestamp: 'DESC',
       },
       take,
       skip,
@@ -167,7 +167,7 @@ export class AddressService {
         }),
       },
       order: {
-        timestamp: 'ASC',
+        timestamp: 'DESC',
       },
       take,
       skip,
@@ -198,7 +198,7 @@ export class AddressService {
         FROM ${this.txRepository.metadata.tableName} t
         INNER JOIN ${this.pbftRepository.metadata.tableName} p ON t."blockId" = p.id
         WHERE t.from = $1 OR t.to = $1
-        ORDER BY t.id
+        ORDER BY p.timestamp DESC
         LIMIT $2 OFFSET $3`;
       const res = await this.txRepository.query(query, [
         parsedAddress,
