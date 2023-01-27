@@ -1,5 +1,10 @@
 replicaCount: 2
 
+appSecret:
+  # should we create secrets ?
+  # set to 'false' when supplying secrets from i.e. SealedSecrets controller
+  create: true 
+
 app:
   name: community-backend
   component: api
@@ -11,9 +16,22 @@ app:
   uploadBucketName: taraxa-community-default
   explorerUrl: http://explorer.default.taraxa.io
 
-  recaptchaSecret: ''
   serverPort: 1337
   dbPort: 5432
+
+  # secrets
+  secrets:
+    recaptchaSecret: ''
+    communityPrivKey: ''
+    dbUsername: ''
+    dbPassword: ''
+    jwtSecret: ''
+    kycApiToken: ''
+    kycApiSecret: ''
+    sendgridApiKey: ''
+    serviceAccount: ''
+
+
 
 nodeSelector:
   cloud.google.com/gke-nodepool: taraxa-community-default
