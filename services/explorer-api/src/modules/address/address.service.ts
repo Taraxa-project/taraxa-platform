@@ -233,24 +233,14 @@ export class AddressService {
       const totalReceivedPromise = this.txRepository.query(
         `select sum(value::decimal) as total_received from ${this.txRepository.metadata.tableName} where ${this.txRepository.metadata.tableName}.to = '${parsedAddress}';`
       );
-      const totalMinedPromise = this.txRepository.query(
-        `select sum(reward::decimal) as total_mined from ${this.pbftRepository.metadata.tableName} where miner = '${parsedAddress}';`
-      );
 
-      const [[{ total_sent }], [{ total_received }], [{ total_mined }]] =
-        await Promise.all([
-          totalSentPromise,
-          totalReceivedPromise,
-          totalMinedPromise,
-        ]);
+      const [[{ total_sent }], [{ total_received }]] = await Promise.all([
+        totalSentPromise,
+        totalReceivedPromise,
+      ]);
 
       totalSent = toBN(String(total_sent || '0'));
       totalReceived = toBN(String(total_received || '0'));
-      const fromScietificToString =
-        Intl.NumberFormat('en-US').format(total_mined);
-      const clear = fromScietificToString.replace(/\D+/g, '');
-      const totalMined = toBN(`${clear}` || '0');
-      balance = balance.add(totalMined);
       balance = balance.add(totalReceived);
       balance = balance.sub(totalSent);
     } catch (error) {
