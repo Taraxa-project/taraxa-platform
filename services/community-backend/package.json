@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "A Strapi application",
   "scripts": {
+    "install-legacy": "yarn install --ignore-engines",
     "develop": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
@@ -16,8 +17,8 @@
     "ethereumjs-util": "^7.0.10",
     "knex": "<0.20.0",
     "pg": "^8.5.1",
-    "sqlite3": "5.0.0",
-    "strapi": "3.6.8",
+    "sqlite3": "5.1.4",
+    "strapi": "3.6.11",
     "strapi-admin": "3.6.8",
     "strapi-connector-bookshelf": "3.6.8",
     "strapi-plugin-content-manager": "3.6.8",

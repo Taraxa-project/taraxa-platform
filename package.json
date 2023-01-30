@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "scripts": {
+    "install-legacy": "yarn workspace @taraxa_project/taraxa-community-backend install-legacy || yarn install",
     "build-storybook": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-ui build-storybook",
     "claim-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-claim-backend build",
     "claim-start": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-claim-backend start:dev",

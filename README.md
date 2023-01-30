@@ -10,6 +10,11 @@ The structure of the monorepo is the following:
 - Under `services` you can find a subfolder for all services being developed for the community site.
 - `package.json` and `docker-compose.yml` are your starter places to check out all the commands you can run from root.
 
+## Dependency installation
+
+Being a yarn workspaces monorepo setup the only thing you need to get started is to run the `yarn install` to fetch all the dependencies.
+**Note**: Since the inclusion of the `community-backend` the command needed to be ran in `yarn install-legacy`.
+
 ### Services
 
 To run all services locally, please execute `yarn && yarn start:platform`. Subsequently, if you want to run in docker, just run `docker-compose up` from root.
@@ -28,6 +33,10 @@ To run only the claim backend either use `yarn delegation-start` for development
 
 The community site is the interaction medium for users, a simple react app that uses the prebuilt reusable components from the `taraxa-ui`.
 To run only the community site either use `yarn watch:community` for development mode(it tracks changes in the taraxa-ui compoents and enables hot-reloading too) or `yarn community-build` and `yarn community-start:prod` for production mode.
+
+#### Community Backend
+
+The community backend is a legacy service used by the community site.
 
 #### Code management
 
