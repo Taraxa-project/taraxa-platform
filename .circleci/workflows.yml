@@ -17,6 +17,9 @@ parameters:
   build-community-backend-helm-chart-workflow:
     type: boolean
     default: false
+  build-community-site-helm-chart-workflow:
+    type: boolean
+    default: false
   run-node-status-service-workflow:
     type: boolean
     default: false
