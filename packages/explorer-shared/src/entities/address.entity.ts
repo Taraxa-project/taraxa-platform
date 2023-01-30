@@ -1,31 +1,60 @@
-import { ITaraxaAddress } from 'src/models/Address.model';
 import { ViewEntity, ViewColumn } from 'typeorm';
 
 @ViewEntity({
   expression: `
-      SELECT "miner" AS "address", COUNT("hash") AS "pbftCount" FROM "pbfts" GROUP BY "miner"
+    SELECT t.from AS "address", SUM(value::decimal) as "totalSent" FROM "transactions" t GROUP BY t.from
   `,
   materialized: true,
 })
-export class AddressEntity implements ITaraxaAddress {
-  @ViewColumn()
-  pubKey: string;
-
-  @ViewColumn()
-  transactionCount: number;
-
-  @ViewColumn()
-  balance: string;
-
+export class AddressTotalSentEntity {
   @ViewColumn()
   totalSent: string;
 
   @ViewColumn()
-  totalReceived: string;
+  address: string;
+}
 
+@ViewEntity({
+  expression: `
+    SELECT t.to AS "address", SUM(value::decimal) as "totalSent" FROM "transactions" t GROUP BY t.to
+  `,
+  materialized: true,
+})
+export class AddressTotalReceivedEntity {
+  @ViewColumn()
+  totalSent: string;
+
+  @ViewColumn()
+  address: string;
+}
+
+@ViewEntity({
+  expression: `
+    SELECT miner AS "address", SUM(reward::decimal) as "totalMined" FROM "pbfts" GROUP BY miner
+  `,
+  materialized: true,
+})
+export class AddressTotalMinedEntity {
   @ViewColumn()
   totalMined: string;
 
   @ViewColumn()
-  isContract: boolean;
+  address: string;
+}
+
+@ViewEntity({
+  expression: `
+    SELECT t.from, t.to, COUNT(*) as total FROM "transactions" t GROUP BY t.from, t.to
+  `,
+  materialized: true,
+})
+export class AddressTotalTxEntity {
+  @ViewColumn()
+  total: string;
+
+  @ViewColumn()
+  from: string;
+
+  @ViewColumn()
+  to: string;
 }

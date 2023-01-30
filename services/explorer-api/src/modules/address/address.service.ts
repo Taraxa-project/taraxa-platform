@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Raw, Repository } from 'typeorm';
-import { fromWei, isAddress, toBN, toWei } from 'web3-utils';
+import { fromWei, isAddress, toBN } from 'web3-utils';
 import {
   PbftEntity,
   DagEntity,
