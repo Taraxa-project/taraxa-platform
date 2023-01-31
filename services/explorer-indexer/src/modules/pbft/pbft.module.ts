@@ -26,7 +26,7 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
         name: Queues.NEW_DAGS,
       },
       {
-        name: Queues.STALE_TRANSACIONS,
+        name: Queues.STALE_TRANSACTIONS,
       }
     ),
   ],

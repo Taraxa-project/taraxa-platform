@@ -7,7 +7,7 @@ export enum QueueJobs {
 export enum Queues {
   NEW_PBFTS = 'new_pbfts',
   NEW_DAGS = 'new_dags',
-  STALE_TRANSACIONS = 'stale_transactions',
+  STALE_TRANSACTIONS = 'stale_transactions',
 }
 
 export enum SyncTypes {

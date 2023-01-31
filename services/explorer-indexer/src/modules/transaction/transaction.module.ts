@@ -15,7 +15,7 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
   imports: [
     TypeOrmModule.forFeature([TransactionEntity, PbftEntity]),
     BullModule.registerQueue({
-      name: Queues.STALE_TRANSACIONS,
+      name: Queues.STALE_TRANSACTIONS,
     }),
     forwardRef(() => PbftModule),
     ConnectorsModule,

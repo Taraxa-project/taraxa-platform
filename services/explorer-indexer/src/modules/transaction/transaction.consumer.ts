@@ -14,7 +14,7 @@ import TransactionService from '../transaction/transaction.service';
 import PbftService from '../pbft/pbft.service';
 
 @Injectable()
-@Processor({ name: Queues.STALE_TRANSACIONS, scope: Scope.REQUEST })
+@Processor({ name: Queues.STALE_TRANSACTIONS, scope: Scope.REQUEST })
 export class TransactionConsumer implements OnModuleInit {
   private readonly logger = new Logger(TransactionConsumer.name);
 
@@ -22,14 +22,14 @@ export class TransactionConsumer implements OnModuleInit {
     private txService: TransactionService,
     private pbftService: PbftService,
     private readonly graphQLConnector: GraphQLConnectorService,
-    @InjectQueue(Queues.STALE_TRANSACIONS)
+    @InjectQueue(Queues.STALE_TRANSACTIONS)
     private readonly txQueue: Queue
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${TransactionConsumer.name} worker`);
   }
 
-  @OnQueueError({ name: Queues.STALE_TRANSACIONS })
+  @OnQueueError({ name: Queues.STALE_TRANSACTIONS })
   async handleQueueErrors(error: Error) {
     this.logger.error(`${this.txQueue.name} queue ran into an error: `, error);
     this.txService.setRedisConnectionState(false);

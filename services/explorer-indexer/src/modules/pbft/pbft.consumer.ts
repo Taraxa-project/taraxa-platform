@@ -32,7 +32,7 @@ export class PbftConsumer implements OnModuleInit {
     private readonly dagsQueue: Queue,
     @InjectQueue(Queues.NEW_PBFTS)
     private readonly pbftsQueue: Queue,
-    @InjectQueue(Queues.STALE_TRANSACIONS)
+    @InjectQueue(Queues.STALE_TRANSACTIONS)
     private readonly txQueue: Queue
   ) {}
   onModuleInit() {

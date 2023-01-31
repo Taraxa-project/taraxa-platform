@@ -12,7 +12,7 @@ export const initializeBullBoard = (app: INestApplication) => {
   const pbftQueue = app.get<Queue>(`BullQueue_${Queues.NEW_PBFTS}`);
   const dagsQueue = app.get<Queue>(`BullQueue_${Queues.NEW_DAGS}`);
   const transactionsQueue = app.get<Queue>(
-    `BullQueue_${Queues.STALE_TRANSACIONS}`
+    `BullQueue_${Queues.STALE_TRANSACTIONS}`
   );
 
   createBullBoard({
