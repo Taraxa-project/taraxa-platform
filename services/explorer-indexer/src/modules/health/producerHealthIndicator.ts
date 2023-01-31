@@ -66,7 +66,7 @@ export class ProducerHealthIndicator extends HealthIndicator {
         break;
       }
       case 'queue_transactions': {
-        if (this.dagService) {
+        if (this.txService) {
           return this.getStatus(key, this.txService.getRedisConnectionState());
         }
         break;

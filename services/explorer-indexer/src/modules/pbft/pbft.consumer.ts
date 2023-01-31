@@ -123,22 +123,16 @@ export class PbftConsumer implements OnModuleInit {
   }
 
   async handleStaleTransactions(pbft: PbftEntity, syncType: SyncTypes) {
-    if (!pbft.transactions && pbft.transactions?.length === 0) return;
+    if (!pbft.transactions || pbft.transactions?.length === 0) return;
     const staleTxes = pbft.transactions.filter((t) => !t.status || !t.value);
     const staleCount = staleTxes?.length;
     this.logger.debug(
       `${pbft.number} has ${staleCount} stale transactions. Iterating: `
     );
     if (staleCount) {
-      for (const transaction of pbft.transactions) {
+      for (const transaction of staleTxes) {
         try {
-          if (
-            transaction &&
-            transaction.hash &&
-            !transaction.status &&
-            !transaction.value
-          ) {
-            this.logger.debug(transaction);
+          if (transaction && transaction.hash) {
             const done = await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
               hash: transaction.hash,
               type: syncType,
@@ -153,10 +147,6 @@ export class PbftConsumer implements OnModuleInit {
           this.logger.error(
             `Pushing into ${this.txQueue.name} ran into an error: ${error}`
           );
-          await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
-            hash: transaction.hash,
-            type: syncType,
-          } as TxQueueData);
         }
       }
     }

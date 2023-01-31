@@ -9,7 +9,7 @@ import general from '../../config/general';
 import { ConnectorsModule } from '../connectors';
 import { BullModule } from '@nestjs/bull';
 import * as dotenv from 'dotenv';
-import { Queues } from 'src/types';
+import { Queues } from '../../types';
 
 dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
