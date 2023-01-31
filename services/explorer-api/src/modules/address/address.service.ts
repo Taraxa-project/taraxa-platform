@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Raw, Repository } from 'typeorm';
-import { fromWei, isAddress, toBN, toWei } from 'web3-utils';
+import { fromWei, isAddress, toBN } from 'web3-utils';
 import {
   PbftEntity,
   DagEntity,
@@ -184,37 +184,27 @@ export class AddressService {
   ): Promise<TransactionsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     const { take, skip } = filterDto;
+    const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
 
-    const totalQuery = `SELECT COUNT(*) as total
-      FROM ${this.txRepository.metadata.tableName} t
-      INNER JOIN ${this.pbftRepository.metadata.tableName} p ON t."blockId" = p.id
-      WHERE t.from = $1 OR t.to = $1`;
-
-    const totalRes = await this.txRepository.query(totalQuery, [parsedAddress]);
-    if (totalRes[0].total > 0) {
-      const query = `
-        SELECT t.id, t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", p.number as block, p.timestamp as age
+    const query = `
+        SELECT t.id, t.hash, t.from, t.to, t.status, t.value, t."gasUsed", t."gasPrice", t."blockNumber" as block, t."blockTimestamp" as age
         FROM ${this.txRepository.metadata.tableName} t
-        INNER JOIN ${this.pbftRepository.metadata.tableName} p ON t."blockId" = p.id
         WHERE t.from = $1 OR t.to = $1
-        ORDER BY p.timestamp DESC
+        ORDER BY t.id DESC
         LIMIT $2 OFFSET $3`;
-      const res = await this.txRepository.query(query, [
-        parsedAddress,
-        take,
-        skip,
-      ]);
-      return {
-        data: res,
-        total: totalRes[0].total,
-      };
-    } else {
-      return {
-        data: [],
-        total: 0,
-      };
-    }
+    const res = await this.txRepository.query(query, [
+      parsedAddress,
+      Number(take) + growthFactor, // always return 1 more to show next btn in pagination
+      skip,
+    ]);
+    // Remove last element from array
+    const txes = res;
+    txes.splice(-growthFactor, growthFactor);
+    return {
+      data: res,
+      total: res.length >= take ? res.length + growthFactor : res.length,
+    };
   }
 
   public async getDetails(address: string): Promise<AddressDetailsResponse> {

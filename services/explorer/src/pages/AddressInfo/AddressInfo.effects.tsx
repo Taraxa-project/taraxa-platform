@@ -187,7 +187,7 @@ export const useAddressInfoEffects = (
   useEffect(() => {
     if (txData?.data && txData?.total) {
       setTransactions(formatToTransaction(txData.data));
-      setTotalTxCount(txData?.total);
+      setTotalTxCount(totalTxCount + txData?.total);
     }
   }, [txData]);
 
@@ -247,6 +247,7 @@ export const useAddressInfoEffects = (
   const handleTxChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setTotalTxCount(0);
     setTxRowsPerPage(parseInt(event.target.value, 10));
     setTxPage(0);
   };

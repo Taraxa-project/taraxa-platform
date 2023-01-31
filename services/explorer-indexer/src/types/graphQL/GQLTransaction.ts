@@ -9,5 +9,4 @@ export interface IGQLTransaction
     address?: string;
   };
   input?: string;
-  transactionIndex?: string;
 }

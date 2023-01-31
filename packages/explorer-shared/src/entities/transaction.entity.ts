@@ -94,10 +94,10 @@ export class TransactionEntity extends BaseEntity implements ITransaction {
   blockHash?: string;
 
   @Column({ nullable: true })
-  @IsString()
-  blockNumber?: string;
+  @IsNumber()
+  blockNumber?: number;
 
   @Column({ nullable: true })
-  @IsString()
-  transactionIndex?: string;
+  @IsNumber()
+  blockTimestamp?: number;
 }
