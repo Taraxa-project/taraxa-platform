@@ -195,14 +195,14 @@ export class AddressService {
         LIMIT $2 OFFSET $3`;
     const res = await this.txRepository.query(query, [
       parsedAddress,
-      Number(take) + growthFactor, // always return 1 more to show next btn in pagination
+      Number(take) + growthFactor, // always return growthFactor more to show next btn in pagination
       skip,
     ]);
-    // Remove last element from array
+    // Remove last growthFactor (elements) from array
     const txes = res;
     txes.splice(-growthFactor, growthFactor);
     return {
-      data: res,
+      data: txes,
       total: res.length >= take ? res.length + growthFactor : res.length,
     };
   }
