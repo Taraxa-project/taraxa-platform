@@ -22,6 +22,7 @@ export default class TransactionService {
     private txRepository: Repository<TransactionEntity>
   ) {
     this.txRepository = txRepository;
+    this.isRedisConnected = true;
   }
 
   public getRedisConnectionState() {
