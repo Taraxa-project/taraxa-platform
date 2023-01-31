@@ -56,30 +56,20 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
-{{- define "community.common.metaLabels" -}}
-chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-heritage: {{ .Release.Service }}
-{{- end -}}
-
-
 {{- define "community.backend.labels" -}}
 {{ include "community.backend.selectorLabels" . }}
-{{ include "community.common.metaLabels" . }}
 {{- end -}}
 
 {{- define "community.backend.selectorLabels" -}}
 component: {{ .Values.backend.name | quote }}
-{{ include "community.common.metaLabels" . }}
 {{- end -}}
 
 {{- define "community.frontend.labels" -}}
 {{ include "community.frontend.selectorLabels" . }}
-{{ include "community.common.metaLabels" . }}
 {{- end -}}
 
 {{- define "community.frontend.selectorLabels" -}}
 component: {{ .Values.frontend.name | quote }}
-{{ include "community.common.metaLabels" . }}
 {{- end -}}
 
 
