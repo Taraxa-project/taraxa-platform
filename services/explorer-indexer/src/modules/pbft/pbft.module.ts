@@ -1,5 +1,5 @@
 import { BullModule } from '@nestjs/bull';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PbftEntity, TransactionEntity } from '@taraxa_project/explorer-shared';
 import { Queues } from 'src/types';
@@ -14,8 +14,8 @@ dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 @Module({
   imports: [
-    TransactionModule,
-    DagModule,
+    forwardRef(() => TransactionModule),
+    forwardRef(() => DagModule),
     TypeOrmModule.forFeature([PbftEntity, TransactionEntity]),
     ConnectorsModule,
     BullModule.registerQueue(
@@ -24,6 +24,9 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
       },
       {
         name: Queues.NEW_DAGS,
+      },
+      {
+        name: Queues.STALE_TRANSACIONS,
       }
     ),
   ],

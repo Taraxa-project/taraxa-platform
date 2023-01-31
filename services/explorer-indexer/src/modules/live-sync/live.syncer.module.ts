@@ -27,12 +27,14 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
         };
       },
     }),
-    BullModule.registerQueue({
-      name: Queues.NEW_PBFTS,
-    }),
-    BullModule.registerQueue({
-      name: Queues.NEW_DAGS,
-    }),
+    BullModule.registerQueue(
+      {
+        name: Queues.NEW_PBFTS,
+      },
+      {
+        name: Queues.NEW_DAGS,
+      }
+    ),
     DagModule,
     PbftModule,
     TransactionModule,
