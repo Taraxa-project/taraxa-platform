@@ -142,7 +142,7 @@ jobs:
           name: Build image
           shell: /bin/bash -eo pipefail
           command: |
-            docker build --build-arg NODE_ENV=${ENV} -t taraxa-community-backend:${VERSION} -f services/community-backend/Dockerfile .
+            docker build --build-arg NODE_ENV=${ENV} -t taraxa-community-backend:${VERSION} -f legacy/community-backend/Dockerfile .
       - run:
           name: Tag and push images
           shell: /bin/bash -eo pipefail
@@ -499,16 +499,6 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
-      - deploy-community-site:
-          requires:
-            - build-community-site
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-          context:
-            - K8S
   community-site-helm-chart:
     when:
       or:
@@ -550,7 +540,7 @@ workflows:
     jobs:
       - helm-release/chart-publish:
           develop: true
-          charts-dir: services/community-backend/charts
+          charts-dir: legacy/community-backend/charts
           chart-name: community-backend
           chartmuseum-url: https://charts.gcp.taraxa.io
           chartmuseum-username: HELM_REPO_USERNAME
