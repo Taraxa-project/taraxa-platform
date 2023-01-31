@@ -1,19 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
+import { TOKEN_PRICE_API_ENDPOINT } from './types';
 
-const getByAddress = (endpoint: string, address: string) => {
-  if (!address || !endpoint) {
-    return;
-  }
-  const url = `${endpoint}/address/${address}/details`;
-  // eslint-disable-next-line consistent-return
-  return axios.get(url);
+const getTokenPrice = () => {
+  return axios.get(TOKEN_PRICE_API_ENDPOINT);
 };
 
-export const useGetDetailsForAddress = (
-  endpoint: string,
-  address: string
-): {
+export const useGetTokenPrice = (): {
   data: AxiosResponse<any>;
   isError: boolean;
   error: unknown;
@@ -21,14 +14,13 @@ export const useGetDetailsForAddress = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['details-by-address', address],
-    () => getByAddress(endpoint, address),
+    ['token-price'],
+    () => getTokenPrice(),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console
         console.log('ERROR: ', error);
       },
-      enabled: !!address,
     }
   );
   return {

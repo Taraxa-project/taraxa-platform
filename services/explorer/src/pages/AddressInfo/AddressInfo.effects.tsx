@@ -4,12 +4,14 @@ import { ethers } from 'ethers';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails, BlockData, Transaction } from '../../models';
 import {
+  addressDetailsQuery,
   useGetDagsByAddress,
-  useGetDetailsForAddress,
   useGetPbftsByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
 import { displayWeiOrTara, fromWeiToTara } from '../../utils';
+import { useQuery } from 'urql';
+import { useGetTokenPrice } from '../../api/fetchTokenPrice';
 
 export interface TransactionResponse {
   hash: string;
@@ -108,21 +110,30 @@ export const useAddressInfoEffects = (
   });
 
   const {
-    data: details,
-    isFetching: isFetchingDetails,
-    isLoading: isLoadingDetails,
-  } = useGetDetailsForAddress(backendEndpoint, account);
+    data: tokenPriceData,
+    isFetching: isFetchingTokenPrice,
+    isLoading: isLoadingTokenPrice,
+  } = useGetTokenPrice();
+
+  const [{ fetching: fetchingDetails, data: accountDetails }] = useQuery({
+    query: addressDetailsQuery,
+    variables: {
+      account,
+    },
+    pause: !account,
+  });
 
   useEffect(() => {
     if (
+      fetchingDetails ||
+      isFetchingTokenPrice ||
+      isLoadingTokenPrice ||
       isFetchingDags ||
       isLoadingDags ||
       isFetchingPbfts ||
       isLoadingPbfts ||
       isFetchingTx ||
-      isLoadingTx ||
-      isFetchingDetails ||
-      isLoadingDetails
+      isLoadingTx
     ) {
       initLoading();
       setShowLoadingSkeleton(true);
@@ -131,25 +142,34 @@ export const useAddressInfoEffects = (
       setShowLoadingSkeleton(false);
     }
   }, [
+    fetchingDetails,
+    isFetchingTokenPrice,
+    isLoadingTokenPrice,
     isFetchingDags,
     isLoadingDags,
     isFetchingPbfts,
     isLoadingPbfts,
     isFetchingTx,
     isLoadingTx,
-    isFetchingDetails,
-    isLoadingDetails,
   ]);
 
   useEffect(() => {
-    if (dagsData?.data && dagsData?.total) {
+    if (
+      dagsData?.data &&
+      dagsData?.total !== undefined &&
+      dagsData?.total !== null
+    ) {
       setDagBlocks(dagsData?.data as BlockData[]);
       setTotalDagCount(dagsData?.total);
     }
   }, [dagsData]);
 
   useEffect(() => {
-    if (pbftsData?.data && pbftsData?.total) {
+    if (
+      pbftsData?.data &&
+      pbftsData?.total !== undefined &&
+      pbftsData?.total !== null
+    ) {
       setPbftBlocks(pbftsData?.data as BlockData[]);
       setTotalPbftCount(pbftsData?.total);
     }
@@ -185,7 +205,7 @@ export const useAddressInfoEffects = (
   };
 
   useEffect(() => {
-    if (txData?.data && txData?.total) {
+    if (txData?.data && txData?.total !== undefined && txData?.total !== null) {
       setTransactions(formatToTransaction(txData.data));
       setTotalTxCount(totalTxCount + txData?.total);
     }
@@ -198,19 +218,31 @@ export const useAddressInfoEffects = (
     addressDetails.dagBlocks = dagsData?.total || 0;
     addressDetails.pbftBlocks = pbftsData?.total || 0;
 
-    if (details?.data) {
+    if (accountDetails) {
+      const account = accountDetails?.block?.account;
       addressDetails.balance = fromWeiToTara(
-        ethers.BigNumber.from(details?.data.currentBalance)
+        ethers.BigNumber.from(account?.balance)
       );
-      addressDetails.value = details?.data.currentValue;
-      addressDetails.valueCurrency = details?.data?.currency;
-      addressDetails.pricePerTara = details?.data?.priceAtTimeOfCalculation;
+      addressDetails.transactionCount = account?.transactionCount;
     }
-    if (txData?.data) {
-      addressDetails.transactionCount = txData?.total;
+
+    if (tokenPriceData?.data) {
+      const price = tokenPriceData.data[0].current_price as number;
+      const priceAtTimeOfCalculation = Number(price.toFixed(6));
+      addressDetails.pricePerTara = priceAtTimeOfCalculation;
+      addressDetails.valueCurrency = 'USD';
+
+      if (accountDetails?.block?.account) {
+        const currentValue =
+          +ethers.utils.formatUnits(
+            accountDetails?.block?.account?.balance,
+            'ether'
+          ) * price;
+        addressDetails.value = `${currentValue}`;
+      }
     }
     setAddressInfoDetails(addressDetails);
-  }, [details, dagsData, pbftsData, txData]);
+  }, [accountDetails, tokenPriceData, dagsData, pbftsData]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
