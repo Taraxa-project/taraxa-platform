@@ -6,18 +6,26 @@ import {
 } from '@nestjs/terminus';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
+import TransactionService from '../transaction/transaction.service';
 
 @Injectable()
 export class SyncerHealthIndicator extends HealthIndicator {
   constructor(
     private readonly pbftService: PbftService,
-    private readonly dagService: DagService
+    private readonly dagService: DagService,
+    private readonly txService: TransactionService
   ) {
     super();
   }
 
   async isHealthy(
-    key: 'pbft' | 'dag' | 'queue_pbfts' | 'queue_dags' | 'ws'
+    key:
+      | 'pbft'
+      | 'dag'
+      | 'queue_pbfts'
+      | 'queue_dags'
+      | 'queue_transactions'
+      | 'ws'
   ): Promise<HealthIndicatorResult> {
     switch (key) {
       case 'pbft': {
@@ -52,6 +60,12 @@ export class SyncerHealthIndicator extends HealthIndicator {
       case 'queue_dags': {
         if (this.dagService) {
           return this.getStatus(key, this.dagService.getRedisConnectionState());
+        }
+        break;
+      }
+      case 'queue_transactions': {
+        if (this.dagService) {
+          return this.getStatus(key, this.txService.getRedisConnectionState());
         }
         break;
       }
