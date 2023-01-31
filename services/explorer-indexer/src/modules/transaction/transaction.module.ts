@@ -1,11 +1,28 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TransactionEntity } from '@taraxa_project/explorer-shared';
+import { PbftEntity, TransactionEntity } from '@taraxa_project/explorer-shared';
+import { PbftModule } from '../pbft';
+import { TransactionConsumer } from './transaction.consumer';
 import TransactionService from './transaction.service';
+import * as dotenv from 'dotenv';
+import { ConnectorsModule } from '../connectors';
+import { Queues } from 'src/types';
+import { BullModule } from '@nestjs/bull';
 
+dotenv.config();
+const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 @Module({
-  imports: [TypeOrmModule.forFeature([TransactionEntity])],
-  providers: [TransactionService],
+  imports: [
+    TypeOrmModule.forFeature([TransactionEntity, PbftEntity]),
+    BullModule.registerQueue({
+      name: Queues.STALE_TRANSACIONS,
+    }),
+    forwardRef(() => PbftModule),
+    ConnectorsModule,
+  ],
+  providers: isProducer
+    ? [TransactionService]
+    : [TransactionService, TransactionConsumer],
   controllers: [],
   exports: [TransactionService],
 })
