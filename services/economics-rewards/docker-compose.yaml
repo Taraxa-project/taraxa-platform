@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  rewards:
+    build:
+      context: ../../
+      target: build
+      dockerfile: services/economics-rewards/Dockerfile
+    command: yarn workspace @taraxa_project/economics-rewards start:prod
+    volumes:
+      - ./data/economics:/app/data
+      - /app/node_modules
+    environment:
+      PROVIDER: ws://127.0.0.1:8777
+      DB_DATABASE: /app/data/economics.sql
+      DPOS_CONTRACT_ADDRESS: "0x00000000000000000000000000000000000000fe"
+    depends_on:
+      taraxa-node:
+        condition: service_healthy
+    restart: always
+    network_mode: host
+  taraxa-node:
+    image: gcr.io/jovial-meridian-249123/taraxa-node:pr-2253-9150
+    restart: always
+    entrypoint: /usr/bin/sh
+    command: >
+      -c "mkdir -p /opt/taraxa_data/data &&
+          taraxad --chain mainnet --wallet /opt/taraxa_data/conf/wallet.json --config /opt/taraxa_data/conf/mainnet.json --data-dir /opt/taraxa_data/data --overwrite-config --enable-test-rpc"
+    ports:
+      - 7777:7777
+      - 8777:8777
+    volumes:
+      - ./data/node:/opt/taraxa_data/data
+    network_mode: host
+    healthcheck:
+      test: curl --silent --show-error http://127.0.0.1:8777 || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
