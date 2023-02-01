@@ -12,3 +12,4 @@ data:
   MAINNET_API_HOST: {{ .Values.app.mainnetApiHost | quote }}
   TESTNET_API_HOST: {{ .Values.app.testnetApiHost | quote }}
   DEVNET_API_HOST: {{ .Values.app.devnetApiHost | quote }}
+  TOKEN_PRICE_API_ENDPOINT: {{ .Values.app.tokenInfoEndpoint | quote }}
