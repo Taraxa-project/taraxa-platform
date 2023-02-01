@@ -178,7 +178,7 @@ export const useAddressInfoEffects = (
       dagsData?.total !== null
     ) {
       setDagBlocks(dagsData?.data as BlockData[]);
-      setTotalDagCount(dagsData?.total);
+      setTotalDagCount(totalDagCount + dagsData?.total);
     }
   }, [dagsData]);
 
@@ -189,7 +189,7 @@ export const useAddressInfoEffects = (
       pbftsData?.total !== null
     ) {
       setPbftBlocks(pbftsData?.data as BlockData[]);
-      setTotalPbftCount(pbftsData?.total);
+      setTotalPbftCount(totalPbftCount + pbftsData?.total);
     }
   }, [pbftsData]);
 
@@ -287,6 +287,7 @@ export const useAddressInfoEffects = (
   const handlePbftChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setTotalPbftCount(0);
     setPbftRowsPerPage(parseInt(event.target.value, 10));
     setPbftPage(0);
   };
@@ -298,6 +299,7 @@ export const useAddressInfoEffects = (
   const handleDagChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setTotalDagCount(0);
     setDagRowsPerPage(parseInt(event.target.value, 10));
     setDagPage(0);
   };

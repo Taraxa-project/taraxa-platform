@@ -150,23 +150,28 @@ export class AddressService {
   ): Promise<DagsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     const { take, skip } = filterDto;
+    const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
-    const [data, total] = await this.dagRepository.findAndCount({
-      select: ['timestamp', 'level', 'hash', 'transactionCount'],
-      where: {
-        author: Raw((alias) => `${alias} = :parsedAddress`, {
-          parsedAddress,
-        }),
-      },
-      order: {
-        timestamp: 'DESC',
-      },
-      take,
+
+    const query = `
+      SELECT d.timestamp, d.level, d.hash, d."transactionCount"
+      FROM ${this.dagRepository.metadata.tableName} d
+      WHERE d.author = $1
+      ORDER BY d.timestamp DESC
+      LIMIT $2 OFFSET $3`;
+
+    const res = await this.dagRepository.query(query, [
+      parsedAddress,
+      Number(take) + growthFactor, // always return growthFactor more to show next btn in pagination
       skip,
-    });
+    ]);
+
+    // Remove last growthFactor (elements) from array
+    const dags = res;
+    dags.splice(-growthFactor, growthFactor);
     return {
-      data: data,
-      total: total,
+      data: dags,
+      total: res.length >= take ? res.length + growthFactor : res.length,
     };
   }
 
@@ -175,24 +180,30 @@ export class AddressService {
     filterDto: PaginationDto
   ): Promise<PbftsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
+
     const { take, skip } = filterDto;
+    const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
-    const [data, total] = await this.pbftRepository.findAndCount({
-      select: ['timestamp', 'number', 'hash', 'transactionCount'],
-      where: {
-        miner: Raw((alias) => `${alias} = :parsedAddress`, {
-          parsedAddress,
-        }),
-      },
-      order: {
-        timestamp: 'DESC',
-      },
-      take,
+
+    const query = `
+      SELECT p.timestamp, p.number, p.hash, p."transactionCount"
+      FROM ${this.pbftRepository.metadata.tableName} p
+      WHERE p.miner = $1
+      ORDER BY p.timestamp DESC
+      LIMIT $2 OFFSET $3`;
+
+    const res = await this.pbftRepository.query(query, [
+      parsedAddress,
+      Number(take) + growthFactor, // always return growthFactor more to show next btn in pagination
       skip,
-    });
+    ]);
+
+    // Remove last growthFactor (elements) from array
+    const pbfts = res;
+    pbfts.splice(-growthFactor, growthFactor);
     return {
-      data: data,
-      total: total,
+      data: pbfts,
+      total: res.length >= take ? res.length + growthFactor : res.length,
     };
   }
 
