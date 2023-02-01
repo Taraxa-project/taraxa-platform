@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, map } from 'rxjs';
@@ -22,6 +22,7 @@ export function request(name: string, params: string[] = [], id = 0) {
 
 @Injectable()
 export class RPCConnectorService {
+  private readonly logger = new Logger(RPCConnectorService.name);
   private readonly connectionURL: string;
   constructor(
     private readonly configService: ConfigService,
@@ -35,19 +36,16 @@ export class RPCConnectorService {
   public async send(request: RPCRequest) {
     if (!this.connectionURL) throw new Error('RPC Connection URL not set!');
     return firstValueFrom(
-      this.httpService
-        .post(this.connectionURL, request)
-        .pipe(
-          catchError(() => {
-            throw new ForbiddenException('API not available');
-          })
-        )
-        .pipe(
-          map((res: AxiosResponse) => {
-            // console.log(res);
-            return res.data?.result;
-          })
-        )
+      this.httpService.post(this.connectionURL, request).pipe(
+        map((res: AxiosResponse) => {
+          // console.log(res);
+          return res.data?.result;
+        }),
+        catchError((err) => {
+          this.logger.error(err);
+          throw new ForbiddenException('API not available');
+        })
+      )
     );
   }
 
@@ -113,5 +111,17 @@ export class RPCConnectorService {
 
   public async getTransactionReceipt(hash: string) {
     return await this.send(request('eth_getTransactionReceipt', [hash]));
+  }
+
+  public async getConfig(): Promise<{ [key: string]: string }> {
+    let balances;
+    if (this.connectionURL.includes('mainnet')) {
+      balances = (await this.send(request('taraxa_getConfig', [], 1)))
+        ?.final_chain?.state?.genesis_balances;
+    } else {
+      balances = (await this.send(request('taraxa_getConfig', [], 1)))
+        ?.initial_balances;
+    }
+    return balances;
   }
 }

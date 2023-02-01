@@ -1,0 +1,10 @@
+{
+  "provider": "google-cloud-storage",
+  "providerOptions": {
+    "bucketName": "taraxa-community-dev",
+    "publicFiles": false,
+    "uniform": false,
+    "basePath": ""
+  }
+}
+

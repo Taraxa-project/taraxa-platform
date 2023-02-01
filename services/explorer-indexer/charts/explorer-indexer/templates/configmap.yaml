@@ -13,6 +13,7 @@ data:
   DB_NAME: {{ .Values.app.dbName | quote }}
   QUEUE_HOST: {{ .Values.app.queueHost | quote }}
   QUEUE_PORT: {{ .Values.app.queuePort | quote }}
+  QUEUE_MAX_LOCK_DURATION: {{ .Values.app.queueMaxLockDuration | quote }}
   NODE_WS_ENDPOINT: {{ .Values.app.wsEndpoint | quote }}
   NODE_RPC_ENDPOINT: {{ .Values.app.rpcEndpoint | quote }}
   NODE_GRAPHQL_ENDPOINT: {{ .Values.app.graphQLEndpoint | quote }}

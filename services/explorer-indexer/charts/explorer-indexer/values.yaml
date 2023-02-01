@@ -14,6 +14,7 @@ app:
   dbName: explorer-indexer
   queueHost: "queue-host"
   queuePort: 6379
+  queueMaxLockDuration: 30000
   wsEndpoint: "wss://ws.default.taraxa.io"
   rpcEndpoint: "https://rpc.default.taraxa.io/"
   graphQLEndpoint: "https://graphql.default.taraxa.io/"

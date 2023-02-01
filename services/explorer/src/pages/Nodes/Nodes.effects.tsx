@@ -16,6 +16,7 @@ const cols: ColumnData[] = [
 export const useNodesEffects = () => {
   const { initLoading, finishLoading } = useExplorerLoader();
   const { backendEndpoint, currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
 
   const weekNo = DateTime.now().weekNumber;
   const year = DateTime.now().year;
@@ -30,7 +31,7 @@ export const useNodesEffects = () => {
   const [blocks, setBlocks] = useState<number>(0);
 
   const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = useState(0);
   const {
     data: nodesResult,
     isFetching,
@@ -73,10 +74,9 @@ export const useNodesEffects = () => {
 
   useEffect(() => {
     if (nodesResult?.data && nodesResult?.total) {
-      // setTableData(
-      //   tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
-      // );
-      setTableData(formatNodesToTable(nodesResult.data as RankedNode[]));
+      setTableData(
+        tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
+      );
       setTotalCount(nodesResult?.total);
     }
   }, [nodesResult]);
@@ -88,9 +88,10 @@ export const useNodesEffects = () => {
   }, [totalBlocks]);
 
   useEffect(() => {
-    setTableData([]);
-    setBlocks(0);
-  }, [currentNetwork]);
+    if (currentNetwork !== network) {
+      window.location.reload();
+    }
+  }, [currentNetwork, network]);
 
   const handleChangePage = (newPage: number) => {
     setPage(newPage);

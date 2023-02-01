@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { AddressInfo, PageTitle } from '../../components';
 import { useAddressInfoEffects } from './AddressInfo.effects';
+import AddressLoadingSkeleton from './AddressLoadingSkeleton';
 
 const AddressInfoPage = (): JSX.Element => {
   const { account } = useParams();
@@ -25,6 +26,9 @@ const AddressInfoPage = (): JSX.Element => {
     txPage,
     handleTxChangePage,
     handleTxChangeRowsPerPage,
+    showLoadingSkeleton,
+    tabsStep,
+    setTabsStep,
   } = useAddressInfoEffects(account);
 
   return (
@@ -33,27 +37,33 @@ const AddressInfoPage = (): JSX.Element => {
         title='Address info'
         subtitle='Detailed TARAXA address information'
       />
-      <AddressInfo
-        details={addressInfoDetails}
-        transactions={transactions}
-        dagBlocks={dagBlocks}
-        pbftBlocks={pbftBlocks}
-        totalPbftCount={totalPbftCount}
-        rowsPbftPerPage={rowsPbftPerPage}
-        pbftPage={pbftPage}
-        handlePbftChangePage={handlePbftChangePage}
-        handlePbftChangeRowsPerPage={handlePbftChangeRowsPerPage}
-        totalDagCount={totalDagCount}
-        rowsDagPerPage={rowsDagPerPage}
-        dagPage={dagPage}
-        handleDagChangePage={handleDagChangePage}
-        handleDagChangeRowsPerPage={handleDagChangeRowsPerPage}
-        totalTxCount={totalTxCount}
-        rowsTxPerPage={rowsTxPerPage}
-        txPage={txPage}
-        handleTxChangePage={handleTxChangePage}
-        handleTxChangeRowsPerPage={handleTxChangeRowsPerPage}
-      />
+      {showLoadingSkeleton ? (
+        <AddressLoadingSkeleton />
+      ) : (
+        <AddressInfo
+          details={addressInfoDetails}
+          transactions={transactions}
+          dagBlocks={dagBlocks}
+          pbftBlocks={pbftBlocks}
+          totalPbftCount={totalPbftCount}
+          rowsPbftPerPage={rowsPbftPerPage}
+          pbftPage={pbftPage}
+          handlePbftChangePage={handlePbftChangePage}
+          handlePbftChangeRowsPerPage={handlePbftChangeRowsPerPage}
+          totalDagCount={totalDagCount}
+          rowsDagPerPage={rowsDagPerPage}
+          dagPage={dagPage}
+          handleDagChangePage={handleDagChangePage}
+          handleDagChangeRowsPerPage={handleDagChangeRowsPerPage}
+          totalTxCount={totalTxCount}
+          rowsTxPerPage={rowsTxPerPage}
+          txPage={txPage}
+          handleTxChangePage={handleTxChangePage}
+          handleTxChangeRowsPerPage={handleTxChangeRowsPerPage}
+          tabsStep={tabsStep}
+          setTabsStep={setTabsStep}
+        />
+      )}
     </>
   );
 };

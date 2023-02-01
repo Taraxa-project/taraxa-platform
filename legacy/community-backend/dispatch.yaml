@@ -1,0 +1,60 @@
+dispatch: 
+# Admin interface
+   - url: qa.community.taraxa.io/admin
+     service: qa-community-backend
+
+   - url: qa.community.taraxa.io/admin/*
+     service: qa-community-backend
+
+   - url: qa.community.taraxa.io/content-manager/*
+     service: qa-community-backend 
+
+   - url: qa.community.taraxa.io/content-type-builder/*
+     service: qa-community-backend 
+
+   - url: qa.community.taraxa.io/users-permissions/*
+     service: qa-community-backend 
+
+   - url: qa.community.taraxa.io/upload/*
+     service: qa-community-backend 
+
+# Backend
+   - url: api.qa.community.taraxa.io/*
+     service: qa-community-backend
+
+# Frontend
+   - url: qa.community.taraxa.io/*
+     service: qa-community-frontend
+
+##
+## PROD
+##
+# Admin Interface
+   - url: community.taraxa.io/admin
+     service: prod-community-backend
+
+   - url: community.taraxa.io/admin/*
+     service: prod-community-backend
+
+   - url: community.taraxa.io/content-manager/*
+     service: prod-community-backend 
+   
+   - url: community.taraxa.io/content-type-builder/*
+     service: prod-community-backend 
+
+   - url: community.taraxa.io/users-permissions/*
+     service: prod-community-backend 
+
+   - url: community.taraxa.io/upload/*
+     service: prod-community-backend 
+
+# Backend
+   - url: api.community.taraxa.io/*
+     service: prod-community-backend
+
+# Frontend
+   - url: www.community.taraxa.io/*
+     service: prod-community-frontend
+
+   - url: community.taraxa.io/*
+     service: prod-community-frontend

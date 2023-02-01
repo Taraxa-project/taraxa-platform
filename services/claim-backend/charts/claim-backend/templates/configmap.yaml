@@ -9,6 +9,7 @@ data:
   PROVIDER: {{ .Values.app.provider | quote }}
   COMMUNITY_SITE_API_URL: {{ .Values.app.communitySiteApiUrl | quote }}
   DELEGATION_API_URL: {{ .Values.app.delegationApiUrl | quote }}
+  GRAPH_QL_CLAIM_ENDPOINT: {{ .Values.app.indexerGraphQLEndpoint | quote }}
   SERVER_PORT: {{ .Values.app.serverPort | quote }}
   DB_HOST: {{ .Values.app.dbHost | quote }}
   DB_PORT: {{ .Values.app.dbPort | quote }}

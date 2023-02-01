@@ -1,6 +1,7 @@
 import React from 'react';
 import { CircularProgress } from '@mui/material';
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
+import { DateTime } from 'luxon';
 import moment from 'moment';
 import { HashLink } from '../components/Links';
 import {
@@ -89,19 +90,32 @@ export const toTransactionTableRow = (
 };
 
 export const timestampToAge = (timestamp: string | number): string => {
-  if (!timestamp) return '0';
-  let age = Math.floor(+new Date() / 1000 - +timestamp);
-  const days = Math.floor(age / 86400);
-  age -= Math.floor(86400 * days);
-  const hours = Math.floor(age / 3600);
-  age -= Math.floor(3600 * hours);
-  const minutes = Math.floor(age / 60);
-  age -= Math.floor(60 * minutes);
+  if (!timestamp) return 'NA';
+  const date = DateTime.fromMillis(+timestamp * 1000, { zone: 'UTC' });
+  const currentDate = DateTime.local();
+  if (date > currentDate) {
+    return '0 second(s) ago';
+  }
+  const diff = currentDate.diff(date, [
+    'years',
+    'months',
+    'weeks',
+    'days',
+    'hours',
+    'minutes',
+    'seconds',
+  ]);
 
-  const ageString = `${days > 0 ? `${days} day(s), ` : ''}${
-    hours > 0 ? `${hours} hour(s), ` : ''
-  } ${minutes ? `${minutes} minute(s), ` : ''} ${age ? `${age}s` : 'ago'}`;
-  return ageString;
+  let age = '';
+  if (diff.years) age += `${Math.round(diff.years)} year(s) `;
+  else if (diff.months) age += `${Math.round(diff.months)} month(s) `;
+  else if (diff.weeks) age += `${Math.round(diff.weeks)} week(s) `;
+  else if (diff.days) age += `${Math.round(diff.days)} day(s) `;
+  else if (diff.hours) age += `${Math.round(diff.hours)} hour(s) `;
+  else if (diff.minutes) age += `${Math.round(diff.minutes)} minute(s) `;
+  else if (diff.seconds) age += `${Math.round(diff.seconds)} second(s) `;
+
+  return `${age}ago`;
 };
 
 export const toBlockTableRow = (

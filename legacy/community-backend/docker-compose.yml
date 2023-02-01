@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  strapi:
+    image: strapi/strapi
+    restart: always
+    env_file: .env
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - .:/srv/app
+    ports:
+      - "1337:1337"
+    depends_on:
+      - db
+  db:
+    image: postgres
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - strapidata:/data/db
+    ports:
+      - "5432:5432"
+
+volumes:
+  strapidata:

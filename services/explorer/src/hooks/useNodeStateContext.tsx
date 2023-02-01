@@ -37,8 +37,7 @@ export const NodeStateProvider = ({
   }, [data]);
 
   useEffect(() => {
-    if (fetching) return;
-
+    if (fetching || window.location.pathname !== '/') return;
     const timerId = setTimeout(() => {
       reexecuteQuery({ requestPolicy: 'network-only' });
     }, POOLING_INTERVAL);

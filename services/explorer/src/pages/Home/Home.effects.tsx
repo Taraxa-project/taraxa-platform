@@ -113,13 +113,7 @@ export const useHomeEffects = () => {
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
-        hashElement: (
-          <HashLink
-            width='auto'
-            linkType={HashLinkType.BLOCKS}
-            hash={tx.hash}
-          />
-        ),
+        hashElement: <HashLink linkType={HashLinkType.BLOCKS} hash={tx.hash} />,
       };
     });
     return {
@@ -135,9 +129,7 @@ export const useHomeEffects = () => {
         hash: tx.hash,
         transactionCount: tx.transactionCount,
         timeSince: timestampToAge(tx.timestamp),
-        hashElement: (
-          <HashLink width='auto' linkType={HashLinkType.PBFT} hash={tx.hash} />
-        ),
+        hashElement: <HashLink linkType={HashLinkType.PBFT} hash={tx.hash} />,
       };
     });
     return {

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  deZeroX,
   IPBFT,
   ITransaction,
   PbftEntity,
@@ -10,6 +11,7 @@ import {
 } from '@taraxa_project/explorer-shared';
 import { IGQLTransaction } from 'src/types';
 import { Repository } from 'typeorm';
+import { toBN } from 'web3-utils';
 
 @Injectable()
 export default class TransactionService {
@@ -38,8 +40,8 @@ export default class TransactionService {
       from: zeroX(gqlTx.from?.address),
       nonce: Number(gqlTx.nonce || null),
       blockHash: zeroX(gqlTx.block?.hash),
-      blockNumber: gqlTx.block?.number + '',
-      transactionIndex: gqlTx.index + '',
+      blockNumber: +gqlTx.block?.number,
+      blockTimestamp: +gqlTx.block?.timestamp,
     };
     return iTx;
   }
@@ -117,5 +119,27 @@ export default class TransactionService {
       }
     }
     return tx;
+  }
+
+  public createSyntheticTransaction(
+    address: string,
+    value: string,
+    block: IPBFT
+  ): ITransaction {
+    const hash = `GENESIS_${deZeroX(address)}`;
+    return {
+      hash,
+      value: toBN(value).toString(),
+      from: 'GENESIS',
+      to: address,
+      block,
+      gas: '0',
+      gasPrice: '0',
+      gasUsed: '0',
+      cumulativeGasUsed: 0,
+      status: 1,
+      blockNumber: 0,
+      blockTimestamp: 0,
+    };
   }
 }
