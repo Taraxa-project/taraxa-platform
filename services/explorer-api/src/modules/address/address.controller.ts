@@ -15,7 +15,6 @@ import {
 import { AddressService } from './address.service';
 import { PaginationDto } from './dto/pagination.dto';
 import {
-  AddressDetailsResponse,
   BlocksCount,
   DagsPaginate,
   PbftsPaginate,
@@ -44,6 +43,20 @@ export class AddressController {
     @Param('address') address: string
   ): Promise<BlocksCount> {
     return this.service.getBlocksProduced(address);
+  }
+
+  @Get(':address/total-dags')
+  async getDagsProduced(
+    @Param('address') address: string
+  ): Promise<{ total: number }> {
+    return this.service.getDagsProduced(address);
+  }
+
+  @Get(':address/total-pbfts')
+  async getPbftsProduced(
+    @Param('address') address: string
+  ): Promise<{ total: number }> {
+    return this.service.getPbftsProduced(address);
   }
 
   @Get(':address/dags')

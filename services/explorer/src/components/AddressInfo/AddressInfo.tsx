@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { toSvg } from 'jdenticon';
-import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
+import { CopyTo, Icons, Loading } from '@taraxa_project/taraxa-ui';
 import { zeroX } from '../../utils';
 import useStyles from './AddressInfo.styles';
 import { BlocksTable, TransactionsTable } from '../Tables';
@@ -45,6 +45,10 @@ export interface AddressInfoProps {
   ) => void;
   tabsStep: number;
   setTabsStep: (step: number) => void;
+  isFetchingDagsCount: boolean;
+  isLoadingDagsCount: boolean;
+  isFetchingPbftsCount: boolean;
+  isLoadingPbftsCount: boolean;
 }
 
 export const AddressInfo = ({
@@ -69,6 +73,10 @@ export const AddressInfo = ({
   handleTxChangeRowsPerPage,
   tabsStep,
   setTabsStep,
+  isFetchingDagsCount,
+  isLoadingDagsCount,
+  isFetchingPbftsCount,
+  isLoadingPbftsCount,
 }: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
@@ -224,11 +232,20 @@ export const AddressInfo = ({
                 BLOCKS PRODUCED:
               </Grid>
               <Grid className={classes.blocksBox} item>
-                <div>{details?.dagBlocks}</div>
+                {isFetchingDagsCount || isLoadingDagsCount ? (
+                  <Loading />
+                ) : (
+                  <div>{details?.dagBlocks}</div>
+                )}
                 <span>#DAG Blocks</span>
               </Grid>
               <Grid className={classes.blocksBox} item>
-                <div>{details?.pbftBlocks}</div>
+                {isFetchingPbftsCount || isLoadingPbftsCount ? (
+                  <Loading />
+                ) : (
+                  <div>{details?.pbftBlocks}</div>
+                )}
+
                 <span>#PBFT Blocks</span>
               </Grid>
             </Grid>

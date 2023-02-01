@@ -1,16 +1,13 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { Raw, Repository } from 'typeorm';
-import { fromWei, isAddress, toBN } from 'web3-utils';
+import { isAddress } from 'web3-utils';
 import {
   PbftEntity,
   DagEntity,
@@ -20,13 +17,10 @@ import {
 import {
   StatsResponse,
   BlocksCount,
-  AddressDetailsResponse,
   TransactionsPaginate,
   PbftsPaginate,
   DagsPaginate,
 } from './responses';
-import { catchError, firstValueFrom, map } from 'rxjs';
-import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
 import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
@@ -39,9 +33,7 @@ export class AddressService {
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>,
     @InjectRepository(TransactionEntity)
-    private txRepository: Repository<TransactionEntity>,
-    private readonly httpService: HttpService,
-    private readonly configService: ConfigService
+    private txRepository: Repository<TransactionEntity>
   ) {}
 
   public async getStats(address: string): Promise<StatsResponse> {
@@ -114,15 +106,41 @@ export class AddressService {
     const parsedAddress = toChecksumAddress(address);
 
     const [{ pbfts_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE LOWER(miner) = lower('${parsedAddress}') GROUP BY miner;`
+      `SELECT COUNT(hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE miner = '${parsedAddress}';`
     );
     const [{ dags_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(hash) as dags_mined from ${this.dagRepository.metadata.tableName}  WHERE LOWER(author) = lower('${parsedAddress}') GROUP BY author;`
+      `SELECT COUNT(hash) as dags_mined from ${this.dagRepository.metadata.tableName}  WHERE author = '${parsedAddress}';`
     );
 
     return {
       dags: dags_mined,
-      pbft: pbfts_mined,
+      pbfts: pbfts_mined,
+    };
+  }
+
+  public async getDagsProduced(address: string): Promise<{ total: number }> {
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
+    const parsedAddress = toChecksumAddress(address);
+
+    const [{ dags_mined }] = await this.pbftRepository.query(
+      `SELECT COUNT(hash) as dags_mined from ${this.dagRepository.metadata.tableName}  WHERE author = '${parsedAddress}';`
+    );
+
+    return {
+      total: dags_mined,
+    };
+  }
+
+  public async getPbftsProduced(address: string): Promise<{ total: number }> {
+    if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
+    const parsedAddress = toChecksumAddress(address);
+
+    const [{ pbfts_mined }] = await this.pbftRepository.query(
+      `SELECT COUNT(hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE miner = '${parsedAddress}';`
+    );
+
+    return {
+      total: pbfts_mined,
     };
   }
 
@@ -132,23 +150,28 @@ export class AddressService {
   ): Promise<DagsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
     const { take, skip } = filterDto;
+    const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
-    const [data, total] = await this.dagRepository.findAndCount({
-      select: ['timestamp', 'level', 'hash', 'transactionCount'],
-      where: {
-        author: Raw((alias) => `${alias} = :parsedAddress`, {
-          parsedAddress,
-        }),
-      },
-      order: {
-        timestamp: 'DESC',
-      },
-      take,
+
+    const query = `
+      SELECT d.timestamp, d.level, d.hash, d."transactionCount"
+      FROM ${this.dagRepository.metadata.tableName} d
+      WHERE d.author = $1
+      ORDER BY d.timestamp DESC
+      LIMIT $2 OFFSET $3`;
+
+    const res = await this.dagRepository.query(query, [
+      parsedAddress,
+      Number(take) + growthFactor, // always return growthFactor more to show next btn in pagination
       skip,
-    });
+    ]);
+
+    // Remove last growthFactor (elements) from array
+    const dags = res;
+    dags.splice(-growthFactor, growthFactor);
     return {
-      data: data,
-      total: total,
+      data: dags,
+      total: res.length >= take ? res.length + growthFactor : res.length,
     };
   }
 
@@ -157,24 +180,30 @@ export class AddressService {
     filterDto: PaginationDto
   ): Promise<PbftsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
+
     const { take, skip } = filterDto;
+    const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
-    const [data, total] = await this.pbftRepository.findAndCount({
-      select: ['timestamp', 'number', 'hash', 'transactionCount'],
-      where: {
-        miner: Raw((alias) => `${alias} = :parsedAddress`, {
-          parsedAddress,
-        }),
-      },
-      order: {
-        timestamp: 'DESC',
-      },
-      take,
+
+    const query = `
+      SELECT p.timestamp, p.number, p.hash, p."transactionCount"
+      FROM ${this.pbftRepository.metadata.tableName} p
+      WHERE p.miner = $1
+      ORDER BY p.timestamp DESC
+      LIMIT $2 OFFSET $3`;
+
+    const res = await this.pbftRepository.query(query, [
+      parsedAddress,
+      Number(take) + growthFactor, // always return growthFactor more to show next btn in pagination
       skip,
-    });
+    ]);
+
+    // Remove last growthFactor (elements) from array
+    const pbfts = res;
+    pbfts.splice(-growthFactor, growthFactor);
     return {
-      data: data,
-      total: total,
+      data: pbfts,
+      total: res.length >= take ? res.length + growthFactor : res.length,
     };
   }
 

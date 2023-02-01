@@ -7,6 +7,8 @@ import {
   addressDetailsQuery,
   useGetDagsByAddress,
   useGetPbftsByAddress,
+  useGetDagsCountByAddress,
+  useGetPbftsCountByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
 import { displayWeiOrTara, fromWeiToTara } from '../../utils';
@@ -56,6 +58,10 @@ export const useAddressInfoEffects = (
   showLoadingSkeleton: boolean;
   tabsStep: number;
   setTabsStep: (step: number) => void;
+  isFetchingDagsCount: boolean;
+  isLoadingDagsCount: boolean;
+  isFetchingPbftsCount: boolean;
+  isLoadingPbftsCount: boolean;
 } => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
@@ -83,6 +89,18 @@ export const useAddressInfoEffects = (
   const [network] = useState(currentNetwork);
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
+
+  const {
+    data: dagsCount,
+    isFetching: isFetchingDagsCount,
+    isLoading: isLoadingDagsCount,
+  } = useGetDagsCountByAddress(backendEndpoint, account);
+
+  const {
+    data: pbftsCount,
+    isFetching: isFetchingPbftsCount,
+    isLoading: isLoadingPbftsCount,
+  } = useGetPbftsCountByAddress(backendEndpoint, account);
 
   const {
     data: dagsData,
@@ -160,7 +178,7 @@ export const useAddressInfoEffects = (
       dagsData?.total !== null
     ) {
       setDagBlocks(dagsData?.data as BlockData[]);
-      setTotalDagCount(dagsData?.total);
+      setTotalDagCount(totalDagCount + dagsData?.total);
     }
   }, [dagsData]);
 
@@ -171,7 +189,7 @@ export const useAddressInfoEffects = (
       pbftsData?.total !== null
     ) {
       setPbftBlocks(pbftsData?.data as BlockData[]);
-      setTotalPbftCount(pbftsData?.total);
+      setTotalPbftCount(totalPbftCount + pbftsData?.total);
     }
   }, [pbftsData]);
 
@@ -215,8 +233,13 @@ export const useAddressInfoEffects = (
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
     addressDetails.address = account;
 
-    addressDetails.dagBlocks = dagsData?.total || 0;
-    addressDetails.pbftBlocks = pbftsData?.total || 0;
+    if (dagsCount?.data) {
+      addressDetails.dagBlocks = dagsCount?.data?.total;
+    }
+
+    if (pbftsCount?.data) {
+      addressDetails.pbftBlocks = pbftsCount?.data?.total;
+    }
 
     if (accountDetails) {
       const account = accountDetails?.block?.account;
@@ -242,7 +265,14 @@ export const useAddressInfoEffects = (
       }
     }
     setAddressInfoDetails(addressDetails);
-  }, [accountDetails, tokenPriceData, dagsData, pbftsData]);
+  }, [
+    accountDetails,
+    tokenPriceData,
+    dagsData,
+    pbftsData,
+    dagsCount,
+    pbftsCount,
+  ]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
@@ -257,6 +287,7 @@ export const useAddressInfoEffects = (
   const handlePbftChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setTotalPbftCount(0);
     setPbftRowsPerPage(parseInt(event.target.value, 10));
     setPbftPage(0);
   };
@@ -268,6 +299,7 @@ export const useAddressInfoEffects = (
   const handleDagChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setTotalDagCount(0);
     setDagRowsPerPage(parseInt(event.target.value, 10));
     setDagPage(0);
   };
@@ -307,5 +339,9 @@ export const useAddressInfoEffects = (
     showLoadingSkeleton,
     tabsStep,
     setTabsStep,
+    isFetchingDagsCount,
+    isLoadingDagsCount,
+    isFetchingPbftsCount,
+    isLoadingPbftsCount,
   };
 };
