@@ -85,20 +85,4 @@ export class AddressController {
   ): Promise<TransactionsPaginate> {
     return this.service.getTransactions(address, filterDto);
   }
-
-  @Get(':address/details')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Returns cumulative details about the address like ',
-  })
-  @ApiTooManyRequestsResponse({ description: 'Too many responses' })
-  @ApiNotFoundResponse({
-    description:
-      'Returns cumulative data for given address for TARA like total total sent, total received, current value, current price action and curertn balance',
-  })
-  async getDetails(
-    @Param('address') address: string
-  ): Promise<AddressDetailsResponse> {
-    return this.service.getDetails(address);
-  }
 }
