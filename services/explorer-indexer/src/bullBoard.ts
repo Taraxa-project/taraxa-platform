@@ -11,9 +11,16 @@ export const initializeBullBoard = (app: INestApplication) => {
 
   const pbftQueue = app.get<Queue>(`BullQueue_${Queues.NEW_PBFTS}`);
   const dagsQueue = app.get<Queue>(`BullQueue_${Queues.NEW_DAGS}`);
+  const transactionsQueue = app.get<Queue>(
+    `BullQueue_${Queues.STALE_TRANSACTIONS}`
+  );
 
   createBullBoard({
-    queues: [new BullAdapter(pbftQueue), new BullAdapter(dagsQueue)],
+    queues: [
+      new BullAdapter(pbftQueue),
+      new BullAdapter(dagsQueue),
+      new BullAdapter(transactionsQueue),
+    ],
     serverAdapter,
   });
   return serverAdapter.getRouter();

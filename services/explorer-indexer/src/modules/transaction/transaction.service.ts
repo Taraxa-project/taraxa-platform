@@ -16,11 +16,21 @@ import { toBN } from 'web3-utils';
 @Injectable()
 export default class TransactionService {
   private readonly logger: Logger = new Logger(TransactionService.name);
+  private isRedisConnected: boolean;
   constructor(
     @InjectRepository(TransactionEntity)
     private txRepository: Repository<TransactionEntity>
   ) {
     this.txRepository = txRepository;
+    this.isRedisConnected = true;
+  }
+
+  public getRedisConnectionState() {
+    return this.isRedisConnected;
+  }
+
+  public setRedisConnectionState(state: boolean) {
+    this.isRedisConnected = state;
   }
 
   public async deleteTransactions(transactions: TransactionEntity[]) {
@@ -64,6 +74,29 @@ export default class TransactionService {
       })
     );
     return newTransactions;
+  }
+
+  public async updateTransaction(tx: ITransaction) {
+    const foundTx = await this.txRepository.findOne({
+      where: {
+        hash: tx.hash,
+      },
+    });
+    foundTx.nonce = tx.nonce;
+    foundTx.index = tx.index;
+    foundTx.value = tx.value;
+    foundTx.gas = foundTx.gas;
+    foundTx.gasPrice = foundTx.gasPrice;
+    foundTx.gasUsed = tx.gasUsed;
+    foundTx.cumulativeGasUsed = tx.cumulativeGasUsed;
+    foundTx.inputData = tx.inputData;
+    foundTx.status = tx.status;
+    foundTx.from = tx.from;
+    foundTx.to = tx.to;
+    foundTx.v = tx.v;
+    foundTx.r = tx.r;
+    foundTx.s = tx.s;
+    return await this.txRepository.save(foundTx);
   }
 
   public async safeSaveEmptyTx(transaction: ITransaction) {

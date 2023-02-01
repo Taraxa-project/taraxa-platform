@@ -85,14 +85,16 @@ export const calculateDagEfficiencyForPBFT = (
       dagsForPbft[i].totalTransactions = txEs;
     })
   );
-  const efficiency = dagsForPbft.map((pbftPeriod) =>
+  const efficiencyCoefficients = dagsForPbft.map((pbftPeriod) =>
     pbftPeriod.totalTransactions > 0
-      ? (pbftPeriod.totalTransactions /
+      ? (parseFloat(pbftPeriod.totalTransactions.toString()) /
           (pbftPeriod.pbft.transactionCount > 0
-            ? pbftPeriod.pbft.transactionCount
+            ? parseFloat(pbftPeriod.pbft.transactionCount.toString())
             : 1)) *
         100
       : 0
   );
-  return efficiency;
+  return efficiencyCoefficients.map((c) => {
+    return c > 0 ? (100 / c) * 100 : 100;
+  });
 };

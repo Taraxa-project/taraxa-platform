@@ -9,6 +9,7 @@ import general from '../../config/general';
 import { ConnectorsModule } from '../connectors';
 import { BullModule } from '@nestjs/bull';
 import * as dotenv from 'dotenv';
+import { Queues } from '../../types';
 
 dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
@@ -28,10 +29,10 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
     }),
     BullModule.registerQueue(
       {
-        name: 'new_pbfts',
+        name: Queues.NEW_PBFTS,
       },
       {
-        name: 'new_dags',
+        name: Queues.NEW_DAGS,
       }
     ),
     DagModule,
