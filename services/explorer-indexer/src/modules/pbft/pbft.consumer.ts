@@ -2,9 +2,20 @@ import { Job, Queue } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import PbftService from './pbft.service';
-import { IGQLPBFT, QueueData, QueueJobs, Queues, SyncTypes } from '../../types';
+import {
+  IGQLPBFT,
+  QueueData,
+  QueueJobs,
+  Queues,
+  SyncTypes,
+  TxQueueData,
+} from '../../types';
 import { GraphQLConnectorService, RPCConnectorService } from '../connectors';
-import { IPBFT, ITransaction } from '@taraxa_project/explorer-shared';
+import {
+  IPBFT,
+  ITransaction,
+  PbftEntity,
+} from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
 
@@ -20,7 +31,9 @@ export class PbftConsumer implements OnModuleInit {
     @InjectQueue(Queues.NEW_DAGS)
     private readonly dagsQueue: Queue,
     @InjectQueue(Queues.NEW_PBFTS)
-    private readonly pbftsQueue: Queue
+    private readonly pbftsQueue: Queue,
+    @InjectQueue(Queues.STALE_TRANSACTIONS)
+    private readonly txQueue: Queue
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${PbftConsumer.name} worker`);
@@ -88,6 +101,7 @@ export class PbftConsumer implements OnModuleInit {
         this.logger.debug(
           `Saved new PBFT with ID ${savedPbft.id} for period ${savedPbft.number}`
         );
+        await this.handleStaleTransactions(savedPbft, type);
         this.dagsQueue.add(QueueJobs.NEW_DAG_BLOCKS, {
           pbftPeriod: savedPbft.number,
         });
@@ -105,6 +119,36 @@ export class PbftConsumer implements OnModuleInit {
       } as QueueData);
       this.logger.warn(`Pushed ${pbftPeriod} back into PBFT sync queue`);
       await job.progress(100);
+    }
+  }
+
+  async handleStaleTransactions(pbft: PbftEntity, syncType: SyncTypes) {
+    if (!pbft.transactions || pbft.transactions?.length === 0) return;
+    const staleTxes = pbft.transactions.filter((t) => !t.status || !t.value);
+    const staleCount = staleTxes?.length;
+    this.logger.debug(
+      `${pbft.number} has ${staleCount} stale transactions. Iterating: `
+    );
+    if (staleCount) {
+      for (const transaction of staleTxes) {
+        try {
+          if (transaction && transaction.hash) {
+            const done = await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
+              hash: transaction.hash,
+              type: syncType,
+            } as TxQueueData);
+            if (done) {
+              this.logger.log(
+                `Pushed stale transaction ${transaction.hash} into ${this.txQueue.name} queue`
+              );
+            }
+          }
+        } catch (error) {
+          this.logger.error(
+            `Pushing into ${this.txQueue.name} ran into an error: ${error}`
+          );
+        }
+      }
     }
   }
 }

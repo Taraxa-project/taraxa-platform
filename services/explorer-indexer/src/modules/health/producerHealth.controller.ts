@@ -34,6 +34,7 @@ export class ProducerHealthController {
       () => this.syncerHealthIndicator.isHealthy('dag'),
       () => this.syncerHealthIndicator.isHealthy('queue_pbfts'),
       () => this.syncerHealthIndicator.isHealthy('queue_dags'),
+      () => this.syncerHealthIndicator.isHealthy('queue_transactions'),
       () => this.syncerHealthIndicator.isHealthy('ws'),
     ]);
   }

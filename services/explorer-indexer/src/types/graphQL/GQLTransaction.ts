@@ -10,3 +10,25 @@ export interface IGQLTransaction
   };
   input?: string;
 }
+
+export interface ITransactionWithData
+  extends Omit<
+    IGQLTransaction,
+    | 'input'
+    | 'transactionIndex'
+    | 'blockHash'
+    | 'blockNumber'
+    | 'transactionIndex'
+  > {
+  gasUsed?: string;
+  block?: {
+    number: number;
+    hash: string;
+    timestamp: number;
+  };
+  logs?: {
+    index?: string;
+    topic?: string;
+    data?: string;
+  };
+}

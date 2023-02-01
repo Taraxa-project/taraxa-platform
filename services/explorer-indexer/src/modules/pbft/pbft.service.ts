@@ -120,11 +120,15 @@ export default class PbftService {
           _pbft.save();
         }
       }
-      const pbftFound = await this.pbftRepository.findOneBy({
-        hash: _pbft.hash,
+      const pbftFound = await this.pbftRepository.findOne({
+        where: {
+          hash: _pbft.hash,
+        },
+        relations: ['transactions'],
       });
       return pbftFound;
     } catch (error) {
+      this.logger.error(error);
       this.logger.error(`Error when saving PBFT: ${JSON.stringify(error)}`);
       return _pbft;
     }
