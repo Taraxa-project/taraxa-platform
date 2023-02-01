@@ -37,6 +37,8 @@ const useStyles = makeStyles(
         maxWidth: '200px',
       },
       blocksBox: {
+        display: 'flex',
+        flexDirection: 'column',
         borderRadius: theme.spacing(0.5),
         border: `1px solid ${theme.palette.grey[700]}`,
         backgroundColor: theme.palette.grey.A100,

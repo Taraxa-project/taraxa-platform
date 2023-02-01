@@ -1,4 +1,4 @@
 export interface BlocksCount {
   dags: number;
-  pbft: number;
+  pbfts: number;
 }
