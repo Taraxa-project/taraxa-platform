@@ -24,18 +24,13 @@ const getDataSourceOptions = (): DataSourceOptions => {
 
 const DataSourceConfig = new DataSource({
   ...getDataSourceOptions(),
-  entityPrefix: process.env.APP_PREFIX ? `${process.env.APP_PREFIX}_` : '',
   synchronize: false,
   migrationsRun: true,
   logging: process.env.NODE_ENV !== 'production',
   entities: [`${__dirname}/src/entities/*.entity{.ts,.js}`],
   migrations: [`${__dirname}/src/migrations/*{.ts,.js}`],
-  migrationsTableName: process.env.APP_PREFIX
-    ? `${process.env.APP_PREFIX}_typeorm_migrations`
-    : 'typeorm_migrations',
-  metadataTableName: process.env.APP_PREFIX
-    ? `${process.env.APP_PREFIX}_typeorm_metadata`
-    : 'typeorm_metadata',
+  migrationsTableName: 'typeorm_migrations',
+  metadataTableName: 'typeorm_metadata',
 } as DataSourceOptions);
 
 export default DataSourceConfig;

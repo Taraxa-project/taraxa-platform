@@ -39,18 +39,18 @@ export class DagEntity extends BaseEntity implements IDAG {
 
   @Column({ nullable: true })
   @IsNumber()
-  @Index()
+  @Index('dags_index_pbftPeriod')
   pbftPeriod?: number;
 
   @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
-  @Index()
+  @Index('dags_index_timestamp')
   timestamp: number;
 
   @Column({ nullable: true })
   @IsString()
-  @Index()
+  @Index('dags_index_author')
   author?: string;
 
   @Column({ nullable: true })
