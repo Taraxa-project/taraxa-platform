@@ -79,7 +79,7 @@ export const AddressInfo = ({
     initialValue: tabsStep || 0,
   };
 
-  if (totalTxCount > 0) {
+  if (totalTxCount > 0 && transactions?.length > 0) {
     tableTabs.tabs.push({
       label: 'Transactions',
       index: 0,
@@ -102,10 +102,10 @@ export const AddressInfo = ({
     });
   }
 
-  if (totalDagCount > 0) {
+  if (totalDagCount > 0 && dagBlocks?.length > 0) {
     tableTabs.tabs.push({
       label: 'DAG Blocks',
-      index: totalTxCount > 0 ? 1 : 0,
+      index: (totalTxCount > 0 && transactions?.length) > 0 ? 1 : 0,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.Block />
@@ -126,10 +126,15 @@ export const AddressInfo = ({
     });
   }
 
-  if (totalPbftCount > 0) {
+  if (totalPbftCount > 0 && pbftBlocks?.length > 0) {
     tableTabs.tabs.push({
       label: 'PBFT Blocks',
-      index: totalTxCount > 0 ? (totalDagCount > 0 ? 2 : 1) : 1,
+      index:
+        totalTxCount > 0 && transactions?.length > 0
+          ? totalDagCount > 0
+            ? 2
+            : 1
+          : 1,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.Block />
@@ -206,7 +211,7 @@ export const AddressInfo = ({
             />
             <DataRow
               title='Transaction count'
-              data={`${details?.transactionCount || ''}`}
+              data={`${details?.transactionCount || '0'}`}
             />
           </Box>
           <div style={{ maxWidth: '320px' }}>

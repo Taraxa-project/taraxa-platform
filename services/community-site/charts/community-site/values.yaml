@@ -94,3 +94,5 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+appSecret:
+  create: true

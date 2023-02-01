@@ -50,8 +50,8 @@ export default class TransactionService {
       from: zeroX(gqlTx.from?.address),
       nonce: Number(gqlTx.nonce || null),
       blockHash: zeroX(gqlTx.block?.hash),
-      blockNumber: gqlTx.block?.number + '',
-      transactionIndex: gqlTx.index + '',
+      blockNumber: +gqlTx.block?.number,
+      blockTimestamp: +gqlTx.block?.timestamp,
     };
     return iTx;
   }
@@ -171,7 +171,8 @@ export default class TransactionService {
       gasUsed: '0',
       cumulativeGasUsed: 0,
       status: 1,
-      blockNumber: '0',
+      blockNumber: 0,
+      blockTimestamp: 0,
     };
   }
 }

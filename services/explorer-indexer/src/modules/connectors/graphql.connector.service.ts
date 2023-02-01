@@ -46,6 +46,7 @@ export class GraphQLConnectorService {
                 block {
                   hash
                   number
+                  timestamp
                 }
                 hash
                 nonce
@@ -111,6 +112,7 @@ export class GraphQLConnectorService {
                 block {
                   hash
                   number
+                  timestamp
                 }
                 hash
                 nonce

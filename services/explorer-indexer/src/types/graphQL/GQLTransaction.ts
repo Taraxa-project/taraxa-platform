@@ -9,7 +9,6 @@ export interface IGQLTransaction
     address?: string;
   };
   input?: string;
-  transactionIndex?: string;
 }
 
 export interface ITransactionWithData
