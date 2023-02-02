@@ -6,11 +6,11 @@ export class PaginationDto {
   @ApiProperty({
     description: 'Number of elements which should be taken',
   })
-  take: number;
+  take: string;
 
   @IsNotEmpty()
   @ApiProperty({
     description: 'Number of elements which should be skipped',
   })
-  skip: number;
+  skip: string;
 }

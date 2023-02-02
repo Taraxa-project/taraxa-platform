@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
-import { Raw, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { isAddress } from 'web3-utils';
 import {
   PbftEntity,
@@ -106,7 +106,7 @@ export class AddressService {
     const parsedAddress = toChecksumAddress(address);
 
     const [{ pbfts_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE miner = '${parsedAddress}';`
+      `SELECT COUNT(DISTINCT hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE miner = '${parsedAddress}';`
     );
     const [{ dags_mined }] = await this.pbftRepository.query(
       `SELECT COUNT(hash) as dags_mined from ${this.dagRepository.metadata.tableName}  WHERE author = '${parsedAddress}';`
@@ -136,7 +136,7 @@ export class AddressService {
     const parsedAddress = toChecksumAddress(address);
 
     const [{ pbfts_mined }] = await this.pbftRepository.query(
-      `SELECT COUNT(hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE miner = '${parsedAddress}';`
+      `SELECT COUNT(DISTINCT hash) as pbfts_mined from ${this.pbftRepository.metadata.tableName} WHERE miner = '${parsedAddress}';`
     );
 
     return {
@@ -149,7 +149,10 @@ export class AddressService {
     filterDto: PaginationDto
   ): Promise<DagsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
-    const { take, skip } = filterDto;
+    const take = Number(filterDto.take);
+    const skip = Number(filterDto.skip);
+    const page = skip === 0 ? skip : Math.floor(skip / take);
+
     const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
 
@@ -166,12 +169,20 @@ export class AddressService {
       skip,
     ]);
 
-    // Remove last growthFactor (elements) from array
-    const dags = res;
-    dags.splice(-growthFactor, growthFactor);
+    const dags = [...res];
+    if (res.length > take) {
+      // Remove last growthFactor (elements) from array
+      dags.splice(-growthFactor, growthFactor);
+    }
+
+    const total =
+      res.length <= take
+        ? res.length + take * page
+        : (take + growthFactor) * (page + 1);
+
     return {
       data: dags,
-      total: res.length >= take ? res.length + growthFactor : res.length,
+      total,
     };
   }
 
@@ -180,8 +191,10 @@ export class AddressService {
     filterDto: PaginationDto
   ): Promise<PbftsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
+    const take = Number(filterDto.take);
+    const skip = Number(filterDto.skip);
+    const page = skip === 0 ? skip : Math.floor(skip / take);
 
-    const { take, skip } = filterDto;
     const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
 
@@ -194,16 +207,23 @@ export class AddressService {
 
     const res = await this.pbftRepository.query(query, [
       parsedAddress,
-      Number(take) + growthFactor, // always return growthFactor more to show next btn in pagination
+      take + growthFactor, // always return growthFactor more to show next btn in pagination
       skip,
     ]);
 
-    // Remove last growthFactor (elements) from array
-    const pbfts = res;
-    pbfts.splice(-growthFactor, growthFactor);
+    const pbfts = [...res];
+    if (res.length > take) {
+      // Remove last growthFactor (elements) from array
+      pbfts.splice(-growthFactor, growthFactor);
+    }
+    const total =
+      res.length <= take
+        ? res.length + take * page
+        : (take + growthFactor) * (page + 1);
+
     return {
       data: pbfts,
-      total: res.length >= take ? res.length + growthFactor : res.length,
+      total,
     };
   }
 
@@ -212,7 +232,10 @@ export class AddressService {
     filterDto: PaginationDto
   ): Promise<TransactionsPaginate> {
     if (!isAddress(address)) throw new BadRequestException('Invalid Address!');
-    const { take, skip } = filterDto;
+    const take = Number(filterDto.take);
+    const skip = Number(filterDto.skip);
+    const page = skip === 0 ? skip : Math.floor(skip / take);
+
     const growthFactor = 5;
     const parsedAddress = toChecksumAddress(address);
 
@@ -222,17 +245,27 @@ export class AddressService {
         WHERE t.from = $1 OR t.to = $1
         ORDER BY t.id DESC
         LIMIT $2 OFFSET $3`;
+
     const res = await this.txRepository.query(query, [
       parsedAddress,
       Number(take) + growthFactor, // always return growthFactor more to show next btn in pagination
       skip,
     ]);
-    // Remove last growthFactor (elements) from array
-    const txes = res;
-    txes.splice(-growthFactor, growthFactor);
+
+    const total =
+      res.length <= take
+        ? res.length + take * page
+        : (take + growthFactor) * (page + 1);
+
+    const txes = [...res];
+    if (res.length > take) {
+      // Remove last growthFactor (elements) from array
+      txes.splice(-growthFactor, growthFactor);
+    }
+
     return {
       data: txes,
-      total: res.length >= take ? res.length + growthFactor : res.length,
+      total,
     };
   }
 }

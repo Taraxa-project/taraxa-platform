@@ -171,28 +171,6 @@ export const useAddressInfoEffects = (
     isLoadingTx,
   ]);
 
-  useEffect(() => {
-    if (
-      dagsData?.data &&
-      dagsData?.total !== undefined &&
-      dagsData?.total !== null
-    ) {
-      setDagBlocks(dagsData?.data as BlockData[]);
-      setTotalDagCount(totalDagCount + dagsData?.total);
-    }
-  }, [dagsData]);
-
-  useEffect(() => {
-    if (
-      pbftsData?.data &&
-      pbftsData?.total !== undefined &&
-      pbftsData?.total !== null
-    ) {
-      setPbftBlocks(pbftsData?.data as BlockData[]);
-      setTotalPbftCount(totalPbftCount + pbftsData?.total);
-    }
-  }, [pbftsData]);
-
   const formatToTransaction = (
     transactions: TransactionResponse[]
   ): Transaction[] => {
@@ -225,9 +203,31 @@ export const useAddressInfoEffects = (
   useEffect(() => {
     if (txData?.data && txData?.total !== undefined && txData?.total !== null) {
       setTransactions(formatToTransaction(txData.data));
-      setTotalTxCount(totalTxCount + txData?.total);
+      setTotalTxCount(txData?.total);
     }
   }, [txData]);
+
+  useEffect(() => {
+    if (
+      dagsData?.data &&
+      dagsData?.total !== undefined &&
+      dagsData?.total !== null
+    ) {
+      setDagBlocks(dagsData?.data as BlockData[]);
+      setTotalDagCount(dagsData?.total);
+    }
+  }, [dagsData]);
+
+  useEffect(() => {
+    if (
+      pbftsData?.data &&
+      pbftsData?.total !== undefined &&
+      pbftsData?.total !== null
+    ) {
+      setPbftBlocks(pbftsData?.data as BlockData[]);
+      setTotalPbftCount(pbftsData?.total);
+    }
+  }, [pbftsData]);
 
   useEffect(() => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
