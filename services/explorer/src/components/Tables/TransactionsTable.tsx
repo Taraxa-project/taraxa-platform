@@ -181,10 +181,10 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     gap='0.2rem'
                   >
                     <AddressLink
-                      disabled={zeroX(tx.from?.address)
+                      disabled={zeroX(tx?.from?.address)
                         ?.toLowerCase()
                         .startsWith('0xgenesis')}
-                      address={tx.from?.address}
+                      address={tx?.from?.address}
                     />
                     <Icons.GreenRightArrow />
                     <AddressLink
