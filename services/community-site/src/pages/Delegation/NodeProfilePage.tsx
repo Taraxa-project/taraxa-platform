@@ -193,7 +193,7 @@ const NodeProfilePage = () => {
             {node?.firstBlockCreatedAt && (
               <>
                 <div className="nodeInfoTitle">node active since</div>
-                <div className="nodeInfoContent">{`${nodeActiveSince.getDay()} ${nodeActiveSince
+                <div className="nodeInfoContent">{`${nodeActiveSince.getDate()} ${nodeActiveSince
                   .toLocaleString('en-US', { month: 'short' })
                   .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
               </>

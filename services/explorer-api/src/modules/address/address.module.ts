@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
@@ -14,7 +13,6 @@ import general from 'src/config/general';
 
 @Module({
   imports: [
-    HttpModule,
     ConfigModule.forFeature(general),
     TypeOrmModule.forFeature([
       NodeEntity,
