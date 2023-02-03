@@ -3,6 +3,7 @@ import { Grid } from '@mui/material';
 import { BarChart } from '@taraxa_project/taraxa-ui';
 import {
   calculateDagBlocksPerSecond,
+  calculateDagBlocksPerSecondRight,
   calculateDagEfficiencyForPBFT,
   calculatePBFTBlockTime,
   calculateTransactionsPerSecond,
@@ -23,6 +24,15 @@ const ChartContainer = ({
   pbftBlocks,
   dagsForLastTenPeriods,
 }: ChartContainerProps): JSX.Element => {
+  const lastFivePbftPeriods = pbftBlocks
+    ?.reverse()
+    ?.slice(0, 6)
+    ?.map((block) => block.number);
+  const dbp = calculateDagBlocksPerSecondRight(
+    dagsForLastTenPeriods.filter((dag) =>
+      lastFivePbftPeriods.includes(dag.pbftPeriod)
+    )
+  );
   return (
     dagBlocks &&
     pbftBlocks &&
@@ -74,21 +84,15 @@ const ChartContainer = ({
         <BarChart
           title='DAG Blocks Per Second'
           tick=''
-          labels={getLastNTimestamps(getLastNDagBlocks(dagBlocks, 5), 5).map(
-            String
-          )}
+          labels={dbp
+            ?.map((d) => {
+              console.log(d.pbftPeriod);
+              return d.pbftPeriod;
+            })
+            .map(String)}
           datasets={[
             {
-              data: calculateDagBlocksPerSecond(
-                getLastNDagBlocks(dagBlocks, 6),
-                getLastNTimestamps(
-                  getLastNDagBlocks(
-                    dagBlocks.sort((block) => block.timestamp),
-                    6
-                  ),
-                  6
-                )
-              ),
+              data: dbp?.map((d) => d.dbp),
               borderRadius: 5,
               barThickness: 20,
               backgroundColor: theme.palette.secondary.main,

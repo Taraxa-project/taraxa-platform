@@ -59,6 +59,42 @@ export const calculateDagBlocksPerSecond = (
   });
 };
 
+export const calculateDagBlocksPerSecondRight = (
+  last5DagPeriods: DagBlock[]
+): { pbftPeriod: number; dbp: number }[] => {
+  if (!last5DagPeriods || last5DagPeriods.length === 0) return;
+  const dagsGroupedByPeriods = last5DagPeriods.reduce(function (r, a) {
+    r[a.pbftPeriod] = r[a.pbftPeriod] || [];
+    r[a.pbftPeriod].push(a);
+    return r;
+  }, Object.create(null));
+  const dbp: { pbftPeriod: number; dbp: number }[] = [];
+  for (const pbftPeriod of Object.entries(dagsGroupedByPeriods)) {
+    if (pbftPeriod) {
+      const orderedDags = (pbftPeriod[1] as any)?.sort(
+        (a: any, b: any) => a.timestamp - b.timestamp
+      );
+      if (!orderedDags || orderedDags.length === 0) return;
+
+      const timeDiff =
+        orderedDags[orderedDags.length - 1]?.timestamp -
+        orderedDags[0]?.timestamp;
+      // console.log(timeDiff);
+      const _dpb =
+        parseFloat(orderedDags.length) /
+        (orderedDags[0]?.timestamp -
+          orderedDags[orderedDags.length - 1]?.timestamp);
+      // console.log(_dpb);
+      dbp.push({
+        pbftPeriod: orderedDags[0].pbftPeriod,
+        dbp: parseFloat(orderedDags.length) / (timeDiff || 1),
+      });
+    }
+  }
+  console.log('final', dbp);
+  return dbp?.sort((a, b) => a.pbftPeriod - b.pbftPeriod).slice(0, 6);
+};
+
 export const calculateDagEfficiencyForPBFT = (
   pbfts: PbftBlock[],
   dags: DagBlock[]
