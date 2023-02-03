@@ -26,21 +26,23 @@ const DAGDataContainer = (): JSX.Element => {
   const onCopy = useCopyToClipboard();
 
   const tableTabs: TableTabsProps = {
-    tabs: [
-      {
-        label: 'Transactions',
-        index: 0,
-        icon: (
-          <Box className={classes.tabIconContainer}>
-            <TransactionIcon />
-          </Box>
-        ),
-        iconPosition: 'start',
-        children: <TransactionsTable transactionsData={transactions} />,
-      },
-    ],
+    tabs: [],
     initialValue: 0,
   };
+
+  if (transactions?.length > 0) {
+    tableTabs.tabs.push({
+      label: 'Transactions',
+      index: 0,
+      icon: (
+        <Box className={classes.tabIconContainer}>
+          <TransactionIcon />
+        </Box>
+      ),
+      iconPosition: 'start',
+      children: <TransactionsTable transactionsData={transactions} />,
+    });
+  }
 
   return (
     <>
@@ -126,16 +128,22 @@ const DAGDataContainer = (): JSX.Element => {
               title='Verifiable Delay Function'
               data={blockData?.vdf?.toString() || '0'}
             />
-            <Divider light />
-            <Box
-              display='flex'
-              flexDirection='column'
-              alignItems='flex-start'
-              alignContent='center'
-              style={{ overflowWrap: 'anywhere' }}
-            >
-              <TableTabs {...tableTabs} />
-            </Box>
+            {transactions?.length > 0 ? (
+              <>
+                <Divider light />
+                <Box
+                  display='flex'
+                  flexDirection='column'
+                  alignItems='flex-start'
+                  alignContent='center'
+                  style={{ overflowWrap: 'anywhere' }}
+                >
+                  <TableTabs {...tableTabs} />
+                </Box>
+              </>
+            ) : (
+              <Box pt={1}></Box>
+            )}
           </Box>
         </Paper>
       )}
