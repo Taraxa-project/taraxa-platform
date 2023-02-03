@@ -35,6 +35,8 @@ import dataSourceOptions from './data-source.options';
           port: config.get<number>('general.redisPort'),
           password: config.get<string>('general.redisPassword'),
         },
+        removeOnComplete: true,
+        removeOnCompleteTimeout: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
         settings: {
           lockDuration: config.get<number>('general.maxLockDuration'),
         },
