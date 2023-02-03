@@ -78,9 +78,7 @@ const PBFTDataContainer = (): JSX.Element => {
               </Typography>
               <CopyTo text={blockData?.hash} onCopy={onCopy} />
             </Box>
-            {blockData?.number && (
-              <DataRow title='Number' data={`${blockData?.number}`} />
-            )}
+            <DataRow title='Number' data={`${blockData?.number}`} />
             {blockData?.nonce && (
               <DataRow title='Nonce' data={blockData?.nonce} />
             )}

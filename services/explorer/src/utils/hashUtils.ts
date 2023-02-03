@@ -28,7 +28,7 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
 };
 
 export const zeroX = (hash: string): string => {
-  if (!hash) {
+  if (!hash || typeof hash !== 'string') {
     return '';
   }
   return hash.includes('0x') ? hash : `0x${hash}`;
