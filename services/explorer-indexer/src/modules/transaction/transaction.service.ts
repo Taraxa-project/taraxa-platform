@@ -87,11 +87,15 @@ export default class TransactionService {
   }
 
   public async updateTransaction(tx: ITransaction) {
-    const foundTx = await this.txRepository.findOne({
+    let foundTx = await this.txRepository.findOne({
       where: {
         hash: tx.hash,
       },
     });
+    if (!foundTx) {
+      foundTx = this.txRepository.create();
+      foundTx.hash = tx.hash;
+    }
     foundTx.nonce = tx.nonce;
     foundTx.index = tx.index;
     foundTx.value = tx.value;
