@@ -17,4 +17,16 @@ export class PbftController {
   public getTotalBlocksThisWeek(): Promise<number> {
     return this.service.getTotalBlocksThisWeek();
   }
+
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    type: [PbftEntity],
+    description: 'Returns number of blocks produced this week',
+  })
+  @Get('genesis')
+  public async getGenesisBlock(): Promise<Partial<PbftEntity>> {
+    const genesisBlock = await this.service.getGenesisBlock();
+    delete genesisBlock.id;
+    return genesisBlock;
+  }
 }

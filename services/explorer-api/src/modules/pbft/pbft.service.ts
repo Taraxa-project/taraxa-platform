@@ -13,6 +13,15 @@ export class PbftService {
     private repository: Repository<PbftEntity>
   ) {}
 
+  public async getGenesisBlock(): Promise<PbftEntity> {
+    return await this.repository.findOne({
+      where: {
+        number: 0,
+      },
+      relations: ['transactions'],
+    });
+  }
+
   public async getTotalBlocksThisWeek(): Promise<number> {
     const monday = DateTime.now()
       .startOf('week')
