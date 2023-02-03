@@ -7,31 +7,30 @@ require('dotenv').config({ path: '../../.env' });
 
 export class Seed9999999999999 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
-    const prefix = queryRunner.connection.options.entityPrefix ?? '';
     await queryRunner.query(
       `SELECT setval(
-        pg_get_serial_sequence('public.${prefix}pbfts', 'id'),
+        pg_get_serial_sequence('public.pbfts', 'id'),
         (
             SELECT MAX("id")
-            FROM public.${prefix}pbfts
+            FROM public.pbfts
         )
     );`
     );
     await queryRunner.query(
       `SELECT setval(
-        pg_get_serial_sequence('public.${prefix}dags', 'id'),
+        pg_get_serial_sequence('public.dags', 'id'),
         (
             SELECT MAX("id")
-            FROM public.${prefix}dags
+            FROM public.dags
         )
     );`
     );
     await queryRunner.query(
       `SELECT setval(
-        pg_get_serial_sequence('public.${prefix}transactions', 'id'),
+        pg_get_serial_sequence('public.transactions', 'id'),
         (
             SELECT MAX("id")
-            FROM public.${prefix}transactions
+            FROM public.transactions
         )
     );`
     );

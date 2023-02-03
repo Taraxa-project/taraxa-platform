@@ -43,16 +43,11 @@ const getDataSourceConnectionOptions = (): DataSourceOptions => {
 
 const dataSourceOptions: DataSourceOptions = {
   ...getDataSourceConnectionOptions(),
-  entityPrefix: process.env.APP_PREFIX ? `${process.env.APP_PREFIX}_` : '',
   synchronize: false,
   logging: ['info'],
   entities,
-  migrationsTableName: process.env.APP_PREFIX
-    ? `${process.env.APP_PREFIX}_typeorm_migrations`
-    : 'typeorm_migrations',
-  metadataTableName: process.env.APP_PREFIX
-    ? `${process.env.APP_PREFIX}_typeorm_metadata`
-    : 'typeorm_metadata',
+  migrationsTableName: 'typeorm_migrations',
+  metadataTableName: 'typeorm_metadata',
 };
 
 export default dataSourceOptions;
