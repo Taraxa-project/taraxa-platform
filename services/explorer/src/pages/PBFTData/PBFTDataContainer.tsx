@@ -104,7 +104,7 @@ const PBFTDataContainer = (): JSX.Element => {
               }
             />
             <DataRow
-              title='Miner'
+              title='Author'
               data={
                 <HashLink
                   linkType={HashLinkType.ADDRESSES}

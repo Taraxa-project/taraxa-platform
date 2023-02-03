@@ -217,10 +217,6 @@ export const AddressInfo = ({
                 details?.pricePerTara ? Number(details?.pricePerTara) : ''
               } / TARA )`}
             />
-            <DataRow
-              title='Transaction count'
-              data={`${details?.transactionCount || '0'}`}
-            />
           </Box>
           <div style={{ maxWidth: '320px' }}>
             <Grid container gap={1}>

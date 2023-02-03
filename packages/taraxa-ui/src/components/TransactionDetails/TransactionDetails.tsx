@@ -73,7 +73,7 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
             <Route />
           </Box>
           <Typography variant='body2' color='grey.100'>
-            {transactionCount || 0} transactions - {timeSince} ago
+            {transactionCount || 0} transactions - {timeSince}
           </Typography>
         </Box>
       </Box>
