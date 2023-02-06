@@ -44,13 +44,23 @@ export default class TransactionService {
 
   public gQLToITransaction(gqlTx: IGQLTransaction): ITransaction {
     const iTx: ITransaction = {
-      ...gqlTx,
-      to: zeroX(gqlTx.to?.address),
-      inputData: zeroX(gqlTx.inputData),
-      from: zeroX(gqlTx.from?.address),
+      hash: gqlTx.hash,
       nonce: Number(gqlTx.nonce || null),
+      index: Number(gqlTx.index),
+      value: gqlTx.value,
+      gasPrice: gqlTx.gasPrice,
+      gas: gqlTx.gas,
+      gasUsed: gqlTx.gas,
+      cumulativeGasUsed: gqlTx.cumulativeGasUsed,
+      inputData: zeroX(gqlTx.inputData),
+      status: gqlTx.status,
+      from: zeroX(gqlTx.from?.address),
+      to: zeroX(gqlTx.to?.address),
+      v: gqlTx.v,
+      r: gqlTx.r,
+      s: gqlTx.s,
       blockHash: zeroX(gqlTx.block?.hash),
-      blockNumber: +gqlTx.block?.number,
+      blockNumber: gqlTx.block?.number,
       blockTimestamp: +gqlTx.block?.timestamp,
     };
     return iTx;
@@ -77,11 +87,15 @@ export default class TransactionService {
   }
 
   public async updateTransaction(tx: ITransaction) {
-    const foundTx = await this.txRepository.findOne({
+    let foundTx = await this.txRepository.findOne({
       where: {
         hash: tx.hash,
       },
     });
+    if (!foundTx) {
+      foundTx = this.txRepository.create();
+      foundTx.hash = tx.hash;
+    }
     foundTx.nonce = tx.nonce;
     foundTx.index = tx.index;
     foundTx.value = tx.value;
