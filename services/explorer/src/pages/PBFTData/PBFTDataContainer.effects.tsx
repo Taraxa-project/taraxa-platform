@@ -6,6 +6,7 @@ import { blockQuery } from '../../api';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { PbftBlock, Transaction } from '../../models';
 import { displayWeiOrTara } from '../../utils';
+import { useGetGenesisBlock } from '../../api/explorer-api/fetchGenesisBlock';
 
 export const usePBFTDataContainerEffects = (
   blockNumber?: number,
@@ -15,8 +16,9 @@ export const usePBFTDataContainerEffects = (
   transactions: Transaction[];
   currentNetwork: string;
   showLoadingSkeleton: boolean;
+  genesisTransactions: Transaction[];
 } => {
-  const { currentNetwork } = useExplorerNetwork();
+  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
   const navigate = useNavigate();
 
@@ -24,6 +26,9 @@ export const usePBFTDataContainerEffects = (
   const [transactions, setTransactions] = useState<Transaction[]>([
     {} as Transaction,
   ]);
+  const [genesisTransactions, setGenesisTransactions] = useState<Transaction[]>(
+    [{} as Transaction]
+  );
   const [{ fetching, data }] = useQuery({
     query: blockQuery,
     variables: cleanDeep({
@@ -36,15 +41,21 @@ export const usePBFTDataContainerEffects = (
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
 
+  const {
+    data: genesisBlock,
+    isFetching: isFetchingGenesis,
+    isLoading: isLoadingGenesis,
+  } = useGetGenesisBlock(backendEndpoint, blockNumber === 0);
+
   useEffect(() => {
-    if (fetching) {
+    if (fetching || isFetchingGenesis || isLoadingGenesis) {
       initLoading();
       setShowLoadingSkeleton(true);
     } else {
       finishLoading();
       setShowLoadingSkeleton(false);
     }
-  }, [currentNetwork, fetching]);
+  }, [currentNetwork, fetching, isFetchingGenesis, isLoadingGenesis]);
 
   useEffect(() => {
     if (data?.block) {
@@ -62,10 +73,30 @@ export const usePBFTDataContainerEffects = (
   }, [data]);
 
   useEffect(() => {
+    if (genesisBlock?.data) {
+      setGenesisTransactions(
+        genesisBlock?.data?.transactions?.map((tx: Transaction) => {
+          return {
+            ...tx,
+            value: displayWeiOrTara(tx.value),
+            gasUsed: displayWeiOrTara(tx.gasUsed),
+          };
+        })
+      );
+    }
+  }, [genesisBlock]);
+
+  useEffect(() => {
     if (currentNetwork !== network) {
       navigate(-1);
     }
   }, [currentNetwork, network]);
 
-  return { blockData, transactions, currentNetwork, showLoadingSkeleton };
+  return {
+    blockData,
+    transactions,
+    currentNetwork,
+    showLoadingSkeleton,
+    genesisTransactions,
+  };
 };

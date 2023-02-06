@@ -22,8 +22,13 @@ const PBFTDataContainer = (): JSX.Element => {
   const { identifier } = useParams();
   const classes = useStyles();
   const { txHash, blockNumber } = unwrapIdentifier(identifier);
-  const { blockData, transactions, currentNetwork, showLoadingSkeleton } =
-    usePBFTDataContainerEffects(blockNumber, txHash);
+  const {
+    blockData,
+    transactions,
+    currentNetwork,
+    showLoadingSkeleton,
+    genesisTransactions,
+  } = usePBFTDataContainerEffects(blockNumber, txHash);
   const onCopy = useCopyToClipboard();
 
   const tableTabs: TableTabsProps = {
@@ -31,7 +36,14 @@ const PBFTDataContainer = (): JSX.Element => {
     initialValue: 0,
   };
 
-  if (transactions?.length > 0) {
+  if (transactions?.length > 0 || genesisTransactions?.length > 0) {
+    const tableTransactions =
+      transactions?.length > 0
+        ? transactions
+        : genesisTransactions?.length > 0
+        ? genesisTransactions
+        : [];
+
     tableTabs.tabs.push({
       label: 'Transactions',
       index: 0,
@@ -41,7 +53,7 @@ const PBFTDataContainer = (): JSX.Element => {
         </Box>
       ),
       iconPosition: 'start',
-      children: <TransactionsTable transactionsData={transactions} />,
+      children: <TransactionsTable transactionsData={tableTransactions} />,
     });
   }
 
@@ -125,9 +137,13 @@ const PBFTDataContainer = (): JSX.Element => {
             />
             <DataRow
               title='Transaction Count'
-              data={`${blockData?.transactionCount}`}
+              data={`${
+                blockData?.transactionCount ||
+                transactions?.length ||
+                genesisTransactions?.length
+              }`}
             />
-            {transactions?.length > 0 ? (
+            {transactions?.length > 0 || genesisTransactions?.length > 0 ? (
               <>
                 <Divider light />
                 <Box
