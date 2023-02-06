@@ -22,6 +22,7 @@ export class DagEntity extends BaseEntity implements IDAG {
   id: number;
 
   @Column({ unique: true })
+  @Index('dags_index_hash')
   @IsString()
   hash: string;
 
@@ -34,6 +35,7 @@ export class DagEntity extends BaseEntity implements IDAG {
   tips?: string[];
 
   @Column({ nullable: true })
+  @Index('dags_index_level')
   @IsNumber()
   level?: number;
 

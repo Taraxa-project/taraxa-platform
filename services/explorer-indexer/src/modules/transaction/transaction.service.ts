@@ -129,6 +129,7 @@ export default class TransactionService {
       try {
         const transactionEntity = new TransactionEntity({
           ...transaction,
+          index: Number(transaction.index || 0),
         });
         if (transaction.from) {
           transactionEntity.from = toChecksumAddress(transaction.from);

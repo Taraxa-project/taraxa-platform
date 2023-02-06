@@ -22,26 +22,40 @@ const PBFTDataContainer = (): JSX.Element => {
   const { identifier } = useParams();
   const classes = useStyles();
   const { txHash, blockNumber } = unwrapIdentifier(identifier);
-  const { blockData, transactions, currentNetwork, showLoadingSkeleton } =
-    usePBFTDataContainerEffects(blockNumber, txHash);
+  const {
+    blockData,
+    transactions,
+    currentNetwork,
+    showLoadingSkeleton,
+    genesisTransactions,
+  } = usePBFTDataContainerEffects(blockNumber, txHash);
   const onCopy = useCopyToClipboard();
 
   const tableTabs: TableTabsProps = {
-    tabs: [
-      {
-        label: 'Transactions',
-        index: 0,
-        icon: (
-          <Box className={classes.tabIconContainer}>
-            <TransactionIcon />
-          </Box>
-        ),
-        iconPosition: 'start',
-        children: <TransactionsTable transactionsData={transactions} />,
-      },
-    ],
+    tabs: [],
     initialValue: 0,
   };
+
+  if (transactions?.length > 0 || genesisTransactions?.length > 0) {
+    const tableTransactions =
+      transactions?.length > 0
+        ? transactions
+        : genesisTransactions?.length > 0
+        ? genesisTransactions
+        : [];
+
+    tableTabs.tabs.push({
+      label: 'Transactions',
+      index: 0,
+      icon: (
+        <Box className={classes.tabIconContainer}>
+          <TransactionIcon />
+        </Box>
+      ),
+      iconPosition: 'start',
+      children: <TransactionsTable transactionsData={tableTransactions} />,
+    });
+  }
 
   return (
     <>
@@ -104,7 +118,7 @@ const PBFTDataContainer = (): JSX.Element => {
               }
             />
             <DataRow
-              title='Miner'
+              title='Author'
               data={
                 <HashLink
                   linkType={HashLinkType.ADDRESSES}
@@ -123,18 +137,28 @@ const PBFTDataContainer = (): JSX.Element => {
             />
             <DataRow
               title='Transaction Count'
-              data={`${blockData?.transactionCount}`}
+              data={`${
+                blockData?.transactionCount ||
+                transactions?.length ||
+                genesisTransactions?.length
+              }`}
             />
-            <Divider light />
-            <Box
-              display='flex'
-              flexDirection='column'
-              alignItems='flex-start'
-              alignContent='center'
-              style={{ overflowWrap: 'anywhere' }}
-            >
-              <TableTabs {...tableTabs} />
-            </Box>
+            {transactions?.length > 0 || genesisTransactions?.length > 0 ? (
+              <>
+                <Divider light />
+                <Box
+                  display='flex'
+                  flexDirection='column'
+                  alignItems='flex-start'
+                  alignContent='center'
+                  style={{ overflowWrap: 'anywhere' }}
+                >
+                  <TableTabs {...tableTabs} />
+                </Box>
+              </>
+            ) : (
+              <Box pt={1}></Box>
+            )}
           </Box>
         </Paper>
       )}

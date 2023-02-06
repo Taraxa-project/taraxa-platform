@@ -59,6 +59,45 @@ export const calculateDagBlocksPerSecond = (
   });
 };
 
+export const calculateDagsPerSecond = (
+  pbfts: PbftBlock[],
+  dags: DagBlock[]
+): number[] => {
+  interface DagsPerSecond {
+    pbftPeriod: number;
+    dags: DagBlock[];
+    seconds: number;
+  }
+  const dagsPerSecond = pbfts.map((pbft) => {
+    const composite: DagsPerSecond = {
+      pbftPeriod: pbft.number,
+      dags: filterDagsPerBlockPeriod(dags, pbft.number),
+      seconds: getDagsPerSecond(filterDagsPerBlockPeriod(dags, pbft.number)),
+    };
+    return composite;
+  });
+  return dagsPerSecond?.map((dps: DagsPerSecond) => dps.seconds);
+};
+
+const filterDagsPerBlockPeriod = (
+  dags: DagBlock[],
+  period: number
+): DagBlock[] => {
+  return dags
+    .filter((dag) => {
+      return dag.pbftPeriod === period;
+    })
+    .sort((a, b) => a.timestamp + b.timestamp);
+};
+
+const getDagsPerSecond = (dags: DagBlock[]) => {
+  if (!dags || dags.length === 0) return 0;
+  const dagsLength = dags.length;
+  const first = dags[0].timestamp;
+  const last = dags[dagsLength - 1].timestamp;
+  return Math.floor(dagsLength / (last - first));
+};
+
 export const calculateDagEfficiencyForPBFT = (
   pbfts: PbftBlock[],
   dags: DagBlock[]
