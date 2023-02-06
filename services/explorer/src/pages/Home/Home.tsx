@@ -4,6 +4,7 @@ import { BlockCard } from '@taraxa_project/taraxa-ui';
 import { PageTitle } from '../../components';
 import { useHomeEffects } from './Home.effects';
 import ChartContainer from './ChartContainer';
+import BlockCardSkeleton from './BlockCardSkeleton';
 
 const HomePage = (): JSX.Element => {
   const {
@@ -13,6 +14,8 @@ const HomePage = (): JSX.Element => {
     dagsForLastTenPeriods,
     dagToDisplay,
     pbftToDisplay,
+    fetchingDagBlocks,
+    fetchingBlocks,
   } = useHomeEffects();
   const pbftsForCard = pbftBlocks ? [...pbftBlocks] : [];
   const pbftsForCharts = pbftBlocks ? [...pbftBlocks] : [];
@@ -36,8 +39,19 @@ const HomePage = (): JSX.Element => {
         width='100%'
         flexDirection={{ xs: 'column', md: 'column', lg: 'row' }}
       >
-        <BlockCard {...dagToDisplay(dagsForCard?.slice(0, 10))} />
-        <BlockCard {...pbftToDisplay(pbftsForCard?.slice(0, 10)?.reverse())} />
+        {fetchingDagBlocks || fetchingBlocks ? (
+          <>
+            <BlockCardSkeleton />
+            <BlockCardSkeleton />
+          </>
+        ) : (
+          <>
+            <BlockCard {...dagToDisplay(dagsForCard?.slice(0, 10))} />
+            <BlockCard
+              {...pbftToDisplay(pbftsForCard?.slice(0, 10)?.reverse())}
+            />
+          </>
+        )}
       </Box>
     </>
   );

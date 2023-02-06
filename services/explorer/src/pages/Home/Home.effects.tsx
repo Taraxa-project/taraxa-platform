@@ -145,5 +145,7 @@ export const useHomeEffects = () => {
     dagsForLastTenPeriods,
     dagToDisplay,
     pbftToDisplay,
+    fetchingDagBlocks,
+    fetchingBlocks,
   };
 };
