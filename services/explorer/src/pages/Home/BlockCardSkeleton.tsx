@@ -1,15 +1,18 @@
 import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
-import { Divider, Paper } from '@mui/material';
+import { Card, CardContent, Divider } from '@mui/material';
+import useStyles from './BlockCardSkeleton.styles';
 
 const BlockCardSkeleton = (): JSX.Element => {
+  const classes = useStyles();
+
   return (
-    <>
-      <Paper elevation={1} style={{ padding: '1rem', width: '100%' }}>
-        <Stack spacing={2}>
-          <Skeleton variant='text' sx={{ fontSize: '1rem' }} />
-          <Divider light />
+    <Card className={classes.card} variant='outlined'>
+      <Stack spacing={2}>
+        <Skeleton className={classes.cardHeader} variant='text' width={100} />
+        <Divider light />
+        <CardContent className={classes.cardContent}>
           <Stack spacing={4}>
             <Skeleton variant='rectangular' width='100%' height={60} />
             <Divider light />
@@ -31,9 +34,9 @@ const BlockCardSkeleton = (): JSX.Element => {
             <Divider light />
             <Skeleton variant='rectangular' width='100%' height={60} />
           </Stack>
-        </Stack>
-      </Paper>
-    </>
+        </CardContent>
+      </Stack>
+    </Card>
   );
 };
 
