@@ -115,24 +115,6 @@ export class GraphQLConnectorService {
                   timestamp
                 }
                 hash
-                nonce
-                status
-                from {
-                  address
-                }
-                to {
-                  address
-                }
-                gas
-                gasUsed
-                cumulativeGasUsed
-                gasPrice
-                inputData
-                r
-                v
-                s
-                index
-                value
               }
             }
           }

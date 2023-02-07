@@ -8,7 +8,7 @@ import TransactionService from '../transaction/transaction.service';
 import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { QueueData, QueueJobs, SyncTypes } from '../../types';
+import { QueueData, QueueJobs, Queues, SyncTypes } from '../../types';
 import QueuePopulatorCache from './queuePopulatorCache';
 
 @Injectable()
@@ -23,10 +23,12 @@ export default class HistoricalSyncService implements OnModuleInit {
     private readonly txService: TransactionService,
     private readonly graphQLConnector: GraphQLConnectorService,
     private readonly configService: ConfigService,
-    @InjectQueue('new_pbfts')
+    @InjectQueue(Queues.NEW_PBFTS)
     private readonly pbftsQueue: Queue,
-    @InjectQueue('new_dags')
-    private readonly dagsQueue: Queue
+    @InjectQueue(Queues.NEW_DAGS)
+    private readonly dagsQueue: Queue,
+    @InjectQueue(Queues.STALE_TRANSACTIONS)
+    private readonly txQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
   }
@@ -163,6 +165,8 @@ export default class HistoricalSyncService implements OnModuleInit {
       this.logger.warn('Cleared PBFT queue');
       await this.dagsQueue.empty();
       this.logger.warn('Cleared DAG queue');
+      await this.txQueue.empty();
+      this.logger.warn('Cleared Tx queue');
       this.syncState = {
         number: 0,
         hash: '',
