@@ -159,11 +159,6 @@ export default class TransactionService {
           .returning('*')
           .execute();
 
-        if (saved.raw[0]) {
-          this.logger.log(
-            `Registered new Transaction ${JSON.stringify(saved.raw[0]?.hash)}`
-          );
-        }
         return saved.raw[0];
       } catch (error) {
         console.error(error);

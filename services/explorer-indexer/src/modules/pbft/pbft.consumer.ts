@@ -113,9 +113,6 @@ export class PbftConsumer implements OnModuleInit {
     if (!pbft.transactions || pbft.transactions?.length === 0) return;
     const staleTxes = pbft.transactions.filter((t) => !t.status || !t.value);
     const staleCount = staleTxes?.length;
-    this.logger.debug(
-      `${pbft.number} has ${staleCount} stale transactions. Iterating: `
-    );
     if (staleCount) {
       for (const transaction of staleTxes) {
         try {

@@ -68,8 +68,7 @@ export class TransactionConsumer implements OnModuleInit {
           formattedTx.blockHash = block.hash;
           formattedTx.blockNumber = block.number;
           formattedTx.blockTimestamp = block.timestamp;
-          const savedTx = await this.txService.updateTransaction(formattedTx);
-          this.logger.debug(`Updated Transactions ${savedTx.hash}`);
+          await this.txService.updateTransaction(formattedTx);
           await this.pbftService.safeSavePbft(block);
         }
       } else {
