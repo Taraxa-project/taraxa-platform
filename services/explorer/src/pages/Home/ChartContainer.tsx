@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import { BarChart } from '@taraxa_project/taraxa-ui';
 import {
-  calculateDagEfficiencyForPBFT,
+  calculateDagEfficiency,
   calculateDagsPerSecond,
   calculatePBFTBlockTime,
   calculateTransactionsPerSecond,
@@ -97,9 +97,9 @@ const ChartContainer = ({
           tick='%'
           datasets={[
             {
-              data: calculateDagEfficiencyForPBFT(
+              data: calculateDagEfficiency(
                 [...pbftBlocks].reverse().slice(0, 6),
-                [...dagsForLastTenPeriods].slice(0, 6)
+                [...dagsForLastTenPeriods]
               ),
               borderRadius: 5,
               barThickness: 20,
