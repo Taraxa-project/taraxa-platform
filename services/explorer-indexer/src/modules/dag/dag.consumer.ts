@@ -19,6 +19,7 @@ import {
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
 import { DagEntity } from '@taraxa_project/explorer-shared';
+import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.NEW_DAGS, scope: Scope.REQUEST })
@@ -62,10 +63,11 @@ export class DagConsumer implements OnModuleInit {
           const saved = await this.dagService.safeSaveDag(formattedDag);
           await this.handleTransactions(saved, type);
           if (!saved) {
-            await pushPeriodBackToQueue(
-              pbftPeriod,
+            throw new ProcessingException(
+              QueueJobs.NEW_DAG_BLOCKS,
+              { pbftPeriod },
               this.dagsQueue,
-              this.logger
+              ''
             );
           }
         }
@@ -73,7 +75,12 @@ export class DagConsumer implements OnModuleInit {
 
       await job.progress(100);
     } catch (error) {
-      await pushPeriodBackToQueue(pbftPeriod, this.dagsQueue, this.logger);
+      throw new ProcessingException(
+        QueueJobs.NEW_DAG_BLOCKS,
+        { pbftPeriod },
+        this.dagsQueue,
+        ''
+      );
     }
   }
   async handleTransactions(dag: DagEntity, syncType: SyncTypes) {
@@ -105,22 +112,5 @@ export class DagConsumer implements OnModuleInit {
         }
       }
     }
-  }
-}
-
-async function pushPeriodBackToQueue(
-  pbftPeriod: number,
-  queue: Queue,
-  logger: Logger
-) {
-  const added = await queue.add(
-    QueueJobs.NEW_DAG_BLOCKS,
-    {
-      pbftPeriod,
-    },
-    JobKeepAliveConfiguration
-  );
-  if (added) {
-    logger.log(`Pushed ${pbftPeriod} back to ${queue.name}`);
   }
 }

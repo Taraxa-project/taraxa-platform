@@ -19,6 +19,7 @@ import {
 } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
+import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.NEW_PBFTS, scope: Scope.REQUEST })
@@ -92,20 +93,12 @@ export class PbftConsumer implements OnModuleInit {
       }
       await job.progress(100);
     } catch (error) {
-      this.logger.error(
-        `An error occurred during saving PBFT ${pbftPeriod}: `,
-        error
-      );
-      this.pbftsQueue.add(
+      throw new ProcessingException(
         QueueJobs.NEW_PBFT_BLOCKS,
-        {
-          pbftPeriod,
-          type,
-        } as QueueData,
-        JobKeepAliveConfiguration
+        { pbftPeriod },
+        this.pbftsQueue,
+        ''
       );
-      this.logger.warn(`Pushed ${pbftPeriod} back into PBFT sync queue`);
-      await job.progress(100);
     }
   }
 

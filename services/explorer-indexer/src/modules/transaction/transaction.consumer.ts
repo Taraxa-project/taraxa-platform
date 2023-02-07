@@ -13,6 +13,7 @@ import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
 import PbftService from '../pbft/pbft.service';
+import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.STALE_TRANSACTIONS, scope: Scope.REQUEST })
@@ -88,20 +89,12 @@ export class TransactionConsumer implements OnModuleInit {
         `An error occurred during saving Transaction ${hash}: `,
         error
       );
-      const done = await this.txQueue.add(
+      throw new ProcessingException(
         QueueJobs.NEW_TRANSACTIONS,
-        {
-          hash,
-          type,
-        } as TxQueueData,
-        JobKeepAliveConfiguration
+        { hash, type },
+        this.txQueue,
+        ''
       );
-      if (done) {
-        this.logger.log(
-          `Pushed stale transaction ${hash} into ${this.txQueue.name} queue`
-        );
-      }
-      await job.progress(100);
     }
   }
 }
