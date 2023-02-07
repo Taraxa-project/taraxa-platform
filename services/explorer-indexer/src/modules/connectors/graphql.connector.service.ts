@@ -115,6 +115,8 @@ export class GraphQLConnectorService {
                   timestamp
                 }
                 hash
+                gasUsed
+                gasPrice
               }
             }
           }
@@ -215,6 +217,11 @@ export class GraphQLConnectorService {
               vdf
               transactions {
                 hash
+                block {
+                  hash
+                  number
+                  timestamp
+                }
               }
               transactionCount
             }

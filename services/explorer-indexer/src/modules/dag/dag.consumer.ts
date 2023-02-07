@@ -1,4 +1,4 @@
-import { Job, Queue } from 'bull';
+import { Job } from 'bull';
 import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, OnQueueError, OnQueueStalled } from '@nestjs/bull';
 import { QueueData, IGQLDag, QueueJobs, Queues } from '../../types';
