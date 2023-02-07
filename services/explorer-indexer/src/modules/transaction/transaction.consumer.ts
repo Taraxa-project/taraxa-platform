@@ -38,10 +38,6 @@ export class TransactionConsumer implements OnModuleInit {
 
   @Process(QueueJobs.NEW_TRANSACTIONS)
   async saveStaleTransactions(job: Job<TxQueueData>) {
-    this.logger.debug(
-      `Handling ${QueueJobs.NEW_TRANSACTIONS} for job ${job.id}, saving Transaction: ${job.data.hash}`
-    );
-
     const { hash, type } = job.data;
     const newTx: ITransactionWithData =
       await this.graphQLConnector.getTransactionByHash(hash);
