@@ -18,9 +18,14 @@ const isTransactionConsumer =
     TransactionModule,
     TypeOrmModule.forFeature([DagEntity, TransactionEntity]),
     ConnectorsModule,
-    BullModule.registerQueue({
-      name: Queues.NEW_DAGS,
-    }),
+    BullModule.registerQueue(
+      {
+        name: Queues.NEW_DAGS,
+      },
+      {
+        name: Queues.STALE_TRANSACTIONS,
+      }
+    ),
   ],
   providers: isProducer
     ? [DagService]
