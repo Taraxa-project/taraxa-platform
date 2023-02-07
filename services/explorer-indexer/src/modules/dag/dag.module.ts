@@ -11,6 +11,8 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
+const isTransactionConsumer =
+  process.env.ENABLE_TRANSACTION_CONSUMER === 'true';
 @Module({
   imports: [
     TransactionModule,
@@ -20,7 +22,11 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
       name: Queues.NEW_DAGS,
     }),
   ],
-  providers: isProducer ? [DagService] : [DagService, DagConsumer],
+  providers: isProducer
+    ? [DagService]
+    : isTransactionConsumer
+    ? [DagService]
+    : [DagService, DagConsumer],
   controllers: [],
   exports: [DagService],
 })
