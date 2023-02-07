@@ -3,6 +3,7 @@ import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import {
   ITransactionWithData,
+  JobKeepAliveConfiguration,
   QueueJobs,
   Queues,
   TxQueueData,
@@ -72,10 +73,14 @@ export class TransactionConsumer implements OnModuleInit {
           await this.pbftService.safeSavePbft(block);
         }
       } else {
-        const done = await this.txQueue.add(QueueJobs.NEW_TRANSACTIONS, {
-          hash,
-          type,
-        } as TxQueueData);
+        const done = await this.txQueue.add(
+          QueueJobs.NEW_TRANSACTIONS,
+          {
+            hash,
+            type,
+          } as TxQueueData,
+          JobKeepAliveConfiguration
+        );
         if (done) {
           this.logger.log(
             `Pushed stale transaction ${hash} into ${this.txQueue.name} queue`
@@ -88,10 +93,14 @@ export class TransactionConsumer implements OnModuleInit {
         `An error occurred during saving Transaction ${hash}: `,
         error
       );
-      const done = await this.txQueue.add(QueueJobs.NEW_TRANSACTIONS, {
-        hash,
-        type,
-      } as TxQueueData);
+      const done = await this.txQueue.add(
+        QueueJobs.NEW_TRANSACTIONS,
+        {
+          hash,
+          type,
+        } as TxQueueData,
+        JobKeepAliveConfiguration
+      );
       if (done) {
         this.logger.log(
           `Pushed stale transaction ${hash} into ${this.txQueue.name} queue`

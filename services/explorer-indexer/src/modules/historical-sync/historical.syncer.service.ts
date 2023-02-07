@@ -136,20 +136,20 @@ export default class HistoricalSyncService implements OnModuleInit {
     const reorgThreshold =
       this.configService.get<number>('general.reorgThreshold') || 100;
     // if genesis block changes or the chain has lesser blocks than the syncer state(reset happened), resync
-    const isGenesys = this.chainState.genesis;
-    const genesysNotMatching =
+    const isGenesis = this.chainState.genesis;
+    const genesisNotMatching =
       this.chainState.genesis.toLowerCase() !==
       this.syncState.genesis.toLowerCase();
     const reorgDetected =
       this.chainState.number < this.syncState.number - reorgThreshold;
     if (
-      !isGenesys || //there is no genesys
-      genesysNotMatching || // genesys hash is different
+      !isGenesis || //there is no genesis
+      genesisNotMatching || // genesis hash is different
       reorgDetected // there has been a network reset not just a tip reformation
     ) {
       this.logger.warn(
-        `${isGenesys && 'No genesis block hash'}
-             ${genesysNotMatching && 'New genesis block hash'}
+        `${isGenesis && 'No genesis block hash'}
+             ${genesisNotMatching && 'New genesis block hash'}
             ${
               reorgDetected && ', Network reset'
             } detected. Restarting chain sync.`
@@ -204,10 +204,6 @@ export default class HistoricalSyncService implements OnModuleInit {
       }
     }
 
-    // @note : Right now there is no way to get the genesis transactions to set:
-    // Initial validators, initial balances for delegators and faucet.
-    // big TODO
-    // initialize a cache taht takes care of bulk sending
     const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
     await queueCache.add({
       name: QueueJobs.NEW_PBFT_BLOCKS,

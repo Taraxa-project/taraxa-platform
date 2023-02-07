@@ -23,3 +23,12 @@ export interface TxQueueData {
   hash: string;
   type: SyncTypes;
 }
+
+export const JobKeepAliveConfiguration = {
+  removeOnComplete: {
+    age: 60,
+  },
+  removeOnFail: {
+    age: 86400,
+  },
+};

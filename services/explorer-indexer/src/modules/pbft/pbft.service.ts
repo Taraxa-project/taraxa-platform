@@ -67,10 +67,9 @@ export default class PbftService {
       hash: pbft.hash,
     });
     if (!indexedPbft) {
-      const newPbft = this.pbftRepository.create({
+      _pbft = this.pbftRepository.create({
         hash: pbft.hash,
       });
-      _pbft = newPbft;
     } else {
       _pbft = indexedPbft;
     }
