@@ -8,7 +8,7 @@ import {
   TxQueueData,
 } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
-import { ITransaction } from '@taraxa_project/explorer-shared';
+import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
 import PbftService from '../pbft/pbft.service';
@@ -35,42 +35,44 @@ export class TransactionConsumer implements OnModuleInit {
     this.txService.setRedisConnectionState(false);
   }
 
-  @Process(QueueJobs.STALE_TRANSACTIONS)
+  @Process(QueueJobs.NEW_TRANSACTIONS)
   async saveStaleTransactions(job: Job<TxQueueData>) {
     this.logger.debug(
-      `Handling ${QueueJobs.STALE_TRANSACTIONS} for job ${job.id}, saving Transaction: ${job.data.hash}`
+      `Handling ${QueueJobs.NEW_TRANSACTIONS} for job ${job.id}, saving Transaction: ${job.data.hash}`
     );
 
     const { hash, type } = job.data;
     const newTx: ITransactionWithData =
       await this.graphQLConnector.getTransactionByHash(hash);
     try {
-      if (newTx && newTx.hash && newTx.index && newTx.nonce) {
+      if (newTx && newTx.hash && newTx.nonce && newTx.value) {
         const formattedTx: ITransaction =
           this.txService.gQLToITransaction(newTx);
         this.logger.debug(
-          `${QueueJobs.STALE_TRANSACTIONS} worker (job ${job.id}): Saving Transaction ${job.data.hash}`
+          `${QueueJobs.NEW_TRANSACTIONS} worker (job ${job.id}): Saving Transaction ${job.data.hash}`
         );
         const block = await this.pbftService.getBlockByHash(
-          formattedTx.block?.hash
+          formattedTx.blockHash
         );
         if (block) {
           const blockReward = new BigInteger(block.reward || '0', 10);
           const gasUsed = new BigInteger(formattedTx.gasUsed.toString() || '0');
+          formattedTx.hash = zeroX(formattedTx.hash);
           const gasPrice = new BigInteger(
             formattedTx.gasPrice.toString() || '0'
           );
           const txReward = gasUsed.multiply(gasPrice);
           block.reward = blockReward.add(txReward).toString();
+          formattedTx.block = block;
+          formattedTx.blockHash = block.hash;
+          formattedTx.blockNumber = block.number;
+          formattedTx.blockTimestamp = block.timestamp;
           const savedTx = await this.txService.updateTransaction(formattedTx);
           this.logger.debug(`Updated Transactions ${savedTx.hash}`);
-          const savedPbft = await this.pbftService.safeSavePbft(block);
-          this.logger.debug(
-            `Updated PBFT rewards for ${savedPbft.hash} in period ${savedPbft.number}`
-          );
+          await this.pbftService.safeSavePbft(block);
         }
       } else {
-        const done = await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
+        const done = await this.txQueue.add(QueueJobs.NEW_TRANSACTIONS, {
           hash,
           type,
         } as TxQueueData);
@@ -86,7 +88,7 @@ export class TransactionConsumer implements OnModuleInit {
         `An error occurred during saving Transaction ${hash}: `,
         error
       );
-      const done = await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
+      const done = await this.txQueue.add(QueueJobs.NEW_TRANSACTIONS, {
         hash,
         type,
       } as TxQueueData);
