@@ -87,9 +87,9 @@ export class PbftConsumer implements OnModuleInit {
         }
         let blockReward = new BigInteger('0', 10);
         formattedBlock.transactions?.forEach((tx: ITransaction) => {
-          const gasUsed = new BigInteger(tx.gasUsed.toString() || '0');
+          const gasUsed = new BigInteger(tx.gasUsed?.toString() || '0');
           tx.gasUsed = gasUsed.toString();
-          const gasPrice = new BigInteger(tx.gasPrice.toString() || '0');
+          const gasPrice = new BigInteger(tx.gasPrice?.toString() || '0');
           tx.gasPrice = gasPrice.toString();
           const reward = gasUsed.multiply(gasPrice);
           const newVal = blockReward.add(reward);
@@ -101,7 +101,7 @@ export class PbftConsumer implements OnModuleInit {
         this.logger.debug(
           `Saved new PBFT with ID ${savedPbft.id} for period ${savedPbft.number}`
         );
-        await this.handleStaleTransactions(savedPbft, type);
+        await this.handleTransactions(savedPbft, type);
         this.dagsQueue.add(QueueJobs.NEW_DAG_BLOCKS, {
           pbftPeriod: savedPbft.number,
         });
@@ -122,7 +122,7 @@ export class PbftConsumer implements OnModuleInit {
     }
   }
 
-  async handleStaleTransactions(pbft: PbftEntity, syncType: SyncTypes) {
+  async handleTransactions(pbft: PbftEntity, syncType: SyncTypes) {
     if (!pbft.transactions || pbft.transactions?.length === 0) return;
     const staleTxes = pbft.transactions.filter((t) => !t.status || !t.value);
     const staleCount = staleTxes?.length;
@@ -133,7 +133,7 @@ export class PbftConsumer implements OnModuleInit {
       for (const transaction of staleTxes) {
         try {
           if (transaction && transaction.hash) {
-            const done = await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
+            const done = await this.txQueue.add(QueueJobs.NEW_TRANSACTIONS, {
               hash: transaction.hash,
               type: syncType,
             } as TxQueueData);
