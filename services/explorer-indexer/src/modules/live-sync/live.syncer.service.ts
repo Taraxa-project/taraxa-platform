@@ -26,11 +26,14 @@ import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
 import { deZeroX } from '@taraxa_project/explorer-shared';
+import HistoricalSyncService from '../historical-sync/historical.syncer.service';
+import QueuePopulatorCache from '../historical-sync/queuePopulatorCache';
 
 @Injectable()
 export default class LiveSyncerService {
   private readonly logger: Logger = new Logger(LiveSyncerService.name);
   private isWsConnected: boolean;
+  private queueCache: QueuePopulatorCache;
   constructor(
     @InjectWebSocketProvider()
     private ws: WebSocketClient,
@@ -42,10 +45,12 @@ export default class LiveSyncerService {
     private readonly dagService: DagService,
     private readonly pbftService: PbftService,
     private readonly txService: TransactionService,
-    private readonly graphQLConnector: GraphQLConnectorService
+    private readonly graphQLConnector: GraphQLConnectorService,
+    private readonly historicalSyncerService: HistoricalSyncService
   ) {
     this.logger.log('Starting NodeSyncronizer');
     this.isWsConnected = false;
+    this.queueCache = new QueuePopulatorCache(this.pbftsQueue, 10);
   }
 
   public getWsState() {
@@ -155,7 +160,7 @@ export default class LiveSyncerService {
   }
 
   @OnMessage()
-  onMessage(data: WebSocketClient.Data) {
+  async onMessage(data: WebSocketClient.Data) {
     const parsedData = toObject(
       data,
       (msg: string) => this.logger.warn(msg),
@@ -167,15 +172,28 @@ export default class LiveSyncerService {
         case ResponseTypes.NewHeadsReponse:
           const { number } = parsedData.result as NewPbftBlockHeaderResponse;
           const formattedNumber = parseInt(number, 16);
-          this.pbftsQueue.add(
-            QueueJobs.NEW_PBFT_BLOCKS,
-            {
-              pbftPeriod: formattedNumber,
-              type: SyncTypes.LIVE,
-            } as QueueData,
-            JobKeepAliveConfiguration
-          );
-          this.logger.debug(`Pushed ${formattedNumber} into PBFT sync queue`);
+          if (this.historicalSyncerService.isRunning) {
+            await this.queueCache.add({
+              name: QueueJobs.NEW_PBFT_BLOCKS,
+              data: {
+                pbftPeriod: formattedNumber,
+                type: SyncTypes.LIVE,
+              } as QueueData,
+              JobKeepAliveConfiguration,
+            });
+            this.logger.debug(`Pushed ${formattedNumber} into PBFT sync cache`);
+          } else {
+            await this.queueCache.clearCache();
+            await this.pbftsQueue.add(
+              QueueJobs.NEW_PBFT_BLOCKS,
+              {
+                pbftPeriod: formattedNumber,
+                type: SyncTypes.LIVE,
+              } as QueueData,
+              JobKeepAliveConfiguration
+            );
+            this.logger.debug(`Pushed ${formattedNumber} into PBFT sync queue`);
+          }
       }
     } catch (error) {
       this.logger.error(`Could not persist incoming data. Cause: ${error}`);

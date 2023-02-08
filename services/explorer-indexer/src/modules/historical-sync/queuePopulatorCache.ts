@@ -26,9 +26,11 @@ export default class QueuePopulatorCache {
   }
 
   public async clearCache() {
-    await this.sendMessages();
-    this.logger.debug(`Emptied cache for queue ${this.queue.name}.`);
-    this.cache.length = 0;
+    if (this.cache.length > 0) {
+      await this.sendMessages();
+      this.logger.debug(`Emptied cache for queue ${this.queue.name}.`);
+      this.cache.length = 0;
+    }
   }
 
   public async add(data: any, message?: string) {
