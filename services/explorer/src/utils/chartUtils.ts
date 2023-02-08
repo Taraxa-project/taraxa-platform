@@ -50,15 +50,6 @@ export const getLastNDagBlocks = (
   return last6Timestamps;
 };
 
-export const calculateDagBlocksPerSecond = (
-  last6DagBlocks: DagBlock[],
-  last5Timestamps: number[]
-): number[] => {
-  return last5Timestamps.map((time) => {
-    return last6DagBlocks.filter((dag) => dag.timestamp === time).length;
-  });
-};
-
 export const calculateDagsPerSecond = (
   pbfts: PbftBlock[],
   dags: DagBlock[]
@@ -87,7 +78,7 @@ const filterDagsPerBlockPeriod = (
     .filter((dag) => {
       return dag.pbftPeriod === period;
     })
-    .sort((a, b) => a.timestamp + b.timestamp);
+    .sort((a, b) => a.timestamp - b.timestamp);
 };
 
 const getDagsPerSecond = (dags: DagBlock[]) => {
