@@ -111,7 +111,7 @@ export default class PbftService {
         .insert()
         .into(PbftEntity)
         .values(_pbft)
-        .orIgnore(true)
+        .orIgnore(indexedPbft !== null)
         .returning('*')
         .execute();
 
@@ -161,7 +161,7 @@ export default class PbftService {
     } catch (error) {
       this.logger.error(error);
       this.logger.error(`Error when saving PBFT: ${JSON.stringify(error)}`);
-      return _pbft;
+      throw error;
     }
   }
 
