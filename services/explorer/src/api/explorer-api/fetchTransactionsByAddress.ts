@@ -39,7 +39,7 @@ export const useGetTransactionsByAddress = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['transactions-by-address', address, params],
+    ['transactions-by-address', address, endpoint, params],
     () => getByAddress(endpoint, address, computeFilters(params)),
     {
       onError: (error) => {

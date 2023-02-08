@@ -32,6 +32,7 @@ const TransactionDataContainer = (): JSX.Element => {
     events,
     currentNetwork,
     showLoadingSkeleton,
+    showNetworkChanged,
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
 
@@ -62,120 +63,145 @@ const TransactionDataContainer = (): JSX.Element => {
         <LoadingSkeletonTx />
       ) : (
         <Paper elevation={1}>
-          <Box
-            display='flex'
-            flexDirection='column'
-            alignItems='left'
-            margin='2rem 2rem 2rem'
-            gap='1.5rem'
-          >
+          {showNetworkChanged ? (
             <Box
               display='flex'
-              flexDirection='row'
+              flexDirection='column'
               alignItems='center'
-              justifyContent='flex-start'
+              p={5}
               gap='2rem'
-              mt={3}
             >
+              <Typography variant='h6' component='h6' color='primary'>
+                Sorry, We are unable to locate this transaction
+              </Typography>
               <Typography
                 variant='h6'
                 component='h6'
-                style={{
-                  fontWeight: 'bold',
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  width: 'auto',
-                }}
+                color='secondary'
+                style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
               >
-                Tx {txHash}
+                {txHash}
               </Typography>
-              <CopyTo text={txHash} onCopy={onCopy} />
             </Box>
-            <DataRow
-              title='Status'
-              data={statusToLabel(
-                formatTransactionStatus(transactionData?.status)
-              )}
-            />
-            <DataRow
-              title='Timestamp'
-              data={timestampToAge(transactionData?.block?.timestamp)}
-            />
-            <DataRow
-              title='Block'
-              data={
-                <HashLink
-                  linkType={HashLinkType.PBFT}
-                  width='auto'
-                  hash={transactionData?.block?.hash}
-                />
-              }
-            />
-            <Divider light />
-            {events?.length !== 0 && (
-              <DataRow
-                title='Transaction action'
-                data={events.map((e) => `${e.name}`).join(' ')}
-              />
-            )}
-            {transactionData?.value && (
-              <DataRow title='Value' data={`${transactionData.value}`} />
-            )}
-            {transactionData?.from && transactionData?.to && (
-              <DataRow
-                title='FROM/TO'
-                data={
-                  <Box
-                    display='flex'
-                    flexDirection={{
-                      xs: 'column',
-                      md: 'column',
-                      lg: 'row',
-                      xl: 'row',
-                    }}
-                    gap='1rem'
-                    width='100%'
-                  >
-                    <AddressLink
-                      width='auto'
-                      address={transactionData?.from?.address}
-                    />
-                    <Box>
-                      <GreenRightArrow />
-                    </Box>
-                    <AddressLink
-                      width='auto'
-                      address={transactionData?.to?.address}
-                    />
-                  </Box>
-                }
-              />
-            )}
-            {transactionData?.gas && transactionData?.gasPrice && (
-              <DataRow
-                title='Gas Limit/ Gas Used'
-                data={`${transactionData.gasUsed}`}
-              />
-            )}
-            {transactionData?.gasPrice && (
-              <DataRow title='Gas Price' data={`${transactionData.gasPrice}`} />
-            )}
-            <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
-            <Divider light />
-            {dagData?.length && (
+          ) : (
+            <Box
+              display='flex'
+              flexDirection='column'
+              alignItems='left'
+              margin='2rem 2rem 2rem'
+              gap='1.5rem'
+            >
               <Box
                 display='flex'
-                flexDirection='column'
-                alignItems='flex-start'
-                alignContent='center'
-                style={{ overflowWrap: 'anywhere' }}
+                flexDirection='row'
+                alignItems='center'
+                justifyContent='flex-start'
+                gap='2rem'
+                mt={3}
               >
-                <TableTabs {...tableTabs} />
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  style={{
+                    fontWeight: 'bold',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    width: 'auto',
+                  }}
+                >
+                  Tx {txHash}
+                </Typography>
+                <CopyTo text={txHash} onCopy={onCopy} />
               </Box>
-            )}
-          </Box>
+              <DataRow
+                title='Status'
+                data={statusToLabel(
+                  formatTransactionStatus(transactionData?.status)
+                )}
+              />
+              <DataRow
+                title='Timestamp'
+                data={timestampToAge(transactionData?.block?.timestamp)}
+              />
+              <DataRow
+                title='Block'
+                data={
+                  <HashLink
+                    linkType={HashLinkType.PBFT}
+                    width='auto'
+                    hash={transactionData?.block?.hash}
+                  />
+                }
+              />
+              <Divider light />
+              {events?.length !== 0 && (
+                <DataRow
+                  title='Transaction action'
+                  data={events.map((e) => `${e.name}`).join(' ')}
+                />
+              )}
+              {transactionData?.value && (
+                <DataRow title='Value' data={`${transactionData.value}`} />
+              )}
+              {transactionData?.from && transactionData?.to && (
+                <DataRow
+                  title='FROM/TO'
+                  data={
+                    <Box
+                      display='flex'
+                      flexDirection={{
+                        xs: 'column',
+                        md: 'column',
+                        lg: 'row',
+                        xl: 'row',
+                      }}
+                      gap='1rem'
+                      width='100%'
+                    >
+                      <AddressLink
+                        width='auto'
+                        address={transactionData?.from?.address}
+                      />
+                      <Box>
+                        <GreenRightArrow />
+                      </Box>
+                      <AddressLink
+                        width='auto'
+                        address={transactionData?.to?.address}
+                      />
+                    </Box>
+                  }
+                />
+              )}
+              {transactionData?.gas && transactionData?.gasPrice && (
+                <DataRow
+                  title='Gas Limit/ Gas Used'
+                  data={`${transactionData.gasUsed}`}
+                />
+              )}
+              {transactionData?.gasPrice && (
+                <DataRow
+                  title='Gas Price'
+                  data={`${transactionData.gasPrice}`}
+                />
+              )}
+              <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
+              <Divider light />
+              {dagData?.length && (
+                <Box
+                  display='flex'
+                  flexDirection='column'
+                  alignItems='flex-start'
+                  alignContent='center'
+                  style={{ overflowWrap: 'anywhere' }}
+                >
+                  <TableTabs {...tableTabs} />
+                </Box>
+              )}
+            </Box>
+          )}
         </Paper>
       )}
     </>

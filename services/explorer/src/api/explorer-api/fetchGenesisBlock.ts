@@ -20,7 +20,7 @@ export const useGetGenesisBlock = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['genesis-block'],
+    ['genesis-block', endpoint],
     () => getGenesisBlock(endpoint),
     {
       onError: (error) => {

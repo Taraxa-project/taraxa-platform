@@ -21,8 +21,13 @@ import DagLoadingSkeleton from './DagLoadingSkeleton';
 const DAGDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const classes = useStyles();
-  const { blockData, transactions, currentNetwork, showLoadingSkeleton } =
-    useDAGDataContainerEffects(deZeroX(txHash));
+  const {
+    blockData,
+    transactions,
+    currentNetwork,
+    showLoadingSkeleton,
+    showNetworkChanged,
+  } = useDAGDataContainerEffects(deZeroX(txHash));
   const onCopy = useCopyToClipboard();
 
   const tableTabs: TableTabsProps = {
@@ -54,97 +59,119 @@ const DAGDataContainer = (): JSX.Element => {
         <DagLoadingSkeleton />
       ) : (
         <Paper elevation={1}>
-          <Box
-            display='flex'
-            flexDirection='column'
-            alignItems='left'
-            margin='2rem 2rem 2rem'
-            gap='1.5rem'
-          >
+          {showNetworkChanged ? (
             <Box
               display='flex'
-              flexDirection='row'
+              flexDirection='column'
               alignItems='center'
-              justifyContent='flex-start'
+              p={5}
               gap='2rem'
-              mt={3}
             >
-              <Icons.Block />
+              <Typography variant='h6' component='h6' color='primary'>
+                Sorry, We are unable to locate this block
+              </Typography>
               <Typography
                 variant='h6'
                 component='h6'
+                color='secondary'
                 style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
               >
                 {zeroX(txHash)}
               </Typography>
-              <CopyTo text={txHash} onCopy={onCopy} />
             </Box>
-            <DataRow title='Level' data={`${blockData?.level || ''}`} />
-            <DataRow title='Period' data={`${blockData?.pbftPeriod || ''}`} />
-            {blockData.timestamp && (
-              <DataRow
-                title='Timestamp'
-                data={`${moment
-                  .unix(+(blockData ? blockData.timestamp : 0))
-                  .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
-              />
-            )}
-            {(blockData?.level ||
-              blockData?.pbftPeriod ||
-              blockData.timestamp) && <Divider light />}
-            {blockData?.pivot && (
-              <DataRow
-                title='Pivot'
-                data={
-                  <HashLink
-                    linkType={HashLinkType.BLOCKS}
-                    width='auto'
-                    hash={blockData?.pivot}
-                  />
-                }
-              />
-            )}
-            {blockData?.author?.address && (
-              <DataRow
-                title='Sender'
-                data={
-                  <HashLink
-                    linkType={HashLinkType.ADDRESSES}
-                    width='auto'
-                    hash={blockData?.author?.address}
-                  />
-                }
-              />
-            )}
-            <DataRow
-              title='Signature'
-              data={
-                <Typography style={{ wordBreak: 'break-all' }}>
-                  {blockData?.signature ? blockData?.signature : 'Loading...'}
-                </Typography>
-              }
-            />
-            <DataRow
-              title='Verifiable Delay Function'
-              data={blockData?.vdf?.toString() || '0'}
-            />
-            {transactions?.length > 0 ? (
-              <>
-                <Divider light />
-                <Box
-                  display='flex'
-                  flexDirection='column'
-                  alignItems='flex-start'
-                  alignContent='center'
-                  style={{ overflowWrap: 'anywhere' }}
+          ) : (
+            <Box
+              display='flex'
+              flexDirection='column'
+              alignItems='left'
+              margin='2rem 2rem 2rem'
+              gap='1.5rem'
+            >
+              <Box
+                display='flex'
+                flexDirection='row'
+                alignItems='center'
+                justifyContent='flex-start'
+                gap='2rem'
+                mt={3}
+              >
+                <Icons.Block />
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
                 >
-                  <TableTabs {...tableTabs} />
-                </Box>
-              </>
-            ) : (
-              <Box pt={1}></Box>
-            )}
-          </Box>
+                  {zeroX(txHash)}
+                </Typography>
+                <CopyTo text={txHash} onCopy={onCopy} />
+              </Box>
+              <DataRow title='Level' data={`${blockData?.level || ''}`} />
+              <DataRow title='Period' data={`${blockData?.pbftPeriod || ''}`} />
+              {blockData.timestamp && (
+                <DataRow
+                  title='Timestamp'
+                  data={`${moment
+                    .unix(+(blockData ? blockData.timestamp : 0))
+                    .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+                />
+              )}
+              {(blockData?.level ||
+                blockData?.pbftPeriod ||
+                blockData.timestamp) && <Divider light />}
+              {blockData?.pivot && (
+                <DataRow
+                  title='Pivot'
+                  data={
+                    <HashLink
+                      linkType={HashLinkType.BLOCKS}
+                      width='auto'
+                      hash={blockData?.pivot}
+                    />
+                  }
+                />
+              )}
+              {blockData?.author?.address && (
+                <DataRow
+                  title='Sender'
+                  data={
+                    <HashLink
+                      linkType={HashLinkType.ADDRESSES}
+                      width='auto'
+                      hash={blockData?.author?.address}
+                    />
+                  }
+                />
+              )}
+              <DataRow
+                title='Signature'
+                data={
+                  <Typography style={{ wordBreak: 'break-all' }}>
+                    {blockData?.signature ? blockData?.signature : 'Loading...'}
+                  </Typography>
+                }
+              />
+              <DataRow
+                title='Verifiable Delay Function'
+                data={blockData?.vdf?.toString() || '0'}
+              />
+              {transactions?.length > 0 ? (
+                <>
+                  <Divider light />
+                  <Box
+                    display='flex'
+                    flexDirection='column'
+                    alignItems='flex-start'
+                    alignContent='center'
+                    style={{ overflowWrap: 'anywhere' }}
+                  >
+                    <TableTabs {...tableTabs} />
+                  </Box>
+                </>
+              ) : (
+                <Box pt={1}></Box>
+              )}
+            </Box>
+          )}
         </Paper>
       )}
     </>

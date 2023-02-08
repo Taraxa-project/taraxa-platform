@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'urql';
 import { dagDetailsQuery } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
@@ -13,10 +12,11 @@ export const useDAGDataContainerEffects = (
   transactions: Transaction[];
   currentNetwork: string;
   showLoadingSkeleton: boolean;
+  showNetworkChanged: boolean;
 } => {
   const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
-  const navigate = useNavigate();
+  const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
 
   const [blockData, setBlockData] = useState<DagBlock>({} as DagBlock);
   const [transactions, setTransactions] = useState<Transaction[]>([
@@ -35,6 +35,7 @@ export const useDAGDataContainerEffects = (
 
   useEffect(() => {
     if (data?.dagBlock) {
+      setShowNetworkChanged(false);
       setBlockData(data?.dagBlock);
       setTransactions(
         data?.dagBlock?.transactions?.map((tx: Transaction) => {
@@ -45,6 +46,9 @@ export const useDAGDataContainerEffects = (
           };
         })
       );
+    }
+    if (data?.dagBlock === null) {
+      setShowNetworkChanged(true);
     }
   }, [data]);
 
@@ -60,9 +64,15 @@ export const useDAGDataContainerEffects = (
 
   useEffect(() => {
     if (currentNetwork !== network) {
-      navigate(-1);
+      setShowNetworkChanged(true);
     }
   }, [currentNetwork, network]);
 
-  return { blockData, transactions, currentNetwork, showLoadingSkeleton };
+  return {
+    blockData,
+    transactions,
+    currentNetwork,
+    showLoadingSkeleton,
+    showNetworkChanged,
+  };
 };

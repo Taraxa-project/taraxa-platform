@@ -39,7 +39,7 @@ export const useGetDagsByAddress = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['dags-by-address', address, params],
+    ['dags-by-address', address, endpoint, params],
     () => getByAddress(endpoint, address, computeFilters(params)),
     {
       onError: (error) => {

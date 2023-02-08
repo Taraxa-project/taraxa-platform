@@ -21,7 +21,7 @@ export const useGetDagsCountByAddress = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['dags-by-address', address],
+    ['dags-by-address', address, endpoint],
     () => getByAddress(endpoint, address),
     {
       onError: (error) => {

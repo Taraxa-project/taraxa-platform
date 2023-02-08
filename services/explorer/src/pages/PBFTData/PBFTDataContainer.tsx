@@ -28,6 +28,7 @@ const PBFTDataContainer = (): JSX.Element => {
     currentNetwork,
     showLoadingSkeleton,
     genesisTransactions,
+    showNetworkChanged,
   } = usePBFTDataContainerEffects(blockNumber, txHash);
   const onCopy = useCopyToClipboard();
 
@@ -67,99 +68,121 @@ const PBFTDataContainer = (): JSX.Element => {
         <PbftLoadingSkeleton />
       ) : (
         <Paper elevation={1}>
-          <Box
-            display='flex'
-            flexDirection='column'
-            alignItems='left'
-            margin='2rem 2rem 2rem'
-            gap='1.5rem'
-          >
+          {showNetworkChanged ? (
             <Box
               display='flex'
-              flexDirection='row'
+              flexDirection='column'
               alignItems='center'
-              justifyContent='flex-start'
+              p={5}
               gap='2rem'
-              mt={3}
             >
-              <Icons.Block />
+              <Typography variant='h6' component='h6' color='primary'>
+                Sorry, We are unable to locate this block
+              </Typography>
               <Typography
                 variant='h6'
                 component='h6'
+                color='secondary'
                 style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
               >
-                {zeroX(blockData?.hash)}
+                {txHash ? zeroX(txHash) : blockNumber}
               </Typography>
-              <CopyTo text={blockData?.hash} onCopy={onCopy} />
             </Box>
-            <DataRow title='Number' data={`${blockData?.number}`} />
-            {blockData?.nonce && (
-              <DataRow title='Nonce' data={blockData?.nonce} />
-            )}
-            {blockData?.timestamp && (
-              <DataRow
-                title='Timestamp'
-                data={`${moment
-                  .unix(+(blockData?.timestamp || 0))
-                  .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
-              />
-            )}
-            {(blockData?.number || blockData?.nonce || blockData.timestamp) && (
-              <Divider light />
-            )}
-            <DataRow
-              title='Parent'
-              data={
-                <HashLink
-                  linkType={HashLinkType.PBFT}
-                  width='auto'
-                  hash={blockData?.parent?.hash}
-                />
-              }
-            />
-            <DataRow
-              title='Author'
-              data={
-                <HashLink
-                  linkType={HashLinkType.ADDRESSES}
-                  width='auto'
-                  hash={blockData?.miner?.address}
-                />
-              }
-            />
-            <DataRow
-              title='Difficulty'
-              data={
-                <Typography style={{ wordBreak: 'break-all' }}>
-                  {blockData?.difficulty}
-                </Typography>
-              }
-            />
-            <DataRow
-              title='Transaction Count'
-              data={`${
-                blockData?.transactionCount ||
-                transactions?.length ||
-                genesisTransactions?.length
-              }`}
-            />
-            {transactions?.length > 0 || genesisTransactions?.length > 0 ? (
-              <>
-                <Divider light />
-                <Box
-                  display='flex'
-                  flexDirection='column'
-                  alignItems='flex-start'
-                  alignContent='center'
-                  style={{ overflowWrap: 'anywhere' }}
+          ) : (
+            <Box
+              display='flex'
+              flexDirection='column'
+              alignItems='left'
+              margin='2rem 2rem 2rem'
+              gap='1.5rem'
+            >
+              <Box
+                display='flex'
+                flexDirection='row'
+                alignItems='center'
+                justifyContent='flex-start'
+                gap='2rem'
+                mt={3}
+              >
+                <Icons.Block />
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
                 >
-                  <TableTabs {...tableTabs} />
-                </Box>
-              </>
-            ) : (
-              <Box pt={1}></Box>
-            )}
-          </Box>
+                  {zeroX(blockData?.hash)}
+                </Typography>
+                <CopyTo text={blockData?.hash} onCopy={onCopy} />
+              </Box>
+              <DataRow title='Number' data={`${blockData?.number}`} />
+              {blockData?.nonce && (
+                <DataRow title='Nonce' data={blockData?.nonce} />
+              )}
+              {blockData?.timestamp && (
+                <DataRow
+                  title='Timestamp'
+                  data={`${moment
+                    .unix(+(blockData?.timestamp || 0))
+                    .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+                />
+              )}
+              {(blockData?.number ||
+                blockData?.nonce ||
+                blockData.timestamp) && <Divider light />}
+              <DataRow
+                title='Parent'
+                data={
+                  <HashLink
+                    linkType={HashLinkType.PBFT}
+                    width='auto'
+                    hash={blockData?.parent?.hash}
+                  />
+                }
+              />
+              <DataRow
+                title='Author'
+                data={
+                  <HashLink
+                    linkType={HashLinkType.ADDRESSES}
+                    width='auto'
+                    hash={blockData?.miner?.address}
+                  />
+                }
+              />
+              <DataRow
+                title='Difficulty'
+                data={
+                  <Typography style={{ wordBreak: 'break-all' }}>
+                    {blockData?.difficulty}
+                  </Typography>
+                }
+              />
+              <DataRow
+                title='Transaction Count'
+                data={`${
+                  blockData?.transactionCount ||
+                  transactions?.length ||
+                  genesisTransactions?.length
+                }`}
+              />
+              {transactions?.length > 0 || genesisTransactions?.length > 0 ? (
+                <>
+                  <Divider light />
+                  <Box
+                    display='flex'
+                    flexDirection='column'
+                    alignItems='flex-start'
+                    alignContent='center'
+                    style={{ overflowWrap: 'anywhere' }}
+                  >
+                    <TableTabs {...tableTabs} />
+                  </Box>
+                </>
+              ) : (
+                <Box pt={1}></Box>
+              )}
+            </Box>
+          )}
         </Paper>
       )}
     </>

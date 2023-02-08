@@ -21,7 +21,7 @@ export const useGetPbftsCountByAddress = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['pbfts-by-address', address],
+    ['pbfts-by-address', address, endpoint],
     () => getByAddress(endpoint, address),
     {
       onError: (error) => {

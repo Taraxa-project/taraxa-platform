@@ -34,7 +34,7 @@ export const useGetNodes = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['nodes', params],
+    ['nodes', endpoint, params],
     () => fetchNodes(endpoint, computeFilters(params)),
     {
       onError: (error) => {

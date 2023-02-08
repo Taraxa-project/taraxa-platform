@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'urql';
 import cleanDeep from 'clean-deep';
 import { blockQuery } from '../../api';
@@ -17,10 +16,11 @@ export const usePBFTDataContainerEffects = (
   currentNetwork: string;
   showLoadingSkeleton: boolean;
   genesisTransactions: Transaction[];
+  showNetworkChanged: boolean;
 } => {
   const { backendEndpoint, currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
-  const navigate = useNavigate();
+  const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
 
   const [blockData, setBlockData] = useState<PbftBlock>({} as PbftBlock);
   const [transactions, setTransactions] = useState<Transaction[]>([
@@ -59,6 +59,7 @@ export const usePBFTDataContainerEffects = (
 
   useEffect(() => {
     if (data?.block) {
+      setShowNetworkChanged(false);
       setBlockData(data.block);
       setTransactions(
         data?.block?.transactions?.map((tx: Transaction) => {
@@ -69,6 +70,9 @@ export const usePBFTDataContainerEffects = (
           };
         })
       );
+    }
+    if (data?.block === null) {
+      setShowNetworkChanged(true);
     }
   }, [data]);
 
@@ -88,7 +92,7 @@ export const usePBFTDataContainerEffects = (
 
   useEffect(() => {
     if (currentNetwork !== network) {
-      navigate(-1);
+      setShowNetworkChanged(true);
     }
   }, [currentNetwork, network]);
 
@@ -98,5 +102,6 @@ export const usePBFTDataContainerEffects = (
     currentNetwork,
     showLoadingSkeleton,
     genesisTransactions,
+    showNetworkChanged,
   };
 };

@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'urql';
 import { deZeroX, displayWeiOrTara } from '../../utils';
 import { BlockData, Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { transactionQuery } from '../../api';
-import { ethers } from 'ethers';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
-  const navigate = useNavigate();
   const [network] = useState(currentNetwork);
+  const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
+
   const [events] = useState<
     { name?: string; from?: string; to?: string; value?: string }[]
   >([]);
@@ -32,12 +31,16 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   useEffect(() => {
     if (transactiondata?.transaction) {
+      setShowNetworkChanged(false);
       setTransactionData({
         ...transactiondata?.transaction,
         value: displayWeiOrTara(transactiondata?.transaction.value),
         gasUsed: displayWeiOrTara(transactiondata?.transaction.gasUsed),
         gasPrice: displayWeiOrTara(transactiondata?.transaction.gasPrice),
       });
+    }
+    if (transactiondata?.transaction === null) {
+      setShowNetworkChanged(true);
     }
   }, [transactiondata]);
 
@@ -53,7 +56,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   useEffect(() => {
     if (currentNetwork !== network) {
-      navigate(-1);
+      setShowNetworkChanged(true);
     }
   }, [currentNetwork, network]);
 
@@ -63,5 +66,6 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     events,
     currentNetwork,
     showLoadingSkeleton,
+    showNetworkChanged,
   };
 };

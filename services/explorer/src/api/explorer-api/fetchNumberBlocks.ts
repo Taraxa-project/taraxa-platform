@@ -19,7 +19,7 @@ export const useGetBlocksThisWeek = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['pbft-blocks-this-week'],
+    ['pbft-blocks-this-week', endpoint],
     () => getBlocksNumber(endpoint),
     {
       onError: (error) => {

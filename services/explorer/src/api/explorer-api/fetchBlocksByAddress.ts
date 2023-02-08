@@ -21,7 +21,7 @@ export const useGetBlocksByAddress = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['blocks-by-address', address],
+    ['blocks-by-address', address, endpoint],
     () => getByAddress(endpoint, address),
     {
       onError: (error) => {
