@@ -15,7 +15,10 @@ export const fromWeiToTara = (amount: string | number | BigNumber): string => {
 export const displayWeiOrTara = (
   amount: string | number | BigNumber
 ): string => {
-  return Number(amount) < MIN_WEI_TO_CONVERT
-    ? `${amount} Wei`
-    : `${fromWeiToTara(ethers.BigNumber.from(amount))} TARA`;
+  if (amount !== undefined && amount !== null) {
+    return Number(amount) < MIN_WEI_TO_CONVERT
+      ? `${amount} Wei`
+      : `${fromWeiToTara(ethers.BigNumber.from(amount))} TARA`;
+  }
+  return 'NA';
 };
