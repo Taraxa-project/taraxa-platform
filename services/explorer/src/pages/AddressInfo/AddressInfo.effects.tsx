@@ -182,10 +182,20 @@ export const useAddressInfoEffects = (
           timestamp: tx.age,
         },
         value: displayWeiOrTara(
-          ethers.BigNumber.from(BigInt(Math.round(+tx.value)))
+          tx.value !== null && tx.value !== undefined
+            ? ethers.BigNumber.from(BigInt(Math.round(+tx.value)))
+            : null
         ),
-        gasPrice: displayWeiOrTara(ethers.BigNumber.from(tx.gasPrice)),
-        gas: displayWeiOrTara(ethers.BigNumber.from(tx.gasUsed)),
+        gasPrice: displayWeiOrTara(
+          tx.gasPrice !== null && tx.gasPrice !== undefined
+            ? ethers.BigNumber.from(tx.gasPrice)
+            : null
+        ),
+        gas: displayWeiOrTara(
+          tx.gasUsed !== null && tx.gasUsed !== undefined
+            ? ethers.BigNumber.from(tx.gasUsed)
+            : null
+        ),
         status: tx.status,
         from: {
           address: tx.from,
