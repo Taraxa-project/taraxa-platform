@@ -1,3 +1,5 @@
+import Bull from 'bull';
+
 export enum QueueJobs {
   NEW_PBFT_BLOCKS = 'NEW_PBFT_BLOCKS',
   NEW_DAG_BLOCKS = 'NEW_DAG_BLOCKS',
@@ -24,7 +26,8 @@ export interface TxQueueData {
   type: SyncTypes;
 }
 
-export const JobKeepAliveConfiguration = {
+export const JobKeepAliveConfiguration: Bull.JobOptions = {
+  attempts: -1,
   removeOnComplete: {
     age: 60,
   },

@@ -155,13 +155,14 @@ export default class TransactionService {
           .insert()
           .into(TransactionEntity)
           .values(newTx)
-          .orIgnore(true)
+          .orIgnore(false)
           .returning('*')
           .execute();
 
         return saved.raw[0];
       } catch (error) {
         console.error(error);
+        throw error;
       }
     }
     return tx;
