@@ -36,6 +36,8 @@ spec:
           env:
             - name: ENABLE_PRODUCER_MODULE
               value: "true"
+            - name: ENABLE_TRANSACTION_CONSUMER
+              value: "false"
           envFrom:
             - configMapRef:
                 name: {{ include "explorer-indexer.fullname" . }}
