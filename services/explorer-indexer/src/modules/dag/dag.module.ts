@@ -11,16 +11,27 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
+const isTransactionConsumer =
+  process.env.ENABLE_TRANSACTION_CONSUMER === 'true';
 @Module({
   imports: [
     TransactionModule,
     TypeOrmModule.forFeature([DagEntity, TransactionEntity]),
     ConnectorsModule,
-    BullModule.registerQueue({
-      name: Queues.NEW_DAGS,
-    }),
+    BullModule.registerQueue(
+      {
+        name: Queues.NEW_DAGS,
+      },
+      {
+        name: Queues.STALE_TRANSACTIONS,
+      }
+    ),
   ],
-  providers: isProducer ? [DagService] : [DagService, DagConsumer],
+  providers: isProducer
+    ? [DagService]
+    : isTransactionConsumer
+    ? [DagService]
+    : [DagService, DagConsumer],
   controllers: [],
   exports: [DagService],
 })

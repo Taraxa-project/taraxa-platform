@@ -8,7 +8,7 @@ import TransactionService from '../transaction/transaction.service';
 import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { QueueData, QueueJobs, SyncTypes } from '../../types';
+import { QueueData, QueueJobs, Queues, SyncTypes } from '../../types';
 import QueuePopulatorCache from './queuePopulatorCache';
 
 @Injectable()
@@ -23,10 +23,12 @@ export default class HistoricalSyncService implements OnModuleInit {
     private readonly txService: TransactionService,
     private readonly graphQLConnector: GraphQLConnectorService,
     private readonly configService: ConfigService,
-    @InjectQueue('new_pbfts')
+    @InjectQueue(Queues.NEW_PBFTS)
     private readonly pbftsQueue: Queue,
-    @InjectQueue('new_dags')
-    private readonly dagsQueue: Queue
+    @InjectQueue(Queues.NEW_DAGS)
+    private readonly dagsQueue: Queue,
+    @InjectQueue(Queues.STALE_TRANSACTIONS)
+    private readonly txQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
   }
@@ -134,20 +136,20 @@ export default class HistoricalSyncService implements OnModuleInit {
     const reorgThreshold =
       this.configService.get<number>('general.reorgThreshold') || 100;
     // if genesis block changes or the chain has lesser blocks than the syncer state(reset happened), resync
-    const isGenesys = this.chainState.genesis;
-    const genesysNotMatching =
+    const isGenesis = this.chainState.genesis;
+    const genesisNotMatching =
       this.chainState.genesis.toLowerCase() !==
       this.syncState.genesis.toLowerCase();
     const reorgDetected =
       this.chainState.number < this.syncState.number - reorgThreshold;
     if (
-      !isGenesys || //there is no genesys
-      genesysNotMatching || // genesys hash is different
+      !isGenesis || //there is no genesis
+      genesisNotMatching || // genesis hash is different
       reorgDetected // there has been a network reset not just a tip reformation
     ) {
       this.logger.warn(
-        `${isGenesys && 'No genesis block hash'}
-             ${genesysNotMatching && 'New genesis block hash'}
+        `${isGenesis && 'No genesis block hash'}
+             ${genesisNotMatching && 'New genesis block hash'}
             ${
               reorgDetected && ', Network reset'
             } detected. Restarting chain sync.`
@@ -163,6 +165,8 @@ export default class HistoricalSyncService implements OnModuleInit {
       this.logger.warn('Cleared PBFT queue');
       await this.dagsQueue.empty();
       this.logger.warn('Cleared DAG queue');
+      await this.txQueue.empty();
+      this.logger.warn('Cleared Tx queue');
       this.syncState = {
         number: 0,
         hash: '',
@@ -200,10 +204,6 @@ export default class HistoricalSyncService implements OnModuleInit {
       }
     }
 
-    // @note : Right now there is no way to get the genesis transactions to set:
-    // Initial validators, initial balances for delegators and faucet.
-    // big TODO
-    // initialize a cache taht takes care of bulk sending
     const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
     await queueCache.add({
       name: QueueJobs.NEW_PBFT_BLOCKS,

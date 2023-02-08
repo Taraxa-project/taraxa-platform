@@ -9,6 +9,7 @@ import {
 } from '@0xelod/nestjs-websocket';
 import {
   checkType,
+  JobKeepAliveConfiguration,
   NewPbftBlockHeaderResponse,
   QueueData,
   QueueJobs,
@@ -166,10 +167,14 @@ export default class LiveSyncerService {
         case ResponseTypes.NewHeadsReponse:
           const { number } = parsedData.result as NewPbftBlockHeaderResponse;
           const formattedNumber = parseInt(number, 16);
-          this.pbftsQueue.add(QueueJobs.NEW_PBFT_BLOCKS, {
-            pbftPeriod: formattedNumber,
-            type: SyncTypes.LIVE,
-          } as QueueData);
+          this.pbftsQueue.add(
+            QueueJobs.NEW_PBFT_BLOCKS,
+            {
+              pbftPeriod: formattedNumber,
+              type: SyncTypes.LIVE,
+            } as QueueData,
+            JobKeepAliveConfiguration
+          );
           this.logger.debug(`Pushed ${formattedNumber} into PBFT sync queue`);
       }
     } catch (error) {

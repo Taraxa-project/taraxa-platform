@@ -73,7 +73,6 @@ export default class DagService {
     }
     try {
       const savedDag = await dagToCreate.save();
-      this.logger.log(`Registered new DAG ${savedDag.hash}`);
       return savedDag;
     } catch (err) {
       this.logger.error(

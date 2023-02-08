@@ -1,7 +1,7 @@
 export enum QueueJobs {
   NEW_PBFT_BLOCKS = 'NEW_PBFT_BLOCKS',
   NEW_DAG_BLOCKS = 'NEW_DAG_BLOCKS',
-  STALE_TRANSACTIONS = 'STALE_TRANSACTIONS',
+  NEW_TRANSACTIONS = 'NEW_TRANSACTIONS',
 }
 
 export enum Queues {
@@ -23,3 +23,12 @@ export interface TxQueueData {
   hash: string;
   type: SyncTypes;
 }
+
+export const JobKeepAliveConfiguration = {
+  removeOnComplete: {
+    age: 60,
+  },
+  removeOnFail: {
+    age: 86400,
+  },
+};

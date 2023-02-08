@@ -3,15 +3,17 @@ import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import {
   ITransactionWithData,
+  JobKeepAliveConfiguration,
   QueueJobs,
   Queues,
   TxQueueData,
 } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
-import { ITransaction } from '@taraxa_project/explorer-shared';
+import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
 import PbftService from '../pbft/pbft.service';
+import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.STALE_TRANSACTIONS, scope: Scope.REQUEST })
@@ -35,45 +37,46 @@ export class TransactionConsumer implements OnModuleInit {
     this.txService.setRedisConnectionState(false);
   }
 
-  @Process(QueueJobs.STALE_TRANSACTIONS)
+  @Process(QueueJobs.NEW_TRANSACTIONS)
   async saveStaleTransactions(job: Job<TxQueueData>) {
-    this.logger.debug(
-      `Handling ${QueueJobs.STALE_TRANSACTIONS} for job ${job.id}, saving Transaction: ${job.data.hash}`
-    );
-
     const { hash, type } = job.data;
     const newTx: ITransactionWithData =
       await this.graphQLConnector.getTransactionByHash(hash);
     try {
-      if (newTx && newTx.hash && newTx.index && newTx.nonce) {
+      if (newTx && newTx.hash && newTx.nonce && newTx.value) {
         const formattedTx: ITransaction =
           this.txService.gQLToITransaction(newTx);
         this.logger.debug(
-          `${QueueJobs.STALE_TRANSACTIONS} worker (job ${job.id}): Saving Transaction ${job.data.hash}`
+          `${QueueJobs.NEW_TRANSACTIONS} worker (job ${job.id}): Saving Transaction ${job.data.hash}`
         );
         const block = await this.pbftService.getBlockByHash(
-          formattedTx.block?.hash
+          formattedTx.blockHash
         );
         if (block) {
           const blockReward = new BigInteger(block.reward || '0', 10);
           const gasUsed = new BigInteger(formattedTx.gasUsed.toString() || '0');
+          formattedTx.hash = zeroX(formattedTx.hash);
           const gasPrice = new BigInteger(
             formattedTx.gasPrice.toString() || '0'
           );
           const txReward = gasUsed.multiply(gasPrice);
           block.reward = blockReward.add(txReward).toString();
-          const savedTx = await this.txService.updateTransaction(formattedTx);
-          this.logger.debug(`Updated Transactions ${savedTx.hash}`);
-          const savedPbft = await this.pbftService.safeSavePbft(block);
-          this.logger.debug(
-            `Updated PBFT rewards for ${savedPbft.hash} in period ${savedPbft.number}`
-          );
+          formattedTx.block = block;
+          formattedTx.blockHash = block.hash;
+          formattedTx.blockNumber = block.number;
+          formattedTx.blockTimestamp = block.timestamp;
+          await this.txService.updateTransaction(formattedTx);
+          await this.pbftService.safeSavePbft(block);
         }
       } else {
-        const done = await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
-          hash,
-          type,
-        } as TxQueueData);
+        const done = await this.txQueue.add(
+          QueueJobs.NEW_TRANSACTIONS,
+          {
+            hash,
+            type,
+          } as TxQueueData,
+          JobKeepAliveConfiguration
+        );
         if (done) {
           this.logger.log(
             `Pushed stale transaction ${hash} into ${this.txQueue.name} queue`
@@ -86,16 +89,12 @@ export class TransactionConsumer implements OnModuleInit {
         `An error occurred during saving Transaction ${hash}: `,
         error
       );
-      const done = await this.txQueue.add(QueueJobs.STALE_TRANSACTIONS, {
-        hash,
-        type,
-      } as TxQueueData);
-      if (done) {
-        this.logger.log(
-          `Pushed stale transaction ${hash} into ${this.txQueue.name} queue`
-        );
-      }
-      await job.progress(100);
+      throw new ProcessingException(
+        QueueJobs.NEW_TRANSACTIONS,
+        { hash, type },
+        this.txQueue,
+        ''
+      );
     }
   }
 }
