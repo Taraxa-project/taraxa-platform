@@ -15,7 +15,7 @@ import {
   Queues,
   SyncTypes,
 } from '../../types';
-import QueuePopulatorCache from './queuePopulatorCache';
+import { QueuePopulatorCache } from '../common';
 
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {

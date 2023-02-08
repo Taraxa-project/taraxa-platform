@@ -27,7 +27,7 @@ import PbftService from '../pbft/pbft.service';
 import TransactionService from '../transaction/transaction.service';
 import { deZeroX } from '@taraxa_project/explorer-shared';
 import HistoricalSyncService from '../historical-sync/historical.syncer.service';
-import QueuePopulatorCache from '../historical-sync/queuePopulatorCache';
+import { QueuePopulatorCache } from '../common';
 
 @Injectable()
 export default class LiveSyncerService {

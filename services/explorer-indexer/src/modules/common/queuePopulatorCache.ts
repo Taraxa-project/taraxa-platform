@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Queue } from 'bull';
 
-export default class QueuePopulatorCache {
+export class QueuePopulatorCache {
   private readonly logger: Logger = new Logger(QueuePopulatorCache.name);
   private cache: any[] = [];
   private cacheLimit: number;
