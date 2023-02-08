@@ -62,18 +62,24 @@ export class DagConsumer implements OnModuleInit {
           const saved = await this.dagService.safeSaveDag(formattedDag);
           await this.handleTransactions(saved, type);
           if (!saved) {
-            await pushPeriodBackToQueue(
-              pbftPeriod,
-              this.dagsQueue,
-              this.logger
+            this.logger.error(
+              `Processing ${job.id} failed. Reason: DAG ${formattedDag.hash} could not be saved.`
             );
+            await job.moveToFailed({
+              message: `Processing ${job.id} failed. Reason: DAG ${formattedDag.hash} could not be saved.`,
+            });
           }
         }
       }
 
       await job.progress(100);
     } catch (error) {
-      await pushPeriodBackToQueue(pbftPeriod, this.dagsQueue, this.logger);
+      this.logger.error({
+        message: `Processing ${job.id} on ${this.dagsQueue.name} failed. Reason: ${error}`,
+      });
+      await job.moveToFailed({
+        message: `Processing ${job.id} failed. Reason: ${error}`,
+      });
     }
   }
   async handleTransactions(dag: DagEntity, syncType: SyncTypes) {
@@ -105,22 +111,5 @@ export class DagConsumer implements OnModuleInit {
         }
       }
     }
-  }
-}
-
-async function pushPeriodBackToQueue(
-  pbftPeriod: number,
-  queue: Queue,
-  logger: Logger
-) {
-  const added = await queue.add(
-    QueueJobs.NEW_DAG_BLOCKS,
-    {
-      pbftPeriod,
-    },
-    JobKeepAliveConfiguration
-  );
-  if (added) {
-    logger.log(`Pushed ${pbftPeriod} back to ${queue.name}`);
   }
 }

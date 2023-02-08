@@ -93,19 +93,12 @@ export class PbftConsumer implements OnModuleInit {
       await job.progress(100);
     } catch (error) {
       this.logger.error(
-        `An error occurred during saving PBFT ${pbftPeriod}: `,
+        `An error occurred during processing PBFT for period ${pbftPeriod}. Reason: `,
         error
       );
-      this.pbftsQueue.add(
-        QueueJobs.NEW_PBFT_BLOCKS,
-        {
-          pbftPeriod,
-          type,
-        } as QueueData,
-        JobKeepAliveConfiguration
-      );
-      this.logger.warn(`Pushed ${pbftPeriod} back into PBFT sync queue`);
-      await job.progress(100);
+      await job.moveToFailed({
+        message: `Processing ${job.id} failed. Reason: ${error}`,
+      });
     }
   }
 
