@@ -13,6 +13,8 @@ import {
 } from './modules';
 import general from './config/general';
 import dataSourceOptions from './data-source.options';
+import { APP_FILTER } from '@nestjs/core';
+import { JobProcessingExceptionFilter } from './modules/JobExceptionFilter';
 
 @Module({
   imports: [
@@ -50,7 +52,12 @@ import dataSourceOptions from './data-source.options';
     HealthModule,
     ConnectorsModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: JobProcessingExceptionFilter,
+    },
+  ],
   exports: [],
 })
 export class AppModule {}

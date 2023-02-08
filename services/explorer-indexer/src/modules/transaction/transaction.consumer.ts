@@ -3,6 +3,7 @@ import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import {
   ITransactionWithData,
+  JobKeepAliveConfiguration,
   QueueJobs,
   Queues,
   TxQueueData,
@@ -12,6 +13,7 @@ import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
 import PbftService from '../pbft/pbft.service';
+import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.STALE_TRANSACTIONS, scope: Scope.REQUEST })
