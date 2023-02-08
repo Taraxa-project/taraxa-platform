@@ -19,7 +19,6 @@ import {
 } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
-import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.NEW_PBFTS, scope: Scope.REQUEST })
@@ -93,12 +92,13 @@ export class PbftConsumer implements OnModuleInit {
       }
       await job.progress(100);
     } catch (error) {
-      throw new ProcessingException(
-        QueueJobs.NEW_PBFT_BLOCKS,
-        { pbftPeriod },
-        this.pbftsQueue,
-        ''
+      this.logger.error(
+        `An error occurred during processing PBFT for period ${pbftPeriod}. Reason: `,
+        error
       );
+      await job.moveToFailed({
+        message: `Processing ${job.id} failed. Reason: ${error}`,
+      });
     }
   }
 

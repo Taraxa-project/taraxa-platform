@@ -8,13 +8,19 @@ import TransactionService from '../transaction/transaction.service';
 import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { QueueData, QueueJobs, Queues, SyncTypes } from '../../types';
-import QueuePopulatorCache from './queuePopulatorCache';
+import {
+  JobKeepAliveConfiguration,
+  QueueData,
+  QueueJobs,
+  Queues,
+  SyncTypes,
+} from '../../types';
+import { QueuePopulatorCache } from '../common';
 
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
-  private isRunning = false;
+  public isRunning = false;
   private chainState = {} as ChainState;
   private syncState = {} as ChainState;
   constructor(
@@ -210,6 +216,7 @@ export default class HistoricalSyncService implements OnModuleInit {
       data: {
         pbftPeriod: 0,
       },
+      JobKeepAliveConfiguration,
     });
     const missingBlockNumbers = await this.pbftService.getMissingPbftPeriods();
     for (const blockNumber of missingBlockNumbers) {
@@ -219,8 +226,12 @@ export default class HistoricalSyncService implements OnModuleInit {
           pbftPeriod: blockNumber,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
+        JobKeepAliveConfiguration,
       });
     }
+
+    await this.reSyncChainState(); // we need to resync chain state to not miss PBFT periods that happened in between the reset
+
     for (
       this.syncState.number;
       this.syncState.number < this.chainState.number;
@@ -232,9 +243,11 @@ export default class HistoricalSyncService implements OnModuleInit {
           pbftPeriod: this.syncState.number,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
+        JobKeepAliveConfiguration,
       });
     }
     // at the end of iteration, clear the cache
     await queueCache.clearCache();
+    this.isRunning = false;
   }
 }

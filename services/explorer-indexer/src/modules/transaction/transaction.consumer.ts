@@ -3,7 +3,6 @@ import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import {
   ITransactionWithData,
-  JobKeepAliveConfiguration,
   QueueJobs,
   Queues,
   TxQueueData,
@@ -13,7 +12,6 @@ import { ITransaction, zeroX } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
 import PbftService from '../pbft/pbft.service';
-import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.STALE_TRANSACTIONS, scope: Scope.REQUEST })
@@ -39,7 +37,7 @@ export class TransactionConsumer implements OnModuleInit {
 
   @Process(QueueJobs.NEW_TRANSACTIONS)
   async saveStaleTransactions(job: Job<TxQueueData>) {
-    const { hash, type } = job.data;
+    const { hash } = job.data;
     const newTx: ITransactionWithData =
       await this.graphQLConnector.getTransactionByHash(hash);
     try {
@@ -66,35 +64,24 @@ export class TransactionConsumer implements OnModuleInit {
           formattedTx.blockNumber = block.number;
           formattedTx.blockTimestamp = block.timestamp;
           await this.txService.updateTransaction(formattedTx);
-          await this.pbftService.safeSavePbft(block);
+          const saved = await this.pbftService.safeSavePbft(block);
+          if (saved) {
+            await job.progress(100);
+          }
         }
       } else {
-        const done = await this.txQueue.add(
-          QueueJobs.NEW_TRANSACTIONS,
-          {
-            hash,
-            type,
-          } as TxQueueData,
-          JobKeepAliveConfiguration
-        );
-        if (done) {
-          this.logger.log(
-            `Pushed stale transaction ${hash} into ${this.txQueue.name} queue`
-          );
-        }
+        await job.moveToFailed({
+          message: `Incomplete job data for transaction ${hash}`,
+        });
       }
-      await job.progress(100);
     } catch (error) {
       this.logger.error(
         `An error occurred during saving Transaction ${hash}: `,
         error
       );
-      throw new ProcessingException(
-        QueueJobs.NEW_TRANSACTIONS,
-        { hash, type },
-        this.txQueue,
-        ''
-      );
+      await job.moveToFailed({
+        message: `An error occurred during saving Transaction ${hash}: ${error}`,
+      });
     }
   }
 }

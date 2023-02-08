@@ -19,7 +19,6 @@ import {
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
 import { DagEntity } from '@taraxa_project/explorer-shared';
-import { ProcessingException } from 'src/types/exceptions/JobProcessing.exception';
 
 @Injectable()
 @Processor({ name: Queues.NEW_DAGS, scope: Scope.REQUEST })
@@ -63,24 +62,24 @@ export class DagConsumer implements OnModuleInit {
           const saved = await this.dagService.safeSaveDag(formattedDag);
           await this.handleTransactions(saved, type);
           if (!saved) {
-            throw new ProcessingException(
-              QueueJobs.NEW_DAG_BLOCKS,
-              { pbftPeriod },
-              this.dagsQueue,
-              ''
+            this.logger.error(
+              `Processing ${job.id} failed. Reason: DAG ${formattedDag.hash} could not be saved.`
             );
+            await job.moveToFailed({
+              message: `Processing ${job.id} failed. Reason: DAG ${formattedDag.hash} could not be saved.`,
+            });
           }
         }
       }
 
       await job.progress(100);
     } catch (error) {
-      throw new ProcessingException(
-        QueueJobs.NEW_DAG_BLOCKS,
-        { pbftPeriod },
-        this.dagsQueue,
-        ''
-      );
+      this.logger.error({
+        message: `Processing ${job.id} on ${this.dagsQueue.name} failed. Reason: ${error}`,
+      });
+      await job.moveToFailed({
+        message: `Processing ${job.id} failed. Reason: ${error}`,
+      });
     }
   }
   async handleTransactions(dag: DagEntity, syncType: SyncTypes) {
