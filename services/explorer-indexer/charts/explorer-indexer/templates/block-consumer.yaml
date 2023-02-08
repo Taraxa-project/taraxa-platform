@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "explorer-indexer.fullname" . }}-consumer
+  name: {{ include "explorer-indexer.fullname" . }}-block-consumer
   labels:
     {{- include "explorer-indexer.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.consumerReplicaCount }}
-  serviceName: {{ include "explorer-indexer.fullname" . }}-consumer
+  serviceName: {{ include "explorer-indexer.fullname" . }}-block-consumer
   podManagementPolicy: Parallel
   selector:
     matchLabels:
@@ -35,6 +35,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: ENABLE_PRODUCER_MODULE
+              value: "false"
+            - name: ENABLE_TRANSACTION_CONSUMER
               value: "false"
           envFrom:
             - configMapRef:

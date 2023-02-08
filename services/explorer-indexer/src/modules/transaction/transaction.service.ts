@@ -99,8 +99,8 @@ export default class TransactionService {
     foundTx.nonce = tx.nonce;
     foundTx.index = tx.index;
     foundTx.value = tx.value;
-    foundTx.gas = foundTx.gas;
-    foundTx.gasPrice = foundTx.gasPrice;
+    foundTx.gas = tx.gas;
+    foundTx.gasPrice = tx.gasPrice;
     foundTx.gasUsed = tx.gasUsed;
     foundTx.cumulativeGasUsed = tx.cumulativeGasUsed;
     foundTx.inputData = tx.inputData;
@@ -110,6 +110,9 @@ export default class TransactionService {
     foundTx.v = tx.v;
     foundTx.r = tx.r;
     foundTx.s = tx.s;
+    foundTx.blockHash = tx.blockHash;
+    foundTx.blockNumber = tx.blockNumber;
+    foundTx.blockTimestamp = tx.blockTimestamp;
     return await this.txRepository.save(foundTx);
   }
 
@@ -156,11 +159,6 @@ export default class TransactionService {
           .returning('*')
           .execute();
 
-        if (saved.raw[0]) {
-          this.logger.log(
-            `Registered new Transaction ${JSON.stringify(saved.raw[0]?.hash)}`
-          );
-        }
         return saved.raw[0];
       } catch (error) {
         console.error(error);

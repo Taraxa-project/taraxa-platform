@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   IPBFT,
@@ -16,14 +17,19 @@ import TransactionService from '../transaction/transaction.service';
 export default class PbftService {
   private readonly logger: Logger = new Logger(PbftService.name);
   private isRedisConnected: boolean;
+  private isTransactionConsumer: boolean;
   constructor(
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>,
     private txService: TransactionService,
-    private dagService: DagService
+    private dagService: DagService,
+    private readonly configService: ConfigService
   ) {
     this.pbftRepository = pbftRepository;
     this.isRedisConnected = true;
+    this.isTransactionConsumer = configService.get<boolean>(
+      'isTransactionConsumer'
+    );
   }
 
   public getRedisConnectionState() {
@@ -57,31 +63,46 @@ export default class PbftService {
       return;
     }
     let _pbft;
-    _pbft = await this.pbftRepository.findOneBy({ hash: pbft.hash });
-    if (!_pbft) {
-      const newPbft = this.pbftRepository.create({
+    const indexedPbft = await this.pbftRepository.findOneBy({
+      hash: pbft.hash,
+    });
+    if (!indexedPbft) {
+      _pbft = this.pbftRepository.create({
         hash: pbft.hash,
-        miner: toChecksumAddress(pbft.miner),
-        number: pbft.number,
-        timestamp: pbft.timestamp,
-        nonce: pbft.nonce,
-        reward: pbft.reward,
-        gasLimit: String(pbft.gasLimit || '0'),
-        gasUsed: String(pbft.gasUsed || '0'),
-        parent: pbft.parent,
-        difficulty: pbft.difficulty,
-        totalDifficulty: pbft.totalDifficulty,
-        transactionCount: pbft.transactions?.length || pbft.transactionCount,
-        extraData: pbft.extraData,
-        logsBloom: pbft.logsBloom,
-        mixHash: pbft.mixHash,
-        recepitsRoot: pbft.recepitsRoot,
-        sha3Uncles: pbft.sha3Uncles,
-        size: pbft.size,
-        stateRoot: pbft.stateRoot,
-        transactionsRoot: pbft.transactionsRoot,
       });
-      _pbft = newPbft;
+    } else {
+      _pbft = indexedPbft;
+    }
+    _pbft.miner = toChecksumAddress(pbft.miner);
+    _pbft.number = pbft.number;
+    _pbft.timestamp = pbft.timestamp;
+    _pbft.nonce = pbft.nonce;
+    _pbft.reward = pbft.reward;
+    _pbft.gasLimit = String(pbft.gasLimit || '0');
+    _pbft.gasUsed = String(pbft.gasUsed || '0');
+    _pbft.parent = pbft.parent;
+    _pbft.difficulty = pbft.difficulty;
+    _pbft.totalDifficulty = pbft.totalDifficulty;
+    _pbft.transactionCount = pbft.transactions?.length || pbft.transactionCount;
+    _pbft.extraData = pbft.extraData;
+    _pbft.logsBloom = pbft.logsBloom;
+    _pbft.mixHash = pbft.mixHash;
+    _pbft.recepitsRoot = pbft.recepitsRoot;
+    _pbft.sha3Uncles = pbft.sha3Uncles;
+    _pbft.size = pbft.size;
+    _pbft.stateRoot = pbft.stateRoot;
+    _pbft.transactionsRoot = pbft.transactionsRoot;
+    if (indexedPbft) {
+      const savedPbft = await this.pbftRepository.save(_pbft);
+      if (savedPbft) {
+        const pbftFound = await this.pbftRepository.findOne({
+          where: {
+            hash: _pbft.hash,
+          },
+          relations: ['transactions'],
+        });
+        return pbftFound;
+      }
     }
 
     try {
@@ -100,15 +121,25 @@ export default class PbftService {
         if (pbft.transactions?.length > 0) {
           const newTransactions: ITransaction[] = pbft.transactions.map(
             (transaction) => {
-              return {
-                ...transaction,
-                block: {
-                  id: saved.raw[0]?.id,
-                  hash: saved.raw[0]?.hash,
-                  number: saved.raw[0]?.number,
-                  timestamp: saved.raw[0]?.timestamp,
-                },
-              };
+              return pbft.number === 0 || this.isTransactionConsumer
+                ? {
+                    ...transaction,
+                    block: {
+                      id: saved.raw[0]?.id,
+                      hash: saved.raw[0]?.hash,
+                      number: saved.raw[0]?.number,
+                      timestamp: saved.raw[0]?.timestamp,
+                    },
+                  }
+                : {
+                    hash: transaction.hash,
+                    block: {
+                      id: saved.raw[0]?.id,
+                      hash: saved.raw[0]?.hash,
+                      number: saved.raw[0]?.number,
+                      timestamp: saved.raw[0]?.timestamp,
+                    },
+                  };
             }
           );
 

@@ -11,6 +11,8 @@ import { BullModule } from '@nestjs/bull';
 
 dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
+const isTransactionConsumer =
+  process.env.ENABLE_TRANSACTION_CONSUMER === 'true';
 @Module({
   imports: [
     TypeOrmModule.forFeature([TransactionEntity, PbftEntity]),
@@ -22,7 +24,9 @@ const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
   ],
   providers: isProducer
     ? [TransactionService]
-    : [TransactionService, TransactionConsumer],
+    : isTransactionConsumer
+    ? [TransactionService, TransactionConsumer]
+    : [TransactionService],
   controllers: [],
   exports: [TransactionService],
 })
