@@ -66,9 +66,7 @@ export class TransactionConsumer implements OnModuleInit {
           await this.txService.updateTransaction(formattedTx);
           const saved = await this.pbftService.safeSavePbft(block);
           if (saved) {
-            await job.moveToCompleted(
-              `Job ${job.id} inserted transaction ${saved.hash}`
-            );
+            await job.progress(100);
           }
         }
       } else {

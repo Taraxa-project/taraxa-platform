@@ -72,9 +72,7 @@ export class DagConsumer implements OnModuleInit {
         }
       }
 
-      await job.moveToCompleted(
-        `Job ${job.id} inserted DAGS for PBFT period ${pbftPeriod}`
-      );
+      await job.progress(100);
     } catch (error) {
       this.logger.error({
         message: `Processing ${job.id} on ${this.dagsQueue.name} failed. Reason: ${error}`,
