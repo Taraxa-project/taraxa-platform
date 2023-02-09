@@ -91,7 +91,6 @@ export class DagConsumer implements OnModuleInit {
         try {
           if (transaction && transaction.hash) {
             const done = await this.txQueue.add(
-              QueueJobs.NEW_TRANSACTIONS,
               {
                 hash: transaction.hash,
                 type: syncType,

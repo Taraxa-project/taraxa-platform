@@ -174,7 +174,6 @@ export default class LiveSyncerService {
           const formattedNumber = parseInt(number, 16);
           if (this.historicalSyncerService.isRunning) {
             await this.queueCache.add({
-              name: QueueJobs.NEW_PBFT_BLOCKS,
               data: {
                 pbftPeriod: formattedNumber,
                 type: SyncTypes.LIVE,
@@ -185,7 +184,6 @@ export default class LiveSyncerService {
           } else {
             await this.queueCache.clearCache();
             await this.pbftsQueue.add(
-              QueueJobs.NEW_PBFT_BLOCKS,
               {
                 pbftPeriod: formattedNumber,
                 type: SyncTypes.LIVE,
