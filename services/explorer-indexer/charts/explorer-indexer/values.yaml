@@ -3,7 +3,10 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-consumerReplicaCount: 3
+blockConsumerReplicaCount: 3
+transactionConsumerReplicaCount: 3
+
+
 
 app:
   environment: default

@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "explorer-indexer.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.consumerReplicaCount }}
+  replicas: {{ .Values.transactionConsumerReplicaCount }}
   serviceName: {{ include "explorer-indexer.fullname" . }}-transaction-consumer
   podManagementPolicy: Parallel
   selector:
