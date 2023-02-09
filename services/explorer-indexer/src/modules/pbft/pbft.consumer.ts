@@ -90,7 +90,7 @@ export class PbftConsumer implements OnModuleInit {
         );
         this.logger.log(`Pushed ${pbftPeriod} into DAG sync queue`);
       }
-      await job.progress(100);
+      await job.moveToCompleted(`${job.id} inserted PBFT ${pbftPeriod}`);
     } catch (error) {
       this.logger.error(
         `An error occurred during processing PBFT for period ${pbftPeriod}. Reason: `,
