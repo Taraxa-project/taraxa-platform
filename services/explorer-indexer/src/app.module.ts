@@ -13,6 +13,7 @@ import {
 } from './modules';
 import general from './config/general';
 import dataSourceOptions from './data-source.options';
+import { JobKeepAliveConfiguration } from './types';
 
 @Module({
   imports: [
@@ -35,8 +36,7 @@ import dataSourceOptions from './data-source.options';
           port: config.get<number>('general.redisPort'),
           password: config.get<string>('general.redisPassword'),
         },
-        removeOnComplete: true,
-        removeOnCompleteTimeout: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+        defaultJobOptions: JobKeepAliveConfiguration,
         settings: {
           lockDuration: config.get<number>('general.maxLockDuration'),
         },
