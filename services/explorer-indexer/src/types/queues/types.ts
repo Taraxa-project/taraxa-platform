@@ -27,7 +27,7 @@ export interface TxQueueData {
 }
 
 export const JobKeepAliveConfiguration: Bull.JobOptions = {
-  attempts: -1,
+  attempts: 3,
   removeOnComplete: {
     age: 60,
   },
