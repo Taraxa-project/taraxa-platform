@@ -59,12 +59,6 @@ export class PbftConsumer implements OnModuleInit {
       if (newBlock && newBlock.number != undefined) {
         const formattedBlock: IPBFT = this.pbftService.pbftGQLToIPBFT(newBlock);
 
-        if (type === SyncTypes.LIVE) {
-          // in case of a reorganization we need to clear the wrong data
-          await this.pbftService.checkAndDeletePbftsGreaterThanNumber(
-            newBlock.number
-          );
-        }
         this.logger.debug(
           `${QueueJobs.NEW_PBFT_BLOCKS} worker (job ${job.id}): Saving PBFT ${job.data.pbftPeriod}`
         );

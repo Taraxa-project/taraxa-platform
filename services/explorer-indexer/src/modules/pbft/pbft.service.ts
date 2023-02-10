@@ -233,6 +233,14 @@ export default class PbftService {
     )?.hash;
   };
 
+  public getLastPBFTNumber = async () => {
+    return (
+      await this.pbftRepository.query(
+        'select max(number) as last_block from pbfts'
+      )
+    ).map((res: { last_block: number }) => res.last_block)[0];
+  };
+
   public pbftGQLToIPBFT(pbftGQL: IGQLPBFT) {
     const {
       hash,

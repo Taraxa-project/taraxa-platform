@@ -9,6 +9,7 @@ import {
 } from '@0xelod/nestjs-websocket';
 import {
   checkType,
+  createJobConfiguration,
   JobKeepAliveConfiguration,
   NewPbftBlockHeaderResponse,
   QueueData,
@@ -172,6 +173,31 @@ export default class LiveSyncerService {
         case ResponseTypes.NewHeadsReponse:
           const { number } = parsedData.result as NewPbftBlockHeaderResponse;
           const formattedNumber = parseInt(number, 16);
+
+          // in case of a reorganization we need to clear the wrong data
+          const reorgThreshold =
+            this.configService.get<number>('general.reorgThreshold') || 20;
+          const lastBlockSaved = await this.pbftService.getLastPBFTNumber();
+          if (formattedNumber < lastBlockSaved - reorgThreshold) {
+            for (let i = formattedNumber; i <= lastBlockSaved; i++) {
+              this.logger.warn(
+                `Reorg detected from block ${formattedNumber}. Purging blocks after`
+              );
+              await this.dagsQueue.pause(false, false);
+              await this.pbftsQueue.pause(false, false);
+              await this.pbftsQueue.removeJobs(
+                `bull:explorer-indexer:${Queues.NEW_PBFTS}:${i}`
+              );
+              await this.dagsQueue.removeJobs(
+                `bull:explorer-indexer:${Queues.NEW_DAGS}:${i}`
+              );
+            }
+            await this.pbftService.checkAndDeletePbftsGreaterThanNumber(
+              formattedNumber
+            );
+            await this.dagsQueue.resume(false);
+            await this.pbftsQueue.resume(false);
+          }
           if (this.historicalSyncerService.isRunning) {
             await this.queueCache.add({
               name: QueueJobs.NEW_PBFT_BLOCKS,
@@ -190,7 +216,7 @@ export default class LiveSyncerService {
                 pbftPeriod: formattedNumber,
                 type: SyncTypes.LIVE,
               } as QueueData,
-              JobKeepAliveConfiguration
+              createJobConfiguration(formattedNumber)
             );
             this.logger.debug(`Pushed ${formattedNumber} into PBFT sync queue`);
           }
