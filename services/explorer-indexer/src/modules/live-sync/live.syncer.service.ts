@@ -179,7 +179,7 @@ export default class LiveSyncerService {
                 pbftPeriod: formattedNumber,
                 type: SyncTypes.LIVE,
               } as QueueData,
-              JobKeepAliveConfiguration,
+              opts: JobKeepAliveConfiguration,
             });
             this.logger.debug(`Pushed ${formattedNumber} into PBFT sync cache`);
           } else {

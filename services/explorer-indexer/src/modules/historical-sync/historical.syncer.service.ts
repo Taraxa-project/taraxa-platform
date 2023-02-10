@@ -216,7 +216,7 @@ export default class HistoricalSyncService implements OnModuleInit {
       data: {
         pbftPeriod: 0,
       },
-      JobKeepAliveConfiguration,
+      opts: JobKeepAliveConfiguration,
     });
     const missingBlockNumbers = await this.pbftService.getMissingPbftPeriods();
     for (const blockNumber of missingBlockNumbers) {
@@ -226,7 +226,7 @@ export default class HistoricalSyncService implements OnModuleInit {
           pbftPeriod: blockNumber,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
-        JobKeepAliveConfiguration,
+        opts: JobKeepAliveConfiguration,
       });
     }
 
@@ -243,7 +243,7 @@ export default class HistoricalSyncService implements OnModuleInit {
           pbftPeriod: this.syncState.number,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
-        JobKeepAliveConfiguration,
+        opts: JobKeepAliveConfiguration,
       });
     }
     // at the end of iteration, clear the cache
