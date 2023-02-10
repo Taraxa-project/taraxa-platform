@@ -177,6 +177,8 @@ export default class LiveSyncerService {
           // in case of a reorganization we need to clear the wrong data
           const reorgThreshold =
             this.configService.get<number>('general.reorgThreshold') || 20;
+          const appPrefix =
+            this.configService.get<number>('general.appPrefix') || 20;
           const lastBlockSaved = await this.pbftService.getLastPBFTNumber();
           if (formattedNumber < lastBlockSaved - reorgThreshold) {
             for (let i = formattedNumber; i <= lastBlockSaved; i++) {
@@ -186,10 +188,10 @@ export default class LiveSyncerService {
               await this.dagsQueue.pause(false, false);
               await this.pbftsQueue.pause(false, false);
               await this.pbftsQueue.removeJobs(
-                `bull:explorer-indexer:${Queues.NEW_PBFTS}:${i}`
+                `bull:explorer-indexer:${appPrefix}:${Queues.NEW_PBFTS}:${i}`
               );
               await this.dagsQueue.removeJobs(
-                `bull:explorer-indexer:${Queues.NEW_DAGS}:${i}`
+                `bull:explorer-indexer:${appPrefix}:${Queues.NEW_DAGS}:${i}`
               );
             }
             await this.pbftService.checkAndDeletePbftsGreaterThanNumber(

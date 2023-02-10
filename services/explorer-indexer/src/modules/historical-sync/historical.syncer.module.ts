@@ -10,12 +10,14 @@ import { ConnectorsModule } from '../connectors';
 import { BullModule } from '@nestjs/bull';
 import * as dotenv from 'dotenv';
 import { Queues } from '../../types';
+import { ScheduleModule } from '@nestjs/schedule';
 
 dotenv.config();
 const isProducer = process.env.ENABLE_PRODUCER_MODULE === 'true';
 @Module({
   imports: [
     ConfigModule.forFeature(general),
+    ScheduleModule.forRoot(),
     WebSocketModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
