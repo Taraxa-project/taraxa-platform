@@ -146,13 +146,13 @@ export default class LiveSyncerService {
   @EventListener('ping')
   onPing(data: Buffer) {
     const pingJson = data.toJSON();
-    this.logger.log(`PING ${this.ws.url} >>> ${pingJson}`);
+    this.logger.log(`PING ${this.ws.url} >>> ${pingJson.data}`);
   }
 
   @EventListener('pong')
   onPong(data: Buffer) {
     const pongJson = data.toJSON();
-    this.logger.log(`PONG ${this.ws.url} >>> ${pongJson}`);
+    this.logger.log(`PONG ${this.ws.url} >>> ${pongJson.data}`);
   }
 
   @EventListener('error')
