@@ -65,7 +65,7 @@ export const useHomeEffects = () => {
     }, POOLING_INTERVAL);
 
     return () => clearTimeout(timerId);
-  }, [fetchingDagBlocks, fetchingBlocks, reexecuteDagQuery]);
+  }, [fetchingDagBlocks, reexecuteDagQuery]);
 
   useEffect(() => {
     setCurrentPeriod(dagBlockPeriod);
