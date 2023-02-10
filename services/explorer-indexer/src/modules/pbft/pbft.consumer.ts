@@ -82,6 +82,7 @@ export class PbftConsumer implements OnModuleInit {
         await this.handleTransactions(savedPbft, type);
 
         await this.dagsQueue.add(
+          QueueJobs.NEW_DAG_BLOCKS,
           {
             pbftPeriod: savedPbft.number,
           },
@@ -110,6 +111,7 @@ export class PbftConsumer implements OnModuleInit {
         try {
           if (transaction && transaction.hash) {
             const done = await this.txQueue.add(
+              QueueJobs.NEW_TRANSACTIONS,
               {
                 hash: transaction.hash,
                 type: syncType,

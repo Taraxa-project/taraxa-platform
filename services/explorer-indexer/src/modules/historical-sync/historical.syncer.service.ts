@@ -212,19 +212,21 @@ export default class HistoricalSyncService implements OnModuleInit {
 
     const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
     await queueCache.add({
+      name: QueueJobs.NEW_PBFT_BLOCKS,
       data: {
         pbftPeriod: 0,
       },
-      JobKeepAliveConfiguration,
+      opts: JobKeepAliveConfiguration,
     });
     const missingBlockNumbers = await this.pbftService.getMissingPbftPeriods();
     for (const blockNumber of missingBlockNumbers) {
       await queueCache.add({
+        name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
           pbftPeriod: blockNumber,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
-        JobKeepAliveConfiguration,
+        opts: JobKeepAliveConfiguration,
       });
     }
 
@@ -236,11 +238,12 @@ export default class HistoricalSyncService implements OnModuleInit {
       this.syncState.number++
     ) {
       await queueCache.add({
+        name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
           pbftPeriod: this.syncState.number,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
-        JobKeepAliveConfiguration,
+        opts: JobKeepAliveConfiguration,
       });
     }
     // at the end of iteration, clear the cache
