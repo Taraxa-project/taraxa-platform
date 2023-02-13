@@ -14,7 +14,7 @@
 
 ## Description
 
-Explorer indexer service built with event-driven architecture. Fetches data from the [Taraxa Node](https://github.com/Taraxa-project/taraxa-node)'s GraphQL endpoints and subscribes to its RPCWs `eth_subscribe` methods.
+Explorer indexer service built using queueing mechanisms. Fetches data from the [Taraxa Node](https://github.com/Taraxa-project/taraxa-node)'s GraphQL endpoints and subscribes to its RPCWs `eth_subscribe` methods.
 
 ## Module structure
 
