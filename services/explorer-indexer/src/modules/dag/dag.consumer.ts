@@ -18,7 +18,7 @@ import {
 } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
-import { DagEntity } from '@taraxa_project/explorer-shared';
+import { DagEntity, zeroX } from '@taraxa_project/explorer-shared';
 
 @Injectable()
 @Processor({ name: Queues.NEW_DAGS, scope: Scope.REQUEST })
@@ -96,7 +96,7 @@ export class DagConsumer implements OnModuleInit {
                 hash: transaction.hash,
                 type: syncType,
               } as TxQueueData,
-              createJobConfiguration(transaction.hash)
+              createJobConfiguration(zeroX(transaction.hash).toLowerCase())
             );
             if (!done) {
               this.logger.error(

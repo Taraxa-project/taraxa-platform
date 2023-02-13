@@ -16,6 +16,7 @@ import {
   IPBFT,
   ITransaction,
   PbftEntity,
+  zeroX,
 } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
@@ -110,7 +111,7 @@ export class PbftConsumer implements OnModuleInit {
                 hash: transaction.hash,
                 type: syncType,
               } as TxQueueData,
-              createJobConfiguration(transaction.hash)
+              createJobConfiguration(zeroX(transaction.hash).toLowerCase())
             );
             if (!done) {
               this.logger.error(
