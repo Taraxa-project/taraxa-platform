@@ -203,11 +203,7 @@ export const AddressInfo = ({
           >
             <DataRow
               title='Balance'
-              data={`${
-                details?.balance
-                  ? Number(details?.balance)?.toLocaleString()
-                  : ''
-              } TARA`}
+              data={`${details?.balance ? details?.balance : '0'} TARA`}
             />
             <DataRow
               title='Value'

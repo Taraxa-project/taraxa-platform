@@ -10,7 +10,7 @@ import {
   useGetPbftsCountByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
-import { displayWeiOrTara, fromWeiToTara } from '../../utils';
+import { displayWeiOrTara, balanceWeiToTara } from '../../utils';
 import { useQuery } from 'urql';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
 
@@ -250,7 +250,7 @@ export const useAddressInfoEffects = (
 
     if (accountDetails) {
       const account = accountDetails?.block?.account;
-      addressDetails.balance = fromWeiToTara(
+      addressDetails.balance = balanceWeiToTara(
         ethers.BigNumber.from(account?.balance)
       );
       addressDetails.transactionCount = account?.transactionCount;

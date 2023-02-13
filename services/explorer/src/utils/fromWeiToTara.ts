@@ -12,6 +12,15 @@ export const fromWeiToTara = (amount: string | number | BigNumber): string => {
     : parseFloat(result?.toFixed(4))?.toString();
 };
 
+export const balanceWeiToTara = (
+  amount: string | number | BigNumber
+): string => {
+  if (!amount) {
+    return;
+  }
+  return Number(ethers.utils.formatEther(amount))?.toLocaleString();
+};
+
 export const displayWeiOrTara = (
   amount: string | number | BigNumber
 ): string => {
