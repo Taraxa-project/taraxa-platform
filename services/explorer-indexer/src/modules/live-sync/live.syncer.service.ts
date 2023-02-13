@@ -90,6 +90,8 @@ export default class LiveSyncerService {
       await this.dagsQueue.empty();
       this.logger.warn('Cleared DAG queue');
     }
+    this.logger.error(`WS state is: ${this.ws.readyState}`);
+    this.logger.error(`WS connection state is: ${this.isWsConnected}`);
     if (this.ws.readyState === this.ws.OPEN && !this.isWsConnected) {
       this.ws.send(
         JSON.stringify({
