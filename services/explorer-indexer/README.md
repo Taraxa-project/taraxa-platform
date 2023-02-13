@@ -16,6 +16,32 @@
 
 Explorer indexer service built with event-driven architecture. Fetches data from the [Taraxa Node](https://github.com/Taraxa-project/taraxa-node)'s GraphQL endpoints and subscribes to its RPCWs `eth_subscribe` methods.
 
+## Module structure
+
+### Patterns
+
+The application consists of seven modules:
+
+- Connector
+- DAG
+- Health
+- Historical Sync
+- Live Sync
+- PBFT
+- Transaction
+
+#### Services
+
+Each module follows the service pattern: in each of them you'll find a service class that holds the business necessary to complete the target flows.
+
+#### Producers
+
+In modules that implement queueing you'll find producers. Producers are tasked with populating the queues with jobs using the relevant services.
+
+#### Consumers
+
+In the same modules you'll find consumers that fullfill jobs from their target queues via executing service methods in the right circumstances and order. **Note**: **Certain consumers can be producers too**.
+
 ## Prerequisites
 
 - Redis.

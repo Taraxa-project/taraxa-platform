@@ -5,6 +5,16 @@ To successfully run the producer you need to make sure the following env vars ar
 - `ENABLE_PRODUCER_MODULE=true`
 - `ENABLE_TRANSACTION_CONSUMER=false`
 
+## Important notes
+
+### Queueing
+
+The Queueing mechanism is implemented using the [BullMQ](https://github.com/taskforcesh/bullmq) module. In this context, there are several things we need to consider:
+
+- As in any other Redis setup, each key is unique. BullMQ simply disregards all queue insertions of duplicate keys. This helps us esure that no PBFT block or transaction hash is inserted twice.
+- The [root module](../src/app.module.ts) handles the global initialization and configuration of BullMQ.
+- Each module injects the queues they are using (ex [PBFT module](../src/modules/pbft/pbft.module.ts)).
+
 ## Switching nets
 
 To Switch the indexer's target network you need to change:
