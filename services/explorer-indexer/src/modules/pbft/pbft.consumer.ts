@@ -3,8 +3,8 @@ import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import PbftService from './pbft.service';
 import {
+  createJobConfiguration,
   IGQLPBFT,
-  JobKeepAliveConfiguration,
   QueueData,
   QueueJobs,
   Queues,
@@ -31,8 +31,6 @@ export class PbftConsumer implements OnModuleInit {
     private readonly rpcConnector: RPCConnectorService,
     @InjectQueue(Queues.NEW_DAGS)
     private readonly dagsQueue: Queue,
-    @InjectQueue(Queues.NEW_PBFTS)
-    private readonly pbftsQueue: Queue,
     @InjectQueue(Queues.STALE_TRANSACTIONS)
     private readonly txQueue: Queue
   ) {}
@@ -75,14 +73,16 @@ export class PbftConsumer implements OnModuleInit {
         );
         await this.handleTransactions(savedPbft, type);
 
-        await this.dagsQueue.add(
+        const dagJob = await this.dagsQueue.add(
           QueueJobs.NEW_DAG_BLOCKS,
           {
             pbftPeriod: savedPbft.number,
           },
-          JobKeepAliveConfiguration
+          createJobConfiguration(savedPbft.number)
         );
-        this.logger.log(`Pushed ${pbftPeriod} into DAG sync queue`);
+        if (dagJob) {
+          this.logger.log(`Pushed ${pbftPeriod} into DAG sync queue`);
+        }
       }
       await job.progress(100);
     } catch (error) {
@@ -110,7 +110,7 @@ export class PbftConsumer implements OnModuleInit {
                 hash: transaction.hash,
                 type: syncType,
               } as TxQueueData,
-              JobKeepAliveConfiguration
+              createJobConfiguration(transaction.hash)
             );
             if (!done) {
               this.logger.error(

@@ -12,9 +12,9 @@ import {
   IGQLDag,
   QueueJobs,
   Queues,
-  JobKeepAliveConfiguration,
   SyncTypes,
   TxQueueData,
+  createJobConfiguration,
 } from '../../types';
 import { GraphQLConnectorService } from '../connectors';
 import DagService from './dag.service';
@@ -96,7 +96,7 @@ export class DagConsumer implements OnModuleInit {
                 hash: transaction.hash,
                 type: syncType,
               } as TxQueueData,
-              JobKeepAliveConfiguration
+              createJobConfiguration(transaction.hash)
             );
             if (!done) {
               this.logger.error(
