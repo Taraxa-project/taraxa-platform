@@ -91,6 +91,8 @@ export default class LiveSyncerService {
       await this.dagsQueue.empty();
       this.logger.warn('Cleared DAG queue');
     }
+    this.logger.error(`WS state is: ${this.ws.readyState}`);
+    this.logger.error(`WS connection state is: ${this.isWsConnected}`);
     if (this.ws.readyState === this.ws.OPEN && !this.isWsConnected) {
       this.ws.send(
         JSON.stringify({
@@ -116,37 +118,46 @@ export default class LiveSyncerService {
       `Server at ${this.ws.url} disconnected with code ${code}`
     );
     this.isWsConnected = false;
-    setTimeout(async () => {
-      const newConnection = await createWebSocket({
-        url: this.ws.url,
-      });
-      if (
-        newConnection &&
-        (newConnection.readyState === newConnection.OPEN ||
-          newConnection.readyState === newConnection.CONNECTING)
-      ) {
-        this.logger.log(
-          `New Ws connection established at ${newConnection.url}`
-        );
-        this.ws = newConnection;
-        this.ws.on('open', () => this.onOpen());
-        this.ws.on('message', (data) => this.onMessage(data));
-        this.ws.on('close', (code) => this.onClose(code));
-        this.ws.on('error', () => this.onError());
-        this.ws.on('ping', (data) => this.onPing(data));
-        this.ws.on('pong', (data) => this.onPong(data));
-      } else {
-        this.logger.log(
-          `New Ws connection establisment failed at ${newConnection.url}`
-        );
-      }
-    }, this.configService.get<number>('general.wsReconnectInterval') || 3000);
+    await this.retryWsConnection();
+  }
+
+  private async retryWsConnection() {
+    if (!this.isWsConnected) {
+      setTimeout(async () => {
+        const newConnection = await createWebSocket({
+          url: this.ws.url,
+        });
+        if (
+          newConnection &&
+          (newConnection.readyState === newConnection.OPEN ||
+            newConnection.readyState === newConnection.CONNECTING)
+        ) {
+          this.logger.log(
+            `New Ws connection established at ${newConnection.url}`
+          );
+          this.ws = newConnection;
+          this.ws.on('open', () => this.onOpen());
+          this.ws.on('message', (data) => this.onMessage(data));
+          this.ws.on('close', (code) => this.onClose(code));
+          this.ws.on('error', () => this.onError());
+          this.ws.on('ping', (data) => this.onPing(data));
+          this.ws.on('pong', (data) => this.onPong(data));
+        } else {
+          this.logger.log(
+            `New Ws connection establisment failed at ${newConnection.url}`
+          );
+        }
+      }, this.configService.get<number>('general.wsReconnectInterval') || 3000);
+    }
   }
 
   @EventListener('ping')
-  onPing(data: Buffer) {
+  async onPing(data: Buffer) {
+    this.logger.error(`WS state is: ${this.ws.readyState}`);
+    this.logger.error(`WS connection state is: ${this.isWsConnected}`);
     const pingJson = data.toJSON();
     this.logger.log(`PING ${this.ws.url} >>> ${pingJson.data}`);
+    await this.retryWsConnection();
   }
 
   @EventListener('pong')

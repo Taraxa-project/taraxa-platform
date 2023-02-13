@@ -92,7 +92,7 @@ export const toTransactionTableRow = (
 export const timestampToAge = (timestamp: string | number): string => {
   if (!timestamp) return 'NA';
   const date = DateTime.fromMillis(+timestamp * 1000, { zone: 'UTC' });
-  const currentDate = DateTime.local();
+  const currentDate = DateTime.utc();
   if (date > currentDate) {
     return '0 second(s) ago';
   }
