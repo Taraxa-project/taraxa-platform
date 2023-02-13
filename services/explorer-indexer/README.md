@@ -30,6 +30,8 @@ The indexer can we started in three modes: `producer`, `block-consumer` or `tran
 
 In producer mode the indexer runs both the [Historical Sync](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-indexer/src/modules/historical-sync) as well as subscribes to [Live Sync](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-indexer/src/modules/live-sync) messages and pushes the relevant information into the configured Redis queue.
 
+Diagrams available under the [Producer Documentation](./docs/producer.md).
+
 ### Block-consumer mode
 
 In block consuming node the indexer only consumes the Redis queue entries and saves stale PBFT and DAG blocks in the configured POSTGREs database. This process fills the transaction queue.

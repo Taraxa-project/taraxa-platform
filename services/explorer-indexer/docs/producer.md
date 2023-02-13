@@ -40,7 +40,44 @@ To ingest a network's progress a direct connection to a Taraxa node's WS endpoin
 
 ```mermaid
 sequenceDiagram
-    Alice->>John: Hello John, how are you?
-    John-->>Alice: Great!
-    Alice-)John: See you later!
+    Note right of HistoricalSyncerService: On Startup
+    LiveSyncerService->>Node WS: Establish connection!
+    Node WS->>LiveSyncerService: Return open event!
+    LiveSyncerService->>Node WS: On open subscribe to NEW_HEADS;
+    HistoricalSyncerService->>Node GraphQL: Query Current Chain State
+    HistoricalSyncerService->>Postgres: Query Current Database State
+    HistoricalSyncerService->>HistoricalSyncerService: Compare internal sync state with on-chain one
+    opt In case of diverging histories
+        HistoricalSyncerService->>HistoricalSyncerService: Mark internal state as isRunning
+        HistoricalSyncerService->>Redis: Globally Pause queues and consumers
+        HistoricalSyncerService->>Redis: Purge currently queued jobs
+        HistoricalSyncerService->>Postgres: Purge database state
+        HistoricalSyncerService->>Redis: Globally Resume queues and consumers
+    end
+
+    HistoricalSyncerService->>Node GraphQL: Re-Query Current Chain State
+
+    loop Check For missing PBFT periods in Postgres:
+        HistoricalSyncerService->>Postgres: List and cache missing PBFT periods up until the last indexed in the database
+        HistoricalSyncerService->>HistoricalSyncerService: Complete cache with PBFT periods from the last indexed to the current chain state
+        HistoricalSyncerService->>Redis: Populate queue with cached PBFT periods
+    end
+    alt CRON every 30 minutes -> Check For missing PBFT periods in Postgres:
+        HistoricalSyncerService->>Postgres: List and cache missing PBFT periods up until the last indexed in the database
+        HistoricalSyncerService->>HistoricalSyncerService: Complete cache with PBFT periods from the last indexed to the current chain state
+        HistoricalSyncerService->>Redis: Populate queue with cached PBFT periods
+    end
+    loop On receiving PBFT periods via WS:
+        Node WS->>LiveSyncerService: Send PBFT
+        LiveSyncerService->>LiveSyncerService: Check if period is <= current sync state - preconfigured reorganization Threshold
+        opt In case of a reogranization:
+            loop Remove faulty periods:
+                LiveSyncerService->>Redis: Globally Pause queues and consumers
+                LiveSyncerService->>Redis: Delete jobs for periods <= faulty period
+                LiveSyncerService->>Postgres: Delete PBFTs, DAGs and Transactions for periods <= faulty period
+                LiveSyncerService->>Redis: Globally Resume queues and consumers
+            end
+        end
+        LiveSyncerService->>Redis: Push PBFT period into PBFT queue
+    end
 ```
