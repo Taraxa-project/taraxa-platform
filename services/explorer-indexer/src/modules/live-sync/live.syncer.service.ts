@@ -146,6 +146,8 @@ export default class LiveSyncerService {
 
   @EventListener('ping')
   onPing(data: Buffer) {
+    this.logger.error(`WS state is: ${this.ws.readyState}`);
+    this.logger.error(`WS connection state is: ${this.isWsConnected}`);
     const pingJson = data.toJSON();
     this.logger.log(`PING ${this.ws.url} >>> ${pingJson}`);
   }
