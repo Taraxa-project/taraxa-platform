@@ -220,7 +220,7 @@ export default class LiveSyncerService {
               } as QueueData,
               opts: JobKeepAliveConfiguration,
             });
-            this.logger.debug(`Pushed ${formattedNumber} into PBFT sync cache`);
+            this.logger.log(`Pushed ${formattedNumber} into PBFT sync cache`);
           } else {
             await this.queueCache.clearCache();
             await this.pbftsQueue.add(
@@ -231,7 +231,7 @@ export default class LiveSyncerService {
               } as QueueData,
               createJobConfiguration(formattedNumber)
             );
-            this.logger.debug(`Pushed ${formattedNumber} into PBFT sync queue`);
+            this.logger.log(`Pushed ${formattedNumber} into PBFT sync queue`);
           }
       }
     } catch (error) {
