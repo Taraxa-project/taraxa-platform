@@ -9,13 +9,14 @@ import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import {
-  JobKeepAliveConfiguration,
+  createJobConfiguration,
   QueueData,
   QueueJobs,
   Queues,
   SyncTypes,
 } from '../../types';
 import { QueuePopulatorCache } from '../common';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
@@ -75,9 +76,9 @@ export default class HistoricalSyncService implements OnModuleInit {
     )[0];
 
     this.chainState = {
-      number: block.number,
-      hash: zeroX(block.hash),
-      genesis: zeroX(genesis.hash),
+      number: block?.number,
+      hash: zeroX(block?.hash),
+      genesis: zeroX(genesis?.hash),
       dagBlockLevel: dagBlock?.level,
       dagBlockPeriod: dagBlock?.pbftPeriod,
     };
@@ -216,7 +217,7 @@ export default class HistoricalSyncService implements OnModuleInit {
       data: {
         pbftPeriod: 0,
       },
-      opts: JobKeepAliveConfiguration,
+      opts: createJobConfiguration(0),
     });
     const missingBlockNumbers = await this.pbftService.getMissingPbftPeriods();
     for (const blockNumber of missingBlockNumbers) {
@@ -226,28 +227,45 @@ export default class HistoricalSyncService implements OnModuleInit {
           pbftPeriod: blockNumber,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
-        opts: JobKeepAliveConfiguration,
+        opts: createJobConfiguration(blockNumber),
       });
     }
 
     await this.reSyncChainState(); // we need to resync chain state to not miss PBFT periods that happened in between the reset
 
-    for (
-      this.syncState.number;
-      this.syncState.number < this.chainState.number;
-      this.syncState.number++
-    ) {
+    for (let i = this.syncState.number; i <= this.chainState.number; i++) {
       await queueCache.add({
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
-          pbftPeriod: this.syncState.number,
+          pbftPeriod: i,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
-        opts: JobKeepAliveConfiguration,
+        opts: createJobConfiguration(i),
       });
     }
     // at the end of iteration, clear the cache
     await queueCache.clearCache();
     this.isRunning = false;
+  }
+
+  @Cron('0 * * * *')
+  async handlePotentiallyMissingPBFTNumbers() {
+    if (!this.isRunning) {
+      this.logger.debug('CRON: Checking potentially missing PBFTS');
+      const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
+      const missingBlockNumbers =
+        await this.pbftService.getMissingPbftPeriods();
+      for (const blockNumber of missingBlockNumbers) {
+        await queueCache.add({
+          name: QueueJobs.NEW_PBFT_BLOCKS,
+          data: {
+            pbftPeriod: blockNumber,
+            type: SyncTypes.HISTORICAL,
+          } as QueueData,
+          opts: createJobConfiguration(blockNumber),
+        });
+      }
+      await queueCache.clearCache();
+    }
   }
 }

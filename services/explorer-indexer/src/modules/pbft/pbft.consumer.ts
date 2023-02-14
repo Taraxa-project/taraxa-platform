@@ -3,8 +3,8 @@ import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
 import { Processor, Process, InjectQueue, OnQueueError } from '@nestjs/bull';
 import PbftService from './pbft.service';
 import {
+  createJobConfiguration,
   IGQLPBFT,
-  JobKeepAliveConfiguration,
   QueueData,
   QueueJobs,
   Queues,
@@ -16,6 +16,7 @@ import {
   IPBFT,
   ITransaction,
   PbftEntity,
+  zeroX,
 } from '@taraxa_project/explorer-shared';
 import { BigInteger } from 'jsbn';
 import TransactionService from '../transaction/transaction.service';
@@ -31,8 +32,6 @@ export class PbftConsumer implements OnModuleInit {
     private readonly rpcConnector: RPCConnectorService,
     @InjectQueue(Queues.NEW_DAGS)
     private readonly dagsQueue: Queue,
-    @InjectQueue(Queues.NEW_PBFTS)
-    private readonly pbftsQueue: Queue,
     @InjectQueue(Queues.STALE_TRANSACTIONS)
     private readonly txQueue: Queue
   ) {}
@@ -59,12 +58,6 @@ export class PbftConsumer implements OnModuleInit {
       if (newBlock && newBlock.number != undefined) {
         const formattedBlock: IPBFT = this.pbftService.pbftGQLToIPBFT(newBlock);
 
-        if (type === SyncTypes.LIVE) {
-          // in case of a reorganization we need to clear the wrong data
-          await this.pbftService.checkAndDeletePbftsGreaterThanNumber(
-            newBlock.number
-          );
-        }
         this.logger.debug(
           `${QueueJobs.NEW_PBFT_BLOCKS} worker (job ${job.id}): Saving PBFT ${job.data.pbftPeriod}`
         );
@@ -81,14 +74,16 @@ export class PbftConsumer implements OnModuleInit {
         );
         await this.handleTransactions(savedPbft, type);
 
-        await this.dagsQueue.add(
+        const dagJob = await this.dagsQueue.add(
           QueueJobs.NEW_DAG_BLOCKS,
           {
             pbftPeriod: savedPbft.number,
           },
-          JobKeepAliveConfiguration
+          createJobConfiguration(savedPbft.number)
         );
-        this.logger.log(`Pushed ${pbftPeriod} into DAG sync queue`);
+        if (dagJob) {
+          this.logger.log(`Pushed ${pbftPeriod} into DAG sync queue`);
+        }
       }
       await job.progress(100);
     } catch (error) {
@@ -116,7 +111,7 @@ export class PbftConsumer implements OnModuleInit {
                 hash: transaction.hash,
                 type: syncType,
               } as TxQueueData,
-              JobKeepAliveConfiguration
+              createJobConfiguration(zeroX(transaction.hash).toLowerCase())
             );
             if (!done) {
               this.logger.error(

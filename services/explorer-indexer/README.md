@@ -11,9 +11,36 @@
 <a href="https://github.com/Taraxa-project" target="_blank"><img src="https://img.shields.io/github/followers/Taraxa-project?style=social" alt="GitHub Followers" /></a>
   <a href="https://twitter.com/taraxa_project" target="_blank"><img src="https://img.shields.io/twitter/follow/taraxa_project?style=social"></a>
 </p>
+
 ## Description
 
-Explorer indexer service built with event-driven architecture. Fetches data from the [Taraxa Node](https://github.com/Taraxa-project/taraxa-node)'s GraphQL endpoints and subscribes to its RPCWs `eth_subscribe` methods.
+Explorer indexer service built using queueing mechanisms. Fetches data from the [Taraxa Node](https://github.com/Taraxa-project/taraxa-node)'s GraphQL endpoints and subscribes to its RPCWs `eth_subscribe` methods.
+
+## Module structure
+
+### Patterns
+
+The application consists of seven modules:
+
+- Connector
+- DAG
+- Health
+- Historical Sync
+- Live Sync
+- PBFT
+- Transaction
+
+#### Services
+
+Each module follows the service pattern: in each of them you'll find a service class that holds the business necessary to complete the target flows.
+
+#### Producers
+
+In modules that implement queueing you'll find producers. Producers are tasked with populating the queues with jobs using the relevant services.
+
+#### Consumers
+
+In the same modules you'll find consumers that fullfill jobs from their target queues via executing service methods in the right circumstances and order. **Note**: **Certain consumers can be producers too**.
 
 ## Prerequisites
 
@@ -23,15 +50,25 @@ Explorer indexer service built with event-driven architecture. Fetches data from
 
 ## Configuring the indexer's behaviour
 
-The indexer can we started in two modes: `producer` or `worker mode`. To enable/disable producer mode via setting the `ENABLE_PRODUCER_MODULE` env var to `true` or `false`. An example environment setup can be seen at [.env.example](./.env.example).
+The indexer can we started in three modes: `producer`, `block-consumer` or `transaction-consumer` mode. To enable/disable different modes you need to set set the `ENABLE_PRODUCER_MODULE` and `ENABLE_TRANSACTION_CONSUMER` env var to `true` or `false`. An example environment setup can be seen at [.env.example](./.env.example).
 
 ### Producer mode
 
-In producer mode the indexer runs both the [Historical Sync](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-indexer/src/modules/historical-sync) as well as subscribes to [Live Sync](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-indexer/src/modules/live-sync) messages and pushes the relevant information into the configured Redis queue. As this would be too low of a workload for a constantly running service it is also consuming them.
+In producer mode the indexer runs both the [Historical Sync](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-indexer/src/modules/historical-sync) as well as subscribes to [Live Sync](https://github.com/Taraxa-project/taraxa-platform/blob/4084eb3670ca1bd3b03f5d911d71441961bb7e4b/services/explorer-indexer/src/modules/live-sync) messages and pushes the relevant information into the configured Redis queue.
 
-### Worker mode
+Diagrams and detailed description available under the [Producer Documentation](./docs/producer.md).
 
-In worker node the indexer only consumes the Redis queue entries and saves them in the configured POSTGREs database.
+### Block-consumer mode
+
+In block consuming node the indexer only consumes the Redis queue entries and saves stale PBFT and DAG blocks in the configured POSTGREs database. This process fills the transaction queue.
+
+Diagrams and detailed description available under the [Block consumer Documentation](./docs/block-consumer.md).
+
+### Transaction-consumer mode
+
+In transaction consuming node the indexer only consumes the Redis queue entries of the `configured transactions queue` and saves transaction data in the configured POSTGREs database.
+
+Diagrams and detailed description available under the [Transactio consumer Documentation](./docs/transaction-consumer.md).
 
 ## Installation
 

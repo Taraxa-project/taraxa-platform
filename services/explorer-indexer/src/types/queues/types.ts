@@ -26,6 +26,15 @@ export interface TxQueueData {
   type: SyncTypes;
 }
 
+export const createJobConfiguration = (
+  id: string | number
+): Bull.JobOptions => {
+  return {
+    ...JobKeepAliveConfiguration,
+    jobId: id,
+  };
+};
+
 export const JobKeepAliveConfiguration: Bull.JobOptions = {
   attempts: 3,
   removeOnComplete: {
