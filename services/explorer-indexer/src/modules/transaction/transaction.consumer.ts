@@ -38,8 +38,11 @@ export class TransactionConsumer implements OnModuleInit {
   @Process(QueueJobs.NEW_TRANSACTIONS)
   async saveStaleTransactions(job: Job<TxQueueData>) {
     const { hash } = job.data;
+    const timeStart = new Date().getTime();
     const newTx: ITransactionWithData =
       await this.graphQLConnector.getTransactionByHash(hash);
+    const timeFetch = new Date().getTime();
+    this.logger.log(`Fetch time for tx is ${timeFetch - timeStart} ms`);
     try {
       if (newTx && newTx.hash && newTx.nonce && newTx.value) {
         const formattedTx: ITransaction =
@@ -51,22 +54,24 @@ export class TransactionConsumer implements OnModuleInit {
           formattedTx.blockHash
         );
         if (block) {
-          const blockReward = new BigInteger(block.reward || '0', 10);
-          const gasUsed = new BigInteger(formattedTx.gasUsed.toString() || '0');
-          formattedTx.hash = zeroX(formattedTx.hash);
-          const gasPrice = new BigInteger(
-            formattedTx.gasPrice.toString() || '0'
-          );
-          const txReward = gasUsed.multiply(gasPrice);
-          block.reward = blockReward.add(txReward).toString();
           formattedTx.block = block;
           formattedTx.blockHash = block.hash;
           formattedTx.blockNumber = block.number;
           formattedTx.blockTimestamp = block.timestamp;
-          await this.txService.updateTransaction(formattedTx);
-          const saved = await this.pbftService.safeSavePbft(block);
+          const timeDbStart = new Date().getTime();
+          const saved = await this.txService.updateTransaction(formattedTx);
+          const timeDbEnd = new Date().getTime();
+          this.logger.log(
+            `Execution time for db insertion tx is ${
+              timeDbEnd - timeDbStart
+            } ms`
+          );
           if (saved) {
+            const timeEnd = new Date().getTime();
             await job.progress(100);
+            this.logger.log(
+              `Execution time for one tx is ${timeEnd - timeStart} ms`
+            );
           }
         }
       } else {
