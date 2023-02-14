@@ -76,9 +76,9 @@ export default class HistoricalSyncService implements OnModuleInit {
     )[0];
 
     this.chainState = {
-      number: block.number,
-      hash: zeroX(block.hash),
-      genesis: zeroX(genesis.hash),
+      number: block?.number,
+      hash: zeroX(block?.hash),
+      genesis: zeroX(genesis?.hash),
       dagBlockLevel: dagBlock?.level,
       dagBlockPeriod: dagBlock?.pbftPeriod,
     };
