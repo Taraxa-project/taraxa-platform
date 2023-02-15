@@ -10,7 +10,11 @@ import {
   useGetPbftsCountByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
-import { displayWeiOrTara, balanceWeiToTara } from '../../utils';
+import {
+  displayWeiOrTara,
+  balanceWeiToTara,
+  formatTokensValue,
+} from '../../utils';
 import { useQuery } from 'urql';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
 
@@ -161,9 +165,7 @@ export const useAddressInfoEffects = (
     ) {
       setIsLoadingTables(true);
     } else {
-      setTimeout(() => {
-        setIsLoadingTables(false);
-      }, 50000);
+      setIsLoadingTables(false);
     }
   }, [
     isFetchingDags,
@@ -262,8 +264,7 @@ export const useAddressInfoEffects = (
 
     if (tokenPriceData?.data) {
       const price = tokenPriceData.data[0].current_price as number;
-      const priceAtTimeOfCalculation = Number(price.toFixed(6));
-      addressDetails.pricePerTara = priceAtTimeOfCalculation;
+      addressDetails.pricePerTara = price;
       addressDetails.valueCurrency = 'USD';
 
       if (accountDetails?.block?.account) {
@@ -272,7 +273,7 @@ export const useAddressInfoEffects = (
             accountDetails?.block?.account?.balance,
             'ether'
           ) * price;
-        addressDetails.value = `${currentValue}`;
+        addressDetails.value = formatTokensValue(currentValue);
       }
     }
     setAddressInfoDetails(addressDetails);

@@ -33,6 +33,12 @@ export const formatBalance = (balance: string): string => {
   return balanceFormatted;
 };
 
+export const formatTokensValue = (value: number, decimals = 20): string => {
+  return value === 0
+    ? '0'
+    : value.toFixed(Math.min(value.toString().length, decimals));
+};
+
 export const displayWeiOrTara = (
   amount: string | number | BigNumber
 ): string => {
