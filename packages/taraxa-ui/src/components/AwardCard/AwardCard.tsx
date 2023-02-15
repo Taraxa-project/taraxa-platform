@@ -58,11 +58,9 @@ export const AwardCard: FC<AwardCardProps> = ({
             </Box>
           </Box>
           <Box className={classes.detailsContainer}>
-            {total && (
-              <Typography fontSize='36px' fontWeight='700' color='common.white'>
-                {total?.toLocaleString('en-US')}
-              </Typography>
-            )}
+            <Typography fontSize='36px' fontWeight='700' color='common.white'>
+              {(total || 0)?.toLocaleString('en-US')}
+            </Typography>
             {description && (
               <Typography
                 fontSize='18px'

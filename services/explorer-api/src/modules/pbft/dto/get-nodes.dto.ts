@@ -13,4 +13,16 @@ export class GetNodesDto {
     description: 'Number of elements which should be skipped',
   })
   skip: number;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Week to consider top nodes',
+  })
+  week: number;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Year to consider top nodes',
+  })
+  year: number;
 }

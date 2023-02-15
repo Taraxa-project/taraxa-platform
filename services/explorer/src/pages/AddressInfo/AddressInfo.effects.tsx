@@ -61,6 +61,7 @@ export const useAddressInfoEffects = (
   isLoadingDagsCount: boolean;
   isFetchingPbftsCount: boolean;
   isLoadingPbftsCount: boolean;
+  isLoadingTables: boolean;
 } => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
@@ -83,6 +84,7 @@ export const useAddressInfoEffects = (
     useState<AddressInfoDetails>();
 
   const { initLoading, finishLoading } = useExplorerLoader();
+  const [isLoadingTables, setIsLoadingTables] = useState<boolean>(false);
   const { backendEndpoint } = useExplorerNetwork();
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
@@ -139,10 +141,17 @@ export const useAddressInfoEffects = (
   });
 
   useEffect(() => {
+    if (fetchingDetails || isFetchingTokenPrice || isLoadingTokenPrice) {
+      initLoading();
+      setShowLoadingSkeleton(true);
+    } else {
+      finishLoading();
+      setShowLoadingSkeleton(false);
+    }
+  }, [fetchingDetails, isFetchingTokenPrice, isLoadingTokenPrice]);
+
+  useEffect(() => {
     if (
-      fetchingDetails ||
-      isFetchingTokenPrice ||
-      isLoadingTokenPrice ||
       isFetchingDags ||
       isLoadingDags ||
       isFetchingPbfts ||
@@ -150,16 +159,13 @@ export const useAddressInfoEffects = (
       isFetchingTx ||
       isLoadingTx
     ) {
-      initLoading();
-      setShowLoadingSkeleton(true);
+      setIsLoadingTables(true);
     } else {
-      finishLoading();
-      setShowLoadingSkeleton(false);
+      setTimeout(() => {
+        setIsLoadingTables(false);
+      }, 50000);
     }
   }, [
-    fetchingDetails,
-    isFetchingTokenPrice,
-    isLoadingTokenPrice,
     isFetchingDags,
     isLoadingDags,
     isFetchingPbfts,
@@ -250,9 +256,7 @@ export const useAddressInfoEffects = (
 
     if (accountDetails) {
       const account = accountDetails?.block?.account;
-      addressDetails.balance = balanceWeiToTara(
-        ethers.BigNumber.from(account?.balance)
-      );
+      addressDetails.balance = balanceWeiToTara(account?.balance);
       addressDetails.transactionCount = account?.transactionCount;
     }
 
@@ -344,5 +348,6 @@ export const useAddressInfoEffects = (
     isLoadingDagsCount,
     isFetchingPbftsCount,
     isLoadingPbftsCount,
+    isLoadingTables,
   };
 };
