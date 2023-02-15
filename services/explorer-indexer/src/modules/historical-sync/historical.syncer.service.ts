@@ -248,7 +248,7 @@ export default class HistoricalSyncService implements OnModuleInit {
     this.isRunning = false;
   }
 
-  @Cron('0 * * * *')
+  @Cron('*/30 * * * *')
   async handlePotentiallyMissingPBFTNumbers() {
     if (!this.isRunning) {
       this.logger.debug('CRON: Checking potentially missing PBFTS');
