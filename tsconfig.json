@@ -25,7 +25,9 @@
       "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"],
       "@taraxa_project/explorer": ["services/explorer/src/index.ts"],
       "@taraxa_project/faucet": ["services/faucet/src/index.ts"],
-      "@taraxa_project/explorer-shared": ["packages/explorer-shared/src/index.ts"]
+      "@taraxa_project/explorer-shared": ["packages/explorer-shared/src/index.ts"],
+      "@taraxa_project/economics-rewards": ["services/economics-rewards/src/index.ts"],
+      "@taraxa_project/delegation-analysis": ["services/delegation-analysis/src/main.ts"]
     }
   },
   "references": [
@@ -40,6 +42,12 @@
     },
     {
       "path": "services/explorer"
+    },
+    {
+      "path": "services/delegation-analysis"
+    },
+    {
+      "path": "services/economics-rewards"
     }
   ],
   "exclude": ["node_modules", "lib", "*.d.ts"]

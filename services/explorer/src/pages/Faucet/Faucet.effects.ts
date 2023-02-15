@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import * as yup from 'yup';
@@ -12,6 +13,7 @@ export const useFaucetEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
   const { isLoading, initLoading, finishLoading } = useExplorerLoader();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { faucetEndpoint } = useExplorerNetwork();
   const [amount, setAmount] = useState(RequestLimit.ONE);
   const [displayToast, setDisplayToast] = useState<ToastData>({
     display: false,
@@ -60,6 +62,7 @@ export const useFaucetEffects = () => {
       data.address,
       data.amount,
       currentNetwork,
+      faucetEndpoint,
       setDisplayToast
     );
     finishLoading();

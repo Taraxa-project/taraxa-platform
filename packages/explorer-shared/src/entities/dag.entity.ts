@@ -11,9 +11,7 @@ import { IsNotEmpty, IsNumber, IsString, IsArray } from 'class-validator';
 import { IDAG } from '../models';
 import { TransactionEntity } from './transaction.entity';
 
-const table_name = 'dags';
-
-@Entity(table_name)
+@Entity('dags')
 export class DagEntity extends BaseEntity implements IDAG {
   constructor(dag?: Partial<IDAG>) {
     super();
@@ -24,6 +22,7 @@ export class DagEntity extends BaseEntity implements IDAG {
   id: number;
 
   @Column({ unique: true })
+  @Index('dags_index_hash')
   @IsString()
   hash: string;
 
@@ -36,23 +35,24 @@ export class DagEntity extends BaseEntity implements IDAG {
   tips?: string[];
 
   @Column({ nullable: true })
+  @Index('dags_index_level')
   @IsNumber()
   level?: number;
 
   @Column({ nullable: true })
   @IsNumber()
-  @Index()
+  @Index('dags_index_pbftPeriod')
   pbftPeriod?: number;
 
   @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
-  @Index()
+  @Index('dags_index_timestamp')
   timestamp: number;
 
   @Column({ nullable: true })
   @IsString()
-  @Index()
+  @Index('dags_index_author')
   author?: string;
 
   @Column({ nullable: true })

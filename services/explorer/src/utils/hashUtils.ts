@@ -12,21 +12,26 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
     blockNumber: undefined,
     address: undefined,
   };
-  const isAddress = ethers.utils.isAddress(identifier);
-  if (isAddress) {
-    ret.address = identifier;
+
+  if (isAddress(identifier)) {
+    ret.address = deZeroX(identifier);
   }
-  // eslint-disable-next-line no-restricted-globals
-  const isNotANumber = isNaN(+identifier);
-  if (!isNotANumber && !isAddress) ret.blockNumber = +identifier;
-  if (isNotANumber && !isAddress && identifier.length === 64) {
-    ret.txHash = identifier;
+
+  if (isNumber(identifier)) {
+    ret.blockNumber = +identifier;
+  }
+
+  if (isHash(identifier)) {
+    ret.txHash = deZeroX(identifier);
   }
   return ret;
 };
 
 export const zeroX = (hash: string): string => {
-  return hash ? (hash.includes('0x') ? hash : `0x${hash}`) : null;
+  if (!hash || typeof hash !== 'string') {
+    return '';
+  }
+  return hash.includes('0x') ? hash : `0x${hash}`;
 };
 
 export const deZeroX = (zeroXHash: string): string => {
@@ -34,4 +39,22 @@ export const deZeroX = (zeroXHash: string): string => {
     return null;
   }
   return zeroXHash.replace('0x', '');
+};
+
+export const isNumber = (element: string): boolean => {
+  return !isNaN(Number(element)) && /^\d+$/.test(element);
+};
+
+export const isAddress = (element: string): boolean => {
+  const address = zeroX(deZeroX(element));
+  return ethers.utils.isAddress(address);
+};
+
+export const isHash = (element: string): boolean => {
+  const hash = zeroX(deZeroX(element.toString().toLowerCase()));
+  return (
+    typeof hash === 'string' &&
+    hash.length === 66 &&
+    /^(0x)?[0-9a-f]*$/i.test(hash)
+  );
 };

@@ -5,7 +5,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { ENSURE_NODE_ONCHAIN_JOB, NODE_CREATED_EVENT } from '../node.constants';
 import { NodeCreatedEvent } from '../event/node-created.event';
 import { EnsureNodeOnchainJob } from '../job/ensure-node-onchain.job';
-import { NodeType } from '../node-type.enum';
 
 @Injectable()
 export class NodeCreatedListener {
@@ -23,13 +22,6 @@ export class NodeCreatedListener {
         2,
       )}`,
     );
-
-    if (event.type === NodeType.MAINNET) {
-      this.logger.debug(
-        `${NODE_CREATED_EVENT} event: Skipping, node ${event.nodeId} is a mainnet node`,
-      );
-      return;
-    }
 
     await this.nodeQueue.add(
       ENSURE_NODE_ONCHAIN_JOB,

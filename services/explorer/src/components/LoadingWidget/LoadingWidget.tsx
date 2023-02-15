@@ -4,7 +4,7 @@ import { useExplorerLoader } from '../../hooks/useLoader';
 
 import './loading-widget.scss';
 
-const LoadingWidget = () => {
+const LoadingWidget = (): JSX.Element => {
   const { isLoading } = useExplorerLoader();
   return (
     <TWidget

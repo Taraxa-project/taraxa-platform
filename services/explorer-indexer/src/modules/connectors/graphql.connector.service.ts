@@ -1,7 +1,7 @@
 import { InjectGraphQLClient } from '@golevelup/nestjs-graphql-request';
 import { Injectable } from '@nestjs/common';
 import { gql, GraphQLClient } from 'graphql-request';
-import { IGQLDag, IGQLPBFT } from '../../types';
+import { IGQLDag, IGQLPBFT, ITransactionWithData } from '../../types';
 
 @Injectable()
 export class GraphQLConnectorService {
@@ -46,6 +46,7 @@ export class GraphQLConnectorService {
                 block {
                   hash
                   number
+                  timestamp
                 }
                 hash
                 nonce
@@ -111,26 +112,11 @@ export class GraphQLConnectorService {
                 block {
                   hash
                   number
+                  timestamp
                 }
                 hash
-                nonce
-                status
-                from {
-                  address
-                }
-                to {
-                  address
-                }
-                gas
                 gasUsed
-                cumulativeGasUsed
                 gasPrice
-                inputData
-                r
-                v
-                s
-                index
-                value
               }
             }
           }
@@ -152,7 +138,7 @@ export class GraphQLConnectorService {
             }
           }
         `,
-        {
+        (number !== null || number !== undefined) && {
           number,
         }
       )
@@ -177,7 +163,7 @@ export class GraphQLConnectorService {
             }
           }
         `,
-        {
+        hash && {
           hash,
         }
       )
@@ -231,6 +217,11 @@ export class GraphQLConnectorService {
               vdf
               transactions {
                 hash
+                block {
+                  hash
+                  number
+                  timestamp
+                }
               }
               transactionCount
             }
@@ -241,5 +232,52 @@ export class GraphQLConnectorService {
         }
       )
     )?.periodDagBlocks;
+  }
+
+  public async getTransactionByHash(
+    hash: string
+  ): Promise<ITransactionWithData> {
+    return (
+      await this.graphQLClient.request(
+        gql`
+          query transaction_query($hash: Bytes32!) {
+            transaction(hash: $hash) {
+              hash
+              nonce
+              index
+              value
+              gasPrice
+              gas
+              gasUsed
+              cumulativeGasUsed
+              inputData
+              status
+              from {
+                address
+              }
+              to {
+                address
+              }
+              v
+              r
+              s
+              block {
+                number
+                hash
+                timestamp
+              }
+              logs {
+                index
+                topics
+                data
+              }
+            }
+          }
+        `,
+        (hash !== null || hash !== undefined) && {
+          hash,
+        }
+      )
+    )?.transaction;
   }
 }

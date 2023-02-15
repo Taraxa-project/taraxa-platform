@@ -4,11 +4,10 @@ const useStyles = makeStyles(() => {
   return {
     root: {
       width: 320,
-      maxHeight: 210,
       textAlign: 'left',
       backgroundColor: '#181B27 !important',
-      paddingLeft: '1%',
-      paddingRight: '0.5%',
+      paddingLeft: '1rem',
+      paddingRight: '0.5rem',
       border: '1px solid #40465F',
     },
     title: {
@@ -31,10 +30,10 @@ const useStyles = makeStyles(() => {
     },
     icon: {
       marginLeft: 'auto',
+      marginTop: '10px',
       marginRight: 0,
     },
     label: {
-      fontSize: 12,
       flexGrow: 1,
       alignSelf: 'center',
     },

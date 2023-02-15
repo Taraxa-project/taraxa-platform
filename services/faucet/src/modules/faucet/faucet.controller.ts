@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Get,
-  Ip,
   Param,
+  ParseUUIDPipe,
   Post,
-  Headers,
+  Req,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -20,18 +20,20 @@ export class FaucetController {
 
   @ApiOkResponse({ description: 'Faucet fund request' })
   @Post('/')
-  async registerClaim(
-    @Ip() requestIp: string,
-    @Headers('x-forwarded-for') proxy: string,
+  async register(
+    @Req() request: Record<string, any>,
     @Body() requestDto: CreateRequestDto
-  ): Promise<void> {
-    const ip = proxy ? proxy : requestIp;
-    return await this.faucetService.registerRequest(requestDto, ip);
+  ): Promise<Omit<RequestEntity, 'id'>> {
+    const fwdIp = request.headers['x-forwarded-for'];
+    const ip = request.ips.length ? request.ips[0] : request.ip;
+    return await this.faucetService.create(requestDto, fwdIp || ip);
   }
 
   @SkipThrottle()
-  @Get(':txHash')
-  async findByHash(@Param('txHash') txHash: string): Promise<RequestEntity> {
-    return await this.faucetService.getByHash(txHash);
+  @Get(':uuid')
+  async findByHash(
+    @Param('uuid', ParseUUIDPipe) uuid: string
+  ): Promise<Omit<RequestEntity, 'id'>> {
+    return await this.faucetService.getById(uuid);
   }
 }

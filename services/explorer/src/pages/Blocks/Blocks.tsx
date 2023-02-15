@@ -15,7 +15,7 @@ const BlocksPage = (): JSX.Element => {
     handleChangeRowsPerPage,
     totalCount,
   } = useBlockEffects();
-  const rows = data ? data.map((row) => toBlockTableRow(row)) : [];
+  const rows = data ? [...data.map((row) => toBlockTableRow(row))] : [];
   return (
     <>
       <PageTitle

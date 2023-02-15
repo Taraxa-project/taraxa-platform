@@ -75,7 +75,7 @@ export class StakingDataService {
     while (result.length === limit) {
       page++;
       result = await this.getPaginatedEvents(page, limit);
-      data = [...result];
+      data = [...data, ...result];
     }
     return data;
   }

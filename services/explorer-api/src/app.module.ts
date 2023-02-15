@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { resolve } from 'path';
-import { existsSync } from 'fs';
 import { NodeModule, PbftModule, HealthModule, AddressModule } from './modules';
 import {
   NodeEntity,
@@ -10,66 +8,62 @@ import {
   DagEntity,
   TransactionEntity,
 } from '@taraxa_project/explorer-shared';
-
-const getEnvFilePath = () => {
-  const pathsToTest = ['../.env', '../../.env', '../../../.env'];
-
-  for (const pathToTest of pathsToTest) {
-    const resolvedPath = resolve(__dirname, pathToTest);
-
-    if (existsSync(resolvedPath)) {
-      return resolvedPath;
-    }
-  }
-};
+import generalConfig from './config/general';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const entities = [NodeEntity, PbftEntity, DagEntity, TransactionEntity];
 
-const IndexerTypeOrmModule = () => {
-  let typeOrmOptions: TypeOrmModuleOptions;
-  const baseConnectionOptions: TypeOrmModuleOptions = process.env.DATABASE_URL
+const getDataSourceConnectionOptions = (): TypeOrmModuleOptions => {
+  let ssl: {
+    rejectUnauthorized: boolean;
+    ca?: string;
+  } = {
+    rejectUnauthorized: false,
+  };
+
+  if (process.env.DATABASE_CERT) {
+    ssl = {
+      ...ssl,
+      ca: process.env.DATABASE_CERT,
+    };
+  }
+
+  return process.env.DATABASE_URL
     ? {
+        ssl,
         type: 'postgres',
         url: process.env.DATABASE_URL,
-        entities,
-        synchronize: false,
-        autoLoadEntities: true,
-        logging: ['info'],
       }
     : {
         type: 'postgres',
-        host: process.env.DB_HOST ?? 'localhost',
+        host: process.env.DB_HOST || 'localhost',
         port: Number(process.env.DB_PORT) || 5432,
-        username: process.env.DB_USERNAME || 'postgres',
+        username: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_DATABASE || 'explorer_indexer',
-        entities,
-        synchronize: false,
-        autoLoadEntities: true,
-        logging: ['info'],
+        database: process.env.DB_NAME || 'explorer-indexer',
       };
+};
 
-  if (!!process.env.DATABASE_CERT) {
-    typeOrmOptions = {
-      ...baseConnectionOptions,
-      ssl: {
-        rejectUnauthorized: false,
-        ca: process.env.DATABASE_CERT,
-      },
-    };
-  } else {
-    typeOrmOptions = { ...baseConnectionOptions };
-  }
-  return TypeOrmModule.forRoot(typeOrmOptions);
+const dataSourceOptions: TypeOrmModuleOptions = {
+  ...getDataSourceConnectionOptions(),
+  synchronize: false,
+  logging: ['info'],
+  entities,
+  migrationsTableName: 'typeorm_migrations',
+  metadataTableName: 'typeorm_metadata',
 };
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: getEnvFilePath(),
       isGlobal: true,
+      load: [generalConfig],
     }),
-    IndexerTypeOrmModule(),
+    TypeOrmModule.forRoot({
+      ...dataSourceOptions,
+      autoLoadEntities: true,
+    }),
     NodeModule,
     PbftModule,
     HealthModule,

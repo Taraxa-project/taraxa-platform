@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Option } from '@taraxa_project/taraxa-ui/src/components/SearchInput/SearchInput';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import cleanDeep from 'clean-deep';
 import { useQuery } from 'urql';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import { unwrapIdentifier } from '../../utils';
+import { Network, unwrapIdentifier } from '../../utils';
 import {
   searchAccountAddressQuery,
   searchBlockQuery,
@@ -40,12 +41,11 @@ export const useHeaderEffects = () => {
   const { networks, currentNetwork, setNetwork, disableNetworkSelection } =
     useExplorerNetwork();
   const [drawerState, setDrawerState] = useState<boolean>(false);
-  const [searchString, setSearchString] = useState<string>(null);
+  const [searchString, setSearchString] = useState<string>('');
   const [searchHash, setSearchHash] = useState<string>(null);
   const [searchBlockNumber, setSearchBlockNumber] = useState<number>(null);
   const [searchAddress, setSearchAddress] = useState<string>(null);
   const [searchOptions, setSearchOptions] = useState<Option[]>([]);
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [{ fetching: fetchingBlock, data: blockData }] = useQuery({
@@ -54,7 +54,10 @@ export const useHeaderEffects = () => {
       number: searchBlockNumber,
       hash: searchHash,
     }),
-    pause: !searchBlockNumber && !searchHash,
+    pause: !(
+      searchHash ||
+      (searchBlockNumber !== null && searchBlockNumber !== undefined)
+    ),
   });
 
   const [{ fetching: fetchingDagBlock, data: dagBlockData }] = useQuery({
@@ -104,7 +107,7 @@ export const useHeaderEffects = () => {
           value: SearchLabelOption.PBFT,
         });
       }
-      if (searchBlockNumber) {
+      if (!isNaN(searchBlockNumber)) {
         options.push({
           type: 'Block Number',
           label: blockData?.block?.number?.toString(),
@@ -204,14 +207,16 @@ export const useHeaderEffects = () => {
       selected: false,
       onAction: () => onClick('node'),
     },
-    {
+  ];
+  if (currentNetwork !== Network.MAINNET) {
+    headerButtons.push({
       label: 'Faucet',
       color: 'primary',
       variant: 'text',
       selected: false,
       onAction: () => onClick('faucet'),
-    },
-  ];
+    });
+  }
   const [buttons, setButtons] = useState<HeaderBtn[]>(headerButtons);
 
   const clearSearch = () => {
@@ -226,13 +231,13 @@ export const useHeaderEffects = () => {
     clearSearch();
     const { txHash, blockNumber, address } = unwrapIdentifier(searchString);
     if (txHash) setSearchHash(txHash);
-    if (blockNumber) setSearchBlockNumber(blockNumber);
+    if (!isNaN(blockNumber)) setSearchBlockNumber(blockNumber);
     if (address) setSearchAddress(address);
   };
 
   const onLabelSelect = (option: Option) => {
     setSearchOptions([]);
-    setSearchString(null);
+    setSearchString('');
     if (!option) {
       return;
     }
@@ -255,6 +260,26 @@ export const useHeaderEffects = () => {
   };
 
   useEffect(() => {
+    let _buttons = buttons;
+    if (currentNetwork !== Network.MAINNET) {
+      if (!_buttons.find((b) => b.label === 'Faucet')) {
+        _buttons.push({
+          label: 'Faucet',
+          color: 'primary',
+          variant: 'text',
+          selected: false,
+          onAction: () => onClick('faucet'),
+        });
+      }
+    } else {
+      if (_buttons.find((b) => b.label === 'Faucet')) {
+        _buttons = _buttons.filter((b) => b.label !== 'Faucet');
+      }
+    }
+    setButtons(_buttons);
+  }, [currentNetwork]);
+
+  useEffect(() => {
     setButtons(
       headerButtons.map((btn) => {
         if (`/${btn.label.toLowerCase()}` === location.pathname)
@@ -263,6 +288,12 @@ export const useHeaderEffects = () => {
       })
     );
   }, [location]);
+
+  const onClear = () => {
+    clearSearch();
+    setSearchOptions([]);
+    setSearchString('');
+  };
 
   return {
     headerButtons,
@@ -278,5 +309,6 @@ export const useHeaderEffects = () => {
     searchString,
     setNetwork,
     disableNetworkSelection,
+    onClear,
   };
 };

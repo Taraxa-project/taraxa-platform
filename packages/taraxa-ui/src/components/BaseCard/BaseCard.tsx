@@ -37,6 +37,8 @@ const BaseCard = ({
               color='primary'
               variant='h4'
               component='h4'
+              fontWeight='700'
+              fontSize='36px'
               className={classes.title}
             >
               {title}
@@ -48,8 +50,11 @@ const BaseCard = ({
               className={classes.label}
               variant='body1'
               color='primary'
+              fontSize='12px'
               textAlign='left'
               width='100%'
+              mb={0}
+              mt={2}
             >
               {description}
             </Typography>

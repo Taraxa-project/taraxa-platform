@@ -4,7 +4,7 @@ import { useDagEffects } from './Dag.effects';
 import { PageTitle } from '../../components';
 import { toDagBlockTableRow } from '../../utils';
 
-export const DagPage = () => {
+export const DagPage = (): JSX.Element => {
   const {
     data,
     columns,
@@ -15,7 +15,7 @@ export const DagPage = () => {
     totalCount,
   } = useDagEffects();
 
-  const rows = data ? data.map((row) => toDagBlockTableRow(row)) : [];
+  const rows = data ? [...data.map((row) => toDagBlockTableRow(row))] : [];
 
   return (
     <>

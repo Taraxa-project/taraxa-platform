@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "submissions",
+  "info": {
+    "name": "Submissions",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "user": {
+      "via": "submissions",
+      "plugin": "users-permissions",
+      "model": "user"
+    },
+    "bounty": {
+      "model": "bounty",
+      "via": "submissions"
+    },
+    "hashed_content": {
+      "type": "string"
+    },
+    "submission_date": {
+      "type": "datetime"
+    },
+    "reviewed": {
+      "type": "boolean",
+      "default": false
+    },
+    "submission_reward": {
+      "type": "float"
+    },
+    "text_proof": {
+      "type": "text"
+    },
+    "file_proof": {
+      "type": "text"
+    },
+    "accepted": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

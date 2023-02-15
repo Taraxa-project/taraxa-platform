@@ -55,11 +55,7 @@ const RewardCard = ({
                 ' '
               )}
             >
-              <Typography
-                variant='h5'
-                color='primary'
-                className={classes.title}
-              >
+              <Typography variant='h5' color='primary' fontWeight='700' mb={1}>
                 <span
                   className={[
                     classes.dot,
@@ -72,8 +68,8 @@ const RewardCard = ({
               <Typography
                 variant='body2'
                 color='primary'
-                className={classes.description}
                 component='div'
+                style={{ flex: 1 }}
               >
                 {description}
               </Typography>

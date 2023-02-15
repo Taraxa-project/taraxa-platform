@@ -6,7 +6,7 @@ import {
   DiskHealthIndicator,
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
-import { SyncerHealthIndicator } from './SyncerHealthIndicator';
+import { SyncerHealthIndicator } from './syncerHealthIndicator';
 
 @Controller('health')
 export class HealthController {
@@ -21,7 +21,6 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
-    // TODO: Add same check as we use on Slack
     return this.health.check([
       () => this.db.pingCheck('database'),
       () =>
@@ -35,6 +34,8 @@ export class HealthController {
       () => this.syncerHealthIndicator.isHealthy('dag'),
       () => this.syncerHealthIndicator.isHealthy('queue_pbfts'),
       () => this.syncerHealthIndicator.isHealthy('queue_dags'),
+      () => this.syncerHealthIndicator.isHealthy('queue_transactions'),
+      () => this.syncerHealthIndicator.isHealthy('ws'),
     ]);
   }
 }

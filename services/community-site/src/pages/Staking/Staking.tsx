@@ -546,7 +546,7 @@ function Stake({
           button={
             <Button
               disabled={!account}
-              variant="outlined"
+              variant="contained"
               color="secondary"
               onClick={() => downloadRewards()}
               label="Download rewards"
@@ -567,7 +567,7 @@ function Stake({
           button={
             <Button
               disabled={!canClaimStake}
-              variant="outlined"
+              variant="contained"
               color="secondary"
               onClick={() => unstakeTokens()}
               label="Unstake"
@@ -588,7 +588,7 @@ function Stake({
           button={
             <Button
               disabled={delegators.length === 0}
-              variant="outlined"
+              variant="contained"
               color="secondary"
               onClick={() => history.push('/delegation?show_my_validators')}
               label="My validators"

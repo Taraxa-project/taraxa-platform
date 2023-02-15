@@ -19,6 +19,5 @@ export interface ITransaction {
   v?: string; // hex
   s?: string;
   blockHash?: string;
-  blockNumber?: string;
-  transactionIndex?: string;
+  blockNumber?: number;
 }

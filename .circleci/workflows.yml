@@ -2,12 +2,22 @@ version: 2.1
 
 orbs:
   docker: circleci/docker@1.7.0
+  helm-release: taraxa/helm-release@0.1.1
 
 parameters:
   ui-package-modified:
     type: boolean
     default: false
   run-community-site-service-workflow:
+    type: boolean
+    default: false
+  run-community-backend-service-workflow:
+    type: boolean
+    default: false
+  build-community-backend-helm-chart-workflow:
+    type: boolean
+    default: false
+  build-community-site-helm-chart-workflow:
     type: boolean
     default: false
   run-node-status-service-workflow:
@@ -17,6 +27,30 @@ parameters:
     type: boolean
     default: false
   run-claim-backend-service-workflow:
+    type: boolean
+    default: false
+  build-faucet-workflow:
+    type: boolean
+    default: false
+  build-faucet-helm-chart-workflow:
+    type: boolean
+    default: false
+  build-explorer-workflow:
+    type: boolean
+    default: false
+  build-explorer-helm-chart-workflow:
+    type: boolean
+    default: false
+  build-explorer-indexer-workflow:
+    type: boolean
+    default: false
+  build-explorer-indexer-helm-chart-workflow:
+    type: boolean
+    default: false
+  build-explorer-api-workflow:
+    type: boolean
+    default: false
+  build-explorer-api-helm-chart-workflow:
     type: boolean
     default: false
 
@@ -63,7 +97,6 @@ aliases:
           echo 'Unknown branch' >&2
           exit 1
         fi
-        echo "export IMAGE=taraxa-community-frontend" >> $BASH_ENV
         echo "export GCP_REGISTRY=gcr.io/${GOOGLE_PROJECT_ID}" >> $BASH_ENV
 
         if [ "${CIRCLE_BRANCH}" == "feature/moves_mainnet_to_onchain_economics" ]; then
@@ -71,6 +104,9 @@ aliases:
         else
           echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
         fi
+        echo "export DOCKER_BRANCH_TAG=$(echo $CIRCLE_BRANCH | tr "[:upper:]" "[:lower:]" | sed 's/[^a-zA-Z0-9_-]/-/g')" >> $BASH_ENV
+        echo "export START_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)" >> $BASH_ENV
+        echo "export TIMESTAMP=$(date +%s)" >> $BASH_ENV
 jobs:
   build-community-site:
     <<: *config
@@ -102,6 +138,37 @@ jobs:
               docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
               docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
+            fi
+  build-community-backend:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build --build-arg NODE_ENV=${ENV} -t taraxa-community-backend:${VERSION} -f legacy/community-backend/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa-community-backend:${VERSION} taraxa/taraxa-community-backend:${VERSION}
+              docker tag taraxa-community-backend:${VERSION} taraxa/taraxa-community-backend:latest
+              docker push taraxa/taraxa-community-backend:${VERSION}
+              docker push taraxa/taraxa-community-backend:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa-community-backend:${VERSION} ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
+              docker tag taraxa-community-backend:${VERSION} ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
             fi
   build-node-status:
     <<: *config
@@ -239,6 +306,163 @@ jobs:
               -f services/claim-backend/charts/claim-backend/values.yaml \
               -f services/claim-backend/charts/${HELM_CONFIG} \
               --set image.tag=${VERSION}
+  build-faucet:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/faucet:${VERSION} -f services/faucet/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa/faucet:${VERSION} taraxa/faucet:latest
+              docker push taraxa/faucet:${VERSION}
+              docker push taraxa/faucet:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${CIRCLE_SHA1}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker tag taraxa/faucet:${VERSION} ${GCP_REGISTRY}/taraxa/faucet-develop:latest
+
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker push ${GCP_REGISTRY}/taraxa/faucet-develop:latest
+
+            fi
+  build-explorer:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/explorer-frontend:${VERSION} -f services/explorer/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa/explorer-frontend:${VERSION} taraxa/explorer-frontend:latest
+              docker push taraxa/explorer-frontend:${VERSION}
+              docker push taraxa/explorer-frontend:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${CIRCLE_SHA1}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker tag taraxa/explorer-frontend:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:latest
+
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-frontend-develop:latest
+            fi
+  build-explorer-indexer:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/explorer-indexer:${VERSION} -f services/explorer-indexer/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa/explorer-indexer:${VERSION} taraxa/explorer-indexer:latest
+              docker push taraxa/explorer-indexer:${VERSION}
+              docker push taraxa/explorer-indexer:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${CIRCLE_SHA1}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker tag taraxa/explorer-indexer:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:latest
+
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-indexer-develop:latest
+            fi
+  build-explorer-api:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t taraxa/explorer-api:${VERSION} -f services/explorer-api/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag taraxa/explorer-api:${VERSION} taraxa/explorer-api:latest
+              docker push taraxa/explorer-api:${VERSION}
+              docker push taraxa/explorer-api:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag taraxa/explorer-api:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-api-develop:${CIRCLE_SHA1}
+              docker tag taraxa/explorer-api:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-api-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa/explorer-api:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-api-develop:${START_TIME}
+              docker tag taraxa/explorer-api:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-api-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa/explorer-api:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-api-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker tag taraxa/explorer-api:${VERSION} ${GCP_REGISTRY}/taraxa/explorer-api-develop:latest
+
+              docker push ${GCP_REGISTRY}/taraxa/explorer-api-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-api-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-api-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-api-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-api-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
+              docker push ${GCP_REGISTRY}/taraxa/explorer-api-develop:latest
+            fi
 workflows:
   community-site:
     when:
@@ -257,6 +481,59 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
+  community-site-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-community-site-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/community-site/charts
+          chart-name: community-site
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+  community-backend:
+    when:
+      or:
+        - << pipeline.parameters.run-community-backend-service-workflow >>
+    jobs:
+      - build-community-backend:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  community-backend-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-community-backend-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: legacy/community-backend/charts
+          chart-name: community-backend
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
   node-status:
     when:
       or:
@@ -321,3 +598,139 @@ workflows:
                 - develop
           context:
             - K8S
+  faucet:
+    when:
+      and:
+        - << pipeline.parameters.build-faucet-workflow >>
+    jobs:
+      - build-faucet:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  faucet-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-faucet-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/faucet/charts
+          chart-name: faucet
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+  explorer:
+    when:
+      and:
+        - << pipeline.parameters.build-explorer-workflow >>
+    jobs:
+      - build-explorer:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  explorer-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-explorer-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/explorer/charts
+          chart-name: explorer-frontend
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+  explorer-indexer:
+    when:
+      and:
+        - << pipeline.parameters.build-explorer-indexer-workflow >>
+    jobs:
+      - build-explorer-indexer:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  explorer-indexer-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-explorer-indexer-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/explorer-indexer/charts
+          chart-name: explorer-indexer
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+  explorer-api:
+    when:
+      and:
+        - << pipeline.parameters.build-explorer-api-workflow >>
+    jobs:
+      - build-explorer-api:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  explorer-api-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-explorer-api-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/explorer-api/charts
+          chart-name: explorer-api
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop

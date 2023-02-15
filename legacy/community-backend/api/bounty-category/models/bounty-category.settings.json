@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bounty_categories",
+  "info": {
+    "name": "category",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "bounties": {
+      "via": "bounty_categories",
+      "collection": "bounty"
+    }
+  }
+}

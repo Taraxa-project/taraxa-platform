@@ -13,6 +13,15 @@ export class PbftService {
     private repository: Repository<PbftEntity>
   ) {}
 
+  public async getGenesisBlock(): Promise<PbftEntity> {
+    return await this.repository.findOne({
+      where: {
+        number: 0,
+      },
+      relations: ['transactions'],
+    });
+  }
+
   public async getTotalBlocksThisWeek(): Promise<number> {
     const monday = DateTime.now()
       .startOf('week')
@@ -28,5 +37,19 @@ export class PbftService {
       timestamp: Between(Number(monday), Number(sunday)),
     });
     return total.length;
+  }
+
+  public async getLatestIndexedBlock(): Promise<number> {
+    const res = await this.repository.query(
+      `SELECT MAX(p.number) as number FROM ${this.repository.metadata.tableName} p`
+    );
+    return res[0]?.number;
+  }
+
+  public async getBlocksCount(): Promise<number> {
+    const res = await this.repository.query(
+      `SELECT CAST(COUNT(p.number) as numeric) as count FROM ${this.repository.metadata.tableName} p`
+    );
+    return res[0]?.count;
   }
 }

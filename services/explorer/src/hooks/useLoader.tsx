@@ -32,7 +32,7 @@ export const ExplorerLoaderProvider = ({
   children,
 }: {
   children: React.ReactNode;
-}) => {
+}): JSX.Element => {
   const loading = useProvideLoading();
   return (
     <ExplorerLoaderContext.Provider value={loading}>
@@ -41,6 +41,6 @@ export const ExplorerLoaderProvider = ({
   );
 };
 
-export const useExplorerLoader = () => {
+export const useExplorerLoader = (): Context => {
   return useContext(ExplorerLoaderContext);
 };

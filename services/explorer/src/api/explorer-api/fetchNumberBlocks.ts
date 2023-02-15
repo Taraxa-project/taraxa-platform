@@ -1,16 +1,26 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
-import { API } from '../types';
 
-const getBlocksNumber = () => {
-  const url = `${API}/pbft/total-this-week`;
+const getBlocksNumber = (endpoint: string) => {
+  if (!endpoint) {
+    return;
+  }
+  const url = `${endpoint}/pbft/total-this-week`;
   return axios.get(url);
 };
 
-export const useGetBlocksThisWeek = () => {
+export const useGetBlocksThisWeek = (
+  endpoint: string
+): {
+  data: AxiosResponse<any>;
+  isError: boolean;
+  error: unknown;
+  isLoading: boolean;
+  isFetching: boolean;
+} => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['pbft-blocks-this-week'],
-    () => getBlocksNumber(),
+    ['pbft-blocks-this-week', endpoint],
+    () => getBlocksNumber(endpoint),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

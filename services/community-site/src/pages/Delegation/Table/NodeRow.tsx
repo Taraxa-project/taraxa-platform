@@ -81,7 +81,7 @@ const NodeRow = ({
             color="secondary"
             label="Delegate"
             disabled={!canDelegate}
-            className="edit delegateBtn"
+            className="smallBtn"
             onClick={() => {
               setDelegateToNode(node);
             }}
@@ -90,7 +90,9 @@ const NodeRow = ({
             size="small"
             label="Un-delegate"
             disabled={!canUndelegate}
-            className="delete delegateBtn"
+            color="primary"
+            variant="outlined"
+            className="smallBtn"
             onClick={() => setUndelegateFromNode(node)}
           />
         </div>

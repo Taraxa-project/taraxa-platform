@@ -51,6 +51,8 @@ const Notification = ({
               label={title}
               variant='body1'
               color='primary'
+              fontWeight='700'
+              fontSize='16px'
               className={classes.title}
             />
           )}

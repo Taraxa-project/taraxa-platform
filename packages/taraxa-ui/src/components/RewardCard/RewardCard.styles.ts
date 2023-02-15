@@ -6,14 +6,13 @@ const useStyles = makeStyles(() => {
       width: '100%',
       minHeight: 180,
       textAlign: 'center',
-      backgroundColor: '#282C3E',
-      padding: '20px',
-      border: '1px solid #6A7085',
+      backgroundColor: '#282C3E !important',
+      padding: '20px !important',
+      border: '1px solid #6A7085 !important',
     },
     content: {
       display: 'block',
-      padding: 0,
-      paddingBottom: '0 !important',
+      padding: '0 !important',
     },
     main: {
       display: 'flex',
@@ -26,15 +25,8 @@ const useStyles = makeStyles(() => {
       textAlign: 'left',
       marginRight: '30px',
     },
-    description: {
-      flex: 1,
-    },
     actionCard: {
-      width: '263px',
-    },
-    title: {
-      fontWeight: 700,
-      marginBottom: '16px',
+      width: '370px',
     },
     rewardContent: {
       color: 'white',

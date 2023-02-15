@@ -6,7 +6,7 @@ const useStyles = makeStyles(() => {
       width: '320px',
       minHeight: 180,
       textAlign: 'center',
-      backgroundColor: '#151823',
+      backgroundColor: '#151823 !important',
       paddingLeft: '24px',
       paddingRight: '24px',
       border: '1px solid #15AC5B !important',
@@ -48,17 +48,15 @@ const useStyles = makeStyles(() => {
     },
     tooltipIcon: {
       float: 'right',
-      marginTop: '5%',
+      marginTop: '2rem',
     },
     label: {
       fontFamily: 'Inter',
       fontSize: 12,
-      marginTop: '5%',
-      marginBottom: '5%',
     },
     actions: {
       display: 'grid',
-      marginBottom: '44px',
+      marginBottom: '28px',
       padding: 0,
     },
     icon: {

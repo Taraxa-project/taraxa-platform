@@ -10,9 +10,7 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { IPBFT } from '../models';
 import { TransactionEntity } from './transaction.entity';
 
-const table_name = 'pbfts';
-
-@Entity(table_name)
+@Entity('pbfts')
 export class PbftEntity extends BaseEntity implements IPBFT {
   constructor(pbft?: Partial<IPBFT>) {
     super();
@@ -24,18 +22,19 @@ export class PbftEntity extends BaseEntity implements IPBFT {
 
   @Column({ unique: true })
   @IsString()
+  @Index('pbfts_index_hash')
   hash: string;
 
   @Column({ nullable: false })
   @IsNumber()
   @IsNotEmpty()
-  @Index()
+  @Index('pbfts_index_number')
   number: number;
 
   @Column({ nullable: false, default: 0 })
   @IsNumber()
   @IsNotEmpty()
-  @Index()
+  @Index('pbfts_index_timestamp')
   timestamp: number;
 
   @Column({ nullable: true })
@@ -44,7 +43,7 @@ export class PbftEntity extends BaseEntity implements IPBFT {
 
   @Column({ nullable: true })
   @IsString()
-  @Index()
+  @Index('pbfts_index_miner')
   miner?: string;
 
   @Column({ nullable: true })

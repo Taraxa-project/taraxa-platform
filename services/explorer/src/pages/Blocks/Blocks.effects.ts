@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import {
@@ -11,9 +12,10 @@ import { blocksQuery, PbftBlocksFilters } from '../../api';
 export const useBlockEffects = () => {
   const { finalBlock } = useNodeStateContext();
   const [data, setData] = useState<BlockData[]>([]);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = useState(0);
   const { currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
   const { initLoading, finishLoading } = useExplorerLoader();
 
   const columns: ColumnData[] = [
@@ -54,7 +56,7 @@ export const useBlockEffects = () => {
       return [];
     }
     const formattedBlocks: BlockData[] = blocks
-      .map((block: PbftBlock) => {
+      ?.map((block: PbftBlock) => {
         return {
           timestamp: block.timestamp,
           block: block.number,
@@ -80,6 +82,12 @@ export const useBlockEffects = () => {
       setData(data.concat(formatBlocksToTable(blocksData?.blocks)));
     }
   }, [blocksData]);
+
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      setData([]);
+    }
+  }, [currentNetwork, network]);
 
   useEffect(() => {
     if (finalBlock) {

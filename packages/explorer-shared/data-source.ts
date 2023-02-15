@@ -16,9 +16,9 @@ const getDataSourceOptions = (): DataSourceOptions => {
         type: 'postgres',
         host: process.env.DB_HOST || 'localhost',
         port: Number(process.env.DB_PORT) || 5432,
-        username: process.env.DB_USERNAME || 'postgres',
+        username: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_DATABASE || 'hypepool',
+        database: process.env.DB_NAME || 'hypepool',
       };
 };
 
@@ -29,7 +29,8 @@ const DataSourceConfig = new DataSource({
   logging: process.env.NODE_ENV !== 'production',
   entities: [`${__dirname}/src/entities/*.entity{.ts,.js}`],
   migrations: [`${__dirname}/src/migrations/*{.ts,.js}`],
-  migrationsTableName: 'migrations_explorer_indexer',
+  migrationsTableName: 'typeorm_migrations',
+  metadataTableName: 'typeorm_metadata',
 } as DataSourceOptions);
 
 export default DataSourceConfig;

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   IPBFT,
@@ -16,14 +17,19 @@ import TransactionService from '../transaction/transaction.service';
 export default class PbftService {
   private readonly logger: Logger = new Logger(PbftService.name);
   private isRedisConnected: boolean;
+  private isTransactionConsumer: boolean;
   constructor(
     @InjectRepository(PbftEntity)
     private pbftRepository: Repository<PbftEntity>,
     private txService: TransactionService,
-    private dagService: DagService
+    private dagService: DagService,
+    private readonly configService: ConfigService
   ) {
     this.pbftRepository = pbftRepository;
     this.isRedisConnected = true;
+    this.isTransactionConsumer = configService.get<boolean>(
+      'isTransactionConsumer'
+    );
   }
 
   public getRedisConnectionState() {
@@ -34,14 +40,22 @@ export default class PbftService {
     this.isRedisConnected = state;
   }
 
-  public async getSavedPbftPeriods() {
-    return (
-      await this.pbftRepository.find({
-        select: {
-          number: true,
-        },
-      })
-    )?.map((entry) => entry.number);
+  public async getMissingPbftPeriods() {
+    const lastBlockSaved = (
+      await this.pbftRepository.query(
+        `SELECT MAX("number") as "last_saved" FROM ${this.pbftRepository.metadata.tableName}`
+      )
+    )[0].last_saved;
+    const missingNumbers: number[] = (
+      await this.pbftRepository.query(
+        `SELECT s.i AS "missing_number" FROM generate_series(0, ${
+          lastBlockSaved || 0
+        }) s(i) WHERE NOT EXISTS (SELECT 1 FROM ${
+          this.pbftRepository.metadata.tableName
+        } WHERE number = s.i)`
+      )
+    ).map((res: { missing_number: number }) => res.missing_number);
+    return missingNumbers;
   }
 
   public async safeSavePbft(pbft: IPBFT) {
@@ -49,31 +63,46 @@ export default class PbftService {
       return;
     }
     let _pbft;
-    _pbft = await this.pbftRepository.findOneBy({ hash: pbft.hash });
-    if (!_pbft) {
-      const newPbft = this.pbftRepository.create({
+    const indexedPbft = await this.pbftRepository.findOneBy({
+      hash: pbft.hash,
+    });
+    if (!indexedPbft) {
+      _pbft = this.pbftRepository.create({
         hash: pbft.hash,
-        miner: toChecksumAddress(pbft.miner),
-        number: pbft.number,
-        timestamp: pbft.timestamp,
-        nonce: pbft.nonce,
-        reward: pbft.reward,
-        gasLimit: String(pbft.gasLimit || '0'),
-        gasUsed: String(pbft.gasUsed || '0'),
-        parent: pbft.parent,
-        difficulty: pbft.difficulty,
-        totalDifficulty: pbft.totalDifficulty,
-        transactionCount: pbft.transactions?.length || pbft.transactionCount,
-        extraData: pbft.extraData,
-        logsBloom: pbft.logsBloom,
-        mixHash: pbft.mixHash,
-        recepitsRoot: pbft.recepitsRoot,
-        sha3Uncles: pbft.sha3Uncles,
-        size: pbft.size,
-        stateRoot: pbft.stateRoot,
-        transactionsRoot: pbft.transactionsRoot,
       });
-      _pbft = newPbft;
+    } else {
+      _pbft = indexedPbft;
+    }
+    _pbft.miner = toChecksumAddress(pbft.miner);
+    _pbft.number = pbft.number;
+    _pbft.timestamp = pbft.timestamp;
+    _pbft.nonce = pbft.nonce;
+    _pbft.reward = pbft.reward;
+    _pbft.gasLimit = String(pbft.gasLimit || '0');
+    _pbft.gasUsed = String(pbft.gasUsed || '0');
+    _pbft.parent = pbft.parent;
+    _pbft.difficulty = pbft.difficulty;
+    _pbft.totalDifficulty = pbft.totalDifficulty;
+    _pbft.transactionCount = pbft.transactions?.length || pbft.transactionCount;
+    _pbft.extraData = pbft.extraData;
+    _pbft.logsBloom = pbft.logsBloom;
+    _pbft.mixHash = pbft.mixHash;
+    _pbft.recepitsRoot = pbft.recepitsRoot;
+    _pbft.sha3Uncles = pbft.sha3Uncles;
+    _pbft.size = pbft.size;
+    _pbft.stateRoot = pbft.stateRoot;
+    _pbft.transactionsRoot = pbft.transactionsRoot;
+    if (indexedPbft) {
+      const savedPbft = await this.pbftRepository.save(_pbft);
+      if (savedPbft) {
+        const pbftFound = await this.pbftRepository.findOne({
+          where: {
+            hash: _pbft.hash,
+          },
+          relations: ['transactions'],
+        });
+        return pbftFound;
+      }
     }
 
     try {
@@ -82,7 +111,7 @@ export default class PbftService {
         .insert()
         .into(PbftEntity)
         .values(_pbft)
-        .orIgnore()
+        .orIgnore(indexedPbft !== null)
         .returning('*')
         .execute();
 
@@ -92,15 +121,25 @@ export default class PbftService {
         if (pbft.transactions?.length > 0) {
           const newTransactions: ITransaction[] = pbft.transactions.map(
             (transaction) => {
-              return {
-                ...transaction,
-                block: {
-                  id: saved.raw[0]?.id,
-                  hash: saved.raw[0]?.hash,
-                  number: saved.raw[0]?.number,
-                  timestamp: saved.raw[0]?.timestamp,
-                },
-              };
+              return pbft.number === 0 || this.isTransactionConsumer
+                ? {
+                    ...transaction,
+                    block: {
+                      id: saved.raw[0]?.id,
+                      hash: saved.raw[0]?.hash,
+                      number: saved.raw[0]?.number,
+                      timestamp: saved.raw[0]?.timestamp,
+                    },
+                  }
+                : {
+                    hash: transaction.hash,
+                    block: {
+                      id: saved.raw[0]?.id,
+                      hash: saved.raw[0]?.hash,
+                      number: saved.raw[0]?.number,
+                      timestamp: saved.raw[0]?.timestamp,
+                    },
+                  };
             }
           );
 
@@ -112,13 +151,17 @@ export default class PbftService {
           _pbft.save();
         }
       }
-      const pbftFound = await this.pbftRepository.findOneBy({
-        hash: _pbft.hash,
+      const pbftFound = await this.pbftRepository.findOne({
+        where: {
+          hash: _pbft.hash,
+        },
+        relations: ['transactions'],
       });
       return pbftFound;
     } catch (error) {
+      this.logger.error(error);
       this.logger.error(`Error when saving PBFT: ${JSON.stringify(error)}`);
-      return _pbft;
+      throw error;
     }
   }
 
@@ -155,7 +198,9 @@ export default class PbftService {
   }
 
   public async clearPbftData() {
-    await this.pbftRepository.query('DELETE FROM "pbfts"');
+    await this.pbftRepository.query(
+      `DELETE FROM "${this.pbftRepository.metadata.tableName}"`
+    );
   }
 
   public async getPbftsOfLastLevel(limit: number) {
@@ -186,6 +231,14 @@ export default class PbftService {
         .limit(1)
         .getOne()
     )?.hash;
+  };
+
+  public getLastPBFTNumber = async () => {
+    return (
+      await this.pbftRepository.query(
+        'select max(number) as last_block from pbfts'
+      )
+    ).map((res: { last_block: number }) => res.last_block)[0];
   };
 
   public pbftGQLToIPBFT(pbftGQL: IGQLPBFT) {

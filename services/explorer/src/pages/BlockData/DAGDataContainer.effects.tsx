@@ -1,12 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { dagDetailsQuery } from '../../api';
-import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import { useExplorerLoader } from '../../hooks/useLoader';
+import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { DagBlock, Transaction } from '../../models';
+import { displayWeiOrTara } from '../../utils';
 
-export const useDAGDataContainerEffects = (hash: string) => {
+export const useDAGDataContainerEffects = (
+  hash: string
+): {
+  blockData: DagBlock;
+  transactions: Transaction[];
+  currentNetwork: string;
+  showLoadingSkeleton: boolean;
+  showNetworkChanged: boolean;
+} => {
   const { currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
+  const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
+
   const [blockData, setBlockData] = useState<DagBlock>({} as DagBlock);
   const [transactions, setTransactions] = useState<Transaction[]>([
     {} as Transaction,
@@ -19,21 +30,49 @@ export const useDAGDataContainerEffects = (hash: string) => {
     pause: !hash,
   });
   const { initLoading, finishLoading } = useExplorerLoader();
+  const [showLoadingSkeleton, setShowLoadingSkeleton] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (data?.dagBlock) {
+      setShowNetworkChanged(false);
       setBlockData(data?.dagBlock);
-      setTransactions(data?.dagBlock?.transactions);
+      setTransactions(
+        data?.dagBlock?.transactions?.map((tx: Transaction) => {
+          return {
+            ...tx,
+            value: displayWeiOrTara(tx.value),
+            gasUsed: displayWeiOrTara(tx.gasUsed),
+          };
+        })
+      );
+    }
+    if (data?.dagBlock === null) {
+      setShowNetworkChanged(true);
     }
   }, [data]);
 
   useEffect(() => {
     if (fetching) {
       initLoading();
+      setShowLoadingSkeleton(true);
     } else {
       finishLoading();
+      setShowLoadingSkeleton(false);
     }
   }, [fetching, currentNetwork]);
 
-  return { blockData, transactions, currentNetwork };
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      setShowNetworkChanged(true);
+    }
+  }, [currentNetwork, network]);
+
+  return {
+    blockData,
+    transactions,
+    currentNetwork,
+    showLoadingSkeleton,
+    showNetworkChanged,
+  };
 };

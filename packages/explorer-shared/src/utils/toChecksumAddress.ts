@@ -8,7 +8,7 @@ export const toChecksumAddress = (address: any) => {
 
   if (utils.isAddress(address)) {
     address = utils.toChecksumAddress(address);
-  } else {
+  } else if (!address?.toLowerCase().includes('genesis')) {
     throw new Error('Address is not valid.');
   }
   return address;

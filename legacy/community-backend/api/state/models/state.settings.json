@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "states",
+  "info": {
+    "name": "state",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "bounties": {
+      "via": "state",
+      "collection": "bounty"
+    },
+    "background_color": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

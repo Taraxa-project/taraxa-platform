@@ -6,7 +6,10 @@ import { AppCoreModule } from './modules/app-core.module';
 import { NodeService } from './modules/node/node.service';
 import { DelegationService } from './modules/delegation/delegation.service';
 import { RewardService } from './modules/reward/reward.service';
-import { BlockchainService } from './modules/blockchain/blockchain.service';
+import {
+  BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
+  BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
+} from './modules/blockchain/blockchain.constant';
 
 interface Node {
   id: number;
@@ -29,7 +32,8 @@ async function bootstrap() {
   const nodeService = app.get(NodeService);
   const delegationService = app.get(DelegationService);
   const rewardService = app.get(RewardService);
-  const blockchainService = app.get(BlockchainService);
+  const testnetBlockchainService = app.get(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN);
+  const mainnetBlockchainService = app.get(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN);
 
   const nodes = async (type: string) => {
     return nodeService.findNodes({ type });
@@ -55,23 +59,6 @@ async function bootstrap() {
     }
   };
 
-  const unDelegate = async (nodes: Node[], currentDelegations: Delegations) => {
-    let count = 0;
-    for (const node of nodes) {
-      count++;
-      const { type, address } = node;
-      const currentDelegation = currentDelegations[address.toLowerCase()]
-        ? parseInt(currentDelegations[address.toLowerCase()], 16)
-        : 0;
-
-      console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
-      console.log(`currentDelegation: ${currentDelegation}`);
-      console.log(`removing delegation...`);
-      await delegationService.unDelegateAll(type, address);
-      console.log(`------------------------------`);
-    }
-  };
-
   const testnetNodes = async () => {
     console.log(await nodes('testnet'));
     return Promise.resolve();
@@ -93,7 +80,7 @@ async function bootstrap() {
       console.log(`ensuring delegation...`);
       console.log(`Deleted: ${isDeleted ? 'Y' : 'N'}`);
       try {
-        const validator = await blockchainService.getValidator(address);
+        const validator = await testnetBlockchainService.getValidator(address);
         console.log(`currentDelegation: ${validator.total_stake.toString()}`);
         console.log({
           validator,
@@ -107,36 +94,34 @@ async function bootstrap() {
   };
 
   const mainnetEnsureDelegation = async () => {
-    const n = await nodes('mainnet');
-    const currentDelegations = await delegationService.getDelegationsFor(
-      'mainnet',
-    );
-    await ensureDelegation(n, currentDelegations);
-  };
-
-  const testnetUndelegate = async () => {
-    const n = await nodes('testnet');
-    const currentDelegations = await delegationService.getDelegationsFor(
-      'testnet',
-    );
-    await unDelegate(n, currentDelegations);
-  };
-
-  const mainnetUndelegate = async () => {
-    const n = await nodes('mainnet');
-    const currentDelegations = await delegationService.getDelegationsFor(
-      'mainnet',
-    );
-    await unDelegate(n, currentDelegations);
+    const nodes = await nodeService.findAllMainnetNodes();
+    let count = 0;
+    for (const node of nodes) {
+      count++;
+      const { id, type, address, deletedAt } = node;
+      const isDeleted = deletedAt !== null;
+      console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
+      console.log(`ensuring delegation...`);
+      console.log(`Deleted: ${isDeleted ? 'Y' : 'N'}`);
+      try {
+        const validator = await mainnetBlockchainService.getValidator(address);
+        console.log(`currentDelegation: ${validator.total_stake.toString()}`);
+      } catch (e) {
+        console.log(`Node isn't registered as a validator.`);
+      }
+      await delegationService.ensureDelegation(id, type, address);
+      console.log(`------------------------------`);
+    }
   };
 
   const rebalanceMainnet = async () => {
-    await delegationService.rebalanceMainnet();
+    await mainnetBlockchainService.rebalanceOwnNodes();
     return Promise.resolve();
   };
 
   const rebalanceTestnet = async () => {
-    await blockchainService.rebalanceOwnNodes();
+    await testnetBlockchainService.rebalanceOwnNodes();
+    return Promise.resolve();
   };
 
   const checkStaking = async () => {
@@ -204,16 +189,6 @@ async function bootstrap() {
       'mainnet-ensure-delegation',
       'ensure delegation for all mainnet nodes',
       mainnetEnsureDelegation,
-    )
-    .command(
-      'testnet-undelegate',
-      'remove delegation from all testnet nodes',
-      testnetUndelegate,
-    )
-    .command(
-      'mainnet-undelegate',
-      'remove delegation from all mainnet nodes',
-      mainnetUndelegate,
     )
     .command(
       'rebalance-mainnet',

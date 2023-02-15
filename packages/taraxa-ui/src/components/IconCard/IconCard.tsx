@@ -56,8 +56,13 @@ const IconCard = ({
           >
             {title}
           </Typography>
-          <Typography className={classes.label} variant='body1' color='primary'>
-            <span>{description}</span>
+          <Typography
+            className={classes.label}
+            color='primary'
+            fontSize='14px'
+            my={2}
+          >
+            {description}
           </Typography>
         </CardContent>
         {onClickButton && onClickText && (

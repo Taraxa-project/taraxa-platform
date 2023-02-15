@@ -11,9 +11,9 @@ async function bootstrap() {
     .setTitle('Taraxa Faucet')
     .setDescription('Taraxa Faucet')
     .setVersion('1.0')
-    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('apidocs', app, document);
   app.use(helmet());
   app.useGlobalPipes(new ValidationPipe());
@@ -21,6 +21,8 @@ async function bootstrap() {
     origin: '*',
     exposedHeaders: ['Content-Type', 'Content-Range'],
   });
+  const adapter = app.getHttpAdapter().getInstance();
+  adapter.set('trust proxy', 'loopback');
   await app.listen(process.env.SERVER_PORT || 3002);
 }
 bootstrap();

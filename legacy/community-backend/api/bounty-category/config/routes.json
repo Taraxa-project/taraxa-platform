@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/bounty-categories",
+      "handler": "bounty-category.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/bounty-categories/count",
+      "handler": "bounty-category.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/bounty-categories/:id",
+      "handler": "bounty-category.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bounty-categories",
+      "handler": "bounty-category.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/bounty-categories/:id",
+      "handler": "bounty-category.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/bounty-categories/:id",
+      "handler": "bounty-category.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

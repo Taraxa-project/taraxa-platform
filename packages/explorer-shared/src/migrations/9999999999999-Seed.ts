@@ -13,7 +13,7 @@ export class Seed9999999999999 implements MigrationInterface {
         (
             SELECT MAX("id")
             FROM public.pbfts
-        ) + 1
+        )
     );`
     );
     await queryRunner.query(
@@ -22,7 +22,7 @@ export class Seed9999999999999 implements MigrationInterface {
         (
             SELECT MAX("id")
             FROM public.dags
-        ) + 1
+        )
     );`
     );
     await queryRunner.query(
@@ -31,7 +31,7 @@ export class Seed9999999999999 implements MigrationInterface {
         (
             SELECT MAX("id")
             FROM public.transactions
-        ) + 1
+        )
     );`
     );
   }

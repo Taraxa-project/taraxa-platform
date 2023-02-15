@@ -1,13 +1,20 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import { DagBlockFilters, dagBlocksQuery } from '../../api';
-import { useExplorerLoader, useNodeStateContext } from '../../hooks';
+import {
+  useExplorerLoader,
+  useExplorerNetwork,
+  useNodeStateContext,
+} from '../../hooks';
 import { BlockData, ColumnData, DagBlock } from '../../models';
 
 export const useDagEffects = () => {
   const { dagBlockLevel } = useNodeStateContext();
+  const { currentNetwork } = useExplorerNetwork();
+  const [network] = useState(currentNetwork);
   const [data, setData] = useState<BlockData[]>([]);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = useState(0);
   const { initLoading, finishLoading } = useExplorerLoader();
 
@@ -20,7 +27,7 @@ export const useDagEffects = () => {
 
   const [blocksFilters, setBlocksFilter] = useState<DagBlockFilters>({
     dagLevel: null,
-    count: rowsPerPage || 5,
+    count: rowsPerPage || 25,
     reverse: true,
   });
 
@@ -32,8 +39,8 @@ export const useDagEffects = () => {
 
   const handleChangePage = (newPage: number) => {
     setBlocksFilter({
-      dagLevel: blocksFilters.dagLevel - (rowsPerPage || 5),
-      count: rowsPerPage || 5,
+      dagLevel: blocksFilters.dagLevel - (rowsPerPage || 25),
+      count: rowsPerPage || 25,
       reverse: true,
     });
     setPage(newPage);
@@ -46,7 +53,7 @@ export const useDagEffects = () => {
     setPage(0);
     setBlocksFilter({
       dagLevel: dagBlockLevel,
-      count: rowsPerPage || 5,
+      count: rowsPerPage || 25,
       reverse: true,
     });
   };
@@ -56,7 +63,7 @@ export const useDagEffects = () => {
       return [];
     }
     const formattedBlocks: BlockData[] = blocks
-      .map((block: DagBlock) => {
+      ?.map((block: DagBlock) => {
         return {
           timestamp: block.timestamp,
           level: block.level,
@@ -72,7 +79,7 @@ export const useDagEffects = () => {
     if (dagBlockLevel) {
       setBlocksFilter({
         dagLevel: dagBlockLevel,
-        count: rowsPerPage || 5,
+        count: rowsPerPage || 25,
         reverse: true,
       });
     }
@@ -91,6 +98,12 @@ export const useDagEffects = () => {
       setData(data.concat(formatBlocksToTable(dagBlocksData?.dagBlocks)));
     }
   }, [dagBlocksData]);
+
+  useEffect(() => {
+    if (currentNetwork !== network) {
+      setData([]);
+    }
+  }, [currentNetwork, network]);
 
   return {
     data,

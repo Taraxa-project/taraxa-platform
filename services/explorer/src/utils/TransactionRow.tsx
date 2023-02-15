@@ -1,6 +1,7 @@
 import React from 'react';
 import { CircularProgress } from '@mui/material';
 import { Icons, Label } from '@taraxa_project/taraxa-ui';
+import { DateTime } from 'luxon';
 import moment from 'moment';
 import { HashLink } from '../components/Links';
 import {
@@ -52,7 +53,17 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   );
 };
 
-export const toTransactionTableRow = (props: TransactionTableData) => {
+export const toTransactionTableRow = (
+  props: TransactionTableData
+): {
+  data: {
+    timestamp: string;
+    block: JSX.Element;
+    status: JSX.Element;
+    txHash: JSX.Element;
+    value: string;
+  }[];
+} => {
   const { timestamp, block, status: state, txHash, value, token } = props;
   const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
   const labelType = statusToLabel(state);
@@ -78,23 +89,45 @@ export const toTransactionTableRow = (props: TransactionTableData) => {
   };
 };
 
-export const timestampToAge = (timestamp: string | number) => {
-  if (!timestamp) return '0';
-  let age = Math.floor(+new Date() / 1000 - +timestamp);
-  const days = Math.floor(age / 86400);
-  age -= Math.floor(86400 * days);
-  const hours = Math.floor(age / 3600);
-  age -= Math.floor(3600 * hours);
-  const minutes = Math.floor(age / 60);
-  age -= Math.floor(60 * minutes);
+export const timestampToAge = (timestamp: string | number): string => {
+  if (!timestamp) return 'NA';
+  const date = DateTime.fromMillis(+timestamp * 1000, { zone: 'UTC' });
+  const currentDate = DateTime.utc();
+  if (date > currentDate) {
+    return '0 second(s) ago';
+  }
+  const diff = currentDate.diff(date, [
+    'years',
+    'months',
+    'weeks',
+    'days',
+    'hours',
+    'minutes',
+    'seconds',
+  ]);
 
-  const ageString = `${days > 0 ? `${days} day(s), ` : ''}${
-    hours > 0 ? `${hours} hour(s), ` : ''
-  } ${minutes ? `${minutes} minute(s), ` : ''} ${age ? `${age}s` : 'ago'}`;
-  return ageString;
+  let age = '';
+  if (diff.years) age += `${Math.round(diff.years)} year(s) `;
+  else if (diff.months) age += `${Math.round(diff.months)} month(s) `;
+  else if (diff.weeks) age += `${Math.round(diff.weeks)} week(s) `;
+  else if (diff.days) age += `${Math.round(diff.days)} day(s) `;
+  else if (diff.hours) age += `${Math.round(diff.hours)} hour(s) `;
+  else if (diff.minutes) age += `${Math.round(diff.minutes)} minute(s) `;
+  else if (diff.seconds) age += `${Math.round(diff.seconds)} second(s) `;
+
+  return `${age}ago`;
 };
 
-export const toBlockTableRow = (props: BlockData) => {
+export const toBlockTableRow = (
+  props: BlockData
+): {
+  data: {
+    timestamp: string;
+    block: JSX.Element;
+    hash: JSX.Element;
+    transactionCount: number;
+  }[];
+} => {
   const { timestamp, block, hash, transactionCount } = props;
 
   const ageString = timestampToAge(timestamp);
@@ -115,7 +148,16 @@ export const toBlockTableRow = (props: BlockData) => {
   };
 };
 
-export const toDagBlockTableRow = (props: BlockData) => {
+export const toDagBlockTableRow = (
+  props: BlockData
+): {
+  data: {
+    timestamp: string;
+    level: number;
+    hash: JSX.Element;
+    transactionCount: number;
+  }[];
+} => {
   const { timestamp, level, hash, transactionCount } = props;
 
   const ageString = timestampToAge(timestamp);
@@ -139,7 +181,13 @@ export const toNodeTableRow = ({
   rank,
   nodeAddress,
   blocksProduced,
-}: NodesTableData) => {
+}: NodesTableData): {
+  data: {
+    rank: number;
+    nodeAddress: JSX.Element;
+    blocksProduced: string;
+  }[];
+} => {
   const address = (
     <HashLink
       linkType={HashLinkType.ADDRESSES}

@@ -1,4 +1,4 @@
-import { RequestEntity } from './request.entity';
+import { RequestEntity, RequestStatus } from './request.entity';
 
-export { RequestEntity };
+export { RequestEntity, RequestStatus };
 export default { RequestEntity };

@@ -73,7 +73,6 @@ export default class DagService {
     }
     try {
       const savedDag = await dagToCreate.save();
-      this.logger.log(`Registered new DAG ${savedDag.hash}`);
       return savedDag;
     } catch (err) {
       this.logger.error(
@@ -116,7 +115,9 @@ export default class DagService {
   }
 
   public async clearDagData() {
-    await this.dagRepository.query('DELETE FROM "dags"');
+    await this.dagRepository.query(
+      `DELETE FROM "${this.dagRepository.metadata.tableName}"`
+    );
   }
 
   public async getBlockByLevel(level: number) {
@@ -141,7 +142,6 @@ export default class DagService {
   public async getDagsFromLastLevel(limit: number) {
     return await this.dagRepository
       .createQueryBuilder('dags')
-      .leftJoinAndSelect('dags.transactions', 'transactions')
       .select()
       .where('dags.level IS NOT NULL')
       .orderBy('dags.level', 'DESC')
@@ -152,7 +152,6 @@ export default class DagService {
   public async getLastDagFromLastPbftPeriod(limit: number) {
     return await this.dagRepository
       .createQueryBuilder('dags')
-      .leftJoinAndSelect('dags.transactions', 'transactions')
       .select()
       .where('dags.pbftPeriod IS NOT NULL')
       .orderBy('dags.pbftPeriod', 'DESC')
@@ -164,7 +163,6 @@ export default class DagService {
     return (
       await this.dagRepository
         .createQueryBuilder('dags')
-        .leftJoinAndSelect('dags.transactions', 'transactions')
         .select()
         .orderBy('dags.timestamp', 'DESC')
         .limit(1)

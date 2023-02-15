@@ -10,24 +10,29 @@ export const HashLink = ({
   blockNumber,
   wrap,
   width,
+  disabled = false,
 }: {
   linkType: HashLinkType;
   hash?: string;
   blockNumber?: number;
   wrap?: boolean;
   width?: string;
+  disabled?: boolean;
 }): JSX.Element => {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'start' }}>
       <Link
-        to={`/${linkType}/${hash || blockNumber}`}
+        to={`/${linkType}/${zeroX(hash) || blockNumber}`}
         style={{
           textDecoration: 'none',
-          color: theme.palette.secondary.main,
+          color: disabled
+            ? theme.palette.grey[500]
+            : theme.palette.secondary.main,
           whiteSpace: 'nowrap',
           textOverflow: 'ellipsis',
           overflow: 'hidden',
           width,
+          pointerEvents: disabled ? 'none' : 'auto',
         }}
       >
         {hash ? (wrap ? `${zeroX(hash).slice(0, 8)}...` : zeroX(hash)) : hash}

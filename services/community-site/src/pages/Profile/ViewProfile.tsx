@@ -171,6 +171,7 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         onClick={() => openEditProfile()}
       />
       <Button
+        style={{ marginTop: '0.5rem' }}
         color="primary"
         variant="text"
         label="Log out"

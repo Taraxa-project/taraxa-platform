@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { zeroX } from '@taraxa_project/explorer-shared';
-import _ from 'lodash';
 import { ChainState } from 'src/types/chainState';
 import DagService from '../dag/dag.service';
 import PbftService from '../pbft/pbft.service';
@@ -9,11 +8,20 @@ import TransactionService from '../transaction/transaction.service';
 import { GraphQLConnectorService } from '../connectors';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { QueueData, QueueJobs, SyncTypes } from '../../types';
+import {
+  createJobConfiguration,
+  QueueData,
+  QueueJobs,
+  Queues,
+  SyncTypes,
+} from '../../types';
+import { QueuePopulatorCache } from '../common';
+import { Cron } from '@nestjs/schedule';
+
 @Injectable()
 export default class HistoricalSyncService implements OnModuleInit {
   private readonly logger: Logger = new Logger(HistoricalSyncService.name);
-  private isRunning = false;
+  public isRunning = false;
   private chainState = {} as ChainState;
   private syncState = {} as ChainState;
   constructor(
@@ -22,16 +30,18 @@ export default class HistoricalSyncService implements OnModuleInit {
     private readonly txService: TransactionService,
     private readonly graphQLConnector: GraphQLConnectorService,
     private readonly configService: ConfigService,
-    @InjectQueue('new_pbfts')
+    @InjectQueue(Queues.NEW_PBFTS)
     private readonly pbftsQueue: Queue,
-    @InjectQueue('new_dags')
-    private readonly dagsQueue: Queue
+    @InjectQueue(Queues.NEW_DAGS)
+    private readonly dagsQueue: Queue,
+    @InjectQueue(Queues.STALE_TRANSACTIONS)
+    private readonly txQueue: Queue
   ) {
     this.logger.log('Historical syncer started.');
   }
   onModuleInit() {
-    const isProduer = this.configService.get<boolean>('general.isProducer');
-    if (isProduer) {
+    const isProducer = this.configService.get<boolean>('general.isProducer');
+    if (isProducer) {
       this.pbftsQueue.empty();
       this.dagsQueue.empty();
     }
@@ -66,9 +76,9 @@ export default class HistoricalSyncService implements OnModuleInit {
     )[0];
 
     this.chainState = {
-      number: block.number,
-      hash: zeroX(block.hash),
-      genesis: zeroX(genesis.hash),
+      number: block?.number,
+      hash: zeroX(block?.hash),
+      genesis: zeroX(genesis?.hash),
       dagBlockLevel: dagBlock?.level,
       dagBlockPeriod: dagBlock?.pbftPeriod,
     };
@@ -130,21 +140,40 @@ export default class HistoricalSyncService implements OnModuleInit {
 
     let verifiedTip = false;
 
+    const reorgThreshold =
+      this.configService.get<number>('general.reorgThreshold') || 100;
     // if genesis block changes or the chain has lesser blocks than the syncer state(reset happened), resync
+    const isGenesis = this.chainState.genesis;
+    const genesisNotMatching =
+      this.chainState.genesis.toLowerCase() !==
+      this.syncState.genesis.toLowerCase();
+    const reorgDetected =
+      this.chainState.number < this.syncState.number - reorgThreshold;
     if (
-      !this.chainState.genesis || //there is no genesys
-      this.chainState.genesis !== this.syncState.genesis || // genesys hash is different
-      this.chainState.number < this.syncState.number // there has been a network reset
+      !isGenesis || //there is no genesis
+      genesisNotMatching || // genesis hash is different
+      reorgDetected // there has been a network reset not just a tip reformation
     ) {
       this.logger.warn(
-        'New genesis block hash or network reset detected. Restarting chain sync.'
+        `${isGenesis && 'No genesis block hash'}
+             ${genesisNotMatching && 'New genesis block hash'}
+            ${
+              reorgDetected && ', Network reset'
+            } detected. Restarting chain sync.`
       );
       // reset the database and remove the queue entries
       await this.txService.clearTransactionData();
+      this.logger.warn('Cleared Transaction table');
       await this.dagService.clearDagData();
+      this.logger.warn('Cleared DAG table');
       await this.pbftService.clearPbftData();
+      this.logger.warn('Cleared PBFT table');
       await this.pbftsQueue.empty();
+      this.logger.warn('Cleared PBFT queue');
       await this.dagsQueue.empty();
+      this.logger.warn('Cleared DAG queue');
+      await this.txQueue.empty();
+      this.logger.warn('Cleared Tx queue');
       this.syncState = {
         number: 0,
         hash: '',
@@ -182,44 +211,61 @@ export default class HistoricalSyncService implements OnModuleInit {
       }
     }
 
-    // @note : Right now there is no way to get the genesis transactions to set:
-    // Initial validators, initial balances for delegators and faucet.
-    // big TODO
-    const chuncks = [
-      {
-        name: QueueJobs.NEW_PBFT_BLOCKS,
-        data: {
-          pbftPeriod: 0,
-        },
+    const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
+    await queueCache.add({
+      name: QueueJobs.NEW_PBFT_BLOCKS,
+      data: {
+        pbftPeriod: 0,
       },
-    ];
-    const foundBlockNumbers = await this.pbftService.getSavedPbftPeriods();
-    const count = foundBlockNumbers.length;
-
-    for (let i = 1; i <= count; i++) {
-      if (foundBlockNumbers.indexOf(i) == -1) {
-        chuncks.push({
-          name: QueueJobs.NEW_PBFT_BLOCKS,
-          data: {
-            pbftPeriod: i,
-            type: SyncTypes.HISTORICAL,
-          } as QueueData,
-        });
-      }
-    }
-    for (
-      this.syncState.number;
-      this.syncState.number < this.chainState.number;
-      this.syncState.number++
-    ) {
-      chuncks.push({
+      opts: createJobConfiguration(0),
+    });
+    const missingBlockNumbers = await this.pbftService.getMissingPbftPeriods();
+    for (const blockNumber of missingBlockNumbers) {
+      await queueCache.add({
         name: QueueJobs.NEW_PBFT_BLOCKS,
         data: {
-          pbftPeriod: this.syncState.number,
+          pbftPeriod: blockNumber,
           type: SyncTypes.HISTORICAL,
         } as QueueData,
+        opts: createJobConfiguration(blockNumber),
       });
     }
-    this.pbftsQueue.addBulk(chuncks);
+
+    await this.reSyncChainState(); // we need to resync chain state to not miss PBFT periods that happened in between the reset
+
+    for (let i = this.syncState.number; i <= this.chainState.number; i++) {
+      await queueCache.add({
+        name: QueueJobs.NEW_PBFT_BLOCKS,
+        data: {
+          pbftPeriod: i,
+          type: SyncTypes.HISTORICAL,
+        } as QueueData,
+        opts: createJobConfiguration(i),
+      });
+    }
+    // at the end of iteration, clear the cache
+    await queueCache.clearCache();
+    this.isRunning = false;
+  }
+
+  @Cron('*/30 * * * *')
+  async handlePotentiallyMissingPBFTNumbers() {
+    if (!this.isRunning) {
+      this.logger.debug('CRON: Checking potentially missing PBFTS');
+      const queueCache = new QueuePopulatorCache(this.pbftsQueue, 1000);
+      const missingBlockNumbers =
+        await this.pbftService.getMissingPbftPeriods();
+      for (const blockNumber of missingBlockNumbers) {
+        await queueCache.add({
+          name: QueueJobs.NEW_PBFT_BLOCKS,
+          data: {
+            pbftPeriod: blockNumber,
+            type: SyncTypes.HISTORICAL,
+          } as QueueData,
+          opts: createJobConfiguration(blockNumber),
+        });
+      }
+      await queueCache.clearCache();
+    }
   }
 }

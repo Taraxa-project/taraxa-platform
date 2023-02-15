@@ -99,3 +99,18 @@ body {
     position: relative;
   }
 }
+
+.smallBtn {
+  // background-color: #31364b !important;
+  // border: 1px solid #6a7085 !important;
+  // border-radius: 4px !important;
+  font-size: 12px;
+  line-height: 16px;
+  min-width: auto;
+  margin-left: 9px !important;
+  height: 32px !important;
+  padding: 8px 16px !important;
+  > * {
+    font-size: 0.8125rem !important;
+  }
+}

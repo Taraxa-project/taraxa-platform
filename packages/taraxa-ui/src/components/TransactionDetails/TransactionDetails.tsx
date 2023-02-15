@@ -35,29 +35,45 @@ export const TransactionDetails: FC<TransactionDetailsProps> = ({
       <CssBaseline />
       <Box className={classes.wrapper}>
         <Box className={classes.details}>
-          <Block />
+          <Box flexBasis='20px'>
+            <Block />
+          </Box>
           {level && (
-            <Typography variant='body2' color='common.white'>
-              <strong>Level: </strong> {level}
-            </Typography>
+            <Box flexGrow={1} maxWidth='auto' minWidth='135px'>
+              <Typography variant='body2' color='common.white'>
+                <strong>Level: </strong> {level}
+              </Typography>
+            </Box>
           )}
           {blockNumber && (
-            <Typography variant='body2' color='common.white'>
-              <strong>Block No.: </strong> {blockNumber}
-            </Typography>
+            <Box flexGrow={1} maxWidth='auto' minWidth='135px'>
+              <Typography variant='body2' color='common.white'>
+                <strong>Block No.: </strong> {blockNumber}
+              </Typography>
+            </Box>
           )}
           {hashElement ? (
-            <Box className={classes.hashContainer}>{hashElement}</Box>
+            <Box flexShrink={1} className={classes.hashContainer}>
+              {hashElement}
+            </Box>
           ) : (
-            <Typography variant='body2' color='secondary'>
-              {shortenHash(hash)}
-            </Typography>
+            <Box flexShrink={1}>
+              <Typography
+                variant='body2'
+                color='secondary'
+                className={classes.hash}
+              >
+                {shortenHash(hash)}
+              </Typography>
+            </Box>
           )}
         </Box>
         <Box className={classes.details}>
-          <Route />
+          <Box width='16px'>
+            <Route />
+          </Box>
           <Typography variant='body2' color='grey.100'>
-            {transactionCount || 0} transactions - {timeSince} ago
+            {transactionCount || 0} transactions - {timeSince}
           </Typography>
         </Box>
       </Box>

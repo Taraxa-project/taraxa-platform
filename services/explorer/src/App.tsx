@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Box } from '@mui/material';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Provider as UrqlProvider } from 'urql';
 import { Header, Footer } from './components';
 import TransactionsPage from './pages/Transactions/Transactions';
 import BlocksPage from './pages/Blocks/Blocks';
@@ -13,6 +14,9 @@ import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import HomePage from './pages/Home/Home';
 import { DagPage } from './pages/Dag/Dag';
 import PBFTDataContainer from './pages/PBFTData/PBFTDataContainer';
+import { NodeStateProvider, useExplorerNetwork } from './hooks';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { Network } from './utils';
 
 declare global {
   interface Window {
@@ -21,6 +25,7 @@ declare global {
 }
 
 const Root = (): JSX.Element => {
+  const { currentNetwork } = useExplorerNetwork();
   return (
     <>
       <Header />
@@ -32,12 +37,14 @@ const Root = (): JSX.Element => {
             <Route path='/block' element={<BlocksPage />} />
             <Route path='/block/:txHash' element={<DAGDataContainer />} />
             <Route path='/pbft/:identifier' element={<PBFTDataContainer />} />
-            <Route path='/faucet' element={<FaucetPage />} />
             <Route path='/node' element={<NodesPage />} />
             <Route path='/tx' element={<TransactionsPage />} />
             <Route path='/dag' element={<DagPage />} />
             <Route path='/tx/:txHash' element={<TransactionDataContainer />} />
             <Route path='/address/:account' element={<AddressInfoPage />} />
+            {currentNetwork !== Network.MAINNET && (
+              <Route path='/faucet' element={<FaucetPage />} />
+            )}
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
           <Footer />
@@ -48,7 +55,24 @@ const Root = (): JSX.Element => {
 };
 
 function App(): JSX.Element {
-  return <Root />;
+  const { graphQLClient } = useExplorerNetwork();
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+  return (
+    <UrqlProvider value={graphQLClient}>
+      <QueryClientProvider client={queryClient}>
+        <NodeStateProvider>
+          <Root />
+        </NodeStateProvider>
+      </QueryClientProvider>
+    </UrqlProvider>
+  );
 }
 
 export default App;
