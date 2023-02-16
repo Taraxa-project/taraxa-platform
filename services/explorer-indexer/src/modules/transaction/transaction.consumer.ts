@@ -50,11 +50,12 @@ export class TransactionConsumer implements OnModuleInit {
         this.logger.debug(
           `${QueueJobs.NEW_TRANSACTIONS} worker (job ${job.id}): Saving Transaction ${job.data.hash}`
         );
+
         const block = await this.pbftService.getBlockByHash(
           formattedTx.blockHash
         );
         this.logger.debug(
-          `found block ${block.number} assocaited with tx ${hash}`
+          `found block ${block.number} for hash ${formattedTx.blockHash} assocaited with tx ${hash}`
         );
         if (block) {
           formattedTx.block = block;
