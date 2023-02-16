@@ -74,7 +74,7 @@ export class PbftService {
       FROM ${this.repository.metadata.tableName}
       WHERE "timestamp" BETWEEN $1 AND $2
       GROUP BY "miner"
-      ORDER BY "pbftCount" DESC
+      ORDER BY "pbftCount" DESC, "miner"
       LIMIT $3 OFFSET $4`;
 
     const res = await this.repository.query(query, [
