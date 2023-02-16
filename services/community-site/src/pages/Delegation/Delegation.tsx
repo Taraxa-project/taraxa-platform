@@ -257,11 +257,15 @@ const Delegation = ({ location }: { location: Location }) => {
               description="Number of network validators"
             />
             <BaseCard
-              title={ethers.utils.commify(weiToEth(averageDelegation))}
+              title={ethers.utils
+                .commify(weiToEth(averageDelegation))
+                .slice(0, ethers.utils.commify(weiToEth(averageDelegation)).indexOf('.') + 3)}
               description="Average TARA delegatated to validators"
             />
             <BaseCard
-              title={ethers.utils.commify(weiToEth(totalDelegation))}
+              title={ethers.utils
+                .commify(weiToEth(totalDelegation))
+                .slice(0, ethers.utils.commify(weiToEth(totalDelegation)).indexOf('.') + 3)}
               description="Total TARA delegated to validators"
             />
           </div>

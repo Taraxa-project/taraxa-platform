@@ -59,14 +59,14 @@ const ValidatorRow = ({
             color="primary"
             label="Delegate"
             disabled={actionsDisabled || validator.isFullyDelegated}
-            className="edit delegateBtn"
+            className="delegateBtn"
             onClick={() => setDelegateToValidator(validator)}
           />
           <Button
             size="small"
             label="Un-delegate"
             disabled={actionsDisabled || !ownDelegation}
-            className="delete delegateBtn"
+            className="delegateBtn"
             onClick={() => setUndelegateFromValidator(validator)}
           />
         </div>

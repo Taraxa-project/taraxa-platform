@@ -39,7 +39,8 @@
   }
   .taraContainer {
     float: left;
-    width: 150px;
+    width: 175px;
+    max-width: 200px;
   }
   .taraContainerAmountDescription {
     text-align: left;
@@ -273,10 +274,12 @@ a.commissionChangeCheck {
 
   .availableDelegationActionsCell {
     .availableDelegation {
+      margin-top: 0.25rem;
       width: 130px;
       float: left;
       line-height: 32px;
       vertical-align: middle;
+      text-align: center;
     }
 
     .validatorActions {
@@ -386,6 +389,11 @@ a.commissionChangeCheck {
       color: #48bdff;
     }
   }
+}
+
+.delegateBtn {
+ margin-left: 0.5 rem;
+ margin-right: 0.5 rem;
 }
 
 .App {
