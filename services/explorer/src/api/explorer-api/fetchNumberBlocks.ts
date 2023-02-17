@@ -1,16 +1,22 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
 
-const getBlocksNumber = (endpoint: string) => {
-  if (!endpoint) {
+const getBlocksNumber = (endpoint: string, week: number, year: number) => {
+  if (!endpoint || !week || !year) {
     return;
   }
-  const url = `${endpoint}/pbft/total-this-week`;
-  return axios.get(url);
+  const url = `${endpoint}/pbft/blocks-for-week`;
+  const params = {
+    week,
+    year,
+  };
+  return axios.get(url, { params });
 };
 
 export const useGetBlocksThisWeek = (
-  endpoint: string
+  endpoint: string,
+  week: number,
+  year: number
 ): {
   data: AxiosResponse<any>;
   isError: boolean;
@@ -19,8 +25,8 @@ export const useGetBlocksThisWeek = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['pbft-blocks-this-week', endpoint],
-    () => getBlocksNumber(endpoint),
+    ['pbft-blocks-this-week', endpoint, week, year],
+    () => getBlocksNumber(endpoint, week, year),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

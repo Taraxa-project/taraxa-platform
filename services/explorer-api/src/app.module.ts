@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { NodeModule, PbftModule, HealthModule, AddressModule } from './modules';
+import { PbftModule, HealthModule, AddressModule } from './modules';
 import {
   NodeEntity,
   PbftEntity,
@@ -64,7 +64,6 @@ const dataSourceOptions: TypeOrmModuleOptions = {
       ...dataSourceOptions,
       autoLoadEntities: true,
     }),
-    NodeModule,
     PbftModule,
     HealthModule,
     AddressModule,

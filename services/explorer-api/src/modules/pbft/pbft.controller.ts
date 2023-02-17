@@ -1,7 +1,16 @@
-import { Controller, Get, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PbftEntity } from '@taraxa_project/explorer-shared';
-import { PbftService } from './pbft.service';
+import { GetNodesDto } from './dto/get-nodes.dto';
+import { NodeDto } from './dto/node.dto';
+import { WeekFilterDto } from './dto/week-filter.dto';
+import { NodesPaginate, PbftService } from './pbft.service';
 
 @ApiTags('pbft')
 @Controller('/pbft')
@@ -13,9 +22,11 @@ export class PbftController {
     type: [PbftEntity],
     description: 'Returns number of blocks produced this week',
   })
-  @Get('total-this-week')
-  public getTotalBlocksThisWeek(): Promise<number> {
-    return this.service.getTotalBlocksThisWeek();
+  @Get('blocks-for-week')
+  public getTotalBlocksThisWeek(
+    @Query(ValidationPipe) weekFilterDto: WeekFilterDto
+  ): Promise<number> {
+    return this.service.getTotalBlocksForWeek(weekFilterDto);
   }
 
   @ApiOkResponse({
@@ -28,5 +39,17 @@ export class PbftController {
     const genesisBlock = await this.service.getGenesisBlock();
     delete genesisBlock.id;
     return genesisBlock;
+  }
+
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    type: [NodeDto],
+    description: 'Returns all nodes',
+  })
+  @Get('nodes')
+  public getAllNodes(
+    @Query(ValidationPipe) filterDto: GetNodesDto
+  ): Promise<NodesPaginate> {
+    return this.service.getBlocksPerWeek(filterDto);
   }
 }

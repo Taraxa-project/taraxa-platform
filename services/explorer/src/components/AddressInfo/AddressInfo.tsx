@@ -49,6 +49,7 @@ export interface AddressInfoProps {
   isLoadingDagsCount: boolean;
   isFetchingPbftsCount: boolean;
   isLoadingPbftsCount: boolean;
+  isLoadingTables: boolean;
 }
 
 export const AddressInfo = ({
@@ -77,6 +78,7 @@ export const AddressInfo = ({
   isLoadingDagsCount,
   isFetchingPbftsCount,
   isLoadingPbftsCount,
+  isLoadingTables,
 }: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
   const addressIcon = toSvg(details?.address, 40, { backColor: '#fff' });
@@ -207,10 +209,10 @@ export const AddressInfo = ({
             />
             <DataRow
               title='Value'
-              data={`${
-                details?.value ? Number(details?.value)?.toLocaleString() : ''
-              } ${details?.valueCurrency || ''} ( ${
-                details?.pricePerTara ? Number(details?.pricePerTara) : ''
+              data={`${details?.value ? details?.value : ''} ${
+                details?.valueCurrency || ''
+              } ( ${
+                details?.pricePerTara ? details?.pricePerTara : ''
               } / TARA )`}
             />
           </Box>
@@ -243,19 +245,31 @@ export const AddressInfo = ({
             </Grid>
           </div>
         </Box>
-        {(totalTxCount > 0 || totalDagCount > 0 || totalPbftCount > 0) && (
-          <>
-            <Divider light />
-            <Box
-              display='flex'
-              flexDirection='column'
-              alignItems='flex-start'
-              alignContent='center'
-              style={{ overflowWrap: 'anywhere' }}
-            >
-              <TableTabs {...tableTabs} setTabsStep={setTabsStep} />
-            </Box>
-          </>
+        {isLoadingTables ? (
+          <Box
+            display='flex'
+            flexDirection='column'
+            alignItems='center'
+            width='100%'
+            my={6}
+          >
+            <Loading size={50} color='#6A7085' />
+          </Box>
+        ) : (
+          (totalTxCount > 0 || totalDagCount > 0 || totalPbftCount > 0) && (
+            <>
+              <Divider light />
+              <Box
+                display='flex'
+                flexDirection='column'
+                alignItems='flex-start'
+                alignContent='center'
+                style={{ overflowWrap: 'anywhere' }}
+              >
+                <TableTabs {...tableTabs} setTabsStep={setTabsStep} />
+              </Box>
+            </>
+          )
         )}
       </Box>
     </Paper>
