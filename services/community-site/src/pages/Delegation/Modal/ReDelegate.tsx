@@ -8,25 +8,18 @@ import useDelegation from '../../../services/useDelegation';
 import { weiToEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 
-type DelegateProps = {
-  balance: ethers.BigNumber;
-  validator: Validator;
+type ReDelegateProps = {
+  validatorFrom: Validator;
+  validatorTo: Validator;
   onSuccess: () => void;
   onFinish: () => void;
 };
 
-const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) => {
-  const { delegate } = useDelegation();
-
-  let maximumDelegatable = ethers.BigNumber.from('0');
-  if (validator.availableForDelegation.gt(balance)) {
-    maximumDelegatable = balance;
-  } else {
-    maximumDelegatable = validator.availableForDelegation;
-  }
+const ReDelegate = ({ validatorFrom, validatorTo, onSuccess, onFinish }: ReDelegateProps) => {
+  const { reDelegate } = useDelegation();
 
   const [step, setStep] = useState(1);
-  const [delegationTotal, setDelegationTotal] = useState(maximumDelegatable);
+  const [reDelegationTotal, setReDelegationTotal] = useState(validatorFrom.availableForDelegation);
   const [error, setError] = useState('');
 
   const submit = async (
@@ -34,7 +27,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
   ) => {
     event.preventDefault();
 
-    const delegationNumber = parseInt(delegationTotal.toString(), 10);
+    const delegationNumber = parseInt(reDelegationTotal.toString(), 10);
     if (Number.isNaN(delegationNumber) || delegationNumber < 1000) {
       setError('must be a number greater than 1,000');
       return;
@@ -44,7 +37,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
     //   setError('cannot exceed TARA available for delegation');
     //   return;
     // }
-    if (delegationTotal.gt(maximumDelegatable)) {
+    if (reDelegationTotal.gt(validatorTo.availableForDelegation)) {
       setError("cannot exceed validator's ability to receive delegation");
       return;
     }
@@ -53,7 +46,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
 
     if (!error) {
       try {
-        await delegate(validator.address, delegationTotal);
+        await reDelegate(validatorFrom.address, validatorTo.address, reDelegationTotal);
         onSuccess();
         setStep(2);
       } catch (e) {
@@ -76,20 +69,20 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
           />
           <div className="nodeDescriptor">
             <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validator.address}</span>
+              <span className="nodeAddress">{validatorTo.address}</span>
             </p>
           </div>
           <div className="taraContainerWrapper">
             <div className="taraContainer taraContainerBalance">
               <p className="taraContainerAmountDescription">My available TARA for delegation</p>
-              <AmountCard amount={ethers.utils.commify(weiToEth(balance))} unit="TARA" />
+              <AmountCard amount={ethers.utils.commify(weiToEth(reDelegationTotal))} unit="TARA" />
             </div>
             <div className="taraContainer">
               <p className="taraContainerAmountDescription">
                 Validator’s availability to receive delegation
               </p>
               <AmountCard
-                amount={ethers.utils.commify(weiToEth(validator.availableForDelegation))}
+                amount={ethers.utils.commify(weiToEth(validatorTo.availableForDelegation))}
                 unit="TARA"
               />
             </div>
@@ -97,20 +90,20 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
           <div className="taraInputWrapper">
             <p className="maxDelegatableDescription">Maximum delegate-able</p>
             <p className="maxDelegatableTotal">
-              {ethers.utils.commify(weiToEth(maximumDelegatable))}
+              {ethers.utils.commify(weiToEth(reDelegationTotal))}
             </p>
             <p className="maxDelegatableUnit">TARA</p>
             <InputField
               error={!!error}
               helperText={error}
               label="Enter amount..."
-              value={parseInt(weiToEth(delegationTotal), 10)}
+              value={parseInt(weiToEth(reDelegationTotal), 10)}
               variant="outlined"
               type="text"
               fullWidth
               margin="normal"
               onChange={(event) => {
-                setDelegationTotal(
+                setReDelegationTotal(
                   ethers.BigNumber.from(event.target.value || 0).mul(
                     ethers.BigNumber.from('10').pow(18),
                   ),
@@ -124,7 +117,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
                 label="25%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(maximumDelegatable.mul(25).div(100));
+                  setReDelegationTotal(reDelegationTotal.mul(25).div(100));
                 }}
               />
               <Button
@@ -133,7 +126,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
                 label="50%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(maximumDelegatable.mul(50).div(100));
+                  setReDelegationTotal(reDelegationTotal.mul(50).div(100));
                 }}
               />
               <Button
@@ -142,7 +135,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
                 label="75%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(maximumDelegatable.mul(75).div(100));
+                  setReDelegationTotal(reDelegationTotal.mul(75).div(100));
                 }}
               />
               <Button
@@ -151,7 +144,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
                 label="100%"
                 variant="contained"
                 onClick={() => {
-                  setDelegationTotal(maximumDelegatable);
+                  setReDelegationTotal(reDelegationTotal);
                 }}
               />
             </div>
@@ -175,7 +168,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
           <p className="successText">You've successfully delegated to a validator:</p>
           <div className="nodeDescriptor nodeDescriptorSuccess">
             <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validator.address}</span>
+              <span className="nodeAddress">{validatorTo.address}</span>
             </p>
           </div>
           <Button
@@ -195,4 +188,4 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
   );
 };
 
-export default Delegate;
+export default ReDelegate;

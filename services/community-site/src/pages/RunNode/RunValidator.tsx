@@ -168,24 +168,26 @@ const RunValidator = () => {
         <div className="nodeTypes">
           <NodeIcon />
           <Text label="My nodes" variant="h6" color="primary" className="box-title" />
-          <Button
-            size="small"
-            className={clsx('nodeTypeTab', validatorType === 'mainnet' && 'active')}
-            label="Mainnet"
-            variant="contained"
-            onClick={() => {
-              setValidatorType('mainnet');
-            }}
-          />
-          <Button
-            size="small"
-            className={clsx('nodeTypeTab', validatorType === 'testnet' && 'active')}
-            label="Testnet"
-            variant="contained"
-            onClick={() => {
-              setValidatorType('testnet');
-            }}
-          />
+          <div className="nodeTitleContainer">
+            <Button
+              size="small"
+              className={clsx('nodeTypeTab', validatorType === 'mainnet' && 'active')}
+              label="Mainnet"
+              variant="contained"
+              onClick={() => {
+                setValidatorType('mainnet');
+              }}
+            />
+            <Button
+              size="small"
+              className={clsx('nodeTypeTab', validatorType === 'testnet' && 'active')}
+              label="Testnet"
+              variant="contained"
+              onClick={() => {
+                setValidatorType('testnet');
+              }}
+            />
+          </div>
           <Button
             size="small"
             className="registerNode"

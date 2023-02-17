@@ -6,28 +6,37 @@ import Undelegate from './Undelegate';
 import CloseIcon from '../../../assets/icons/close';
 
 import { Validator } from '../../../interfaces/Validator';
+import ReDelegate from './ReDelegate';
 
 interface ModalsProps {
   balance: ethers.BigNumber;
   delegateToValidator: Validator | null;
+  reDelegateToValidator?: Validator | null;
   undelegateFromValidator: Validator | null;
   onDelegateSuccess: () => void;
+  onReDelegateSuccess?: () => void;
   onUndelegateSuccess: () => void;
   onDelegateFinish: () => void;
+  onReDelegateFinish?: () => void;
   onUndelegateFinish: () => void;
   onDelegateClose: () => void;
+  onReDelegateClose?: () => void;
   onUndelegateClose: () => void;
 }
 
 const Modals = ({
   balance,
   delegateToValidator,
+  reDelegateToValidator,
   undelegateFromValidator,
   onDelegateSuccess,
+  onReDelegateSuccess,
   onUndelegateSuccess,
   onDelegateFinish,
+  onReDelegateFinish,
   onUndelegateFinish,
   onDelegateClose,
+  onReDelegateClose,
   onUndelegateClose,
 }: ModalsProps) => {
   return (
@@ -50,6 +59,28 @@ const Modals = ({
           closeIcon={CloseIcon}
         />
       )}
+      {onReDelegateSuccess &&
+        onReDelegateClose &&
+        onReDelegateFinish &&
+        reDelegateToValidator &&
+        undelegateFromValidator && (
+          <Modal
+            id="delegateModal"
+            title="Delegate to..."
+            show={!!reDelegateToValidator && !!undelegateFromValidator}
+            children={
+              <ReDelegate
+                validatorFrom={undelegateFromValidator}
+                validatorTo={reDelegateToValidator}
+                onSuccess={() => onReDelegateSuccess()}
+                onFinish={() => onReDelegateFinish()}
+              />
+            }
+            parentElementID="root"
+            onRequestClose={() => onReDelegateClose()}
+            closeIcon={CloseIcon}
+          />
+        )}
       {undelegateFromValidator && (
         <Modal
           id="delegateModal"

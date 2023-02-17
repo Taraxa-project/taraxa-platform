@@ -247,7 +247,9 @@ a.commissionChangeCheck {
   }
 
   .commissionCell {
-    width: 170px;
+    display: flex;
+    flex-direction: row;
+    max-width: 170px;
 
     .commissionDisplayPendingChangeWrapper {
       position: relative;
@@ -278,7 +280,7 @@ a.commissionChangeCheck {
       justify-content: space-evenly;
     
     .availableDelegation {
-      margin-top: 0.25rem;
+      margin-top: 0.5rem;
       width: 130px;
       line-height: 32px;
       vertical-align: middle;

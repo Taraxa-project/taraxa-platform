@@ -80,6 +80,15 @@ export default () => {
     [browserDpos],
   );
 
+  const reDelegate = useCallback(
+    async (from: string, to: string, value: ethers.BigNumber): Promise<void> => {
+      await browserDpos!.reDelegate(from, to, {
+        value,
+      });
+    },
+    [browserDpos],
+  );
+
   const undelegate = useCallback(
     async (address: string, value: ethers.BigNumber): Promise<void> => {
       await browserDpos!.undelegate(address, value);
@@ -94,12 +103,6 @@ export default () => {
     [browserDpos],
   );
 
-  const reDelegate = useCallback(
-    async (address: string, value: ethers.BigNumber): Promise<void> => {
-      await browserDpos!.reDelegate(address, value);
-    },
-    [browserDpos],
-  );
   return useMemo(
     () => ({
       delegate,
@@ -109,6 +112,6 @@ export default () => {
       getDelegations,
       getUndelegations,
     }),
-    [delegate, undelegate, getDelegations, getUndelegations],
+    [delegate, reDelegate, undelegate, getDelegations, getUndelegations],
   );
 };

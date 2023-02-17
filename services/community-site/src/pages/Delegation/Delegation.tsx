@@ -17,6 +17,7 @@ import {
   Card,
   Icons,
   BaseCard,
+  useInterval,
 } from '@taraxa_project/taraxa-ui';
 
 import Title from '../../components/Title/Title';
@@ -59,15 +60,22 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
+  const [reDelegateToValidator, setReDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
 
+  const fetchBalance = async () => {
+    if (status === 'connected' && account && provider) {
+      setBalance(await provider.getBalance(account));
+    }
+  };
   useEffect(() => {
-    (async () => {
-      if (status === 'connected' && account && provider) {
-        setBalance(await provider.getBalance(account));
-      }
-    })();
-  }, [status, account, provider]);
+    fetchBalance();
+  }, [status, account, chainId]);
+
+  useInterval(async () => {
+    console.log('updating balances');
+    fetchBalance();
+  }, 15000);
 
   useEffect(() => {
     if (status === 'connected' && account) {
@@ -75,7 +83,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setDelegations(await getDelegations(account));
       })();
     }
-  }, [status, account]);
+  }, [status, account, chainId]);
 
   useEffect(() => {
     if (status === 'connected' && account && provider) {
@@ -85,7 +93,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setUndelegations(un.filter((u) => u.block < latestBlock));
       })();
     }
-  }, [status, account]);
+  }, [status, account, chainId]);
 
   useEffect(() => {
     (async () => {
@@ -129,6 +137,7 @@ const Delegation = ({ location }: { location: Location }) => {
       <Modals
         balance={balance}
         delegateToValidator={delegateToValidator}
+        reDelegateToValidator={reDelegateToValidator}
         undelegateFromValidator={undelegateFromValidator}
         onDelegateSuccess={() => {
           // getBalances();
@@ -140,9 +149,12 @@ const Delegation = ({ location }: { location: Location }) => {
           // getValidators();
           // getStats();
         }}
+        onReDelegateSuccess={() => setReDelegateToValidator(null)}
         onDelegateClose={() => setDelegateToValidator(null)}
-        onDelegateFinish={() => setDelegateToValidator(null)}
+        onReDelegateClose={() => setReDelegateToValidator(null)}
         onUndelegateClose={() => setUndelegateFromValidator(null)}
+        onDelegateFinish={() => setDelegateToValidator(null)}
+        onReDelegateFinish={() => setReDelegateToValidator(null)}
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
       />
       <div className="runnode-content">
@@ -151,7 +163,7 @@ const Delegation = ({ location }: { location: Location }) => {
           <div className="notification">
             <Notification
               title="Notice:"
-              text="You meed to connect to your Metamask wallet in order to participate in delegation."
+              text="You need to connect to your Metamask wallet in order to participate in delegation."
               variant="danger"
             />
           </div>
@@ -160,7 +172,7 @@ const Delegation = ({ location }: { location: Location }) => {
           <div className="notification">
             <Notification
               title="Notice:"
-              text="You meed to be connected to the Taraxa Mainnet network in order to delegate / un-delegate."
+              text="You need to be connected to the Taraxa Mainnet network in order to delegate / un-delegate."
               variant="danger"
             >
               <WrongNetwork />
@@ -303,6 +315,7 @@ const Delegation = ({ location }: { location: Location }) => {
                       ownDelegation={delegations
                         .map((d) => d.address.toLowerCase())
                         .includes(validator.address.toLowerCase())}
+                      setRedelegateToValidator={setReDelegateToValidator}
                       setDelegateToValidator={setDelegateToValidator}
                       setUndelegateFromValidator={setUndelegateFromValidator}
                     />
@@ -322,6 +335,7 @@ const Delegation = ({ location }: { location: Location }) => {
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
+                        setRedelegateToValidator={setReDelegateToValidator}
                         setDelegateToValidator={setDelegateToValidator}
                         setUndelegateFromValidator={setUndelegateFromValidator}
                       />
