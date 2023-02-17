@@ -46,6 +46,7 @@ import { BlockCard } from './components/BlockCard';
 import { AwardCard } from './components/AwardCard';
 import CopyTo from './components/CopyTo';
 import theme from './components/theme';
+import { useInterval } from './hooks/useInterval';
 
 export {
   AmountCard,
@@ -94,4 +95,5 @@ export {
   AwardCard,
   CopyTo,
   theme,
+  useInterval,
 };
