@@ -48,27 +48,35 @@ const ValidatorRow = ({
         <strong>{ethers.utils.commify(weiToEth(validator.delegation))}</strong>
       </TableCell>
       <TableCell className="tableCell availableDelegationActionsCell">
-        <div className="availableDelegation">
-          {validator.isFullyDelegated
-            ? '0 (Fully delegated)'
-            : ethers.utils.commify(weiToEth(validator.availableForDelegation))}
-        </div>
         <div className="validatorActions">
-          <Button
-            size="small"
-            color="primary"
-            label="Delegate"
-            disabled={actionsDisabled || validator.isFullyDelegated}
-            className="delegateBtn"
-            onClick={() => setDelegateToValidator(validator)}
-          />
-          <Button
-            size="small"
-            label="Un-delegate"
-            disabled={actionsDisabled || !ownDelegation}
-            className="delegateBtn"
-            onClick={() => setUndelegateFromValidator(validator)}
-          />
+          <div className="availableDelegation">
+            {validator.isFullyDelegated
+              ? '0 (Fully delegated)'
+              : ethers.utils.commify(weiToEth(validator.availableForDelegation))}
+          </div>
+          <div className="validatorButtons">
+            <Button
+              size="small"
+              color="secondary"
+              variant="contained"
+              label="Delegate"
+              disabled={
+                actionsDisabled ||
+                validator.isFullyDelegated ||
+                validator.availableForDelegation.lte(0)
+              }
+              className="delegateBtn"
+              style={{ marginRight: '15px' }}
+              onClick={() => setDelegateToValidator(validator)}
+            />
+            <Button
+              size="small"
+              label="Un-delegate"
+              disabled={actionsDisabled || !ownDelegation}
+              className="delegateBtn"
+              onClick={() => setUndelegateFromValidator(validator)}
+            />
+          </div>
         </div>
       </TableCell>
     </TableRow>

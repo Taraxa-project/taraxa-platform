@@ -271,25 +271,37 @@ a.commissionChangeCheck {
   .delegationCell {
     width: 80px;
   }
-
+  
   .availableDelegationActionsCell {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+    
     .availableDelegation {
       margin-top: 0.25rem;
       width: 130px;
-      float: left;
       line-height: 32px;
       vertical-align: middle;
       text-align: center;
     }
 
     .validatorActions {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
       float: right;
-
+      width: 100%;
       button:disabled,
       button[disabled] {
         background: #202534;
         border: 1px solid #282c3e;
       }
+    }
+
+    .validatorButtons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
     }
   }
 
@@ -392,8 +404,8 @@ a.commissionChangeCheck {
 }
 
 .delegateBtn {
- margin-left: 0.5 rem;
- margin-right: 0.5 rem;
+ margin-left: 20px;
+ margin-right: 20px;
 }
 
 .App {
