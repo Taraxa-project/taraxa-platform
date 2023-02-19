@@ -1,14 +1,24 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import { TableCell, TableRow } from '@mui/material';
-
+import { Button } from '@taraxa_project/taraxa-ui';
 // import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 
 import { formatValidatorName } from '../../../utils/string';
 import { weiToEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 
-const MainnetValidatorRow = (validator: Validator) => {
+type ValidatorRowProps = {
+  validator: Validator;
+  actionsDisabled: boolean;
+  setValidatorInfo: (node: Validator) => void;
+};
+
+const MainnetValidatorRow = ({
+  validator,
+  actionsDisabled,
+  setValidatorInfo,
+}: ValidatorRowProps) => {
   const { isActive, address, commission, delegation, availableForDelegation } = validator;
 
   let className = 'dot';
@@ -42,8 +52,18 @@ const MainnetValidatorRow = (validator: Validator) => {
         {ethers.utils.commify(weiToEth(availableForDelegation))}
       </TableCell>
       <TableCell className="tableCell">{/* {row.weeklyRank} */}0</TableCell>
-      <TableCell className="tableCell" align="right">
-        {/* {row.actions} */}
+      <TableCell className="tableCell">
+        <Button
+          size="small"
+          variant="contained"
+          color="secondary"
+          label="Edit"
+          className="smallBtn"
+          disabled={actionsDisabled}
+          onClick={() => {
+            setValidatorInfo(validator);
+          }}
+        />
       </TableCell>
     </TableRow>
   );

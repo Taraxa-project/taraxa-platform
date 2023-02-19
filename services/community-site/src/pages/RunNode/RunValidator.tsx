@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { Notification, Text, Button, IconCard, BaseCard, Tooltip } from '@taraxa_project/taraxa-ui';
+import {
+  Notification,
+  Text,
+  Button,
+  IconCard,
+  BaseCard,
+  Tooltip,
+  Modal,
+} from '@taraxa_project/taraxa-ui';
 
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
@@ -27,13 +35,18 @@ import MainnetValidatorRow from './Table/MainnetValidatorRow';
 import TestnetValidatorRow from './Table/TestnetValidatorRow';
 
 import './runvalidator.scss';
+import EditValidator from './Modal/EditValidator';
+import CloseIcon from '../../assets/icons/close';
 
 const RunValidator = () => {
   const auth = useAuth();
-  const { getValidatorsWith } = useValidators();
-  const { chainId } = useChain();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { chainId, provider } = useChain();
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { getValidatorsWith, getValidatorsFor, getValidators } = useValidators();
   const delegationApi = useDelegationApi();
   const { getDelegations } = useDelegation();
 
@@ -55,6 +68,8 @@ const RunValidator = () => {
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
   const [delegations, setDelegations] = useState<Delegation[]>([]);
+  const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
+  const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
 
   useEffect(() => {
     delegationApi
@@ -73,6 +88,21 @@ const RunValidator = () => {
     if (status === 'connected' && account) {
       (async () => {
         setDelegations(await getDelegations(account));
+      })();
+    }
+  }, [status, account]);
+
+  useEffect(() => {
+    if (status === 'connected' && account) {
+      (async () => {
+        // const mainnetValidators = await getValidators();
+        // const mainnetValidators = await getValidatorsFor(account);
+        // const myValidators = mainnetValidators.filter(
+        //   (validator) =>
+        //     validator.owner.toLowerCase() ===
+        //     '0x0274cFffeA9fa850E54c93A23042f12a87358a82'.toLowerCase(),
+        // );
+        // setMainnetValidators(myValidators);
       })();
     }
   }, [status, account]);
@@ -123,8 +153,35 @@ const RunValidator = () => {
     weeklyRating = 0;
   }
 
+  const setValidatorInfo = (validator: Validator) => {
+    setValidatorToUpdate(validator);
+    setIsUpdatingValidator(true);
+  };
+
   return (
     <div className="runnode">
+      {isUpdatingValidator && validatorToUpdate && (
+        <Modal
+          id="signinModal"
+          title="Update Validator"
+          show={isUpdatingValidator}
+          children={
+            <EditValidator
+              type={validatorType}
+              validator={validatorToUpdate}
+              onSuccess={() => {
+                setIsUpdatingValidator(false);
+                setValidatorToUpdate(null);
+              }}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => {
+            setIsUpdatingValidator(false);
+          }}
+          closeIcon={CloseIcon}
+        />
+      )}
       <RunValidatorModal
         isOpen={isOpenRegisterValidatorModal}
         validatorType={validatorType}
@@ -148,7 +205,7 @@ const RunValidator = () => {
           <div className="notification">
             <Notification
               title="Notice:"
-              text="You meed to be connected to the Taraxa Mainnet network in order to delegate / un-delegate."
+              text="You need to be connected to the Taraxa Mainnet network in order to delegate / un-delegate."
               variant="danger"
             >
               <WrongNetwork />
@@ -260,11 +317,17 @@ const RunValidator = () => {
                   <TableCell className="tableHeadCell" colSpan={2}>
                     Ranking
                   </TableCell>
+                  <TableCell className="tableHeadCell" />
                 </TableRow>
               </TableHead>
               <TableBody>
                 {mainnetValidators.map((v: Validator) => (
-                  <MainnetValidatorRow key={v.address} {...v} />
+                  <MainnetValidatorRow
+                    key={v.address}
+                    validator={v}
+                    actionsDisabled={status !== 'connected' || !account}
+                    setValidatorInfo={setValidatorInfo}
+                  />
                 ))}
               </TableBody>
             </Table>

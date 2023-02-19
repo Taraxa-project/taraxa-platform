@@ -81,6 +81,32 @@ export default () => {
     [mainnetDpos],
   );
 
+  const getValidatorsFor = useCallback(
+    async (address: string): Promise<Validator[]> => {
+      startLoading!();
+
+      let validators: ContractValidator[] = [];
+      let page = 0;
+      let hasNextPage = true;
+
+      while (hasNextPage) {
+        try {
+          const allValidators = await mainnetDpos!.getValidatorsFor(address, page);
+          validators = [...validators, ...allValidators];
+          hasNextPage = !allValidators.end;
+          page++;
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(e);
+          hasNextPage = false;
+        }
+      }
+      finishLoading!();
+      return validators.map((validator) => contractToValidator(validator));
+    },
+    [mainnetDpos],
+  );
+
   const registerValidator = useCallback(
     async (
       validator: string,
@@ -105,12 +131,23 @@ export default () => {
     [browserDpos],
   );
 
+  const setValidatorInfo = useCallback(
+    async (validator: string, description: string, endpoint: string): Promise<void> => {
+      await browserDpos!.setValidatorInfo(validator, description, endpoint, {
+        value: ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(18)),
+      });
+    },
+    [browserDpos],
+  );
+
   return useMemo(
     () => ({
       getValidators,
       getValidatorsWith,
       getValidator,
       registerValidator,
+      getValidatorsFor,
+      setValidatorInfo,
     }),
     [getValidators, getValidatorsWith, getValidator],
   );
