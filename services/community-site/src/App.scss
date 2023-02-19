@@ -21,23 +21,24 @@ body {
     margin-left: 0;
   }
 
-  &.App-mobile {
+  &.App-tablet {
     .cardContainer {
-      display: inherit;
+      display: grid;
+      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, max-content));
+      justify-content: start;
+      align-items: start;
     }
 
     .cardContainer > div {
-      width: 100%;
       margin-left: 0;
-      margin-bottom: 24px;
-      max-height: fit-content;
     }
     .cardContainer > div:last-child {
       margin-bottom: 0;
     }
   }
-
-  &.App-tablet {
+  
+  &.App-mobile {
     .cardContainer {
       display: inherit;
     }
