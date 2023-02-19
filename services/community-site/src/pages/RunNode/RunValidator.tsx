@@ -166,9 +166,9 @@ const RunValidator = () => {
         )}
         <Title title="Running a Node" />
         <div className="nodeTypes">
-          <NodeIcon />
-          <Text label="My nodes" variant="h6" color="primary" className="box-title" />
           <div className="nodeTitleContainer">
+            <NodeIcon />
+            <Text label="My nodes" variant="h6" color="primary" className="box-title" />
             <Button
               size="small"
               className={clsx('nodeTypeTab', validatorType === 'mainnet' && 'active')}
