@@ -42,6 +42,7 @@ const Root = () => {
   const { status, account } = useCMetamask();
   const location = useLocation();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const isTablet = useMediaQuery({ query: `(max-width: 1421px)` });
 
   useEffect(() => {
     window.gtag('config', 'G-QEVR9SEH2J', {
@@ -60,6 +61,10 @@ const Root = () => {
 
   if (isMobile) {
     appClassName += ' App-mobile';
+  }
+
+  if (isTablet) {
+    appClassName += ' App-tablet';
   }
 
   const confirmEmail = async (event: React.MouseEvent<HTMLElement>) => {
