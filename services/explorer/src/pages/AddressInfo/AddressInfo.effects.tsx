@@ -10,7 +10,11 @@ import {
   useGetPbftsCountByAddress,
   useGetTransactionsByAddress,
 } from '../../api';
-import { displayWeiOrTara, balanceWeiToTara } from '../../utils';
+import {
+  displayWeiOrTara,
+  balanceWeiToTara,
+  formatTokensValue,
+} from '../../utils';
 import { useQuery } from 'urql';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
 
@@ -61,6 +65,7 @@ export const useAddressInfoEffects = (
   isLoadingDagsCount: boolean;
   isFetchingPbftsCount: boolean;
   isLoadingPbftsCount: boolean;
+  isLoadingTables: boolean;
 } => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
@@ -83,6 +88,7 @@ export const useAddressInfoEffects = (
     useState<AddressInfoDetails>();
 
   const { initLoading, finishLoading } = useExplorerLoader();
+  const [isLoadingTables, setIsLoadingTables] = useState<boolean>(false);
   const { backendEndpoint } = useExplorerNetwork();
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
@@ -139,10 +145,17 @@ export const useAddressInfoEffects = (
   });
 
   useEffect(() => {
+    if (fetchingDetails || isFetchingTokenPrice || isLoadingTokenPrice) {
+      initLoading();
+      setShowLoadingSkeleton(true);
+    } else {
+      finishLoading();
+      setShowLoadingSkeleton(false);
+    }
+  }, [fetchingDetails, isFetchingTokenPrice, isLoadingTokenPrice]);
+
+  useEffect(() => {
     if (
-      fetchingDetails ||
-      isFetchingTokenPrice ||
-      isLoadingTokenPrice ||
       isFetchingDags ||
       isLoadingDags ||
       isFetchingPbfts ||
@@ -150,16 +163,11 @@ export const useAddressInfoEffects = (
       isFetchingTx ||
       isLoadingTx
     ) {
-      initLoading();
-      setShowLoadingSkeleton(true);
+      setIsLoadingTables(true);
     } else {
-      finishLoading();
-      setShowLoadingSkeleton(false);
+      setIsLoadingTables(false);
     }
   }, [
-    fetchingDetails,
-    isFetchingTokenPrice,
-    isLoadingTokenPrice,
     isFetchingDags,
     isLoadingDags,
     isFetchingPbfts,
@@ -250,16 +258,13 @@ export const useAddressInfoEffects = (
 
     if (accountDetails) {
       const account = accountDetails?.block?.account;
-      addressDetails.balance = balanceWeiToTara(
-        ethers.BigNumber.from(account?.balance)
-      );
+      addressDetails.balance = balanceWeiToTara(account?.balance);
       addressDetails.transactionCount = account?.transactionCount;
     }
 
     if (tokenPriceData?.data) {
       const price = tokenPriceData.data[0].current_price as number;
-      const priceAtTimeOfCalculation = Number(price.toFixed(6));
-      addressDetails.pricePerTara = priceAtTimeOfCalculation;
+      addressDetails.pricePerTara = price;
       addressDetails.valueCurrency = 'USD';
 
       if (accountDetails?.block?.account) {
@@ -268,7 +273,7 @@ export const useAddressInfoEffects = (
             accountDetails?.block?.account?.balance,
             'ether'
           ) * price;
-        addressDetails.value = `${currentValue}`;
+        addressDetails.value = formatTokensValue(currentValue);
       }
     }
     setAddressInfoDetails(addressDetails);
@@ -344,5 +349,6 @@ export const useAddressInfoEffects = (
     isLoadingDagsCount,
     isFetchingPbftsCount,
     isLoadingPbftsCount,
+    isLoadingTables,
   };
 };

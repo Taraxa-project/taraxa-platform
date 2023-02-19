@@ -18,17 +18,31 @@ export const useNodesEffects = () => {
   const { backendEndpoint, currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
 
-  const weekNo = DateTime.now().weekNumber;
-  const year = DateTime.now().year;
-  const monday = DateTime.now().startOf('week').toFormat('LLL dd');
-  const sunday = DateTime.now().endOf('week').toFormat('LLL dd');
-  const title = `Top nodes for Week ${weekNo} ${year}`;
-  const subtitle = `Top block producers for Week ${weekNo} (${monday} - ${sunday})`;
+  const [weekNumber, setWeekNumber] = useState<number>(
+    DateTime.now().weekNumber
+  );
+  const [year, setYear] = useState<number>(DateTime.now().year);
+
+  const monday = DateTime.fromObject({
+    weekNumber: weekNumber,
+    weekYear: year,
+  })
+    .startOf('week')
+    .toFormat('LLL dd');
+  const sunday = DateTime.fromObject({
+    weekNumber: weekNumber,
+    weekYear: year,
+  })
+    .endOf('week')
+    .toFormat('LLL dd');
+  const title = `Top nodes for Week ${weekNumber} ${year}`;
+  const subtitle = `Top block producers for Week ${weekNumber} (${monday} - ${sunday})`;
   const description = 'Total blocks produced this week';
 
   const [tableData, setTableData] = useState<NodesTableData[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [blocks, setBlocks] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = useState(0);
@@ -36,12 +50,35 @@ export const useNodesEffects = () => {
     data: nodesResult,
     isFetching,
     isLoading,
-  } = useGetNodes(backendEndpoint, { rowsPerPage, page });
+  } = useGetNodes(backendEndpoint, { rowsPerPage, page }, weekNumber, year);
   const {
     data: totalBlocks,
     isFetching: isFetchingTotalBlocks,
     isLoading: isLoadingTotalBlocks,
-  } = useGetBlocksThisWeek(backendEndpoint);
+  } = useGetBlocksThisWeek(backendEndpoint, weekNumber, year);
+
+  const handlePreviousWeek = () => {
+    clearNodes();
+    if (weekNumber === 1) {
+      setYear((year) => year - 1);
+      setWeekNumber(DateTime.utc(year - 1, 12, 28).weekNumber);
+    } else {
+      setWeekNumber((weekNumber) => weekNumber - 1);
+    }
+  };
+
+  const handleNextWeek = () => {
+    clearNodes();
+    const lastWeekOfYear = DateTime.utc(year, 12, 28).weekNumber;
+    if (weekNumber === lastWeekOfYear) {
+      if (year < DateTime.now().year) {
+        setYear((year) => year + 1);
+        setWeekNumber(1);
+      }
+    } else if (weekNumber < lastWeekOfYear) {
+      setWeekNumber((weekNumber) => weekNumber + 1);
+    }
+  };
 
   const formatNodesToTable = (nodes: RankedNode[]): NodesTableData[] => {
     if (nodes?.length === 0) {
@@ -59,6 +96,13 @@ export const useNodesEffects = () => {
     return formattedNodes;
   };
 
+  const clearNodes = () => {
+    setBlocks(0);
+    setTotalCount(0);
+    setTableData([]);
+    setPage(0);
+  };
+
   useEffect(() => {
     if (
       isFetching ||
@@ -67,8 +111,10 @@ export const useNodesEffects = () => {
       isLoadingTotalBlocks
     ) {
       initLoading();
+      setLoading(true);
     } else {
       finishLoading();
+      setLoading(false);
     }
   }, [isFetching, isLoading, isFetchingTotalBlocks, isLoadingTotalBlocks]);
 
@@ -77,7 +123,7 @@ export const useNodesEffects = () => {
       setTableData(
         tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
       );
-      setTotalCount(nodesResult?.total);
+      setTotalCount(Number(nodesResult?.total));
     }
   }, [nodesResult]);
 
@@ -116,5 +162,10 @@ export const useNodesEffects = () => {
     page,
     handleChangePage,
     handleChangeRowsPerPage,
+    handlePreviousWeek,
+    handleNextWeek,
+    weekNumber,
+    year,
+    loading,
   };
 };

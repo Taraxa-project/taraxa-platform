@@ -33,6 +33,7 @@ const AddressInfoPage = (): JSX.Element => {
     isLoadingDagsCount,
     isFetchingPbftsCount,
     isLoadingPbftsCount,
+    isLoadingTables,
   } = useAddressInfoEffects(account);
 
   return (
@@ -70,6 +71,7 @@ const AddressInfoPage = (): JSX.Element => {
           isLoadingDagsCount={isLoadingDagsCount}
           isFetchingPbftsCount={isFetchingPbftsCount}
           isLoadingPbftsCount={isLoadingPbftsCount}
+          isLoadingTables={isLoadingTables}
         />
       )}
     </>

@@ -50,29 +50,31 @@ export class TransactionConsumer implements OnModuleInit {
         this.logger.debug(
           `${QueueJobs.NEW_TRANSACTIONS} worker (job ${job.id}): Saving Transaction ${job.data.hash}`
         );
+
         const block = await this.pbftService.getBlockByHash(
           formattedTx.blockHash
+        );
+        this.logger.debug(
+          `found block ${block?.number} for hash ${formattedTx.blockHash} assocaited with tx ${hash}`
         );
         if (block) {
           formattedTx.block = block;
           formattedTx.blockHash = block.hash;
           formattedTx.blockNumber = block.number;
           formattedTx.blockTimestamp = block.timestamp;
-          const timeDbStart = new Date().getTime();
-          const saved = await this.txService.updateTransaction(formattedTx);
-          const timeDbEnd = new Date().getTime();
+        }
+        const timeDbStart = new Date().getTime();
+        const saved = await this.txService.updateTransaction(formattedTx);
+        const timeDbEnd = new Date().getTime();
+        this.logger.log(
+          `Execution time for db insertion tx is ${timeDbEnd - timeDbStart} ms`
+        );
+        if (saved) {
+          const timeEnd = new Date().getTime();
+          await job.progress(100);
           this.logger.log(
-            `Execution time for db insertion tx is ${
-              timeDbEnd - timeDbStart
-            } ms`
+            `Execution time for one tx is ${timeEnd - timeStart} ms`
           );
-          if (saved) {
-            const timeEnd = new Date().getTime();
-            await job.progress(100);
-            this.logger.log(
-              `Execution time for one tx is ${timeEnd - timeStart} ms`
-            );
-          }
         }
       } else {
         await job.moveToFailed({
