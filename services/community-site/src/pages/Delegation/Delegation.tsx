@@ -52,7 +52,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
-  const { getDelegations, getUndelegations, confirmUndelegate } = useDelegation();
+  const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
 
   const [validators, setValidators] = useState<Validator[]>([]);
   const [delegations, setDelegations] = useState<DelegationInterface[]>([]);
@@ -66,6 +66,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const [isLoadingAccountData, setLoadingAccountData] = useState(false);
 
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
+  const [currentBlock, setCurrentBlock] = useState(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [reDelegateFromValidator, setReDelegateFromValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
@@ -75,12 +76,18 @@ const Delegation = ({ location }: { location: Location }) => {
       setBalance(await provider.getBalance(account));
     }
   };
+  const getCurrentBlock = async () => {
+    if (status === 'connected' && account && provider) {
+      setCurrentBlock(await provider.getBlockNumber());
+    }
+  };
   useEffect(() => {
     fetchBalance();
   }, [status, account, chainId]);
 
   useInterval(async () => {
     fetchBalance();
+    getCurrentBlock();
   }, 15000);
 
   useEffect(() => {
@@ -97,13 +104,8 @@ const Delegation = ({ location }: { location: Location }) => {
     if (status === 'connected' && account && provider) {
       (async () => {
         setLoadingAccountData(true);
-        const latestBlock = await provider.getBlockNumber();
         const unDelegations = await getUndelegations(account);
-        console.log(unDelegations);
-        // setUndelegations(un.filter((u) => u.block < latestBlock));
         setUndelegations(unDelegations);
-        console.log(latestBlock);
-        console.log(unDelegations.filter((u) => u.block < latestBlock));
         setLoadingAccountData(false);
       })();
     }
@@ -240,19 +242,33 @@ const Delegation = ({ location }: { location: Location }) => {
           undelegations.map((undelegation: UndelegationInterface) => (
             <div className="notification" key={undelegation.address}>
               <Notification
-                title={`Undelegation from ${undelegation.address} has been confirmed.`}
-                text={`You can claim the ${ethers.utils.commify(
-                  weiToEth(undelegation.stake),
-                )} TARA or re-delegate it.`}
-                variant="success"
+                title={
+                  undelegation.block < currentBlock
+                    ? `Undelegation from ${undelegation.address} has been confirmed.`
+                    : `Undelegation Request from ${undelegation.address} has been registered and will be confirmed at block ${undelegation.block}.`
+                }
+                text={
+                  undelegation.block < currentBlock
+                    ? `You can claim the ${ethers.utils.commify(
+                        weiToEth(undelegation.stake),
+                      )} TARA.`
+                    : `You can cancel the Undelegation Request to return ${ethers.utils.commify(
+                        weiToEth(undelegation.stake),
+                      )} TARA to validator ${undelegation.address}`
+                }
+                variant={undelegation.block < currentBlock ? 'success' : 'info'}
               >
                 <Button
                   variant="contained"
-                  color="secondary"
-                  label="Claim"
+                  color={undelegation.block < currentBlock ? 'secondary' : 'primary'}
+                  label={undelegation.block < currentBlock ? 'Claim' : 'Cancel'}
                   size="medium"
                   style={{ minWidth: '150px' }}
-                  onClick={() => confirmUndelegate(undelegation.address)}
+                  onClick={() =>
+                    undelegation.block < currentBlock
+                      ? confirmUndelegate(undelegation.address)
+                      : cancelUndelegate(undelegation.address)
+                  }
                   disableElevation
                 />
               </Notification>
@@ -324,7 +340,7 @@ const Delegation = ({ location }: { location: Location }) => {
             />
             <BaseCard
               title={stripEth(claimableTara)}
-              description="Undelegated TARA - TARA that's in the contract and can be claimed"
+              description="Undelegated TARA - TARA that is awaiting release from delegation and can be claimed or the undelegation request can be canceled."
               isLoading={isLoadingAccountData}
             />
           </div>

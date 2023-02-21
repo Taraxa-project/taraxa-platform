@@ -69,7 +69,6 @@ export default () => {
         stake: undelegation.stake,
         block: undelegation.block.toNumber(),
       }));
-      console.log(formattedUndelegations);
       return formattedUndelegations;
     },
     [mainnetDpos],
@@ -109,8 +108,15 @@ export default () => {
   );
 
   const confirmUndelegate = useCallback(
-    async (address: string): Promise<void> => {
-      await browserDpos!.confirmUndelegate(address);
+    async (address: string): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.confirmUndelegate(address);
+    },
+    [browserDpos],
+  );
+
+  const cancelUndelegate = useCallback(
+    async (address: string): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.cancelUndelegate(address);
     },
     [browserDpos],
   );
@@ -120,6 +126,7 @@ export default () => {
       delegate,
       undelegate,
       confirmUndelegate,
+      cancelUndelegate,
       reDelegate,
       getDelegations,
       getUndelegations,
