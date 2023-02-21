@@ -95,14 +95,14 @@ const RunValidator = () => {
   useEffect(() => {
     if (status === 'connected' && account) {
       (async () => {
-        // const mainnetValidators = await getValidators();
-        // const mainnetValidators = await getValidatorsFor(account);
-        // const myValidators = mainnetValidators.filter(
-        //   (validator) =>
-        //     validator.owner.toLowerCase() ===
-        //     '0x0274cFffeA9fa850E54c93A23042f12a87358a82'.toLowerCase(),
-        // );
-        // setMainnetValidators(myValidators);
+        const mainnetValidators: Validator[] = await getValidators();
+        // const mValidators = await getValidatorsFor('0x0274cFffeA9fa850E54c93A23042f12a87358a82');
+        // console.log('mainnetValidators: ', mainnetValidators);
+        // console.log('mValidators: ', mValidators);
+        const myValidators = mainnetValidators.filter(
+          (validator: Validator) => validator.owner.toLowerCase() === account.toLowerCase(),
+        );
+        setMainnetValidators(myValidators);
       })();
     }
   }, [status, account]);

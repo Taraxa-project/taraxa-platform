@@ -133,9 +133,7 @@ export default () => {
 
   const setValidatorInfo = useCallback(
     async (validator: string, description: string, endpoint: string): Promise<void> => {
-      await browserDpos!.setValidatorInfo(validator, description, endpoint, {
-        value: ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(18)),
-      });
+      await browserDpos!.setValidatorInfo(validator, description, endpoint);
     },
     [browserDpos],
   );
