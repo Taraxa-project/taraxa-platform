@@ -9,11 +9,11 @@ const useStyles = makeStyles(() => {
       border: '1px solid #4f5368',
       borderRadius: '4px',
       letterSpacing: '-0.02em',
-      width: '180px',
+      width: '200px',
       height: '80px',
     },
     amount: {
-      margin: '10px 0 0 10px',
+      margin: '10px 0 10px 10px',
       fontSize: '22px',
       fontWeight: 700,
     },
