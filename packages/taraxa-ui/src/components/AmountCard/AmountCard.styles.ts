@@ -9,8 +9,7 @@ const useStyles = makeStyles(() => {
       border: '1px solid #4f5368',
       borderRadius: '4px',
       letterSpacing: '-0.02em',
-      // width: '150px',
-      maxWidth: '200px',
+      width: '180px',
       height: '80px',
     },
     amount: {

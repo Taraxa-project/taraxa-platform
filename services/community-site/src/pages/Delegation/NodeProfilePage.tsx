@@ -166,7 +166,7 @@ const NodeProfilePage = () => {
           <div className="nodeInfoColumn">
             <div className="nodeTitle">
               <ProfileIcon title={validator.address} size={40} />
-              {validator.address}
+              <div>{validator.address}</div>
             </div>
             <div className="nodeAddress">{validator.address}</div>
             <div className="nodeInfoTitle">expected yield</div>
