@@ -10,7 +10,7 @@ export default () => {
 
   const { mainnetDpos, browserDpos } = useDpos();
 
-  const maxDelegation = ethers.BigNumber.from(10000000).mul(ethers.BigNumber.from(10).pow(18));
+  const maxDelegation = ethers.BigNumber.from(80000000).mul(ethers.BigNumber.from(10).pow(18));
   const contractToValidator = (contractValidator: ContractValidator) => ({
     address: contractValidator.account,
     owner: contractValidator.info.owner,
