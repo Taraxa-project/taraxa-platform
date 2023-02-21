@@ -21,6 +21,7 @@ export default () => {
       while (hasNextPage) {
         try {
           const allDelegations = await mainnetDpos!.getDelegations(address, page);
+
           newDelegations = [...newDelegations, ...allDelegations.delegations];
           hasNextPage = !allDelegations.end;
           page++;
@@ -51,6 +52,7 @@ export default () => {
       while (hasNextPage) {
         try {
           const allUndelegations = await mainnetDpos!.getUndelegations(address, page);
+
           undelegations = [...undelegations, ...allUndelegations.undelegations];
           hasNextPage = !allUndelegations.end;
           page++;
@@ -62,18 +64,23 @@ export default () => {
       }
       finishLoading!();
 
-      return undelegations.map((undelegation: ContractUndelegation) => ({
+      const formattedUndelegations = undelegations.map((undelegation: ContractUndelegation) => ({
         address: undelegation.validator,
         stake: undelegation.stake,
         block: undelegation.block.toNumber(),
       }));
+      console.log(formattedUndelegations);
+      return formattedUndelegations;
     },
     [mainnetDpos],
   );
 
   const delegate = useCallback(
-    async (address: string, value: ethers.BigNumber): Promise<void> => {
-      await browserDpos!.delegate(address, {
+    async (
+      address: string,
+      value: ethers.BigNumber,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.delegate(address, {
         value,
       });
     },
@@ -81,17 +88,22 @@ export default () => {
   );
 
   const reDelegate = useCallback(
-    async (from: string, to: string, value: ethers.BigNumber): Promise<void> => {
-      await browserDpos!.reDelegate(from, to, {
-        value,
-      });
+    async (
+      from: string,
+      to: string,
+      value: ethers.BigNumber,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.reDelegate(from, to, value);
     },
     [browserDpos],
   );
 
   const undelegate = useCallback(
-    async (address: string, value: ethers.BigNumber): Promise<void> => {
-      await browserDpos!.undelegate(address, value);
+    async (
+      address: string,
+      value: ethers.BigNumber,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.undelegate(address, value);
     },
     [browserDpos],
   );
