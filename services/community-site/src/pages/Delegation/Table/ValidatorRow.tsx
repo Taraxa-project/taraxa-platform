@@ -14,6 +14,7 @@ import { Validator } from '../../../interfaces/Validator';
 type ValidatorRowProps = {
   validator: Validator;
   actionsDisabled: boolean;
+  redelegateDisabled: boolean;
   ownDelegation: boolean;
   setDelegateToValidator: (node: Validator) => void;
   setRedelegateToValidator: (node: Validator) => void;
@@ -23,6 +24,7 @@ type ValidatorRowProps = {
 const ValidatorRow = ({
   validator,
   actionsDisabled,
+  redelegateDisabled,
   ownDelegation,
   setDelegateToValidator,
   setRedelegateToValidator,
@@ -62,7 +64,12 @@ const ValidatorRow = ({
               color="secondary"
               variant="contained"
               label="Re-Delegate"
-              disabled={actionsDisabled || validator.isFullyDelegated}
+              disabled={
+                actionsDisabled ||
+                validator.isFullyDelegated ||
+                validator.availableForDelegation.lte(0) ||
+                redelegateDisabled
+              }
               className="smallBtn"
               onClick={() => setRedelegateToValidator(validator)}
             />
@@ -82,7 +89,9 @@ const ValidatorRow = ({
           />
           <Button
             size="small"
+            color="error"
             label="Un-delegate"
+            variant="contained"
             disabled={actionsDisabled || !ownDelegation}
             className="smallBtn"
             onClick={() => setUndelegateFromValidator(validator)}
