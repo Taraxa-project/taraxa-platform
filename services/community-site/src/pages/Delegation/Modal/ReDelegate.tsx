@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import { Button, Text, InputField, AmountCard, Loading } from '@taraxa_project/taraxa-ui';
+import {
+  Button,
+  Text,
+  InputField,
+  AmountCard,
+  Loading,
+  AutocompleteField,
+} from '@taraxa_project/taraxa-ui';
 import useCMetamask from '../../../services/useCMetamask';
 import SuccessIcon from '../../../assets/icons/success';
 
@@ -10,7 +17,7 @@ import { stripEth, weiToEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 
 type ReDelegateProps = {
-  claimableBalance: ethers.BigNumber;
+  reDelegatableBalance: ethers.BigNumber;
   validatorFrom: Validator;
   delegatableValidators: Validator[];
   onSuccess: () => void;
@@ -18,9 +25,9 @@ type ReDelegateProps = {
 };
 
 const ReDelegate = ({
-  claimableBalance,
   validatorFrom,
   delegatableValidators,
+  reDelegatableBalance,
   onSuccess,
   onFinish,
 }: ReDelegateProps) => {
@@ -29,19 +36,27 @@ const ReDelegate = ({
 
   const [isLoading, setLoading] = useState(false);
   console.log('delegatableValidators: ', delegatableValidators);
+  console.log('reDelegatableBalance: ', stripEth(reDelegatableBalance));
+  console.log('validatorFrom: ', validatorFrom);
 
   const [step, setStep] = useState(1);
-  const [reDelegationTotal, setReDelegationTotal] = useState(claimableBalance);
+  const [reDelegationTotal, setReDelegationTotal] = useState(reDelegatableBalance);
   const [error, setError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [autocompleteError, setAutocompleteError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [validatorTo, setValidatorTo] = useState<Validator>();
 
-  console.log(`banace is: ${stripEth(claimableBalance)}`);
+  console.log(`banace is: ${stripEth(reDelegatableBalance)}`);
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+
+    if (!validatorTo) {
+      setAutocompleteError('Missing Validator to');
+    }
 
     if (
       reDelegationTotal.lt(ethers.BigNumber.from('1000').mul(ethers.BigNumber.from('10').pow(18)))
@@ -65,11 +80,11 @@ const ReDelegate = ({
 
     setError('');
 
-    if (!error) {
+    if (!error && validatorTo?.address !== undefined && validatorTo?.address !== null) {
       setLoading(true);
       console.log(reDelegationTotal.toString());
       try {
-        const res = await reDelegate(account, validatorFrom.address, reDelegationTotal);
+        const res = await reDelegate(validatorFrom.address, validatorTo.address, reDelegationTotal);
         setStep(2);
         await res.wait();
         setLoading(false);
@@ -89,7 +104,7 @@ const ReDelegate = ({
           <Text
             style={{ marginBottom: '32px', fontSize: '18px' }}
             align="center"
-            label="Re-Delegate to..."
+            label="Re-Delegate from..."
             variant="h6"
             color="primary"
           />
@@ -98,18 +113,49 @@ const ReDelegate = ({
               <span className="nodeAddress">{validatorFrom.address}</span>
             </p>
           </div>
-          <div className="taraContainerWrapper">
-            <div className="taraContainer taraContainerBalance">
-              <p className="taraContainerAmountDescription">My available TARA for delegation</p>
-              <AmountCard amount={stripEth(reDelegationTotal)} unit="TARA" />
+          <Text
+            style={{ marginBottom: '32px', fontSize: '18px' }}
+            align="center"
+            label="Re-Delegate to..."
+            variant="h6"
+            color="primary"
+          />
+          <AutocompleteField
+            options={delegatableValidators.map((d) => ({ label: d.address, id: d.address }))}
+            renderInput={(params) => (
+              <InputField
+                error={!!autocompleteError}
+                helperText={autocompleteError}
+                {...params}
+                label="Validator"
+              />
+            )}
+            onChange={(event, value) => {
+              const selectedValidator = delegatableValidators.find(
+                (d) => d.address === value?.label,
+              );
+              if (!selectedValidator) {
+                setAutocompleteError('Validator address must be part of the list');
+              } else {
+                setAutocompleteError('');
+                setValidatorTo(selectedValidator);
+              }
+            }}
+          />
+          {validatorTo && reDelegationTotal && (
+            <div className="taraContainerWrapper" style={{ marginTop: '1rem' }}>
+              <div className="taraContainer taraContainerBalance">
+                <p className="taraContainerAmountDescription">Available TARA for re-delegation</p>
+                <AmountCard amount={stripEth(reDelegationTotal)} unit="TARA" />
+              </div>
+              <div className="taraContainer">
+                <p className="taraContainerAmountDescription">
+                  Validator's availability to receive delegation
+                </p>
+                <AmountCard amount={stripEth(validatorTo.availableForDelegation)} unit="TARA" />
+              </div>
             </div>
-            <div className="taraContainer">
-              <p className="taraContainerAmountDescription">
-                Validator’s availability to receive delegation
-              </p>
-              <AmountCard amount={stripEth(validatorFrom.availableForDelegation)} unit="TARA" />
-            </div>
-          </div>
+          )}
           <div className="taraInputWrapper">
             <p className="maxDelegatableDescription">Maximum delegate-able</p>
             <p className="maxDelegatableTotal">{stripEth(reDelegationTotal)}</p>
@@ -127,11 +173,11 @@ const ReDelegate = ({
                 const currentVal = ethers.BigNumber.from(event.target.value || 0);
                 if (
                   currentVal.lt(ethers.BigNumber.from('1000')) ||
-                  currentVal.mul(ethers.BigNumber.from('10').pow(18)).gt(claimableBalance)
+                  currentVal.mul(ethers.BigNumber.from('10').pow(18)).gt(reDelegatableBalance)
                 ) {
                   setError(
                     `must be a number greater than 1,000 and lesser than or equal ${stripEth(
-                      claimableBalance,
+                      reDelegatableBalance,
                     )}`,
                   );
                 } else {
@@ -207,7 +253,7 @@ const ReDelegate = ({
           <p className="successText">Awaiting re-delegation confirmation to validator:</p>
           <div className="nodeDescriptor nodeDescriptorSuccess">
             <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validatorFrom.address}</span>
+              <span className="nodeAddress">{validatorTo?.address}</span>
             </p>
           </div>
         </div>

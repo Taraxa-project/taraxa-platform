@@ -67,7 +67,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
-  const [reDelegateToValidator, setReDelegateToValidator] = useState<Validator | null>(null);
+  const [reDelegateFromValidator, setReDelegateFromValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
 
   const fetchBalance = async () => {
@@ -164,13 +164,17 @@ const Delegation = ({ location }: { location: Location }) => {
     <div className="runnode">
       <Modals
         balance={balance}
-        claimableBalance={claimableTara}
         delegateToValidator={delegateToValidator}
-        reDelegateToValidator={reDelegateToValidator}
+        reDelegateFromValidator={reDelegateFromValidator}
         undelegateFromValidator={undelegateFromValidator}
         delegatableValidators={delegatableValidators?.filter(
-          (d) => d.address !== reDelegateToValidator?.address,
+          (d) => d.address !== reDelegateFromValidator?.address,
         )}
+        reDelegatableBalance={delegations
+          .filter(
+            (d) => d.address.toLowerCase() === reDelegateFromValidator?.address?.toLowerCase(),
+          )
+          .reduce((prev, curr) => prev.add(curr.stake), ethers.BigNumber.from('0'))}
         onDelegateSuccess={() => {
           fetchBalance();
           getValidators();
@@ -181,12 +185,12 @@ const Delegation = ({ location }: { location: Location }) => {
           getValidators();
           // getStats();
         }}
-        onReDelegateSuccess={() => setReDelegateToValidator(null)}
+        onReDelegateSuccess={() => setReDelegateFromValidator(null)}
         onDelegateClose={() => setDelegateToValidator(null)}
-        onReDelegateClose={() => setReDelegateToValidator(null)}
+        onReDelegateClose={() => setReDelegateFromValidator(null)}
         onUndelegateClose={() => setUndelegateFromValidator(null)}
         onDelegateFinish={() => setDelegateToValidator(null)}
-        onReDelegateFinish={() => setReDelegateToValidator(null)}
+        onReDelegateFinish={() => setReDelegateFromValidator(null)}
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
       />
       <div className="runnode-content">
@@ -371,7 +375,7 @@ const Delegation = ({ location }: { location: Location }) => {
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
-                        setRedelegateToValidator={setReDelegateToValidator}
+                        setReDelegateFromValidator={setReDelegateFromValidator}
                         setDelegateToValidator={setDelegateToValidator}
                         setUndelegateFromValidator={setUndelegateFromValidator}
                       />
@@ -391,7 +395,7 @@ const Delegation = ({ location }: { location: Location }) => {
                           ownDelegation={delegations
                             .map((d) => d.address.toLowerCase())
                             .includes(validator.address.toLowerCase())}
-                          setRedelegateToValidator={setReDelegateToValidator}
+                          setReDelegateFromValidator={setReDelegateFromValidator}
                           setDelegateToValidator={setDelegateToValidator}
                           setUndelegateFromValidator={setUndelegateFromValidator}
                         />

@@ -16,7 +16,7 @@ type ValidatorRowProps = {
   actionsDisabled: boolean;
   ownDelegation: boolean;
   setDelegateToValidator: (node: Validator) => void;
-  setRedelegateToValidator: (node: Validator) => void;
+  setReDelegateFromValidator: (node: Validator) => void;
   setUndelegateFromValidator: (node: Validator) => void;
 };
 
@@ -25,7 +25,7 @@ const ValidatorRow = ({
   actionsDisabled,
   ownDelegation,
   setDelegateToValidator,
-  setRedelegateToValidator,
+  setReDelegateFromValidator,
   setUndelegateFromValidator,
 }: ValidatorRowProps) => {
   const history = useHistory();
@@ -63,7 +63,7 @@ const ValidatorRow = ({
             label="Re-Delegate"
             disabled={actionsDisabled || !ownDelegation}
             className="smallBtn"
-            onClick={() => setRedelegateToValidator(validator)}
+            onClick={() => setReDelegateFromValidator(validator)}
           />
           <Button
             size="small"

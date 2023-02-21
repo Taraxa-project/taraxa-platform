@@ -10,9 +10,9 @@ import ReDelegate from './ReDelegate';
 
 interface ModalsProps {
   balance: ethers.BigNumber;
-  claimableBalance: ethers.BigNumber;
+  reDelegatableBalance: ethers.BigNumber;
   delegateToValidator: Validator | null;
-  reDelegateToValidator?: Validator | null;
+  reDelegateFromValidator?: Validator | null;
   undelegateFromValidator: Validator | null;
   delegatableValidators: Validator[];
   onDelegateSuccess: () => void;
@@ -28,9 +28,9 @@ interface ModalsProps {
 
 const Modals = ({
   balance,
-  claimableBalance,
+  reDelegatableBalance,
   delegateToValidator,
-  reDelegateToValidator,
+  reDelegateFromValidator,
   undelegateFromValidator,
   delegatableValidators,
   onDelegateSuccess,
@@ -66,16 +66,16 @@ const Modals = ({
       {onReDelegateSuccess &&
         onReDelegateClose &&
         onReDelegateFinish &&
-        reDelegateToValidator &&
-        claimableBalance && (
+        reDelegateFromValidator &&
+        reDelegatableBalance && (
           <Modal
             id="delegateModal"
             title="Delegate to..."
-            show={!!reDelegateToValidator}
+            show={!!reDelegateFromValidator}
             children={
               <ReDelegate
-                claimableBalance={claimableBalance}
-                validatorFrom={reDelegateToValidator}
+                reDelegatableBalance={reDelegatableBalance}
+                validatorFrom={reDelegateFromValidator}
                 delegatableValidators={delegatableValidators}
                 onSuccess={() => onReDelegateSuccess()}
                 onFinish={() => onReDelegateFinish()}

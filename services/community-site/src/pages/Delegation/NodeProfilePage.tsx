@@ -143,7 +143,8 @@ const NodeProfilePage = () => {
     <div className="runnode">
       <Modals
         balance={balance}
-        redelegationBalance={ethers.BigNumber.from('0')}
+        reDelegatableBalance={ethers.BigNumber.from('0')}
+        delegatableValidators={[]}
         delegateToValidator={delegateToValidator}
         undelegateFromValidator={undelegateFromValidator}
         onDelegateSuccess={() => {
