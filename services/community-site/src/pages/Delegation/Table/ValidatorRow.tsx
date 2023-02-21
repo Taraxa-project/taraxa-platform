@@ -14,7 +14,6 @@ import { Validator } from '../../../interfaces/Validator';
 type ValidatorRowProps = {
   validator: Validator;
   actionsDisabled: boolean;
-  redelegateDisabled: boolean;
   ownDelegation: boolean;
   setDelegateToValidator: (node: Validator) => void;
   setRedelegateToValidator: (node: Validator) => void;
@@ -24,7 +23,6 @@ type ValidatorRowProps = {
 const ValidatorRow = ({
   validator,
   actionsDisabled,
-  redelegateDisabled,
   ownDelegation,
   setDelegateToValidator,
   setRedelegateToValidator,
@@ -58,22 +56,15 @@ const ValidatorRow = ({
             : ethers.utils.commify(weiToEth(validator.availableForDelegation))}
         </div>
         <div className="validatorActions">
-          {validator.availableForDelegation && (
-            <Button
-              size="small"
-              color="secondary"
-              variant="contained"
-              label="Re-Delegate"
-              disabled={
-                actionsDisabled ||
-                validator.isFullyDelegated ||
-                validator.availableForDelegation.lte(0) ||
-                redelegateDisabled
-              }
-              className="smallBtn"
-              onClick={() => setRedelegateToValidator(validator)}
-            />
-          )}
+          <Button
+            size="small"
+            color="secondary"
+            variant="contained"
+            label="Re-Delegate"
+            disabled={actionsDisabled || !ownDelegation}
+            className="smallBtn"
+            onClick={() => setRedelegateToValidator(validator)}
+          />
           <Button
             size="small"
             color="secondary"

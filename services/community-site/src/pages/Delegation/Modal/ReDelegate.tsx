@@ -10,23 +10,33 @@ import { stripEth, weiToEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 
 type ReDelegateProps = {
-  redelegationBalance: ethers.BigNumber;
-  validatorTo: Validator;
+  claimableBalance: ethers.BigNumber;
+  validatorFrom: Validator;
+  delegatableValidators: Validator[];
   onSuccess: () => void;
   onFinish: () => void;
 };
 
-const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: ReDelegateProps) => {
+const ReDelegate = ({
+  claimableBalance,
+  validatorFrom,
+  delegatableValidators,
+  onSuccess,
+  onFinish,
+}: ReDelegateProps) => {
   const { account } = useCMetamask();
   const { reDelegate } = useDelegation();
 
   const [isLoading, setLoading] = useState(false);
+  console.log('delegatableValidators: ', delegatableValidators);
 
   const [step, setStep] = useState(1);
-  const [reDelegationTotal, setReDelegationTotal] = useState(redelegationBalance);
+  const [reDelegationTotal, setReDelegationTotal] = useState(claimableBalance);
   const [error, setError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [validatorTo, setValidatorTo] = useState<Validator>();
 
-  console.log(`banace is: ${stripEth(redelegationBalance)}`);
+  console.log(`banace is: ${stripEth(claimableBalance)}`);
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
@@ -44,7 +54,7 @@ const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: R
     //   setError('cannot exceed TARA available for delegation');
     //   return;
     // }
-    if (reDelegationTotal.gt(validatorTo.availableForDelegation)) {
+    if (reDelegationTotal.gt(validatorFrom.availableForDelegation)) {
       setError("cannot exceed validator's ability to receive delegation");
       return;
     }
@@ -59,7 +69,7 @@ const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: R
       setLoading(true);
       console.log(reDelegationTotal.toString());
       try {
-        const res = await reDelegate(account, validatorTo.address, reDelegationTotal);
+        const res = await reDelegate(account, validatorFrom.address, reDelegationTotal);
         setStep(2);
         await res.wait();
         setLoading(false);
@@ -85,7 +95,7 @@ const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: R
           />
           <div className="nodeDescriptor">
             <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validatorTo.address}</span>
+              <span className="nodeAddress">{validatorFrom.address}</span>
             </p>
           </div>
           <div className="taraContainerWrapper">
@@ -97,7 +107,7 @@ const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: R
               <p className="taraContainerAmountDescription">
                 Validator’s availability to receive delegation
               </p>
-              <AmountCard amount={stripEth(validatorTo.availableForDelegation)} unit="TARA" />
+              <AmountCard amount={stripEth(validatorFrom.availableForDelegation)} unit="TARA" />
             </div>
           </div>
           <div className="taraInputWrapper">
@@ -117,11 +127,11 @@ const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: R
                 const currentVal = ethers.BigNumber.from(event.target.value || 0);
                 if (
                   currentVal.lt(ethers.BigNumber.from('1000')) ||
-                  currentVal.mul(ethers.BigNumber.from('10').pow(18)).gt(redelegationBalance)
+                  currentVal.mul(ethers.BigNumber.from('10').pow(18)).gt(claimableBalance)
                 ) {
                   setError(
                     `must be a number greater than 1,000 and lesser than or equal ${stripEth(
-                      redelegationBalance,
+                      claimableBalance,
                     )}`,
                   );
                 } else {
@@ -197,7 +207,7 @@ const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: R
           <p className="successText">Awaiting re-delegation confirmation to validator:</p>
           <div className="nodeDescriptor nodeDescriptorSuccess">
             <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validatorTo.address}</span>
+              <span className="nodeAddress">{validatorFrom.address}</span>
             </p>
           </div>
         </div>
@@ -210,7 +220,7 @@ const ReDelegate = ({ redelegationBalance, validatorTo, onSuccess, onFinish }: R
           <p className="successText">You've successfully re-delegated to a validator:</p>
           <div className="nodeDescriptor nodeDescriptorSuccess">
             <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validatorTo.address}</span>
+              <span className="nodeAddress">{validatorFrom.address}</span>
             </p>
           </div>
           <Button

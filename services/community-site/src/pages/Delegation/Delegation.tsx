@@ -98,12 +98,12 @@ const Delegation = ({ location }: { location: Location }) => {
       (async () => {
         setLoadingAccountData(true);
         const latestBlock = await provider.getBlockNumber();
-        const un = await getUndelegations(account);
-        console.log(un);
+        const unDelegations = await getUndelegations(account);
+        console.log(unDelegations);
         // setUndelegations(un.filter((u) => u.block < latestBlock));
-        setUndelegations(un);
+        setUndelegations(unDelegations);
         console.log(latestBlock);
-        console.log(un.filter((u) => u.block < latestBlock));
+        console.log(unDelegations.filter((u) => u.block < latestBlock));
         setLoadingAccountData(false);
       })();
     }
@@ -136,7 +136,7 @@ const Delegation = ({ location }: { location: Location }) => {
     return accumulator.add(currentUndelegation.stake);
   }, ethers.BigNumber.from(0));
 
-  const redelegatableTara = totalUndelegationOfAddress.gt(totalDelegationOfAddress)
+  const claimableTara = totalUndelegationOfAddress.gt(totalDelegationOfAddress)
     ? totalUndelegationOfAddress.sub(totalDelegationOfAddress)
     : ethers.BigNumber.from(0);
 
@@ -164,10 +164,13 @@ const Delegation = ({ location }: { location: Location }) => {
     <div className="runnode">
       <Modals
         balance={balance}
-        redelegationBalance={redelegatableTara}
+        claimableBalance={claimableTara}
         delegateToValidator={delegateToValidator}
         reDelegateToValidator={reDelegateToValidator}
         undelegateFromValidator={undelegateFromValidator}
+        delegatableValidators={delegatableValidators?.filter(
+          (d) => d.address !== reDelegateToValidator?.address,
+        )}
         onDelegateSuccess={() => {
           fetchBalance();
           getValidators();
@@ -316,8 +319,8 @@ const Delegation = ({ location }: { location: Location }) => {
               isLoading={isLoadingAccountData}
             />
             <BaseCard
-              title={stripEth(redelegatableTara)}
-              description="Undelegated TARA - TARA that's in the contract and can be reDelegated (use the re-delegate button)"
+              title={stripEth(claimableTara)}
+              description="Undelegated TARA - TARA that's in the contract and can be claimed"
               isLoading={isLoadingAccountData}
             />
           </div>
@@ -365,11 +368,6 @@ const Delegation = ({ location }: { location: Location }) => {
                         key={validator.address}
                         validator={validator}
                         actionsDisabled={status !== 'connected' || !account}
-                        redelegateDisabled={
-                          status !== 'connected' ||
-                          !account ||
-                          redelegatableTara.lte(ethers.BigNumber.from(0))
-                        }
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
@@ -390,11 +388,6 @@ const Delegation = ({ location }: { location: Location }) => {
                           key={validator.address}
                           validator={validator}
                           actionsDisabled={status !== 'connected' || !account}
-                          redelegateDisabled={
-                            status !== 'connected' ||
-                            !account ||
-                            redelegatableTara.lte(ethers.BigNumber.from(0))
-                          }
                           ownDelegation={delegations
                             .map((d) => d.address.toLowerCase())
                             .includes(validator.address.toLowerCase())}
