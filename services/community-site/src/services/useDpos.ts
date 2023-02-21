@@ -19,7 +19,7 @@ function useDpos() {
     'function getValidator(address validator) view returns (tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) validator_info)',
     'function getValidatorEligibleVotesCount(address validator) view returns (uint64)',
     'function getValidators(uint32 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)',
-    'function getValidatorsFor(address owner, uint256 batch)',
+    'function getValidatorsFor(address owner, uint256 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)',
     'function isValidatorEligible(address validator) view returns (bool)',
     'function reDelegate(address validator_from, address validator_to, uint256 amount)',
     'function registerValidator(address validator, bytes proof, bytes vrf_key, uint16 commission, string description, string endpoint) payable',

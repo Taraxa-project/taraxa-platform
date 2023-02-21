@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
@@ -25,9 +26,13 @@ const EditValidator = ({
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-
+    const regex =
+      /^(ftp|http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?$/;
+    if (!regex.test(endpoint)) {
+      setError('Endpoint must be a valid url');
+      return;
+    }
     setError('');
-
     const payload: any = {
       type,
       description,
@@ -36,8 +41,7 @@ const EditValidator = ({
 
     if (type === 'mainnet') {
       try {
-        console.log('Submiting: ', validator.address, payload.description, payload.endpoint);
-        // await setValidatorInfo(validator.address, payload.description, payload.endpoint);
+        await setValidatorInfo(validator.address, payload.description, payload.endpoint);
         onSuccess();
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -60,8 +64,6 @@ const EditValidator = ({
       />
       <form onSubmit={submit}>
         <InputField
-          error={!!error}
-          helperText={error}
           label="Node operator Website"
           value={endpoint}
           variant="outlined"
@@ -73,8 +75,6 @@ const EditValidator = ({
           }}
         />
         <InputField
-          error={!!error}
-          helperText={error}
           label="Node operator description"
           value={description}
           variant="outlined"

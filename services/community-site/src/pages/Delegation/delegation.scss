@@ -39,7 +39,6 @@
   }
   .taraContainer {
     float: left;
-    width: 175px;
     max-width: 200px;
   }
   .taraContainerAmountDescription {
@@ -54,6 +53,7 @@
     overflow: auto;
     display: flex;
     justify-content: center;
+    align-items: flex-end;
   }
   .taraContainerAmount {
     text-align: left;
@@ -90,6 +90,7 @@
     font-weight: bold;
     font-size: 36px;
     margin: 2px 0;
+    word-break: break-all;
   }
   .maxDelegatableUnit {
     font-size: 16px;
