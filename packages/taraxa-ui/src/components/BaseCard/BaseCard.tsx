@@ -6,6 +6,7 @@ import {
   CssBaseline,
   Typography,
   ThemeProvider,
+  Skeleton,
 } from '@mui/material';
 import theme from '../theme';
 import useStyles from './BaseCard.styles';
@@ -16,6 +17,7 @@ export interface BaseCardProps extends MCardProps {
   tooltip?: JSX.Element;
   id?: string;
   button?: React.ReactNode;
+  isLoading?: boolean;
 }
 
 const BaseCard = ({
@@ -24,6 +26,7 @@ const BaseCard = ({
   tooltip,
   id,
   button,
+  isLoading = false,
 }: BaseCardProps) => {
   const classes = useStyles();
 
@@ -33,16 +36,20 @@ const BaseCard = ({
       <MCard className={classes.root} id={id} elevation={0} variant='outlined'>
         <CardContent>
           <div className={classes.iconContainer}>
-            <Typography
-              color='primary'
-              variant='h4'
-              component='h4'
-              fontWeight='700'
-              fontSize='36px'
-              className={classes.title}
-            >
-              {title}
-            </Typography>
+            {isLoading ? (
+              <Skeleton variant='rectangular' height={45} width='100%' />
+            ) : (
+              <Typography
+                color='primary'
+                variant='h4'
+                component='h4'
+                fontWeight='700'
+                fontSize='36px'
+                className={classes.title}
+              >
+                {title}
+              </Typography>
+            )}
             {tooltip && <div className={classes.icon}>{tooltip}</div>}
           </div>
           <div className={classes.actionContainer}>
