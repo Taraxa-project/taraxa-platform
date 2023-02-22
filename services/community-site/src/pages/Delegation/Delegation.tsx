@@ -127,7 +127,7 @@ const Delegation = ({ location }: { location: Location }) => {
       setValidators(validatorsWithStats);
       setLoadingAccountData(false);
     })();
-  }, [showMyValidators, delegations, shouldFetch]);
+  }, [showMyValidators, delegations]);
 
   const isOnWrongChain = chainId !== mainnetChainId;
 
