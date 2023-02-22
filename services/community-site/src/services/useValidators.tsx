@@ -15,6 +15,7 @@ export default () => {
     address: contractValidator.account,
     owner: contractValidator.info.owner,
     commission: contractValidator.info.commission,
+    lastCommissionChange: contractValidator.info.last_commission_change,
     delegation: contractValidator.info.total_stake,
     availableForDelegation: maxDelegation.sub(contractValidator.info.total_stake),
     isFullyDelegated: contractValidator.info.total_stake.eq(maxDelegation),

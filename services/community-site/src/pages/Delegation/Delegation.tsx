@@ -39,10 +39,10 @@ import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
 import { Validator } from '../../interfaces/Validator';
-import DelegationInterface from '../../interfaces/Delegation';
-import UndelegationInterface from '../../interfaces/Undelegation';
+import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
 
 import { stripEth, weiToEth } from '../../utils/eth';
+import Undelegation from '../../interfaces/Undelegation';
 
 const Delegation = ({ location }: { location: Location }) => {
   const { chainId, provider } = useChain();
@@ -56,7 +56,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const [validators, setValidators] = useState<Validator[]>([]);
   const [delegations, setDelegations] = useState<DelegationInterface[]>([]);
-  const [undelegations, setUndelegations] = useState<UndelegationInterface[]>([]);
+  const [undelegations, setUndelegations] = useState<Undelegation[]>([]);
 
   const showMyValidatorsQuery =
     new URLSearchParams(location.search).get('show_my_validators') !== null;
@@ -82,6 +82,19 @@ const Delegation = ({ location }: { location: Location }) => {
       setCurrentBlock(await provider.getBlockNumber());
     }
   };
+
+  const confirmUndelegation = async (undelegation: Undelegation) => {
+    const receipt = await confirmUndelegate(undelegation.address);
+    await receipt.wait();
+    setShouldFetch(true);
+  };
+
+  const cancelUndelegation = async (undelegation: Undelegation) => {
+    const receipt = await cancelUndelegate(undelegation.address);
+    await receipt.wait();
+    setShouldFetch(true);
+  };
+
   useEffect(() => {
     fetchBalance();
   }, [status, account, chainId, shouldFetch]);
@@ -89,7 +102,7 @@ const Delegation = ({ location }: { location: Location }) => {
   useInterval(async () => {
     fetchBalance();
     getCurrentBlock();
-  }, 15000);
+  }, 5000);
 
   useEffect(() => {
     if (status === 'connected' && account) {
@@ -224,29 +237,38 @@ const Delegation = ({ location }: { location: Location }) => {
             </Notification>
           </div>
         )}
-        {/* {ownValidatorsHaveCommissionChange && (
-          <div className="notification">
-            <Notification
-              title="Notice:"
-              text="One of more of your validators has changed their comission."
-              variant="danger"
-            >
-              <a
-                className="commissionChangeCheck"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowUserOwnValidators(true);
-                  setShowFullyDelegatedNodes(true);
-                }}
+        <>
+          {currentBlock}
+          {validators.some(
+            (v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD,
+          )}
+        </>
+        {currentBlock > 0 &&
+          validators.some(
+            (v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD,
+          ) && (
+            <div className="notification">
+              <Notification
+                title="Notice:"
+                text="One of more of your validators has changed their comission."
+                variant="danger"
               >
-                Review the upcoming change ➞
-              </a>
-            </Notification>
-          </div>
-        )} */}
+                <a
+                  className="commissionChangeCheck"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowMyValidators(true);
+                    setShowFullyDelegatedValidators(true);
+                  }}
+                >
+                  Review the upcoming change ➞
+                </a>
+              </Notification>
+            </div>
+          )}
         {undelegations.length > 0 &&
-          undelegations.map((undelegation: UndelegationInterface) => (
+          undelegations.map((undelegation: Undelegation) => (
             <div className="notification" key={undelegation.address}>
               <Notification
                 title={
@@ -273,8 +295,8 @@ const Delegation = ({ location }: { location: Location }) => {
                   className="smallBtn"
                   onClick={() =>
                     undelegation.block < currentBlock
-                      ? confirmUndelegate(undelegation.address)
-                      : cancelUndelegate(undelegation.address)
+                      ? confirmUndelegation(undelegation)
+                      : cancelUndelegation(undelegation)
                   }
                   disableElevation
                 />
@@ -394,6 +416,7 @@ const Delegation = ({ location }: { location: Location }) => {
                       <ValidatorRow
                         key={validator.address}
                         validator={validator}
+                        currentBlockNumber={currentBlock}
                         actionsDisabled={status !== 'connected' || !account}
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
@@ -414,6 +437,7 @@ const Delegation = ({ location }: { location: Location }) => {
                         <ValidatorRow
                           key={validator.address}
                           validator={validator}
+                          currentBlockNumber={currentBlock}
                           actionsDisabled={status !== 'connected' || !account}
                           ownDelegation={delegations
                             .map((d) => d.address.toLowerCase())

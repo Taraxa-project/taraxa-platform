@@ -5,6 +5,7 @@ interface ContractValidatorInfo {
   commission: number;
   total_stake: ethers.BigNumber;
   commission_reward: ethers.BigNumber;
+  last_commission_change: number;
   description: string;
   endpoint: string;
 }
@@ -18,6 +19,7 @@ export interface Validator {
   address: string;
   owner: string;
   commission: number;
+  lastCommissionChange: number;
   delegation: ethers.BigNumber;
   availableForDelegation: ethers.BigNumber;
   description: string;

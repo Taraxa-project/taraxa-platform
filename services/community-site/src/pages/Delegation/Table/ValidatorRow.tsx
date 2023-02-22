@@ -6,9 +6,11 @@ import { TableCell, TableRow } from '@mui/material';
 
 import { Button } from '@taraxa_project/taraxa-ui';
 
+import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { formatValidatorName } from '../../../utils/string';
 import { weiToEth } from '../../../utils/eth';
 
+import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
 import { Validator } from '../../../interfaces/Validator';
 
 type ValidatorRowProps = {
@@ -18,6 +20,7 @@ type ValidatorRowProps = {
   setDelegateToValidator: (node: Validator) => void;
   setReDelegateFromValidator: (node: Validator) => void;
   setUndelegateFromValidator: (node: Validator) => void;
+  currentBlockNumber?: number;
 };
 
 const ValidatorRow = ({
@@ -27,6 +30,7 @@ const ValidatorRow = ({
   setDelegateToValidator,
   setReDelegateFromValidator,
   setUndelegateFromValidator,
+  currentBlockNumber,
 }: ValidatorRowProps) => {
   const history = useHistory();
   return (
@@ -45,7 +49,17 @@ const ValidatorRow = ({
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">20%</TableCell>
-      <TableCell className="tableCell commissionCell">{validator.commission}%</TableCell>
+      <TableCell className="tableCell commissionCell">
+        {currentBlockNumber &&
+        currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD ? (
+          <div className="commissionDisplayPendingChangeWrapper">
+            <NodeCommissionChangeIcon />{' '}
+            <span className="commissionDisplayPendingChange">{`${validator.commission}%`}</span>
+          </div>
+        ) : (
+          `${validator.commission}%`
+        )}
+      </TableCell>
       <TableCell className="tableCell delegationCell">
         <strong>{ethers.utils.commify(weiToEth(validator.delegation))}</strong>
       </TableCell>
