@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { BigNumber, ethers } from 'ethers';
+import { Button, Text, InputField, Loading } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 
 import useDelegation from '../../../services/useDelegation';
@@ -20,9 +20,12 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
   const { getDelegations, undelegate } = useDelegation();
   const { status, account } = useCMetamask();
 
+  const [isLoading, setLoading] = useState(false);
+
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [totalDelegation, setTotalDelegation] = useState(ethers.BigNumber.from('0'));
   const [undelegationTotal, setUnDelegationTotal] = useState(ethers.BigNumber.from('0'));
+  const [maxUndelegation, setMaxUndelegation] = useState(ethers.BigNumber.from('0'));
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
 
@@ -44,6 +47,12 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
     }
   }, [delegations]);
 
+  useEffect(() => {
+    if (maxUndelegation.eq(BigNumber.from('0'))) {
+      setMaxUndelegation(undelegationTotal);
+    }
+  }, [totalDelegation]);
+
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
@@ -57,9 +66,12 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
     setError('');
 
     try {
-      await undelegate(validator.address, undelegationTotal);
-      onSuccess();
+      setLoading(true);
+      const res = await undelegate(validator.address, undelegationTotal);
       setStep(2);
+      await res.wait();
+      setLoading(false);
+      onSuccess();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
@@ -98,8 +110,19 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
               fullWidth
               margin="normal"
               onChange={(event) => {
+                if (
+                  ethers.BigNumber.from(event.target.value || 0)
+                    .mul(ethers.BigNumber.from('10').pow(18))
+                    .gt(maxUndelegation)
+                ) {
+                  setError(
+                    `must be a number smaller than or equal to the total current delegation`,
+                  );
+                } else {
+                  setError('');
+                }
                 setUnDelegationTotal(
-                  ethers.BigNumber.from(event.target.value).mul(
+                  ethers.BigNumber.from(event.target.value || 0).mul(
                     ethers.BigNumber.from('10').pow(18),
                   ),
                 );
@@ -149,13 +172,32 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
               color="secondary"
               variant="contained"
               className="marginButton"
+              disabled={error !== ''}
               fullWidth
               onClick={submit}
             />
           </div>
         </>
+      ) : isLoading ? (
+        <div className="delegateNodeModalSuccess">
+          <Text
+            style={{ marginBottom: '2%' }}
+            label="Waiting for confirmation"
+            variant="h6"
+            color="warning"
+          />
+          <div className="loadingIcon">
+            <Loading />
+          </div>
+          <p className="successText">Awaiting undelegation confirmation from validator:</p>
+          <div className="nodeDescriptor nodeDescriptorSuccess">
+            <p className="nodeAddressWrapper">
+              <span className="nodeAddress">{validator.address}</span>
+            </p>
+          </div>
+        </div>
       ) : (
-        <>
+        <div className="delegateNodeModalSuccess">
           <Text style={{ marginBottom: '2%' }} label="Success" variant="h6" color="primary" />
           <div className="successIcon">
             <SuccessIcon />
@@ -180,7 +222,7 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
               onFinish();
             }}
           />
-        </>
+        </div>
       )}
     </div>
   );

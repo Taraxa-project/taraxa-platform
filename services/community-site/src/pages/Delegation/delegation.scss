@@ -121,6 +121,12 @@
   }
 }
 
+.delegateNodeModalSuccess {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 #delegateModal {
   @media only screen and (max-width: 476px) {
     max-width: 95%;

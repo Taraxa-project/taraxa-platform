@@ -16,7 +16,7 @@ type ValidatorRowProps = {
   actionsDisabled: boolean;
   ownDelegation: boolean;
   setDelegateToValidator: (node: Validator) => void;
-  setRedelegateToValidator: (node: Validator) => void;
+  setReDelegateFromValidator: (node: Validator) => void;
   setUndelegateFromValidator: (node: Validator) => void;
 };
 
@@ -25,7 +25,7 @@ const ValidatorRow = ({
   actionsDisabled,
   ownDelegation,
   setDelegateToValidator,
-  setRedelegateToValidator,
+  setReDelegateFromValidator,
   setUndelegateFromValidator,
 }: ValidatorRowProps) => {
   const history = useHistory();
@@ -56,17 +56,15 @@ const ValidatorRow = ({
             : ethers.utils.commify(weiToEth(validator.availableForDelegation))}
         </div>
         <div className="validatorActions">
-          {validator.availableForDelegation && (
-            <Button
-              size="small"
-              color="secondary"
-              variant="contained"
-              label="Re-Delegate"
-              disabled={actionsDisabled || validator.isFullyDelegated}
-              className="smallBtn"
-              onClick={() => setRedelegateToValidator(validator)}
-            />
-          )}
+          <Button
+            size="small"
+            color="secondary"
+            variant="contained"
+            label="Re-Delegate"
+            disabled={actionsDisabled || !ownDelegation}
+            className="smallBtn"
+            onClick={() => setReDelegateFromValidator(validator)}
+          />
           <Button
             size="small"
             color="secondary"
@@ -82,7 +80,9 @@ const ValidatorRow = ({
           />
           <Button
             size="small"
+            color="error"
             label="Un-delegate"
+            variant="contained"
             disabled={actionsDisabled || !ownDelegation}
             className="smallBtn"
             onClick={() => setUndelegateFromValidator(validator)}

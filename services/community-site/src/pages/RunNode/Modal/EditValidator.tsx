@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
-import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, Loading, Label } from '@taraxa_project/taraxa-ui';
+import { Box, CircularProgress } from '@mui/material';
 
 import useValidators from '../../../services/useValidators';
 import { Validator } from '../../../interfaces/Validator';
@@ -19,6 +20,7 @@ const EditValidator = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [description, setDescription] = useState(validator.description || '');
   const [endpoint, setEndpoint] = useState(validator.endpoint || '');
+  const [isLoading, setLoading] = useState(false);
 
   const [error, setError] = useState('');
 
@@ -40,12 +42,20 @@ const EditValidator = ({
     };
 
     if (type === 'mainnet') {
+      setLoading(true);
       try {
-        await setValidatorInfo(validator.address, payload.description, payload.endpoint);
+        const res = await setValidatorInfo(
+          validator.address,
+          payload.description,
+          payload.endpoint,
+        );
+        await res.wait();
+        setLoading(false);
         onSuccess();
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
+        setLoading(false);
       }
     }
   };
@@ -90,15 +100,26 @@ const EditValidator = ({
             {error}
           </Text>
         )}
-        <Button
-          type="submit"
-          label="Submit"
-          color="secondary"
-          variant="contained"
-          className="marginButton"
-          onClick={submit}
-          fullWidth
-        />
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Label
+              variant="loading"
+              label="Loading"
+              gap
+              icon={<CircularProgress size={50} color="inherit" />}
+            />
+          </Box>
+        ) : (
+          <Button
+            type="submit"
+            label="Submit"
+            color="secondary"
+            variant="contained"
+            className="marginButton"
+            onClick={submit}
+            fullWidth
+          />
+        )}
       </form>
     </div>
   );

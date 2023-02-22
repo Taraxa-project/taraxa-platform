@@ -132,8 +132,12 @@ export default () => {
   );
 
   const setValidatorInfo = useCallback(
-    async (validator: string, description: string, endpoint: string): Promise<void> => {
-      await browserDpos!.setValidatorInfo(validator, description, endpoint);
+    async (
+      validator: string,
+      description: string,
+      endpoint: string,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.setValidatorInfo(validator, description, endpoint);
     },
     [browserDpos],
   );

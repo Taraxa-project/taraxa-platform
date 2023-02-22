@@ -21,6 +21,7 @@ export default () => {
       while (hasNextPage) {
         try {
           const allDelegations = await mainnetDpos!.getDelegations(address, page);
+
           newDelegations = [...newDelegations, ...allDelegations.delegations];
           hasNextPage = !allDelegations.end;
           page++;
@@ -51,6 +52,7 @@ export default () => {
       while (hasNextPage) {
         try {
           const allUndelegations = await mainnetDpos!.getUndelegations(address, page);
+
           undelegations = [...undelegations, ...allUndelegations.undelegations];
           hasNextPage = !allUndelegations.end;
           page++;
@@ -62,18 +64,22 @@ export default () => {
       }
       finishLoading!();
 
-      return undelegations.map((undelegation: ContractUndelegation) => ({
+      const formattedUndelegations = undelegations.map((undelegation: ContractUndelegation) => ({
         address: undelegation.validator,
         stake: undelegation.stake,
         block: undelegation.block.toNumber(),
       }));
+      return formattedUndelegations;
     },
     [mainnetDpos],
   );
 
   const delegate = useCallback(
-    async (address: string, value: ethers.BigNumber): Promise<void> => {
-      await browserDpos!.delegate(address, {
+    async (
+      address: string,
+      value: ethers.BigNumber,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.delegate(address, {
         value,
       });
     },
@@ -81,24 +87,36 @@ export default () => {
   );
 
   const reDelegate = useCallback(
-    async (from: string, to: string, value: ethers.BigNumber): Promise<void> => {
-      await browserDpos!.reDelegate(from, to, {
-        value,
-      });
+    async (
+      from: string,
+      to: string,
+      value: ethers.BigNumber,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.reDelegate(from, to, value);
     },
     [browserDpos],
   );
 
   const undelegate = useCallback(
-    async (address: string, value: ethers.BigNumber): Promise<void> => {
-      await browserDpos!.undelegate(address, value);
+    async (
+      address: string,
+      value: ethers.BigNumber,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.undelegate(address, value);
     },
     [browserDpos],
   );
 
   const confirmUndelegate = useCallback(
-    async (address: string): Promise<void> => {
-      await browserDpos!.confirmUndelegate(address);
+    async (address: string): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.confirmUndelegate(address);
+    },
+    [browserDpos],
+  );
+
+  const cancelUndelegate = useCallback(
+    async (address: string): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.cancelUndelegate(address);
     },
     [browserDpos],
   );
@@ -108,6 +126,7 @@ export default () => {
       delegate,
       undelegate,
       confirmUndelegate,
+      cancelUndelegate,
       reDelegate,
       getDelegations,
       getUndelegations,

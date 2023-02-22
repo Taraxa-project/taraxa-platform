@@ -81,6 +81,7 @@ const NodeProfilePage = () => {
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const { address } = useParams<{ address?: string }>();
   const delegationApi = useDelegationApi();
+  const [shouldFetch, setShouldFetch] = useState(false);
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
   const canUndelegate = status === 'connected' && !!account;
@@ -107,7 +108,7 @@ const NodeProfilePage = () => {
   useEffect(() => {
     fetchNode();
     fetchDelegators();
-  }, [fetchNode, fetchDelegators]);
+  }, [fetchNode, fetchDelegators, shouldFetch]);
 
   useEffect(() => {
     (async () => {
@@ -143,17 +144,26 @@ const NodeProfilePage = () => {
     <div className="runnode">
       <Modals
         balance={balance}
+        reDelegatableBalance={ethers.BigNumber.from('0')}
+        delegatableValidators={[]}
         delegateToValidator={delegateToValidator}
         undelegateFromValidator={undelegateFromValidator}
         onDelegateSuccess={() => {
           // getBalances();
           fetchNode();
           fetchDelegators();
+          setShouldFetch(true);
         }}
         onUndelegateSuccess={() => {
           // getBalances();
           fetchNode();
           fetchDelegators();
+          setShouldFetch(true);
+        }}
+        onReDelegateSuccess={() => {
+          fetchNode();
+          fetchDelegators();
+          setShouldFetch(true);
         }}
         onDelegateClose={() => setDelegateToValidator(null)}
         onDelegateFinish={() => setDelegateToValidator(null)}

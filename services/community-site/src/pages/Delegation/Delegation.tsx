@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import {
   Box,
+  CircularProgress,
+  Divider,
   Table,
   TableBody,
   TableCell,
@@ -18,8 +20,10 @@ import {
   Icons,
   BaseCard,
   useInterval,
+  Label,
 } from '@taraxa_project/taraxa-ui';
 
+import { useLoading } from '../../services/useLoading';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
@@ -38,16 +42,17 @@ import { Validator } from '../../interfaces/Validator';
 import DelegationInterface from '../../interfaces/Delegation';
 import UndelegationInterface from '../../interfaces/Undelegation';
 
-import { weiToEth } from '../../utils/eth';
+import { stripEth, weiToEth } from '../../utils/eth';
 
 const Delegation = ({ location }: { location: Location }) => {
   const { chainId, provider } = useChain();
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
+  const { isLoading } = useLoading();
 
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
-  const { getDelegations, getUndelegations, confirmUndelegate } = useDelegation();
+  const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
 
   const [validators, setValidators] = useState<Validator[]>([]);
   const [delegations, setDelegations] = useState<DelegationInterface[]>([]);
@@ -58,45 +63,58 @@ const Delegation = ({ location }: { location: Location }) => {
   const [showMyValidators, setShowMyValidators] = useState(showMyValidatorsQuery || false);
   const [showFullyDelegatedValidators, setShowFullyDelegatedValidators] = useState(true);
 
+  const [isLoadingAccountData, setLoadingAccountData] = useState(false);
+
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
+  const [currentBlock, setCurrentBlock] = useState(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
-  const [reDelegateToValidator, setReDelegateToValidator] = useState<Validator | null>(null);
+  const [reDelegateFromValidator, setReDelegateFromValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
 
   const fetchBalance = async () => {
     if (status === 'connected' && account && provider) {
       setBalance(await provider.getBalance(account));
     }
   };
+  const getCurrentBlock = async () => {
+    if (status === 'connected' && account && provider) {
+      setCurrentBlock(await provider.getBlockNumber());
+    }
+  };
   useEffect(() => {
     fetchBalance();
-  }, [status, account, chainId]);
+  }, [status, account, chainId, shouldFetch]);
 
   useInterval(async () => {
-    console.log('updating balances');
     fetchBalance();
+    getCurrentBlock();
   }, 15000);
 
   useEffect(() => {
     if (status === 'connected' && account) {
       (async () => {
+        setLoadingAccountData(true);
         setDelegations(await getDelegations(account));
+        setLoadingAccountData(false);
       })();
     }
-  }, [status, account, chainId]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     if (status === 'connected' && account && provider) {
       (async () => {
-        const latestBlock = await provider.getBlockNumber();
-        const un = await getUndelegations(account);
-        setUndelegations(un.filter((u) => u.block < latestBlock));
+        setLoadingAccountData(true);
+        const unDelegations = await getUndelegations(account);
+        setUndelegations(unDelegations);
+        setLoadingAccountData(false);
       })();
     }
-  }, [status, account, chainId]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     (async () => {
+      setLoadingAccountData(true);
       let v;
       if (showMyValidators) {
         v = await getValidatorsWith(delegations.map((d) => d.address));
@@ -107,18 +125,31 @@ const Delegation = ({ location }: { location: Location }) => {
 
       const validatorsWithStats = await updateValidatorsStats(v);
       setValidators(validatorsWithStats);
+      setLoadingAccountData(false);
     })();
   }, [showMyValidators, delegations]);
 
   const isOnWrongChain = chainId !== mainnetChainId;
 
-  const totalValidators = validators.length;
+  const totalDelegationOfAddress = delegations.reduce((accumulator, currentDelegation) => {
+    return accumulator.add(currentDelegation.stake);
+  }, ethers.BigNumber.from(0));
+
+  const totalUndelegationOfAddress = undelegations.reduce((accumulator, currentUndelegation) => {
+    return accumulator.add(currentUndelegation.stake);
+  }, ethers.BigNumber.from(0));
+
+  const claimableTara = totalUndelegationOfAddress.gt(totalDelegationOfAddress)
+    ? totalUndelegationOfAddress.sub(totalDelegationOfAddress)
+    : ethers.BigNumber.from(0);
+
+  const totalValidators = validators.length || -1;
   const totalDelegation = validators.reduce(
     (prev, curr) => prev.add(curr.delegation),
     ethers.BigNumber.from('0'),
   );
   const averageDelegation =
-    totalValidators === 0 ? ethers.BigNumber.from('0') : totalDelegation.div(totalValidators);
+    totalValidators <= 0 ? ethers.BigNumber.from('0') : totalDelegation.div(totalValidators);
 
   let filteredValidators = validators;
   if (!showFullyDelegatedValidators) {
@@ -137,24 +168,38 @@ const Delegation = ({ location }: { location: Location }) => {
       <Modals
         balance={balance}
         delegateToValidator={delegateToValidator}
-        reDelegateToValidator={reDelegateToValidator}
+        reDelegateFromValidator={reDelegateFromValidator}
         undelegateFromValidator={undelegateFromValidator}
+        delegatableValidators={delegatableValidators?.filter(
+          (d) => d.address !== reDelegateFromValidator?.address,
+        )}
+        reDelegatableBalance={delegations
+          .filter(
+            (d) => d.address.toLowerCase() === reDelegateFromValidator?.address?.toLowerCase(),
+          )
+          .reduce((prev, curr) => prev.add(curr.stake), ethers.BigNumber.from('0'))}
         onDelegateSuccess={() => {
-          // getBalances();
-          // getValidators();
+          fetchBalance();
+          getValidators();
+          setShouldFetch(true);
           // getStats();
         }}
         onUndelegateSuccess={() => {
-          // getBalances();
-          // getValidators();
+          fetchBalance();
+          getValidators();
+          setShouldFetch(true);
           // getStats();
         }}
-        onReDelegateSuccess={() => setReDelegateToValidator(null)}
+        onReDelegateSuccess={() => {
+          fetchBalance();
+          getValidators();
+          setShouldFetch(true);
+        }}
         onDelegateClose={() => setDelegateToValidator(null)}
-        onReDelegateClose={() => setReDelegateToValidator(null)}
+        onReDelegateClose={() => setReDelegateFromValidator(null)}
         onUndelegateClose={() => setUndelegateFromValidator(null)}
         onDelegateFinish={() => setDelegateToValidator(null)}
-        onReDelegateFinish={() => setReDelegateToValidator(null)}
+        onReDelegateFinish={() => setReDelegateFromValidator(null)}
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
       />
       <div className="runnode-content">
@@ -204,26 +249,33 @@ const Delegation = ({ location }: { location: Location }) => {
           undelegations.map((undelegation: UndelegationInterface) => (
             <div className="notification" key={undelegation.address}>
               <Notification
-                title={`Undelegation from ${undelegation.address} has been confirmed.`}
-                text={`You can claim the ${ethers.utils.commify(
-                  weiToEth(undelegation.stake),
-                )} TARA or re-delegate it.`}
-                variant="success"
+                title={
+                  undelegation.block < currentBlock
+                    ? `Undelegation from ${undelegation.address} has been confirmed.`
+                    : `Undelegation Request from ${undelegation.address} has been registered and will be confirmed at block ${undelegation.block}.`
+                }
+                text={
+                  undelegation.block < currentBlock
+                    ? `You can claim the ${ethers.utils.commify(
+                        weiToEth(undelegation.stake),
+                      )} TARA.`
+                    : `You can cancel the Undelegation Request to return ${ethers.utils.commify(
+                        weiToEth(undelegation.stake),
+                      )} TARA to validator ${undelegation.address}`
+                }
+                variant={undelegation.block < currentBlock ? 'success' : 'info'}
               >
                 <Button
                   variant="contained"
-                  color="primary"
-                  label="Claim"
+                  color={undelegation.block < currentBlock ? 'secondary' : 'primary'}
+                  label={undelegation.block < currentBlock ? 'Claim' : 'Cancel'}
                   size="small"
-                  onClick={() => confirmUndelegate(undelegation.address)}
-                  disableElevation
-                />
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  label="Re-delegate"
-                  size="small"
-                  onClick={() => confirmUndelegate(undelegation.address)}
+                  className="smallBtn"
+                  onClick={() =>
+                    undelegation.block < currentBlock
+                      ? confirmUndelegate(undelegation.address)
+                      : cancelUndelegate(undelegation.address)
+                  }
                   disableElevation
                 />
               </Notification>
@@ -262,27 +314,45 @@ const Delegation = ({ location }: { location: Location }) => {
             </Card>
           </div>
         </div>
-        {totalValidators > 0 && (
+        {validators && (
           <div className="cardContainer">
             <BaseCard
-              title={totalValidators.toString()}
+              title={totalValidators !== -1 ? totalValidators.toString() : '0'}
               description="Number of network validators"
+              isLoading={totalValidators === -1}
             />
             <BaseCard
-              title={ethers.utils
-                .commify(weiToEth(averageDelegation))
-                .slice(0, ethers.utils.commify(weiToEth(averageDelegation)).indexOf('.') + 3)}
+              title={stripEth(averageDelegation)}
               description="Average TARA delegatated to validators"
+              isLoading={totalValidators === -1}
             />
             <BaseCard
-              title={ethers.utils
-                .commify(weiToEth(totalDelegation))
-                .slice(0, ethers.utils.commify(weiToEth(totalDelegation)).indexOf('.') + 3)}
+              title={stripEth(totalDelegation)}
               description="Total TARA delegated to validators"
+              isLoading={totalValidators === -1}
             />
           </div>
         )}
-        {filteredValidators.length === 0 && (
+        {!isOnWrongChain && status === 'connected' && account && (
+          <div className="cardContainer">
+            <BaseCard
+              title={`${delegations.length || 0}`}
+              description="My Validators - number of validators I delegated to"
+              isLoading={isLoadingAccountData}
+            />
+            <BaseCard
+              title={stripEth(totalDelegationOfAddress)}
+              description="My Delegated TARA - total number of delegated tokens"
+              isLoading={isLoadingAccountData}
+            />
+            <BaseCard
+              title={stripEth(claimableTara)}
+              description="Undelegated TARA - TARA that is awaiting release from delegation and can be claimed or the undelegation request can be canceled."
+              isLoading={isLoadingAccountData}
+            />
+          </div>
+        )}
+        {filteredValidators.length === 0 && !isLoadingAccountData && !isLoading && (
           <Text
             label="No nodes found matching the selected filters"
             variant="h6"
@@ -290,44 +360,37 @@ const Delegation = ({ location }: { location: Location }) => {
             style={{ marginLeft: '20px', marginTop: '20px' }}
           />
         )}
-        {filteredValidators.length > 0 && (
-          <TableContainer>
-            <Table className="table">
-              <TableHead>
-                <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Yield, %</TableCell>
-                  <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
-                  <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
-                  <TableCell className="tableHeadCell availableDelegationActionsCell">
-                    Available for Delegation
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {delegatableValidators.length > 0 &&
-                  delegatableValidators.map((validator) => (
-                    <ValidatorRow
-                      key={validator.address}
-                      validator={validator}
-                      actionsDisabled={status !== 'connected' || !account}
-                      ownDelegation={delegations
-                        .map((d) => d.address.toLowerCase())
-                        .includes(validator.address.toLowerCase())}
-                      setRedelegateToValidator={setReDelegateToValidator}
-                      setDelegateToValidator={setDelegateToValidator}
-                      setUndelegateFromValidator={setUndelegateFromValidator}
-                    />
-                  ))}
-                {fullyDelegatedValidators.length > 0 && (
-                  <>
-                    <TableRow className="tableRow">
-                      <TableCell className="tableCell tableSection" colSpan={6}>
-                        <div className="fullyDelegatedSeparator">fully delegated</div>
-                      </TableCell>
-                    </TableRow>
-                    {fullyDelegatedValidators.map((validator) => (
+        {isLoadingAccountData ? (
+          <div
+            style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2rem' }}
+          >
+            <Divider />
+            <Label
+              variant="loading"
+              label="Loading"
+              gap
+              icon={<CircularProgress size={50} color="inherit" />}
+            />
+          </div>
+        ) : (
+          filteredValidators.length > 0 && (
+            <TableContainer>
+              <Table className="table">
+                <TableHead>
+                  <TableRow className="tableHeadRow">
+                    <TableCell className="tableHeadCell statusCell">Status</TableCell>
+                    <TableCell className="tableHeadCell nameCell">Name</TableCell>
+                    <TableCell className="tableHeadCell yieldCell">Yield, %</TableCell>
+                    <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
+                    <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
+                    <TableCell className="tableHeadCell availableDelegationActionsCell">
+                      Available for Delegation
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {delegatableValidators.length > 0 &&
+                    delegatableValidators.map((validator) => (
                       <ValidatorRow
                         key={validator.address}
                         validator={validator}
@@ -335,16 +398,37 @@ const Delegation = ({ location }: { location: Location }) => {
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
-                        setRedelegateToValidator={setReDelegateToValidator}
+                        setReDelegateFromValidator={setReDelegateFromValidator}
                         setDelegateToValidator={setDelegateToValidator}
                         setUndelegateFromValidator={setUndelegateFromValidator}
                       />
                     ))}
-                  </>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  {fullyDelegatedValidators.length > 0 && (
+                    <>
+                      <TableRow className="tableRow">
+                        <TableCell className="tableCell tableSection" colSpan={6}>
+                          <div className="fullyDelegatedSeparator">fully delegated</div>
+                        </TableCell>
+                      </TableRow>
+                      {fullyDelegatedValidators.map((validator) => (
+                        <ValidatorRow
+                          key={validator.address}
+                          validator={validator}
+                          actionsDisabled={status !== 'connected' || !account}
+                          ownDelegation={delegations
+                            .map((d) => d.address.toLowerCase())
+                            .includes(validator.address.toLowerCase())}
+                          setReDelegateFromValidator={setReDelegateFromValidator}
+                          setDelegateToValidator={setDelegateToValidator}
+                          setUndelegateFromValidator={setUndelegateFromValidator}
+                        />
+                      ))}
+                    </>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )
         )}
       </div>
     </div>

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import { Button, Text, InputField, AmountCard } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, AmountCard, Loading } from '@taraxa_project/taraxa-ui';
 import SuccessIcon from '../../../assets/icons/success';
 
 import useDelegation from '../../../services/useDelegation';
 
-import { weiToEth } from '../../../utils/eth';
+import { stripEth, weiToEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 
 type DelegateProps = {
@@ -17,6 +17,7 @@ type DelegateProps = {
 
 const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) => {
   const { delegate } = useDelegation();
+  const [isLoading, setLoading] = useState(false);
 
   let maximumDelegatable = ethers.BigNumber.from('0');
   if (validator.availableForDelegation.gt(balance)) {
@@ -52,13 +53,17 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
     setError('');
 
     if (!error) {
+      setLoading(true);
       try {
-        await delegate(validator.address, delegationTotal);
-        onSuccess();
+        const res = await delegate(validator.address, delegationTotal);
         setStep(2);
+        await res.wait();
+        setLoading(false);
+        onSuccess();
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
+        setLoading(false);
       }
     }
   };
@@ -82,23 +87,18 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
           <div className="taraContainerWrapper">
             <div className="taraContainer taraContainerBalance">
               <p className="taraContainerAmountDescription">My available TARA for delegation</p>
-              <AmountCard amount={ethers.utils.commify(weiToEth(balance))} unit="TARA" />
+              <AmountCard amount={stripEth(balance)} unit="TARA" />
             </div>
             <div className="taraContainer">
               <p className="taraContainerAmountDescription">
                 Validator’s availability to receive delegation
               </p>
-              <AmountCard
-                amount={ethers.utils.commify(weiToEth(validator.availableForDelegation))}
-                unit="TARA"
-              />
+              <AmountCard amount={stripEth(validator.availableForDelegation)} unit="TARA" />
             </div>
           </div>
           <div className="taraInputWrapper">
             <p className="maxDelegatableDescription">Maximum delegate-able</p>
-            <p className="maxDelegatableTotal">
-              {ethers.utils.commify(weiToEth(maximumDelegatable))}
-            </p>
+            <p className="maxDelegatableTotal">{stripEth(maximumDelegatable)}</p>
             <p className="maxDelegatableUnit">TARA</p>
             <InputField
               error={!!error}
@@ -110,6 +110,13 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
               fullWidth
               margin="normal"
               onChange={(event) => {
+                if (
+                  ethers.BigNumber.from(event.target.value || 0).lt(ethers.BigNumber.from('1000'))
+                ) {
+                  setError('must be a number greater than 1,000');
+                } else {
+                  setError('');
+                }
                 setDelegationTotal(
                   ethers.BigNumber.from(event.target.value || 0).mul(
                     ethers.BigNumber.from('10').pow(18),
@@ -161,13 +168,32 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
               color="secondary"
               variant="contained"
               className="marginButton"
+              disabled={error !== ''}
               fullWidth
               onClick={submit}
             />
           </div>
         </>
+      ) : isLoading ? (
+        <div className="delegateNodeModalSuccess">
+          <Text
+            style={{ marginBottom: '2%' }}
+            label="Waiting for confirmation"
+            variant="h6"
+            color="warning"
+          />
+          <div className="loadingIcon">
+            <Loading />
+          </div>
+          <p className="successText">Awaiting delegation confirmation to validator:</p>
+          <div className="nodeDescriptor nodeDescriptorSuccess">
+            <p className="nodeAddressWrapper">
+              <span className="nodeAddress">{validator.address}</span>
+            </p>
+          </div>
+        </div>
       ) : (
-        <>
+        <div className="delegateNodeModalSuccess">
           <Text style={{ marginBottom: '2%' }} label="Success" variant="h6" color="primary" />
           <div className="successIcon">
             <SuccessIcon />
@@ -189,7 +215,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
               onFinish();
             }}
           />
-        </>
+        </div>
       )}
     </div>
   );

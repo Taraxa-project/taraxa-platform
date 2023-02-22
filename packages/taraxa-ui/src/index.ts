@@ -44,6 +44,7 @@ import {
 } from './components/TransactionDetails';
 import { BlockCard } from './components/BlockCard';
 import { AwardCard } from './components/AwardCard';
+import AutocompleteField from './components/AutocompleteField';
 import CopyTo from './components/CopyTo';
 import theme from './components/theme';
 import { useInterval } from './hooks/useInterval';
@@ -93,6 +94,7 @@ export {
   shortenHash,
   BlockCard,
   AwardCard,
+  AutocompleteField,
   CopyTo,
   theme,
   useInterval,
