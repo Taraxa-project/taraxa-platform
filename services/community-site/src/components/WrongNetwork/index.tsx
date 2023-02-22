@@ -40,6 +40,7 @@ const WrongNetwork = () => {
       color="error"
       label="Switch to Taraxa Mainnet"
       size="small"
+      className="smallBtn"
       onClick={() => switchNetwork()}
       disableElevation
     />

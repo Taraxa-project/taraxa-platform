@@ -269,8 +269,8 @@ const Delegation = ({ location }: { location: Location }) => {
                   variant="contained"
                   color={undelegation.block < currentBlock ? 'secondary' : 'primary'}
                   label={undelegation.block < currentBlock ? 'Claim' : 'Cancel'}
-                  size="medium"
-                  style={{ minWidth: '150px' }}
+                  size="small"
+                  className="smallBtn"
                   onClick={() =>
                     undelegation.block < currentBlock
                       ? confirmUndelegate(undelegation.address)
