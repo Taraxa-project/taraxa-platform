@@ -16,7 +16,7 @@ interface ModalsProps {
   undelegateFromValidator: Validator | null;
   delegatableValidators: Validator[];
   onDelegateSuccess: () => void;
-  onReDelegateSuccess?: () => void;
+  onReDelegateSuccess: () => void;
   onUndelegateSuccess: () => void;
   onDelegateFinish: () => void;
   onReDelegateFinish?: () => void;
@@ -70,7 +70,7 @@ const Modals = ({
         reDelegatableBalance && (
           <Modal
             id="delegateModal"
-            title="Delegate to..."
+            title="Re-delegate to..."
             show={!!reDelegateFromValidator}
             children={
               <ReDelegate

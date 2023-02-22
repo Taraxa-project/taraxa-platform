@@ -70,6 +70,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [reDelegateFromValidator, setReDelegateFromValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
 
   const fetchBalance = async () => {
     if (status === 'connected' && account && provider) {
@@ -83,7 +84,7 @@ const Delegation = ({ location }: { location: Location }) => {
   };
   useEffect(() => {
     fetchBalance();
-  }, [status, account, chainId]);
+  }, [status, account, chainId, shouldFetch]);
 
   useInterval(async () => {
     fetchBalance();
@@ -98,7 +99,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setLoadingAccountData(false);
       })();
     }
-  }, [status, account, chainId]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     if (status === 'connected' && account && provider) {
@@ -109,7 +110,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setLoadingAccountData(false);
       })();
     }
-  }, [status, account, chainId]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     (async () => {
@@ -126,7 +127,7 @@ const Delegation = ({ location }: { location: Location }) => {
       setValidators(validatorsWithStats);
       setLoadingAccountData(false);
     })();
-  }, [showMyValidators, delegations]);
+  }, [showMyValidators, delegations, shouldFetch]);
 
   const isOnWrongChain = chainId !== mainnetChainId;
 
@@ -180,14 +181,20 @@ const Delegation = ({ location }: { location: Location }) => {
         onDelegateSuccess={() => {
           fetchBalance();
           getValidators();
+          setShouldFetch(true);
           // getStats();
         }}
         onUndelegateSuccess={() => {
           fetchBalance();
           getValidators();
+          setShouldFetch(true);
           // getStats();
         }}
-        onReDelegateSuccess={() => setReDelegateFromValidator(null)}
+        onReDelegateSuccess={() => {
+          fetchBalance();
+          getValidators();
+          setShouldFetch(true);
+        }}
         onDelegateClose={() => setDelegateToValidator(null)}
         onReDelegateClose={() => setReDelegateFromValidator(null)}
         onUndelegateClose={() => setUndelegateFromValidator(null)}

@@ -35,9 +35,6 @@ const ReDelegate = ({
   const { reDelegate } = useDelegation();
 
   const [isLoading, setLoading] = useState(false);
-  console.log('delegatableValidators: ', delegatableValidators);
-  console.log('reDelegatableBalance: ', stripEth(reDelegatableBalance));
-  console.log('validatorFrom: ', validatorFrom);
 
   const [step, setStep] = useState(1);
   const [reDelegationTotal, setReDelegationTotal] = useState(reDelegatableBalance);
@@ -46,8 +43,6 @@ const ReDelegate = ({
   const [autocompleteError, setAutocompleteError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [validatorTo, setValidatorTo] = useState<Validator>();
-
-  console.log(`banace is: ${stripEth(reDelegatableBalance)}`);
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
@@ -82,7 +77,6 @@ const ReDelegate = ({
 
     if (!error && validatorTo?.address !== undefined && validatorTo?.address !== null) {
       setLoading(true);
-      console.log(reDelegationTotal.toString());
       try {
         const res = await reDelegate(validatorFrom.address, validatorTo.address, reDelegationTotal);
         setStep(2);
@@ -224,7 +218,7 @@ const ReDelegate = ({
                 label="100%"
                 variant="contained"
                 onClick={() => {
-                  setReDelegationTotal(reDelegationTotal);
+                  setReDelegationTotal(reDelegationTotal.mul(100).div(100));
                 }}
               />
             </div>
