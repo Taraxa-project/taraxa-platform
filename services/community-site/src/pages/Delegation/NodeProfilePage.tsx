@@ -210,7 +210,7 @@ const NodeProfilePage = () => {
             )}
             {validator.endpoint && (
               <>
-                <div className="nodeInfoTitle">node o perator Website</div>
+                <div className="nodeInfoTitle">node operator Website</div>
                 <div className="nodeInfoContent">
                   <a rel="nofollow" href={validator.endpoint}>
                     {validator.endpoint}
@@ -221,7 +221,7 @@ const NodeProfilePage = () => {
             {/* {validator?.firstBlockCreatedAt && (
               <>
                 <div className="nodeInfoTitle">node active since</div>
-                <div cl assName="nodeInfoContent">{`${nodeActiveSince.getDate()} ${nodeActiveSince
+                <div className="nodeInfoContent">{`${nodeActiveSince.getDate()} ${nodeActiveSince
                   .toLocaleString('en-US', { month: 'short' })
                   .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
               </>

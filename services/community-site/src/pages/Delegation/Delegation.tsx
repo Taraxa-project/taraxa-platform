@@ -237,12 +237,6 @@ const Delegation = ({ location }: { location: Location }) => {
             </Notification>
           </div>
         )}
-        <>
-          {currentBlock}
-          {validators.some(
-            (v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD,
-          )}
-        </>
         {currentBlock > 0 &&
           validators.some(
             (v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD,
