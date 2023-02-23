@@ -1,0 +1,108 @@
+type ValidatorBasicInfo @entity(immutable: false) {
+  id: ID!
+  totalStake: BigInt!
+  commissionReward: BigInt!
+  commission: Int!
+  lastCommissionChange: BigInt!
+  owner: String!
+  description: String
+  endpoint: String
+}
+
+type ValidatorData @entity(immutable: false) {
+  id: ID!
+  account: String!
+  info: ValidatorBasicInfo!
+  delegations: [DelegationData!]!
+  undelegations: [UndelegationData!]!
+}
+
+type DelegationData @entity(immutable: false) {
+  id: ID!
+  account: String!
+  delegator: String!
+  validator: String!
+}
+
+type UndelegationData @entity(immutable: false) {
+  id: ID!
+  stake: BigInt!
+  block: BigInt!
+  validator: String!
+}
+
+type UndelegateRequest @entity(immutable: false) {
+  id: ID!
+  eligibleBlockNum: BigInt!
+  amount: BigInt!
+}
+
+type DelegatorInfo @entity(immutable: false) {
+  id: ID!
+  stake: BigInt!
+  rewards: BigInt
+}
+
+type DelegatedEvent @entity(immutable: true) {
+  id: ID!
+  delegator: String!
+  validator: String!
+  amount: BigInt!
+}
+
+type UndelegatedEvent @entity(immutable: true) {
+  id: ID!
+  delegator: String!
+  validator: String!
+  amount: BigInt!
+}
+
+type UndelegateConfirmedEvent @entity(immutable: true) {
+  id: ID!
+  delegator: String!
+  validator: String!
+  amount: BigInt!
+}
+
+type UndelegateCanceledEvent @entity(immutable: true) {
+  id: ID!
+  delegator: String!
+  validator: String!
+  amount: BigInt!
+}
+
+type RedelegatedEvent @entity(immutable: true) {
+  id: ID!
+  delegator: String!
+  from: String!
+  to: String!
+  amount: BigInt!
+}
+
+type RewardsClaimedEvent @entity(immutable: true) {
+  id: ID!
+  account: String!
+  validator: String!
+}
+
+type CommissionRewardsClaimedEvent @entity(immutable: true) {
+  id: ID!
+  account: String!
+  validator: String!
+}
+
+type CommissionSetEvent @entity(immutable: true) {
+  id: ID!
+  validator: String!
+  commission: Int!
+}
+
+type ValidatorRegisteredEvent @entity(immutable: true) {
+  id: ID!
+  validator: String!
+}
+
+type ValidatorInfoSetEvent @entity(immutable: true) {
+  id: ID!
+  validator: String!
+}

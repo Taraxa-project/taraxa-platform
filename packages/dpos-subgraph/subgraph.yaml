@@ -1,0 +1,59 @@
+specVersion: 0.0.4
+description: DPOS Contract indexing for Taraxa
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: DPOS
+    network: mainnet
+    source:
+      address: "0x00000000000000000000000000000000000000FE"
+      abi: DPOS
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - ValidatorBasicInfo
+        - ValidatorData
+        - UndelegateRequest
+        - DelegatorInfo
+        - DelegationData
+        - UndelegationData
+        - CommissionRewardsClaimedEvent
+        - CommissionSetEvent
+        - DelegatedEvent
+        - RedelegatedEvent
+        - RewardsClaimedEvent
+        - UndelegateCanceledEvent
+        - UndelegateConfirmedEvent
+        - UndelegatedEvent
+        - ValidatorInfoSetEvent
+        - ValidatorRegisteredEvent
+      abis:
+        - name: DPOS
+          file: ./abis/DPOS.json
+      eventHandlers:
+        - event: CommissionRewardsClaimed(indexed address,indexed address,uint256)
+          handler: handleCommissionRewardsClaimed
+        - event: CommissionSet(indexed address,uint16)
+          handler: handleCommissionSet
+        - event: Delegated(indexed address,indexed address,uint256)
+          handler: handleDelegated
+        - event: Redelegated(indexed address,indexed address,indexed address,uint256)
+          handler: handleRedelegated
+        - event: RewardsClaimed(indexed address,indexed address,uint256)
+          handler: handleRewardsClaimed
+        - event: UndelegateCanceled(indexed address,indexed address,uint256)
+          handler: handleUndelegateCanceled
+        - event: UndelegateConfirmed(indexed address,indexed address,uint256)
+          handler: handleUndelegateConfirmed
+        - event: Undelegated(indexed address,indexed address,uint256)
+          handler: handleUndelegated
+        - event: ValidatorInfoSet(indexed address)
+          handler: handleValidatorInfoSet
+        - event: ValidatorRegistered(indexed address)
+          handler: handleValidatorRegistered
+      blockHandlers:
+        - handler: handleGenesis
+      file: ./src/mapping.ts
