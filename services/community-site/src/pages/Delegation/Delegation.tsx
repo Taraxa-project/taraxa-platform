@@ -52,6 +52,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
 
   const [validators, setValidators] = useState<Validator[]>([]);
+  const [ownValidators, setOwnValidators] = useState<Validator[]>([]);
   const [delegations, setDelegations] = useState<DelegationInterface[]>([]);
   const [undelegations, setUndelegations] = useState<Undelegation[]>([]);
 
@@ -126,13 +127,14 @@ const Delegation = ({ location }: { location: Location }) => {
     (async () => {
       setLoadingAccountData(true);
       let v;
+      const ownValidators = await getValidatorsWith(delegations.map((d) => d.address));
       if (showMyValidators) {
-        v = await getValidatorsWith(delegations.map((d) => d.address));
+        v = ownValidators;
       } else {
         v = await getValidators();
       }
       setValidators(v);
-
+      setOwnValidators(ownValidators);
       // const validatorsWithStats = await updateValidatorsStats(v);
       // setValidators(validatorsWithStats);
       setLoadingAccountData(false);
@@ -235,7 +237,7 @@ const Delegation = ({ location }: { location: Location }) => {
           </div>
         )}
         {currentBlock > 0 &&
-          validators
+          ownValidators
             .filter((v) => v.owner.toLowerCase() !== account?.toLowerCase())
             .some((v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD) && (
             <div className="notification">
