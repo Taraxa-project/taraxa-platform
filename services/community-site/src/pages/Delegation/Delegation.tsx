@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import {
-  Box,
   CircularProgress,
   Divider,
   Table,
@@ -16,8 +15,6 @@ import {
   Notification,
   Button,
   Switch,
-  Card,
-  Icons,
   BaseCard,
   useInterval,
   Label,
@@ -30,7 +27,7 @@ import WrongNetwork from '../../components/WrongNetwork';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
 import useValidators from '../../services/useValidators';
-import useExplorerStats from '../../services/useExplorerStats';
+// import useExplorerStats from '../../services/useExplorerStats';
 import useDelegation from '../../services/useDelegation';
 import useChain from '../../services/useChain';
 
@@ -51,7 +48,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { isLoading } = useLoading();
 
   const { getValidators, getValidatorsWith } = useValidators();
-  const { updateValidatorsStats } = useExplorerStats();
+  // const { updateValidatorsStats } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
 
   const [validators, setValidators] = useState<Validator[]>([]);
@@ -136,8 +133,8 @@ const Delegation = ({ location }: { location: Location }) => {
       }
       setValidators(v);
 
-      const validatorsWithStats = await updateValidatorsStats(v);
-      setValidators(validatorsWithStats);
+      // const validatorsWithStats = await updateValidatorsStats(v);
+      // setValidators(validatorsWithStats);
       setLoadingAccountData(false);
     })();
   }, [showMyValidators, delegations]);
@@ -244,7 +241,7 @@ const Delegation = ({ location }: { location: Location }) => {
             <div className="notification">
               <Notification
                 title="Notice:"
-                text="One of more of your validators has changed their comission."
+                text="One or more of your validators has changed their comission."
                 variant="danger"
               >
                 <a
@@ -322,15 +319,8 @@ const Delegation = ({ location }: { location: Location }) => {
               }}
             />
           </div>
-          <div>
-            <Card className="trophyLegend">
-              <Box>
-                <Icons.Trophy /> Multiple weeks winner of the testnet block producer challenge
-              </Box>
-            </Card>
-          </div>
         </div>
-        {validators && (
+        {validators && !showMyValidators && (
           <div className="cardContainer">
             <BaseCard
               title={totalValidators !== -1 ? totalValidators.toString() : '0'}
@@ -399,8 +389,11 @@ const Delegation = ({ location }: { location: Location }) => {
                     <TableCell className="tableHeadCell yieldCell">Yield, %</TableCell>
                     <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                     <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
-                    <TableCell className="tableHeadCell availableDelegationActionsCell">
+                    <TableCell className="tableHeadCell delegationCell">
                       Available for Delegation
+                    </TableCell>
+                    <TableCell className="tableHeadCell availableDelegationActionsCell">
+                      Actions
                     </TableCell>
                   </TableRow>
                 </TableHead>
