@@ -191,7 +191,7 @@ const ReDelegate = ({
                 label="25%"
                 variant="contained"
                 onClick={() => {
-                  setReDelegationTotal(reDelegationTotal.mul(25).div(100));
+                  setReDelegationTotal(reDelegatableBalance.mul(25).div(100));
                 }}
               />
               <Button
@@ -200,7 +200,7 @@ const ReDelegate = ({
                 label="50%"
                 variant="contained"
                 onClick={() => {
-                  setReDelegationTotal(reDelegationTotal.mul(50).div(100));
+                  setReDelegationTotal(reDelegatableBalance.mul(50).div(100));
                 }}
               />
               <Button
@@ -209,7 +209,7 @@ const ReDelegate = ({
                 label="75%"
                 variant="contained"
                 onClick={() => {
-                  setReDelegationTotal(reDelegationTotal.mul(75).div(100));
+                  setReDelegationTotal(reDelegatableBalance.mul(75).div(100));
                 }}
               />
               <Button
@@ -218,7 +218,7 @@ const ReDelegate = ({
                 label="100%"
                 variant="contained"
                 onClick={() => {
-                  setReDelegationTotal(reDelegationTotal.mul(100).div(100));
+                  setReDelegationTotal(reDelegatableBalance.mul(100).div(100));
                 }}
               />
             </div>
