@@ -15,9 +15,7 @@ export default () => {
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
           const status = await get(
-            `${
-              process.env.REACT_APP_API_EXPLORER_HOST
-            }/address/${validator.address.toLowerCase()}/stats`,
+            `https://explorer.mainnet.taraxa.io/api/address/${validator.address.toLowerCase()}/stats`,
           );
           if (!status.success) {
             return validator;

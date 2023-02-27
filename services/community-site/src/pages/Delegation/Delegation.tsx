@@ -20,6 +20,7 @@ import {
   Label,
 } from '@taraxa_project/taraxa-ui';
 
+import useExplorerStats from '../../services/useExplorerStats';
 import { useLoading } from '../../services/useLoading';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
@@ -48,7 +49,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { isLoading } = useLoading();
 
   const { getValidators, getValidatorsWith } = useValidators();
-  // const { updateValidatorsStats } = useExplorerStats();
+  const { updateValidatorsStats } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
 
   const [validators, setValidators] = useState<Validator[]>([]);
@@ -135,9 +136,9 @@ const Delegation = ({ location }: { location: Location }) => {
       }
       setValidators(v);
       setOwnValidators(ownValidators);
-      // const validatorsWithStats = await updateValidatorsStats(v);
-      // setValidators(validatorsWithStats);
       setLoadingAccountData(false);
+      const validatorsWithStats = await updateValidatorsStats(v);
+      setValidators(validatorsWithStats);
     })();
   }, [showMyValidators, delegations]);
 
