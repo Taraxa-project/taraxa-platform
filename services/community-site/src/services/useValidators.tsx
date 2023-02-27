@@ -14,7 +14,7 @@ export default () => {
   const contractToValidator = (contractValidator: ContractValidator) => ({
     address: contractValidator.account,
     owner: contractValidator.info.owner,
-    commission: contractValidator.info.commission,
+    commission: +(parseFloat(`${contractValidator.info.commission}` || '0') / 10).toPrecision(1),
     lastCommissionChange: contractValidator.info.last_commission_change,
     delegation: contractValidator.info.total_stake,
     availableForDelegation: maxDelegation.sub(contractValidator.info.total_stake),
