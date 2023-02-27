@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import {
-  CircularProgress,
   Divider,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -17,7 +17,6 @@ import {
   Switch,
   BaseCard,
   useInterval,
-  Label,
 } from '@taraxa_project/taraxa-ui';
 
 import useExplorerStats from '../../services/useExplorerStats';
@@ -28,7 +27,6 @@ import WrongNetwork from '../../components/WrongNetwork';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
 import useValidators from '../../services/useValidators';
-// import useExplorerStats from '../../services/useExplorerStats';
 import useDelegation from '../../services/useDelegation';
 import useChain from '../../services/useChain';
 
@@ -374,12 +372,7 @@ const Delegation = ({ location }: { location: Location }) => {
             style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2rem' }}
           >
             <Divider />
-            <Label
-              variant="loading"
-              label="Loading"
-              gap
-              icon={<CircularProgress size={50} color="inherit" />}
-            />
+            <Skeleton variant="rectangular" height={150} width="100%" />
           </div>
         ) : (
           filteredValidators.length > 0 && (
