@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import clsx from 'clsx';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import {
@@ -64,12 +65,23 @@ const RunValidator = () => {
   };
 
   const [validatorType, setValidatorType] = useState<'mainnet' | 'testnet'>('mainnet');
-
+  const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+
+  const fetchBalance = async () => {
+    if (status === 'connected' && account && provider) {
+      setBalance(await provider.getBalance(account));
+    }
+  };
+
+  useEffect(() => {
+    fetchBalance();
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     delegationApi
@@ -90,7 +102,7 @@ const RunValidator = () => {
         setDelegations(await getDelegations(account));
       })();
     }
-  }, [status, account]);
+  }, [status, account, shouldFetch]);
 
   useEffect(() => {
     if (status === 'connected' && account) {
@@ -105,7 +117,7 @@ const RunValidator = () => {
         setMainnetValidators(myValidators);
       })();
     }
-  }, [status, account]);
+  }, [status, account, shouldFetch]);
 
   useEffect(() => {
     if (status === 'connected' && account && delegations.length > 0) {
@@ -117,7 +129,7 @@ const RunValidator = () => {
         setMainnetValidators(myValidators);
       })();
     }
-  }, [status, account, delegations]);
+  }, [status, account, delegations, shouldFetch]);
 
   const nodeTypeLabel = validatorType === 'mainnet' ? 'Mainnet' : 'Testnet';
 
@@ -172,6 +184,7 @@ const RunValidator = () => {
               onSuccess={() => {
                 setIsUpdatingValidator(false);
                 setValidatorToUpdate(null);
+                setShouldFetch(true);
               }}
             />
           }
@@ -183,11 +196,13 @@ const RunValidator = () => {
         />
       )}
       <RunValidatorModal
+        balance={balance}
         isOpen={isOpenRegisterValidatorModal}
         validatorType={validatorType}
         onClose={() => closeRegisterValidatorModal()}
         onSuccess={() => {
           // getNodes();
+          setShouldFetch(true);
           closeRegisterValidatorModal();
         }}
       />

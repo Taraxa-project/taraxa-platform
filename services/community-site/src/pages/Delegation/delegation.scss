@@ -127,6 +127,10 @@
   align-items: center;
 }
 
+.loadingIcon {
+  margin-top: 1rem;
+}
+
 #delegateModal {
   @media only screen and (max-width: 476px) {
     max-width: 95%;
@@ -257,11 +261,11 @@ a.commissionChangeCheck {
   }
 
   .yieldCell {
-    width: 85px;
+    width: 100px;
   }
 
   .commissionCell {
-    width: 100px;
+    width: 150px;
 
     .commissionDisplayPendingChangeWrapper {
       position: relative;
@@ -286,19 +290,19 @@ a.commissionChangeCheck {
     width: 200px;
   }
 
+  .availableDelegation {
+    margin-top: 0.5rem;
+    width: 130px;
+    line-height: 32px;
+    vertical-align: middle;
+    text-align: center;
+  }
+
   .availableDelegationActionsCell {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    min-width: 500px;
-
-    .availableDelegation {
-      margin-top: 0.5rem;
-      width: 130px;
-      line-height: 32px;
-      vertical-align: middle;
-      text-align: center;
-    }
+    min-width: 350px;
 
     .validatorActions {
       display: flex;

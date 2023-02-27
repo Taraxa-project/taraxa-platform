@@ -116,8 +116,8 @@ export default () => {
       commission: number,
       description: string,
       endpoint: string,
-    ): Promise<void> => {
-      await browserDpos!.registerValidator(
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.registerValidator(
         validator,
         proof,
         vrfKey,

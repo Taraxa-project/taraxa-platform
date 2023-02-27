@@ -325,6 +325,16 @@
   }
 }
 
+.delegateNodeModalSuccess {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loadingIcon {
+  margin-top: 1rem;
+}
+
 .referenceContainer {
   width: 95% !important;
   margin-bottom: 5%;
