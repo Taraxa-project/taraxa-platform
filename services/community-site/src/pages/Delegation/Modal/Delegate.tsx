@@ -41,10 +41,10 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
       return;
     }
 
-    // if (delegationTotal.gt(availableStakingBalance)) {
-    //   setError('cannot exceed TARA available for delegation');
-    //   return;
-    // }
+    if (delegationTotal.gt(balance)) {
+      setError('cannot exceed TARA available for delegation');
+      return;
+    }
     if (delegationTotal.gt(maximumDelegatable)) {
       setError("cannot exceed validator's ability to receive delegation");
       return;
@@ -110,7 +110,9 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
               fullWidth
               margin="normal"
               onChange={(event) => {
-                if (
+                if (delegationTotal.gt(balance)) {
+                  setError('cannot exceed TARA available for delegation');
+                } else if (
                   ethers.BigNumber.from(event.target.value || 0).lt(ethers.BigNumber.from('1000'))
                 ) {
                   setError('must be a number greater than 1,000');
