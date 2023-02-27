@@ -238,9 +238,9 @@ const Delegation = ({ location }: { location: Location }) => {
           </div>
         )}
         {currentBlock > 0 &&
-          validators.some(
-            (v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD,
-          ) && (
+          validators
+            .filter((v) => v.owner.toLowerCase() !== account?.toLowerCase())
+            .some((v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD) && (
             <div className="notification">
               <Notification
                 title="Notice:"
