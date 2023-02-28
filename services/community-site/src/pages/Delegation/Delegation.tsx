@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import {
-  CircularProgress,
   Divider,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -17,9 +17,9 @@ import {
   Switch,
   BaseCard,
   useInterval,
-  Label,
 } from '@taraxa_project/taraxa-ui';
 
+import useExplorerStats from '../../services/useExplorerStats';
 import { useLoading } from '../../services/useLoading';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
@@ -27,7 +27,6 @@ import WrongNetwork from '../../components/WrongNetwork';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
 import useValidators from '../../services/useValidators';
-// import useExplorerStats from '../../services/useExplorerStats';
 import useDelegation from '../../services/useDelegation';
 import useChain from '../../services/useChain';
 
@@ -48,10 +47,11 @@ const Delegation = ({ location }: { location: Location }) => {
   const { isLoading } = useLoading();
 
   const { getValidators, getValidatorsWith } = useValidators();
-  // const { updateValidatorsStats } = useExplorerStats();
+  const { updateValidatorsStats } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
 
   const [validators, setValidators] = useState<Validator[]>([]);
+  const [ownValidators, setOwnValidators] = useState<Validator[]>([]);
   const [delegations, setDelegations] = useState<DelegationInterface[]>([]);
   const [undelegations, setUndelegations] = useState<Undelegation[]>([]);
 
@@ -126,16 +126,17 @@ const Delegation = ({ location }: { location: Location }) => {
     (async () => {
       setLoadingAccountData(true);
       let v;
+      const ownValidators = await getValidatorsWith(delegations.map((d) => d.address));
       if (showMyValidators) {
-        v = await getValidatorsWith(delegations.map((d) => d.address));
+        v = ownValidators;
       } else {
         v = await getValidators();
       }
       setValidators(v);
-
-      // const validatorsWithStats = await updateValidatorsStats(v);
-      // setValidators(validatorsWithStats);
+      setOwnValidators(ownValidators);
       setLoadingAccountData(false);
+      const validatorsWithStats = await updateValidatorsStats(v);
+      setValidators(validatorsWithStats);
     })();
   }, [showMyValidators, delegations]);
 
@@ -235,7 +236,7 @@ const Delegation = ({ location }: { location: Location }) => {
           </div>
         )}
         {currentBlock > 0 &&
-          validators
+          ownValidators
             .filter((v) => v.owner.toLowerCase() !== account?.toLowerCase())
             .some((v) => currentBlock - v.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD) && (
             <div className="notification">
@@ -371,12 +372,7 @@ const Delegation = ({ location }: { location: Location }) => {
             style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2rem' }}
           >
             <Divider />
-            <Label
-              variant="loading"
-              label="Loading"
-              gap
-              icon={<CircularProgress size={50} color="inherit" />}
-            />
+            <Skeleton variant="rectangular" height={150} width="100%" />
           </div>
         ) : (
           filteredValidators.length > 0 && (
