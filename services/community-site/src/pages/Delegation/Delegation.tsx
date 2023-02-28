@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   Divider,
   Skeleton,
@@ -63,8 +63,12 @@ const Delegation = ({ location }: { location: Location }) => {
   const [isLoadingAccountData, setLoadingAccountData] = useState(false);
 
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
+  const [claimAmount, setClaimAmount] = useState(ethers.BigNumber.from('0'));
   const [currentBlock, setCurrentBlock] = useState(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
+  const [claimRewardsFromValidator, setClaimRewardsFromValidator] = useState<Validator | null>(
+    null,
+  );
   const [reDelegateFromValidator, setReDelegateFromValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
@@ -78,6 +82,11 @@ const Delegation = ({ location }: { location: Location }) => {
     if (status === 'connected' && account && provider) {
       setCurrentBlock(await provider.getBlockNumber());
     }
+  };
+
+  const initClaim = (amount: ethers.BigNumber, validator: Validator) => {
+    setClaimAmount(amount);
+    setClaimRewardsFromValidator(validator);
   };
 
   const confirmUndelegation = async (undelegation: Undelegation) => {
@@ -150,9 +159,13 @@ const Delegation = ({ location }: { location: Location }) => {
     return accumulator.add(currentUndelegation.stake);
   }, ethers.BigNumber.from(0));
 
-  const claimableTara = totalUndelegationOfAddress.gt(totalDelegationOfAddress)
+  const undelegatedTara = totalUndelegationOfAddress.gt(totalDelegationOfAddress)
     ? totalUndelegationOfAddress.sub(totalDelegationOfAddress)
     : ethers.BigNumber.from(0);
+
+  const totalClaimableRewards = delegations.reduce((accumulator, currentDelegation) => {
+    return accumulator.add(currentDelegation.rewards);
+  }, ethers.BigNumber.from(0));
 
   const totalValidators = validators.length || -1;
   const totalDelegation = validators.reduce(
@@ -178,9 +191,11 @@ const Delegation = ({ location }: { location: Location }) => {
     <div className="runnode">
       <Modals
         balance={balance}
+        claimAmount={claimAmount}
         delegateToValidator={delegateToValidator}
         reDelegateFromValidator={reDelegateFromValidator}
         undelegateFromValidator={undelegateFromValidator}
+        claimRewardsFromValidator={claimRewardsFromValidator}
         delegatableValidators={delegatableValidators?.filter(
           (d) => d.address !== reDelegateFromValidator?.address,
         )}
@@ -189,6 +204,12 @@ const Delegation = ({ location }: { location: Location }) => {
             (d) => d.address.toLowerCase() === reDelegateFromValidator?.address?.toLowerCase(),
           )
           .reduce((prev, curr) => prev.add(curr.stake), ethers.BigNumber.from('0'))}
+        onClaimSuccess={() => {
+          fetchBalance();
+          getValidators();
+          setShouldFetch(true);
+          // getStats();
+        }}
         onDelegateSuccess={() => {
           fetchBalance();
           getValidators();
@@ -206,9 +227,11 @@ const Delegation = ({ location }: { location: Location }) => {
           getValidators();
           setShouldFetch(true);
         }}
+        onClaimClose={() => setClaimRewardsFromValidator(null)}
         onDelegateClose={() => setDelegateToValidator(null)}
         onReDelegateClose={() => setReDelegateFromValidator(null)}
         onUndelegateClose={() => setUndelegateFromValidator(null)}
+        onClaimFinish={() => setClaimRewardsFromValidator(null)}
         onDelegateFinish={() => setDelegateToValidator(null)}
         onReDelegateFinish={() => setReDelegateFromValidator(null)}
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
@@ -353,7 +376,12 @@ const Delegation = ({ location }: { location: Location }) => {
               isLoading={isLoadingAccountData}
             />
             <BaseCard
-              title={stripEth(claimableTara)}
+              title={stripEth(totalClaimableRewards)}
+              description="Claimable TARA - Staking rewards that are instantly claimable."
+              isLoading={isLoadingAccountData}
+            />
+            <BaseCard
+              title={stripEth(undelegatedTara)}
               description="Undelegated TARA - TARA that is awaiting release from delegation and can be claimed or the undelegation request can be canceled."
               isLoading={isLoadingAccountData}
             />
@@ -388,6 +416,7 @@ const Delegation = ({ location }: { location: Location }) => {
                     <TableCell className="tableHeadCell delegationCell">
                       Available for Delegation
                     </TableCell>
+                    <TableCell className="tableHeadCell delegationCell">Staking Rewards</TableCell>
                     <TableCell className="tableHeadCell availableDelegationActionsCell">
                       &nbsp;
                     </TableCell>
@@ -399,20 +428,26 @@ const Delegation = ({ location }: { location: Location }) => {
                       <ValidatorRow
                         key={validator.address}
                         validator={validator}
+                        stakingRewards={
+                          delegations.find(
+                            (d) => d.address.toLowerCase() === validator.address.toLowerCase(),
+                          )?.rewards || BigNumber.from('0')
+                        }
                         currentBlockNumber={currentBlock}
                         actionsDisabled={status !== 'connected' || !account}
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
-                        setReDelegateFromValidator={setReDelegateFromValidator}
+                        // setReDelegateFromValidator={setReDelegateFromValidator}
                         setDelegateToValidator={setDelegateToValidator}
                         setUndelegateFromValidator={setUndelegateFromValidator}
+                        setClaimFromValidator={initClaim}
                       />
                     ))}
                   {fullyDelegatedValidators.length > 0 && (
                     <>
                       <TableRow className="tableRow">
-                        <TableCell className="tableCell tableSection" colSpan={6}>
+                        <TableCell className="tableCell tableSection" colSpan={8}>
                           <div className="fullyDelegatedSeparator">fully delegated</div>
                         </TableCell>
                       </TableRow>
@@ -422,10 +457,16 @@ const Delegation = ({ location }: { location: Location }) => {
                           validator={validator}
                           currentBlockNumber={currentBlock}
                           actionsDisabled={status !== 'connected' || !account}
+                          stakingRewards={
+                            delegations.find(
+                              (d) => d.address.toLowerCase() === validator.address.toLowerCase(),
+                            )?.rewards || BigNumber.from('0')
+                          }
                           ownDelegation={delegations
                             .map((d) => d.address.toLowerCase())
                             .includes(validator.address.toLowerCase())}
-                          setReDelegateFromValidator={setReDelegateFromValidator}
+                          setClaimFromValidator={initClaim}
+                          // setReDelegateFromValidator={setReDelegateFromValidator}
                           setDelegateToValidator={setDelegateToValidator}
                           setUndelegateFromValidator={setUndelegateFromValidator}
                         />

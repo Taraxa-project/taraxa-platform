@@ -1,4 +1,14 @@
 .delegateNodeModal {
+  .claimContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .taraContainerAmountDescription {
+      font-size: medium;
+    }
+  }
   .nodeDescriptor {
     text-align: center;
   }
