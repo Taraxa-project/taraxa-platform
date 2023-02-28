@@ -8,7 +8,7 @@ import {
   Raw,
   Repository,
 } from 'typeorm';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -39,7 +39,6 @@ import { Undelegation } from './undelegation.entity';
 
 @Injectable()
 export class DelegationService {
-  private readonly logger = new Logger(DelegationService.name);
   private testnetDelegationAmount: ethers.BigNumber;
   private mainnetDelegationAmount: ethers.BigNumber;
   private maxDelegationPerNode: number;
@@ -336,12 +335,7 @@ export class DelegationService {
 
     if (currentDelegation.gt(totalNodeDelegation)) {
       const amountToUndelegate = currentDelegation.sub(totalNodeDelegation);
-      await this.registerUndelegation(
-        nodeId,
-        type,
-        address,
-        amountToUndelegate,
-      );
+      await this.registerUndelegation(nodeId, address, amountToUndelegate);
       // add call to undelegation, create undelegation, save in db
       // await this.blockchainService.unregisterValidator(address);
     } else {
@@ -606,29 +600,31 @@ export class DelegationService {
 
   private async registerUndelegation(
     nodeId: number,
-    type: string,
     address: string,
     amount: BigNumber,
   ) {
-    const node = await this.nodeRepository.findOne({ id: nodeId });
+    const node = await this.nodeRepository.findOneOrFail({
+      where: { id: nodeId },
+      withDeleted: true,
+    });
     const undelegation = this.undelegationRepository.create();
     undelegation.address = address;
-    undelegation.value = amount.toString();
-    undelegation.createdAt = new Date();
+    undelegation.chain = node.type as NodeType;
     undelegation.node = node;
-    undelegation.chain = type as NodeType;
+    undelegation.value = amount.toString();
     const savedUndelegation = await this.undelegationRepository.save(
       undelegation,
     );
     if (!savedUndelegation) {
       throw new Error(
-        `Could not save undelegation for ${address} with value ${amount} from node ${nodeId} on ${type}`,
+        `Could not save undelegation for ${address} with value ${amount} from node ${nodeId}`,
       );
     }
   }
 
   public async undelegateFromChain(undelegation: Undelegation) {
     let undelegationBlockNumber: number;
+
     if (undelegation.chain === NodeType.TESTNET) {
       undelegationBlockNumber = await this.testnetBlockchainService.undelegate(
         undelegation.address,
@@ -642,19 +638,18 @@ export class DelegationService {
         BigNumber.from(undelegation.value),
       );
     }
-    if (undelegationBlockNumber) {
-      undelegation.creationBlock = undelegationBlockNumber;
-      undelegation.confirmationBlock =
-        undelegationBlockNumber + this.undelegationBlockDelay;
-      undelegation.triggered = true;
-      const savedUndelegation = await this.undelegationRepository.save(
-        undelegation,
+
+    undelegation.creationBlock = undelegationBlockNumber;
+    undelegation.confirmationBlock =
+      undelegationBlockNumber + this.undelegationBlockDelay;
+    undelegation.triggered = true;
+    const savedUndelegation = await this.undelegationRepository.save(
+      undelegation,
+    );
+    if (!savedUndelegation) {
+      throw new Error(
+        `Could not call undelegation for ${undelegation.address} with value ${undelegation.value} from node ${undelegation.node.id} on ${undelegation.chain}`,
       );
-      if (!savedUndelegation) {
-        throw new Error(
-          `Could not call undelegation for ${undelegation.address} with value ${undelegation.value} from node ${undelegation.node.id} on ${undelegation.chain}`,
-        );
-      }
     }
   }
 

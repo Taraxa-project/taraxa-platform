@@ -1,5 +1,5 @@
 import * as ethers from 'ethers';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BlockchainService {
@@ -50,14 +50,7 @@ export class BlockchainService {
   }
 
   async getCurrentBlockNumber() {
-    try {
-      return await this.provider.getBlockNumber();
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Cound not collect current block number`,
-        error,
-      );
-    }
+    return await this.provider.getBlockNumber();
   }
 
   async getValidator(address: string) {
@@ -125,18 +118,11 @@ export class BlockchainService {
   }
 
   async undelegate(address: string, amount: ethers.BigNumber) {
-    try {
-      const tx = await this.contract.undelegate(address, amount, {
-        gasPrice: this.provider.getGasPrice(),
-      });
-      const receipt = await tx.wait();
-      return receipt.blockNumber;
-    } catch (e) {
-      console.error(
-        `Could not undelegate ${amount.toString()} TARA to validator ${address}`,
-        e,
-      );
-    }
+    const tx = await this.contract.undelegate(address, amount, {
+      gasPrice: this.provider.getGasPrice(),
+    });
+    const receipt = await tx.wait();
+    return receipt.blockNumber;
   }
 
   async confirmUndelegate(address: string) {
