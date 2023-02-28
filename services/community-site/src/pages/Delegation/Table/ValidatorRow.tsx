@@ -74,7 +74,7 @@ const ValidatorRow = ({
             : ethers.utils.commify(weiToEth(validator.availableForDelegation))}
         </div>
       </TableCell>
-      <TableCell className="tableCell commissionCell">{stripEth(stakingRewards)}</TableCell>
+      <TableCell className="tableCell stackingCell">{stripEth(stakingRewards)}</TableCell>
       <TableCell className="tableCell availableDelegationActionsCell">
         <div className="validatorActions">
           {/* <Button

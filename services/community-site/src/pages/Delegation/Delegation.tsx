@@ -345,7 +345,7 @@ const Delegation = ({ location }: { location: Location }) => {
           </div>
         </div>
         {validators && !showMyValidators && (
-          <div className="cardContainer">
+          <div className="delegationCardContainer">
             <BaseCard
               title={totalValidators !== -1 ? totalValidators.toString() : '0'}
               description="Number of network validators"
@@ -364,7 +364,7 @@ const Delegation = ({ location }: { location: Location }) => {
           </div>
         )}
         {!isOnWrongChain && status === 'connected' && account && (
-          <div className="cardContainer">
+          <div className="delegationCardContainer">
             <BaseCard
               title={`${delegations.length || 0}`}
               description="My Validators - number of validators I delegated to"
@@ -400,12 +400,12 @@ const Delegation = ({ location }: { location: Location }) => {
             style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2rem' }}
           >
             <Divider />
-            <LoadingTable rows={10} cols={8} tableWidth="750px" />
+            <LoadingTable rows={10} cols={8} tableWidth="100%" />
           </div>
         ) : (
           filteredValidators.length > 0 && (
-            <TableContainer>
-              <Table className="table">
+            <TableContainer className="delegationTableContainer">
+              <Table className="delegationTable">
                 <TableHead>
                   <TableRow className="tableHeadRow">
                     <TableCell className="tableHeadCell statusCell">Status</TableCell>
@@ -416,7 +416,7 @@ const Delegation = ({ location }: { location: Location }) => {
                     <TableCell className="tableHeadCell delegationCell">
                       Available for Delegation
                     </TableCell>
-                    <TableCell className="tableHeadCell delegationCell">Staking Rewards</TableCell>
+                    <TableCell className="tableHeadCell stackingCell">Staking Rewards</TableCell>
                     <TableCell className="tableHeadCell availableDelegationActionsCell">
                       &nbsp;
                     </TableCell>
