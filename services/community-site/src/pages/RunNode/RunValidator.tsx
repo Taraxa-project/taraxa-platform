@@ -38,6 +38,7 @@ import TestnetValidatorRow from './Table/TestnetValidatorRow';
 import './runvalidator.scss';
 import EditValidator from './Modal/EditValidator';
 import CloseIcon from '../../assets/icons/close';
+import EditNode from './Screen/EditNode';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -72,6 +73,7 @@ const RunValidator = () => {
   const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+  const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
 
   const fetchBalance = async () => {
     if (status === 'connected' && account && provider) {
@@ -79,11 +81,7 @@ const RunValidator = () => {
     }
   };
 
-  useEffect(() => {
-    fetchBalance();
-  }, [status, account, chainId, shouldFetch]);
-
-  useEffect(() => {
+  const getTestnetNodes = () => {
     delegationApi
       .get(`/nodes?type=testnet`, true)
       .then((r) => {
@@ -94,6 +92,19 @@ const RunValidator = () => {
         }
       })
       .catch(() => setTestnetValidators([]));
+  };
+
+  const deleteTestnetNode = async (node: OwnNode) => {
+    await delegationApi.del(`/nodes/${node.id}`, true);
+    getTestnetNodes();
+  };
+
+  useEffect(() => {
+    fetchBalance();
+  }, [status, account, chainId, shouldFetch]);
+
+  useEffect(() => {
+    getTestnetNodes();
   }, []);
 
   useEffect(() => {
@@ -169,6 +180,20 @@ const RunValidator = () => {
     setValidatorToUpdate(validator);
     setIsUpdatingValidator(true);
   };
+
+  if (currentEditedNode) {
+    return (
+      <EditNode
+        node={currentEditedNode}
+        closeEditNode={(refreshNodes) => {
+          setCurrentEditedNode(null);
+          if (refreshNodes) {
+            getTestnetNodes();
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div className="runnode">
@@ -364,7 +389,12 @@ const RunValidator = () => {
               </TableHead>
               <TableBody>
                 {testnetValidators.map((v: OwnNode) => (
-                  <TestnetValidatorRow key={v.address} {...v} />
+                  <TestnetValidatorRow
+                    key={v.address}
+                    validator={v}
+                    onEdit={setCurrentEditedNode}
+                    onDelete={deleteTestnetNode}
+                  />
                 ))}
               </TableBody>
             </Table>

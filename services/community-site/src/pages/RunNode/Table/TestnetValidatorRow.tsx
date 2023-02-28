@@ -1,11 +1,47 @@
 import React from 'react';
 import { TableCell, TableRow } from '@mui/material';
+import { Button } from '@taraxa_project/taraxa-ui';
 
 import { formatValidatorName } from '../../../utils/string';
 import OwnNode from '../../../interfaces/OwnNode';
 
-const TestnetValidatorRow = (validator: OwnNode) => {
+const TestnetValidatorRow = ({
+  validator,
+  onEdit,
+  onDelete,
+}: {
+  validator: OwnNode;
+  onEdit: (validator: OwnNode) => void;
+  onDelete: (validator: OwnNode) => void;
+}) => {
   const { isActive, address, name, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
+
+  const actions = (
+    <>
+      <Button
+        size="small"
+        label="Edit"
+        className="edit"
+        onClick={() => {
+          onEdit(validator);
+        }}
+      />
+      <Button
+        size="small"
+        label="Delete"
+        className="delete"
+        disabled={!validator.canDelete}
+        onClick={() => {
+          const confirmation = window.confirm(
+            "Are you sure you want to delete this node? You won't be able to add a node with the same wallet address.",
+          );
+          if (confirmation) {
+            onDelete(validator);
+          }
+        }}
+      />
+    </>
+  );
 
   let className = 'dot';
   if (isActive) {
@@ -25,7 +61,7 @@ const TestnetValidatorRow = (validator: OwnNode) => {
       <TableCell className="tableCell">{weeklyBlocksProduced}</TableCell>
       <TableCell className="tableCell">{weeklyRank}</TableCell>
       <TableCell className="tableCell" align="right">
-        {/* {row.actions} */}
+        {actions}
       </TableCell>
     </TableRow>
   );

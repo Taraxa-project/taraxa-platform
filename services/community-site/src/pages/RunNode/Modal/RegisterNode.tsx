@@ -15,7 +15,7 @@ const RegisterNode = ({
   type: 'mainnet' | 'testnet';
   onSuccess: () => void;
 }) => {
-  const minimumRequiredBalance = ethers.BigNumber.from('1000').pow(18);
+  const minimumRequiredBalance = ethers.utils.parseUnits('1000', 'ether');
   const delegationApi = useDelegationApi();
   const { registerValidator } = useValidators();
   const [step, setStep] = useState(1);
@@ -45,11 +45,6 @@ const RegisterNode = ({
     setIpError('');
     setCommissionError('');
 
-    if (balance.lt(minimumRequiredBalance)) {
-      setError('You don`t have enough balance to register a new validator');
-      return;
-    }
-
     if (!address) {
       setAddressError('Node public address is required!');
       return;
@@ -78,6 +73,11 @@ const RegisterNode = ({
     }
 
     if (type === 'mainnet') {
+      if (balance.lt(minimumRequiredBalance)) {
+        setError('You don`t have enough balance to register a new validator');
+        return;
+      }
+
       if (!commission) {
         setCommissionError('Commission is required!');
         return;
