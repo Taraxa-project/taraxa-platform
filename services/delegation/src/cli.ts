@@ -39,26 +39,6 @@ async function bootstrap() {
     return nodeService.findNodes({ type });
   };
 
-  const ensureDelegation = async (
-    nodes: Node[],
-    currentDelegations: Delegations,
-  ) => {
-    let count = 0;
-    for (const node of nodes) {
-      count++;
-      const { id, type, address } = node;
-      const currentDelegation = currentDelegations[address.toLowerCase()]
-        ? parseInt(currentDelegations[address.toLowerCase()], 16)
-        : 0;
-
-      console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
-      console.log(`currentDelegation: ${currentDelegation}`);
-      console.log(`ensuring delegation...`);
-      await delegationService.ensureDelegation(id, type, address);
-      console.log(`------------------------------`);
-    }
-  };
-
   const testnetNodes = async () => {
     console.log(await nodes('testnet'));
     return Promise.resolve();

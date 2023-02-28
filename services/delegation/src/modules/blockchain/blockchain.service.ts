@@ -140,18 +140,11 @@ export class BlockchainService {
   }
 
   async confirmUndelegate(address: string) {
-    try {
-      const tx = await this.contract.confirmUndelegate(address, {
-        gasPrice: this.provider.getGasPrice(),
-      });
-      const receipt = await tx.wait();
-      return receipt.blockNumber;
-    } catch (e) {
-      console.error(
-        `Could not confirm undelegation for validator ${address}`,
-        e,
-      );
-    }
+    const tx = await this.contract.confirmUndelegate(address, {
+      gasPrice: this.provider.getGasPrice(),
+    });
+    const receipt = await tx.wait();
+    return receipt.blockNumber;
   }
 
   async rebalanceOwnNodes(addOneNode = false) {

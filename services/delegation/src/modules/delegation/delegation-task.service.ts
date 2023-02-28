@@ -66,14 +66,14 @@ export class DelegationTaskService implements OnModuleInit {
     }
   }
 
-  @Cron('*/10 * * * *')
+  @Cron('0 * * * *')
   async triggerUndelegations() {
     this.logger.debug('Starting undelegation triggers...');
-    const undelegationsNotTriggered = await this.undelegationRepository.find({
+    const un = await this.undelegationRepository.find({
       triggered: false,
     });
-    for (const undelegation of undelegationsNotTriggered) {
-      await this.delegationService.undelegateFromChain(undelegation);
+    for (const u of un) {
+      await this.delegationService.undelegateFromChain(u);
     }
   }
 
@@ -108,10 +108,16 @@ export class DelegationTaskService implements OnModuleInit {
       mainnetnetUndelegationsInScope,
     );
     for (const undelegation of undelegationsInScope) {
-      await this.delegationService.confirmUndelegation(undelegation);
-      this.logger.log(
-        `Confirmed undelegation for validator ${undelegation.address}`,
-      );
+      try {
+        await this.delegationService.confirmUndelegation(undelegation);
+        this.logger.log(
+          `Confirmed undelegation for validator ${undelegation.address}`,
+        );
+      } catch (e) {
+        this.logger.error(
+          `Could not confirm undelegation for validator ${undelegation.address}`,
+        );
+      }
     }
   }
 }

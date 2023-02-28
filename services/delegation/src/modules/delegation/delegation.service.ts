@@ -288,10 +288,7 @@ export class DelegationService {
     // Check if node exists in the database
     let node: Node;
     try {
-      node = await this.nodeRepository.findOneOrFail({
-        where: { id: nodeId },
-        withDeleted: true,
-      });
+      node = await this.nodeRepository.findOneOrFail({ id: nodeId });
     } catch (e) {
       node = null;
     }
@@ -662,30 +659,22 @@ export class DelegationService {
   }
 
   public async confirmUndelegation(undelegation: Undelegation) {
-    if (undelegation.address) {
-      let confirmationBlock: number;
-      if (undelegation.chain === NodeType.MAINNET) {
-        confirmationBlock =
-          await this.mainnetBlockchainService.confirmUndelegate(
-            undelegation.address,
-          );
-      } else if (undelegation.chain === NodeType.TESTNET) {
-        confirmationBlock =
-          await this.testnetBlockchainService.confirmUndelegate(
-            undelegation.address,
-          );
-      }
-      if (!confirmationBlock)
-        throw new Error(
-          `Could not confirm undelegation for validator ${undelegation.address}`,
-        );
-      undelegation.confirmed = true;
-      const saved = await this.undelegationRepository.save(undelegation);
-      if (!saved)
-        throw new Error(
-          `Could not update undelegation ${undelegation.id} in the database.`,
-        );
-    } else
-      this.logger.error(`Undelegation ${undelegation.id} has no address set!`);
+    if (undelegation.chain === NodeType.MAINNET) {
+      await this.mainnetBlockchainService.confirmUndelegate(
+        undelegation.address,
+      );
+    } else if (undelegation.chain === NodeType.TESTNET) {
+      await this.testnetBlockchainService.confirmUndelegate(
+        undelegation.address,
+      );
+    }
+
+    undelegation.confirmed = true;
+    const saved = await this.undelegationRepository.save(undelegation);
+    if (!saved) {
+      throw new Error(
+        `Could not update undelegation ${undelegation.id} in the database.`,
+      );
+    }
   }
 }
