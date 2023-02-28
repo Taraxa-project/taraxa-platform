@@ -116,28 +116,35 @@ const NodeProfilePage = () => {
     })();
   }, [status, account, provider]);
 
-  const ownDelegation =
-    delegations
-      .find((d) => d.address.toLowerCase() === validator?.owner?.toLowerCase())
-      ?.stake?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-      ?.toNumber() || 0;
-
   const delegationPossible =
     validator?.delegation
       .add(validator?.availableForDelegation)
       .div(BigNumber.from('10').pow(BigNumber.from('18')))
       ?.toNumber() || 1;
-  const communityDelegated = Math.max(
-    Math.round(
-      (parseFloat(
-        validator?.delegation?.div(BigNumber.from('10').pow(BigNumber.from('18')))?.toString() ||
-          '1',
-      ) -
-        ownDelegation / delegationPossible) *
-        100,
-    ),
-    1,
-  );
+
+  const ownDelegation =
+    delegations.length > 0
+      ? delegations
+          .find((d) => d.address.toLowerCase() === validator?.owner?.toLowerCase())
+          ?.stake?.div(BigNumber.from('10').pow(BigNumber.from('18')))
+          ?.toNumber() || 0
+      : delegationPossible;
+
+  const communityDelegated =
+    delegations.length > 0
+      ? Math.max(
+          Math.round(
+            (parseFloat(
+              validator?.delegation
+                ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
+                ?.toString() || '1',
+            ) -
+              ownDelegation / delegationPossible) *
+              100,
+          ),
+          1,
+        )
+      : 0;
 
   const selfDelegated = Math.max(Math.round((ownDelegation / delegationPossible) * 100), 1);
 
