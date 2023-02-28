@@ -39,6 +39,7 @@ import './runvalidator.scss';
 import EditValidator from './Modal/EditValidator';
 import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
+import Claim from '../Delegation/Modal/Claim';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -72,6 +73,7 @@ const RunValidator = () => {
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
+  const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
   const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
 
@@ -220,6 +222,24 @@ const RunValidator = () => {
           closeIcon={CloseIcon}
         />
       )}
+      {validatorToClaimFrom && (
+        <Modal
+          id="delegateModal"
+          title="Claim from..."
+          show={!!validatorToClaimFrom}
+          children={
+            <Claim
+              amount={validatorToClaimFrom.commissionReward}
+              validator={validatorToClaimFrom}
+              onSuccess={() => setValidatorToClaimFrom(null)}
+              onFinish={() => setValidatorToClaimFrom(null)}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => setValidatorToClaimFrom(null)}
+          closeIcon={CloseIcon}
+        />
+      )}
       <RunValidatorModal
         balance={balance}
         isOpen={isOpenRegisterValidatorModal}
@@ -357,6 +377,12 @@ const RunValidator = () => {
                   <TableCell className="tableHeadCell" colSpan={2}>
                     Ranking
                   </TableCell>
+                  <TableCell className="tableHeadCell" colSpan={2}>
+                    Comission Rewards
+                  </TableCell>
+                  <TableCell className="tableHeadCell" colSpan={2}>
+                    Claim
+                  </TableCell>
                   <TableCell className="tableHeadCell" />
                 </TableRow>
               </TableHead>
@@ -367,6 +393,7 @@ const RunValidator = () => {
                     validator={v}
                     actionsDisabled={status !== 'connected' || !account}
                     setValidatorInfo={setValidatorInfo}
+                    setCommissionClaim={setValidatorToClaimFrom}
                   />
                 ))}
               </TableBody>

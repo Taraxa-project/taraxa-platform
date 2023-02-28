@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import React, { useCallback, useEffect, useState } from 'react';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 
 import { AmountCard, Button, Checkbox, Icons, ProfileIcon } from '@taraxa_project/taraxa-ui';
@@ -195,6 +196,11 @@ const NodeProfilePage = () => {
         onDelegateFinish={() => setDelegateToValidator(null)}
         onUndelegateClose={() => setUndelegateFromValidator(null)}
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
+        claimAmount={BigNumber.from('0')}
+        claimRewardsFromValidator={null}
+        onClaimSuccess={() => {}}
+        onClaimFinish={() => {}}
+        onClaimClose={() => {}}
       />
       <Title title="Delegation" />
       <div className="nodeInfoWrapper">

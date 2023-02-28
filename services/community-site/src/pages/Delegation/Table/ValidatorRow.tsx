@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 import { TableCell, TableRow } from '@mui/material';
 
@@ -8,27 +8,31 @@ import { Button } from '@taraxa_project/taraxa-ui';
 
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { formatValidatorName } from '../../../utils/string';
-import { weiToEth } from '../../../utils/eth';
+import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
 import { Validator } from '../../../interfaces/Validator';
 
 type ValidatorRowProps = {
   validator: Validator;
+  stakingRewards: ethers.BigNumber;
   actionsDisabled: boolean;
   ownDelegation: boolean;
   setDelegateToValidator: (node: Validator) => void;
-  setReDelegateFromValidator: (node: Validator) => void;
+  setClaimFromValidator: (amount: BigNumber, node: Validator) => void;
+  // setReDelegateFromValidator: (node: Validator) => void;
   setUndelegateFromValidator: (node: Validator) => void;
   currentBlockNumber?: number;
 };
 
 const ValidatorRow = ({
   validator,
+  stakingRewards,
   actionsDisabled,
   ownDelegation,
   setDelegateToValidator,
-  setReDelegateFromValidator,
+  setClaimFromValidator,
+  // setReDelegateFromValidator,
   setUndelegateFromValidator,
   currentBlockNumber,
 }: ValidatorRowProps) => {
@@ -70,9 +74,11 @@ const ValidatorRow = ({
             : ethers.utils.commify(weiToEth(validator.availableForDelegation))}
         </div>
       </TableCell>
+      <TableCell className="tableCell commissionCell">{stripEth(stakingRewards)}</TableCell>
       <TableCell className="tableCell availableDelegationActionsCell">
         <div className="validatorActions">
-          <Button
+          {/* <Button
+            // hidden
             size="small"
             color="secondary"
             variant="contained"
@@ -80,7 +86,7 @@ const ValidatorRow = ({
             disabled={actionsDisabled || !ownDelegation}
             className="smallBtn"
             onClick={() => setReDelegateFromValidator(validator)}
-          />
+          /> */}
           <Button
             size="small"
             color="secondary"
@@ -102,6 +108,19 @@ const ValidatorRow = ({
             disabled={actionsDisabled || !ownDelegation}
             className="smallBtn"
             onClick={() => setUndelegateFromValidator(validator)}
+          />
+          <Button
+            size="small"
+            color="secondary"
+            variant="contained"
+            label="Claim"
+            disabled={
+              actionsDisabled ||
+              validator.isFullyDelegated ||
+              validator.availableForDelegation.lte(0)
+            }
+            className="smallBtn"
+            onClick={() => setClaimFromValidator(stakingRewards, validator)}
           />
         </div>
       </TableCell>
