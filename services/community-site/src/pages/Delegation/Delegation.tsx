@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import {
   Divider,
-  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -17,6 +16,7 @@ import {
   Switch,
   BaseCard,
   useInterval,
+  LoadingTable,
 } from '@taraxa_project/taraxa-ui';
 
 import useExplorerStats from '../../services/useExplorerStats';
@@ -400,7 +400,7 @@ const Delegation = ({ location }: { location: Location }) => {
             style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2rem' }}
           >
             <Divider />
-            <Skeleton variant="rectangular" height={150} width="100%" />
+            <LoadingTable rows={10} cols={8} tableWidth="750px" />
           </div>
         ) : (
           filteredValidators.length > 0 && (
