@@ -19,6 +19,7 @@ export interface Validator {
   address: string;
   owner: string;
   commission: number;
+  commissionReward: ethers.BigNumber;
   lastCommissionChange: number;
   delegation: ethers.BigNumber;
   availableForDelegation: ethers.BigNumber;

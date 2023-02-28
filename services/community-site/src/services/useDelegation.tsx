@@ -121,8 +121,24 @@ export default () => {
     [browserDpos],
   );
 
+  const claimRewards = useCallback(
+    async (address: string): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.claimRewards(address);
+    },
+    [browserDpos],
+  );
+
+  const claimCommissionRewards = useCallback(
+    async (address: string): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.claimCommissionRewards(address);
+    },
+    [browserDpos],
+  );
+
   return useMemo(
     () => ({
+      claimRewards,
+      claimCommissionRewards,
       delegate,
       undelegate,
       confirmUndelegate,
@@ -131,6 +147,14 @@ export default () => {
       getDelegations,
       getUndelegations,
     }),
-    [delegate, reDelegate, undelegate, getDelegations, getUndelegations],
+    [
+      claimRewards,
+      claimCommissionRewards,
+      delegate,
+      reDelegate,
+      undelegate,
+      getDelegations,
+      getUndelegations,
+    ],
   );
 };
