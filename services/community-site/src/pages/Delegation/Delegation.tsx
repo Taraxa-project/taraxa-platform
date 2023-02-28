@@ -389,7 +389,7 @@ const Delegation = ({ location }: { location: Location }) => {
                       Available for Delegation
                     </TableCell>
                     <TableCell className="tableHeadCell availableDelegationActionsCell">
-                      Actions
+                      &nbsp;
                     </TableCell>
                   </TableRow>
                 </TableHead>
