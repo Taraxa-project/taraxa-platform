@@ -7,38 +7,49 @@ import CloseIcon from '../../../assets/icons/close';
 
 import { Validator } from '../../../interfaces/Validator';
 import ReDelegate from './ReDelegate';
+import Claim from './Claim';
 
 interface ModalsProps {
   balance: ethers.BigNumber;
+  claimAmount: ethers.BigNumber;
+  claimRewardsFromValidator: Validator | null;
   reDelegatableBalance: ethers.BigNumber;
   delegateToValidator: Validator | null;
   reDelegateFromValidator?: Validator | null;
   undelegateFromValidator: Validator | null;
   delegatableValidators: Validator[];
+  onClaimSuccess: () => void;
   onDelegateSuccess: () => void;
   onReDelegateSuccess: () => void;
   onUndelegateSuccess: () => void;
+  onClaimFinish: () => void;
   onDelegateFinish: () => void;
   onReDelegateFinish?: () => void;
   onUndelegateFinish: () => void;
   onDelegateClose: () => void;
+  onClaimClose: () => void;
   onReDelegateClose?: () => void;
   onUndelegateClose: () => void;
 }
 
 const Modals = ({
   balance,
+  claimAmount,
+  claimRewardsFromValidator,
   reDelegatableBalance,
   delegateToValidator,
   reDelegateFromValidator,
   undelegateFromValidator,
   delegatableValidators,
+  onClaimSuccess,
   onDelegateSuccess,
   onReDelegateSuccess,
   onUndelegateSuccess,
+  onClaimFinish,
   onDelegateFinish,
   onReDelegateFinish,
   onUndelegateFinish,
+  onClaimClose,
   onDelegateClose,
   onReDelegateClose,
   onUndelegateClose,
@@ -100,6 +111,24 @@ const Modals = ({
           }
           parentElementID="root"
           onRequestClose={() => onUndelegateClose()}
+          closeIcon={CloseIcon}
+        />
+      )}
+      {claimRewardsFromValidator && (
+        <Modal
+          id="delegateModal"
+          title="Claim from..."
+          show={!!claimRewardsFromValidator}
+          children={
+            <Claim
+              amount={claimAmount}
+              validator={claimRewardsFromValidator}
+              onSuccess={() => onClaimSuccess()}
+              onFinish={() => onClaimFinish()}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => onClaimClose()}
           closeIcon={CloseIcon}
         />
       )}

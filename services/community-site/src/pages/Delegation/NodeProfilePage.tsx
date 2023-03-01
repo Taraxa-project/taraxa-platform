@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import React, { useCallback, useEffect, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
@@ -19,53 +20,53 @@ import { stripEth, weiToEth } from '../../utils/eth';
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
 
-interface BarFlexProps {
-  communityDelegated: number;
-  selfDelegated: number;
-  availableDelegation: number;
-}
+// interface BarFlexProps {
+//   communityDelegated: number;
+//   selfDelegated: number;
+//   availableDelegation: number;
+// }
 
-const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
-  let cdParsed = communityDelegated;
-  let sdParsed = selfDelegated;
-  let adParsed = availableDelegation;
-  if (cdParsed + sdParsed + adParsed > 100) {
-    /**
-     * Highest number = 100 - sum of lowest numbers
-     */
-    if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
-    if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
-    if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
-  }
-  return (
-    <div className="barFlex">
-      <div
-        className="percentageAmount"
-        style={{
-          width: `${cdParsed}%`,
-        }}
-      >
-        <div className="barPercentage" style={{ background: '#15AC5B' }} />
-      </div>
-      <div
-        className="percentageAmount"
-        style={{
-          width: `${sdParsed}%`,
-        }}
-      >
-        <div className="barPercentage" style={{ background: '#8E8E8E' }} />
-      </div>
-      <div
-        className="percentageAmount"
-        style={{
-          width: `${adParsed}%`,
-        }}
-      >
-        <div className="barPercentage" style={{ background: '#48BDFF' }} />
-      </div>
-    </div>
-  );
-};
+// const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
+//   let cdParsed = communityDelegated;
+//   let sdParsed = selfDelegated;
+//   let adParsed = availableDelegation;
+//   if (cdParsed + sdParsed + adParsed > 100) {
+//     /**
+//      * Highest number = 100 - sum of lowest numbers
+//      */
+//     if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
+//     if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
+//     if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
+//   }
+//   return (
+//     <div className="barFlex">
+//       <div
+//         className="percentageAmount"
+//         style={{
+//           width: `${cdParsed}%`,
+//         }}
+//       >
+//         <div className="barPercentage" style={{ background: '#15AC5B' }} />
+//       </div>
+//       <div
+//         className="percentageAmount"
+//         style={{
+//           width: `${sdParsed}%`,
+//         }}
+//       >
+//         <div className="barPercentage" style={{ background: '#8E8E8E' }} />
+//       </div>
+//       <div
+//         className="percentageAmount"
+//         style={{
+//           width: `${adParsed}%`,
+//         }}
+//       >
+//         <div className="barPercentage" style={{ background: '#48BDFF' }} />
+//       </div>
+//     </div>
+//   );
+// };
 
 const NodeProfilePage = () => {
   const { provider } = useChain();
@@ -116,41 +117,48 @@ const NodeProfilePage = () => {
     })();
   }, [status, account, provider]);
 
-  const ownDelegation =
-    delegations
-      .find((d) => d.address.toLowerCase() === validator?.owner?.toLowerCase())
-      ?.stake?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-      ?.toNumber() || 0;
+  // const delegationPossible =
+  //   validator?.delegation
+  //     .add(validator?.availableForDelegation)
+  //     .div(BigNumber.from('10').pow(BigNumber.from('18')))
+  //     ?.toNumber() || 1;
 
-  const delegationPossible =
-    validator?.delegation
-      .add(validator?.availableForDelegation)
-      .div(BigNumber.from('10').pow(BigNumber.from('18')))
-      ?.toNumber() || 1;
-  const communityDelegated = Math.max(
-    Math.round(
-      (parseFloat(
-        validator?.delegation?.div(BigNumber.from('10').pow(BigNumber.from('18')))?.toString() ||
-          '1',
-      ) -
-        ownDelegation / delegationPossible) *
-        100,
-    ),
-    1,
-  );
+  // const ownDelegation =
+  //   delegations.length > 0
+  //     ? delegations
+  //         .find((d) => d.address.toLowerCase() === validator?.owner?.toLowerCase())
+  //         ?.stake?.div(BigNumber.from('10').pow(BigNumber.from('18')))
+  //         ?.toNumber() || 0
+  //     : delegationPossible;
 
-  const selfDelegated = Math.max(Math.round((ownDelegation / delegationPossible) * 100), 1);
+  // const communityDelegated =
+  //   delegations.length > 0
+  //     ? Math.max(
+  //         Math.round(
+  //           (parseFloat(
+  //             validator?.delegation
+  //               ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
+  //               ?.toString() || '1',
+  //           ) -
+  //             ownDelegation / delegationPossible) *
+  //             100,
+  //         ),
+  //         1,
+  //       )
+  //     : 0;
 
-  const availableForDelegation = parseFloat(
-    validator?.availableForDelegation
-      ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-      ?.toString() || '0',
-  );
+  // const selfDelegated = Math.max(Math.round((ownDelegation / delegationPossible) * 100), 1);
 
-  const availableDelegation = Math.max(
-    Math.round((availableForDelegation / delegationPossible) * 100),
-    1,
-  );
+  // const availableForDelegation = parseFloat(
+  //   validator?.availableForDelegation
+  //     ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
+  //     ?.toString() || '0',
+  // );
+
+  // const availableDelegation = Math.max(
+  //   Math.round((availableForDelegation / delegationPossible) * 100),
+  //   1,
+  // );
 
   const delegationTotalPages = Math.ceil(delegationCount / 20);
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
@@ -188,6 +196,11 @@ const NodeProfilePage = () => {
         onDelegateFinish={() => setDelegateToValidator(null)}
         onUndelegateClose={() => setUndelegateFromValidator(null)}
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
+        claimAmount={BigNumber.from('0')}
+        claimRewardsFromValidator={null}
+        onClaimSuccess={() => {}}
+        onClaimFinish={() => {}}
+        onClaimClose={() => {}}
       />
       <Title title="Delegation" />
       <div className="nodeInfoWrapper">
@@ -201,7 +214,7 @@ const NodeProfilePage = () => {
             <div className="nodeInfoTitle">expected yield</div>
             <div className="nodeInfoContent">20%</div>
             <div className="nodeInfoTitle">commission</div>
-            <div className="nodeInfoContent">{validator.commission.toFixed(2)}%</div>
+            <div className="nodeInfoContent">{validator.commission.toFixed(1)}%</div>
             {validator.description && (
               <>
                 <div className="nodeInfoTitle">node operator description</div>
@@ -244,7 +257,7 @@ const NodeProfilePage = () => {
                 <div className="taraContainerAmountDescription">Total delegated</div>
               </div>
             </div>
-            <div className="nodeDelegationSplit">
+            {/* <div className="nodeDelegationSplit">
               <BarFlex
                 communityDelegated={communityDelegated}
                 selfDelegated={selfDelegated}
@@ -271,7 +284,7 @@ const NodeProfilePage = () => {
                   available for delegation
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className="delegationButtons">
               <Button
                 onClick={() => setDelegateToValidator(validator)}

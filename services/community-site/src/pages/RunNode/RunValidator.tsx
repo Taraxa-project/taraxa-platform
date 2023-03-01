@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import clsx from 'clsx';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import {
@@ -37,6 +38,8 @@ import TestnetValidatorRow from './Table/TestnetValidatorRow';
 import './runvalidator.scss';
 import EditValidator from './Modal/EditValidator';
 import CloseIcon from '../../assets/icons/close';
+import EditNode from './Screen/EditNode';
+import Claim from '../Delegation/Modal/Claim';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -64,14 +67,23 @@ const RunValidator = () => {
   };
 
   const [validatorType, setValidatorType] = useState<'mainnet' | 'testnet'>('mainnet');
-
+  const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
+  const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+  const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
 
-  useEffect(() => {
+  const fetchBalance = async () => {
+    if (status === 'connected' && account && provider) {
+      setBalance(await provider.getBalance(account));
+    }
+  };
+
+  const getTestnetNodes = () => {
     delegationApi
       .get(`/nodes?type=testnet`, true)
       .then((r) => {
@@ -82,6 +94,19 @@ const RunValidator = () => {
         }
       })
       .catch(() => setTestnetValidators([]));
+  };
+
+  const deleteTestnetNode = async (node: OwnNode) => {
+    await delegationApi.del(`/nodes/${node.id}`, true);
+    getTestnetNodes();
+  };
+
+  useEffect(() => {
+    fetchBalance();
+  }, [status, account, chainId, shouldFetch]);
+
+  useEffect(() => {
+    getTestnetNodes();
   }, []);
 
   useEffect(() => {
@@ -90,7 +115,7 @@ const RunValidator = () => {
         setDelegations(await getDelegations(account));
       })();
     }
-  }, [status, account]);
+  }, [status, account, shouldFetch]);
 
   useEffect(() => {
     if (status === 'connected' && account) {
@@ -105,7 +130,7 @@ const RunValidator = () => {
         setMainnetValidators(myValidators);
       })();
     }
-  }, [status, account]);
+  }, [status, account, shouldFetch]);
 
   useEffect(() => {
     if (status === 'connected' && account && delegations.length > 0) {
@@ -117,7 +142,7 @@ const RunValidator = () => {
         setMainnetValidators(myValidators);
       })();
     }
-  }, [status, account, delegations]);
+  }, [status, account, delegations, shouldFetch]);
 
   const nodeTypeLabel = validatorType === 'mainnet' ? 'Mainnet' : 'Testnet';
 
@@ -158,6 +183,20 @@ const RunValidator = () => {
     setIsUpdatingValidator(true);
   };
 
+  if (currentEditedNode) {
+    return (
+      <EditNode
+        node={currentEditedNode}
+        closeEditNode={(refreshNodes) => {
+          setCurrentEditedNode(null);
+          if (refreshNodes) {
+            getTestnetNodes();
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="runnode">
       {isUpdatingValidator && validatorToUpdate && (
@@ -172,6 +211,7 @@ const RunValidator = () => {
               onSuccess={() => {
                 setIsUpdatingValidator(false);
                 setValidatorToUpdate(null);
+                setShouldFetch(true);
               }}
             />
           }
@@ -182,12 +222,32 @@ const RunValidator = () => {
           closeIcon={CloseIcon}
         />
       )}
+      {validatorToClaimFrom && (
+        <Modal
+          id="delegateModal"
+          title="Claim from..."
+          show={!!validatorToClaimFrom}
+          children={
+            <Claim
+              amount={validatorToClaimFrom.commissionReward}
+              validator={validatorToClaimFrom}
+              onSuccess={() => setValidatorToClaimFrom(null)}
+              onFinish={() => setValidatorToClaimFrom(null)}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => setValidatorToClaimFrom(null)}
+          closeIcon={CloseIcon}
+        />
+      )}
       <RunValidatorModal
+        balance={balance}
         isOpen={isOpenRegisterValidatorModal}
         validatorType={validatorType}
         onClose={() => closeRegisterValidatorModal()}
         onSuccess={() => {
           // getNodes();
+          setShouldFetch(true);
           closeRegisterValidatorModal();
         }}
       />
@@ -317,6 +377,12 @@ const RunValidator = () => {
                   <TableCell className="tableHeadCell" colSpan={2}>
                     Ranking
                   </TableCell>
+                  <TableCell className="tableHeadCell" colSpan={2}>
+                    Comission Rewards
+                  </TableCell>
+                  <TableCell className="tableHeadCell" colSpan={2}>
+                    Claim
+                  </TableCell>
                   <TableCell className="tableHeadCell" />
                 </TableRow>
               </TableHead>
@@ -327,6 +393,7 @@ const RunValidator = () => {
                     validator={v}
                     actionsDisabled={status !== 'connected' || !account}
                     setValidatorInfo={setValidatorInfo}
+                    setCommissionClaim={setValidatorToClaimFrom}
                   />
                 ))}
               </TableBody>
@@ -349,7 +416,12 @@ const RunValidator = () => {
               </TableHead>
               <TableBody>
                 {testnetValidators.map((v: OwnNode) => (
-                  <TestnetValidatorRow key={v.address} {...v} />
+                  <TestnetValidatorRow
+                    key={v.address}
+                    validator={v}
+                    onEdit={setCurrentEditedNode}
+                    onDelete={deleteTestnetNode}
+                  />
                 ))}
               </TableBody>
             </Table>

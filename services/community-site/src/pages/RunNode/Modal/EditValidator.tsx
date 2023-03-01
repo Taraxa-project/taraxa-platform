@@ -5,6 +5,7 @@ import { Box, CircularProgress } from '@mui/material';
 
 import useValidators from '../../../services/useValidators';
 import { Validator } from '../../../interfaces/Validator';
+import SuccessIcon from '../../../assets/icons/success';
 
 const EditValidator = ({
   validator,
@@ -20,6 +21,7 @@ const EditValidator = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [description, setDescription] = useState(validator.description || '');
   const [endpoint, setEndpoint] = useState(validator.endpoint || '');
+  const [step, setStep] = useState(1);
   const [isLoading, setLoading] = useState(false);
 
   const [error, setError] = useState('');
@@ -30,10 +32,16 @@ const EditValidator = ({
     event.preventDefault();
     const regex =
       /^(ftp|http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?$/;
+
     if (!regex.test(endpoint)) {
-      setError('Endpoint must be a valid url');
+      setError('Website is required and must be a valid url');
       return;
     }
+    if (!description) {
+      setError('Description is required');
+      return;
+    }
+
     setError('');
     const payload: any = {
       type,
@@ -49,9 +57,9 @@ const EditValidator = ({
           payload.description,
           payload.endpoint,
         );
+        setStep(2);
         await res.wait();
         setLoading(false);
-        onSuccess();
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -61,67 +69,89 @@ const EditValidator = ({
   };
 
   return (
-    <div>
-      <Text
-        style={{
-          marginBottom: '2%',
-          fontFamily: 'Inter, san-serif',
-          fontSize: '18px',
-        }}
-        label="Update Validator"
-        variant="h6"
-        color="primary"
-      />
-      <form onSubmit={submit}>
-        <InputField
-          label="Node operator Website"
-          value={endpoint}
-          variant="outlined"
-          type="text"
-          fullWidth
-          margin="normal"
-          onChange={(event) => {
-            setEndpoint(event.target.value);
-          }}
-        />
-        <InputField
-          label="Node operator description"
-          value={description}
-          variant="outlined"
-          type="text"
-          fullWidth
-          margin="normal"
-          onChange={(event) => {
-            setDescription(event.target.value);
-          }}
-        />
-        {error && (
-          <Text variant="body1" color="error">
-            {error}
-          </Text>
-        )}
-        {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <Label
-              variant="loading"
-              label="Loading"
-              gap
-              icon={<CircularProgress size={50} color="inherit" />}
+    <>
+      {step === 1 ? (
+        <div>
+          <Text
+            style={{
+              marginBottom: '2%',
+              fontFamily: 'Inter, san-serif',
+              fontSize: '18px',
+            }}
+            label="Update Validator"
+            variant="h6"
+            color="primary"
+          />
+          <form onSubmit={submit}>
+            <InputField
+              label="Node operator Website"
+              value={endpoint}
+              variant="outlined"
+              type="text"
+              fullWidth
+              margin="normal"
+              onChange={(event) => {
+                setEndpoint(event.target.value);
+              }}
             />
-          </Box>
-        ) : (
+            <InputField
+              label="Node operator description"
+              value={description}
+              variant="outlined"
+              type="text"
+              fullWidth
+              margin="normal"
+              onChange={(event) => {
+                setDescription(event.target.value);
+              }}
+            />
+            {error && (
+              <Text variant="body1" color="error">
+                {error}
+              </Text>
+            )}
+            <Button
+              type="submit"
+              label="Submit"
+              color="secondary"
+              variant="contained"
+              className="marginButton"
+              onClick={submit}
+              fullWidth
+            />
+          </form>
+        </div>
+      ) : isLoading ? (
+        <div className="delegateNodeModalSuccess">
+          <Text
+            style={{ marginBottom: '2%' }}
+            label="Waiting for confirmation"
+            variant="h6"
+            color="warning"
+          />
+          <div className="loadingIcon">
+            <Loading />
+          </div>
+        </div>
+      ) : (
+        <div className="delegateNodeModalSuccess">
+          <Text style={{ marginBottom: '2%' }} label="Success" variant="h6" color="primary" />
+          <div className="successIcon">
+            <SuccessIcon />
+          </div>
+          <p className="successText">Validator updated successfully</p>
           <Button
-            type="submit"
-            label="Submit"
+            type="button"
+            label="Close"
+            fullWidth
             color="secondary"
             variant="contained"
             className="marginButton"
-            onClick={submit}
-            fullWidth
+            onClick={onSuccess}
           />
-        )}
-      </form>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 

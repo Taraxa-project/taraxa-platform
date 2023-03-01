@@ -47,6 +47,7 @@ import { AwardCard } from './components/AwardCard';
 import AutocompleteField from './components/AutocompleteField';
 import CopyTo from './components/CopyTo';
 import theme from './components/theme';
+import LoadingTable from './components/LoadingTable';
 import { useInterval } from './hooks/useInterval';
 
 export {
@@ -95,6 +96,7 @@ export {
   BlockCard,
   AwardCard,
   AutocompleteField,
+  LoadingTable,
   CopyTo,
   theme,
   useInterval,

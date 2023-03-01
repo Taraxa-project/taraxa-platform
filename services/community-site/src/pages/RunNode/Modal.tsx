@@ -1,4 +1,5 @@
 import React from 'react';
+import { ethers } from 'ethers';
 import { useMediaQuery } from 'react-responsive';
 import { Modal } from '@taraxa_project/taraxa-ui';
 
@@ -6,6 +7,7 @@ import CloseIcon from '../../assets/icons/close';
 import RegisterNode from './Modal/RegisterNode';
 
 interface RunValidatorModalProps {
+  balance: ethers.BigNumber;
   isOpen: boolean;
   validatorType: 'mainnet' | 'testnet';
   onClose: () => void;
@@ -13,6 +15,7 @@ interface RunValidatorModalProps {
 }
 
 const RunValidatorModal = ({
+  balance,
   isOpen,
   validatorType,
   onClose,
@@ -24,7 +27,9 @@ const RunValidatorModal = ({
     return null;
   }
 
-  const modal = <RegisterNode type={validatorType} onSuccess={() => onSuccess()} />;
+  const modal = (
+    <RegisterNode balance={balance} type={validatorType} onSuccess={() => onSuccess()} />
+  );
 
   return (
     <Modal
