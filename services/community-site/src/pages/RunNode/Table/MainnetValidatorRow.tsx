@@ -54,10 +54,8 @@ const MainnetValidatorRow = ({
       <TableCell className="tableCell availableDelegation">
         {stripEth(availableForDelegation)}
       </TableCell>
-      <TableCell className="tableCell rankingCell">{/* {row.weeklyRank} */}test</TableCell>
-      <TableCell className="tableCell rewardsCell">
-        {/* stripEth(commissionReward) */} test2
-      </TableCell>
+      <TableCell className="tableCell rankingCell">{/* {row.weeklyRank} */}0</TableCell>
+      <TableCell className="tableCell rewardsCell">{stripEth(commissionReward)}</TableCell>
       <TableCell className="tableCell actionsCell">
         <div className="validatorActions">
           <Button
