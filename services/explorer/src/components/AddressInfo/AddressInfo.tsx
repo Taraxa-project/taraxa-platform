@@ -1,4 +1,3 @@
-import React from 'react';
 import clsx from 'clsx';
 import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { toSvg } from 'jdenticon';
@@ -25,30 +24,22 @@ export interface AddressInfoProps {
   totalPbftCount: number;
   rowsPbftPerPage: number;
   pbftPage: number;
-  handlePbftChangePage: (newPage: number) => void;
-  handlePbftChangeRowsPerPage: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
+  handlePbftChangePage: (p: number) => void;
+  handlePbftChangeRowsPerPage: (l: number) => void;
   totalDagCount: number;
   rowsDagPerPage: number;
   dagPage: number;
-  handleDagChangePage: (newPage: number) => void;
-  handleDagChangeRowsPerPage: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
+  handleDagChangePage: (p: number) => void;
+  handleDagChangeRowsPerPage: (l: number) => void;
   totalTxCount: number;
   rowsTxPerPage: number;
   txPage: number;
-  handleTxChangePage: (newPage: number) => void;
-  handleTxChangeRowsPerPage: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
+  handleTxChangePage: (p: number) => void;
+  handleTxChangeRowsPerPage: (l: number) => void;
   tabsStep: number;
   setTabsStep: (step: number) => void;
-  isFetchingDagsCount: boolean;
-  isLoadingDagsCount: boolean;
-  isFetchingPbftsCount: boolean;
-  isLoadingPbftsCount: boolean;
+  isFetchingAddressStats: boolean;
+  isLoadingAddressStats: boolean;
   isLoadingTables: boolean;
 }
 
@@ -74,10 +65,8 @@ export const AddressInfo = ({
   handleTxChangeRowsPerPage,
   tabsStep,
   setTabsStep,
-  isFetchingDagsCount,
-  isLoadingDagsCount,
-  isFetchingPbftsCount,
-  isLoadingPbftsCount,
+  isFetchingAddressStats,
+  isLoadingAddressStats,
   isLoadingTables,
 }: AddressInfoProps): JSX.Element => {
   const classes = useStyles();
@@ -226,7 +215,7 @@ export const AddressInfo = ({
                 BLOCKS PRODUCED:
               </Grid>
               <Grid className={classes.blocksBox} item>
-                {isFetchingDagsCount || isLoadingDagsCount ? (
+                {isFetchingAddressStats || isLoadingAddressStats ? (
                   <Loading />
                 ) : (
                   <div>{details?.dagBlocks}</div>
@@ -234,7 +223,7 @@ export const AddressInfo = ({
                 <span>#DAG Blocks</span>
               </Grid>
               <Grid className={classes.blocksBox} item>
-                {isFetchingPbftsCount || isLoadingPbftsCount ? (
+                {isFetchingAddressStats || isLoadingAddressStats ? (
                   <Loading />
                 ) : (
                   <div>{details?.pbftBlocks}</div>

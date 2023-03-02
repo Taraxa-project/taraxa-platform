@@ -32,13 +32,21 @@ export type PbftBlockDetailsFilters = {
 };
 
 export type PaginationFilter = {
-  take: number;
-  skip: number;
+  limit: number;
+  start: number;
 };
 
 export type FetchWithPagination = {
-  rowsPerPage: number;
-  page: number;
+  start: number;
+  limit: number;
+};
+
+export type ResultWithPagination<T> = {
+  start: number;
+  end: number;
+  total: number;
+  hasNext: boolean;
+  data: T[];
 };
 
 export interface NodesPaginate {
@@ -70,6 +78,7 @@ export interface AddressTxResponse {
   value: string;
   block: number;
   age: number;
+  timestamp?: number;
 }
 
 export interface PbftsPaginate {
