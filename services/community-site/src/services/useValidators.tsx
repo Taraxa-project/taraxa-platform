@@ -94,7 +94,7 @@ export default () => {
       while (hasNextPage) {
         try {
           const allValidators = await mainnetDpos!.getValidatorsFor(address, page);
-          validators = [...validators, ...allValidators];
+          validators = [...validators, ...allValidators.validators];
           hasNextPage = !allValidators.end;
           page++;
         } catch (e) {

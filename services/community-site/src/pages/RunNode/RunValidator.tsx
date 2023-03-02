@@ -120,13 +120,7 @@ const RunValidator = () => {
   useEffect(() => {
     if (status === 'connected' && account) {
       (async () => {
-        const mainnetValidators: Validator[] = await getValidators();
-        // const mValidators = await getValidatorsFor(account);
-        // console.log('mainnetValidators: ', mainnetValidators);
-        // console.log('mValidators: ', mValidators);
-        const myValidators = mainnetValidators.filter(
-          (validator: Validator) => validator.owner.toLowerCase() === account.toLowerCase(),
-        );
+        const myValidators = await getValidatorsFor(account);
         setMainnetValidators(myValidators);
       })();
     }
