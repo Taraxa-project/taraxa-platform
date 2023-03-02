@@ -20,6 +20,7 @@ const MainnetValidatorRow = ({
   setValidatorInfo,
   setCommissionClaim,
 }: ValidatorRowProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { isActive, address, commission, delegation, availableForDelegation, commissionReward } =
     validator;
 
@@ -29,14 +30,14 @@ const MainnetValidatorRow = ({
   }
   return (
     <TableRow className="tableRow" key={address}>
-      <TableCell className="tableCell">
+      <TableCell className="tableCell statusCell">
         <div className="status">
           <div className={className} />
         </div>
       </TableCell>
-      <TableCell className="tableCell">{formatValidatorName(address)}</TableCell>
-      <TableCell className="tableCell">20%</TableCell>
-      <TableCell className="tableCell">
+      <TableCell className="tableCell nameCell">{formatValidatorName(address)}</TableCell>
+      <TableCell className="tableCell yieldCell">20%</TableCell>
+      <TableCell className="tableCell commissionCell">
         {/* {row.hasPendingCommissionChange ? (
           <>
             <NodeCommissionChangeIcon />{' '}
@@ -49,35 +50,39 @@ const MainnetValidatorRow = ({
         )} */}
         {commission}%
       </TableCell>
-      <TableCell className="tableCell">{stripEth(delegation)}</TableCell>
-      <TableCell className="tableCell">{stripEth(availableForDelegation)}</TableCell>
-      <TableCell className="tableCell">{/* {row.weeklyRank} */}0</TableCell>
-      <TableCell className="tableCell">{stripEth(commissionReward)}</TableCell>
-      <TableCell className="tableCell">
-        <Button
-          size="small"
-          variant="contained"
-          color="secondary"
-          label="Edit"
-          className="smallBtn"
-          disabled={actionsDisabled}
-          onClick={() => {
-            setCommissionClaim(validator);
-          }}
-        />
+      <TableCell className="tableCell delegationCell">{stripEth(delegation)}</TableCell>
+      <TableCell className="tableCell availableDelegation">
+        {stripEth(availableForDelegation)}
       </TableCell>
-      <TableCell className="tableCell">
-        <Button
-          size="small"
-          variant="contained"
-          color="secondary"
-          label="Edit"
-          className="smallBtn"
-          disabled={actionsDisabled}
-          onClick={() => {
-            setValidatorInfo(validator);
-          }}
-        />
+      <TableCell className="tableCell rankingCell">{/* {row.weeklyRank} */}test</TableCell>
+      <TableCell className="tableCell rewardsCell">
+        {/* stripEth(commissionReward) */} test2
+      </TableCell>
+      <TableCell className="tableCell actionsCell">
+        <div className="validatorActions">
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            label="Edit"
+            className="smallBtn"
+            disabled={actionsDisabled}
+            onClick={() => {
+              setValidatorInfo(validator);
+            }}
+          />
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            label="Claim"
+            className="smallBtn"
+            disabled={actionsDisabled}
+            onClick={() => {
+              setCommissionClaim(validator);
+            }}
+          />
+        </div>
       </TableCell>
     </TableRow>
   );

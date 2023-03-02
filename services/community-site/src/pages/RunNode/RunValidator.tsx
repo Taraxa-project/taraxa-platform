@@ -121,7 +121,7 @@ const RunValidator = () => {
     if (status === 'connected' && account) {
       (async () => {
         const mainnetValidators: Validator[] = await getValidators();
-        // const mValidators = await getValidatorsFor('0x0274cFffeA9fa850E54c93A23042f12a87358a82');
+        // const mValidators = await getValidatorsFor(account);
         // console.log('mainnetValidators: ', mainnetValidators);
         // console.log('mValidators: ', mValidators);
         const myValidators = mainnetValidators.filter(
@@ -364,26 +364,21 @@ const RunValidator = () => {
           )}
         </div>
         {validatorType === 'mainnet' && mainnetValidators.length > 0 && (
-          <TableContainer>
-            <Table className="table">
+          <TableContainer className="nodesTableContainer">
+            <Table className="nodesTable">
               <TableHead>
                 <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell">Status</TableCell>
-                  <TableCell className="tableHeadCell">Name</TableCell>
-                  <TableCell className="tableHeadCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell">Commission</TableCell>
-                  <TableCell className="tableHeadCell">Delegation</TableCell>
-                  <TableCell className="tableHeadCell">Available for Delegation</TableCell>
-                  <TableCell className="tableHeadCell" colSpan={2}>
-                    Ranking
+                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
+                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
+                  <TableCell className="tableHeadCell yieldCell">Expected Yield</TableCell>
+                  <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
+                  <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
+                  <TableCell className="tableHeadCell availableDelegation">
+                    Available for Delegation
                   </TableCell>
-                  <TableCell className="tableHeadCell" colSpan={2}>
-                    Comission Rewards
-                  </TableCell>
-                  <TableCell className="tableHeadCell" colSpan={2}>
-                    Claim
-                  </TableCell>
-                  <TableCell className="tableHeadCell" />
+                  <TableCell className="tableHeadCell rankingCell">Ranking</TableCell>
+                  <TableCell className="tableHeadCell rewardsCell">Comission Rewards</TableCell>
+                  <TableCell className="tableHeadCell actionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
