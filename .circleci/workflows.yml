@@ -28,7 +28,7 @@ parameters:
     default: false
   build-delegation-helm-chart-workflow:
     type: boolean
-    default: false    
+    default: false
   run-claim-backend-service-workflow:
     type: boolean
     default: false
