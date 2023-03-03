@@ -1,6 +1,11 @@
 replicaCount: 1
 workerReplicaCount: 1
 
+appSecret:
+  # should we create secrets ?
+  # set to 'false' when supplying secrets from i.e. SealedSecrets controller
+  create: true 
+
 app:
   name: community-delegation
   component: api
