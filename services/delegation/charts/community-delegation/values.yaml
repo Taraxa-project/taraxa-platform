@@ -15,6 +15,15 @@ app:
   serverPort: 3000
   dbPort: 5432
 
+  secrets:
+    dbUser: ''
+    dbPass: ''
+    queuePass: ''
+    jwtSecret: ''
+    ethereumEndpoint: ''
+    mainnetWallet: ''
+    testnetWallet: ''
+
 nodeSelector:
   cloud.google.com/gke-nodepool: taraxa-community-default
 
