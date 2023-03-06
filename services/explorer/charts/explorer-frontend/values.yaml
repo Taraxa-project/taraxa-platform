@@ -6,7 +6,6 @@ replicaCount: 1
 
 app:
   environment: default
-  mainnetFaucetHost: "http://faucet/"
   testnetFaucetHost: "http://faucet/"
   devnetFaucetHost: "http://faucet/"
   mainnetApiHost: "http://api/"
