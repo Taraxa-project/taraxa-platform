@@ -584,16 +584,6 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
-      - deploy-delegation:
-          requires:
-            - build-delegation
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-          context:
-            - K8S
   delegation-helm-chart:
     when:
       or:
