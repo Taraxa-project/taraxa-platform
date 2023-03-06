@@ -26,6 +26,9 @@ parameters:
   run-delegation-service-workflow:
     type: boolean
     default: false
+  build-delegation-helm-chart-workflow:
+    type: boolean
+    default: false
   run-claim-backend-service-workflow:
     type: boolean
     default: false
@@ -591,6 +594,26 @@ workflows:
                 - develop
           context:
             - K8S
+  delegation-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-delegation-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/delegation/charts
+          chart-name: community-delegation
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - chore/ci-release-helm-delegation
   claim-backend:
     when:
       or:

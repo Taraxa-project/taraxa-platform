@@ -15,6 +15,7 @@ workflows:
             services/community-site/charts/.* build-community-site-helm-chart-workflow true
             services/node-status/.* run-node-status-service-workflow true
             services/delegation/.* run-delegation-service-workflow true
+            services/delegation/charts/.* build-delegation-helm-chart-workflow true
             services/claim-backend/.* run-claim-backend-service-workflow true
             services/faucet/.* build-faucet-workflow true
             services/faucet/charts/.* build-faucet-helm-chart-workflow true
