@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
@@ -36,6 +36,9 @@ const TransactionDataContainer = (): JSX.Element => {
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
 
+  const [dagsRowsPerPage, setDagsRowsPerPage] = useState(25);
+  const [dagsPage, setDagsPage] = useState(0);
+
   const tableTabs: TableTabsProps = {
     tabs: [
       {
@@ -47,7 +50,23 @@ const TransactionDataContainer = (): JSX.Element => {
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={dagData} type='dag' />,
+        children: (
+          <BlocksTable
+            blocksData={dagData?.slice(
+              dagsPage * dagsRowsPerPage,
+              dagsPage * dagsRowsPerPage + dagsRowsPerPage
+            )}
+            type='dag'
+            totalCount={dagData?.length}
+            pageNo={dagsPage}
+            rowsPage={dagsRowsPerPage}
+            changePage={(p: number) => setDagsPage(p)}
+            changeRows={(l: number) => {
+              setDagsRowsPerPage(l);
+              setDagsPage(0);
+            }}
+          />
+        ),
       },
     ],
     initialValue: 0,

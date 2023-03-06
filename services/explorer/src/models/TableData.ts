@@ -16,8 +16,8 @@ export interface TransactionTableData {
 
 export interface NodesTableData {
   rank: number;
-  nodeAddress: string;
-  blocksProduced: number;
+  address: string;
+  pbftCount: number;
 }
 
 export interface ColumnData {

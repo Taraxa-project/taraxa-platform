@@ -1,59 +1,46 @@
 import axios from 'axios';
-import { useQuery } from 'react-query';
-import { TxPaginate, FetchWithPagination, PaginationFilter } from '../types';
-
-const computeFilters = ({
-  rowsPerPage,
-  page,
-}: FetchWithPagination): PaginationFilter => {
-  const take = rowsPerPage;
-  const skip = page * rowsPerPage;
-  return {
-    take,
-    skip,
-  };
-};
-
-const getByAddress = async (
-  endpoint: string,
-  address: string,
-  params: PaginationFilter
-) => {
-  if (!address || !endpoint) {
-    return;
-  }
-  const url = `${endpoint}/address/${address}/transactions`;
-  const { data } = await axios.get(url, { params });
-  return data as TxPaginate;
-};
+import { ethers } from 'ethers';
+import { displayWeiOrTara } from '../../utils';
+import {
+  FetchWithPagination,
+  AddressTxResponse,
+  ResultWithPagination,
+} from '../types';
 
 export const useGetTransactionsByAddress = (
+  address: string
+): ((
   endpoint: string,
-  address: string,
-  params: FetchWithPagination
-): {
-  data: TxPaginate;
-  isError: boolean;
-  error: unknown;
-  isLoading: boolean;
-  isFetching: boolean;
-} => {
-  const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['transactions-by-address', address, endpoint, params],
-    () => getByAddress(endpoint, address, computeFilters(params)),
-    {
-      onError: (error) => {
-        // eslint-disable-next-line no-console
-        console.log('ERROR: ', error);
-      },
-      enabled: !!address,
+  params: Partial<FetchWithPagination>
+) => Promise<ResultWithPagination<AddressTxResponse>>) => {
+  return async (endpoint: string, params: Partial<FetchWithPagination>) => {
+    if (!address || !endpoint) {
+      return;
     }
-  );
-  return {
-    data,
-    isError,
-    error,
-    isLoading,
-    isFetching,
+    const url = `${endpoint}/address/${address}/transactions`;
+    const { data } = await axios.get(url, { params });
+    if (data.data) {
+      data.data = data.data.map((tx: any) => ({
+        hash: tx.hash,
+        block: {
+          number: tx.blockNumber,
+          timestamp: tx.timestamp,
+        },
+        value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
+        gasPrice: displayWeiOrTara(ethers.BigNumber.from(tx.gasPrice)),
+        gas: displayWeiOrTara(
+          ethers.BigNumber.from(tx.gasPrice).mul(tx.gasUsed)
+        ),
+        status: tx.status ? 1 : 0,
+        gasUsed: tx.gasUsed?.toString(),
+        from: {
+          address: tx.from,
+        },
+        to: {
+          address: tx.to,
+        },
+      }));
+    }
+    return data;
   };
 };

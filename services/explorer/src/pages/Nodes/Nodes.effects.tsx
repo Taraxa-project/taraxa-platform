@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable no-console */
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
-import { ColumnData, NodesTableData } from '../../models';
-import { useExplorerLoader } from '../../hooks/useLoader';
-import { RankedNode, useGetBlocksThisWeek, useGetNodes } from '../../api';
-import { useExplorerNetwork } from 'src/hooks';
+import { ColumnData } from '../../models';
+import { usePagination } from '../../hooks/usePagination';
+import { RankedNode, useGetBlocksThisWeek, useGetValidators } from '../../api';
+import { useExplorerNetwork } from '../../hooks';
 
 const cols: ColumnData[] = [
   { path: 'rank', name: 'Rank' },
@@ -14,14 +12,85 @@ const cols: ColumnData[] = [
 ];
 
 export const useNodesEffects = () => {
-  const { initLoading, finishLoading } = useExplorerLoader();
-  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
-  const [network] = useState(currentNetwork);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const [weekNumber, setWeekNumber] = useState<number>(
     DateTime.now().weekNumber
   );
   const [year, setYear] = useState<number>(DateTime.now().year);
+  const [tableData, setTableData] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [start, setStart] = useState<number>(0);
+
+  const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
+    usePagination();
+  const { backendEndpoint } = useExplorerNetwork();
+
+  const { data: blocks } = useGetBlocksThisWeek(
+    backendEndpoint,
+    weekNumber,
+    year
+  );
+
+  const updateValidators = useCallback(async () => {
+    setLoading(true);
+    try {
+      const validators = await useGetValidators(
+        backendEndpoint,
+        weekNumber,
+        year,
+        {
+          start,
+          limit: rowsPerPage,
+        }
+      );
+
+      setTableData(validators?.data || []);
+      setTotalCount(validators?.total || 0);
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [backendEndpoint, weekNumber, year, start, rowsPerPage]);
+
+  useEffect(() => {
+    updateValidators();
+  }, [updateValidators]);
+
+  const handlePreviousWeek = () => {
+    if (weekNumber === 1) {
+      setYear((year) => year - 1);
+      setWeekNumber(DateTime.utc(year - 1, 12, 28).weekNumber);
+    } else {
+      setWeekNumber((weekNumber) => weekNumber - 1);
+    }
+    handleChangePage(0);
+    setStart(0);
+  };
+
+  const handleNextWeek = () => {
+    const lastWeekOfYear = DateTime.utc(year, 12, 28).weekNumber;
+    if (weekNumber === lastWeekOfYear) {
+      if (year < DateTime.now().year) {
+        setYear((year) => year + 1);
+        setWeekNumber(1);
+      }
+    } else if (weekNumber < lastWeekOfYear) {
+      setWeekNumber((weekNumber) => weekNumber + 1);
+    }
+    handleChangePage(0);
+    setStart(0);
+  };
+
+  const onChangePage = (p: number) => {
+    setStart(totalCount - p * rowsPerPage);
+    handleChangePage(p);
+  };
+
+  const onChangeRowsPerPage = (l: number) => {
+    handleChangeRowsPerPage(l);
+    setStart(0);
+  };
 
   const monday = DateTime.fromObject({
     weekNumber: weekNumber,
@@ -39,129 +108,22 @@ export const useNodesEffects = () => {
   const subtitle = `Top block producers for Week ${weekNumber} (${monday} - ${sunday})`;
   const description = 'Total blocks produced this week';
 
-  const [tableData, setTableData] = useState<NodesTableData[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
-  const [blocks, setBlocks] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [page, setPage] = useState(0);
-  const {
-    data: nodesResult,
-    isFetching,
-    isLoading,
-  } = useGetNodes(backendEndpoint, { rowsPerPage, page }, weekNumber, year);
-  const {
-    data: totalBlocks,
-    isFetching: isFetchingTotalBlocks,
-    isLoading: isLoadingTotalBlocks,
-  } = useGetBlocksThisWeek(backendEndpoint, weekNumber, year);
-
-  const handlePreviousWeek = () => {
-    clearNodes();
-    if (weekNumber === 1) {
-      setYear((year) => year - 1);
-      setWeekNumber(DateTime.utc(year - 1, 12, 28).weekNumber);
-    } else {
-      setWeekNumber((weekNumber) => weekNumber - 1);
-    }
-  };
-
-  const handleNextWeek = () => {
-    clearNodes();
-    const lastWeekOfYear = DateTime.utc(year, 12, 28).weekNumber;
-    if (weekNumber === lastWeekOfYear) {
-      if (year < DateTime.now().year) {
-        setYear((year) => year + 1);
-        setWeekNumber(1);
-      }
-    } else if (weekNumber < lastWeekOfYear) {
-      setWeekNumber((weekNumber) => weekNumber + 1);
-    }
-  };
-
-  const formatNodesToTable = (nodes: RankedNode[]): NodesTableData[] => {
-    if (nodes?.length === 0) {
-      return [];
-    }
-    const formattedNodes: NodesTableData[] = nodes?.map(
-      (node: RankedNode, i: number) => {
-        return {
-          rank: tableData?.length > 0 ? tableData.length + i + 1 : i + 1,
-          nodeAddress: node?.address,
-          blocksProduced: node?.pbftCount,
-        };
-      }
-    );
-    return formattedNodes;
-  };
-
-  const clearNodes = () => {
-    setBlocks(0);
-    setTotalCount(0);
-    setTableData([]);
-    setPage(0);
-  };
-
-  useEffect(() => {
-    if (
-      isFetching ||
-      isLoading ||
-      isFetchingTotalBlocks ||
-      isLoadingTotalBlocks
-    ) {
-      initLoading();
-      setLoading(true);
-    } else {
-      finishLoading();
-      setLoading(false);
-    }
-  }, [isFetching, isLoading, isFetchingTotalBlocks, isLoadingTotalBlocks]);
-
-  useEffect(() => {
-    if (nodesResult?.data && nodesResult?.total) {
-      setTableData(
-        tableData.concat(formatNodesToTable(nodesResult.data as RankedNode[]))
-      );
-      setTotalCount(Number(nodesResult?.total));
-    }
-  }, [nodesResult]);
-
-  useEffect(() => {
-    if (totalBlocks?.data && !isNaN(totalBlocks?.data)) {
-      setBlocks(totalBlocks.data);
-    }
-  }, [totalBlocks]);
-
-  useEffect(() => {
-    if (currentNetwork !== network) {
-      window.location.reload();
-    }
-  }, [currentNetwork, network]);
-
-  const handleChangePage = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   return {
-    blocks,
+    blocks: blocks?.data,
     title,
     subtitle,
     description,
     cols,
-    tableData,
+    tableData: tableData.map((node: RankedNode, i: number) => ({
+      rank: i + 1,
+      address: node.address,
+      pbftCount: node.pbftCount,
+    })),
     totalCount,
     rowsPerPage,
     page,
-    handleChangePage,
-    handleChangeRowsPerPage,
+    handleChangePage: onChangePage,
+    handleChangeRowsPerPage: onChangeRowsPerPage,
     handlePreviousWeek,
     handleNextWeek,
     weekNumber,

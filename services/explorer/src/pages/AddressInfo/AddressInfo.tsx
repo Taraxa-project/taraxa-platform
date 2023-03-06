@@ -29,10 +29,8 @@ const AddressInfoPage = (): JSX.Element => {
     showLoadingSkeleton,
     tabsStep,
     setTabsStep,
-    isFetchingDagsCount,
-    isLoadingDagsCount,
-    isFetchingPbftsCount,
-    isLoadingPbftsCount,
+    isFetchingAddressStats,
+    isLoadingAddressStats,
     isLoadingTables,
   } = useAddressInfoEffects(account);
 
@@ -67,10 +65,8 @@ const AddressInfoPage = (): JSX.Element => {
           handleTxChangeRowsPerPage={handleTxChangeRowsPerPage}
           tabsStep={tabsStep}
           setTabsStep={setTabsStep}
-          isFetchingDagsCount={isFetchingDagsCount}
-          isLoadingDagsCount={isLoadingDagsCount}
-          isFetchingPbftsCount={isFetchingPbftsCount}
-          isLoadingPbftsCount={isLoadingPbftsCount}
+          isFetchingAddressStats={isFetchingAddressStats}
+          isLoadingAddressStats={isLoadingAddressStats}
           isLoadingTables={isLoadingTables}
         />
       )}

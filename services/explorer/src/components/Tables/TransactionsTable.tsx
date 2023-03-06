@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Table,
   TableHead,
@@ -14,15 +14,19 @@ import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
-import { Transaction } from '../../models';
+import { Transaction as TransactionBase } from '../../models';
+
+export interface Transaction extends TransactionBase {
+  timestamp?: number;
+}
 
 export interface TransactionsTableProps {
   transactionsData: Transaction[];
   totalCount?: number;
-  pageNo?: number;
+  pageNo: number;
   rowsPage?: number;
-  changePage?: (pageNo: number) => void;
-  changeRows?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  changePage?: (p: number) => void;
+  changeRows?: (l: number) => void;
 }
 
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({
@@ -33,49 +37,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
   changePage,
   changeRows,
 }) => {
-  const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [page, setPage] = useState(0);
-  const [data, setData] = useState<Transaction[]>([]);
-
-  useEffect(() => {
-    if (!pageNo && !rowsPage) {
-      setData(
-        transactionsData?.slice(
-          page * rowsPerPage,
-          page * rowsPerPage + rowsPerPage
-        )
-      );
-    } else {
-      setData(transactionsData);
-    }
-  }, [transactionsData, page, rowsPerPage]);
-
-  const handleChangePage = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const onRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (typeof changeRows === 'function') {
-      changeRows(event);
-    } else {
-      handleChangeRowsPerPage(event);
-    }
-  };
-
-  const onPageChange = (event: unknown, newPage: number) => {
-    if (typeof changePage === 'function') {
-      changePage(newPage);
-    } else {
-      handleChangePage(newPage);
-    }
-  };
+  const onRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    changeRows(parseInt(event.target.value, 10));
+  const onPageChange = (event: unknown, p: number) => changePage(p);
 
   return (
     <Box display='flex' flexDirection='column' sx={{ width: '100%' }}>
@@ -88,8 +52,8 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
           rowsPerPageOptions={[25, 50, 75, 100]}
           component='div'
           count={totalCount || transactionsData?.length || 0}
-          rowsPerPage={rowsPage || rowsPerPage}
-          page={pageNo || page}
+          rowsPerPage={rowsPage}
+          page={pageNo}
           onPageChange={onPageChange}
           onRowsPerPageChange={onRowsPerPageChange}
         />
@@ -156,13 +120,13 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.map((tx, i) => (
+            {transactionsData?.map((tx, i) => (
               <TableRow key={`${tx.hash}-${i}`}>
                 <TableCell variant='body'>
                   <HashLink
                     linkType={HashLinkType.TRANSACTIONS}
                     hash={tx.hash}
-                    disabled={tx.hash?.startsWith('0xgenesis')}
+                    disabled={tx.hash?.toLowerCase().startsWith('genesis')}
                     wrap
                   />
                 </TableCell>
@@ -199,7 +163,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   {statusToLabel(formatTransactionStatus(tx.status))}
                 </TableCell>
                 <TableCell variant='body' width='5rem !important'>
-                  {timestampToAge(tx.block?.timestamp)}
+                  {timestampToAge(tx.block?.timestamp || tx.timestamp)}
                 </TableCell>
                 <TableCell variant='body' width='5rem !important'>
                   {tx.value?.toString()}
