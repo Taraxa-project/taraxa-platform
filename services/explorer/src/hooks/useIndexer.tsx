@@ -43,7 +43,7 @@ export const useIndexer = (
 
   const onChangePage = (p: number) => {
     handleChangePage(p);
-    setStart(total - p * rowsPerPage);
+    setStart(p * rowsPerPage);
   };
 
   return {

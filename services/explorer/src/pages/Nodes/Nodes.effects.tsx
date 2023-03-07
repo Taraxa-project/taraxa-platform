@@ -83,7 +83,7 @@ export const useNodesEffects = () => {
   };
 
   const onChangePage = (p: number) => {
-    setStart(totalCount - p * rowsPerPage);
+    setStart(p * rowsPerPage);
     handleChangePage(p);
   };
 
