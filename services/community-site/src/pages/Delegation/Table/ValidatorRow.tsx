@@ -114,11 +114,7 @@ const ValidatorRow = ({
             color="secondary"
             variant="contained"
             label="Claim"
-            disabled={
-              actionsDisabled ||
-              validator.isFullyDelegated ||
-              validator.availableForDelegation.lte(0)
-            }
+            disabled={actionsDisabled || stakingRewards.lte(BigNumber.from('0'))}
             className="smallBtn"
             onClick={() => setClaimFromValidator(stakingRewards, validator)}
           />
