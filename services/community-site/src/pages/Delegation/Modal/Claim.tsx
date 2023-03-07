@@ -95,7 +95,7 @@ const Claim = ({ amount, validator, onSuccess, onFinish, commissionMode = false 
           <p className="successText">{`You've successfully claimed ${stripEth(amount)} TARA!`}</p>
           <Button
             type="submit"
-            label="Ok"
+            label="Claim"
             fullWidth
             color="secondary"
             variant="contained"
