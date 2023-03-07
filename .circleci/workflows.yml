@@ -244,33 +244,6 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa/delegation-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa/delegation-develop:latest
             fi
-  deploy-delegation:
-    <<: *config
-    steps:
-      - *step_install_deps
-      - checkout
-      - *step_install_deploy_deps
-      - *step_setup_remote_docker
-      - *step_prepare_environment
-      - run:
-          name: Deploy
-          shell: /bin/bash -eo pipefail
-          command: |
-            if [ "${ENV}" == "prod" ]; then
-              export NS=taraxa-community-prod
-              export HELM_NAME=community-delegation
-              export HELM_CONFIG=prod.values.yaml
-            else
-              export NS=taraxa-community-qa
-              export HELM_NAME=qa-community-delegation
-              export HELM_CONFIG=qa.values.yaml
-            fi
-
-            helm upgrade -i ${HELM_NAME} services/delegation/charts/community-delegation/ \
-              --namespace ${NS} \
-              -f services/delegation/charts/community-delegation/values.yaml \
-              -f services/delegation/charts/${HELM_CONFIG} \
-              --set image.tag=${VERSION}
   build-claim-backend:
     <<: *config
     steps:
@@ -584,16 +557,6 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
-      - deploy-delegation:
-          requires:
-            - build-delegation
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-          context:
-            - K8S
   delegation-helm-chart:
     when:
       or:
