@@ -33,11 +33,11 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
       />
     );
   }
-  if (state === TransactionStatus.NOT_YET_MINED) {
+  if (state === TransactionStatus.NOT_YET_FINALIZED) {
     return (
       <Label
         variant='secondary'
-        label='Not Yet Mined'
+        label='Not Yet Finalized'
         gap
         icon={<Icons.NotFound />}
       />
