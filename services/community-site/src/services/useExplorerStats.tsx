@@ -15,7 +15,7 @@ export default () => {
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
           const status = await get(
-            `https://explorer.mainnet.taraxa.io/api/address/${validator.address.toLowerCase()}/stats`,
+            `https://indexer.mainnet.taraxa.io/address/${validator.address.toLowerCase()}/stats`,
           );
           if (!status.success) {
             return validator;
