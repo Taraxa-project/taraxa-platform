@@ -17,7 +17,7 @@ export const useGetGenesisBlock = async (
     ...response.data,
     data: response.data.data.map((tx: AddressTxResponse) => ({
       ...tx,
-      status: tx.status ? 0 : 1,
+      status: tx.status ? 1 : 0,
       gasUsed: tx.gasUsed?.toString(),
       gasPrice: displayWeiOrTara(tx.gasPrice?.toString()),
       gas: displayWeiOrTara(
