@@ -22,4 +22,3 @@ ingress:
     - secretName: wild-qa-claim-taraxa-io-tls
       hosts:
         - api.qa.claim.taraxa.io
-
