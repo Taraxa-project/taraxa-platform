@@ -32,6 +32,9 @@ parameters:
   run-claim-backend-service-workflow:
     type: boolean
     default: false
+  build-claim-backend-helm-chart-workflow:
+    type: boolean
+    default: false  
   build-faucet-workflow:
     type: boolean
     default: false
@@ -565,6 +568,25 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
+  claim-backend-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-claim-backend-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/claim-backend/charts
+          chart-name: claim-backend
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
   faucet:
     when:
       and:
