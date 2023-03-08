@@ -17,6 +17,7 @@ workflows:
             services/delegation/.* run-delegation-service-workflow true
             services/delegation/charts/.* build-delegation-helm-chart-workflow true
             services/claim-backend/.* run-claim-backend-service-workflow true
+            services/claim-backend/charts/.* build-claim-backend-helm-chart-workflow true
             services/faucet/.* build-faucet-workflow true
             services/faucet/charts/.* build-faucet-helm-chart-workflow true
             services/explorer/.* build-explorer-workflow true
