@@ -587,6 +587,7 @@ workflows:
               only:
                 - main
                 - develop
+                - chore/claim-backend-ci
   faucet:
     when:
       and:
