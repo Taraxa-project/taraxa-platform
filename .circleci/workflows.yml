@@ -99,6 +99,9 @@ aliases:
         if [ "${CIRCLE_BRANCH}" == "develop" ]; then
           export ENV=stage
           echo 'export ENV=stage' >> $BASH_ENV
+        elif [ "${CIRCLE_BRANCH}" == "chore/ci-claim-admin" ]; then
+          export ENV=stage
+          echo 'export ENV=stage' >> $BASH_ENV
         elif [ "${CIRCLE_BRANCH}" == "main" ]; then
           export ENV=prod
           echo 'export ENV=prod' >> $BASH_ENV
