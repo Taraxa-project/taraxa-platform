@@ -17,6 +17,12 @@ parameters:
   build-community-backend-helm-chart-workflow:
     type: boolean
     default: false
+  run-claim-admin-service-workflow:
+    type: boolean
+    default: false
+  build-claim-admin-helm-chart-workflow:
+    type: boolean
+    default: false
   build-community-site-helm-chart-workflow:
     type: boolean
     default: false
@@ -167,6 +173,37 @@ jobs:
               docker tag taraxa-community-backend:${VERSION} ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
               docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
+            fi
+  build-claim-admin:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build --build-arg NODE_ENV=${ENV} -t claim-admin:${VERSION} -f legacy/claim-admin/Dockerfile .
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag claim-admin:${VERSION} taraxa/claim-admin:${VERSION}
+              docker tag claim-admin:${VERSION} taraxa/claim-admin:latest
+              docker push taraxa/claim-admin:${VERSION}
+              docker push taraxa/claim-admin:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag claim-admin:${VERSION} ${GCP_REGISTRY}/taraxa/claim-admin-develop:${VERSION}
+              docker tag claim-admin:${VERSION} ${GCP_REGISTRY}/taraxa/claim-admin-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:latest
             fi
   deploy-community-site:
     <<: *config
@@ -470,6 +507,42 @@ workflows:
               only:
                 - main
                 - develop
+  claim-admin:
+    when:
+      or:
+        - << pipeline.parameters.run-claim-admin-service-workflow >>
+    jobs:
+      - build-claim-admin:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - chore/ci-claim-admin # REMOVE me later
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  claim-admin-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-claim-admin-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: legacy/claim-admin/charts
+          chart-name: claim-admin
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - chore/ci-claim-admin # REMOVE me later
   community-backend:
     when:
       or:
