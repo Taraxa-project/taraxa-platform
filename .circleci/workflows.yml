@@ -188,6 +188,7 @@ jobs:
           name: debug
           command: |
             pwd
+            ls
       - run:
           name: Build image
           shell: /bin/bash -eo pipefail
