@@ -17,3 +17,4 @@ ingress:
     - secretName: wild-qa-claim-taraxa-io-tls
       hosts:
         - admin.qa.claim.taraxa.io
+
