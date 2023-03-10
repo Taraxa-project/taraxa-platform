@@ -193,7 +193,7 @@ jobs:
           name: Build image
           shell: /bin/bash -eo pipefail
           command: |
-            docker build -t claim-admin:${VERSION} -f legacy/claim-admin/Dockerfile .
+            docker build -t claim-admin:${VERSION} -f legacy/claim-admin/Dockerfile ./legacy/claim-admin
       - run:
           name: Tag and push images
           shell: /bin/bash -eo pipefail
