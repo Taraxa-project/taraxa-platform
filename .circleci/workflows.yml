@@ -185,10 +185,14 @@ jobs:
       - *step_setup_remote_docker
       - *step_prepare_environment
       - run:
+          name: debug
+          command: |
+            pwd
+      - run:
           name: Build image
           shell: /bin/bash -eo pipefail
           command: |
-            docker build --build-arg NODE_ENV=${ENV} -t claim-admin:${VERSION} -f legacy/claim-admin/Dockerfile .
+            docker build -t claim-admin:${VERSION} -f legacy/claim-admin/Dockerfile .
       - run:
           name: Tag and push images
           shell: /bin/bash -eo pipefail
