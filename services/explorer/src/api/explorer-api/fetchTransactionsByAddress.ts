@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { displayWeiOrTara } from '../../utils';
+import { displayWeiOrTara, getAddressTransactionType } from '../../utils';
 import {
   FetchWithPagination,
   AddressTxResponse,
@@ -40,6 +40,7 @@ export const useGetTransactionsByAddress = (
           address: tx.to,
         },
         type: tx.type,
+        action: getAddressTransactionType(tx.type),
       }));
     }
     return data;

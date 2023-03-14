@@ -13,12 +13,7 @@ import { Icons } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
-import {
-  formatTransactionStatus,
-  getAddressTransactionType,
-  HashLinkType,
-  zeroX,
-} from '../../utils';
+import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
 import { Transaction as TransactionBase } from '../../models';
 
 export interface Transaction extends TransactionBase {
@@ -136,9 +131,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   />
                 </TableCell>
                 <TableCell variant='body'>{tx.block?.number || 0}</TableCell>
-                <TableCell variant='body'>
-                  {getAddressTransactionType(tx.type)}
-                </TableCell>
+                <TableCell variant='body'>{tx.action}</TableCell>
                 <TableCell variant='body'>
                   <Box
                     display='flex'
@@ -157,10 +150,18 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     />
                     <Icons.GreenRightArrow />
                     <AddressLink
-                      disabled={zeroX(tx.to?.address || (tx.to as string))
+                      disabled={zeroX(
+                        tx.to?.address ||
+                          (tx.to as string) ||
+                          tx.createdContract?.address
+                      )
                         ?.toLowerCase()
                         .startsWith('0xgenesis')}
-                      address={tx.to?.address || (tx.to as string)}
+                      address={
+                        tx.to?.address ||
+                        (tx.to as string) ||
+                        tx.createdContract?.address
+                      }
                     />
                   </Box>
                 </TableCell>

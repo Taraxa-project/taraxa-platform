@@ -20,4 +20,5 @@ export interface Transaction {
   createdContract?: Partial<Account>;
   logs?: Log[];
   type?: 0 | 1 | 2;
+  action?: string;
 }
