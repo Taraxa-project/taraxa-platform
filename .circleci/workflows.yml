@@ -182,11 +182,6 @@ jobs:
       - *step_setup_remote_docker
       - *step_prepare_environment
       - run:
-          name: debug
-          command: |
-            pwd
-            ls
-      - run:
           name: Build image
           shell: /bin/bash -eo pipefail
           command: |
