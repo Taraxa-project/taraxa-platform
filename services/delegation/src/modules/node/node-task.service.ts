@@ -39,7 +39,7 @@ export class NodeTaskService implements OnModuleInit {
           nodes.length
         }: getting stats for node ${node.address.toLowerCase()}`,
       );
-      const uri = `/api/address/${node.address.toLowerCase()}/stats`;
+      const uri = `/address/${node.address.toLowerCase()}/stats`;
       const url =
         node.type === NodeType.MAINNET
           ? `${mainnetExplorerUrl}${uri}`
