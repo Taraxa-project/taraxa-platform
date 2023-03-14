@@ -79,21 +79,17 @@ export const useAddressInfoEffects = (
     isLoading: isLoadingAddressStats,
   } = useGetAddressStats(backendEndpoint, account);
 
-  const {
-    data: tokenPriceData,
-    isFetching: isFetchingTokenPrice,
-    isLoading: isLoadingTokenPrice,
-  } = useGetTokenPrice();
+  const { data: tokenPriceData } = useGetTokenPrice();
 
   useEffect(() => {
-    if (fetchingDetails || isFetchingTokenPrice || isLoadingTokenPrice) {
+    if (fetchingDetails) {
       initLoading();
       setShowLoadingSkeleton(true);
     } else {
       finishLoading();
       setShowLoadingSkeleton(false);
     }
-  }, [fetchingDetails, isFetchingTokenPrice, isLoadingTokenPrice]);
+  }, [fetchingDetails]);
 
   useEffect(() => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };

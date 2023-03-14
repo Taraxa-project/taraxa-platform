@@ -39,6 +39,7 @@ export const useGetTransactionsByAddress = (
         to: {
           address: tx.to,
         },
+        type: tx.type,
       }));
     }
     return data;

@@ -10,12 +10,14 @@ export interface Transaction {
   value?: number | BigNumber | string;
   gasPrice?: number | BigNumber | string;
   gas?: number | BigNumber | string;
-  inputData?: number;
+  inputData?: number | string;
   block?: Partial<PbftBlock>;
   status?: number;
   gasUsed?: number;
   cumulativeGasUsed?: number;
   from?: Partial<Account>;
   to?: Partial<Account>;
+  createdContract?: Partial<Account>;
   logs?: Log[];
+  type?: 0 | 1 | 2;
 }

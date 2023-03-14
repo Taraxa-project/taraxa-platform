@@ -13,7 +13,12 @@ import { Icons } from '@taraxa_project/taraxa-ui';
 import { theme } from '../../theme-provider';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
-import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
+import {
+  formatTransactionStatus,
+  getAddressTransactionType,
+  HashLinkType,
+  zeroX,
+} from '../../utils';
 import { Transaction as TransactionBase } from '../../models';
 
 export interface Transaction extends TransactionBase {
@@ -132,7 +137,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 </TableCell>
                 <TableCell variant='body'>{tx.block?.number || 0}</TableCell>
                 <TableCell variant='body'>
-                  {tx.value ? 'Transfer' : 'Method call'}
+                  {getAddressTransactionType(tx.type)}
                 </TableCell>
                 <TableCell variant='body'>
                   <Box
