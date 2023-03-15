@@ -1,4 +1,3 @@
-import React from 'react';
 import { Container, Box } from '@mui/material';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Provider as UrqlProvider } from 'urql';

@@ -53,8 +53,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "prettier --write",
-      "eslint"
+      "yarn prettier --write",
+      "yarn eslint"
     ]
   },
   "dependencies": {

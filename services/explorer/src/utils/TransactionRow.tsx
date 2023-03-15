@@ -33,11 +33,11 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
       />
     );
   }
-  if (state === TransactionStatus.NOT_YET_MINED) {
+  if (state === TransactionStatus.NOT_YET_FINALIZED) {
     return (
       <Label
         variant='secondary'
-        label='Not Yet Mined'
+        label='Not Yet Finalized'
         gap
         icon={<Icons.NotFound />}
       />
@@ -179,29 +179,19 @@ export const toDagBlockTableRow = (
 
 export const toNodeTableRow = ({
   rank,
-  nodeAddress,
-  blocksProduced,
+  address,
+  pbftCount,
 }: NodesTableData): {
-  data: {
-    rank: number;
-    nodeAddress: JSX.Element;
-    blocksProduced: string;
-  }[];
+  rank: number;
+  nodeAddress: JSX.Element;
+  blocksProduced: string;
 } => {
-  const address = (
-    <HashLink
-      linkType={HashLinkType.ADDRESSES}
-      width='auto'
-      hash={nodeAddress}
-    />
+  const addressLink = (
+    <HashLink linkType={HashLinkType.ADDRESSES} width='auto' hash={address} />
   );
   return {
-    data: [
-      {
-        rank,
-        nodeAddress: address,
-        blocksProduced: blocksProduced.toLocaleString('en-US'),
-      },
-    ],
+    rank,
+    nodeAddress: addressLink,
+    blocksProduced: pbftCount.toLocaleString('en-US'),
   };
 };

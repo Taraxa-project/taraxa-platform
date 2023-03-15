@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import cleanDeep from 'clean-deep';
 import { useQuery } from 'urql';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import { Network, unwrapIdentifier } from '../../utils';
+import { Network, unwrapIdentifier, zeroX } from '../../utils';
 import {
   searchAccountAddressQuery,
   searchBlockQuery,
@@ -103,7 +103,7 @@ export const useHeaderEffects = () => {
       if (searchHash) {
         options.push({
           type: 'Hash',
-          label: blockData?.block?.hash,
+          label: zeroX(blockData?.block?.hash),
           value: SearchLabelOption.PBFT,
         });
       }
@@ -124,7 +124,7 @@ export const useHeaderEffects = () => {
         searchOptions.concat([
           {
             type: 'Hash',
-            label: dagBlockData?.dagBlock?.hash,
+            label: zeroX(dagBlockData?.dagBlock?.hash),
             value: SearchLabelOption.DAG,
           },
         ])
@@ -138,7 +138,7 @@ export const useHeaderEffects = () => {
         searchOptions.concat([
           {
             type: 'Hash',
-            label: transactionData?.transaction?.hash,
+            label: zeroX(transactionData?.transaction?.hash),
             value: SearchLabelOption.TRANSACTION,
           },
         ])
@@ -152,7 +152,7 @@ export const useHeaderEffects = () => {
         searchOptions.concat([
           {
             type: 'Address',
-            label: addressData?.account?.address,
+            label: zeroX(addressData?.account?.address),
             value: SearchLabelOption.ADDRESS,
           },
         ])
@@ -227,9 +227,11 @@ export const useHeaderEffects = () => {
   };
 
   const onInputChange = (searchString: string) => {
-    setSearchString(searchString);
+    setSearchString(searchString.trim());
     clearSearch();
-    const { txHash, blockNumber, address } = unwrapIdentifier(searchString);
+    const { txHash, blockNumber, address } = unwrapIdentifier(
+      searchString.trim()
+    );
     if (txHash) setSearchHash(txHash);
     if (!isNaN(blockNumber)) setSearchBlockNumber(blockNumber);
     if (address) setSearchAddress(address);

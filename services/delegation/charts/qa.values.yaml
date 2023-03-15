@@ -49,3 +49,4 @@ autoscaling:
 
 nodeSelector:
   cloud.google.com/gke-nodepool: taraxa-community-qa
+  
