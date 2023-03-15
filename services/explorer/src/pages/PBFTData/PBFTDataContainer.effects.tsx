@@ -6,8 +6,7 @@ import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { PbftBlock, Transaction } from '../../models';
 import { useIndexer } from '../../hooks/useIndexer';
 import { useGetGenesisBlock } from '../../api';
-import { displayWeiOrTara } from '../../utils';
-import { TransactionResponse } from '../AddressInfo/AddressInfo.effects';
+import { displayWeiOrTara, getTransactionType } from '../../utils';
 
 export const usePBFTDataContainerEffects = (
   blockNumber?: number,
@@ -75,13 +74,14 @@ export const usePBFTDataContainerEffects = (
       const trx = blockTransactionsResponse.block.transactions;
       setTransactions(
         trx
-          .map((tx: TransactionResponse) => ({
+          .map((tx: Transaction) => ({
             ...tx,
             value: displayWeiOrTara(tx.value),
             gasUsed: displayWeiOrTara(tx.gasUsed),
             gas: displayWeiOrTara(
-              parseInt(tx.gasUsed, 10) * parseInt(tx.gasPrice, 10)
+              parseInt(`${tx.gasUsed}`, 10) * parseInt(`${tx.gasPrice}`, 10)
             ),
+            action: getTransactionType(tx),
           }))
           .slice(
             transactionsPage * transactionsRowsPerPage,

@@ -34,6 +34,10 @@ export const blockTransactionsQuery = `
 				},
         gasUsed,
         gasPrice
+        inputData,
+        createdContract {
+          address
+        }
         status, hash, value, block {
           timestamp,
           number

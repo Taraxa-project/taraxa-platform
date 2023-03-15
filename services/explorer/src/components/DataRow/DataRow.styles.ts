@@ -19,6 +19,7 @@ const useStyles = makeStyles(
         [theme.breakpoints.down('md')]: {
           width: '100%',
         },
+        wordBreak: 'break-all',
       },
     };
   },

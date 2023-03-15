@@ -6,6 +6,10 @@ export const transactionQuery = `
       nonce,
       hash,
       gas,
+      inputData,
+      createdContract {
+        address
+      }
       from {
 				address
 			},

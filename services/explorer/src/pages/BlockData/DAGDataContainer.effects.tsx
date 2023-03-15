@@ -3,7 +3,7 @@ import { useQuery } from 'urql';
 import { dagDetailsQuery } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { DagBlock, Transaction } from '../../models';
-import { displayWeiOrTara } from '../../utils';
+import { displayWeiOrTara, getTransactionType } from '../../utils';
 
 export const useDAGDataContainerEffects = (
   hash: string
@@ -44,6 +44,7 @@ export const useDAGDataContainerEffects = (
             gas: displayWeiOrTara(
               tx.gasUsed * parseInt(tx.gasPrice.toString(), 10)
             ),
+            action: getTransactionType(tx),
           };
         })
       );
