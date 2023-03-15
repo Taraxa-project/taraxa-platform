@@ -31,11 +31,6 @@ export type PbftBlockDetailsFilters = {
   number?: number;
 };
 
-export type PaginationFilter = {
-  limit: number;
-  start: number;
-};
-
 export type FetchWithPagination = {
   start: number;
   limit: number;
@@ -48,11 +43,6 @@ export type ResultWithPagination<T> = {
   hasNext: boolean;
   data: T[];
 };
-
-export interface NodesPaginate {
-  data: ITaraxaNode[];
-  total: number;
-}
 
 export interface AddressPbftsResponse {
   hash: string;
@@ -81,21 +71,16 @@ export interface AddressTxResponse {
   timestamp?: number;
 }
 
-export interface PbftsPaginate {
-  data: AddressPbftsResponse[];
-  total: number;
-}
-
-export interface DagsPaginate {
-  data: AddressDagsResponse[];
-  total: number;
-}
-
-export interface TxPaginate {
-  data: AddressTxResponse[];
-  total: number;
-}
-
 export interface RankedNode extends ITaraxaNode {
   rank: number;
 }
+
+export interface Paginate<T> {
+  data: T[];
+  total: number;
+}
+
+export type PbftsPaginate = Paginate<AddressPbftsResponse>;
+export type DagsPaginate = Paginate<AddressDagsResponse>;
+export type TxPaginate = Paginate<AddressTxResponse>;
+export type NodesPaginate = Paginate<ITaraxaNode>;

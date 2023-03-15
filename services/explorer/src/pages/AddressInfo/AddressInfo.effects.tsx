@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
-import { AddressInfoDetails, BlockData, Transaction } from '../../models';
+import { AddressInfoDetails } from '../../models';
 import {
   addressDetailsQuery,
   useGetDagsByAddress,
@@ -26,39 +26,10 @@ export interface TransactionResponse {
   age: number;
 }
 
-export const useAddressInfoEffects = (
-  account: string
-): {
-  transactions: Transaction[];
-  addressInfoDetails: AddressInfoDetails;
-  dagBlocks: BlockData[];
-  pbftBlocks: BlockData[];
-  totalPbftCount: number;
-  rowsPbftPerPage: number;
-  pbftPage: number;
-  handlePbftChangePage: (p: number) => void;
-  handlePbftChangeRowsPerPage: (l: number) => void;
-  totalDagCount: number;
-  rowsDagPerPage: number;
-  dagPage: number;
-  handleDagChangePage: (p: number) => void;
-  handleDagChangeRowsPerPage: (l: number) => void;
-  totalTxCount: number;
-  rowsTxPerPage: number;
-  txPage: number;
-  handleTxChangePage: (p: number) => void;
-  handleTxChangeRowsPerPage: (l: number) => void;
-  showLoadingSkeleton: boolean;
-  tabsStep: number;
-  setTabsStep: (step: number) => void;
-  isFetchingAddressStats: boolean;
-  isLoadingAddressStats: boolean;
-  isLoadingTables: boolean;
-} => {
+export const useAddressInfoEffects = (account: string) => {
   const [tabsStep, setTabsStep] = useState<number>(0);
 
   const { initLoading, finishLoading } = useExplorerLoader();
-  const [isLoadingTables, setIsLoadingTables] = useState<boolean>(false);
   const { backendEndpoint } = useExplorerNetwork();
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
@@ -175,6 +146,5 @@ export const useAddressInfoEffects = (
     setTabsStep,
     isFetchingAddressStats,
     isLoadingAddressStats,
-    isLoadingTables,
   };
 };
