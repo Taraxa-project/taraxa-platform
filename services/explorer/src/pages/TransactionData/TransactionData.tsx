@@ -188,7 +188,7 @@ const TransactionDataContainer = (): JSX.Element => {
                       >
                         <AddressLink
                           width='auto'
-                          address={transactionData?.from?.address}
+                          address={transactionData.from?.address}
                         />
                         <Box>
                           <GreenRightArrow />
@@ -196,8 +196,8 @@ const TransactionDataContainer = (): JSX.Element => {
                         <AddressLink
                           width='auto'
                           address={
-                            transactionData?.to?.address ||
-                            transactionData?.createdContract?.address
+                            transactionData.to?.address ||
+                            transactionData.createdContract?.address
                           }
                         />
                       </Box>
@@ -219,10 +219,7 @@ const TransactionDataContainer = (): JSX.Element => {
               <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
               {transactionData?.inputData &&
                 transactionData?.inputData !== '0x' && (
-                  <DataRow
-                    title='Data'
-                    data={`${transactionData?.inputData}`}
-                  />
+                  <DataRow title='Data' data={`${transactionData.inputData}`} />
                 )}
               <Divider light />
               {dagData?.length && (
