@@ -8,30 +8,15 @@ import AddressLoadingSkeleton from './AddressLoadingSkeleton';
 const AddressInfoPage = (): JSX.Element => {
   const { account } = useParams();
   const {
-    transactions,
     addressInfoDetails,
-    dagBlocks,
-    pbftBlocks,
-    totalPbftCount,
-    pbftPage,
-    rowsPbftPerPage,
-    handlePbftChangePage,
-    handlePbftChangeRowsPerPage,
-    totalDagCount,
-    rowsDagPerPage,
-    dagPage,
-    handleDagChangePage,
-    handleDagChangeRowsPerPage,
-    totalTxCount,
-    rowsTxPerPage,
-    txPage,
-    handleTxChangePage,
-    handleTxChangeRowsPerPage,
     showLoadingSkeleton,
     tabsStep,
     setTabsStep,
     isFetchingAddressStats,
     isLoadingAddressStats,
+    pbftTablePagination,
+    dagTablePagination,
+    txTablePagination,
   } = useAddressInfoEffects(account);
 
   return (
@@ -57,24 +42,9 @@ const AddressInfoPage = (): JSX.Element => {
               isLoadingAddressStats={isLoadingAddressStats}
             />
             <AddressTables
-              transactions={transactions}
-              dagBlocks={dagBlocks}
-              pbftBlocks={pbftBlocks}
-              totalPbftCount={totalPbftCount}
-              rowsPbftPerPage={rowsPbftPerPage}
-              pbftPage={pbftPage}
-              handlePbftChangePage={handlePbftChangePage}
-              handlePbftChangeRowsPerPage={handlePbftChangeRowsPerPage}
-              totalDagCount={totalDagCount}
-              rowsDagPerPage={rowsDagPerPage}
-              dagPage={dagPage}
-              handleDagChangePage={handleDagChangePage}
-              handleDagChangeRowsPerPage={handleDagChangeRowsPerPage}
-              totalTxCount={totalTxCount}
-              rowsTxPerPage={rowsTxPerPage}
-              txPage={txPage}
-              handleTxChangePage={handleTxChangePage}
-              handleTxChangeRowsPerPage={handleTxChangeRowsPerPage}
+              pbftTablePagination={pbftTablePagination}
+              dagTablePagination={dagTablePagination}
+              txTablePagination={txTablePagination}
               tabsStep={tabsStep}
               setTabsStep={setTabsStep}
             />

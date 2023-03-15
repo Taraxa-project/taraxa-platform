@@ -1,4 +1,5 @@
 import { ITaraxaNode } from '@taraxa_project/explorer-shared';
+import { BlockData, Transaction } from '../models';
 
 export const MAINNET_API = `${process.env.REACT_APP_MAINNET_API_HOST}`;
 export const TESTNET_API = `${process.env.REACT_APP_TESTNET_API_HOST}`;
@@ -84,3 +85,15 @@ export type PbftsPaginate = Paginate<AddressPbftsResponse>;
 export type DagsPaginate = Paginate<AddressDagsResponse>;
 export type TxPaginate = Paginate<AddressTxResponse>;
 export type NodesPaginate = Paginate<ITaraxaNode>;
+
+export interface TablePagination<T> {
+  data: T[];
+  total: number;
+  page: number;
+  rowsPerPage: number;
+  handleChangePage: (p: number) => void;
+  handleChangeRowsPerPage: (l: number) => void;
+}
+
+export type BlockTablePagination = TablePagination<BlockData>;
+export type TxTablePaginate = TablePagination<Transaction>;

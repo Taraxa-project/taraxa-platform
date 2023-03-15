@@ -94,57 +94,19 @@ export const useAddressInfoEffects = (account: string) => {
     setAddressInfoDetails(addressDetails);
   }, [accountDetails, tokenPriceData, addressStats]);
 
-  const {
-    data: pbftBlocks,
-    total: totalPbftCount,
-    page: pbftPage,
-    rowsPerPage: rowsPbftPerPage,
-    handleChangePage: handlePbftChangePage,
-    handleChangeRowsPerPage: handlePbftChangeRowsPerPage,
-  } = useIndexer(useGetPbftsByAddress(account));
-
-  const {
-    data: dagBlocks,
-    total: totalDagCount,
-    page: dagPage,
-    rowsPerPage: rowsDagPerPage,
-    handleChangePage: handleDagChangePage,
-    handleChangeRowsPerPage: handleDagChangeRowsPerPage,
-  } = useIndexer(useGetDagsByAddress(account));
-
-  const {
-    data: transactions,
-    total: totalTxCount,
-    page: txPage,
-    rowsPerPage: rowsTxPerPage,
-    handleChangePage: handleTxChangePage,
-    handleChangeRowsPerPage: handleTxChangeRowsPerPage,
-  } = useIndexer(useGetTransactionsByAddress(account));
+  const pbftTablePagination = useIndexer(useGetPbftsByAddress(account));
+  const dagTablePagination = useIndexer(useGetDagsByAddress(account));
+  const txTablePagination = useIndexer(useGetTransactionsByAddress(account));
 
   return {
-    transactions,
     addressInfoDetails,
-    dagBlocks,
-    pbftBlocks,
-    totalPbftCount,
-    rowsPbftPerPage,
-    pbftPage,
-    handlePbftChangePage,
-    handlePbftChangeRowsPerPage,
-    totalDagCount,
-    rowsDagPerPage,
-    dagPage,
-    handleDagChangePage,
-    handleDagChangeRowsPerPage,
-    totalTxCount,
-    rowsTxPerPage,
-    txPage,
-    handleTxChangePage,
-    handleTxChangeRowsPerPage,
     showLoadingSkeleton,
     tabsStep,
     setTabsStep,
     isFetchingAddressStats,
     isLoadingAddressStats,
+    pbftTablePagination,
+    dagTablePagination,
+    txTablePagination,
   };
 };

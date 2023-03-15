@@ -1,57 +1,55 @@
-import { Box, Divider, Paper } from '@mui/material';
+import { Box, Divider } from '@mui/material';
 import { Icons } from '@taraxa_project/taraxa-ui';
 import useStyles from './AddressDetails.styles';
 import { BlocksTable, TransactionsTable } from '../Tables';
 import { TransactionIcon } from '../icons';
 import { TableTabs } from '../TableTabs';
-import { Transaction, BlockData, TableTabsProps } from '../../models';
+import { TableTabsProps } from '../../models';
+import { BlockTablePagination, TxTablePaginate } from '../../api';
 
 export interface AddressTablesProps {
-  transactions: Transaction[];
-  dagBlocks: BlockData[];
-  pbftBlocks: BlockData[];
-  totalPbftCount: number;
-  rowsPbftPerPage: number;
-  pbftPage: number;
-  handlePbftChangePage: (p: number) => void;
-  handlePbftChangeRowsPerPage: (l: number) => void;
-  totalDagCount: number;
-  rowsDagPerPage: number;
-  dagPage: number;
-  handleDagChangePage: (p: number) => void;
-  handleDagChangeRowsPerPage: (l: number) => void;
-  totalTxCount: number;
-  rowsTxPerPage: number;
-  txPage: number;
-  handleTxChangePage: (p: number) => void;
-  handleTxChangeRowsPerPage: (l: number) => void;
+  pbftTablePagination: BlockTablePagination;
+  dagTablePagination: BlockTablePagination;
+  txTablePagination: TxTablePaginate;
   tabsStep: number;
   setTabsStep: (step: number) => void;
 }
 
 export const AddressTables = ({
-  transactions,
-  dagBlocks,
-  pbftBlocks,
-  totalPbftCount,
-  rowsPbftPerPage,
-  pbftPage,
-  handlePbftChangePage,
-  handlePbftChangeRowsPerPage,
-  totalDagCount,
-  rowsDagPerPage,
-  dagPage,
-  handleDagChangePage,
-  handleDagChangeRowsPerPage,
-  totalTxCount,
-  rowsTxPerPage,
-  txPage,
-  handleTxChangePage,
-  handleTxChangeRowsPerPage,
+  pbftTablePagination,
+  dagTablePagination,
+  txTablePagination,
   tabsStep,
   setTabsStep,
 }: AddressTablesProps): JSX.Element => {
   const classes = useStyles();
+
+  const {
+    data: pbftBlocks,
+    total: totalPbftCount,
+    page: pbftPage,
+    rowsPerPage: rowsPbftPerPage,
+    handleChangePage: handlePbftChangePage,
+    handleChangeRowsPerPage: handlePbftChangeRowsPerPage,
+  } = pbftTablePagination;
+
+  const {
+    data: dagBlocks,
+    total: totalDagCount,
+    page: dagPage,
+    rowsPerPage: rowsDagPerPage,
+    handleChangePage: handleDagChangePage,
+    handleChangeRowsPerPage: handleDagChangeRowsPerPage,
+  } = dagTablePagination;
+
+  const {
+    data: transactions,
+    total: totalTxCount,
+    page: txPage,
+    rowsPerPage: rowsTxPerPage,
+    handleChangePage: handleTxChangePage,
+    handleChangeRowsPerPage: handleTxChangeRowsPerPage,
+  } = txTablePagination;
 
   const tableTabs: TableTabsProps = {
     tabs: [],
