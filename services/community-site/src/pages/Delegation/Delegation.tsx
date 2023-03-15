@@ -19,6 +19,7 @@ import {
   LoadingTable,
 } from '@taraxa_project/taraxa-ui';
 
+import { useAuth } from '../../services/useAuth';
 import useExplorerStats from '../../services/useExplorerStats';
 import { useLoading } from '../../services/useLoading';
 import Title from '../../components/Title/Title';
@@ -41,6 +42,7 @@ import { stripEth, weiToEth } from '../../utils/eth';
 import Undelegation from '../../interfaces/Undelegation';
 
 const Delegation = ({ location }: { location: Location }) => {
+  const { user } = useAuth();
   const { chainId, provider } = useChain();
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
@@ -149,6 +151,8 @@ const Delegation = ({ location }: { location: Location }) => {
     })();
   }, [showMyValidators, delegations]);
 
+  const isNotLoggedOrKycEd = !user || user.kyc !== 'APPROVED'; // && user.confirmed
+
   const isOnWrongChain = chainId !== mainnetChainId;
 
   const totalDelegationOfAddress = delegations.reduce((accumulator, currentDelegation) => {
@@ -243,6 +247,15 @@ const Delegation = ({ location }: { location: Location }) => {
             <Notification
               title="Notice:"
               text="You need to connect to your Metamask wallet in order to participate in delegation."
+              variant="danger"
+            />
+          </div>
+        )}
+        {isNotLoggedOrKycEd && (
+          <div className="notification">
+            <Notification
+              title="Notice:"
+              text="You need to be logged into your Taraxa account and pass KYC in order to delegate / un-delegate."
               variant="danger"
             />
           </div>
@@ -434,7 +447,7 @@ const Delegation = ({ location }: { location: Location }) => {
                           )?.rewards || BigNumber.from('0')
                         }
                         currentBlockNumber={currentBlock}
-                        actionsDisabled={status !== 'connected' || !account}
+                        actionsDisabled={status !== 'connected' || !account || !user}
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
@@ -456,7 +469,7 @@ const Delegation = ({ location }: { location: Location }) => {
                           key={validator.address}
                           validator={validator}
                           currentBlockNumber={currentBlock}
-                          actionsDisabled={status !== 'connected' || !account}
+                          actionsDisabled={status !== 'connected' || !account || isNotLoggedOrKycEd}
                           stakingRewards={
                             delegations.find(
                               (d) => d.address.toLowerCase() === validator.address.toLowerCase(),
