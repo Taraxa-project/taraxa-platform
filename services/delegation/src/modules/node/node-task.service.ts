@@ -6,6 +6,7 @@ import { HttpService } from '@nestjs/axios';
 import { Node } from './node.entity';
 import { NodeType } from './node-type.enum';
 import { Repository } from 'typeorm';
+import { catchError, firstValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class NodeTaskService implements OnModuleInit {
@@ -46,31 +47,34 @@ export class NodeTaskService implements OnModuleInit {
           : `${testnetExplorerUrl}${uri}`;
 
       try {
-        const stats = await this.httpService
-          .get(url, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-          .toPromise();
-        if (stats.status !== 200) {
-          this.logger.error(`Could not get stats for node ${node.address}`);
-        }
+        const stats = await firstValueFrom(
+          this.httpService
+            .get(url, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+            .pipe(
+              map((res) => {
+                return res.data?.result;
+              }),
+              catchError((err, caught) => {
+                this.logger.error(
+                  `Could not get stats for node ${node.address}. Error: ${err}`,
+                );
+                return caught;
+              }),
+            ),
+        );
 
-        const {
-          totalProduced,
-          firstBlockTimestamp,
-          lastBlockTimestamp,
-          rank,
-          produced,
-        } = stats.data;
+        const { pbftCount, lastPbftTimestamp } = stats;
 
         const n = await this.nodeRepository.findOneOrFail(node.id);
-        n.blocksProduced = totalProduced;
-        n.firstBlockCreatedAt = firstBlockTimestamp;
-        n.lastBlockCreatedAt = lastBlockTimestamp;
-        n.weeklyRank = rank;
-        n.weeklyBlocksProduced = produced;
+        n.blocksProduced = pbftCount;
+        if (!n.firstBlockCreatedAt) {
+          n.firstBlockCreatedAt = new Date(lastPbftTimestamp);
+        }
+        n.lastBlockCreatedAt = lastPbftTimestamp;
 
         await this.nodeRepository.save(n);
       } catch (e) {
