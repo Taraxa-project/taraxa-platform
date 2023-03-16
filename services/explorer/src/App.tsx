@@ -30,7 +30,7 @@ const Root = (): JSX.Element => {
       <Header />
       <Container maxWidth='xl' style={{ position: 'relative' }}>
         <LoadingWidget />
-        <Box sx={{ px: 4 }}>
+        <Box sx={{ px: { xs: 1, sm: 4, md: 4 } }}>
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/block' element={<BlocksPage />} />
