@@ -45,6 +45,18 @@ export type ResultWithPagination<T> = {
   data: T[];
 };
 
+export type WeekPagination = {
+  endDate: number;
+  startDate: number;
+  hasNext: boolean;
+  week: number;
+  year: number;
+};
+
+export type NodesResultWithPagination<T> = ResultWithPagination<T> & {
+  week: WeekPagination;
+};
+
 export interface AddressPbftsResponse {
   hash: string;
   number: number;

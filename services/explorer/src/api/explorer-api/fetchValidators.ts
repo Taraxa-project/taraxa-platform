@@ -2,7 +2,7 @@ import axios from 'axios';
 import {
   AddressTxResponse,
   FetchWithPagination,
-  ResultWithPagination,
+  NodesResultWithPagination,
 } from '../types';
 
 export const useGetValidators = async (
@@ -10,7 +10,7 @@ export const useGetValidators = async (
   week: number,
   year: number,
   params: Partial<FetchWithPagination>
-): Promise<ResultWithPagination<AddressTxResponse>> => {
+): Promise<NodesResultWithPagination<AddressTxResponse>> => {
   const url = `${endpoint}/validators`;
   const response = await axios.get(url, {
     params: {
