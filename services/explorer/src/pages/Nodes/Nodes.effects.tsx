@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
-import { RankedNode, useGetBlocksThisWeek, useGetValidators } from '../../api';
+import {
+  RankedNode,
+  useGetBlocksThisWeek,
+  useGetValidators,
+  WeekPagination,
+} from '../../api';
 import { useExplorerNetwork } from '../../hooks';
 
 const cols: ColumnData[] = [
@@ -13,10 +18,11 @@ const cols: ColumnData[] = [
 
 export const useNodesEffects = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [weekNumber, setWeekNumber] = useState<number>(
-    DateTime.now().weekNumber
-  );
-  const [year, setYear] = useState<number>(DateTime.now().year);
+  const [weekNumber, setWeekNumber] = useState<number>();
+  const [year, setYear] = useState<number>();
+
+  const [weekPagination, setWeekPagination] = useState<WeekPagination>();
+
   const [tableData, setTableData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [start, setStart] = useState<number>(0);
@@ -46,6 +52,11 @@ export const useNodesEffects = () => {
 
       setTableData(validators?.data || []);
       setTotalCount(validators?.total || 0);
+      if (validators?.week) {
+        setWeekPagination(validators?.week);
+        setYear(validators?.week.year);
+        setWeekNumber(validators?.week.week);
+      }
     } catch (error) {
       console.log('error', error);
     } finally {
@@ -92,20 +103,17 @@ export const useNodesEffects = () => {
     setStart(0);
   };
 
-  const monday = DateTime.fromObject({
-    weekNumber: weekNumber,
-    weekYear: year,
-  })
-    .startOf('week')
-    .toFormat('LLL dd');
-  const sunday = DateTime.fromObject({
-    weekNumber: weekNumber,
-    weekYear: year,
-  })
-    .endOf('week')
-    .toFormat('LLL dd');
+  const formatDate = (timestamp: number) => {
+    if (!timestamp) return;
+    const date = DateTime.fromSeconds(timestamp);
+    const formattedDate = date.toFormat('MMM dd');
+    return formattedDate;
+  };
+
   const title = `Top nodes for Week ${weekNumber} ${year}`;
-  const subtitle = `Top block producers for Week ${weekNumber} (${monday} - ${sunday})`;
+  const subtitle = `Top block producers for Week ${weekNumber} (${formatDate(
+    weekPagination?.startDate
+  )} - ${formatDate(weekPagination?.endDate)})`;
   const description = 'Total blocks produced this week';
 
   return {
@@ -129,5 +137,6 @@ export const useNodesEffects = () => {
     weekNumber,
     year,
     loading,
+    weekPagination,
   };
 };

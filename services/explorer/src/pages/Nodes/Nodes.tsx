@@ -38,6 +38,7 @@ const NodesPage = (): JSX.Element => {
     weekNumber,
     year,
     loading,
+    weekPagination,
   } = useNodesEffects();
   const rows = tableData.map((row: NodesTableData) => toNodeTableRow(row));
   return (
@@ -46,40 +47,38 @@ const NodesPage = (): JSX.Element => {
         title='Nodes'
         subtitle='List of TARAXA nodes on Mainnet Candidate'
       />
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '0.2rem',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-        }}
-        mb={2}
-      >
-        <IconButton
-          onClick={handlePreviousWeek}
-          aria-label='previous'
-          color='secondary'
-          disabled={loading}
+      {weekPagination && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '0.2rem',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
+          mb={2}
         >
-          <ArrowBackIosIcon />
-        </IconButton>
-        <Typography color='secondary' fontSize='18px'>
-          W{weekNumber} {year}
-        </Typography>
-        <IconButton
-          onClick={handleNextWeek}
-          disabled={
-            (weekNumber === DateTime.now().weekNumber &&
-              year === DateTime.now().year) ||
-            loading
-          }
-          aria-label='next'
-          color='secondary'
-        >
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
+          <IconButton
+            onClick={handlePreviousWeek}
+            aria-label='previous'
+            color='secondary'
+            disabled={loading}
+          >
+            <ArrowBackIosIcon />
+          </IconButton>
+          <Typography color='secondary' fontSize='18px'>
+            W{weekNumber} {year}
+          </Typography>
+          <IconButton
+            onClick={handleNextWeek}
+            disabled={!weekPagination.hasNext || loading}
+            aria-label='next'
+            color='secondary'
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
+        </Box>
+      )}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <AwardCard
           title={title}
