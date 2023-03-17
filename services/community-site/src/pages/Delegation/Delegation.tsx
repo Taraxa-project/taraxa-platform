@@ -447,7 +447,7 @@ const Delegation = ({ location }: { location: Location }) => {
                           )?.rewards || BigNumber.from('0')
                         }
                         currentBlockNumber={currentBlock}
-                        actionsDisabled={status !== 'connected' || !account || !user}
+                        actionsDisabled={status !== 'connected' || !account || isNotLoggedOrKycEd}
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
