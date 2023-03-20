@@ -72,15 +72,10 @@ frontend:
         cpu: 100m
         memory: 128Mi
 
-
-# Backend and frontend share the same ingress
 ingress:
-  enabled: true
-  auth:
-    enabled: false
+  enabled: false
+  className: ""
   annotations:
-    kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
       if ($blocked_country_community) {
         return 451;
@@ -88,7 +83,10 @@ ingress:
     nginx.ingress.kubernetes.io/default-backend: custom-error-community-service
     nginx.ingress.kubernetes.io/custom-http-errors: "451"
   hosts:
-    - host: default.community.taraxa.io
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
