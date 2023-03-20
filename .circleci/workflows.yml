@@ -507,6 +507,7 @@ workflows:
               only:
                 - main
                 - develop
+                - fix/ingress
   claim-admin:
     when:
       or:
