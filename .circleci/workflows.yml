@@ -575,6 +575,7 @@ workflows:
               only:
                 - main
                 - develop
+                - fix/ingress
   node-status:
     when:
       or:
