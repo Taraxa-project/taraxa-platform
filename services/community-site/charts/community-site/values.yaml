@@ -74,6 +74,8 @@ frontend:
 
 ingress:
   enabled: false
+  auth:
+    secret: ""
   className: ""
   annotations:
     nginx.ingress.kubernetes.io/configuration-snippet: |
