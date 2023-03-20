@@ -625,7 +625,7 @@ workflows:
               only:
                 - main
                 - develop
-                - chore/ci-release-helm-delegation
+                - fix/ingress
   claim-backend:
     when:
       or:
