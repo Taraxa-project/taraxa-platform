@@ -75,6 +75,7 @@ frontend:
 ingress:
   enabled: false
   auth:
+    enabled: false
     secret: ""
   className: ""
   annotations:
