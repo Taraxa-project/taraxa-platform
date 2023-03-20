@@ -2,7 +2,6 @@
 {{- $fullName := include "community.fullname" . -}}
 {{- $fullNameFrontend := include "community.frontend.fullname" . -}}
 {{- $svcPortFrontend := .Values.frontend.service.port -}}
-
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -10,7 +9,6 @@ apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
 {{- end }}
-
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -54,10 +52,10 @@ spec:
               service:
                 name: {{ $fullName }}
                 port:
-                  number: {{ $svcPort }}
+                  number: {{ $svcPortFrontend }}
               {{- else }}
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
+              serviceName: {{ $fullNameFrontend }}
+              servicePort: {{ $svcPortFrontend }}
               {{- end }}
           {{- end }}
     {{- end }}
