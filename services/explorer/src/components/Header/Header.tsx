@@ -27,7 +27,6 @@ export const Header = (): JSX.Element => {
     onLabelSelect,
     setNetwork,
     onClear,
-    disableNetworkSelection,
   } = useHeaderEffects();
 
   const buttons = (
@@ -57,7 +56,6 @@ export const Header = (): JSX.Element => {
           networks={networks}
           currentNetwork={currentNetwork}
           onNetworkChange={setNetwork}
-          disableNetworkSelection={disableNetworkSelection}
         />
       </Box>
     </Box>
