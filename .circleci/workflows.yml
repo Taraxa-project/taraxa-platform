@@ -507,7 +507,6 @@ workflows:
               only:
                 - main
                 - develop
-                - fix/ingress
   claim-admin:
     when:
       or:
@@ -576,7 +575,6 @@ workflows:
               only:
                 - main
                 - develop
-                - fix/ingress
   node-status:
     when:
       or:
@@ -625,7 +623,6 @@ workflows:
               only:
                 - main
                 - develop
-                - fix/ingress
   claim-backend:
     when:
       or:
