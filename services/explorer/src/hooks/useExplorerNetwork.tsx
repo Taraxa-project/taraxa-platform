@@ -58,7 +58,6 @@ const useNetworkSelection = () => {
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
     localStorage.setItem(SELECTED_NETWORK, network);
-    onNetworkChange(network);
   };
 
   useEffect(() => {
