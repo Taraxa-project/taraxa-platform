@@ -91,6 +91,7 @@ export const onNetworkChange = (network: string): void => {
       return;
     }
     default: {
+      window.location.replace(`https://explorer.taraxa.io`);
       return;
     }
   }
