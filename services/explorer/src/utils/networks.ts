@@ -79,7 +79,7 @@ export const onNetworkChange = (network: string): void => {
   }
   switch (network) {
     case Network.MAINNET: {
-      window.location.replace(`https://explorer.taraxa.io`);
+      window.location.replace(`https://mainnet.explorer.taraxa.io`);
       return;
     }
     case Network.TESTNET: {
@@ -91,7 +91,7 @@ export const onNetworkChange = (network: string): void => {
       return;
     }
     default: {
-      window.location.replace(`https://explorer.taraxa.io`);
+      window.location.replace(`https://mainnet.explorer.taraxa.io`);
       return;
     }
   }
