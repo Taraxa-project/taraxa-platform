@@ -5,7 +5,7 @@ metadata:
   labels:
     app: custom-error-community
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: custom-error-community

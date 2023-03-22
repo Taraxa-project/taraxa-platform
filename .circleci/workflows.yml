@@ -623,7 +623,6 @@ workflows:
               only:
                 - main
                 - develop
-                - chore/ci-release-helm-delegation
   claim-backend:
     when:
       or:

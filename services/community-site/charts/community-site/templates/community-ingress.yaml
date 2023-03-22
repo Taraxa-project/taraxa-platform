@@ -2,7 +2,9 @@
 {{- $fullName := include "community.fullname" . -}}
 {{- $fullNameFrontend := include "community.frontend.fullname" . -}}
 {{- $svcPortFrontend := .Values.frontend.service.port -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -22,6 +24,9 @@ metadata:
     nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - Taraxa Community"
   {{- end }}
 spec:
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
     {{- range .Values.ingress.tls }}
@@ -37,9 +42,21 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          - path: /
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: {{ .pathType }}
+            {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPortFrontend }}
+              {{- else }}
               serviceName: {{ $fullNameFrontend }}
               servicePort: {{ $svcPortFrontend }}
+              {{- end }}
+          {{- end }}
     {{- end }}
   {{- end }}
