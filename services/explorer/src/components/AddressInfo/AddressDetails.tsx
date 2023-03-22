@@ -58,12 +58,14 @@ export const AddressDetails = ({
             title='Balance'
             data={`${details?.balance ? details?.balance : '0'} TARA`}
           />
-          <DataRow
-            title='Value'
-            data={`${details?.value ? details?.value : ''} ${
-              details?.valueCurrency || ''
-            } ( ${details?.pricePerTara ? details?.pricePerTara : ''} / TARA )`}
-          />
+          {details?.value &&
+            details?.valueCurrency &&
+            details?.pricePerTara && (
+              <DataRow
+                title='Value'
+                data={`${details.value} ${details.valueCurrency} ( ${details.pricePerTara} / TARA )`}
+              />
+            )}
         </Box>
         <div style={{ maxWidth: '320px' }}>
           <Grid container gap={1}>

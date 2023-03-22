@@ -8,6 +8,7 @@ export const DEVNET_API = `${process.env.REACT_APP_DEVNET_API_HOST}`;
 export const MAINNET_FAUCET_API = `${process.env.REACT_APP_MAINNET_FAUCET_HOST}`;
 export const TESTNET_FAUCET_API = `${process.env.REACT_APP_TESTNET_FAUCET_HOST}`;
 export const DEVNET_FAUCET_API = `${process.env.REACT_APP_DEVNET_FAUCET_HOST}`;
+export const IS_DEV = `${process.env.REACT_APP_IS_DEV}`;
 
 export const TOKEN_PRICE_API_ENDPOINT = `${
   process.env.REACT_APP_TOKEN_PRICE_API_ENDPOINT ||
