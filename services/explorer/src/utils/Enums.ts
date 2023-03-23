@@ -25,3 +25,9 @@ export enum NetworkGraphQLEndpoints {
   TESTNET = 'https://graphql.testnet.taraxa.io/',
   DEVNET = 'https://graphql.devnet.taraxa.io/',
 }
+
+export enum ENVIRONMENT {
+  LOCALHOST = 'localhost',
+  QA = 'qa',
+  PROD = 'prod',
+}

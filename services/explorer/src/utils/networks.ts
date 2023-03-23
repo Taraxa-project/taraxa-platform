@@ -1,12 +1,12 @@
-import { Network, NetworkGraphQLEndpoints } from './Enums';
+import { ENVIRONMENT, Network, NetworkGraphQLEndpoints } from './Enums';
 import {
   MAINNET_API,
   TESTNET_API,
   DEVNET_API,
   TESTNET_FAUCET_API,
   DEVNET_FAUCET_API,
-  IS_DEV,
 } from '../api';
+import { getEnvironment } from './getEnvironment';
 
 export const recreateGraphQLConnection = (network: string): string => {
   let connectionString: string;
@@ -74,25 +74,48 @@ export const recreateFaucetConnection = (network: string): string => {
 };
 
 export const onNetworkChange = (network: string): void => {
-  if (IS_DEV === 'true') {
-    return;
-  }
-  switch (network) {
-    case Network.MAINNET: {
-      window.location.replace(`https://mainnet.explorer.taraxa.io`);
+  const currentEnv = getEnvironment();
+
+  switch (currentEnv) {
+    case ENVIRONMENT.LOCALHOST:
       return;
-    }
-    case Network.TESTNET: {
-      window.location.replace(`https://testnet.explorer.taraxa.io`);
-      return;
-    }
-    case Network.DEVNET: {
-      window.location.replace(`https://devnet.explorer.taraxa.io`);
-      return;
-    }
-    default: {
-      window.location.replace(`https://mainnet.explorer.taraxa.io`);
-      return;
-    }
+    case ENVIRONMENT.QA:
+      switch (network) {
+        case Network.MAINNET: {
+          window.location.replace(`https://mainnet.qa.explorer.taraxa.io`);
+          return;
+        }
+        case Network.TESTNET: {
+          window.location.replace(`https://testnet.qa.explorer.taraxa.io`);
+          return;
+        }
+        case Network.DEVNET: {
+          window.location.replace(`https://devnet.qa.explorer.taraxa.io`);
+          return;
+        }
+        default: {
+          window.location.replace(`https://mainnet.qa.explorer.taraxa.io`);
+          return;
+        }
+      }
+    case ENVIRONMENT.PROD:
+      switch (network) {
+        case Network.MAINNET: {
+          window.location.replace(`https://mainnet.explorer.taraxa.io`);
+          return;
+        }
+        case Network.TESTNET: {
+          window.location.replace(`https://testnet.explorer.taraxa.io`);
+          return;
+        }
+        case Network.DEVNET: {
+          window.location.replace(`https://devnet.explorer.taraxa.io`);
+          return;
+        }
+        default: {
+          window.location.replace(`https://mainnet.explorer.taraxa.io`);
+          return;
+        }
+      }
   }
 };
