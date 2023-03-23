@@ -9,13 +9,17 @@ workflows:
           name: check-updated-files
           mapping: |
             packages/taraxa-ui/.* ui-package-modified true
-            services/community-site/.* run-community-site-service-workflow true
             legacy/community-backend/.* run-community-backend-service-workflow true
             legacy/community-backend/charts/.* build-community-backend-helm-chart-workflow true
+            legacy/claim-admin/.* run-claim-admin-service-workflow true
+            legacy/claim-admin/charts/.* build-claim-admin-helm-chart-workflow true
+            services/community-site/.* run-community-site-service-workflow true
             services/community-site/charts/.* build-community-site-helm-chart-workflow true
             services/node-status/.* run-node-status-service-workflow true
             services/delegation/.* run-delegation-service-workflow true
+            services/delegation/charts/.* build-delegation-helm-chart-workflow true
             services/claim-backend/.* run-claim-backend-service-workflow true
+            services/claim-backend/charts/.* build-claim-backend-helm-chart-workflow true
             services/faucet/.* build-faucet-workflow true
             services/faucet/charts/.* build-faucet-helm-chart-workflow true
             services/explorer/.* build-explorer-workflow true

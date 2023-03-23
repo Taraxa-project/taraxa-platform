@@ -1,7 +1,7 @@
 export enum TransactionStatus {
   SUCCESS = '0x1',
   FAILURE = '0x0',
-  NOT_YET_MINED = '0x',
+  NOT_YET_FINALIZED = '0x',
   LOADING = '',
 }
 
@@ -16,8 +16,8 @@ export interface TransactionTableData {
 
 export interface NodesTableData {
   rank: number;
-  nodeAddress: string;
-  blocksProduced: number;
+  address: string;
+  pbftCount: number;
 }
 
 export interface ColumnData {

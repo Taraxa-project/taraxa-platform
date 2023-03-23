@@ -9,8 +9,8 @@ app:
   stakingContractAddress: "0x7Af59Ea121a8Da8e49d2d44856feB7761561995b"
   mainnetEndpoint: "https://rpc.mainnet.taraxa.io"
   testnetEndpoint: "https://rpc.testnet.taraxa.io"
-  mainnetExplorerUrl: "https://explorer.mainnet.taraxa.io"
-  testnetExplorerUrl: "https://explorer.testnet.taraxa.io"
+  mainnetIndexerUrl: "https://indexer.mainnet.taraxa.io"
+  testnetIndexerUrl: "https://indexer.testnet.taraxa.io"
   indexerStakingUrl: http://qa-taraxa-indexer:8000/subgraphs/name/taraxa_project/staking
   testnetOwnNodes:
     - "0x18551e353aa65bc0ffbdf9d93b7ad4a8fe29cf95"
@@ -49,3 +49,4 @@ autoscaling:
 
 nodeSelector:
   cloud.google.com/gke-nodepool: taraxa-community-qa
+  

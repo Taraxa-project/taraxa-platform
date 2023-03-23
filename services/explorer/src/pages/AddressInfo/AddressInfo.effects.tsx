@@ -1,22 +1,18 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
-import { AddressInfoDetails, BlockData, Transaction } from '../../models';
+import { AddressInfoDetails } from '../../models';
 import {
   addressDetailsQuery,
   useGetDagsByAddress,
   useGetPbftsByAddress,
-  useGetDagsCountByAddress,
-  useGetPbftsCountByAddress,
+  useGetAddressStats,
   useGetTransactionsByAddress,
 } from '../../api';
-import {
-  displayWeiOrTara,
-  balanceWeiToTara,
-  formatTokensValue,
-} from '../../utils';
+import { balanceWeiToTara, formatTokensValue } from '../../utils';
 import { useQuery } from 'urql';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
+import { useIndexer } from '../../hooks/useIndexer';
 
 export interface TransactionResponse {
   hash: string;
@@ -30,111 +26,15 @@ export interface TransactionResponse {
   age: number;
 }
 
-export const useAddressInfoEffects = (
-  account: string
-): {
-  transactions: Transaction[];
-  addressInfoDetails: AddressInfoDetails;
-  dagBlocks: BlockData[];
-  pbftBlocks: BlockData[];
-  totalPbftCount: number;
-  rowsPbftPerPage: number;
-  pbftPage: number;
-  handlePbftChangePage: (newPage: number) => void;
-  handlePbftChangeRowsPerPage: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
-  totalDagCount: number;
-  rowsDagPerPage: number;
-  dagPage: number;
-  handleDagChangePage: (newPage: number) => void;
-  handleDagChangeRowsPerPage: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
-  totalTxCount: number;
-  rowsTxPerPage: number;
-  txPage: number;
-  handleTxChangePage: (newPage: number) => void;
-  handleTxChangeRowsPerPage: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
-  showLoadingSkeleton: boolean;
-  tabsStep: number;
-  setTabsStep: (step: number) => void;
-  isFetchingDagsCount: boolean;
-  isLoadingDagsCount: boolean;
-  isFetchingPbftsCount: boolean;
-  isLoadingPbftsCount: boolean;
-  isLoadingTables: boolean;
-} => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [dagBlocks, setDagBlocks] = useState<BlockData[]>([]);
-  const [pbftBlocks, setPbftBlocks] = useState<BlockData[]>([]);
+export const useAddressInfoEffects = (account: string) => {
   const [tabsStep, setTabsStep] = useState<number>(0);
 
-  const [totalPbftCount, setTotalPbftCount] = useState<number>(0);
-  const [rowsPbftPerPage, setPbftRowsPerPage] = useState<number>(25);
-  const [pbftPage, setPbftPage] = useState(0);
-
-  const [totalDagCount, setTotalDagCount] = useState<number>(0);
-  const [rowsDagPerPage, setDagRowsPerPage] = useState<number>(25);
-  const [dagPage, setDagPage] = useState(0);
-
-  const [totalTxCount, setTotalTxCount] = useState<number>(0);
-  const [rowsTxPerPage, setTxRowsPerPage] = useState<number>(25);
-  const [txPage, setTxPage] = useState(0);
-
-  const [addressInfoDetails, setAddressInfoDetails] =
-    useState<AddressInfoDetails>();
-
   const { initLoading, finishLoading } = useExplorerLoader();
-  const [isLoadingTables, setIsLoadingTables] = useState<boolean>(false);
   const { backendEndpoint } = useExplorerNetwork();
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
-
-  const {
-    data: dagsCount,
-    isFetching: isFetchingDagsCount,
-    isLoading: isLoadingDagsCount,
-  } = useGetDagsCountByAddress(backendEndpoint, account);
-
-  const {
-    data: pbftsCount,
-    isFetching: isFetchingPbftsCount,
-    isLoading: isLoadingPbftsCount,
-  } = useGetPbftsCountByAddress(backendEndpoint, account);
-
-  const {
-    data: dagsData,
-    isFetching: isFetchingDags,
-    isLoading: isLoadingDags,
-  } = useGetDagsByAddress(backendEndpoint, account, {
-    rowsPerPage: rowsDagPerPage,
-    page: dagPage,
-  });
-  const {
-    data: pbftsData,
-    isFetching: isFetchingPbfts,
-    isLoading: isLoadingPbfts,
-  } = useGetPbftsByAddress(backendEndpoint, account, {
-    rowsPerPage: rowsPbftPerPage,
-    page: pbftPage,
-  });
-  const {
-    data: txData,
-    isFetching: isFetchingTx,
-    isLoading: isLoadingTx,
-  } = useGetTransactionsByAddress(backendEndpoint, account, {
-    rowsPerPage: rowsTxPerPage,
-    page: txPage,
-  });
-
-  const {
-    data: tokenPriceData,
-    isFetching: isFetchingTokenPrice,
-    isLoading: isLoadingTokenPrice,
-  } = useGetTokenPrice();
+  const [addressInfoDetails, setAddressInfoDetails] =
+    useState<AddressInfoDetails>();
 
   const [{ fetching: fetchingDetails, data: accountDetails }] = useQuery({
     query: addressDetailsQuery,
@@ -144,116 +44,31 @@ export const useAddressInfoEffects = (
     pause: !account,
   });
 
+  const {
+    data: addressStats,
+    isFetching: isFetchingAddressStats,
+    isLoading: isLoadingAddressStats,
+  } = useGetAddressStats(backendEndpoint, account);
+
+  const { data: tokenPriceData } = useGetTokenPrice();
+
   useEffect(() => {
-    if (fetchingDetails || isFetchingTokenPrice || isLoadingTokenPrice) {
+    if (fetchingDetails) {
       initLoading();
       setShowLoadingSkeleton(true);
     } else {
       finishLoading();
       setShowLoadingSkeleton(false);
     }
-  }, [fetchingDetails, isFetchingTokenPrice, isLoadingTokenPrice]);
-
-  useEffect(() => {
-    if (
-      isFetchingDags ||
-      isLoadingDags ||
-      isFetchingPbfts ||
-      isLoadingPbfts ||
-      isFetchingTx ||
-      isLoadingTx
-    ) {
-      setIsLoadingTables(true);
-    } else {
-      setIsLoadingTables(false);
-    }
-  }, [
-    isFetchingDags,
-    isLoadingDags,
-    isFetchingPbfts,
-    isLoadingPbfts,
-    isFetchingTx,
-    isLoadingTx,
-  ]);
-
-  const formatToTransaction = (
-    transactions: TransactionResponse[]
-  ): Transaction[] => {
-    if (transactions?.length === 0) {
-      return [];
-    }
-    return transactions?.map((tx) => {
-      return {
-        hash: tx.hash,
-        block: {
-          number: tx.block,
-          timestamp: tx.age,
-        },
-        value: displayWeiOrTara(
-          tx.value !== null && tx.value !== undefined
-            ? ethers.BigNumber.from(BigInt(Math.round(+tx.value)))
-            : null
-        ),
-        gasPrice: displayWeiOrTara(
-          tx.gasPrice !== null && tx.gasPrice !== undefined
-            ? ethers.BigNumber.from(tx.gasPrice)
-            : null
-        ),
-        gas: displayWeiOrTara(
-          tx.gasUsed !== null && tx.gasUsed !== undefined
-            ? ethers.BigNumber.from(tx.gasUsed)
-            : null
-        ),
-        status: tx.status,
-        from: {
-          address: tx.from,
-        },
-        to: {
-          address: tx.to,
-        },
-      };
-    });
-  };
-
-  useEffect(() => {
-    if (txData?.data && txData?.total !== undefined && txData?.total !== null) {
-      setTransactions(formatToTransaction(txData.data));
-      setTotalTxCount(txData?.total);
-    }
-  }, [txData]);
-
-  useEffect(() => {
-    if (
-      dagsData?.data &&
-      dagsData?.total !== undefined &&
-      dagsData?.total !== null
-    ) {
-      setDagBlocks(dagsData?.data as BlockData[]);
-      setTotalDagCount(dagsData?.total);
-    }
-  }, [dagsData]);
-
-  useEffect(() => {
-    if (
-      pbftsData?.data &&
-      pbftsData?.total !== undefined &&
-      pbftsData?.total !== null
-    ) {
-      setPbftBlocks(pbftsData?.data as BlockData[]);
-      setTotalPbftCount(pbftsData?.total);
-    }
-  }, [pbftsData]);
+  }, [fetchingDetails]);
 
   useEffect(() => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
     addressDetails.address = account;
 
-    if (dagsCount?.data) {
-      addressDetails.dagBlocks = dagsCount?.data?.total;
-    }
-
-    if (pbftsCount?.data) {
-      addressDetails.pbftBlocks = pbftsCount?.data?.total;
+    if (addressStats?.data) {
+      addressDetails.dagBlocks = addressStats?.data?.dagsCount;
+      addressDetails.pbftBlocks = addressStats?.data?.pbftCount;
     }
 
     if (accountDetails) {
@@ -277,78 +92,21 @@ export const useAddressInfoEffects = (
       }
     }
     setAddressInfoDetails(addressDetails);
-  }, [
-    accountDetails,
-    tokenPriceData,
-    dagsData,
-    pbftsData,
-    dagsCount,
-    pbftsCount,
-  ]);
+  }, [accountDetails, tokenPriceData, addressStats]);
 
-  const handlePbftChangePage = (newPage: number) => {
-    setPbftPage(newPage);
-  };
-
-  const handlePbftChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTotalPbftCount(0);
-    setPbftRowsPerPage(parseInt(event.target.value, 10));
-    setPbftPage(0);
-  };
-
-  const handleDagChangePage = (newPage: number) => {
-    setDagPage(newPage);
-  };
-
-  const handleDagChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTotalDagCount(0);
-    setDagRowsPerPage(parseInt(event.target.value, 10));
-    setDagPage(0);
-  };
-
-  const handleTxChangePage = (newPage: number) => {
-    setTxPage(newPage);
-  };
-
-  const handleTxChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTotalTxCount(0);
-    setTxRowsPerPage(parseInt(event.target.value, 10));
-    setTxPage(0);
-  };
+  const pbftTablePagination = useIndexer(useGetPbftsByAddress(account));
+  const dagTablePagination = useIndexer(useGetDagsByAddress(account));
+  const txTablePagination = useIndexer(useGetTransactionsByAddress(account));
 
   return {
-    transactions,
     addressInfoDetails,
-    dagBlocks,
-    pbftBlocks,
-    totalPbftCount,
-    rowsPbftPerPage,
-    pbftPage,
-    handlePbftChangePage,
-    handlePbftChangeRowsPerPage,
-    totalDagCount,
-    rowsDagPerPage,
-    dagPage,
-    handleDagChangePage,
-    handleDagChangeRowsPerPage,
-    totalTxCount,
-    rowsTxPerPage,
-    txPage,
-    handleTxChangePage,
-    handleTxChangeRowsPerPage,
     showLoadingSkeleton,
     tabsStep,
     setTabsStep,
-    isFetchingDagsCount,
-    isLoadingDagsCount,
-    isFetchingPbftsCount,
-    isLoadingPbftsCount,
-    isLoadingTables,
+    isFetchingAddressStats,
+    isLoadingAddressStats,
+    pbftTablePagination,
+    dagTablePagination,
+    txTablePagination,
   };
 };

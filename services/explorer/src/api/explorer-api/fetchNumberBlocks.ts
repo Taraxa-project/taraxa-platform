@@ -5,7 +5,7 @@ const getBlocksNumber = (endpoint: string, week: number, year: number) => {
   if (!endpoint || !week || !year) {
     return;
   }
-  const url = `${endpoint}/pbft/blocks-for-week`;
+  const url = `${endpoint}/validators/total`;
   const params = {
     week,
     year,
