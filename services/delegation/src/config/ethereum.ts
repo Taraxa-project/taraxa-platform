@@ -6,6 +6,6 @@ export default registerAs('ethereum', () => ({
   mainnetWallet: process.env.MAINNET_WALLET,
   testnetEndpoint: process.env.TESTNET_ENDPOINT,
   testnetWallet: process.env.TESTNET_WALLET,
-  mainnetExplorerUrl: process.env.MAINNET_EXPLORER_URL,
-  testnetExplorerUrl: process.env.TESTNET_EXPLORER_URL,
+  mainnetIndexerUrl: process.env.MAINNET_INDEXER_URL,
+  testnetIndexerUrl: process.env.TESTNET_INDEXER_URL,
 }));
