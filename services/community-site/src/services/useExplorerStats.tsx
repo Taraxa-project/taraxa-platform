@@ -20,7 +20,7 @@ export default () => {
           if (!status.success) {
             return validator;
           }
-          const lastBlockTimestamp = status.response.lastDagTimestamp;
+          const lastBlockTimestamp = status.response.lastPbftTimestamp;
           if (!lastBlockTimestamp) {
             return validator;
           }
