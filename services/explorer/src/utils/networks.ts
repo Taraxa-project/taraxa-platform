@@ -1,4 +1,4 @@
-import { ENVIRONMENT, Network, NetworkGraphQLEndpoints } from './Enums';
+import { Network, NetworkGraphQLEndpoints } from './Enums';
 import {
   MAINNET_API,
   TESTNET_API,
@@ -6,7 +6,6 @@ import {
   TESTNET_FAUCET_API,
   DEVNET_FAUCET_API,
 } from '../api';
-import { getEnvironment } from './getEnvironment';
 
 export const recreateGraphQLConnection = (network: string): string => {
   let connectionString: string;
@@ -73,51 +72,47 @@ export const recreateFaucetConnection = (network: string): string => {
   return connectionString;
 };
 
-export const onNetworkChange = (network: string): void => {
-  const currentEnv = getEnvironment();
-
-  switch (currentEnv) {
-    case ENVIRONMENT.LOCALHOST:
-      return;
-    case ENVIRONMENT.QA:
-      switch (network) {
-        case Network.MAINNET: {
-          window.location.replace(`https://mainnet.qa.explorer.taraxa.io`);
-          return;
-        }
-        case Network.TESTNET: {
-          window.location.replace(`https://testnet.qa.explorer.taraxa.io`);
-          return;
-        }
-        case Network.DEVNET: {
-          window.location.replace(`https://devnet.qa.explorer.taraxa.io`);
-          return;
-        }
-        default: {
-          window.location.replace(`https://mainnet.qa.explorer.taraxa.io`);
-          return;
-        }
-      }
-    case ENVIRONMENT.PROD:
-      switch (network) {
-        case Network.MAINNET: {
-          window.location.replace(`https://mainnet.explorer.taraxa.io`);
-          return;
-        }
-        case Network.TESTNET: {
-          window.location.replace(`https://testnet.explorer.taraxa.io`);
-          return;
-        }
-        case Network.DEVNET: {
-          window.location.replace(`https://devnet.explorer.taraxa.io`);
-          return;
-        }
-        default: {
-          window.location.replace(`https://mainnet.explorer.taraxa.io`);
-          return;
-        }
-      }
+export const getNetworkSubdomain = (network: string): string => {
+  switch (network) {
+    case Network.TESTNET:
+      return 'testnet';
+    case Network.DEVNET:
+      return 'devnet';
+    case Network.MAINNET:
+      return 'mainnet';
     default:
       return;
+  }
+};
+
+export const networkRedirect = (network: string): void => {
+  const currentUrl = window.location.href;
+  const isLocalhost = currentUrl.includes('localhost');
+  const isQa = currentUrl.includes('qa.explorer.taraxa.io');
+  const networkSubdomain = getNetworkSubdomain(network);
+
+  let redirectUrl;
+  if (isLocalhost) {
+    redirectUrl = currentUrl;
+  } else if (isQa) {
+    const baseDomain = currentUrl.match(
+      /^(https?:\/\/)?([^/?#]+)(?:[/?#]|$)/i
+    )[2];
+    redirectUrl = currentUrl.replace(
+      baseDomain,
+      `${networkSubdomain}.qa.explorer.taraxa.io`
+    );
+  } else {
+    const baseDomain = currentUrl.match(
+      /^(https?:\/\/)?([^/?#]+)(?:[/?#]|$)/i
+    )[2];
+    redirectUrl = currentUrl.replace(
+      baseDomain,
+      `${networkSubdomain}.explorer.taraxa.io`
+    );
+  }
+
+  if (redirectUrl !== currentUrl) {
+    window.location.replace(redirectUrl);
   }
 };

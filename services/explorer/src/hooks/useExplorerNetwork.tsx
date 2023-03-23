@@ -7,7 +7,7 @@ import {
   recreateGraphQLConnection,
   recreateAPIConnection,
   recreateFaucetConnection,
-  onNetworkChange,
+  networkRedirect,
 } from '../utils';
 
 type Context = {
@@ -64,7 +64,7 @@ const useNetworkSelection = () => {
     setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
     setBackendEndpoint(recreateAPIConnection(currentNetwork));
     setFaucetEndpoint(recreateFaucetConnection(currentNetwork));
-    onNetworkChange(currentNetwork);
+    networkRedirect(currentNetwork);
   }, [currentNetwork]);
 
   return {
