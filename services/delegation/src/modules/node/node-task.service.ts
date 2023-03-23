@@ -72,9 +72,9 @@ export class NodeTaskService implements OnModuleInit {
 
         const n = await this.nodeRepository.findOneOrFail(node.id);
         if (!n.firstBlockCreatedAt) {
-          n.firstBlockCreatedAt = new Date(lastPbftTimestamp);
+          n.firstBlockCreatedAt = new Date(lastPbftTimestamp * 1000);
         }
-        n.lastBlockCreatedAt = new Date(lastPbftTimestamp);
+        n.lastBlockCreatedAt = new Date(lastPbftTimestamp * 1000);
         n.blocksProduced = totalPbftsProduced;
         n.weeklyRank = rank;
         n.weeklyBlocksProduced = weeklyPbftsProduced;
