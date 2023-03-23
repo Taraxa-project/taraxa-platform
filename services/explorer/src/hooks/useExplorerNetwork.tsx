@@ -40,10 +40,9 @@ const ExplorerNetworkContext = createContext<Context>(initialState);
 
 const useNetworkSelection = () => {
   const networks = Object.values(Network);
-  const savedNetwork = localStorage.getItem(SELECTED_NETWORK);
   const hostNetwork = getDomainName();
   const [currentNetwork, setCurrentNetwork] = useState<string>(
-    hostNetwork || savedNetwork || Network.MAINNET
+    hostNetwork || Network.MAINNET
   );
 
   const [graphQLClient, setGraphQLClient] = useState<Client>(
@@ -57,7 +56,6 @@ const useNetworkSelection = () => {
   );
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
-    localStorage.setItem(SELECTED_NETWORK, network);
   };
 
   useEffect(() => {
