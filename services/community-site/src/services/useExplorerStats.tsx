@@ -20,11 +20,11 @@ export default () => {
           if (!status.success) {
             return validator;
           }
-          const lastBlockTimestamp = status.response.lastBlockTimestamp;
+          const lastBlockTimestamp = status.response.lastDagTimestamp;
           if (!lastBlockTimestamp) {
             return validator;
           }
-          const lastBlockDate = new Date(lastBlockTimestamp);
+          const lastBlockDate = new Date(lastBlockTimestamp * 1000);
           const diff = new Date().getTime() - lastBlockDate.getTime();
           const diffHours = diff / 1000 / 60 / 60;
           return {
