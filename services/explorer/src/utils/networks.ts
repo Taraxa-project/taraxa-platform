@@ -117,5 +117,7 @@ export const onNetworkChange = (network: string): void => {
           return;
         }
       }
+    default:
+      return;
   }
 };
