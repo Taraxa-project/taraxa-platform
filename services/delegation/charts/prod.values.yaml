@@ -26,12 +26,23 @@ image:
   tag: "latest"
 
 ingress:
+  enabled: true
+  className: nginx-public
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/cors-allow-headers: Authorization,Range,Content-Range,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Access-Control-Allow-Origin
+    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/enable-cors: "true"
   hosts:
     - host: api-delegation.community.taraxa.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
   tls:
-    - secretName: wild-community-taraxa-io-tls
-      hosts:
-        - api-delegation.community.taraxa.io
+    - hosts:
+      - api-delegation.community.taraxa.io
+      secretName: wild-community-taraxa-io-tls
 
 resources:
   limits:
