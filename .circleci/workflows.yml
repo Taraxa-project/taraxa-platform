@@ -182,6 +182,64 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
             fi
+  build-claim-admin:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t claim-admin:${VERSION} -f legacy/claim-admin/Dockerfile ./legacy/claim-admin
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag claim-admin:${VERSION} taraxa/claim-admin:${VERSION}
+              docker tag claim-admin:${VERSION} taraxa/claim-admin:latest
+              docker push taraxa/claim-admin:${VERSION}
+              docker push taraxa/claim-admin:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag claim-admin:${VERSION} ${GCP_REGISTRY}/taraxa/claim-admin-develop:${VERSION}
+              docker tag claim-admin:${VERSION} ${GCP_REGISTRY}/taraxa/claim-admin-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:latest
+            fi
+  deploy-community-site:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_install_deploy_deps
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Deploy
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              export NS=taraxa-community-prod
+              export HELM_NAME=taraxa-community
+              export HELM_CONFIG=prod.values.yaml
+            else
+              export NS=taraxa-community-qa
+              export HELM_NAME=qa-taraxa-community-site
+              export HELM_CONFIG=qa.values.yaml
+            fi
+
+            helm upgrade -i ${HELM_NAME} services/community-site/charts/community-site/ \
+              --namespace ${NS} \
+              -f services/community-site/charts/community-site/values.yaml \
+              -f services/community-site/charts/${HELM_CONFIG} \
+              --set frontend.image.tag=${VERSION}
   build-node-status:
     <<: *config
     steps:
