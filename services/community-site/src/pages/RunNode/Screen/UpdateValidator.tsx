@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Text,
-  Button,
-  InputField,
-  Modal,
-  Notification,
-  useInterval,
-} from '@taraxa_project/taraxa-ui';
+import { Text, Button, InputField, Modal, useInterval } from '@taraxa_project/taraxa-ui';
 import { Validator } from '../../../interfaces/Validator';
 // import useValidators from 'services/community-site/src/services/useValidators';
 import Title from '../../../components/Title/Title';
@@ -165,18 +158,6 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
             </div>
           </div>
           <div className="formInputContainer">
-            {currentBlock > 0 && !canChangeCommission && (
-              <div className="notification">
-                <Notification
-                  text={`Your validator's last commission change was at PBFT ${
-                    validator.lastCommissionChange
-                  }. You need to wait until PBFT ${
-                    Number(validator.lastCommissionChange) + VALIDATOR_COMMISSION_CHANGE_FREQUENCY
-                  } to change it again!`}
-                  variant="danger"
-                />
-              </div>
-            )}
             <div>
               <Text
                 className="profile-inputLabel"
@@ -184,9 +165,27 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                 variant="body2"
                 color="primary"
               />
-              <div className="profileInput">
-                <b>{validator.commission}%</b>
-              </div>
+              <InputField
+                error={!canChangeCommission}
+                helperText={
+                  canChangeCommission
+                    ? ''
+                    : `Your validator's last commission change was at PBFT ${
+                        validator.lastCommissionChange
+                      }. You need to wait until PBFT ${
+                        Number(validator.lastCommissionChange) +
+                        VALIDATOR_COMMISSION_CHANGE_FREQUENCY
+                      } to change it again!`
+                }
+                type="string"
+                className="profileInput"
+                label=""
+                color="secondary"
+                value={`${validator.commission} %`}
+                disabled
+                variant="standard"
+                margin="normal"
+              />
               <Button
                 className="commissionUpdateWithLeftMargin"
                 variant="contained"
