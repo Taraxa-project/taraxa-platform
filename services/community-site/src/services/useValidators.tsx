@@ -144,6 +144,16 @@ export default () => {
     [browserDpos],
   );
 
+  const setCommission = useCallback(
+    async (
+      validator: string,
+      commission: number,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.setCommission(validator, commission);
+    },
+    [browserDpos],
+  );
+
   return useMemo(
     () => ({
       getValidators,
@@ -152,6 +162,7 @@ export default () => {
       registerValidator,
       getValidatorsFor,
       setValidatorInfo,
+      setCommission,
     }),
     [getValidators, getValidatorsWith, getValidator],
   );
