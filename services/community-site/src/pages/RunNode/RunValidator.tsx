@@ -40,6 +40,7 @@ import EditValidator from './Modal/EditValidator';
 import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
 import Claim from '../Delegation/Modal/Claim';
+import UpdateValidator from './Screen/UpdateValidator';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -49,7 +50,7 @@ const RunValidator = () => {
   const { chainId: mainnetChainId } = useMainnet();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { getValidatorsWith, getValidatorsFor, getValidators } = useValidators();
+  const { getValidatorsWith, getValidatorsFor } = useValidators();
   const delegationApi = useDelegationApi();
   const { getDelegations } = useDelegation();
 
@@ -117,13 +118,17 @@ const RunValidator = () => {
     }
   }, [status, account, shouldFetch]);
 
-  useEffect(() => {
+  const fetchValidators = () => {
     if (status === 'connected' && account) {
       (async () => {
         const myValidators = await getValidatorsFor(account);
         setMainnetValidators(myValidators);
       })();
     }
+  };
+
+  useEffect(() => {
+    fetchValidators();
   }, [status, account, shouldFetch]);
 
   useEffect(() => {
@@ -185,6 +190,20 @@ const RunValidator = () => {
           setCurrentEditedNode(null);
           if (refreshNodes) {
             getTestnetNodes();
+          }
+        }}
+      />
+    );
+  }
+
+  if (validatorToUpdate) {
+    return (
+      <UpdateValidator
+        validator={validatorToUpdate}
+        closeEditValidator={(refreshValidators) => {
+          setValidatorToUpdate(null);
+          if (refreshValidators) {
+            fetchValidators();
           }
         }}
       />
