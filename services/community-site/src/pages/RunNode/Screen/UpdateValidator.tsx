@@ -46,7 +46,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
   }, 5000);
 
   const canChangeCommission =
-    currentBlock &&
+    !currentBlock ||
     currentBlock - Number(validator.lastCommissionChange) > VALIDATOR_COMMISSION_CHANGE_FREQUENCY;
 
   const submit = async (
@@ -114,18 +114,6 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
         />
       )}
       <Title title={`Edit validator ${validator.address}`} />
-      {currentBlock > 0 && !canChangeCommission && (
-        <div className="notification">
-          <Notification
-            text={`Your validator's last commission change was at PBFT ${
-              validator.lastCommissionChange
-            }. You need to wait until PBFT ${
-              Number(validator.lastCommissionChange) + VALIDATOR_COMMISSION_CHANGE_FREQUENCY
-            } to change it again!`}
-            variant="danger"
-          />
-        </div>
-      )}
       <form onSubmit={submit}>
         <div className="editProfileForm">
           <div className="formInputContainer">
@@ -177,6 +165,18 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
             </div>
           </div>
           <div className="formInputContainer">
+            {currentBlock > 0 && !canChangeCommission && (
+              <div className="notification">
+                <Notification
+                  text={`Your validator's last commission change was at PBFT ${
+                    validator.lastCommissionChange
+                  }. You need to wait until PBFT ${
+                    Number(validator.lastCommissionChange) + VALIDATOR_COMMISSION_CHANGE_FREQUENCY
+                  } to change it again!`}
+                  variant="danger"
+                />
+              </div>
+            )}
             <div>
               <Text
                 className="profile-inputLabel"
@@ -187,21 +187,21 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
               <div className="profileInput">
                 <b>{validator.commission}%</b>
               </div>
+              <Button
+                className="commissionUpdateWithLeftMargin"
+                variant="contained"
+                color="secondary"
+                size="small"
+                label="Change Commission"
+                onClick={() => {
+                  setIsUpdatingCommission(true);
+                }}
+                disabled={!canChangeCommission}
+              />
             </div>
           </div>
         </div>
         <div id="buttonsContainer">
-          <Button
-            className="commissionUpdateWithLeftMargin"
-            variant="contained"
-            color="secondary"
-            size="small"
-            label="Change Commission"
-            onClick={() => {
-              setIsUpdatingCommission(true);
-            }}
-            disabled={!canChangeCommission}
-          />
           <Button
             type="submit"
             label="Save changes"
