@@ -455,6 +455,13 @@ const Delegation = ({ location }: { location: Location }) => {
                         setDelegateToValidator={setDelegateToValidator}
                         setUndelegateFromValidator={setUndelegateFromValidator}
                         setClaimFromValidator={initClaim}
+                        undelegateDisabled={
+                          undelegations.filter(
+                            (undelegation) =>
+                              undelegation.address.toLowerCase() ===
+                              validator.address.toLowerCase(),
+                          ).length > 0
+                        }
                       />
                     ))}
                   {fullyDelegatedValidators.length > 0 && (
@@ -482,6 +489,13 @@ const Delegation = ({ location }: { location: Location }) => {
                           // setReDelegateFromValidator={setReDelegateFromValidator}
                           setDelegateToValidator={setDelegateToValidator}
                           setUndelegateFromValidator={setUndelegateFromValidator}
+                          undelegateDisabled={
+                            undelegations.filter(
+                              (undelegation) =>
+                                undelegation.address.toLowerCase() ===
+                                validator.address.toLowerCase(),
+                            ).length > 0
+                          }
                         />
                       ))}
                     </>
