@@ -6,6 +6,7 @@ import { Box, CircularProgress } from '@mui/material';
 import useValidators from '../../../services/useValidators';
 import { Validator } from '../../../interfaces/Validator';
 import SuccessIcon from '../../../assets/icons/success';
+import { useWalletPopup } from '../../../services/useWalletPopup';
 
 const EditValidator = ({
   validator,
@@ -23,6 +24,7 @@ const EditValidator = ({
   const [endpoint, setEndpoint] = useState(validator.endpoint || '');
   const [step, setStep] = useState(1);
   const [isLoading, setLoading] = useState(false);
+  const { asyncCallback } = useWalletPopup();
 
   const [error, setError] = useState('');
 
@@ -50,21 +52,8 @@ const EditValidator = ({
     };
 
     if (type === 'mainnet') {
-      setLoading(true);
-      try {
-        const res = await setValidatorInfo(
-          validator.address,
-          payload.description,
-          payload.endpoint,
-        );
-        setStep(2);
-        await res.wait();
-        setLoading(false);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        setLoading(false);
-      }
+      onSuccess();
+      asyncCallback(setValidatorInfo, [validator.address, payload.description, payload.endpoint]);
     }
   };
 
