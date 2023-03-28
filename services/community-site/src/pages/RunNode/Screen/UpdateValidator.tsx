@@ -39,7 +39,6 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
   }, 5000);
 
   const canChangeCommission =
-    !currentBlock ||
     currentBlock - Number(validator.lastCommissionChange) > VALIDATOR_COMMISSION_CHANGE_FREQUENCY;
 
   const submit = async (
