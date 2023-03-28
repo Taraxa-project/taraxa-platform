@@ -214,7 +214,7 @@ const NodeProfilePage = () => {
             <div className="nodeInfoTitle">expected yield</div>
             <div className="nodeInfoContent">20%</div>
             <div className="nodeInfoTitle">commission</div>
-            <div className="nodeInfoContent">{validator.commission.toFixed(1)}%</div>
+            <div className="nodeInfoContent">{validator.commission}%</div>
             {validator.description && (
               <>
                 <div className="nodeInfoTitle">node operator description</div>
