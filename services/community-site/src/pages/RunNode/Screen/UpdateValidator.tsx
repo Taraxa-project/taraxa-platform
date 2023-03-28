@@ -112,7 +112,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
             <div>
               <Text
                 className="profile-inputLabel"
-                label="Validator description (optional)"
+                label="Validator description"
                 variant="body2"
                 color="primary"
               />
@@ -136,7 +136,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
             <div>
               <Text
                 className="profile-inputLabel"
-                label="Validator Endpoint (optional)"
+                label="Validator Endpoint"
                 variant="body2"
                 color="primary"
               />
