@@ -122,7 +122,7 @@ export default () => {
         validator,
         proof,
         vrfKey,
-        commission * 100,
+        commission,
         description,
         endpoint,
         {
