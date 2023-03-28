@@ -52,7 +52,7 @@ const UpdateCommission = ({
       try {
         let res;
         if (commission) {
-          res = await updateCommission(`${id}`, commissionNumber * 100);
+          res = await updateCommission(`${id}`, commissionNumber);
           await res.wait();
           onSuccess();
           return;

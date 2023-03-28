@@ -48,7 +48,7 @@ const MainnetValidatorRow = ({
         ) : (
           row.currentCommission
         )} */}
-        {commission}%
+        {(parseFloat(`${commission || 0}`) / 100).toPrecision(2)}%
       </TableCell>
       <TableCell className="tableCell delegationCell">{stripEth(delegation)}</TableCell>
       <TableCell className="tableCell availableDelegation">

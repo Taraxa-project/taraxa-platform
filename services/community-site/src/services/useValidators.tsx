@@ -122,7 +122,7 @@ export default () => {
         validator,
         proof,
         vrfKey,
-        commission,
+        commission * 100,
         description,
         endpoint,
         {
@@ -149,7 +149,7 @@ export default () => {
       validator: string,
       commission: number,
     ): Promise<ethers.providers.TransactionResponse> => {
-      return await browserDpos!.setCommission(validator, commission);
+      return await browserDpos!.setCommission(validator, commission * 100);
     },
     [browserDpos],
   );
