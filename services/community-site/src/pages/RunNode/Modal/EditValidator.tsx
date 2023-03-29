@@ -52,8 +52,10 @@ const EditValidator = ({
     };
 
     if (type === 'mainnet') {
-      onSuccess();
-      asyncCallback(setValidatorInfo, [validator.address, payload.description, payload.endpoint]);
+      asyncCallback(async () => {
+        onSuccess();
+        return await setValidatorInfo(validator.address, payload.description, payload.endpoint);
+      });
     }
   };
 
