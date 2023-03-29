@@ -214,7 +214,7 @@ const NodeProfilePage = () => {
             <div className="nodeInfoTitle">expected yield</div>
             <div className="nodeInfoContent">20%</div>
             <div className="nodeInfoTitle">commission</div>
-            <div className="nodeInfoContent">{validator.commission.toFixed(1)}%</div>
+            <div className="nodeInfoContent">{validator.commission}%</div>
             {validator.description && (
               <>
                 <div className="nodeInfoTitle">node operator description</div>
@@ -244,14 +244,16 @@ const NodeProfilePage = () => {
             <div className="taraContainerWrapper">
               <div className="taraContainer">
                 <AmountCard
-                  amount={ethers.utils.commify(weiToEth(validator.availableForDelegation))}
+                  amount={ethers.utils.commify(
+                    Number(weiToEth(validator.availableForDelegation)).toFixed(2),
+                  )}
                   unit="TARA"
                 />
                 <div className="taraContainerAmountDescription">Available for delegation</div>
               </div>
               <div className="taraContainer">
                 <AmountCard
-                  amount={ethers.utils.commify(weiToEth(validator.delegation))}
+                  amount={ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}
                   unit="TARA"
                 />
                 <div className="taraContainerAmountDescription">Total delegated</div>
