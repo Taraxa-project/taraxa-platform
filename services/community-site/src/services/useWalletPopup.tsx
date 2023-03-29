@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Text, Modal, Loading, Button } from '@taraxa_project/taraxa-ui';
 import { ethers } from 'ethers';
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext, useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import CloseIcon from '../assets/icons/close';
 import ErrorIcon from '../assets/icons/error';
@@ -72,10 +72,10 @@ const useProvideWalletPopup = () => {
               label={message || 'Action required'}
               variant="h6"
             />
-            <div className="loadingIcon">
+            <div className="walletIcon">
               <WalletIcon />
             </div>
-            <p className="successText" style={{ wordBreak: 'break-all' }}>
+            <p className="successText" style={{ wordBreak: 'break-word' }}>
               Please check your Wallet!
             </p>
           </div>
@@ -96,7 +96,7 @@ const useProvideWalletPopup = () => {
             <div className="loadingIcon">
               <Loading />
             </div>
-            <p className="successText" style={{ wordBreak: 'break-all' }}>
+            <p className="successText" style={{ wordBreak: 'break-word' }}>
               Please wait until the action is performed
             </p>
           </div>
@@ -124,7 +124,7 @@ const useProvideWalletPopup = () => {
               type="button"
               label="Close"
               fullWidth
-              color="secondary"
+              color="info"
               variant="contained"
               className="marginButton"
               onClick={handleClose}
@@ -204,7 +204,7 @@ export const WalletPopupProvider = ({ children }: { children: React.ReactNode })
     <WalletPopupContext.Provider value={value}>
       {showPopup && (
         <Modal
-          id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+          id={isMobile ? 'mobile-walletModal' : 'walletModal'}
           title={modalTitle}
           show={showPopup}
           children={modalContent}

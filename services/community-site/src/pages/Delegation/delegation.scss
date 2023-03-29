@@ -146,8 +146,14 @@
   grid-row-gap: 30px;
 }
 
-.loadingIcon {
+.loadingIcon,
+.walletIcon {
   margin-top: 1rem;
+}
+
+.walletIcon svg {
+  width: 30px;
+  height: 30px;
 }
 
 #delegateModal {
@@ -310,7 +316,7 @@ a.commissionChangeCheck {
   }
 
   .delegationCell {
-    width: 10%;
+    width: 15%;
   }
 
   .stackingCell {
@@ -318,7 +324,6 @@ a.commissionChangeCheck {
   }
 
   .availableDelegation {
-    margin-top: 0.5rem;
     line-height: 32px;
     vertical-align: middle;
     text-align: start;
@@ -390,7 +395,7 @@ a.commissionChangeCheck {
     .notification {
       margin-bottom: 40px;
       > div > div > p {
-        word-break: break-all;
+        word-break: break-word;
       }
     }
 
