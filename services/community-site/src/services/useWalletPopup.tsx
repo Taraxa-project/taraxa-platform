@@ -36,7 +36,7 @@ const initialState: Context = {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   asyncCallback: async (callback) => {
     try {
-      const response = await callback();
+      await callback();
       return;
     } catch (error) {
       throw new Error('Something went wrong');

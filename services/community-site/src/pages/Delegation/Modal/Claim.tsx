@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ethers } from 'ethers';
-import { Button, Text, AmountCard, Loading } from '@taraxa_project/taraxa-ui';
-import SuccessIcon from '../../../assets/icons/success';
+import { Button, Text, AmountCard } from '@taraxa_project/taraxa-ui';
 
 import useDelegation from '../../../services/useDelegation';
 
 import { stripEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
+import { useWalletPopup } from '../../../services/useWalletPopup';
 
 type ClaimProps = {
   amount: ethers.BigNumber;
@@ -18,94 +18,49 @@ type ClaimProps = {
 
 const Claim = ({ amount, validator, onSuccess, onFinish, commissionMode = false }: ClaimProps) => {
   const { claimRewards, claimCommissionRewards } = useDelegation();
-  const [isLoading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
+  const { asyncCallback } = useWalletPopup();
 
   const claim = async () => {
-    setLoading(true);
-    try {
-      let res;
-      if (commissionMode) {
-        res = await claimCommissionRewards(validator.address);
-      } else {
-        res = await claimRewards(validator.address);
-      }
-      setStep(2);
-      await res.wait();
-      setLoading(false);
+    asyncCallback(async () => {
       onSuccess();
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      setLoading(false);
-    }
+      onFinish();
+      if (commissionMode) {
+        return await claimCommissionRewards(validator.address);
+      }
+      return await claimRewards(validator.address);
+    });
   };
 
   return (
     <div className="delegateNodeModal">
-      {step === 1 ? (
-        <>
-          <Text
-            style={{ marginBottom: '32px', fontSize: '18px' }}
-            align="center"
-            label={
-              commissionMode ? 'Claiming commission rewards from...' : 'Claiming rewards from...'
-            }
-            variant="h6"
-            color="primary"
-          />
-          <div className="nodeDescriptor">
-            <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validator.address}</span>
-            </p>
-          </div>
-          <div className="claimContainer">
-            <p className="taraContainerAmountDescription">Amount to be claimed:</p>
-            <AmountCard amount={stripEth(amount)} unit="TARA" />
-            <br />
-            <Button
-              type="submit"
-              label="Claim"
-              fullWidth
-              color="secondary"
-              variant="contained"
-              className="marginButton"
-              onClick={() => {
-                claim();
-              }}
-            />
-          </div>
-        </>
-      ) : isLoading ? (
-        <div className="delegateNodeModalSuccess">
-          <Text label="Waiting for confirmation" variant="h6" color="warning" />
-          <div className="loadingIcon">
-            <Loading />
-          </div>
-          <p className="successText">{`Awaiting claim confirmation for ${stripEth(
-            amount,
-          )} TARA...`}</p>
-        </div>
-      ) : (
-        <div className="delegateNodeModalSuccess">
-          <Text style={{ marginBottom: '2%' }} label="Success" variant="h6" color="primary" />
-          <div className="successIcon">
-            <SuccessIcon />
-          </div>
-          <p className="successText">{`You've successfully claimed ${stripEth(amount)} TARA!`}</p>
-          <Button
-            type="submit"
-            label="Close"
-            fullWidth
-            color="secondary"
-            variant="contained"
-            className="marginButton"
-            onClick={() => {
-              onFinish();
-            }}
-          />
-        </div>
-      )}
+      <Text
+        style={{ marginBottom: '32px', fontSize: '18px' }}
+        align="center"
+        label={commissionMode ? 'Claiming commission rewards from...' : 'Claiming rewards from...'}
+        variant="h6"
+        color="primary"
+      />
+      <div className="nodeDescriptor">
+        <p className="nodeAddressWrapper">
+          <span className="nodeAddress">{validator.address}</span>
+        </p>
+      </div>
+      <div className="claimContainer">
+        <p className="taraContainerAmountDescription">Amount to be claimed:</p>
+        <AmountCard amount={stripEth(amount)} unit="TARA" />
+        <br />
+        <Button
+          type="submit"
+          label="Claim"
+          fullWidth
+          color="secondary"
+          variant="contained"
+          className="marginButton"
+          onClick={() => {
+            claim();
+          }}
+        />
+      </div>
     </div>
   );
 };
