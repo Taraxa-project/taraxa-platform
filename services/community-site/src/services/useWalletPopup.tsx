@@ -17,7 +17,7 @@ export enum WalletPopupState {
   SUCCESS = 'success',
 }
 
-type AsyncCallbackType = (...args: any[]) => Promise<ethers.providers.TransactionResponse>;
+type AsyncCallbackType = (...args: any) => Promise<ethers.providers.TransactionResponse>;
 
 type Context = {
   state: WalletPopupState;
@@ -25,7 +25,7 @@ type Context = {
   isMobile: boolean;
   modalTitle: string;
   modalContent: JSX.Element | null;
-  asyncCallback: (callback: AsyncCallbackType, args: any[]) => Promise<void>;
+  asyncCallback: (callback: AsyncCallbackType) => Promise<any>;
 };
 
 const initialState: Context = {
@@ -35,9 +35,9 @@ const initialState: Context = {
   modalTitle: '',
   modalContent: null,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  asyncCallback: async (callback, args) => {
+  asyncCallback: async (callback) => {
     try {
-      const response = await callback(...args);
+      const response = await callback();
       return;
     } catch (error) {
       throw new Error('Something went wrong');
@@ -169,11 +169,11 @@ const useProvideWalletPopup = () => {
     }
   };
 
-  const asyncCallback = async (callback: AsyncCallbackType, args: any[]) => {
+  const asyncCallback = async (callback: AsyncCallbackType) => {
     if (typeof callback !== 'function') return;
     changeState(WalletPopupState.ACTION);
     try {
-      const res = await callback(...args);
+      const res = await callback();
       changeState(WalletPopupState.LOADING);
       await res.wait();
       changeState(WalletPopupState.SUCCESS);
