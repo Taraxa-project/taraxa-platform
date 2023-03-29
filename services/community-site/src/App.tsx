@@ -27,6 +27,7 @@ import Profile from './pages/Profile/Profile';
 import RunValidator from './pages/RunNode/RunValidator';
 import Wallet from './pages/Wallet/Wallet';
 import useCMetamask from './services/useCMetamask';
+import { WalletPopupProvider } from './services/useWalletPopup';
 
 import './App.scss';
 
@@ -141,9 +142,11 @@ function App() {
           <AuthProvider>
             <BrowserRouter>
               <ModalProvider>
-                <SidebarProvider>
-                  <Root />
-                </SidebarProvider>
+                <WalletPopupProvider>
+                  <SidebarProvider>
+                    <Root />
+                  </SidebarProvider>
+                </WalletPopupProvider>
               </ModalProvider>
             </BrowserRouter>
           </AuthProvider>
