@@ -24,7 +24,7 @@ type Context = {
   isMobile: boolean;
   modalTitle: string;
   modalContent: JSX.Element | null;
-  asyncCallback: (callback: AsyncCallbackType) => Promise<void>;
+  asyncCallback: (callback: AsyncCallbackType, onSuccess?: () => void) => Promise<void>;
 };
 
 const initialState: Context = {
@@ -168,7 +168,7 @@ const useProvideWalletPopup = () => {
     }
   };
 
-  const asyncCallback = async (callback: AsyncCallbackType) => {
+  const asyncCallback = async (callback: AsyncCallbackType, onSuccess?: () => void) => {
     if (typeof callback !== 'function') return;
     changeState(WalletPopupState.ACTION);
     try {
@@ -180,6 +180,9 @@ const useProvideWalletPopup = () => {
       // eslint-disable-next-line no-console
       console.error('Error:', error);
       changeState(WalletPopupState.ERROR, 'Error', `${error}`);
+    }
+    if (typeof onSuccess === 'function') {
+      onSuccess();
     }
   };
 

@@ -64,10 +64,9 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
     setError('');
 
     asyncCallback(async () => {
-      onSuccess();
       onFinish();
       return await undelegate(validator.address, undelegationTotal);
-    });
+    }, onSuccess);
   };
 
   return (

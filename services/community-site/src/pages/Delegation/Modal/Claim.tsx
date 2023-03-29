@@ -22,13 +22,12 @@ const Claim = ({ amount, validator, onSuccess, onFinish, commissionMode = false 
 
   const claim = async () => {
     asyncCallback(async () => {
-      onSuccess();
       onFinish();
       if (commissionMode) {
         return await claimCommissionRewards(validator.address);
       }
       return await claimRewards(validator.address);
-    });
+    }, onSuccess);
   };
 
   return (

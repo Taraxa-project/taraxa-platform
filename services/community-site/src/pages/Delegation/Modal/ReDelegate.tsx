@@ -68,10 +68,9 @@ const ReDelegate = ({
 
     if (!error && validatorTo?.address !== undefined && validatorTo?.address !== null) {
       asyncCallback(async () => {
-        onSuccess();
         onFinish();
         return await reDelegate(validatorFrom.address, validatorTo.address, reDelegationTotal);
-      });
+      }, onSuccess);
     }
   };
 

@@ -53,10 +53,9 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
 
     if (!error) {
       asyncCallback(async () => {
-        onSuccess();
         onFinish();
         return await delegate(validator.address, delegationTotal);
-      });
+      }, onSuccess);
     }
   };
 

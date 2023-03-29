@@ -95,7 +95,6 @@ const RegisterNode = ({
       }
 
       asyncCallback(async () => {
-        onSuccess();
         return await registerValidator(
           payload.address,
           payload.addressProof,
@@ -104,7 +103,7 @@ const RegisterNode = ({
           '',
           '',
         );
-      });
+      }, onSuccess);
     } else {
       const result = await delegationApi.post(`/nodes`, payload, true);
       if (result.success) {
