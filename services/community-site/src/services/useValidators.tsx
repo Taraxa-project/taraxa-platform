@@ -14,7 +14,7 @@ export default () => {
   const contractToValidator = (contractValidator: ContractValidator) => ({
     address: contractValidator.account,
     owner: contractValidator.info.owner,
-    commission: +(parseFloat(`${contractValidator.info.commission}` || '0') / 10).toPrecision(1),
+    commission: +(parseFloat(`${contractValidator.info.commission}` || '0') / 100).toPrecision(2),
     commissionReward: contractValidator.info.commission_reward,
     lastCommissionChange: contractValidator.info.last_commission_change,
     delegation: contractValidator.info.total_stake,
@@ -122,7 +122,7 @@ export default () => {
         validator,
         proof,
         vrfKey,
-        commission,
+        commission * 100,
         description,
         endpoint,
         {

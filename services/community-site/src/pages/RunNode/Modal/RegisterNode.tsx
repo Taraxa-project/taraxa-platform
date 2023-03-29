@@ -50,14 +50,26 @@ const RegisterNode = ({
       return;
     }
 
+    if (!address.startsWith('0x')) {
+      setAddressError('Node public address must start with 0x');
+      return;
+    }
     if (!addressProof) {
       setAddressProofError('Proof of ownership is required!');
       return;
     }
 
+    if (!addressProof.startsWith('0x')) {
+      setAddressProofError('Proof of ownership must start with 0x');
+    }
+
     if (!vrfKey) {
       setVrfKeyError('VRF Public Key is required!');
       return;
+    }
+
+    if (!vrfKey.startsWith('0x')) {
+      setVrfKeyError('VRF Public Key must start with 0x');
     }
 
     const payload: any = {
