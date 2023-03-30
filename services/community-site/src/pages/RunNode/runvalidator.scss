@@ -93,7 +93,7 @@
     width: 30%;
   }
 
-  .availableDelegation {
+  .availableDelegation,
   .delegationCell {
     text-align: start;
     width: 15%;
@@ -500,4 +500,7 @@
   box-sizing: border-box !important;
   border-radius: 4px !important;
   color: white !important;
+}
+
+@media only screen and (min-width: 760px) {
 }

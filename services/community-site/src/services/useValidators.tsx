@@ -23,6 +23,7 @@ export default () => {
     isActive: false,
     description: contractValidator.info.description,
     endpoint: contractValidator.info.endpoint,
+    rank: 0,
   });
 
   const getValidators = useCallback(async (): Promise<Validator[]> => {

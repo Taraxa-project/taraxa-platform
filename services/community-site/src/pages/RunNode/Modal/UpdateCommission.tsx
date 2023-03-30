@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
+import { useWalletPopup } from '../../../services/useWalletPopup';
 import useValidators from '../../../services/useValidators';
 
 type UpdateCommissionProps = {
@@ -15,6 +16,7 @@ const VALIDATOR_COMMISSION_CHANGE_MAX_DELTA = 5;
 
 const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommissionProps) => {
   const { setCommission: updateCommission } = useValidators();
+  const { asyncCallback } = useWalletPopup();
 
   const [step, setStep] = useState(1);
   const [commission, setCommission] = useState('');
@@ -40,17 +42,11 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
     }
 
     setError('');
-    try {
-      let res;
-      if (commission) {
-        res = await updateCommission(`${id}`, commissionNumber);
-        await res.wait();
+    if (commission) {
+      asyncCallback(async () => {
         onSuccess();
-        return;
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
+        return await updateCommission(`${id}`, commissionNumber);
+      });
     }
   };
 
@@ -62,7 +58,7 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
           <p>
             <strong>Notice</strong>
           </p>
-          <ol>
+          <ol style={{ textAlign: 'left' }}>
             <li key="1">Maximum change cannot exceed ±5% per update.</li>
             <li key="2">
               You will need to wait {VALIDATOR_COMMISSION_CHANGE_FREQUENCY} PBFT blocks to change it

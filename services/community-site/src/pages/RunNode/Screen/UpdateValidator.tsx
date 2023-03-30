@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, Button, InputField, Modal, useInterval } from '@taraxa_project/taraxa-ui';
+import { useWalletPopup } from '../../../services/useWalletPopup';
 import { Validator } from '../../../interfaces/Validator';
 // import useValidators from 'services/community-site/src/services/useValidators';
 import Title from '../../../components/Title/Title';
@@ -18,6 +19,7 @@ interface UpdateValidatorProps {
 
 const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps) => {
   const { setValidatorInfo } = useValidators();
+  const { asyncCallback } = useWalletPopup();
   const { provider } = useChain();
 
   const [description, setDescription] = useState(validator.description || '');
@@ -65,17 +67,14 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
 
     setDescriptionError('');
     setEndpointError('');
-    try {
-      let res;
-      if (description && endpoint) {
-        res = await setValidatorInfo(validator.address, description, endpoint);
-        await res.wait();
-        closeEditValidator(true);
-        return;
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
+
+    if (description && endpoint) {
+      asyncCallback(
+        async () => {
+          return await setValidatorInfo(validator.address, description, endpoint);
+        },
+        () => closeEditValidator(true),
+      );
     }
   };
 
