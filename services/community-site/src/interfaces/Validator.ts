@@ -27,4 +27,5 @@ export interface Validator {
   endpoint: string;
   isFullyDelegated: boolean;
   isActive: boolean;
+  rank: number;
 }

@@ -21,8 +21,15 @@ const MainnetValidatorRow = ({
   setCommissionClaim,
 }: ValidatorRowProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isActive, address, commission, delegation, availableForDelegation, commissionReward } =
-    validator;
+  const {
+    isActive,
+    address,
+    commission,
+    delegation,
+    availableForDelegation,
+    commissionReward,
+    rank,
+  } = validator;
 
   let className = 'dot';
   if (isActive) {
@@ -54,7 +61,7 @@ const MainnetValidatorRow = ({
       <TableCell className="tableCell availableDelegation">
         {stripEth(availableForDelegation)}
       </TableCell>
-      <TableCell className="tableCell rankingCell">{/* {row.weeklyRank} */}0</TableCell>
+      <TableCell className="tableCell rankingCell">{rank}</TableCell>
       <TableCell className="tableCell rewardsCell">{stripEth(commissionReward)}</TableCell>
       <TableCell className="tableCell actionsCell">
         <div className="validatorActions">

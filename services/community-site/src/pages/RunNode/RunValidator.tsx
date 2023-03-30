@@ -41,6 +41,7 @@ import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
 import Claim from '../Delegation/Modal/Claim';
 import UpdateValidator from './Screen/UpdateValidator';
+import useExplorerStats from '../../services/useExplorerStats';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -51,6 +52,7 @@ const RunValidator = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { getValidatorsWith, getValidatorsFor } = useValidators();
+  const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
   const delegationApi = useDelegationApi();
   const { getDelegations } = useDelegation();
 
@@ -71,7 +73,7 @@ const RunValidator = () => {
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
-  const [delegations, setDelegations] = useState<Delegation[]>([]);
+  const [delegations, setDelegations] = useState<Delegation[] | null>(null);
   const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
@@ -119,26 +121,32 @@ const RunValidator = () => {
   }, [status, account, shouldFetch]);
 
   const fetchValidators = () => {
-    if (status === 'connected' && account) {
+    if (status === 'connected' && account && delegations?.length === 0) {
+      console.log(`Delegations lgth ${delegations.length}`);
       (async () => {
         const myValidators = await getValidatorsFor(account);
-        setMainnetValidators(myValidators);
+        const validatorsWithStats = await updateValidatorsStats(myValidators);
+        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
+        setMainnetValidators(updatedValidators);
       })();
     }
   };
 
   useEffect(() => {
     fetchValidators();
-  }, [status, account, shouldFetch]);
+  }, [status, account, shouldFetch, delegations]);
 
   useEffect(() => {
-    if (status === 'connected' && account && delegations.length > 0) {
+    if (status === 'connected' && account && delegations && delegations.length > 0) {
+      console.log(`Test del legth ${delegations.length}`);
       (async () => {
         const mainnetValidators = await getValidatorsWith(delegations.map((d) => d.address));
         const myValidators = mainnetValidators.filter(
           (validator) => validator.owner.toLowerCase() === account.toLowerCase(),
         );
-        setMainnetValidators(myValidators);
+        const validatorsWithStats = await updateValidatorsStats(myValidators);
+        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
+        setMainnetValidators(updatedValidators);
       })();
     }
   }, [status, account, delegations, shouldFetch]);
@@ -413,13 +421,16 @@ const RunValidator = () => {
             <Table className="table">
               <TableHead>
                 <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell">Status</TableCell>
-                  <TableCell className="tableHeadCell">Name</TableCell>
-                  <TableCell className="tableHeadCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell">Number of blocks produced</TableCell>
-                  <TableCell className="tableHeadCell" colSpan={2}>
+                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
+                  <TableCell className="tableHeadCell nodeCell">Name</TableCell>
+                  <TableCell className="tableHeadCell nodeCell">Expected Yield</TableCell>
+                  <TableCell className="tableHeadCell nodeCell">
+                    Number of blocks produced
+                  </TableCell>
+                  <TableCell className="tableHeadCell nodeCell" colSpan={2}>
                     Ranking
                   </TableCell>
+                  <TableCell className="tableHeadCell nodeActionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
