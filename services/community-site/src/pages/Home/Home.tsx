@@ -4,7 +4,6 @@ import { useHistory, withRouter, RouteComponentProps } from 'react-router-dom';
 
 import { IconCard, ToggleButton, Notification } from '@taraxa_project/taraxa-ui';
 
-import StakingIcon from '../../assets/icons/staking';
 import DelegationIcon from '../../assets/icons/delegation';
 import BountiesIcon from '../../assets/icons/bounties';
 import RedeemIcon from '../../assets/icons/redeem';
@@ -87,13 +86,6 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
           }}
         >
           <IconCard
-            title="Staking"
-            description="Earn rewards while helping to secure Taraxa’s network."
-            onClickText="Get Started"
-            onClickButton={() => history.push('/staking')}
-            Icon={StakingIcon}
-          />
-          <IconCard
             title="Delegation"
             description="Earn rewards and help test & secure the Taraxa’s network."
             onClickText="Get Started"
@@ -107,13 +99,6 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             onClickButton={() => history.push('/bounties')}
             Icon={BountiesIcon}
           />
-        </div>
-        <div
-          className="cardContainer"
-          style={{
-            display: isMobile && toggleValue !== 'earn' ? 'none' : isMobile ? 'inherit' : 'flex',
-          }}
-        >
           <IconCard
             title="Redeem"
             description="Redeem TARA points for $TARA tokens and cool Taraxa swag."
@@ -122,7 +107,6 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             Icon={RedeemIcon}
           />
         </div>
-
         <div
           className="notification"
           style={{
