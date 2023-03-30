@@ -80,13 +80,13 @@
   .nameCell,
   .yieldCell,
   .commissionCell,
-  .delegationCell,
   .rankingCell,
   .rewardsCell {
     width: 10%;
   }
 
-  .availableDelegation {
+  .availableDelegation,
+  .delegationCell {
     text-align: start;
     width: 15%;
   }
