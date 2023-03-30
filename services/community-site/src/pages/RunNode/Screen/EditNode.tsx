@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { Text, Button, InputField, Modal } from '@taraxa_project/taraxa-ui';
+import { Text, Button, InputField } from '@taraxa_project/taraxa-ui';
 import Title from '../../../components/Title/Title';
 import { useDelegationApi } from '../../../services/useApi';
-import CloseIcon from '../../../assets/icons/close';
-import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
-import UpdateCommission from '../Modal/UpdateCommission';
 import OwnNode from '../../../interfaces/OwnNode';
 
 interface EditNodeProps {
@@ -17,7 +14,6 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
   const [nameError, setNameError] = useState('');
   const [ip, setIp] = useState(node.ip || '');
   const [ipError, setIpError] = useState('');
-  const [isUpdatingCommission, setIsUpdatingCommssion] = useState(false);
   const delegationApi = useDelegationApi();
 
   const submit = async (
@@ -51,32 +47,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
 
   return (
     <div className="editNodeScreen">
-      {isUpdatingCommission && (
-        <Modal
-          id="signinModal"
-          title="Update Commission"
-          show={isUpdatingCommission}
-          children={
-            <UpdateCommission
-              id={node.id}
-              currentCommission={node.currentCommission}
-              onSuccess={() => {
-                setIsUpdatingCommssion(false);
-                closeEditNode(true);
-              }}
-            />
-          }
-          parentElementID="root"
-          onRequestClose={() => {
-            setIsUpdatingCommssion(false);
-          }}
-          closeIcon={CloseIcon}
-        />
-      )}
-      <Title title="Edit node" />
-      <p className="editNodeAddressWrapper">
-        <span className="editNodeAddress">{node.address}</span>
-      </p>
+      <Title title={`Edit node ${node.address}`} />
       <form onSubmit={submit}>
         <div className="editProfileForm">
           <div className="formInputContainer">
@@ -127,40 +98,6 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
               />
             </div>
           </div>
-          {node.type === 'mainnet' && (
-            <div className="formInputContainer">
-              <div className="commissionWrapper">
-                <Text
-                  className="profile-inputLabel"
-                  label="Commission"
-                  variant="body2"
-                  color="primary"
-                />
-                {node.hasPendingCommissionChange ? (
-                  <div className="commissionDisplay">
-                    <NodeCommissionChangeIcon />{' '}
-                    <span className="commissionDisplayPendingChange">
-                      {node.currentCommission}% ➞ {node.pendingCommission}%
-                    </span>
-                  </div>
-                ) : (
-                  <div className="commissionDisplay">{node.currentCommission}%</div>
-                )}
-
-                <Button
-                  className="commissionUpdate"
-                  variant="outlined"
-                  color="secondary"
-                  size="small"
-                  label="Update"
-                  onClick={() => {
-                    setIsUpdatingCommssion(true);
-                  }}
-                  disabled={node.hasPendingCommissionChange}
-                />
-              </div>
-            </div>
-          )}
         </div>
         <div id="buttonsContainer">
           <Button

@@ -2,26 +2,18 @@ import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
 import useValidators from '../../../services/useValidators';
-import { useDelegationApi } from '../../../services/useApi';
 
 type UpdateCommissionProps = {
   id: number | string;
   currentCommission: number | null;
   onSuccess: () => void;
-  isMainnet?: boolean;
 };
 
 export const VALIDATOR_COMMISSION_CHANGE_FREQUENCY = 116756;
 
 const VALIDATOR_COMMISSION_CHANGE_MAX_DELTA = 5;
 
-const UpdateCommission = ({
-  id,
-  currentCommission,
-  onSuccess,
-  isMainnet = false,
-}: UpdateCommissionProps) => {
-  const delegationApi = useDelegationApi();
+const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommissionProps) => {
   const { setCommission: updateCommission } = useValidators();
 
   const [step, setStep] = useState(1);
@@ -47,41 +39,18 @@ const UpdateCommission = ({
       return;
     }
 
-    if (isMainnet) {
-      setError('');
-      try {
-        let res;
-        if (commission) {
-          res = await updateCommission(`${id}`, commissionNumber);
-          await res.wait();
-          onSuccess();
-          return;
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
+    setError('');
+    try {
+      let res;
+      if (commission) {
+        res = await updateCommission(`${id}`, commissionNumber);
+        await res.wait();
+        onSuccess();
         return;
       }
-    }
-
-    setError('');
-
-    const result = await delegationApi.post(
-      `/nodes/${id}/commissions`,
-      { commission: commissionNumber },
-      true,
-    );
-
-    if (result.success) {
-      onSuccess();
-      return;
-    }
-
-    if (
-      typeof result.response === 'string' &&
-      result.response.includes('already has a pending commission change')
-    ) {
-      setError('this node already has a pending commission change');
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
     }
   };
 
@@ -94,19 +63,11 @@ const UpdateCommission = ({
             <strong>Notice</strong>
           </p>
           <ol>
-            <>
-              <li key="1">Maximum change cannot exceed ±5% per update.</li>
-              {isMainnet ? (
-                <li key="2">
-                  You will need to wait {VALIDATOR_COMMISSION_CHANGE_FREQUENCY} PBFT blocks to
-                  change it again.
-                </li>
-              ) : (
-                <li key="2">
-                  Actual change of the comission will take place 5 days after your update.
-                </li>
-              )}
-            </>
+            <li key="1">Maximum change cannot exceed ±5% per update.</li>
+            <li key="2">
+              You will need to wait {VALIDATOR_COMMISSION_CHANGE_FREQUENCY} PBFT blocks to change it
+              again.
+            </li>
             <li key="3">
               All of your delegators will be notified that you have changed the comission.
             </li>

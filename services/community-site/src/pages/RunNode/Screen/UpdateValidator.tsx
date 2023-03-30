@@ -9,7 +9,6 @@ import useValidators from '../../../services/useValidators';
 import useChain from '../../../services/useChain';
 
 const MAX_ENDPOINT_LENGTH = 50;
-
 const MAX_DESCRIPTION_LENGTH = 100;
 
 interface UpdateValidatorProps {
@@ -95,7 +94,6 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                 setIsUpdatingCommission(false);
                 closeEditValidator(true);
               }}
-              isMainnet
             />
           }
           parentElementID="root"
