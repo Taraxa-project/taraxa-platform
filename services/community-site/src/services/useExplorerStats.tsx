@@ -14,13 +14,15 @@ export default () => {
 
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
-          const status = await get(
+          const stats = await get(
             `https://indexer.mainnet.taraxa.io/address/${validator.address.toLowerCase()}/stats`,
           );
-          if (!status.success) {
+
+          if (!stats.success) {
             return validator;
           }
-          const lastBlockTimestamp = status.response.lastPbftTimestamp;
+
+          const lastBlockTimestamp = stats.response.lastPbftTimestamp;
           if (!lastBlockTimestamp) {
             return validator;
           }
@@ -39,10 +41,39 @@ export default () => {
     [get],
   );
 
+  const updateValidatorsRank = useCallback(
+    async (validators: Validator[]) => {
+      if (validators.length === 0) {
+        return validators;
+      }
+
+      const newValidators = await Promise.all(
+        validators.map(async (validator) => {
+          const ranking = await get(
+            `https://indexer.mainnet.taraxa.io/validators/${validator.address.toLowerCase()}`,
+          );
+
+          if (!ranking.success) {
+            return validator;
+          }
+          const { rank } = ranking.response;
+          return {
+            ...validator,
+            rank,
+          };
+        }),
+      );
+
+      return newValidators;
+    },
+    [get],
+  );
+
   return useMemo(
     () => ({
       updateValidatorsStats,
+      updateValidatorsRank,
     }),
-    [updateValidatorsStats],
+    [updateValidatorsStats, updateValidatorsRank],
   );
 };
