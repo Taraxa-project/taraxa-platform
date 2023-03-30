@@ -7,6 +7,8 @@ import CloseIcon from '../assets/icons/close';
 import ErrorIcon from '../assets/icons/error';
 import SuccessIcon from '../assets/icons/success';
 import WalletIcon from '../assets/icons/wallet';
+import { networks } from '../utils/networks';
+import useMainnet from './useMainnet';
 
 export enum WalletPopupState {
   DEFAULT = 'default',
@@ -52,6 +54,7 @@ const useProvideWalletPopup = () => {
   const [modalTitle, setModalTitle] = useState<string>('Please check your wallet');
   const [modalContent, setModalContent] = useState<JSX.Element>(<h2>Something</h2>);
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const { chainId } = useMainnet();
 
   const handleClose = () => {
     setShowPopup(false);
@@ -72,7 +75,7 @@ const useProvideWalletPopup = () => {
               label={message || 'Action required'}
               variant="h6"
             />
-            <div className="walletIcon">
+            <div className="walletSVG">
               <WalletIcon />
             </div>
             <p className="successText" style={{ wordBreak: 'break-word' }}>
@@ -147,7 +150,22 @@ const useProvideWalletPopup = () => {
             <div className="successIcon">
               <SuccessIcon />
             </div>
-            <p className="successText">{message || 'Action performed successfully'}</p>
+            <p className="successText">Action performed successfully</p>
+            {chainId && message && (
+              <>
+                <p>You can view the transaction here:</p>
+                <a
+                  href={`${networks[chainId].blockExplorerUrl}/tx/${message}`}
+                  rel="noreferrer"
+                  target="_blank"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Text mb={2} variant="body2" color="secondary" style={{ wordBreak: 'break-all' }}>
+                    {message}
+                  </Text>
+                </a>
+              </>
+            )}
             <Button
               type="button"
               label="Close"
@@ -174,8 +192,8 @@ const useProvideWalletPopup = () => {
     try {
       const res = await callback();
       changeState(WalletPopupState.LOADING);
-      await res.wait();
-      changeState(WalletPopupState.SUCCESS);
+      const tx = await res.wait();
+      changeState(WalletPopupState.SUCCESS, '', tx?.transactionHash);
     } catch (error: any) {
       // eslint-disable-next-line no-console
       console.error('Error:', error);
