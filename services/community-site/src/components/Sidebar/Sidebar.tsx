@@ -78,7 +78,7 @@ const Sidebar = () => {
             <NavLink
               label="Taraxa Explorer"
               Icon={ExplorerSidebar}
-              to={{ pathname: 'https://explorer.testnet.taraxa.io/' }}
+              to={{ pathname: 'https://testnet.explorer.taraxa.io/' }}
               target="_blank"
               rel="noopener noreferrer"
             />

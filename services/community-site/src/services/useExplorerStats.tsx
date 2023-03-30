@@ -15,7 +15,9 @@ export default () => {
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
           const stats = await get(
-            `https://indexer.mainnet.taraxa.io/address/${validator.address.toLowerCase()}/stats`,
+            `${
+              process.env.REACT_APP_INDEXER_API_HOST
+            }/address/${validator.address.toLowerCase()}/stats`,
           );
 
           if (!stats.success) {
@@ -50,7 +52,9 @@ export default () => {
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
           const ranking = await get(
-            `https://indexer.mainnet.taraxa.io/validators/${validator.address.toLowerCase()}`,
+            `${
+              process.env.REACT_APP_INDEXER_API_HOST
+            }/validators/${validator.address.toLowerCase()}`,
           );
 
           if (!ranking.success) {

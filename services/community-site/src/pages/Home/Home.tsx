@@ -149,7 +149,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Explore the ledger and find the transaction’s data."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open('https://explorer.testnet.taraxa.io/', '_blank', 'noreferrer noopener')
+              window.open('https://testnet.explorer.taraxa.io/', '_blank', 'noreferrer noopener')
             }
             Icon={ExplorerIcon}
           />
