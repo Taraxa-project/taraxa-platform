@@ -17,30 +17,32 @@ const TestnetValidatorRow = ({
   const { isActive, address, name, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
 
   const actions = (
-    <>
+    <div className="validatorActions">
       <Button
         size="small"
+        variant="contained"
+        color="secondary"
+        className="smallBtn"
         label="Edit"
-        className="edit"
         onClick={() => {
           onEdit(validator);
         }}
       />
       <Button
         size="small"
+        variant="contained"
+        color="secondary"
+        className="smallBtn"
         label="Delete"
-        className="delete"
         disabled={!validator.canDelete}
         onClick={() => {
-          const confirmation = window.confirm(
-            "Are you sure you want to delete this node? You won't be able to add a node with the same wallet address.",
-          );
+          const confirmation = window.confirm();
           if (confirmation) {
             onDelete(validator);
           }
         }}
       />
-    </>
+    </div>
   );
 
   let className = 'dot';
@@ -49,18 +51,18 @@ const TestnetValidatorRow = ({
   }
   return (
     <TableRow className="tableRow" key={address}>
-      <TableCell className="tableCell">
+      <TableCell className="tableCell statusCell">
         <div className="status">
           <div className={className} />
         </div>
       </TableCell>
-      <TableCell className="tableCell">
+      <TableCell className="tableCell nodeCell">
         {formatValidatorName(!name || name === '' ? address : name)}
       </TableCell>
-      <TableCell className="tableCell">{y}%</TableCell>
-      <TableCell className="tableCell">{weeklyBlocksProduced}</TableCell>
-      <TableCell className="tableCell">{weeklyRank}</TableCell>
-      <TableCell className="tableCell" align="right">
+      <TableCell className="tableCell nodeCell">{y}%</TableCell>
+      <TableCell className="tableCell nodeCell">{weeklyBlocksProduced}</TableCell>
+      <TableCell className="tableCell nodeCell">{weeklyRank || 0}</TableCell>
+      <TableCell className="tableCell nodeActionsCell" align="right">
         {actions}
       </TableCell>
     </TableRow>

@@ -23,6 +23,7 @@ type ValidatorRowProps = {
   // setReDelegateFromValidator: (node: Validator) => void;
   setUndelegateFromValidator: (node: Validator) => void;
   currentBlockNumber?: number;
+  undelegateDisabled?: boolean;
 };
 
 const ValidatorRow = ({
@@ -35,6 +36,7 @@ const ValidatorRow = ({
   // setReDelegateFromValidator,
   setUndelegateFromValidator,
   currentBlockNumber,
+  undelegateDisabled = false,
 }: ValidatorRowProps) => {
   const history = useHistory();
   return (
@@ -105,7 +107,7 @@ const ValidatorRow = ({
             color="error"
             label="Un-delegate"
             variant="contained"
-            disabled={actionsDisabled || !ownDelegation}
+            disabled={actionsDisabled || !ownDelegation || undelegateDisabled}
             className="smallBtn"
             onClick={() => setUndelegateFromValidator(validator)}
           />

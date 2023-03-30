@@ -36,10 +36,11 @@ import MainnetValidatorRow from './Table/MainnetValidatorRow';
 import TestnetValidatorRow from './Table/TestnetValidatorRow';
 
 import './runvalidator.scss';
-import EditValidator from './Modal/EditValidator';
 import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
 import Claim from '../Delegation/Modal/Claim';
+import UpdateValidator from './Screen/UpdateValidator';
+import useExplorerStats from '../../services/useExplorerStats';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -49,7 +50,8 @@ const RunValidator = () => {
   const { chainId: mainnetChainId } = useMainnet();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { getValidatorsWith, getValidatorsFor, getValidators } = useValidators();
+  const { getValidatorsWith, getValidatorsFor } = useValidators();
+  const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
   const delegationApi = useDelegationApi();
   const { getDelegations } = useDelegation();
 
@@ -70,8 +72,7 @@ const RunValidator = () => {
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
-  const [delegations, setDelegations] = useState<Delegation[]>([]);
-  const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
+  const [delegations, setDelegations] = useState<Delegation[] | null>(null);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
@@ -117,23 +118,31 @@ const RunValidator = () => {
     }
   }, [status, account, shouldFetch]);
 
-  useEffect(() => {
-    if (status === 'connected' && account) {
+  const fetchValidators = () => {
+    if (status === 'connected' && account && delegations?.length === 0) {
       (async () => {
         const myValidators = await getValidatorsFor(account);
-        setMainnetValidators(myValidators);
+        const validatorsWithStats = await updateValidatorsStats(myValidators);
+        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
+        setMainnetValidators(updatedValidators);
       })();
     }
-  }, [status, account, shouldFetch]);
+  };
 
   useEffect(() => {
-    if (status === 'connected' && account && delegations.length > 0) {
+    fetchValidators();
+  }, [status, account, shouldFetch, delegations]);
+
+  useEffect(() => {
+    if (status === 'connected' && account && delegations && delegations.length > 0) {
       (async () => {
         const mainnetValidators = await getValidatorsWith(delegations.map((d) => d.address));
         const myValidators = mainnetValidators.filter(
           (validator) => validator.owner.toLowerCase() === account.toLowerCase(),
         );
-        setMainnetValidators(myValidators);
+        const validatorsWithStats = await updateValidatorsStats(myValidators);
+        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
+        setMainnetValidators(updatedValidators);
       })();
     }
   }, [status, account, delegations, shouldFetch]);
@@ -174,7 +183,6 @@ const RunValidator = () => {
 
   const setValidatorInfo = (validator: Validator) => {
     setValidatorToUpdate(validator);
-    setIsUpdatingValidator(true);
   };
 
   if (currentEditedNode) {
@@ -191,31 +199,22 @@ const RunValidator = () => {
     );
   }
 
+  if (validatorToUpdate) {
+    return (
+      <UpdateValidator
+        validator={validatorToUpdate}
+        closeEditValidator={(refreshValidators) => {
+          setValidatorToUpdate(null);
+          if (refreshValidators) {
+            fetchValidators();
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="runnode">
-      {isUpdatingValidator && validatorToUpdate && (
-        <Modal
-          id="signinModal"
-          title="Update Validator"
-          show={isUpdatingValidator}
-          children={
-            <EditValidator
-              type={validatorType}
-              validator={validatorToUpdate}
-              onSuccess={() => {
-                setIsUpdatingValidator(false);
-                setValidatorToUpdate(null);
-                setShouldFetch(true);
-              }}
-            />
-          }
-          parentElementID="root"
-          onRequestClose={() => {
-            setIsUpdatingValidator(false);
-          }}
-          closeIcon={CloseIcon}
-        />
-      )}
       {validatorToClaimFrom && (
         <Modal
           id="delegateModal"
@@ -394,13 +393,16 @@ const RunValidator = () => {
             <Table className="table">
               <TableHead>
                 <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell">Status</TableCell>
-                  <TableCell className="tableHeadCell">Name</TableCell>
-                  <TableCell className="tableHeadCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell">Number of blocks produced</TableCell>
-                  <TableCell className="tableHeadCell" colSpan={2}>
+                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
+                  <TableCell className="tableHeadCell nodeCell">Name</TableCell>
+                  <TableCell className="tableHeadCell nodeCell">Expected Yield</TableCell>
+                  <TableCell className="tableHeadCell nodeCell">
+                    Number of blocks produced
+                  </TableCell>
+                  <TableCell className="tableHeadCell nodeCell" colSpan={2}>
                     Ranking
                   </TableCell>
+                  <TableCell className="tableHeadCell nodeActionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

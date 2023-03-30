@@ -197,7 +197,7 @@ const useProvideWalletPopup = () => {
     } catch (error: any) {
       // eslint-disable-next-line no-console
       console.error('Error:', error);
-      changeState(WalletPopupState.ERROR, 'Error', `${error}`);
+      changeState(WalletPopupState.ERROR, 'Error', `${error.message}`);
     }
     if (typeof onSuccess === 'function') {
       onSuccess();

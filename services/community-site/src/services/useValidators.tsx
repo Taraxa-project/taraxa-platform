@@ -23,6 +23,7 @@ export default () => {
     isActive: false,
     description: contractValidator.info.description,
     endpoint: contractValidator.info.endpoint,
+    rank: 0,
   });
 
   const getValidators = useCallback(async (): Promise<Validator[]> => {
@@ -144,6 +145,16 @@ export default () => {
     [browserDpos],
   );
 
+  const setCommission = useCallback(
+    async (
+      validator: string,
+      commission: number,
+    ): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.setCommission(validator, commission * 100);
+    },
+    [browserDpos],
+  );
+
   return useMemo(
     () => ({
       getValidators,
@@ -152,6 +163,7 @@ export default () => {
       registerValidator,
       getValidatorsFor,
       setValidatorInfo,
+      setCommission,
     }),
     [getValidators, getValidatorsWith, getValidator],
   );
