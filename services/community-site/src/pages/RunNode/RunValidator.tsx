@@ -36,7 +36,6 @@ import MainnetValidatorRow from './Table/MainnetValidatorRow';
 import TestnetValidatorRow from './Table/TestnetValidatorRow';
 
 import './runvalidator.scss';
-import EditValidator from './Modal/EditValidator';
 import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
 import Claim from '../Delegation/Modal/Claim';
@@ -74,7 +73,6 @@ const RunValidator = () => {
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
   const [delegations, setDelegations] = useState<Delegation[] | null>(null);
-  const [isUpdatingValidator, setIsUpdatingValidator] = useState(false);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
@@ -122,7 +120,6 @@ const RunValidator = () => {
 
   const fetchValidators = () => {
     if (status === 'connected' && account && delegations?.length === 0) {
-      console.log(`Delegations lgth ${delegations.length}`);
       (async () => {
         const myValidators = await getValidatorsFor(account);
         const validatorsWithStats = await updateValidatorsStats(myValidators);
@@ -138,7 +135,6 @@ const RunValidator = () => {
 
   useEffect(() => {
     if (status === 'connected' && account && delegations && delegations.length > 0) {
-      console.log(`Test del legth ${delegations.length}`);
       (async () => {
         const mainnetValidators = await getValidatorsWith(delegations.map((d) => d.address));
         const myValidators = mainnetValidators.filter(
@@ -187,7 +183,6 @@ const RunValidator = () => {
 
   const setValidatorInfo = (validator: Validator) => {
     setValidatorToUpdate(validator);
-    setIsUpdatingValidator(true);
   };
 
   if (currentEditedNode) {
@@ -220,29 +215,6 @@ const RunValidator = () => {
 
   return (
     <div className="runnode">
-      {isUpdatingValidator && validatorToUpdate && (
-        <Modal
-          id="signinModal"
-          title="Update Validator"
-          show={isUpdatingValidator}
-          children={
-            <EditValidator
-              type={validatorType}
-              validator={validatorToUpdate}
-              onSuccess={() => {
-                setIsUpdatingValidator(false);
-                setValidatorToUpdate(null);
-                setShouldFetch(true);
-              }}
-            />
-          }
-          parentElementID="root"
-          onRequestClose={() => {
-            setIsUpdatingValidator(false);
-          }}
-          closeIcon={CloseIcon}
-        />
-      )}
       {validatorToClaimFrom && (
         <Modal
           id="delegateModal"
