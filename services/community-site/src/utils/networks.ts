@@ -8,6 +8,7 @@ interface Network {
     symbol: string;
     decimals: number;
   };
+  indexerUrl: string;
 }
 interface Networks {
   [key: number]: Network;
@@ -23,6 +24,7 @@ export const networks: Networks = {
       symbol: 'TARA',
       decimals: 18,
     },
+    indexerUrl: 'https://indexer.mainnet.taraxa.io',
   },
   842: {
     chainName: 'Taraxa Testnet',
@@ -34,6 +36,7 @@ export const networks: Networks = {
       symbol: 'TARA',
       decimals: 18,
     },
+    indexerUrl: 'https://indexer.testnet.taraxa.io',
   },
   843: {
     chainName: 'Taraxa Devnet',
@@ -45,5 +48,6 @@ export const networks: Networks = {
       symbol: 'TARA',
       decimals: 18,
     },
+    indexerUrl: 'https://indexer.devnet.taraxa.io',
   },
 };
