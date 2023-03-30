@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Text, Modal, Loading, Button } from '@taraxa_project/taraxa-ui';
 import { ethers } from 'ethers';
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext, useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import CloseIcon from '../assets/icons/close';
 import ErrorIcon from '../assets/icons/error';
 import SuccessIcon from '../assets/icons/success';
 import WalletIcon from '../assets/icons/wallet';
+import { networks } from '../utils/networks';
+import useMainnet from './useMainnet';
 
 export enum WalletPopupState {
   DEFAULT = 'default',
@@ -24,7 +26,7 @@ type Context = {
   isMobile: boolean;
   modalTitle: string;
   modalContent: JSX.Element | null;
-  asyncCallback: (callback: AsyncCallbackType) => Promise<void>;
+  asyncCallback: (callback: AsyncCallbackType, onSuccess?: () => void) => Promise<void>;
 };
 
 const initialState: Context = {
@@ -36,7 +38,7 @@ const initialState: Context = {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   asyncCallback: async (callback) => {
     try {
-      const response = await callback();
+      await callback();
       return;
     } catch (error) {
       throw new Error('Something went wrong');
@@ -52,6 +54,7 @@ const useProvideWalletPopup = () => {
   const [modalTitle, setModalTitle] = useState<string>('Please check your wallet');
   const [modalContent, setModalContent] = useState<JSX.Element>(<h2>Something</h2>);
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
+  const { chainId } = useMainnet();
 
   const handleClose = () => {
     setShowPopup(false);
@@ -72,10 +75,10 @@ const useProvideWalletPopup = () => {
               label={message || 'Action required'}
               variant="h6"
             />
-            <div className="loadingIcon">
+            <div className="walletSVG">
               <WalletIcon />
             </div>
-            <p className="successText" style={{ wordBreak: 'break-all' }}>
+            <p className="successText" style={{ wordBreak: 'break-word' }}>
               Please check your Wallet!
             </p>
           </div>
@@ -96,7 +99,7 @@ const useProvideWalletPopup = () => {
             <div className="loadingIcon">
               <Loading />
             </div>
-            <p className="successText" style={{ wordBreak: 'break-all' }}>
+            <p className="successText" style={{ wordBreak: 'break-word' }}>
               Please wait until the action is performed
             </p>
           </div>
@@ -124,7 +127,7 @@ const useProvideWalletPopup = () => {
               type="button"
               label="Close"
               fullWidth
-              color="secondary"
+              color="info"
               variant="contained"
               className="marginButton"
               onClick={handleClose}
@@ -147,7 +150,22 @@ const useProvideWalletPopup = () => {
             <div className="successIcon">
               <SuccessIcon />
             </div>
-            <p className="successText">{message || 'Action performed successfully'}</p>
+            <p className="successText">Action performed successfully</p>
+            {chainId && message && (
+              <>
+                <p>You can view the transaction here:</p>
+                <a
+                  href={`${networks[chainId].blockExplorerUrl}/tx/${message}`}
+                  rel="noreferrer"
+                  target="_blank"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Text mb={2} variant="body2" color="secondary" style={{ wordBreak: 'break-all' }}>
+                    {message}
+                  </Text>
+                </a>
+              </>
+            )}
             <Button
               type="button"
               label="Close"
@@ -168,18 +186,21 @@ const useProvideWalletPopup = () => {
     }
   };
 
-  const asyncCallback = async (callback: AsyncCallbackType) => {
+  const asyncCallback = async (callback: AsyncCallbackType, onSuccess?: () => void) => {
     if (typeof callback !== 'function') return;
     changeState(WalletPopupState.ACTION);
     try {
       const res = await callback();
       changeState(WalletPopupState.LOADING);
-      await res.wait();
-      changeState(WalletPopupState.SUCCESS);
+      const tx = await res.wait();
+      changeState(WalletPopupState.SUCCESS, '', tx?.transactionHash);
     } catch (error: any) {
       // eslint-disable-next-line no-console
       console.error('Error:', error);
       changeState(WalletPopupState.ERROR, 'Error', `${error}`);
+    }
+    if (typeof onSuccess === 'function') {
+      onSuccess();
     }
   };
 
@@ -201,7 +222,7 @@ export const WalletPopupProvider = ({ children }: { children: React.ReactNode })
     <WalletPopupContext.Provider value={value}>
       {showPopup && (
         <Modal
-          id={isMobile ? 'mobile-signinModal' : 'signinModal'}
+          id={isMobile ? 'mobile-walletModal' : 'walletModal'}
           title={modalTitle}
           show={showPopup}
           children={modalContent}

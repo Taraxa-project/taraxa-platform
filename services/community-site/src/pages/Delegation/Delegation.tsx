@@ -40,6 +40,7 @@ import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfac
 
 import { stripEth, weiToEth } from '../../utils/eth';
 import Undelegation from '../../interfaces/Undelegation';
+import { useWalletPopup } from '../../services/useWalletPopup';
 
 const Delegation = ({ location }: { location: Location }) => {
   const { user } = useAuth();
@@ -47,6 +48,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
   const { isLoading } = useLoading();
+  const { asyncCallback } = useWalletPopup();
 
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
@@ -92,14 +94,16 @@ const Delegation = ({ location }: { location: Location }) => {
   };
 
   const confirmUndelegation = async (undelegation: Undelegation) => {
-    const receipt = await confirmUndelegate(undelegation.address);
-    await receipt.wait();
+    await asyncCallback(async () => {
+      return confirmUndelegate(undelegation.address);
+    });
     setShouldFetch(true);
   };
 
   const cancelUndelegation = async (undelegation: Undelegation) => {
-    const receipt = await cancelUndelegate(undelegation.address);
-    await receipt.wait();
+    await asyncCallback(async () => {
+      return cancelUndelegate(undelegation.address);
+    });
     setShouldFetch(true);
   };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import { Button, Text, InputField, Loading } from '@taraxa_project/taraxa-ui';
-import SuccessIcon from '../../../assets/icons/success';
+import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
 import useDelegation from '../../../services/useDelegation';
 import useCMetamask from '../../../services/useCMetamask';
@@ -9,6 +8,7 @@ import useCMetamask from '../../../services/useCMetamask';
 import { weiToEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 import Delegation from '../../../interfaces/Delegation';
+import { useWalletPopup } from '../../../services/useWalletPopup';
 
 type UndelegateProps = {
   validator: Validator;
@@ -19,14 +19,12 @@ type UndelegateProps = {
 const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
   const { getDelegations, undelegate } = useDelegation();
   const { status, account } = useCMetamask();
-
-  const [isLoading, setLoading] = useState(false);
+  const { asyncCallback } = useWalletPopup();
 
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [totalDelegation, setTotalDelegation] = useState(ethers.BigNumber.from('0'));
   const [undelegationTotal, setUnDelegationTotal] = useState(ethers.BigNumber.from('0'));
   const [maxUndelegation, setMaxUndelegation] = useState(ethers.BigNumber.from('0'));
-  const [step, setStep] = useState(1);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -65,165 +63,105 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
     // }
     setError('');
 
-    try {
-      setLoading(true);
-      const res = await undelegate(validator.address, undelegationTotal);
-      setStep(2);
-      await res.wait();
-      setLoading(false);
-      onSuccess();
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-    }
+    asyncCallback(async () => {
+      onFinish();
+      return await undelegate(validator.address, undelegationTotal);
+    }, onSuccess);
   };
 
   return (
     <div className="delegateNodeModal">
-      {step === 1 ? (
-        <>
-          <Text
-            style={{ marginBottom: '32px', fontSize: '18px' }}
-            label="Undelegate from..."
-            align="center"
-            variant="h6"
-            color="primary"
-          />
-          <div className="nodeDescriptor">
-            <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validator.address}</span>
-            </p>
-          </div>
-          <div className="taraInputWrapper">
-            <p className="maxDelegatableDescription">Available to undelegate</p>
-            <p className="maxDelegatableTotal">
-              {ethers.utils.commify(weiToEth(undelegationTotal))}
-            </p>
-            <p className="maxDelegatableUnit">TARA</p>
-            <InputField
-              error={!!error}
-              helperText={error}
-              label="Enter amount..."
-              value={parseInt(weiToEth(undelegationTotal), 10)}
-              variant="outlined"
-              type="text"
-              fullWidth
-              margin="normal"
-              onChange={(event) => {
-                if (
-                  ethers.BigNumber.from(event.target.value || 0)
-                    .mul(ethers.BigNumber.from('10').pow(18))
-                    .gt(maxUndelegation)
-                ) {
-                  setError(
-                    `must be a number smaller than or equal to the total current delegation`,
-                  );
-                } else {
-                  setError('');
-                }
-                setUnDelegationTotal(
-                  ethers.BigNumber.from(event.target.value || 0).mul(
-                    ethers.BigNumber.from('10').pow(18),
-                  ),
-                );
-              }}
-            />
-            <div className="delegatePercentWrapper">
-              <Button
-                size="small"
-                className="delegatePercent"
-                label="25%"
-                variant="contained"
-                onClick={() => {
-                  setUnDelegationTotal(totalDelegation.mul(25).div(100));
-                }}
-              />
-              <Button
-                size="small"
-                className="delegatePercent"
-                label="50%"
-                variant="contained"
-                onClick={() => {
-                  setUnDelegationTotal(totalDelegation.mul(50).div(100));
-                }}
-              />
-              <Button
-                size="small"
-                className="delegatePercent"
-                label="75%"
-                variant="contained"
-                onClick={() => {
-                  setUnDelegationTotal(totalDelegation.mul(75).div(100));
-                }}
-              />
-              <Button
-                size="small"
-                className="delegatePercent"
-                label="100%"
-                variant="contained"
-                onClick={() => {
-                  setUnDelegationTotal(totalDelegation);
-                }}
-              />
-            </div>
-            <Button
-              type="submit"
-              label="Un-Delegate"
-              color="secondary"
-              variant="contained"
-              className="marginButton"
-              disabled={error !== ''}
-              fullWidth
-              onClick={submit}
-            />
-          </div>
-        </>
-      ) : isLoading ? (
-        <div className="delegateNodeModalSuccess">
-          <Text
-            style={{ marginBottom: '2%' }}
-            label="Waiting for confirmation"
-            variant="h6"
-            color="warning"
-          />
-          <div className="loadingIcon">
-            <Loading />
-          </div>
-          <p className="successText">Awaiting undelegation confirmation from validator:</p>
-          <div className="nodeDescriptor nodeDescriptorSuccess">
-            <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validator.address}</span>
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="delegateNodeModalSuccess">
-          <Text style={{ marginBottom: '2%' }} label="Success" variant="h6" color="primary" />
-          <div className="successIcon">
-            <SuccessIcon />
-          </div>
-          <p className="successText">
-            You've successfully undelegated {ethers.utils.commify(weiToEth(undelegationTotal))} TARA
-            from validator:
-          </p>
-          <div className="nodeDescriptor nodeDescriptorSuccess">
-            <p className="nodeAddressWrapper">
-              <span className="nodeAddress">{validator.address}</span>
-            </p>
-          </div>
+      <Text
+        style={{ marginBottom: '32px', fontSize: '18px' }}
+        label="Undelegate from..."
+        align="center"
+        variant="h6"
+        color="primary"
+      />
+      <div className="nodeDescriptor">
+        <p className="nodeAddressWrapper">
+          <span className="nodeAddress">{validator.address}</span>
+        </p>
+      </div>
+      <div className="taraInputWrapper">
+        <p className="maxDelegatableDescription">Available to undelegate</p>
+        <p className="maxDelegatableTotal">{ethers.utils.commify(weiToEth(undelegationTotal))}</p>
+        <p className="maxDelegatableUnit">TARA</p>
+        <InputField
+          error={!!error}
+          helperText={error}
+          label="Enter amount..."
+          value={parseInt(weiToEth(undelegationTotal), 10)}
+          variant="outlined"
+          type="text"
+          fullWidth
+          margin="normal"
+          onChange={(event) => {
+            if (
+              ethers.BigNumber.from(event.target.value || 0)
+                .mul(ethers.BigNumber.from('10').pow(18))
+                .gt(maxUndelegation)
+            ) {
+              setError(`must be a number smaller than or equal to the total current delegation`);
+            } else {
+              setError('');
+            }
+            setUnDelegationTotal(
+              ethers.BigNumber.from(event.target.value || 0).mul(
+                ethers.BigNumber.from('10').pow(18),
+              ),
+            );
+          }}
+        />
+        <div className="delegatePercentWrapper">
           <Button
-            type="submit"
-            label="Ok"
-            fullWidth
-            color="secondary"
+            size="small"
+            className="delegatePercent"
+            label="25%"
             variant="contained"
-            className="marginButton"
             onClick={() => {
-              onFinish();
+              setUnDelegationTotal(totalDelegation.mul(25).div(100));
+            }}
+          />
+          <Button
+            size="small"
+            className="delegatePercent"
+            label="50%"
+            variant="contained"
+            onClick={() => {
+              setUnDelegationTotal(totalDelegation.mul(50).div(100));
+            }}
+          />
+          <Button
+            size="small"
+            className="delegatePercent"
+            label="75%"
+            variant="contained"
+            onClick={() => {
+              setUnDelegationTotal(totalDelegation.mul(75).div(100));
+            }}
+          />
+          <Button
+            size="small"
+            className="delegatePercent"
+            label="100%"
+            variant="contained"
+            onClick={() => {
+              setUnDelegationTotal(totalDelegation);
             }}
           />
         </div>
-      )}
+        <Button
+          type="submit"
+          label="Un-Delegate"
+          color="secondary"
+          variant="contained"
+          className="marginButton"
+          disabled={error !== ''}
+          fullWidth
+          onClick={submit}
+        />
+      </div>
     </div>
   );
 };
