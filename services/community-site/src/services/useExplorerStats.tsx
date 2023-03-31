@@ -1,10 +1,13 @@
 import { useCallback, useMemo } from 'react';
 
 import { Validator } from '../interfaces/Validator';
+import { networks } from '../utils/networks';
 import useApi from './useApi';
+import useMainnet from './useMainnet';
 
 export default () => {
   const { get } = useApi();
+  const { chainId } = useMainnet();
 
   const updateValidatorsStats = useCallback(
     async (validators: Validator[]) => {
@@ -15,7 +18,7 @@ export default () => {
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
           const stats = await get(
-            `https://indexer.mainnet.taraxa.io/address/${validator.address.toLowerCase()}/stats`,
+            `${networks[chainId].indexerUrl}/address/${validator.address.toLowerCase()}/stats`,
           );
 
           if (!stats.success) {
@@ -50,7 +53,7 @@ export default () => {
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
           const ranking = await get(
-            `https://indexer.mainnet.taraxa.io/validators/${validator.address.toLowerCase()}`,
+            `${networks[chainId].indexerUrl}/validators/${validator.address.toLowerCase()}`,
           );
 
           if (!ranking.success) {
