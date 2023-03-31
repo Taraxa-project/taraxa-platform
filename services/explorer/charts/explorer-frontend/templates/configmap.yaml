@@ -6,7 +6,6 @@ metadata:
     {{- include "explorer-frontend.labels" . | nindent 4 }}
 data:
   NODE_ENV: {{ .Values.app.environment | quote }}
-  MAINNET_FAUCET_HOST: {{ .Values.app.mainnetFaucetHost | quote }}
   TESTNET_FAUCET_HOST: {{ .Values.app.testnetFaucetHost | quote }}
   DEVNET_FAUCET_HOST: {{ .Values.app.devnetFaucetHost | quote }}
   MAINNET_API_HOST: {{ .Values.app.mainnetApiHost | quote }}

@@ -7,6 +7,7 @@ import {
   recreateGraphQLConnection,
   recreateAPIConnection,
   recreateFaucetConnection,
+  networkRedirect,
 } from '../utils';
 
 type Context = {
@@ -27,9 +28,9 @@ const createClient = (endpoint: string): Client =>
 const initialState: Context = {
   networks: Object.values(Network),
   currentNetwork: Network.MAINNET,
-  graphQLClient: createClient(recreateGraphQLConnection(Network.DEVNET)),
-  backendEndpoint: recreateAPIConnection(Network.DEVNET),
-  faucetEndpoint: recreateFaucetConnection(Network.DEVNET),
+  graphQLClient: createClient(recreateGraphQLConnection(Network.MAINNET)),
+  backendEndpoint: recreateAPIConnection(Network.MAINNET),
+  faucetEndpoint: recreateFaucetConnection(Network.MAINNET),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   disableNetworkSelection: false,
@@ -39,10 +40,9 @@ const ExplorerNetworkContext = createContext<Context>(initialState);
 
 const useNetworkSelection = () => {
   const networks = Object.values(Network);
-  const savedNetwork = localStorage.getItem(SELECTED_NETWORK);
   const hostNetwork = getDomainName();
   const [currentNetwork, setCurrentNetwork] = useState<string>(
-    hostNetwork || savedNetwork || Network.DEVNET
+    hostNetwork || Network.MAINNET
   );
 
   const [graphQLClient, setGraphQLClient] = useState<Client>(
@@ -56,15 +56,13 @@ const useNetworkSelection = () => {
   );
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
-    localStorage.setItem(SELECTED_NETWORK, network);
   };
 
   useEffect(() => {
-    // connector.resetClient(recreateGraphQLConnection());
-    // connector.backendEndpoint = recreateAPIConnection();
     setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
     setBackendEndpoint(recreateAPIConnection(currentNetwork));
     setFaucetEndpoint(recreateFaucetConnection(currentNetwork));
+    networkRedirect(currentNetwork);
   }, [currentNetwork]);
 
   return {

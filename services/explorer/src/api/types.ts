@@ -1,4 +1,5 @@
 import { ITaraxaNode } from '@taraxa_project/explorer-shared';
+import { BlockData, Transaction } from '../models';
 
 export const MAINNET_API = `${process.env.REACT_APP_MAINNET_API_HOST}`;
 export const TESTNET_API = `${process.env.REACT_APP_TESTNET_API_HOST}`;
@@ -31,20 +32,30 @@ export type PbftBlockDetailsFilters = {
   number?: number;
 };
 
-export type PaginationFilter = {
-  take: number;
-  skip: number;
-};
-
 export type FetchWithPagination = {
-  rowsPerPage: number;
-  page: number;
+  start: number;
+  limit: number;
 };
 
-export interface NodesPaginate {
-  data: ITaraxaNode[];
+export type ResultWithPagination<T> = {
+  start: number;
+  end: number;
   total: number;
-}
+  hasNext: boolean;
+  data: T[];
+};
+
+export type WeekPagination = {
+  endDate: number;
+  startDate: number;
+  hasNext: boolean;
+  week: number;
+  year: number;
+};
+
+export type NodesResultWithPagination<T> = ResultWithPagination<T> & {
+  week: WeekPagination;
+};
 
 export interface AddressPbftsResponse {
   hash: string;
@@ -70,23 +81,31 @@ export interface AddressTxResponse {
   value: string;
   block: number;
   age: number;
-}
-
-export interface PbftsPaginate {
-  data: AddressPbftsResponse[];
-  total: number;
-}
-
-export interface DagsPaginate {
-  data: AddressDagsResponse[];
-  total: number;
-}
-
-export interface TxPaginate {
-  data: AddressTxResponse[];
-  total: number;
+  timestamp?: number;
 }
 
 export interface RankedNode extends ITaraxaNode {
   rank: number;
 }
+
+export interface Paginate<T> {
+  data: T[];
+  total: number;
+}
+
+export type PbftsPaginate = Paginate<AddressPbftsResponse>;
+export type DagsPaginate = Paginate<AddressDagsResponse>;
+export type TxPaginate = Paginate<AddressTxResponse>;
+export type NodesPaginate = Paginate<ITaraxaNode>;
+
+export interface TablePagination<T> {
+  data: T[];
+  total: number;
+  page: number;
+  rowsPerPage: number;
+  handleChangePage: (p: number) => void;
+  handleChangeRowsPerPage: (l: number) => void;
+}
+
+export type BlockTablePagination = TablePagination<BlockData>;
+export type TxTablePaginate = TablePagination<Transaction>;

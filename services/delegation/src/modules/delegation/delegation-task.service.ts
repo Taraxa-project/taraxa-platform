@@ -66,18 +66,27 @@ export class DelegationTaskService implements OnModuleInit {
     }
   }
 
-  @Cron('*/10 * * * *')
+  @Cron('0 * * * *')
   async triggerUndelegations() {
-    this.logger.debug('Starting undelegation triggers...');
-    const undelegationsNotTriggered = await this.undelegationRepository.find({
+    this.logger.debug('Starting undelegation trigger worker...');
+    const un = await this.undelegationRepository.find({
       triggered: false,
     });
-    for (const undelegation of undelegationsNotTriggered) {
-      await this.delegationService.undelegateFromChain(undelegation);
+    for (const u of un) {
+      try {
+        await this.delegationService.undelegateFromChain(u);
+        this.logger.log(
+          `Sent undelegation transaction for validator ${u.address}`,
+        );
+      } catch (e) {
+        this.logger.error(
+          `Could not send undelegation transaction for validator ${u.address}`,
+        );
+      }
     }
   }
 
-  @Cron('*/10 * * * *')
+  @Cron('0 * * * *')
   async confirmUndelegation() {
     this.logger.debug('Starting undelegation confirmation worker...');
     const currentTestnetBlock =
@@ -86,32 +95,34 @@ export class DelegationTaskService implements OnModuleInit {
       await this.mainnetBlockchainService.getCurrentBlockNumber();
     let mainnetnetUndelegationsInScope = [];
     let testnetUndelegationsInScope = [];
-    if (currentMainnetBlock) {
-      mainnetnetUndelegationsInScope = await this.undelegationRepository.find({
-        where: {
-          confirmationBlock: LessThan(currentMainnetBlock),
-          chain: NodeType.MAINNET,
-          confirmed: false,
-        },
-      });
-    }
-    if (currentTestnetBlock) {
-      testnetUndelegationsInScope = await this.undelegationRepository.find({
-        where: {
-          confirmationBlock: LessThan(currentTestnetBlock),
-          chain: NodeType.TESTNET,
-          confirmed: false,
-        },
-      });
-    }
+    mainnetnetUndelegationsInScope = await this.undelegationRepository.find({
+      where: {
+        confirmationBlock: LessThan(currentMainnetBlock),
+        chain: NodeType.MAINNET,
+        confirmed: false,
+      },
+    });
+    testnetUndelegationsInScope = await this.undelegationRepository.find({
+      where: {
+        confirmationBlock: LessThan(currentTestnetBlock),
+        chain: NodeType.TESTNET,
+        confirmed: false,
+      },
+    });
     const undelegationsInScope = testnetUndelegationsInScope.concat(
       mainnetnetUndelegationsInScope,
     );
     for (const undelegation of undelegationsInScope) {
-      await this.delegationService.confirmUndelegation(undelegation);
-      this.logger.log(
-        `Confirmed undelegation for validator ${undelegation.address}`,
-      );
+      try {
+        await this.delegationService.confirmUndelegation(undelegation);
+        this.logger.log(
+          `Confirmed undelegation for validator ${undelegation.address}`,
+        );
+      } catch (e) {
+        this.logger.error(
+          `Could not confirm undelegation for validator ${undelegation.address}`,
+        );
+      }
     }
   }
 }

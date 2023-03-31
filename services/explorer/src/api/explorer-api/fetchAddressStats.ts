@@ -1,16 +1,16 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
 
-const getByAddress = (endpoint: string, address: string) => {
+const getAddressStats = (endpoint: string, address: string) => {
   if (!address || !endpoint) {
     return;
   }
-  const url = `${endpoint}/address/${address}/total-dags`;
+  const url = `${endpoint}/address/${address}/stats`;
   // eslint-disable-next-line consistent-return
   return axios.get(url);
 };
 
-export const useGetDagsCountByAddress = (
+export const useGetAddressStats = (
   endpoint: string,
   address: string
 ): {
@@ -21,8 +21,8 @@ export const useGetDagsCountByAddress = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['dags-by-address', address, endpoint],
-    () => getByAddress(endpoint, address),
+    ['address-stats', address, endpoint],
+    () => getAddressStats(endpoint, address),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console

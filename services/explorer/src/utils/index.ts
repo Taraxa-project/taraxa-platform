@@ -7,3 +7,4 @@ export * from './getDomainName';
 export * from './chartUtils';
 export * from './networks';
 export * from './fromWeiToTara';
+export * from './getTransactionType';

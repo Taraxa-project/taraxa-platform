@@ -6,6 +6,8 @@ import { HttpService } from '@nestjs/axios';
 import { Node } from './node.entity';
 import { NodeType } from './node-type.enum';
 import { Repository } from 'typeorm';
+import { get } from '../utils/utils';
+import { AddressDetailsResponse, NodeStatsReponse } from '../utils/interfaces';
 
 @Injectable()
 export class NodeTaskService implements OnModuleInit {
@@ -23,11 +25,11 @@ export class NodeTaskService implements OnModuleInit {
   @Cron('*/15 * * * *')
   async getStats() {
     this.logger.debug('Starting stats worker...');
-    const mainnetExplorerUrl = this.configService.get<string>(
-      'ethereum.mainnetExplorerUrl',
+    const mainnetIndexerUrl = this.configService.get<string>(
+      'ethereum.mainnetIndexerUrl',
     );
-    const testnetExplorerUrl = this.configService.get<string>(
-      'ethereum.testnetExplorerUrl',
+    const testnetIndexerUrl = this.configService.get<string>(
+      'ethereum.testnetIndexerUrl',
     );
 
     const nodes = await this.nodeRepository.find();
@@ -39,38 +41,43 @@ export class NodeTaskService implements OnModuleInit {
           nodes.length
         }: getting stats for node ${node.address.toLowerCase()}`,
       );
-      const uri = `/api/address/${node.address.toLowerCase()}/stats`;
-      const url =
+      const statsUri = `/address/${node.address.toLowerCase()}/stats`;
+      const detailsUri = `/validators/${node.address.toLowerCase()}`;
+      const statsUrl =
         node.type === NodeType.MAINNET
-          ? `${mainnetExplorerUrl}${uri}`
-          : `${testnetExplorerUrl}${uri}`;
+          ? `${mainnetIndexerUrl}${statsUri}`
+          : `${testnetIndexerUrl}${statsUri}`;
+
+      const detailsUrl =
+        node.type === NodeType.MAINNET
+          ? `${mainnetIndexerUrl}${detailsUri}`
+          : `${testnetIndexerUrl}${detailsUri}`;
 
       try {
-        const stats = await this.httpService
-          .get(url, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-          .toPromise();
-        if (stats.status !== 200) {
-          this.logger.error(`Could not get stats for node ${node.address}`);
-        }
+        const nodeStats = await get<NodeStatsReponse>(
+          this.httpService,
+          statsUrl,
+          `Could not get stats for node ${node.address}.`,
+        );
 
-        const {
-          totalProduced,
-          firstBlockTimestamp,
-          lastBlockTimestamp,
-          rank,
-          produced,
-        } = stats.data;
+        const nodeDetails = await get<AddressDetailsResponse>(
+          this.httpService,
+          detailsUrl,
+          `Could not get details for node ${node.address}.`,
+        );
+
+        const { lastPbftTimestamp, pbftCount: totalPbftsProduced } = nodeStats;
+
+        const { pbftCount: weeklyPbftsProduced, rank } = nodeDetails;
 
         const n = await this.nodeRepository.findOneOrFail(node.id);
-        n.blocksProduced = totalProduced;
-        n.firstBlockCreatedAt = firstBlockTimestamp;
-        n.lastBlockCreatedAt = lastBlockTimestamp;
+        if (!n.firstBlockCreatedAt) {
+          n.firstBlockCreatedAt = new Date(lastPbftTimestamp * 1000);
+        }
+        n.lastBlockCreatedAt = new Date(lastPbftTimestamp * 1000);
+        n.blocksProduced = totalPbftsProduced;
         n.weeklyRank = rank;
-        n.weeklyBlocksProduced = produced;
+        n.weeklyBlocksProduced = weeklyPbftsProduced;
 
         await this.nodeRepository.save(n);
       } catch (e) {
