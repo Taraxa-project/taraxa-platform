@@ -16,7 +16,6 @@ import Footer from './components/Footer/Footer';
 import Sidebar from './components/Sidebar/Sidebar';
 
 import Home from './pages/Home/Home';
-import Staking from './pages/Staking/Staking';
 import Delegation from './pages/Delegation/Delegation';
 import NodeProfilePage from './pages/Delegation/NodeProfilePage';
 import Bounties from './pages/Bounties/Bounties';
@@ -114,7 +113,6 @@ const Root = () => {
             <Switch>
               <Route exact path="/first-login" component={Home} />
               <Route exact path="/reset-password/:code" component={Home} />
-              <Route exact path="/staking" component={Staking} />
               <Route exact path="/delegation" component={Delegation} />
               <Route exact path="/delegation/:address" component={NodeProfilePage} />
               <Route exact path="/bounties" component={Bounties} />
