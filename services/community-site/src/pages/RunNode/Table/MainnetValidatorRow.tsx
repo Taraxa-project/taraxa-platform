@@ -82,7 +82,7 @@ const MainnetValidatorRow = ({
             color="secondary"
             label="Claim"
             className="smallBtn"
-            disabled={actionsDisabled}
+            disabled={actionsDisabled || commissionReward.isZero()}
             onClick={() => {
               setCommissionClaim(validator);
             }}
