@@ -226,6 +226,7 @@ const RunValidator = () => {
               validator={validatorToClaimFrom}
               onSuccess={() => setValidatorToClaimFrom(null)}
               onFinish={() => setValidatorToClaimFrom(null)}
+              commissionMode
             />
           }
           parentElementID="root"
