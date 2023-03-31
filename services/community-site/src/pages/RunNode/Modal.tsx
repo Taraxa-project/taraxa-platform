@@ -28,7 +28,7 @@ const RunValidatorModal = ({
   }
 
   const modal = (
-    <RegisterNode balance={balance} type={validatorType} onSuccess={() => onSuccess()} />
+    <RegisterNode balance={balance} type={validatorType} onSuccess={onSuccess} onClose={onClose} />
   );
 
   return (

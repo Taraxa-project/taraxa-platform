@@ -10,10 +10,12 @@ const RegisterNode = ({
   balance,
   type,
   onSuccess,
+  onClose,
 }: {
   balance: ethers.BigNumber;
   type: 'mainnet' | 'testnet';
   onSuccess: () => void;
+  onClose: () => void;
 }) => {
   const minimumRequiredBalance = ethers.utils.parseUnits('1000', 'ether');
   const delegationApi = useDelegationApi();
@@ -95,6 +97,7 @@ const RegisterNode = ({
       }
 
       asyncCallback(async () => {
+        onClose();
         return await registerValidator(
           payload.address,
           payload.addressProof,
