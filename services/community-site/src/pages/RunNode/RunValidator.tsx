@@ -103,7 +103,13 @@ const RunValidator = () => {
   };
 
   useEffect(() => {
-    fetchBalance();
+    const intervalBalancePeriod = 8000;
+    const intervalFetchBalance = setInterval(() => {
+      fetchBalance();
+    }, intervalBalancePeriod);
+    return () => {
+      clearInterval(intervalFetchBalance);
+    };
   }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
