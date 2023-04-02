@@ -102,20 +102,13 @@ aliases:
         elif [ "${CIRCLE_BRANCH}" == "main" ]; then
           export ENV=prod
           echo 'export ENV=prod' >> $BASH_ENV
-        elif [ "${CIRCLE_BRANCH}" == "feature/moves_mainnet_to_onchain_economics" ]; then
-          export ENV=stage
-          echo 'export ENV=stage' >> $BASH_ENV
         else
           echo 'Unknown branch' >&2
           exit 1
         fi
         echo "export GCP_REGISTRY=gcr.io/${GOOGLE_PROJECT_ID}" >> $BASH_ENV
 
-        if [ "${CIRCLE_BRANCH}" == "feature/moves_mainnet_to_onchain_economics" ]; then
-          echo "export VERSION=onchain-economics-$(git rev-parse --short HEAD)" >> $BASH_ENV
-        else
-          echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
-        fi
+        echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
         echo "export DOCKER_BRANCH_TAG=$(echo $CIRCLE_BRANCH | tr "[:upper:]" "[:lower:]" | sed 's/[^a-zA-Z0-9_-]/-/g')" >> $BASH_ENV
         echo "export START_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)" >> $BASH_ENV
         echo "export TIMESTAMP=$(date +%s)" >> $BASH_ENV
@@ -492,7 +485,6 @@ workflows:
               only:
                 - main
                 - develop
-                - feature/moves_mainnet_to_onchain_economics
           context:
             - TARAXA
             - DOCKERHUB
