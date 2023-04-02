@@ -65,9 +65,7 @@ const Notification = ({
             />
           )}
           {children && (
-            <Text variant='body2' color='primary' className={classes.text}>
-              {children}
-            </Text>
+            <div className={classes.childrenContainer}>{children}</div>
           )}
         </div>
       </div>

@@ -8,7 +8,7 @@ function useChain() {
   const provider = useMemo(() => {
     let provider;
     try {
-      provider = new ethers.providers.Web3Provider(ethereum);
+      provider = new ethers.providers.Web3Provider(ethereum, 'any');
     } catch (e) {
       provider = undefined;
     }

@@ -21,6 +21,23 @@ body {
     margin-left: 0;
   }
 
+  &.App-tablet {
+    .cardContainer {
+      display: grid;
+      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, max-content));
+      justify-content: start;
+      align-items: start;
+    }
+
+    .cardContainer > div {
+      margin-left: 0;
+    }
+    .cardContainer > div:last-child {
+      margin-bottom: 0;
+    }
+  }
+
   &.App-mobile {
     .cardContainer {
       display: inherit;
@@ -112,5 +129,40 @@ body {
   padding: 8px 16px !important;
   > * {
     font-size: 0.8125rem !important;
+  }
+}
+
+#walletModal {
+  width: 450px !important;
+  padding: 2rem !important;
+  text-align: center;
+
+  .marginButton {
+    margin: 2% 0;
+    height: 52px;
+  }
+
+  .greyButton {
+    background-color: #31364b;
+    color: white;
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .bubbleButton {
+    width: 45%;
+    background-color: #282c3e;
+    color: white;
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+#mobile-walletModal {
+  width: calc(100% - 64px) !important;
+  padding: 24px !important;
+  text-align: center;
+
+  .marginButton {
+    margin: 2% 0;
+    height: 52px;
   }
 }

@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
-import { useDelegationApi } from '../../../services/useApi';
+import { useWalletPopup } from '../../../services/useWalletPopup';
+import useValidators from '../../../services/useValidators';
 
 type UpdateCommissionProps = {
-  id: number;
+  id: number | string;
   currentCommission: number | null;
   onSuccess: () => void;
 };
 
+export const VALIDATOR_COMMISSION_CHANGE_FREQUENCY = 116756;
+
+const VALIDATOR_COMMISSION_CHANGE_MAX_DELTA = 5;
+
 const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommissionProps) => {
-  const delegationApi = useDelegationApi();
+  const { setCommission: updateCommission } = useValidators();
+  const { asyncCallback } = useWalletPopup();
 
   const [step, setStep] = useState(1);
   const [commission, setCommission] = useState('');
@@ -27,29 +33,20 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
       return;
     }
 
-    if (currentCommission !== null && Math.abs(currentCommission - commissionNumber) > 5) {
-      setError('maximum change is ±5%');
+    if (
+      currentCommission !== null &&
+      Math.abs(currentCommission - commissionNumber) > VALIDATOR_COMMISSION_CHANGE_MAX_DELTA
+    ) {
+      setError(`maximum change is ±${VALIDATOR_COMMISSION_CHANGE_MAX_DELTA}%`);
       return;
     }
 
     setError('');
-
-    const result = await delegationApi.post(
-      `/nodes/${id}/commissions`,
-      { commission: commissionNumber },
-      true,
-    );
-
-    if (result.success) {
-      onSuccess();
-      return;
-    }
-
-    if (
-      typeof result.response === 'string' &&
-      result.response.includes('already has a pending commission change')
-    ) {
-      setError('this node already has a pending commission change');
+    if (commission) {
+      asyncCallback(async () => {
+        onSuccess();
+        return await updateCommission(`${id}`, commissionNumber);
+      });
     }
   };
 
@@ -61,10 +58,11 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
           <p>
             <strong>Notice</strong>
           </p>
-          <ol>
+          <ol style={{ textAlign: 'left' }}>
             <li key="1">Maximum change cannot exceed ±5% per update.</li>
             <li key="2">
-              Actual change of the comission will take place 5 days after your update.
+              You will need to wait {VALIDATOR_COMMISSION_CHANGE_FREQUENCY} PBFT blocks to change it
+              again.
             </li>
             <li key="3">
               All of your delegators will be notified that you have changed the comission.
