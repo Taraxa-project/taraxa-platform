@@ -38,7 +38,7 @@ import TestnetValidatorRow from './Table/TestnetValidatorRow';
 import './runvalidator.scss';
 import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
-import Claim from '../Delegation/Modal/Claim';
+import Claim from '../Staking/Modal/Claim';
 import UpdateValidator from './Screen/UpdateValidator';
 import useExplorerStats from '../../services/useExplorerStats';
 

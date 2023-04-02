@@ -245,7 +245,7 @@ const Delegation = ({ location }: { location: Location }) => {
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
       />
       <div className="runnode-content">
-        <Title title="Delegation" />
+        <Title title="Staking" subtitle="Earn rewards and help secure the Taraxa network." />
         {status !== 'connected' && (
           <div className="notification">
             <Notification
