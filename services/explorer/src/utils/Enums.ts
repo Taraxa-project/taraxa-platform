@@ -15,9 +15,9 @@ export enum HashLinkType {
 export const SELECTED_NETWORK = 'SELECTED_NETWORK';
 
 export enum Network {
+  MAINNET = 'Mainnet Candidate',
   TESTNET = 'Californicum Testnet',
   DEVNET = 'Californicum Devnet',
-  MAINNET = 'Mainnet Candidate',
 }
 
 export enum NetworkGraphQLEndpoints {

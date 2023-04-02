@@ -14,7 +14,7 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
   };
 
   if (isAddress(identifier)) {
-    ret.address = deZeroX(identifier);
+    ret.address = identifier;
   }
 
   if (isNumber(identifier)) {
@@ -22,7 +22,7 @@ export const unwrapIdentifier = (identifier: string): IdentifierTypes => {
   }
 
   if (isHash(identifier)) {
-    ret.txHash = deZeroX(identifier);
+    ret.txHash = identifier;
   }
   return ret;
 };
@@ -31,7 +31,7 @@ export const zeroX = (hash: string): string => {
   if (!hash || typeof hash !== 'string') {
     return '';
   }
-  return hash.includes('0x') ? hash : `0x${hash}`;
+  return hash.startsWith('0x') ? hash : `0x${hash}`;
 };
 
 export const deZeroX = (zeroXHash: string): string => {

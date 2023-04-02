@@ -14,8 +14,8 @@ data:
   STAKING_CONTRACT_ADDRESS: {{ .Values.app.stakingContractAddress | quote }}
   MAINNET_ENDPOINT: {{ .Values.app.mainnetEndpoint | quote }}
   TESTNET_ENDPOINT: {{ .Values.app.testnetEndpoint | quote }}
-  MAINNET_EXPLORER_URL: {{ .Values.app.mainnetExplorerUrl | quote }}
-  TESTNET_EXPLORER_URL: {{ .Values.app.testnetExplorerUrl | quote }}
+  MAINNET_INDEXER_URL: {{ .Values.app.mainnetIndexerUrl | quote }}
+  TESTNET_INDEXER_URL: {{ .Values.app.testnetIndexerUrl | quote }}
   INDEXER_STAKING_URL: {{ .Values.app.indexerStakingUrl | quote }}
   TESTNET_OWN_NODES: {{ .Values.app.testnetOwnNodes | toJson | quote }}
   NODE_ENV: {{ .Values.app.environment | quote }}

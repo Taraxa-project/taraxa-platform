@@ -1,1 +1,2 @@
-export * from './AddressInfo';
+export * from './AddressDetails';
+export * from './AddressTables';

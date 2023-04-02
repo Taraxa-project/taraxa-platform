@@ -49,6 +49,39 @@ export class NodeConsumer implements OnModuleInit {
 
     if (node.isCreatedOnchain) {
       this.logger.debug(
+        `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} is created. Skipping create`,
+      );
+      return;
+    }
+
+    let isCreatedOnchain = false;
+    if (node.isTestnet()) {
+      try {
+        await this.testnetBlockchainService.getValidator(node.address);
+        isCreatedOnchain = true;
+      } catch (e) {
+        this.logger.debug(
+          `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} doesn't exist in contract`,
+        );
+      }
+    }
+
+    if (node.isMainnet()) {
+      try {
+        await this.mainnetBlockchainService.getValidator(node.address);
+        isCreatedOnchain = true;
+      } catch (e) {
+        this.logger.debug(
+          `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} doesn't exist in contract`,
+        );
+      }
+    }
+
+    if (isCreatedOnchain) {
+      node.isCreatedOnchain = isCreatedOnchain;
+      await this.nodeRepository.save(node);
+
+      this.logger.debug(
         `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} exist. Skipping create`,
       );
       return;

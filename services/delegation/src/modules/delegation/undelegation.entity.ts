@@ -5,7 +5,7 @@ import {
   Column,
   Index,
   CreateDateColumn,
-  DeleteDateColumn,
+  UpdateDateColumn,
   ManyToOne,
 } from 'typeorm';
 import { NodeType } from '../node/node-type.enum';
@@ -32,13 +32,13 @@ export class Undelegation {
   @Column({ nullable: false })
   chain: NodeType;
 
-  @Column({ nullable: true, default: 0 })
+  @Column({ nullable: true })
   @Index()
-  creationBlock: number;
+  creationBlock: number | null;
 
   @Column({ nullable: true })
   @Index()
-  confirmationBlock: number;
+  confirmationBlock: number | null;
 
   @ManyToOne(() => Node)
   node: Node;
@@ -51,10 +51,10 @@ export class Undelegation {
   })
   createdAt: Date;
 
-  @DeleteDateColumn({
+  @UpdateDateColumn({
     type: 'timestamp with time zone',
   })
-  deletedAt?: Date;
+  updatedAt: Date;
 
   static fromDto(dto: CreateUndelegationDto): Undelegation {
     const delegation = new Undelegation();

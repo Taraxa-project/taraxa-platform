@@ -12,7 +12,7 @@ const formatError = error => [
 module.exports = {
   async forgotPassword(ctx) {
     let { email, token } = ctx.request.body;
-    const gres = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${env('RECAPTCHA_SECRET')}&response=${token}`)
+    const gres = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${token}`)
     if (!gres.data.success) {
             return ctx.badRequest(
                 null,
@@ -145,7 +145,7 @@ module.exports = {
         };
 
         if(!params.skipRecaptcha) {
-          const gres = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${env('RECAPTCHA_SECRET')}&response=${params.token}`)
+          const gres = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${params.token}`)
 
           if (!gres.data.success) {
               return ctx.badRequest(
