@@ -49,7 +49,7 @@ const ValidatorRow = ({
       <TableCell className="tableCell nameCell">
         <div
           className="flexCell nodeLink"
-          onClick={() => history.push(`/delegation/${validator.address}`)}
+          onClick={() => history.push(`/staking/${validator.address}`)}
         >
           <div>{formatValidatorName(validator.address)}</div>
         </div>

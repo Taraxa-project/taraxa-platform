@@ -202,7 +202,7 @@ const NodeProfilePage = () => {
         onClaimFinish={() => {}}
         onClaimClose={() => {}}
       />
-      <Title title="Delegation" />
+      <Title title={`Validator ${validator.address}`} />
       <div className="nodeInfoWrapper">
         <div className="nodeInfoFlex">
           <div className="nodeInfoColumn">
@@ -217,7 +217,7 @@ const NodeProfilePage = () => {
             <div className="nodeInfoContent">{validator.commission}%</div>
             {validator.description && (
               <>
-                <div className="nodeInfoTitle">node operator description</div>
+                <div className="nodeInfoTitle">Description</div>
                 <div className="nodeInfoContent">{validator.description}</div>
               </>
             )}

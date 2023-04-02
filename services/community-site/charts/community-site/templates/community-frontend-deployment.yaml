@@ -40,8 +40,6 @@ spec:
               value: {{ .Values.frontend.delegationApiHost | quote }}
             - name: API_CLAIM_HOST
               value: {{ .Values.frontend.apiClaimHost | quote }}
-            - name: API_EXPLORER_HOST
-              value: {{ .Values.frontend.apiExplorerHost | quote }}
             - name: TARA_ADDRESS
               value: {{ .Values.frontend.taraAddress | quote }}
             - name: CLAIM_ADDRESS
