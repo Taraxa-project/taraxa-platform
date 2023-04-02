@@ -6,7 +6,7 @@
     "jwt-decode": "^3.1.2",
     "ra-data-simple-rest": "^3.10.4",
     "react": "^17.0.1",
-    "react-admin": "^3.12.5",
+    "react-admin": "^3.19.12",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.2",
     "web-vitals": "^1.0.1"
