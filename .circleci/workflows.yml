@@ -80,17 +80,6 @@ aliases:
       shell: /bin/sh -eo pipefail
       command: |
         apk add --update openssl openssh-client sudo git bash curl docker-cli
-  - &step_install_deploy_deps
-    run:
-      name: Install deploy dependencies
-      shell: /bin/sh -eo pipefail
-      command: |
-        mkdir -p $HOME/.kube
-        echo -n "${KUBE_CONFIG}" | base64 -d > $HOME/.kube/config
-        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        sudo mv kubectl /usr/local/bin 
-        sudo chmod +x /usr/local/bin/kubectl
   - &step_prepare_environment
     run:
       name: Prepare Environment
@@ -206,33 +195,6 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:latest
             fi
-  deploy-community-site:
-    <<: *config
-    steps:
-      - *step_install_deps
-      - checkout
-      - *step_install_deploy_deps
-      - *step_setup_remote_docker
-      - *step_prepare_environment
-      - run:
-          name: Deploy
-          shell: /bin/bash -eo pipefail
-          command: |
-            if [ "${ENV}" == "prod" ]; then
-              export NS=taraxa-community-prod
-              export HELM_NAME=taraxa-community
-              export HELM_CONFIG=prod.values.yaml
-            else
-              export NS=taraxa-community-qa
-              export HELM_NAME=qa-taraxa-community-site
-              export HELM_CONFIG=qa.values.yaml
-            fi
-
-            helm upgrade -i ${HELM_NAME} services/community-site/charts/community-site/ \
-              --namespace ${NS} \
-              -f services/community-site/charts/community-site/values.yaml \
-              -f services/community-site/charts/${HELM_CONFIG} \
-              --set frontend.image.tag=${VERSION}
   build-node-status:
     <<: *config
     steps:
