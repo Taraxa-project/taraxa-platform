@@ -3,7 +3,7 @@ import { useQuery } from 'urql';
 import { dagDetailsQuery } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { DagBlock, Transaction } from '../../models';
-import { displayWeiOrTara } from '../../utils';
+import { displayWeiOrTara, getTransactionType } from '../../utils';
 
 export const useDAGDataContainerEffects = (
   hash: string
@@ -19,9 +19,7 @@ export const useDAGDataContainerEffects = (
   const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
 
   const [blockData, setBlockData] = useState<DagBlock>({} as DagBlock);
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {} as Transaction,
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>();
   const [{ fetching, data }] = useQuery({
     query: dagDetailsQuery,
     variables: {
@@ -43,6 +41,10 @@ export const useDAGDataContainerEffects = (
             ...tx,
             value: displayWeiOrTara(tx.value),
             gasUsed: displayWeiOrTara(tx.gasUsed),
+            gas: displayWeiOrTara(
+              tx.gasUsed * parseInt(tx.gasPrice.toString(), 10)
+            ),
+            action: getTransactionType(tx),
           };
         })
       );

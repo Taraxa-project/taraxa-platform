@@ -1,13 +1,24 @@
 import React from 'react';
-import { Table, AwardCard } from '@taraxa_project/taraxa-ui';
-import { Box, IconButton, Typography } from '@mui/material';
+import { AwardCard } from '@taraxa_project/taraxa-ui';
+import {
+  Box,
+  IconButton,
+  Typography,
+  TablePagination,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from '@mui/material';
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
 import { toNodeTableRow } from '../../utils';
-import { NodesTableData } from '../../models';
 import { DateTime } from 'luxon';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { NodesTableData } from '../../models';
 
 const NodesPage = (): JSX.Element => {
   const {
@@ -27,69 +38,92 @@ const NodesPage = (): JSX.Element => {
     weekNumber,
     year,
     loading,
+    weekPagination,
   } = useNodesEffects();
-
-  const rows =
-    tableData && tableData.length > 0
-      ? [...tableData.map((row: NodesTableData) => toNodeTableRow(row))]
-      : [];
-
+  const rows = tableData.map((row: NodesTableData) => toNodeTableRow(row));
   return (
     <>
       <PageTitle
         title='Nodes'
         subtitle='List of TARAXA nodes on Mainnet Candidate'
       />
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '0.2rem',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-        }}
-        mb={2}
-      >
-        <IconButton
-          onClick={handlePreviousWeek}
-          aria-label='previous'
-          color='secondary'
-          disabled={loading}
+      {weekPagination && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '0.2rem',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
+          mb={2}
         >
-          <ArrowBackIosIcon />
-        </IconButton>
-        <Typography color='secondary' fontSize='18px'>
-          W{weekNumber} {year}
-        </Typography>
-        <IconButton
-          onClick={handleNextWeek}
-          disabled={
-            (weekNumber === DateTime.now().weekNumber &&
-              year === DateTime.now().year) ||
-            loading
-          }
-          aria-label='next'
-          color='secondary'
-        >
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
+          <IconButton
+            onClick={handlePreviousWeek}
+            aria-label='previous'
+            color='secondary'
+            disabled={loading}
+          >
+            <ArrowBackIosIcon />
+          </IconButton>
+          <Typography color='secondary' fontSize='18px'>
+            W{weekNumber} {year}
+          </Typography>
+          <IconButton
+            onClick={handleNextWeek}
+            disabled={!weekPagination.hasNext || loading}
+            aria-label='next'
+            color='secondary'
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
+        </Box>
+      )}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <AwardCard
           title={title}
           subtitle={subtitle}
           description={description}
-          total={blocks}
+          total={blocks?.total}
         />
-        <Table
-          rows={rows}
-          columns={cols}
-          currentPage={page}
-          initialRowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          totalCount={totalCount}
+        <TablePagination
+          rowsPerPageOptions={[25, 50, 75, 100]}
+          component='div'
+          count={totalCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(
+            event: React.MouseEvent<HTMLButtonElement> | null,
+            page: number
+          ) => handleChangePage(page)}
+          onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            handleChangeRowsPerPage(parseInt(event.target.value, 10))
+          }
         />
+        <TableContainer sx={{ marginBottom: '2rem' }}>
+          <Table style={{ tableLayout: 'auto', marginBottom: '2rem' }}>
+            <TableHead>
+              <TableRow tabIndex={-1} key='index'>
+                {cols.map((column, index) => (
+                  <TableCell key={`${index}-${index}-head`}>
+                    {column.name}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row, index) => (
+                <TableRow tabIndex={-1} data-key={index} key={index}>
+                  <TableCell align='center'>
+                    {row.rank + page * rowsPerPage}
+                  </TableCell>
+                  <TableCell align='center'>{row.nodeAddress}</TableCell>
+                  <TableCell align='center'>{row.blocksProduced}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
     </>
   );

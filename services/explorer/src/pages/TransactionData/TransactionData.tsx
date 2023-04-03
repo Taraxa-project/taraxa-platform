@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
@@ -15,6 +15,7 @@ import {
   statusToLabel,
   timestampToAge,
   formatTransactionStatus,
+  getTransactionType,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { BlocksTable } from '../../components/Tables';
@@ -36,6 +37,9 @@ const TransactionDataContainer = (): JSX.Element => {
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
 
+  const [dagsRowsPerPage, setDagsRowsPerPage] = useState(25);
+  const [dagsPage, setDagsPage] = useState(0);
+
   const tableTabs: TableTabsProps = {
     tabs: [
       {
@@ -47,7 +51,23 @@ const TransactionDataContainer = (): JSX.Element => {
           </Box>
         ),
         iconPosition: 'start',
-        children: <BlocksTable blocksData={dagData} type='dag' />,
+        children: (
+          <BlocksTable
+            blocksData={dagData?.slice(
+              dagsPage * dagsRowsPerPage,
+              dagsPage * dagsRowsPerPage + dagsRowsPerPage
+            )}
+            type='dag'
+            totalCount={dagData?.length}
+            pageNo={dagsPage}
+            rowsPage={dagsRowsPerPage}
+            changePage={(p: number) => setDagsPage(p)}
+            changeRows={(l: number) => {
+              setDagsRowsPerPage(l);
+              setDagsPage(0);
+            }}
+          />
+        ),
       },
     ],
     initialValue: 0,
@@ -142,39 +162,48 @@ const TransactionDataContainer = (): JSX.Element => {
                   data={events.map((e) => `${e.name}`).join(' ')}
                 />
               )}
+              <DataRow
+                title='Action'
+                data={`${getTransactionType(transactionData)}`}
+              />
               {transactionData?.value && (
                 <DataRow title='Value' data={`${transactionData.value}`} />
               )}
-              {transactionData?.from && transactionData?.to && (
-                <DataRow
-                  title='FROM/TO'
-                  data={
-                    <Box
-                      display='flex'
-                      flexDirection={{
-                        xs: 'column',
-                        md: 'column',
-                        lg: 'row',
-                        xl: 'row',
-                      }}
-                      gap='1rem'
-                      width='100%'
-                    >
-                      <AddressLink
-                        width='auto'
-                        address={transactionData?.from?.address}
-                      />
-                      <Box>
-                        <GreenRightArrow />
+              {transactionData?.from &&
+                (transactionData?.to ||
+                  transactionData?.createdContract?.address) && (
+                  <DataRow
+                    title='FROM/TO'
+                    data={
+                      <Box
+                        display='flex'
+                        flexDirection={{
+                          xs: 'column',
+                          md: 'column',
+                          lg: 'row',
+                          xl: 'row',
+                        }}
+                        gap='1rem'
+                        width='100%'
+                      >
+                        <AddressLink
+                          width='auto'
+                          address={transactionData.from?.address}
+                        />
+                        <Box>
+                          <GreenRightArrow />
+                        </Box>
+                        <AddressLink
+                          width='auto'
+                          address={
+                            transactionData.to?.address ||
+                            transactionData.createdContract?.address
+                          }
+                        />
                       </Box>
-                      <AddressLink
-                        width='auto'
-                        address={transactionData?.to?.address}
-                      />
-                    </Box>
-                  }
-                />
-              )}
+                    }
+                  />
+                )}
               {transactionData?.gas && transactionData?.gasPrice && (
                 <DataRow
                   title='Gas Limit/ Gas Used'
@@ -188,6 +217,10 @@ const TransactionDataContainer = (): JSX.Element => {
                 />
               )}
               <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
+              {transactionData?.inputData &&
+                transactionData?.inputData !== '0x' && (
+                  <DataRow title='Data' data={`${transactionData.inputData}`} />
+                )}
               <Divider light />
               {dagData?.length && (
                 <Box

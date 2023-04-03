@@ -38,7 +38,7 @@ import TestnetValidatorRow from './Table/TestnetValidatorRow';
 import './runvalidator.scss';
 import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
-import Claim from '../Delegation/Modal/Claim';
+import Claim from '../Staking/Modal/Claim';
 import UpdateValidator from './Screen/UpdateValidator';
 import useExplorerStats from '../../services/useExplorerStats';
 
@@ -103,7 +103,13 @@ const RunValidator = () => {
   };
 
   useEffect(() => {
-    fetchBalance();
+    const intervalBalancePeriod = 8000;
+    const intervalFetchBalance = setInterval(() => {
+      fetchBalance();
+    }, intervalBalancePeriod);
+    return () => {
+      clearInterval(intervalFetchBalance);
+    };
   }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
@@ -226,6 +232,7 @@ const RunValidator = () => {
               validator={validatorToClaimFrom}
               onSuccess={() => setValidatorToClaimFrom(null)}
               onFinish={() => setValidatorToClaimFrom(null)}
+              commissionMode
             />
           }
           parentElementID="root"

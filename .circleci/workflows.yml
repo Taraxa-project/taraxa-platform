@@ -17,6 +17,12 @@ parameters:
   build-community-backend-helm-chart-workflow:
     type: boolean
     default: false
+  run-claim-admin-service-workflow:
+    type: boolean
+    default: false
+  build-claim-admin-helm-chart-workflow:
+    type: boolean
+    default: false
   build-community-site-helm-chart-workflow:
     type: boolean
     default: false
@@ -26,9 +32,15 @@ parameters:
   run-delegation-service-workflow:
     type: boolean
     default: false
+  build-delegation-helm-chart-workflow:
+    type: boolean
+    default: false
   run-claim-backend-service-workflow:
     type: boolean
     default: false
+  build-claim-backend-helm-chart-workflow:
+    type: boolean
+    default: false  
   build-faucet-workflow:
     type: boolean
     default: false
@@ -68,17 +80,6 @@ aliases:
       shell: /bin/sh -eo pipefail
       command: |
         apk add --update openssl openssh-client sudo git bash curl docker-cli
-  - &step_install_deploy_deps
-    run:
-      name: Install deploy dependencies
-      shell: /bin/sh -eo pipefail
-      command: |
-        mkdir -p $HOME/.kube
-        echo -n "${KUBE_CONFIG}" | base64 -d > $HOME/.kube/config
-        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        sudo mv kubectl /usr/local/bin 
-        sudo chmod +x /usr/local/bin/kubectl
   - &step_prepare_environment
     run:
       name: Prepare Environment
@@ -90,20 +91,13 @@ aliases:
         elif [ "${CIRCLE_BRANCH}" == "main" ]; then
           export ENV=prod
           echo 'export ENV=prod' >> $BASH_ENV
-        elif [ "${CIRCLE_BRANCH}" == "feature/moves_mainnet_to_onchain_economics" ]; then
-          export ENV=stage
-          echo 'export ENV=stage' >> $BASH_ENV
         else
           echo 'Unknown branch' >&2
           exit 1
         fi
         echo "export GCP_REGISTRY=gcr.io/${GOOGLE_PROJECT_ID}" >> $BASH_ENV
 
-        if [ "${CIRCLE_BRANCH}" == "feature/moves_mainnet_to_onchain_economics" ]; then
-          echo "export VERSION=onchain-economics-$(git rev-parse --short HEAD)" >> $BASH_ENV
-        else
-          echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
-        fi
+        echo "export VERSION=$(git rev-parse --short HEAD)" >> $BASH_ENV
         echo "export DOCKER_BRANCH_TAG=$(echo $CIRCLE_BRANCH | tr "[:upper:]" "[:lower:]" | sed 's/[^a-zA-Z0-9_-]/-/g')" >> $BASH_ENV
         echo "export START_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)" >> $BASH_ENV
         echo "export TIMESTAMP=$(date +%s)" >> $BASH_ENV
@@ -170,6 +164,37 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa-community-backend-develop:latest
             fi
+  build-claim-admin:
+    <<: *config
+    steps:
+      - *step_install_deps
+      - checkout
+      - *step_setup_remote_docker
+      - *step_prepare_environment
+      - run:
+          name: Build image
+          shell: /bin/bash -eo pipefail
+          command: |
+            docker build -t claim-admin:${VERSION} -f legacy/claim-admin/Dockerfile ./legacy/claim-admin
+      - run:
+          name: Tag and push images
+          shell: /bin/bash -eo pipefail
+          command: |
+            if [ "${ENV}" == "prod" ]; then
+              echo ${DOCKERHUB_PASS} | docker login -u taraxa --password-stdin
+
+              docker tag claim-admin:${VERSION} taraxa/claim-admin:${VERSION}
+              docker tag claim-admin:${VERSION} taraxa/claim-admin:latest
+              docker push taraxa/claim-admin:${VERSION}
+              docker push taraxa/claim-admin:latest
+            else
+              echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
+
+              docker tag claim-admin:${VERSION} ${GCP_REGISTRY}/taraxa/claim-admin-develop:${VERSION}
+              docker tag claim-admin:${VERSION} ${GCP_REGISTRY}/taraxa/claim-admin-develop:latest
+              docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:${VERSION}
+              docker push ${GCP_REGISTRY}/taraxa/claim-admin-develop:latest
+            fi
   build-node-status:
     <<: *config
     steps:
@@ -222,33 +247,6 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa/delegation-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa/delegation-develop:latest
             fi
-  deploy-delegation:
-    <<: *config
-    steps:
-      - *step_install_deps
-      - checkout
-      - *step_install_deploy_deps
-      - *step_setup_remote_docker
-      - *step_prepare_environment
-      - run:
-          name: Deploy
-          shell: /bin/bash -eo pipefail
-          command: |
-            if [ "${ENV}" == "prod" ]; then
-              export NS=taraxa-community-prod
-              export HELM_NAME=community-delegation
-              export HELM_CONFIG=prod.values.yaml
-            else
-              export NS=taraxa-community-qa
-              export HELM_NAME=qa-community-delegation
-              export HELM_CONFIG=qa.values.yaml
-            fi
-
-            helm upgrade -i ${HELM_NAME} services/delegation/charts/community-delegation/ \
-              --namespace ${NS} \
-              -f services/delegation/charts/community-delegation/values.yaml \
-              -f services/delegation/charts/${HELM_CONFIG} \
-              --set image.tag=${VERSION}
   build-claim-backend:
     <<: *config
     steps:
@@ -279,33 +277,6 @@ jobs:
               docker push ${GCP_REGISTRY}/taraxa/claim-backend-develop:${VERSION}
               docker push ${GCP_REGISTRY}/taraxa/claim-backend-develop:latest
             fi
-  deploy-claim-backend:
-    <<: *config
-    steps:
-      - *step_install_deps
-      - checkout
-      - *step_install_deploy_deps
-      - *step_setup_remote_docker
-      - *step_prepare_environment
-      - run:
-          name: Deploy
-          shell: /bin/bash -eo pipefail
-          command: |
-            if [ "${ENV}" == "prod" ]; then
-              export NS=taraxa-community-prod
-              export HELM_NAME=community-claim-backend
-              export HELM_CONFIG=prod.values.yaml
-            else
-              export NS=taraxa-community-qa
-              export HELM_NAME=qa-community-claim-backend
-              export HELM_CONFIG=qa.values.yaml
-            fi
-
-            helm upgrade -i ${HELM_NAME} services/claim-backend/charts/claim-backend/ \
-              --namespace ${NS} \
-              -f services/claim-backend/charts/claim-backend/values.yaml \
-              -f services/claim-backend/charts/${HELM_CONFIG} \
-              --set image.tag=${VERSION}
   build-faucet:
     <<: *config
     steps:
@@ -476,7 +447,6 @@ workflows:
               only:
                 - main
                 - develop
-                - feature/moves_mainnet_to_onchain_economics
           context:
             - TARAXA
             - DOCKERHUB
@@ -490,6 +460,40 @@ workflows:
           develop: true
           charts-dir: services/community-site/charts
           chart-name: community-site
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+  claim-admin:
+    when:
+      or:
+        - << pipeline.parameters.run-claim-admin-service-workflow >>
+    jobs:
+      - build-claim-admin:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+          context:
+            - TARAXA
+            - DOCKERHUB
+            - GCR
+  claim-admin-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-claim-admin-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: legacy/claim-admin/charts
+          chart-name: claim-admin
           chartmuseum-url: https://charts.gcp.taraxa.io
           chartmuseum-username: HELM_REPO_USERNAME
           chartmuseum-password: HELM_REPO_PASSWORD
@@ -563,16 +567,25 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
-      - deploy-delegation:
-          requires:
-            - build-delegation
+  delegation-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-delegation-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/delegation/charts
+          chart-name: community-delegation
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
           filters:
             branches:
               only:
                 - main
                 - develop
-          context:
-            - K8S
   claim-backend:
     when:
       or:
@@ -588,16 +601,25 @@ workflows:
             - TARAXA
             - DOCKERHUB
             - GCR
-      - deploy-claim-backend:
-          requires:
-            - build-claim-backend
+  claim-backend-helm-chart:
+    when:
+      or:
+        - << pipeline.parameters.build-claim-backend-helm-chart-workflow >>
+    jobs:
+      - helm-release/chart-publish:
+          develop: true
+          charts-dir: services/claim-backend/charts
+          chart-name: claim-backend
+          chartmuseum-url: https://charts.gcp.taraxa.io
+          chartmuseum-username: HELM_REPO_USERNAME
+          chartmuseum-password: HELM_REPO_PASSWORD
+          context:
+            - CHARTSREPO
           filters:
             branches:
               only:
                 - main
                 - develop
-          context:
-            - K8S
   faucet:
     when:
       and:
