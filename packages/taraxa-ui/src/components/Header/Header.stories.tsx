@@ -17,7 +17,7 @@ const Template: Story<HeaderProps> = (args) => <Header {...args} />;
 
 enum Network {
   TESTNET = 'Californicum Testnet',
-  MAINNET = 'Mainnet Candidate',
+  MAINNET = 'Mainnet',
 }
 
 export const Primary = Template.bind({});

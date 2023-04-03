@@ -9,7 +9,7 @@ export default {
 
 enum Network {
   TESTNET = 'Californicum Testnet',
-  MAINNET = 'Mainnet Candidate',
+  MAINNET = 'Mainnet',
 }
 
 const Template: Story<any> = (args) => <NetworkMenu {...args} />;

@@ -43,10 +43,7 @@ const NodesPage = (): JSX.Element => {
   const rows = tableData.map((row: NodesTableData) => toNodeTableRow(row));
   return (
     <>
-      <PageTitle
-        title='Nodes'
-        subtitle='List of TARAXA nodes on Mainnet Candidate'
-      />
+      <PageTitle title='Nodes' subtitle='List of TARAXA nodes on Mainnet' />
       {weekPagination && (
         <Box
           sx={{
