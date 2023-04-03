@@ -226,7 +226,7 @@ object-assign
  */
 
 /**
- * @mui/material v5.11.15
+ * @mui/material v5.11.9
  *
  * @license MIT
  * This source code is licensed under the MIT license found in the
@@ -234,7 +234,7 @@ object-assign
  */
 
 /**
- * @mui/styled-engine v5.11.11
+ * @mui/styled-engine v5.11.9
  *
  * @license MIT
  * This source code is licensed under the MIT license found in the
