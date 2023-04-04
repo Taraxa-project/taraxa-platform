@@ -7,6 +7,7 @@ import useDelegation from '../../../services/useDelegation';
 import { stripEth, weiToEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 import { useWalletPopup } from '../../../services/useWalletPopup';
+import { compareDelegationTo } from '../../../utils/compareDelegationTo';
 
 type DelegateProps = {
   balance: ethers.BigNumber;
@@ -19,42 +20,48 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
   const { delegate } = useDelegation();
   const { asyncCallback } = useWalletPopup();
 
-  let maximumDelegatable = ethers.BigNumber.from('0');
+  let maximumDelegatable = '0';
   if (validator.availableForDelegation.gt(balance)) {
-    maximumDelegatable = balance;
+    maximumDelegatable = weiToEth(balance);
   } else {
-    maximumDelegatable = validator.availableForDelegation;
+    maximumDelegatable = weiToEth(validator.availableForDelegation);
   }
 
-  const [delegationTotal, setDelegationTotal] = useState(maximumDelegatable);
+  const [delegationTotal, setDelegationTotal] = useState<string>(maximumDelegatable.toString());
   const [error, setError] = useState('');
+
+  const delegatePercent = (percentage: number): string => {
+    return parseFloat((+maximumDelegatable * (percentage / 100)).toFixed(2)).toString();
+  };
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
-    const delegationNumber = parseInt(delegationTotal.toString(), 10);
+    const delegationNumber = parseFloat(delegationTotal);
     if (Number.isNaN(delegationNumber) || delegationNumber < 1000) {
       setError('must be a number greater than 1,000');
       return;
     }
 
-    if (delegationTotal.gt(balance)) {
+    if (parseFloat(delegationTotal) > parseFloat(ethers.utils.formatEther(balance))) {
       setError('cannot exceed TARA available for delegation');
       return;
     }
-    if (delegationTotal.gt(maximumDelegatable)) {
+    if (parseFloat(delegationTotal) > parseFloat(maximumDelegatable)) {
       setError("cannot exceed validator's ability to receive delegation");
       return;
     }
+
+    const delegateValue = ethers.BigNumber.from((parseFloat(delegationTotal) * 10 ** 18).toFixed());
 
     setError('');
 
     if (!error) {
       asyncCallback(async () => {
         onFinish();
-        return await delegate(validator.address, delegationTotal);
+        return await delegate(validator.address, delegateValue);
       }, onSuccess);
     }
   };
@@ -87,32 +94,26 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
       </div>
       <div className="taraInputWrapper">
         <p className="maxDelegatableDescription">Maximum delegate-able</p>
-        <p className="maxDelegatableTotal">{stripEth(maximumDelegatable)}</p>
+        <p className="maxDelegatableTotal">{maximumDelegatable}</p>
         <p className="maxDelegatableUnit">TARA</p>
         <InputField
           error={!!error}
           helperText={error}
           label="Enter amount..."
-          value={parseInt(weiToEth(delegationTotal), 10)}
+          value={delegationTotal}
           variant="outlined"
-          type="text"
+          type="number"
           fullWidth
           margin="normal"
           onChange={(event) => {
-            if (delegationTotal.gt(balance)) {
+            if (parseFloat(delegationTotal) > parseFloat(ethers.utils.formatEther(balance))) {
               setError('cannot exceed TARA available for delegation');
-            } else if (
-              ethers.BigNumber.from(event.target.value || 0).lt(ethers.BigNumber.from('1000'))
-            ) {
+            } else if (compareDelegationTo(event.target.value, '1000')) {
               setError('must be a number greater than 1,000');
             } else {
               setError('');
             }
-            setDelegationTotal(
-              ethers.BigNumber.from(event.target.value || 0).mul(
-                ethers.BigNumber.from('10').pow(18),
-              ),
-            );
+            setDelegationTotal(event.target.value);
           }}
         />
         <div className="delegatePercentWrapper">
@@ -122,7 +123,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
             label="25%"
             variant="contained"
             onClick={() => {
-              setDelegationTotal(maximumDelegatable.mul(25).div(100));
+              setDelegationTotal(delegatePercent(25));
             }}
           />
           <Button
@@ -131,7 +132,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
             label="50%"
             variant="contained"
             onClick={() => {
-              setDelegationTotal(maximumDelegatable.mul(50).div(100));
+              setDelegationTotal(delegatePercent(50));
             }}
           />
           <Button
@@ -140,7 +141,7 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
             label="75%"
             variant="contained"
             onClick={() => {
-              setDelegationTotal(maximumDelegatable.mul(75).div(100));
+              setDelegationTotal(delegatePercent(75));
             }}
           />
           <Button
