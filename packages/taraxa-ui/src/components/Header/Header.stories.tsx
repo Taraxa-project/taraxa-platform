@@ -16,7 +16,7 @@ export default {
 const Template: Story<HeaderProps> = (args) => <Header {...args} />;
 
 enum Network {
-  TESTNET = 'Californicum Testnet',
+  TESTNET = 'Testnet',
   MAINNET = 'Mainnet',
 }
 

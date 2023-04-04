@@ -16,8 +16,8 @@ export const SELECTED_NETWORK = 'SELECTED_NETWORK';
 
 export enum Network {
   MAINNET = 'Mainnet',
-  TESTNET = 'Californicum Testnet',
-  DEVNET = 'Californicum Devnet',
+  TESTNET = 'Testnet',
+  DEVNET = 'Devnet',
 }
 
 export enum NetworkGraphQLEndpoints {

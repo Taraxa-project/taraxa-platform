@@ -8,7 +8,7 @@ export default {
 } as Meta;
 
 enum Network {
-  TESTNET = 'Californicum Testnet',
+  TESTNET = 'Testnet',
   MAINNET = 'Mainnet',
 }
 
