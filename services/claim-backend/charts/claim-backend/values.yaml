@@ -7,7 +7,6 @@ replicaCount: 3
 app:
   environment: prod
   claimContractAddress: ''
-  provider: ''
   indexerGraphQLEndpoint: 'http://taraxa-indexer:8000/subgraphs/name/taraxa_project/claim'
 
   name: claim
