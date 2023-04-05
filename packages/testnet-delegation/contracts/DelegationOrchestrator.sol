@@ -3,7 +3,7 @@
 pragma solidity 0.8.19;
 
 import "./interfaces/IDelegation.sol";
-import "./IDPOS.sol"; // import the DPOS contract interface
+import "./interfaces/IDPOS.sol"; // import the DPOS contract interface
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -11,50 +11,49 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
   using Address for address;
+uint256 MIN_REGISTRATION_DELEGATION = 1000000000000000000000;
+  address DPOS_ADDRESS = address(0x00000000000000000000000000000000000000fe);
 
   IDPOS private dpos;
-  mapping(address => IDelegation.Validator) public validators;
-  mapping(address => bool) public validatorExists;
 
-  event ValidatorAdded(address indexed validator);
-  event ValidatorRegistered(address indexed validator, address indexed delegator, uint256 tokens);
+  address[] internalValidators;
+  mapping(address => bool) validatorRegistered;
 
-  constructor(address[] memory _validators, address _dposAddress) payable {
-    require(_validators.length > 0, "Validators array not set");
-    require(_dposAddress != "", "DPOS address not set");
-    require(Address.isContract(_dposAddress), "DPOS Address not a contract");
-    
-    dpos = IDPOS(_dposAddress);
+  receive() external payable {}
 
-    for (uint256 i = 0; i < _validators.length; ++i) {
-      validators.push(_validators[i]);
-      validatorExists[_validators[i]] = true;
+  constructor(address[] memory _internalValidators) payable {
+    internalValidators = _internalValidators;
+    dpos = IDPOS(DPOS_ADDRESS);
+    for(uint256 i = 0; i < _internalValidators.length; ++i){
+      validatorRegistered[_internalValidators[i]] = true;
     }
+    require(validatorRegistered[_internalValidators[_internalValidators.length -1]] == true, "Failed to set own validators");
+  }
+  function addOwnValidator(address _newValidator) onlyOwner external {
+    require(validatorRegistered[_newValidator] == false, "Validator already registered");
+    internalValidators.push(_newValidator);
+    require(internalValidators[internalValidators.length -1] == _newValidator, "Failed to add validator to own validators array");
+    validatorRegistered[_newValidator] = true;
+    emit InternalValidatorAdded(_newValidator);
   }
 
-  function getValidator(address _wallet) external view override returns (Validator memory) {
-    require(validatorExists[_wallet], "Validator does not exist");
-    return validators[_wallet];
-  }
+  function registerExternalValidator(address _validator, bytes memory _proof,
+        bytes memory _vrf_key,
+        uint16 _commission,
+        string calldata _description,
+        string calldata _endpoint) external payable override {
+    uint256 delegationValue =  2 * msg.value;
+    require(validatorRegistered[_validator] == false, "Validator already registered");
+    require(msg.value >= MIN_REGISTRATION_DELEGATION, "Sent value less than minimal delegation for registration");
+    require(address(this).balance >= delegationValue * internalValidators.length, "Insufficient funds in contract for testnet rebalance");
 
-  function addValidator(string memory _name, address _wallet, bytes32 _addressProof, bytes32 _vrfKey, uint256 _commission, string memory _ip) external override {
-    require(validators[_wallet].wallet == address(0), "Validator already exists");
+    // Delegate 2*tokens to our validators
+    for(uint256 i = 0; i < internalValidators.length; ++i){
+      dpos.delegate{value: delegationValue}(internalValidators[i]);
+      emit InternalValidatorDelegationIncreased(internalValidators[i],  delegationValue);
+    }
 
-    Validator memory validator = Validator(_name, _wallet, _addressProof, _vrfKey, _commission, _ip);
-    validators[_wallet] = validator;
-    validatorExists[_wallet] = true;
-    emit ValidatorAdded(_wallet);
-  }
-
-  function registerValidator(address _validator, uint256 _tokens) external payable override {
-    require(validatorExists[_validator], "Validator does not exist");
-    require(validatorDelegatedTokens[msg.sender] >= 2 * _tokens, "Not enough delegated tokens");
-    // Delegate tokens to validator
-    validatorDelegatedTokens[msg.sender] -= 2 * _tokens;
-    validatorDelegatedTokens[_validator] += 2 * _tokens;
-
-    emit ValidatorRegistered(_validator, msg.sender, _tokens);
-    // Register validator in DPOS contract
-    // ...
+    dpos.registerValidator{value: msg.value}(_validator, _proof, _vrf_key, _commission, _description, _endpoint);
+    emit ExternalValidatorRegistered(_validator, msg.sender, msg.value);
   }
 }

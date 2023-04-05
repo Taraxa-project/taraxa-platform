@@ -4,16 +4,15 @@ dotenv.config();
 
 async function main() {
   const validators: string[] = [];
-  const dposAddress = process.env.DPOS_ADDRESS;
   const signer = new ethers.Wallet(process.env.MAINNET_PRIV_KEY || "", ethers.provider);
   console.log("signer address: ", signer.address);
 
-  const Delegation = await ethers.getContractFactory("Delegation");
-  const delegation = await Delegation.connect(signer).deploy(validators, dposAddress);
+  const DelegationOrchestrator = await ethers.getContractFactory("DelegationOrchestrator");
+  const delegationOrchestrator = await DelegationOrchestrator.connect(signer).deploy(validators);
 
-  await delegation.deployed();
+  await delegationOrchestrator.deployed();
 
-  console.log("Delegation deployed to:", delegation.address);
+  console.log("Delegation deployed to:", delegationOrchestrator.address);
 }
 
 main().catch((error) => {
