@@ -11,7 +11,6 @@ import RedeemSidebar from '../../assets/icons/redeemSidebar';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
-import useToken from '../../services/useToken';
 import useClaim from '../../services/useClaim';
 import useApi from '../../services/useApi';
 
@@ -20,6 +19,10 @@ import Title from '../../components/Title/Title';
 import './redeem.scss';
 import useCMetamask from '../../services/useCMetamask';
 import RedeemModals from './Modal/Modals';
+import useChain from '../../services/useChain';
+import useMainnet from '../../services/useMainnet';
+import WrongNetwork from '../../components/WrongNetwork';
+import { useWalletPopup } from '../../services/useWalletPopup';
 
 const EmptyRewards = () => (
   <TableRow className="tableRow">
@@ -37,12 +40,13 @@ const EmptyRewards = () => (
 
 function Redeem() {
   const { status, account } = useCMetamask();
-  const token = useToken();
   const claim = useClaim();
   const api = useApi();
   const redeem = useRedeem();
+  const { chainId, provider } = useChain();
+  const { chainId: mainnetChainId } = useMainnet();
+  const { asyncCallback } = useWalletPopup();
 
-  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(
     ethers.BigNumber.from('0'),
   );
@@ -50,9 +54,21 @@ function Redeem() {
   const [claimed, setClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [isLoadingClaims, setLoadingClaims] = useState<boolean>(false);
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
 
   const [isWarnOpen, setWarnOpen] = useState<boolean>(false);
   const [underClaim, setUnderClaim] = useState<number>(0);
+  const isOnWrongChain = chainId !== mainnetChainId;
+
+  const fetchBalance = async () => {
+    if (status === 'connected' && account && provider) {
+      setBalance(await provider.getBalance(account));
+    }
+  };
+
+  useEffect(() => {
+    fetchBalance();
+  }, [status, account, chainId]);
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
@@ -110,22 +126,6 @@ function Redeem() {
     }
   }, [account, availableToBeClaimed]);
 
-  useEffect(() => {
-    const getTokenBalance = async () => {
-      if (!token || !account) {
-        return;
-      }
-      try {
-        const balance = await token.balanceOf(account);
-        setTokenBalance(balance);
-      } catch (error) {
-        setTokenBalance(ethers.BigNumber.from('0'));
-      }
-    };
-
-    getTokenBalance();
-  }, [account, token]);
-
   const onClaim = async (ind: number) => {
     if (!claim) {
       return;
@@ -154,15 +154,15 @@ function Redeem() {
         );
         if (claimPatchData.success) {
           const { availableToBeClaimed, nonce, hash } = claimPatchData.response;
-          const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
 
-          await claimTx.wait(1);
+          asyncCallback(async () => {
+            return await claim.claim(account, availableToBeClaimed, nonce, hash);
+          });
 
           setAvailableToBeClaimed(ethers.BigNumber.from('0'));
           setClaimed((currentClaimed) =>
             currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)),
           );
-          setTokenBalance((balance) => balance.add(ethers.BigNumber.from(availableToBeClaimed)));
         }
       }
     } catch (e) {}
@@ -172,7 +172,7 @@ function Redeem() {
 
   return (
     <div className="redeem">
-      {isWarnOpen && (
+      {isWarnOpen && !isOnWrongChain && (
         <RedeemModals
           taraAmount={claims[underClaim].numberOfTokens}
           warningModal={isWarnOpen}
@@ -203,6 +203,17 @@ function Redeem() {
                 />
               </div>
             )}
+            {status === 'connected' && isOnWrongChain && (
+              <div className="notification">
+                <Notification
+                  title="Notice:"
+                  text="You need to be connected to the Taraxa Mainnet network"
+                  variant="danger"
+                >
+                  <WrongNetwork />
+                </Notification>
+              </div>
+            )}
             <div className="cardContainer">
               <BaseCard
                 title={formatEth(roundEth(weiToEth(availableToBeClaimed)))}
@@ -213,7 +224,7 @@ function Redeem() {
                 description="TARA claimed total"
               />
               <BaseCard
-                title={formatEth(roundEth(weiToEth(tokenBalance)))}
+                title={formatEth(roundEth(weiToEth(balance)))}
                 description="Current wallet balance"
               />
             </div>
@@ -279,7 +290,7 @@ function Redeem() {
                               color="secondary"
                               label="Redeem"
                               className="smallBtn"
-                              disabled={row.numberOfTokens.eq(0) || row.claimed}
+                              disabled={row.numberOfTokens.eq(0) || row.claimed || isOnWrongChain}
                               onClick={() => {
                                 setWarnOpen(true);
                                 setUnderClaim(claims.indexOf(row));
