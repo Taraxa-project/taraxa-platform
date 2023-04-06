@@ -10,50 +10,64 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
-  using Address for address;
-uint256 MIN_REGISTRATION_DELEGATION = 1000000000000000000000;
-  address DPOS_ADDRESS = address(0x00000000000000000000000000000000000000fe);
+    using Address for address;
+    uint256 MIN_REGISTRATION_DELEGATION = 1000000000000000000000;
+    address DPOS_ADDRESS = address(0x00000000000000000000000000000000000000fe);
 
-  IDPOS private dpos;
+    IDPOS private dpos;
 
-  address[] internalValidators;
-  mapping(address => bool) validatorRegistered;
+    address[] internalValidators;
+    mapping(address => bool) validatorRegistered;
 
-  receive() external payable {}
+    receive() external payable {}
 
-  constructor(address[] memory _internalValidators) payable {
-    internalValidators = _internalValidators;
-    dpos = IDPOS(DPOS_ADDRESS);
-    for(uint256 i = 0; i < _internalValidators.length; ++i){
-      validatorRegistered[_internalValidators[i]] = true;
+    constructor(address[] memory _internalValidators, address dposContract) payable {
+        internalValidators = _internalValidators;
+        dpos = IDPOS(dposContract);
+        for (uint256 i = 0; i < _internalValidators.length; ++i) {
+            validatorRegistered[_internalValidators[i]] = true;
+        }
+        require(
+            validatorRegistered[_internalValidators[_internalValidators.length - 1]] == true,
+            "Failed to set own validators"
+        );
     }
-    require(validatorRegistered[_internalValidators[_internalValidators.length -1]] == true, "Failed to set own validators");
-  }
-  function addOwnValidator(address _newValidator) onlyOwner external {
-    require(validatorRegistered[_newValidator] == false, "Validator already registered");
-    internalValidators.push(_newValidator);
-    require(internalValidators[internalValidators.length -1] == _newValidator, "Failed to add validator to own validators array");
-    validatorRegistered[_newValidator] = true;
-    emit InternalValidatorAdded(_newValidator);
-  }
 
-  function registerExternalValidator(address _validator, bytes memory _proof,
+    // function addOwnValidator(address _newValidator) external onlyOwner {
+    //     require(validatorRegistered[_newValidator] == false, "Validator already registered");
+
+    //     internalValidators.push(_newValidator);
+    //     require(
+    //         internalValidators[internalValidators.length - 1] == _newValidator,
+    //         "Failed to add validator to own validators array"
+    //     );
+    //     validatorRegistered[_newValidator] = true;
+    //     emit InternalValidatorAdded(_newValidator);
+    // }
+
+    function registerExternalValidator(
+        address _validator,
+        bytes memory _proof,
         bytes memory _vrf_key,
         uint16 _commission,
         string calldata _description,
-        string calldata _endpoint) external payable override {
-    uint256 delegationValue =  2 * msg.value;
-    require(validatorRegistered[_validator] == false, "Validator already registered");
-    require(msg.value >= MIN_REGISTRATION_DELEGATION, "Sent value less than minimal delegation for registration");
-    require(address(this).balance >= delegationValue * internalValidators.length, "Insufficient funds in contract for testnet rebalance");
+        string calldata _endpoint
+    ) external payable override {
+        uint256 delegationValue = 2 * msg.value;
+        require(validatorRegistered[_validator] == false, "Validator already registered");
+        require(msg.value >= MIN_REGISTRATION_DELEGATION, "Sent value less than minimal delegation for registration");
+        require(
+            address(this).balance > (delegationValue * internalValidators.length),
+            "Insufficient funds in contract for testnet rebalance"
+        );
 
-    // Delegate 2*tokens to our validators
-    for(uint256 i = 0; i < internalValidators.length; ++i){
-      dpos.delegate{value: delegationValue}(internalValidators[i]);
-      emit InternalValidatorDelegationIncreased(internalValidators[i],  delegationValue);
+        // Delegate 2*tokens to our validators
+        for (uint256 i = 0; i < internalValidators.length; ++i) {
+            dpos.delegate{value: delegationValue}(internalValidators[i]);
+            emit InternalValidatorDelegationIncreased(internalValidators[i], delegationValue);
+        }
+
+        dpos.registerValidator{value: msg.value}(_validator, _proof, _vrf_key, _commission, _description, _endpoint);
+        emit ExternalValidatorRegistered(_validator, msg.sender, msg.value);
     }
-
-    dpos.registerValidator{value: msg.value}(_validator, _proof, _vrf_key, _commission, _description, _endpoint);
-    emit ExternalValidatorRegistered(_validator, msg.sender, msg.value);
-  }
 }
