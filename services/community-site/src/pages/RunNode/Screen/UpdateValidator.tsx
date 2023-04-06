@@ -133,7 +133,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
             <div>
               <Text
                 className="profile-inputLabel"
-                label="Validator Endpoint"
+                label="Validator website"
                 variant="body2"
                 color="primary"
               />
