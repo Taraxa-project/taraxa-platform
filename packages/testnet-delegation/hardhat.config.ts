@@ -5,7 +5,6 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-import "hardhat-docgen";
 import { ethers } from "ethers";
 
 dotenv.config();
@@ -25,7 +24,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.14",
+    version: "0.8.19",
     settings: {
       optimizer: {
         enabled: true,
@@ -40,23 +39,23 @@ const config: HardhatUserConfig = {
           ? [
               {
                 privateKey: process.env.TEST_KEY_1!,
-                balance: ethers.utils.parseEther("10").toString(),
+                balance: ethers.utils.parseEther("100000000000").toString(),
               },
               {
                 privateKey: process.env.TEST_KEY_2!,
-                balance: ethers.utils.parseEther("10").toString(),
+                balance: ethers.utils.parseEther("100000000000").toString(),
               },
               {
                 privateKey: process.env.TEST_KEY_3!,
-                balance: ethers.utils.parseEther("10").toString(),
+                balance: ethers.utils.parseEther("100000000000").toString(),
               },
               {
                 privateKey: process.env.TEST_KEY_4!,
-                balance: ethers.utils.parseEther("10").toString(),
+                balance: ethers.utils.parseEther("100000000000").toString(),
               },
               {
                 privateKey: process.env.TEST_KEY_5!,
-                balance: ethers.utils.parseEther("10").toString(),
+                balance: ethers.utils.parseEther("100000000000").toString(),
               },
             ]
           : [],
@@ -78,10 +77,8 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
-  docgen: {
-    path: "./docs",
-    clear: true,
-    runOnCompile: true,
+  typechain: {
+    outDir: "types",
   },
 };
 

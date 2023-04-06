@@ -8,7 +8,10 @@ async function main() {
   console.log("signer address: ", signer.address);
 
   const DelegationOrchestrator = await ethers.getContractFactory("DelegationOrchestrator");
-  const delegationOrchestrator = await DelegationOrchestrator.connect(signer).deploy(validators);
+  const MockDpos = await ethers.getContractFactory("MockDpos");
+  const mockDpos = await MockDpos.connect(signer).deploy(validators);
+  await mockDpos.deployed();
+  const delegationOrchestrator = await DelegationOrchestrator.connect(signer).deploy(validators, mockDpos.address);
 
   await delegationOrchestrator.deployed();
 

@@ -1,5 +1,5 @@
 {
-  "name": "testnet-delegation",
+  "name": "@taraxa_project/taraxa-testnet-dpos",
   "description": "Taraxa Testnet Delegation contract",
   "version": "0.0.1",
   "license": "UNLICENSED",
@@ -10,8 +10,7 @@
     "deploy-testnet": "env DEBUG='@openzeppelin:*' TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network testnet ./scripts/deploy_plain.ts",
     "checkTx": "env DEBUG='@openzeppelin:*' TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network testnet ./scripts/receipt.ts",
     "checkTx:local": "env DEBUG='@openzeppelin:*' TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network local ./scripts/status.ts",
-    "compile": "yarn run hardhat compile --network local",
-    "docgen": "yarn run hardhat docgen"
+    "compile": "yarn run hardhat compile --network local"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.2",
@@ -34,12 +33,11 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-promise": "^5.2.0",
-    "ethereum-waffle": "^4.0.10",
+    "ethereum-waffle": "^3.4.4",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^7.1.5",
-    "ethers": "^6.2.0",
-    "hardhat": "^2.13.0",
-    "hardhat-docgen": "^1.3.0",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.9.9",
     "hardhat-gas-reporter": "^1.0.9",
     "solhint": "^3.4.1",
     "solidity-coverage": "^0.8.2",
@@ -48,7 +46,6 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.6.0",
-    "solidity-coverage": "^0.7.21"
+    "@openzeppelin/contracts": "^4.6.0"
   }
 }

@@ -22,6 +22,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@taraxa_project/taraxa-ui": ["packages/taraxa-ui/src/index.ts"],
+      "@taraxa_project/taraxa-testnet-dpos": ["packages/testnet-delegation/hardhat.config.ts"],
       "@taraxa_project/taraxa-community-site": ["services/community-site/src/index.ts"],
       "@taraxa_project/explorer": ["services/explorer/src/index.ts"],
       "@taraxa_project/faucet": ["services/faucet/src/index.ts"],
@@ -33,6 +34,9 @@
   "references": [
     {
       "path": "packages/taraxa-ui"
+    },
+    {
+      "path": "packages/testnet-delegation"
     },
     {
       "path": "packages/explorer-shared"
