@@ -9,8 +9,8 @@ interface RedeemWarningProps {
   onDenial: () => void;
 }
 
-export const TX_FEE_WARN = `Transaction fees are high on Ethereum, once you click on the Redeem button, you are locked
-into this transaction and cannot be cancelled. 
+export const TX_FEE_WARN = `Once you click on the Redeem button, you are locked
+into this transaction and it cannot be cancelled. 
 
 If you wish to accumulate more TARA to claim
 later on, in order to minimize transaction fees, please do NOT click on Redeem right now.`;
