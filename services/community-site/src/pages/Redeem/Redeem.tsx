@@ -154,7 +154,9 @@ function Redeem() {
         );
         if (claimPatchData.success) {
           const { availableToBeClaimed, nonce, hash } = claimPatchData.response;
-          const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
+          const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash, {
+            gasLimit: 70000,
+          });
 
           await claimTx.wait(1);
 
