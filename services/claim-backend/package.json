@@ -15,7 +15,7 @@
     "start-cron:prod": "node dist/src/main-cron",
     "start-cron:dev": "ts-node -r tsconfig-paths/register src/main-cron.ts",
     "console:dev": "ts-node -r tsconfig-paths/register src/cli.ts",
-    "console": "node dist/cli.js",
+    "console": "node dist/src/cli.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "dependencies": {
