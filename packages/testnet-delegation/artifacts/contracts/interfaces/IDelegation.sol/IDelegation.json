@@ -64,6 +64,19 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_newValidator",
+          "type": "address"
+        }
+      ],
+      "name": "addInternalValidator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "_validator",
           "type": "address"
         },

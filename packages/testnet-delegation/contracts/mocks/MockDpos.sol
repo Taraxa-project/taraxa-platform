@@ -54,7 +54,7 @@ contract MockDpos is MockIDPOS {
     ) external payable override {
         require(proof.length != 0, "Invalid proof");
         require(vrf_key.length != 0, "VRF Public key not porvided");
-        require(validators[validator].account == address(0), "Validator already registered");
+        require(validators[validator].account == address(0), "DPOS: Validator already registered");
         require(msg.value >= 1000000000000000000000, "Base delegation value not provided");
 
         MockIDPOS.ValidatorBasicInfo memory info = MockIDPOS.ValidatorBasicInfo(

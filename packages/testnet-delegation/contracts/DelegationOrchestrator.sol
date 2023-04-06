@@ -12,8 +12,6 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
     using Address for address;
     uint256 MIN_REGISTRATION_DELEGATION = 1000000000000000000000;
-    address DPOS_ADDRESS = address(0x00000000000000000000000000000000000000fe);
-
     IDPOS private dpos;
 
     address[] internalValidators;
@@ -21,9 +19,9 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
 
     receive() external payable {}
 
-    constructor(address[] memory _internalValidators) payable {
+    constructor(address[] memory _internalValidators, address _dpos) payable {
         internalValidators = _internalValidators;
-        dpos = IDPOS(DPOS_ADDRESS);
+        dpos = IDPOS(_dpos);
         for (uint256 i = 0; i < _internalValidators.length; ++i) {
             validatorRegistered[_internalValidators[i]] = true;
         }
