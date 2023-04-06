@@ -16,7 +16,7 @@ interface IDelegation {
     event InternalValidatorDelegationIncreased(address indexed validatorAddress, uint256 delegatedValue);
     event ExternalValidatorRegistered(address indexed wallet, address indexed delegator, uint256 tokens);
 
-    // function addOwnValidator(address _newValidator) external;
+    function addInternalValidator(address _newValidator) external;
 
     function registerExternalValidator(
         address _validator,

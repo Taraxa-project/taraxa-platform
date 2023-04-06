@@ -21,9 +21,9 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
 
     receive() external payable {}
 
-    constructor(address[] memory _internalValidators, address dposContract) payable {
+    constructor(address[] memory _internalValidators) payable {
         internalValidators = _internalValidators;
-        dpos = IDPOS(dposContract);
+        dpos = IDPOS(DPOS_ADDRESS);
         for (uint256 i = 0; i < _internalValidators.length; ++i) {
             validatorRegistered[_internalValidators[i]] = true;
         }
@@ -33,17 +33,16 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
         );
     }
 
-    // function addOwnValidator(address _newValidator) external onlyOwner {
-    //     require(validatorRegistered[_newValidator] == false, "Validator already registered");
-
-    //     internalValidators.push(_newValidator);
-    //     require(
-    //         internalValidators[internalValidators.length - 1] == _newValidator,
-    //         "Failed to add validator to own validators array"
-    //     );
-    //     validatorRegistered[_newValidator] = true;
-    //     emit InternalValidatorAdded(_newValidator);
-    // }
+    function addInternalValidator(address _newValidator) external onlyOwner {
+        require(validatorRegistered[_newValidator] == false, "Validator already registered");
+        internalValidators.push(_newValidator);
+        require(
+            internalValidators[internalValidators.length - 1] == _newValidator,
+            "Failed to add validator to own validators array"
+        );
+        validatorRegistered[_newValidator] = true;
+        emit InternalValidatorAdded(_newValidator);
+    }
 
     function registerExternalValidator(
         address _validator,
@@ -57,7 +56,7 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
         require(validatorRegistered[_validator] == false, "Validator already registered");
         require(msg.value >= MIN_REGISTRATION_DELEGATION, "Sent value less than minimal delegation for registration");
         require(
-            address(this).balance > (delegationValue * internalValidators.length),
+            address(this).balance >= delegationValue * internalValidators.length,
             "Insufficient funds in contract for testnet rebalance"
         );
 
