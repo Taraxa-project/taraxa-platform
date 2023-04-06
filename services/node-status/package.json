@@ -12,9 +12,6 @@
     "@taraxa_project/taraxa-ui": "^0.0.1",
     "axios": "^0.26.1",
     "ethers": "^5.6.0",
-    "@types/node": "18.15.11",
-    "@types/react": "18.0.33",
-    "@types/react-dom": "18.0.11",
     "eslint": "8.37.0",
     "eslint-config-next": "13.2.4",
     "next": "13.2.4",
@@ -22,5 +19,10 @@
     "react-dom": "18.2.0",
     "typescript": "5.0.3",
     "sass": "^1.49.9"
+  },
+  "devDependencies": {
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.33",
+    "@types/react-dom": "18.0.11"
   }
 }
