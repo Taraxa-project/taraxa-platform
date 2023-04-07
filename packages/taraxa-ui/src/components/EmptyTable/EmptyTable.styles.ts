@@ -2,6 +2,11 @@ import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles(() => {
   return {
+    tableCell: {
+      border: 'none',
+      height: 'auto',
+      borderBottom: '1px solid #1e2231 !important',
+    },
     content: {
       borderRadius: '2px',
       marginRight: '-16px',

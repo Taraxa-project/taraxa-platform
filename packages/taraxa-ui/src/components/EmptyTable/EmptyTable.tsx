@@ -8,12 +8,12 @@ const EmptyTable = ({ colspan }: { colspan: number }) => {
 
   return (
     <TableRow>
-      <TableCell colSpan={colspan}>
+      <TableCell colSpan={colspan} className={classes.tableCell}>
         <div className={classes.content}>
           <span className={classes.text}>
             <NotFound />
             <br />
-            Looks like there is no data yet...
+            No data available yet...
           </span>
         </div>
       </TableCell>
