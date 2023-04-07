@@ -207,6 +207,12 @@ const Delegation = ({ location }: { location: Location }) => {
         delegatableValidators={delegatableValidators?.filter(
           (d) => d.address !== reDelegateFromValidator?.address,
         )}
+        ownDelegation={
+          !!delegateToValidator &&
+          delegations
+            .map((d) => d.address.toLowerCase())
+            .includes(delegateToValidator?.address.toLowerCase())
+        }
         reDelegatableBalance={delegations
           .filter(
             (d) => d.address.toLowerCase() === reDelegateFromValidator?.address?.toLowerCase(),

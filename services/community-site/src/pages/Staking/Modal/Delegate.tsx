@@ -12,11 +12,12 @@ import { compareDelegationTo } from '../../../utils/compareDelegationTo';
 type DelegateProps = {
   balance: ethers.BigNumber;
   validator: Validator;
+  ownDelegation: boolean;
   onSuccess: () => void;
   onFinish: () => void;
 };
 
-const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) => {
+const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: DelegateProps) => {
   const { delegate } = useDelegation();
   const { asyncCallback } = useWalletPopup();
 
@@ -49,6 +50,14 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
       setError('cannot exceed TARA available for delegation');
       return;
     }
+
+    if (parseFloat(delegationTotal) === parseFloat(ethers.utils.formatEther(balance))) {
+      setError(
+        'Cannot use entire TARA balance. The transaction also requires you pay the gas fee.',
+      );
+      return;
+    }
+
     if (parseFloat(delegationTotal) > parseFloat(maximumDelegatable)) {
       setError("cannot exceed validator's ability to receive delegation");
       return;
@@ -108,7 +117,13 @@ const Delegate = ({ balance, validator, onSuccess, onFinish }: DelegateProps) =>
           onChange={(event) => {
             if (parseFloat(delegationTotal) > parseFloat(ethers.utils.formatEther(balance))) {
               setError('cannot exceed TARA available for delegation');
-            } else if (compareDelegationTo(event.target.value, '1000')) {
+            } else if (
+              parseFloat(event.target.value) === parseFloat(ethers.utils.formatEther(balance))
+            ) {
+              setError(
+                'Cannot use entire TARA balance. The transaction also requires you pay the gas fee.',
+              );
+            } else if (!ownDelegation && compareDelegationTo(event.target.value, '1000')) {
               setError('must be a number greater than 1,000');
             } else {
               setError('');
