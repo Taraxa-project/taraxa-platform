@@ -156,7 +156,9 @@ function Redeem() {
           const { availableToBeClaimed, nonce, hash } = claimPatchData.response;
 
           asyncCallback(async () => {
-            return await claim.claim(account, availableToBeClaimed, nonce, hash);
+            return await claim.claim(account, availableToBeClaimed, nonce, hash, {
+              gasLimit: 70000,
+            });
           });
 
           setAvailableToBeClaimed(ethers.BigNumber.from('0'));

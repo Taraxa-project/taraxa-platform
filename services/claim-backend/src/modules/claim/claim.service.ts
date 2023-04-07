@@ -434,36 +434,22 @@ export class ClaimService {
     return accounts;
   }
   public async account(address: string): Promise<Partial<AccountEntity>> {
-    try {
-      const claim = await this.claimRepository.findOne({
-        where: {
-          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-            address,
-          }),
-          claimed: false,
-        },
-      });
-      if (claim) {
-        const nonce = claim.id * 13;
-
-        const indexedClaims = await this.graphService.getIndexedClaim(
+    const claim = await this.claimRepository.findOne({
+      where: {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
           address,
-          claim.numberOfTokens,
-          nonce,
-        );
-        if (indexedClaims) {
-          const confirmation = ethers.BigNumber.from(indexedClaims[0].amount);
-          if (
-            confirmation.gt(ethers.BigNumber.from('0')) &&
-            confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
-          ) {
-            await this.markAsClaimed(claim.id);
-          }
-        }
+        }),
+        claimed: false,
+      },
+    });
+
+    if (claim) {
+      const isClaimed = await this.isClaimClaimed(claim);
+      if (isClaimed) {
+        await this.markAsClaimed(claim);
       }
-    } catch (error) {
-      console.log('Could not mark current claims', error.message);
     }
+
     const accountData = await this.accountRepository.findOne({
       address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
         address,
@@ -510,11 +496,7 @@ export class ClaimService {
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
   }
-  public async markAsClaimed(id: number): Promise<void | ClaimEntity> {
-    const claim = await this.claimRepository.findOne({
-      where: { id, claimed: false },
-    });
-
+  public async markAsClaimed(claim: ClaimEntity): Promise<void | ClaimEntity> {
     if (!claim) {
       return;
     }
@@ -538,6 +520,31 @@ export class ClaimService {
 
     await this.accountRepository.save(account);
     return await this.claimRepository.save(claim);
+  }
+  public async isClaimClaimed(claim: ClaimEntity): Promise<boolean> {
+    if (!claim) {
+      return false;
+    }
+
+    const { address, numberOfTokens } = claim;
+
+    const nonce = claim.id * 13;
+    const indexedClaim = await this.graphService.getClaim(
+      address,
+      numberOfTokens,
+      nonce,
+    );
+    if (indexedClaim) {
+      const confirmation = ethers.BigNumber.from(indexedClaim.amount);
+      if (
+        confirmation.gt(ethers.BigNumber.from('0')) &&
+        confirmation.eq(ethers.BigNumber.from(numberOfTokens))
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
   public async patchClaim(id: number): Promise<Partial<AccountClaimEntity>> {
     const claim = await this.claimRepository.findOneOrFail({ id });
@@ -593,6 +600,15 @@ export class ClaimService {
       ...claim,
       numberOfTokens: this.bNStringToString(claim.numberOfTokens),
     }));
+    return claims;
+  }
+  public async getUnclaimedClaims(): Promise<ClaimEntity[]> {
+    const claims = await this.claimRepository.find({
+      where: {
+        claimed: false,
+      },
+    });
+
     return claims;
   }
   public async unlockRewards(): Promise<void> {

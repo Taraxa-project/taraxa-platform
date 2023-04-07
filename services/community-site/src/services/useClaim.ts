@@ -13,8 +13,8 @@ function useClaim() {
     }
 
     const abi = [
-      'function claim(address,uint,uint,bytes)',
-      'function getClaimedAmount(address,uint,uint) view returns (uint)',
+      'function claim(address payable,uint,uint,bytes) public',
+      'function getClaimedAmount(address,uint,uint) public view returns (uint)',
     ];
     try {
       const contract = new ethers.Contract(process.env.REACT_APP_CLAIM_ADDRESS!, abi, provider);

@@ -10,32 +10,37 @@ export class GraphQLService {
     private readonly graphQLClient: GraphQLClient,
   ) {}
 
-  public async getIndexedClaim(
+  public async getClaim(
     address: string,
     amount: string,
     nonce: number,
-  ): Promise<ClaimDetails[]> {
-    return (
-      await this.graphQLClient.request(
-        gql`
-          query get_claims(
-            $address: Bytes!
-            $amount: BigInt!
-            $nonce: BigInt!
-          ) {
-            claims(where: { user: $address, amount: $amount, nonce: $nonce }) {
-              user
-              amount
-              nonce
-            }
+  ): Promise<ClaimDetails | null> {
+    const response = await this.graphQLClient.request(
+      gql`
+        query get_claims($address: Bytes!, $amount: BigInt!, $nonce: BigInt!) {
+          claims(where: { user: $address, amount: $amount, nonce: $nonce }) {
+            user
+            amount
+            nonce
+            timestamp
           }
-        `,
-        {
-          address,
-          amount,
-          nonce,
-        },
-      )
-    )?.claims as ClaimDetails[];
+        }
+      `,
+      {
+        address,
+        amount,
+        nonce,
+      },
+    );
+
+    if (!response) {
+      return null;
+    }
+
+    if (!response.claims || response.claims.length === 0) {
+      return null;
+    }
+
+    return response.claims[0] as ClaimDetails;
   }
 }
