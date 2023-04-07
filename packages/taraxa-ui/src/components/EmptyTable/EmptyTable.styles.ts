@@ -5,7 +5,7 @@ const useStyles = makeStyles(() => {
     tableCell: {
       border: 'none',
       height: 'auto',
-      borderBottom: '1px solid #1e2231 !important',
+      borderBottom: '1px solid rgba(81, 81, 81, 1) !important',
     },
     content: {
       borderRadius: '2px',
