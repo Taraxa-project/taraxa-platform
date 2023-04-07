@@ -15,7 +15,6 @@ import {
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
 import { toNodeTableRow } from '../../utils';
-import { DateTime } from 'luxon';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { NodesTableData } from '../../models';

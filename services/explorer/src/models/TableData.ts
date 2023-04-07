@@ -14,6 +14,28 @@ export interface TransactionTableData {
   token: string;
 }
 
+export interface TransactionTableRow {
+  timestamp: string;
+  block: JSX.Element;
+  status: JSX.Element;
+  txHash: JSX.Element;
+  value: string;
+}
+
+export interface DagTableRow {
+  timestamp: string;
+  level: number;
+  hash: JSX.Element;
+  transactionCount: number;
+}
+
+export interface PbftTableRow {
+  timestamp: string;
+  block: JSX.Element;
+  hash: JSX.Element;
+  transactionCount: number;
+}
+
 export interface NodesTableData {
   rank: number;
   address: string;

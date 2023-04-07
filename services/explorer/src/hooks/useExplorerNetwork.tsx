@@ -3,7 +3,6 @@ import { Client, createClient as urqlCreateClient } from 'urql';
 import {
   Network,
   getDomainName,
-  SELECTED_NETWORK,
   recreateGraphQLConnection,
   recreateAPIConnection,
   recreateFaucetConnection,

@@ -86,6 +86,8 @@ export interface AddressTxResponse {
 
 export interface RankedNode extends ITaraxaNode {
   rank: number;
+  address: string;
+  pbftCount: number;
 }
 
 export interface Paginate<T> {
