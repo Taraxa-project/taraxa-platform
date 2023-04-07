@@ -6,10 +6,19 @@ import { Request } from 'express';
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
   private readonly logger = new Logger(ThrottlerBehindProxyGuard.name);
   protected getTracker(req: Request): string {
-    const ip =
-      req.headers['x-forwarded-for'] || req.ips.length ? req.ips[0] : req.ip;
+    this.logger.debug(`ip: ${req.ip}`);
+    this.logger.debug(`ips:`);
+    this.logger.debug(req.ips);
 
-    this.logger.debug(`ip: ${ip}`);
-    return ip;
+    this.logger.debug(`headers:`);
+    this.logger.debug(req.headers);
+
+    const fwdIp = req.headers['x-forwarded-for'];
+    const ip = req.ips.length ? req.ips[0] : req.ip;
+    let realIp = fwdIp || ip;
+    realIp = typeof realIp === 'string' ? realIp : realIp[0];
+
+    this.logger.debug(`ip: ${realIp}`);
+    return realIp;
   }
 }
