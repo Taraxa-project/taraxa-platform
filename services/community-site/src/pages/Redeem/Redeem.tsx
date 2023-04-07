@@ -58,6 +58,8 @@ function Redeem() {
 
   const [isWarnOpen, setWarnOpen] = useState<boolean>(false);
   const [underClaim, setUnderClaim] = useState<number>(0);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+
   const isOnWrongChain = chainId !== mainnetChainId;
 
   const fetchBalance = async () => {
@@ -68,7 +70,7 @@ function Redeem() {
 
   useEffect(() => {
     fetchBalance();
-  }, [status, account, chainId]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
@@ -155,11 +157,16 @@ function Redeem() {
         if (claimPatchData.success) {
           const { availableToBeClaimed, nonce, hash } = claimPatchData.response;
 
-          asyncCallback(async () => {
-            return await claim.claim(account, availableToBeClaimed, nonce, hash, {
-              gasLimit: 70000,
-            });
-          });
+          asyncCallback(
+            async () => {
+              return await claim.claim(account, availableToBeClaimed, nonce, hash, {
+                gasLimit: 70000,
+              });
+            },
+            () => {
+              setShouldFetch(true);
+            },
+          );
 
           setAvailableToBeClaimed(ethers.BigNumber.from('0'));
           setClaimed((currentClaimed) =>
