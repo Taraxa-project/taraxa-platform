@@ -19,7 +19,6 @@ echo "Replace from env vars..."
 
 find $STATIC_FOLDER -type f -exec sed -i "s,REACT_APP_API_HOST_STRING_REPLACE,$API_HOST,g" {} \;
 find $STATIC_FOLDER -type f -exec sed -i "s,REACT_APP_API_CLAIM_HOST_STRING_REPLACE,$API_CLAIM_HOST,g" {} \;
-find $STATIC_FOLDER -type f -exec sed -i "s,REACT_APP_TARA_ADDRESS_STRING_REPLACE,$TARA_ADDRESS,g" {} \;
 find $STATIC_FOLDER -type f -exec sed -i "s,REACT_APP_CLAIM_ADDRESS_STRING_REPLACE,$CLAIM_ADDRESS,g" {} \;
 find $STATIC_FOLDER -type f -exec sed -i "s,REACT_APP_STAKING_ADDRESS_STRING_REPLACE,$STAKING_ADDRESS,g" {} \;
 find $STATIC_FOLDER -type f -exec sed -i "s,REACT_APP_DELEGATION_API_HOST_STRING_REPLACE,$DELEGATION_API_HOST,g" {} \;
