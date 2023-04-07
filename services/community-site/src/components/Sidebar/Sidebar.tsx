@@ -62,7 +62,7 @@ const Sidebar = () => {
     },
     {
       name: 'testnet',
-      label: 'Testnet',
+      label: 'Participate',
       items: [
         {
           Link: <NavLink label="Run a node" Icon={NodeSidebar} to="/node" />,

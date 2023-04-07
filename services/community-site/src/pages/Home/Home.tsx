@@ -48,7 +48,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
 
   const toggleOptions = [
     { value: 'earn', label: 'Earn' },
-    { value: 'testnet', label: 'Testnet' },
+    { value: 'testnet', label: 'Participate' },
   ];
 
   const onToggle = (event: React.MouseEvent<HTMLElement>, value: string) => {
@@ -113,7 +113,11 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             display: isMobile && toggleValue !== 'testnet' ? 'none' : 'inherit',
           }}
         >
-          <Notification title="TESTNET" text="Join Taraxa’s public testnet." variant="success" />
+          <Notification
+            title="Participate"
+            text="Participate in Taraxa`s public networks."
+            variant="success"
+          />
         </div>
         <div
           className="cardContainer"
