@@ -1,12 +1,15 @@
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Request } from 'express';
 
 @Injectable()
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
+  private readonly logger = new Logger(ThrottlerBehindProxyGuard.name);
   protected getTracker(req: Request): string {
-    return req.headers['x-forwarded-for'] || req.ips.length
-      ? req.ips[0]
-      : req.ip;
+    const ip =
+      req.headers['x-forwarded-for'] || req.ips.length ? req.ips[0] : req.ip;
+
+    this.logger.debug(`ip: ${ip}`);
+    return ip;
   }
 }
