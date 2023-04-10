@@ -40,7 +40,7 @@ export const useDAGDataContainerEffects = (
           return {
             ...tx,
             value: displayWeiOrTara(tx.value),
-            gasUsed: `${tx.gasUsed} Wei`,
+            gasUsed: `${tx.gasUsed}`,
             gas: `${tx.gasUsed * parseInt(tx.gasPrice.toString(), 10)} Wei`,
             action: getTransactionType(tx),
           };

@@ -64,7 +64,9 @@ export const usePBFTDataContainerEffects = (
     handleChangePage,
     handleChangeRowsPerPage,
   } = useIndexer(
-    { queryName: 'pbft-data' },
+    {
+      queryName: `${'pbft-data'}-${blockNumber}`,
+    },
     useGetGenesisBlock,
     blockNumber !== 0
   );
@@ -81,7 +83,7 @@ export const usePBFTDataContainerEffects = (
           .map((tx: Transaction) => ({
             ...tx,
             value: displayWeiOrTara(tx.value),
-            gasUsed: `${tx.gasUsed} Wei`,
+            gasUsed: `${tx.gasUsed}`,
             gas: `${
               parseInt(`${tx.gasUsed}`, 10) * parseInt(`${tx.gasPrice}`, 10)
             } Wei`,

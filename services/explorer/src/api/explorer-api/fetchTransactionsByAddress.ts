@@ -28,7 +28,7 @@ export const useGetTransactionsByAddress = (
         },
         value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
         gasPrice: `${ethers.BigNumber.from(tx.gasPrice)} Wei`,
-        gas: `${ethers.BigNumber.from(tx.gasPrice).mul(tx.gasUsed)} Wei`,
+        gas: `${ethers.BigNumber.from(tx.gasPrice).mul(tx.gasUsed)}`,
         status: tx.status ? 1 : 0,
         gasUsed: tx.gasUsed?.toString(),
         from: {
