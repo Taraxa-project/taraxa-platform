@@ -35,8 +35,8 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
       setTransactionData({
         ...transactiondata?.transaction,
         value: displayWeiOrTara(transactiondata?.transaction.value),
-        gasUsed: displayWeiOrTara(transactiondata?.transaction.gasUsed),
-        gasPrice: displayWeiOrTara(transactiondata?.transaction.gasPrice),
+        gasUsed: `${transactiondata?.transaction.gasUsed} Wei`,
+        gasPrice: `${transactiondata?.transaction.gasPrice} Wei`,
       });
     }
     if (transactiondata?.transaction === null) {

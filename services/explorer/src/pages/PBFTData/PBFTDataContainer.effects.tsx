@@ -77,10 +77,10 @@ export const usePBFTDataContainerEffects = (
           .map((tx: Transaction) => ({
             ...tx,
             value: displayWeiOrTara(tx.value),
-            gasUsed: displayWeiOrTara(tx.gasUsed),
-            gas: displayWeiOrTara(
+            gasUsed: `${tx.gasUsed} Wei`,
+            gas: `${
               parseInt(`${tx.gasUsed}`, 10) * parseInt(`${tx.gasPrice}`, 10)
-            ),
+            } Wei`,
             action: getTransactionType(tx),
           }))
           .slice(
