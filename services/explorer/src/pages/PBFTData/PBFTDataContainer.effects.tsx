@@ -63,7 +63,11 @@ export const usePBFTDataContainerEffects = (
     rowsPerPage: transactionsRowsPerPage,
     handleChangePage,
     handleChangeRowsPerPage,
-  } = useIndexer(useGetGenesisBlock, blockNumber !== 0);
+  } = useIndexer(
+    { queryName: 'pbft-data' },
+    useGetGenesisBlock,
+    blockNumber !== 0
+  );
 
   useEffect(() => {
     if (
