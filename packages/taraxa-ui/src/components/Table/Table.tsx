@@ -16,6 +16,7 @@ import moment from 'moment';
 import { useMediaQuery } from 'react-responsive';
 import useStyles from './Table.styles';
 import theme from '../theme';
+import EmptyTable from '../EmptyTable';
 
 export interface TableProps {
   columns: { path: string; name: string }[];
@@ -119,79 +120,84 @@ export default function Table({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows
-                  ?.slice(
-                    (currentPage || page) * (initialRowsPerPage || rowsPerPage),
-                    (currentPage || page) *
-                      (initialRowsPerPage || rowsPerPage) +
-                      (initialRowsPerPage || rowsPerPage)
-                  )
-                  ?.map((row, index) =>
-                    row.data.map((rowData: any) =>
-                      isMobile ? (
-                        <TableRow tabIndex={-1} key={index}>
-                          {row.Icon && (
-                            <TableCell
-                              className={classes.mobileTableCell}
-                              align='left'
-                              key={`${index}-${index}`}
-                            >
-                              <row.Icon />
-                            </TableCell>
-                          )}
-                          {columns.map(({ path }, j) =>
-                            rowData[path] instanceof Date ? (
-                              <TableCell
-                                className={classes.mobileDateTableCell}
-                                key={`${index}-${j}`}
-                              >
-                                {moment(rowData[path]).fromNow()}
-                              </TableCell>
-                            ) : (
+                {rows && rows.length > 0 ? (
+                  rows
+                    .slice(
+                      (currentPage || page) *
+                        (initialRowsPerPage || rowsPerPage),
+                      (currentPage || page) *
+                        (initialRowsPerPage || rowsPerPage) +
+                        (initialRowsPerPage || rowsPerPage)
+                    )
+                    .map((row, index) =>
+                      row.data.map((rowData: any) =>
+                        isMobile ? (
+                          <TableRow tabIndex={-1} key={index}>
+                            {row.Icon && (
                               <TableCell
                                 className={classes.mobileTableCell}
-                                align={!row.Icon ? 'center' : 'right'}
-                                key={`${index}-${j}`}
+                                align='left'
+                                key={`${index}-${index}`}
                               >
-                                {rowData[path]}
+                                <row.Icon />
                               </TableCell>
-                            )
-                          )}
-                        </TableRow>
-                      ) : (
-                        <TableRow tabIndex={-1} key={index}>
-                          {row.Icon && (
-                            <TableCell
-                              className={classes.tableCell}
-                              align='left'
-                              key={`${index}-${index}-icon`}
-                            >
-                              <row.Icon />
-                            </TableCell>
-                          )}
-                          {columns.map(({ path }, i) =>
-                            rowData[path] instanceof Date ? (
-                              <TableCell
-                                className={classes.dateTableCell}
-                                align={!row.Icon ? 'center' : 'right'}
-                                key={`${index}-${index}-date`}
-                              >
-                                {moment(rowData[path]).fromNow()}
-                              </TableCell>
-                            ) : (
+                            )}
+                            {columns.map(({ path }, j) =>
+                              rowData[path] instanceof Date ? (
+                                <TableCell
+                                  className={classes.mobileDateTableCell}
+                                  key={`${index}-${j}`}
+                                >
+                                  {moment(rowData[path]).fromNow()}
+                                </TableCell>
+                              ) : (
+                                <TableCell
+                                  className={classes.mobileTableCell}
+                                  align={!row.Icon ? 'center' : 'right'}
+                                  key={`${index}-${j}`}
+                                >
+                                  {rowData[path]}
+                                </TableCell>
+                              )
+                            )}
+                          </TableRow>
+                        ) : (
+                          <TableRow tabIndex={-1} key={index}>
+                            {row.Icon && (
                               <TableCell
                                 className={classes.tableCell}
-                                align={!row.Icon ? 'center' : 'right'}
-                                key={`${index}-${i}`}
+                                align='left'
+                                key={`${index}-${index}-icon`}
                               >
-                                {rowData[path]}
+                                <row.Icon />
                               </TableCell>
-                            )
-                          )}
-                        </TableRow>
+                            )}
+                            {columns.map(({ path }, i) =>
+                              rowData[path] instanceof Date ? (
+                                <TableCell
+                                  className={classes.dateTableCell}
+                                  align={!row.Icon ? 'center' : 'right'}
+                                  key={`${index}-${index}-date`}
+                                >
+                                  {moment(rowData[path]).fromNow()}
+                                </TableCell>
+                              ) : (
+                                <TableCell
+                                  className={classes.tableCell}
+                                  align={!row.Icon ? 'center' : 'right'}
+                                  key={`${index}-${i}`}
+                                >
+                                  {rowData[path]}
+                                </TableCell>
+                              )
+                            )}
+                          </TableRow>
+                        )
                       )
                     )
-                  )}
+                ) : (
+                  <EmptyTable colspan={columns.length} />
+                )}
               </TableBody>
             </MTable>
           </TableContainer>

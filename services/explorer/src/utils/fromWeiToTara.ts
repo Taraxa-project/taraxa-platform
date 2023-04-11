@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 
-export const MIN_WEI_TO_CONVERT = Math.pow(10, 18);
+export const MIN_WEI_TO_CONVERT = Math.pow(10, 3);
 
 export const fromWeiToTara = (amount: string | number | BigNumber): string => {
   if (!amount) {

@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from 'react-query';
 import { FetchWithPagination, ResultWithPagination } from '../api';
 import { useExplorerNetwork } from '../hooks';
 import { usePagination } from '../hooks/usePagination';
 
 export const useIndexer = (
+  queryData: {
+    queryName: string;
+    dependency?: string;
+  },
   query: (
     endpoint: string,
     params: Partial<FetchWithPagination>
@@ -14,6 +19,8 @@ export const useIndexer = (
   total: number;
   page: number;
   rowsPerPage: number;
+  isLoading: boolean;
+  error: any;
   handleChangePage: (p: number) => void;
   handleChangeRowsPerPage: (l: number) => void;
 } => {
@@ -25,21 +32,20 @@ export const useIndexer = (
   const { handleChangeRowsPerPage, handleChangePage, rowsPerPage, page } =
     usePagination();
 
-  const getData = useCallback(async () => {
-    const response = await query(backendEndpoint, {
-      start,
-      limit: rowsPerPage,
-    });
+  const { isLoading, error } = useQuery(
+    [queryData.queryName, page, rowsPerPage, queryData.dependency],
+    async () => {
+      const response = await query(backendEndpoint, {
+        start,
+        limit: rowsPerPage,
+      });
 
-    setData(response?.data);
-    setTotal(response?.total);
-  }, [start, rowsPerPage]);
-
-  useEffect(() => {
-    if (!disabled) {
-      getData();
-    }
-  }, [getData, disabled, page, rowsPerPage]);
+      setData(response?.data ?? []);
+      setTotal(response?.total ?? 0);
+      return response;
+    },
+    { enabled: !disabled }
+  );
 
   const onChangePage = (p: number) => {
     handleChangePage(p);
@@ -51,6 +57,8 @@ export const useIndexer = (
     total,
     page,
     rowsPerPage,
+    isLoading,
+    error,
     handleChangePage: onChangePage,
     handleChangeRowsPerPage,
   };

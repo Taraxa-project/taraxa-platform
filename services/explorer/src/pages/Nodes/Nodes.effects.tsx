@@ -9,6 +9,7 @@ import {
   WeekPagination,
 } from '../../api';
 import { useExplorerNetwork } from '../../hooks';
+import { toNodeTableRow } from '../../utils';
 
 const cols: ColumnData[] = [
   { path: 'rank', name: 'Rank' },
@@ -122,11 +123,13 @@ export const useNodesEffects = () => {
     subtitle,
     description,
     cols,
-    tableData: tableData.map((node: RankedNode, i: number) => ({
-      rank: i + 1,
-      address: node.address,
-      pbftCount: node.pbftCount,
-    })),
+    rows: tableData.map((node: RankedNode, i: number) =>
+      toNodeTableRow({
+        rank: i + 1,
+        address: node.address,
+        pbftCount: node.pbftCount,
+      })
+    ),
     totalCount,
     rowsPerPage,
     page,

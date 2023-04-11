@@ -206,8 +206,8 @@ const TransactionDataContainer = (): JSX.Element => {
                 )}
               {transactionData?.gas && transactionData?.gasPrice && (
                 <DataRow
-                  title='Gas Limit/ Gas Used'
-                  data={`${transactionData.gasUsed}`}
+                  title='Gas Used/ Gas Limit'
+                  data={`${transactionData.gasUsed} / ${transactionData.gas}`}
                 />
               )}
               {transactionData?.gasPrice && (

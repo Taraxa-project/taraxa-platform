@@ -25,6 +25,7 @@ export const transactionQuery = `
         timestamp,
 			},
       gasUsed,
+      gas,
       cumulativeGasUsed,
       logs {
         index,
