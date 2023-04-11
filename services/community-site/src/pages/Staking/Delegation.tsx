@@ -121,39 +121,38 @@ const Delegation = ({ location }: { location: Location }) => {
       (async () => {
         setLoadingAccountData(true);
         setDelegations(await getDelegations(account));
+        setUndelegations(await getUndelegations(account));
         setLoadingAccountData(false);
       })();
     }
   }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
-    if (status === 'connected' && account && provider) {
+    if (delegations.length > 0) {
       (async () => {
         setLoadingAccountData(true);
-        const unDelegations = await getUndelegations(account);
-        setUndelegations(unDelegations);
+        const myValidators = await getValidatorsWith(delegations.map((d) => d.address));
+        setOwnValidators(myValidators);
         setLoadingAccountData(false);
       })();
     }
-  }, [status, account, chainId, shouldFetch]);
+  }, [delegations]);
 
   useEffect(() => {
     (async () => {
-      setLoadingAccountData(true);
       let v;
-      const ownValidators = await getValidatorsWith(delegations.map((d) => d.address));
       if (showMyValidators) {
-        v = ownValidators;
+        v = ownValidators || [];
       } else {
+        setLoadingAccountData(true);
         v = await getValidators();
+        setLoadingAccountData(false);
       }
       setValidators(v);
-      setOwnValidators(ownValidators);
-      setLoadingAccountData(false);
       const validatorsWithStats = await updateValidatorsStats(v);
       setValidators(validatorsWithStats);
     })();
-  }, [showMyValidators, delegations]);
+  }, [showMyValidators, ownValidators]);
 
   const isNotLoggedOrKycEd = !user || user.kyc !== 'APPROVED'; // && user.confirmed
 
@@ -222,19 +221,16 @@ const Delegation = ({ location }: { location: Location }) => {
           fetchBalance();
           getValidators();
           setShouldFetch(true);
-          // getStats();
         }}
         onDelegateSuccess={() => {
           fetchBalance();
           getValidators();
           setShouldFetch(true);
-          // getStats();
         }}
         onUndelegateSuccess={() => {
           fetchBalance();
           getValidators();
           setShouldFetch(true);
-          // getStats();
         }}
         onReDelegateSuccess={() => {
           fetchBalance();
@@ -346,6 +342,7 @@ const Delegation = ({ location }: { location: Location }) => {
             {status === 'connected' && !isOnWrongChain && (
               <Switch
                 className="switch"
+                disabled={isLoadingAccountData || isLoading}
                 name="Only show my validators"
                 checked={showMyValidators}
                 label="Only show my validators"
@@ -357,6 +354,7 @@ const Delegation = ({ location }: { location: Location }) => {
             )}
             <Switch
               className="switch"
+              disabled={isLoadingAccountData || isLoading}
               name="Show fully delegated nodes"
               checked={showFullyDelegatedValidators}
               label="Show fully delegated nodes"
@@ -418,7 +416,7 @@ const Delegation = ({ location }: { location: Location }) => {
             style={{ marginLeft: '20px', marginTop: '20px' }}
           />
         )}
-        {isLoadingAccountData ? (
+        {isLoadingAccountData || isLoading ? (
           <div
             style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2rem' }}
           >
