@@ -18,6 +18,7 @@ interface ModalsProps {
   reDelegateFromValidator?: Validator | null;
   undelegateFromValidator: Validator | null;
   delegatableValidators: Validator[];
+  ownDelegation?: boolean;
   onClaimSuccess: () => void;
   onDelegateSuccess: () => void;
   onReDelegateSuccess: () => void;
@@ -41,6 +42,7 @@ const Modals = ({
   reDelegateFromValidator,
   undelegateFromValidator,
   delegatableValidators,
+  ownDelegation,
   onClaimSuccess,
   onDelegateSuccess,
   onReDelegateSuccess,
@@ -65,6 +67,7 @@ const Modals = ({
             <Delegate
               balance={balance}
               validator={delegateToValidator}
+              ownDelegation={!!ownDelegation}
               onSuccess={() => onDelegateSuccess()}
               onFinish={() => onDelegateFinish()}
             />

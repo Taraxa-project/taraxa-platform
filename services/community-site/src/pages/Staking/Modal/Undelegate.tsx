@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
 import useDelegation from '../../../services/useDelegation';
@@ -22,9 +22,8 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
   const { asyncCallback } = useWalletPopup();
 
   const [delegations, setDelegations] = useState<Delegation[]>([]);
-  const [totalDelegation, setTotalDelegation] = useState(ethers.BigNumber.from('0'));
-  const [undelegationTotal, setUnDelegationTotal] = useState(ethers.BigNumber.from('0'));
-  const [maxUndelegation, setMaxUndelegation] = useState(ethers.BigNumber.from('0'));
+  const [totalDelegation, setTotalDelegation] = useState('0');
+  const [undelegationTotal, setUnDelegationTotal] = useState('0');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -40,32 +39,34 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
       (d: Delegation) => d.address.toLowerCase() === validator.address.toLowerCase(),
     );
     if (delegationIndex !== -1) {
-      setTotalDelegation(delegations[delegationIndex].stake);
-      setUnDelegationTotal(delegations[delegationIndex].stake);
+      setTotalDelegation(weiToEth(delegations[delegationIndex].stake));
+      setUnDelegationTotal(weiToEth(delegations[delegationIndex].stake));
     }
   }, [delegations]);
 
-  useEffect(() => {
-    if (maxUndelegation.eq(BigNumber.from('0'))) {
-      setMaxUndelegation(undelegationTotal);
-    }
-  }, [totalDelegation]);
+  const delegatePercent = (percentage: number): string => {
+    return parseFloat((+totalDelegation * (percentage / 100)).toFixed(2)).toString();
+  };
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
-    // const delegationNumber = parseInt(undelegationTotal, 10);
-    // if (delegationNumber > totalDelegation) {
-    //   setError('cannot exceed TARA available for delegation');
-    //   return;
-    // }
+    if (parseFloat(undelegationTotal) > parseFloat(totalDelegation)) {
+      setError('cannot exceed TARA available for delegation');
+      return;
+    }
+
     setError('');
+
+    const undelegateValue = ethers.BigNumber.from(parseFloat(undelegationTotal)).mul(
+      ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18)),
+    );
 
     asyncCallback(async () => {
       onFinish();
-      return await undelegate(validator.address, undelegationTotal);
+      return await undelegate(validator.address, undelegateValue);
     }, onSuccess);
   };
 
@@ -85,32 +86,24 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
       </div>
       <div className="taraInputWrapper">
         <p className="maxDelegatableDescription">Available to undelegate</p>
-        <p className="maxDelegatableTotal">{ethers.utils.commify(weiToEth(undelegationTotal))}</p>
+        <p className="maxDelegatableTotal">{totalDelegation}</p>
         <p className="maxDelegatableUnit">TARA</p>
         <InputField
           error={!!error}
           helperText={error}
           label="Enter amount..."
-          value={parseInt(weiToEth(undelegationTotal), 10)}
+          value={undelegationTotal}
           variant="outlined"
-          type="text"
+          type="number"
           fullWidth
           margin="normal"
           onChange={(event) => {
-            if (
-              ethers.BigNumber.from(event.target.value || 0)
-                .mul(ethers.BigNumber.from('10').pow(18))
-                .gt(maxUndelegation)
-            ) {
+            if (parseFloat(event.target.value) > parseFloat(totalDelegation)) {
               setError(`must be a number smaller than or equal to the total current delegation`);
             } else {
               setError('');
             }
-            setUnDelegationTotal(
-              ethers.BigNumber.from(event.target.value || 0).mul(
-                ethers.BigNumber.from('10').pow(18),
-              ),
-            );
+            setUnDelegationTotal(event.target.value);
           }}
         />
         <div className="delegatePercentWrapper">
@@ -120,7 +113,7 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
             label="25%"
             variant="contained"
             onClick={() => {
-              setUnDelegationTotal(totalDelegation.mul(25).div(100));
+              setUnDelegationTotal(delegatePercent(25));
             }}
           />
           <Button
@@ -129,7 +122,7 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
             label="50%"
             variant="contained"
             onClick={() => {
-              setUnDelegationTotal(totalDelegation.mul(50).div(100));
+              setUnDelegationTotal(delegatePercent(50));
             }}
           />
           <Button
@@ -138,7 +131,7 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
             label="75%"
             variant="contained"
             onClick={() => {
-              setUnDelegationTotal(totalDelegation.mul(75).div(100));
+              setUnDelegationTotal(delegatePercent(75));
             }}
           />
           <Button
