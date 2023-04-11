@@ -60,9 +60,7 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
 
     setError('');
 
-    const undelegateValue = ethers.BigNumber.from(parseFloat(undelegationTotal)).mul(
-      ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18)),
-    );
+    const undelegateValue = ethers.utils.parseUnits(undelegationTotal.replace(',', '.'), 18);
 
     asyncCallback(async () => {
       onFinish();
@@ -98,12 +96,15 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
           fullWidth
           margin="normal"
           onChange={(event) => {
-            if (parseFloat(event.target.value) > parseFloat(totalDelegation)) {
+            setUnDelegationTotal(event.target.value);
+          }}
+          onKeyUp={(event) => {
+            const inputValue = (event.target as HTMLInputElement).value;
+            if (parseFloat(inputValue) > parseFloat(totalDelegation)) {
               setError(`must be a number smaller than or equal to the total current delegation`);
             } else {
               setError('');
             }
-            setUnDelegationTotal(event.target.value);
           }}
         />
         <div className="delegatePercentWrapper">

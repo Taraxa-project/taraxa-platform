@@ -63,8 +63,9 @@ const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: De
       return;
     }
 
-    const delegateValue = ethers.BigNumber.from(delegationNumber).mul(
-      ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18)),
+    const delegateValue = ethers.utils.parseUnits(
+      delegationNumber.toString().replace(',', '.'),
+      18,
     );
 
     setError('');
@@ -117,20 +118,21 @@ const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: De
           fullWidth
           margin="normal"
           onChange={(event) => {
+            setDelegationTotal(event.target.value);
+          }}
+          onKeyUp={(event) => {
+            const inputValue = (event.target as HTMLInputElement).value;
             if (parseFloat(delegationTotal) > parseFloat(ethers.utils.formatEther(balance))) {
               setError('cannot exceed TARA available for delegation');
-            } else if (
-              parseFloat(event.target.value) === parseFloat(ethers.utils.formatEther(balance))
-            ) {
+            } else if (parseFloat(inputValue) === parseFloat(ethers.utils.formatEther(balance))) {
               setError(
                 'Cannot use entire TARA balance. The transaction also requires you pay the gas fee.',
               );
-            } else if (!ownDelegation && compareDelegationTo(event.target.value, '1000')) {
+            } else if (!ownDelegation && compareDelegationTo(inputValue, '1000')) {
               setError('must be a number greater than 1,000');
             } else {
               setError('');
             }
-            setDelegationTotal(event.target.value);
           }}
         />
         <div className="delegatePercentWrapper">
