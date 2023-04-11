@@ -66,6 +66,7 @@ export const usePBFTDataContainerEffects = (
   } = useIndexer(
     {
       queryName: `${'pbft-data'}-${blockNumber}`,
+      dependency: blockNumber.toString(),
     },
     useGetGenesisBlock,
     blockNumber !== 0
