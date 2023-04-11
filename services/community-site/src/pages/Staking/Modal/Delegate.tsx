@@ -63,7 +63,9 @@ const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: De
       return;
     }
 
-    const delegateValue = ethers.BigNumber.from((parseFloat(delegationTotal) * 10 ** 18).toFixed());
+    const delegateValue = ethers.BigNumber.from(delegationNumber).mul(
+      ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18)),
+    );
 
     setError('');
 
