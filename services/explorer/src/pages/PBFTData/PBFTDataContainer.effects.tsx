@@ -65,8 +65,7 @@ export const usePBFTDataContainerEffects = (
     handleChangeRowsPerPage,
   } = useIndexer(
     {
-      queryName: `${'pbft-data'}-${blockNumber}`,
-      dependency: blockNumber.toString(),
+      queryName: `genesis-pbft-block`,
     },
     useGetGenesisBlock,
     blockNumber !== 0
@@ -85,9 +84,7 @@ export const usePBFTDataContainerEffects = (
             ...tx,
             value: displayWeiOrTara(tx.value),
             gasUsed: `${tx.gasUsed}`,
-            gas: `${
-              parseInt(`${tx.gasUsed}`, 10) * parseInt(`${tx.gasPrice}`, 10)
-            } Wei`,
+            gas: tx.gas?.toString(),
             action: getTransactionType(tx),
           }))
           .slice(

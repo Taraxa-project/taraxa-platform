@@ -77,6 +77,7 @@ export interface AddressTxResponse {
   to: string;
   status: number;
   gasUsed: string;
+  gas: string;
   gasPrice: string;
   value: string;
   block: number;

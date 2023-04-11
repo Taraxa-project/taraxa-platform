@@ -46,6 +46,7 @@ query dag_details_query($hash: Bytes32) {
       }
       gasUsed
       gasPrice
+      gas
       inputData,
       createdContract {
         address
