@@ -60,8 +60,8 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
 
     setError('');
 
-    const undelegateValue = ethers.BigNumber.from(
-      (parseFloat(undelegationTotal) * 10 ** 18).toFixed(),
+    const undelegateValue = ethers.BigNumber.from(parseFloat(undelegationTotal)).mul(
+      ethers.BigNumber.from(10).pow(ethers.BigNumber.from(18)),
     );
 
     asyncCallback(async () => {
