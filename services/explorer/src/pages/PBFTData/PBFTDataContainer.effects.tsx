@@ -100,6 +100,9 @@ export const usePBFTDataContainerEffects = (
     if (blockNumber === 0 && genesisTransactions) {
       setTransactions(genesisTransactions);
       setTransactionsTotal(genesisTransactionsTotal);
+    } else {
+      setTransactions([]);
+      setTransactionsTotal(0);
     }
   }, [blockNumber, genesisTransactions, genesisTransactionsTotal]);
 
