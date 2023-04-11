@@ -18,7 +18,6 @@ import useMainnet from '../../services/useMainnet';
 import useChain from '../../services/useChain';
 import { useDelegationApi } from '../../services/useApi';
 import useValidators from '../../services/useValidators';
-import useDelegation from '../../services/useDelegation';
 
 import NodeIcon from '../../assets/icons/node';
 import InfoIcon from '../../assets/icons/info';
@@ -27,7 +26,6 @@ import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
 import { Validator } from '../../interfaces/Validator';
-import Delegation from '../../interfaces/Delegation';
 import OwnNode from '../../interfaces/OwnNode';
 
 import RunValidatorModal from './Modal';
@@ -44,16 +42,13 @@ import useExplorerStats from '../../services/useExplorerStats';
 
 const RunValidator = () => {
   const auth = useAuth();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { chainId, provider } = useChain();
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { getValidatorsWith, getValidatorsFor } = useValidators();
+  const { getValidatorsFor } = useValidators();
   const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
   const delegationApi = useDelegationApi();
-  const { getDelegations } = useDelegation();
 
   const isLoggedIn = !!auth.user?.id;
   const isOnWrongChain = chainId !== mainnetChainId;
@@ -72,7 +67,6 @@ const RunValidator = () => {
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
-  const [delegations, setDelegations] = useState<Delegation[] | null>(null);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
@@ -116,16 +110,8 @@ const RunValidator = () => {
     getTestnetNodes();
   }, []);
 
-  useEffect(() => {
-    if (status === 'connected' && account) {
-      (async () => {
-        setDelegations(await getDelegations(account));
-      })();
-    }
-  }, [status, account, shouldFetch]);
-
   const fetchValidators = () => {
-    if (status === 'connected' && account && delegations?.length === 0) {
+    if (status === 'connected' && account) {
       (async () => {
         const myValidators = await getValidatorsFor(account);
         const validatorsWithStats = await updateValidatorsStats(myValidators);
@@ -137,21 +123,7 @@ const RunValidator = () => {
 
   useEffect(() => {
     fetchValidators();
-  }, [status, account, shouldFetch, delegations]);
-
-  useEffect(() => {
-    if (status === 'connected' && account && delegations && delegations.length > 0) {
-      (async () => {
-        const mainnetValidators = await getValidatorsWith(delegations.map((d) => d.address));
-        const myValidators = mainnetValidators.filter(
-          (validator) => validator.owner.toLowerCase() === account.toLowerCase(),
-        );
-        const validatorsWithStats = await updateValidatorsStats(myValidators);
-        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
-        setMainnetValidators(updatedValidators);
-      })();
-    }
-  }, [status, account, delegations, shouldFetch]);
+  }, [status, account, shouldFetch]);
 
   const nodeTypeLabel = validatorType === 'mainnet' ? 'Mainnet' : 'Testnet';
 
