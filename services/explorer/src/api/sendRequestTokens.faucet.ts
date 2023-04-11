@@ -32,10 +32,24 @@ export async function sendRequestTokens(
         text: 'The Faucet ran into an unexpected error. Please come back later!',
       });
     } else if (response.status >= 400 && response.status < 500) {
+      const responseObj = JSON.parse(await response.text());
+      let text = '';
+      if (response.status === 400) {
+        text =
+          'Your request was invalid. Please consider retrying with valid inputs!';
+      }
+      if (response.status === 429) {
+        if (responseObj['message'] === 'Too many requests for address') {
+          text = `You requested TARA too many times for ${address}. Please come back later!`;
+        } else {
+          text = `You requested TARA too many times from your ip. Please come back later!`;
+        }
+      }
       cb({
         display: true,
         variant: 'error',
-        text: 'Your request was invalid. Please consider retrying with valid inputs!',
+        text:
+          text || 'Your request could not be queued. Please come back later!',
       });
     } else {
       cb({
