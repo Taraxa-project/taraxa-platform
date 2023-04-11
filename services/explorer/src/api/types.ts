@@ -83,6 +83,7 @@ export interface AddressTxResponse {
   block: number;
   age: number;
   timestamp?: number;
+  type?: 0 | 1 | 2;
 }
 
 export interface RankedNode extends ITaraxaNode {
