@@ -6,12 +6,13 @@ import {
   useNodeStateContext,
   useExplorerNetwork,
 } from '../../hooks';
-import { BlockData, ColumnData, PbftBlock } from '../../models';
+import { BlockData, ColumnData, PbftBlock, PbftTableRow } from '../../models';
 import { blocksQuery, PbftBlocksFilters } from '../../api';
+import { toBlockTableRow } from '../../utils';
 
 export const useBlockEffects = () => {
   const { finalBlock } = useNodeStateContext();
-  const [data, setData] = useState<BlockData[]>([]);
+  const [rows, setRows] = useState<{ data: PbftTableRow[] }[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = useState(0);
   const { currentNetwork } = useExplorerNetwork();
@@ -51,12 +52,15 @@ export const useBlockEffects = () => {
     setBlocksFilter({ from: finalBlock, to: finalBlock - (rowsPerPage - 1) });
   };
 
-  const formatBlocksToTable = (blocks: PbftBlock[]): BlockData[] => {
+  const formatBlocksToTable = (
+    blocks: PbftBlock[]
+  ): { data: PbftTableRow[] }[] => {
     if (!blocks?.length) {
       return [];
     }
-    const formattedBlocks: BlockData[] = blocks
-      ?.map((block: PbftBlock) => {
+    let formattedBlocks: BlockData[] = [];
+    formattedBlocks = blocks
+      .map((block: PbftBlock) => {
         return {
           timestamp: block.timestamp,
           block: block.number,
@@ -66,7 +70,7 @@ export const useBlockEffects = () => {
         };
       })
       .sort((a, b) => b.block - a.block);
-    return formattedBlocks;
+    return formattedBlocks.map((block) => toBlockTableRow(block));
   };
 
   useEffect(() => {
@@ -79,13 +83,13 @@ export const useBlockEffects = () => {
 
   useEffect(() => {
     if (blocksData?.blocks) {
-      setData(data.concat(formatBlocksToTable(blocksData?.blocks)));
+      setRows(rows.concat(formatBlocksToTable(blocksData.blocks)));
     }
   }, [blocksData]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
-      setData([]);
+      setRows([]);
     }
   }, [currentNetwork, network]);
 
@@ -96,7 +100,7 @@ export const useBlockEffects = () => {
   }, [finalBlock]);
 
   return {
-    data,
+    rows,
     columns,
     currentNetwork,
     rowsPerPage,

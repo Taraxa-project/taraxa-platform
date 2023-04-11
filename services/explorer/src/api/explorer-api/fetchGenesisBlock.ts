@@ -20,9 +20,7 @@ export const useGetGenesisBlock = async (
       status: tx.status ? 1 : 0,
       gasUsed: tx.gasUsed?.toString(),
       gasPrice: displayWeiOrTara(tx.gasPrice?.toString()),
-      gas: displayWeiOrTara(
-        parseInt(tx.gasUsed, 10) * parseInt(tx.gasPrice, 10)
-      ),
+      gas: tx.gas?.toString(),
       value: displayWeiOrTara(BigNumber.from(tx.value)),
     })),
   };

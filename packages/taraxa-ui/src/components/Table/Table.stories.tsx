@@ -162,3 +162,6 @@ const Template: Story<TableProps> = (args) => <Table {...args} />;
 
 export const Primary = Template.bind({});
 Primary.args = { columns, rows };
+
+export const Empty = Template.bind({});
+Empty.args = { columns, rows: [] };

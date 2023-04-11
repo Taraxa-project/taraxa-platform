@@ -1,19 +1,17 @@
 import React from 'react';
 import { Table } from '@taraxa_project/taraxa-ui';
-import { toTransactionTableRow } from '../../utils/TransactionRow';
 import { useTransactionEffects } from './Transactions.effects';
 import { PageTitle } from '../../components';
 
 const TransactionsPage = (): JSX.Element => {
-  const { data, columns, currentNetwork } = useTransactionEffects();
-  const rows = data ? [...data.map((row) => toTransactionTableRow(row))] : [];
+  const { rows, columns, currentNetwork } = useTransactionEffects();
 
   return (
     <>
       <PageTitle
         title='Transactions'
         subtitle={`Transactions list on the ${currentNetwork}: showing the last ${
-          data ? data.length : 0
+          rows ? rows.length : 0
         }
           records.`}
       />

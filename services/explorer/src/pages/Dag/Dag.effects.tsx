@@ -7,13 +7,14 @@ import {
   useExplorerNetwork,
   useNodeStateContext,
 } from '../../hooks';
-import { BlockData, ColumnData, DagBlock } from '../../models';
+import { BlockData, ColumnData, DagBlock, DagTableRow } from '../../models';
+import { toDagBlockTableRow } from '../../utils';
 
 export const useDagEffects = () => {
   const { dagBlockLevel } = useNodeStateContext();
   const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
-  const [data, setData] = useState<BlockData[]>([]);
+  const [rows, setRows] = useState<{ data: DagTableRow[] }[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [page, setPage] = useState(0);
   const { initLoading, finishLoading } = useExplorerLoader();
@@ -58,12 +59,14 @@ export const useDagEffects = () => {
     });
   };
 
-  const formatBlocksToTable = (blocks: DagBlock[]): BlockData[] => {
+  const formatBlocksToTable = (
+    blocks: DagBlock[]
+  ): { data: DagTableRow[] }[] => {
     if (!blocks?.length) {
       return [];
     }
     const formattedBlocks: BlockData[] = blocks
-      ?.map((block: DagBlock) => {
+      .map((block: DagBlock) => {
         return {
           timestamp: block.timestamp,
           level: block.level,
@@ -72,7 +75,7 @@ export const useDagEffects = () => {
         };
       })
       .sort((a, b) => b.level - a.level);
-    return formattedBlocks;
+    return formattedBlocks.map((block) => toDagBlockTableRow(block));
   };
 
   useEffect(() => {
@@ -95,19 +98,19 @@ export const useDagEffects = () => {
 
   useEffect(() => {
     if (dagBlocksData?.dagBlocks) {
-      setData(data.concat(formatBlocksToTable(dagBlocksData?.dagBlocks)));
+      setRows(rows.concat(formatBlocksToTable(dagBlocksData.dagBlocks)));
     }
   }, [dagBlocksData]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
-      setData([]);
+      setRows([]);
     }
   }, [currentNetwork, network]);
 
   return {
-    data,
     columns,
+    rows,
     rowsPerPage,
     page,
     handleChangePage,

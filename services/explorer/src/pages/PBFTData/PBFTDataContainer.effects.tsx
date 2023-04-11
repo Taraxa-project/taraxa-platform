@@ -63,7 +63,13 @@ export const usePBFTDataContainerEffects = (
     rowsPerPage: transactionsRowsPerPage,
     handleChangePage,
     handleChangeRowsPerPage,
-  } = useIndexer(useGetGenesisBlock, blockNumber !== 0);
+  } = useIndexer(
+    {
+      queryName: `genesis-pbft-block`,
+    },
+    useGetGenesisBlock,
+    blockNumber !== 0
+  );
 
   useEffect(() => {
     if (
@@ -77,10 +83,8 @@ export const usePBFTDataContainerEffects = (
           .map((tx: Transaction) => ({
             ...tx,
             value: displayWeiOrTara(tx.value),
-            gasUsed: displayWeiOrTara(tx.gasUsed),
-            gas: displayWeiOrTara(
-              parseInt(`${tx.gasUsed}`, 10) * parseInt(`${tx.gasPrice}`, 10)
-            ),
+            gasUsed: `${tx.gasUsed}`,
+            gas: tx.gas?.toString(),
             action: getTransactionType(tx),
           }))
           .slice(
@@ -96,6 +100,9 @@ export const usePBFTDataContainerEffects = (
     if (blockNumber === 0 && genesisTransactions) {
       setTransactions(genesisTransactions);
       setTransactionsTotal(genesisTransactionsTotal);
+    } else {
+      setTransactions([]);
+      setTransactionsTotal(0);
     }
   }, [blockNumber, genesisTransactions, genesisTransactionsTotal]);
 
