@@ -121,7 +121,17 @@ const Delegation = ({ location }: { location: Location }) => {
       (async () => {
         setLoadingAccountData(true);
         setDelegations(await getDelegations(account));
-        setUndelegations(await getUndelegations(account));
+        setLoadingAccountData(false);
+      })();
+    }
+  }, [status, account, chainId, shouldFetch]);
+
+  useEffect(() => {
+    if (status === 'connected' && account && provider) {
+      (async () => {
+        setLoadingAccountData(true);
+        const unDelegations = await getUndelegations(account);
+        setUndelegations(unDelegations);
         setLoadingAccountData(false);
       })();
     }

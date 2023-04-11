@@ -122,7 +122,7 @@ const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: De
           }}
           onKeyUp={(event) => {
             const inputValue = (event.target as HTMLInputElement).value;
-            if (parseFloat(delegationTotal) > parseFloat(ethers.utils.formatEther(balance))) {
+            if (parseFloat(inputValue) > parseFloat(ethers.utils.formatEther(balance))) {
               setError('cannot exceed TARA available for delegation');
             } else if (parseFloat(inputValue) === parseFloat(ethers.utils.formatEther(balance))) {
               setError(
