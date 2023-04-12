@@ -63,7 +63,7 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
             <li key="1">Maximum change cannot exceed ±5% per update.</li>
             <li key="2">
               You will need to wait {VALIDATOR_COMMISSION_CHANGE_FREQUENCY} PBFT blocks(~
-              {blocksToDays(VALIDATOR_COMMISSION_CHANGE_FREQUENCY, 0)} days) to change it again.
+              {blocksToDays(VALIDATOR_COMMISSION_CHANGE_FREQUENCY, 0)}) to change it again.
             </li>
             <li key="3">
               All of your delegators will be notified that you have changed the comission.

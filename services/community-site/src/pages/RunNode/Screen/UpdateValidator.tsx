@@ -175,7 +175,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                       } (~${blocksToDays(
                         VALIDATOR_COMMISSION_CHANGE_FREQUENCY,
                         0,
-                      )} days) to change it again!`
+                      )}) to change it again!`
                 }
                 type="string"
                 className="profileInput"

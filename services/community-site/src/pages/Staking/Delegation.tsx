@@ -322,7 +322,7 @@ const Delegation = ({ location }: { location: Location }) => {
                         undelegation.address
                       } has been registered and will be confirmed at block ${
                         undelegation.block
-                      } (~${blocksToDays(undelegation.block, currentBlock)} days). `
+                      } (~${blocksToDays(undelegation.block, currentBlock)}). `
                 }
                 text={
                   undelegation.block < currentBlock
