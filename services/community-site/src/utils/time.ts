@@ -17,4 +17,8 @@ export const formatTime = (seconds: number) => {
   );
 };
 
+export const blocksToDays = (targetBlock: number, currentBlock: number): string => {
+  return Number(((targetBlock - currentBlock) * 4) / (60 * 60 * 24)).toFixed(2);
+};
+
 export default formatTime;

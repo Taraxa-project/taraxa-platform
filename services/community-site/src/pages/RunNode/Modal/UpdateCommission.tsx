@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
+import { blocksToDays } from '../../../utils/time';
 import { useWalletPopup } from '../../../services/useWalletPopup';
 import useValidators from '../../../services/useValidators';
 
@@ -61,8 +62,8 @@ const UpdateCommission = ({ id, currentCommission, onSuccess }: UpdateCommission
           <ol style={{ textAlign: 'left' }}>
             <li key="1">Maximum change cannot exceed ±5% per update.</li>
             <li key="2">
-              You will need to wait {VALIDATOR_COMMISSION_CHANGE_FREQUENCY} PBFT blocks to change it
-              again.
+              You will need to wait {VALIDATOR_COMMISSION_CHANGE_FREQUENCY} PBFT blocks(~
+              {blocksToDays(VALIDATOR_COMMISSION_CHANGE_FREQUENCY, 0)} days) to change it again.
             </li>
             <li key="3">
               All of your delegators will be notified that you have changed the comission.
