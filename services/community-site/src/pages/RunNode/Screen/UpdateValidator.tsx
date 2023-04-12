@@ -180,6 +180,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                 margin="normal"
               />
               <Text
+                className="updateValidatorHelper"
                 label={
                   canChangeCommission
                     ? ''
