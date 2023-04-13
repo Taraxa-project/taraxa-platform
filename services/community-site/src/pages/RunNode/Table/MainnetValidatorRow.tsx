@@ -1,11 +1,12 @@
 import React from 'react';
-import { TableCell, TableRow } from '@mui/material';
+import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 // import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 
 import { formatValidatorName } from '../../../utils/string';
 import { stripEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
+import { getValidatorStatusTooltip } from '../../../utils/getValidatorStatusTooltip';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -37,9 +38,11 @@ const MainnetValidatorRow = ({
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">
-        <div className="status">
-          <div className={className} />
-        </div>
+        <Tooltip title={getValidatorStatusTooltip(status)}>
+          <div className="status">
+            <div className={className} />
+          </div>
+        </Tooltip>
       </TableCell>
       <TableCell className="tableCell nameCell">{formatValidatorName(address)}</TableCell>
       <TableCell className="tableCell yieldCell">20%</TableCell>

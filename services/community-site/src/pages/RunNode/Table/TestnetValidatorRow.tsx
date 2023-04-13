@@ -1,9 +1,10 @@
 import React from 'react';
-import { TableCell, TableRow } from '@mui/material';
+import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 
 import { formatValidatorName } from '../../../utils/string';
 import OwnNode from '../../../interfaces/OwnNode';
+import { getValidatorStatusTooltip } from '../../../utils/getValidatorStatusTooltip';
 
 const TestnetValidatorRow = ({
   validator,
@@ -51,9 +52,11 @@ const TestnetValidatorRow = ({
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">
-        <div className="status">
-          <div className={className} />
-        </div>
+        <Tooltip title={getValidatorStatusTooltip(status)}>
+          <div className="status">
+            <div className={className} />
+          </div>
+        </Tooltip>
       </TableCell>
       <TableCell className="tableCell nodeCell">
         {formatValidatorName(!name || name === '' ? address : name)}

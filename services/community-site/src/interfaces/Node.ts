@@ -16,5 +16,5 @@ export default interface Node {
   weeklyBlocksProduced: string | null;
   lastBlockCreatedAt: string | null;
   firstBlockCreatedAt: string | null;
-  status?: ValidatorStatus;
+  status: ValidatorStatus;
 }
