@@ -18,7 +18,15 @@ export const formatTime = (seconds: number) => {
 };
 
 export const blocksToDays = (targetBlock: number, currentBlock: number): string => {
-  return `${Number(((targetBlock - currentBlock) * 4) / (60 * 60 * 24)).toFixed(2)} days`;
+  const blockTime = (targetBlock - currentBlock) * 4;
+  let blockTimeInHours = blockTime / (60 * 60);
+  const blockTimeDays = Math.floor(blockTimeInHours / 24);
+  if (blockTimeDays > 0) {
+    blockTimeInHours %= 24;
+  }
+  return `${blockTimeDays && `${blockTimeDays.toFixed(0)} days`} ${blockTimeInHours.toFixed(
+    0,
+  )} hours`;
 };
 
 export default formatTime;
