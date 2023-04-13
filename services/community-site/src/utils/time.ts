@@ -17,8 +17,8 @@ export const formatTime = (seconds: number) => {
   );
 };
 
-export const blocksToDays = (targetBlock: number, currentBlock: number): string => {
-  const blockTime = (targetBlock - currentBlock) * 4;
+export const blocksToDays = (targetBlock: number): string => {
+  const blockTime = targetBlock * 4;
   let blockTimeInHours = blockTime / (60 * 60);
   const blockTimeDays = Math.floor(blockTimeInHours / 24);
   if (blockTimeDays > 0) {

@@ -174,7 +174,6 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                         VALIDATOR_COMMISSION_CHANGE_FREQUENCY
                       } (~${blocksToDays(
                         VALIDATOR_COMMISSION_CHANGE_FREQUENCY,
-                        0,
                       )}) to change it again!`
                 }
                 type="string"
