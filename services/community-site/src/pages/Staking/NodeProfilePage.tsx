@@ -225,7 +225,7 @@ const NodeProfilePage = () => {
             <div className="nodeInfoContent">{validator.commission}%</div>
             {validator.description && (
               <>
-                <div className="nodeInfoTitle">Nickname</div>
+                <div className="nodeInfoTitle">Address / Nickname</div>
                 <div className="nodeInfoContent">
                   <NickName address={validator.address} description={validator.description} />
                 </div>

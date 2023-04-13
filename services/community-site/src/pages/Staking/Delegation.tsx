@@ -440,7 +440,7 @@ const Delegation = ({ location }: { location: Location }) => {
                 <TableHead>
                   <TableRow className="tableHeadRow">
                     <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                    <TableCell className="tableHeadCell nameCell">Nickname</TableCell>
+                    <TableCell className="tableHeadCell nameCell">Address / Nickname</TableCell>
                     <TableCell className="tableHeadCell yieldCell">Yield Ratio</TableCell>
                     <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                     <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>

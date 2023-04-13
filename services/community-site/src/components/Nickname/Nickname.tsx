@@ -10,8 +10,8 @@ interface NickNameProps {
 const NickName = ({ address, description }: NickNameProps) => {
   return (
     <div className="nicknameContainer">
-      <div>{description}</div>
       <div className="address">{address}</div>
+      <div>{description}</div>
     </div>
   );
 };
