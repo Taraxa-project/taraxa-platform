@@ -2,7 +2,7 @@ import { ValidatorStatus } from './Validator';
 
 export default interface Node {
   id: number;
-  name: string;
+  description: string;
   isActive: boolean;
   address: string;
   currentCommission: number | null;

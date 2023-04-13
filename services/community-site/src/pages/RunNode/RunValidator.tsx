@@ -341,15 +341,15 @@ const RunValidator = () => {
               <TableHead>
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Expected Yield</TableCell>
+                  <TableCell className="tableHeadCell nameCell">Nickname</TableCell>
+                  <TableCell className="tableHeadCell yieldCell">Yield Ratio</TableCell>
                   <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                   <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
                   <TableCell className="tableHeadCell availableDelegation">
                     Available for Delegation
                   </TableCell>
                   <TableCell className="tableHeadCell rankingCell">Ranking</TableCell>
-                  <TableCell className="tableHeadCell rewardsCell">Comission Rewards</TableCell>
+                  <TableCell className="tableHeadCell rewardsCell">Commission Rewards</TableCell>
                   <TableCell className="tableHeadCell actionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>

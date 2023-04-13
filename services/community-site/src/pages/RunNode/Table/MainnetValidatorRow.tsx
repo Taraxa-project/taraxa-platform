@@ -2,11 +2,12 @@ import React from 'react';
 import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 // import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
+import { useHistory } from 'react-router-dom';
 
-import { formatValidatorName } from '../../../utils/string';
 import { stripEth } from '../../../utils/eth';
 import { Validator } from '../../../interfaces/Validator';
 import { getValidatorStatusTooltip } from '../../../utils/getValidatorStatusTooltip';
+import NickName from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -24,6 +25,7 @@ const MainnetValidatorRow = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
     status,
+    description,
     address,
     commission,
     delegation,
@@ -31,6 +33,7 @@ const MainnetValidatorRow = ({
     commissionReward,
     rank,
   } = validator;
+  const history = useHistory();
 
   let className = 'dot';
   className += ` ${status}`;
@@ -44,7 +47,11 @@ const MainnetValidatorRow = ({
           </div>
         </Tooltip>
       </TableCell>
-      <TableCell className="tableCell nameCell">{formatValidatorName(address)}</TableCell>
+      <TableCell className="tableCell nameCell">
+        <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
+          <NickName address={address} description={description} />
+        </div>
+      </TableCell>
       <TableCell className="tableCell yieldCell">20%</TableCell>
       <TableCell className="tableCell commissionCell">
         {/* {row.hasPendingCommissionChange ? (

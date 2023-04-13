@@ -7,12 +7,12 @@ import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
-import { formatValidatorName } from '../../../utils/string';
 import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
 import { Validator } from '../../../interfaces/Validator';
 import { getValidatorStatusTooltip } from '../../../utils/getValidatorStatusTooltip';
+import NickName from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -54,7 +54,7 @@ const ValidatorRow = ({
           className="flexCell nodeLink"
           onClick={() => history.push(`/staking/${validator.address}`)}
         >
-          <div>{formatValidatorName(validator.address)}</div>
+          <NickName address={validator.address} description={validator.description} />
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">20%</TableCell>
