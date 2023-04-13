@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
+contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGuard {
     using Address for address;
     uint256 MIN_REGISTRATION_DELEGATION = 1000000000000000000000;
     IDPOS private dpos;
@@ -49,8 +49,8 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable {
         uint16 _commission,
         string calldata _description,
         string calldata _endpoint
-    ) external payable override {
-        uint256 delegationValue = 2 * msg.value;
+    ) external payable override nonReentrant {
+        uint256 delegationValue = (2 * msg.value) / internalValidators.length;
         require(validatorRegistered[_validator] == false, "Validator already registered");
         require(msg.value >= MIN_REGISTRATION_DELEGATION, "Sent value less than minimal delegation for registration");
         require(

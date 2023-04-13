@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 import { DelegationOrchestrator, MockDpos } from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber } from "ethers";
 
 describe("DelegationOrchestrator", () => {
   let orchestrator: DelegationOrchestrator;
@@ -16,6 +17,9 @@ describe("DelegationOrchestrator", () => {
   let newValidatorOwner3: SignerWithAddress;
   let newValidator3: string;
   let newInternalValidator: string;
+  let ownValidatorBalancesAfterFirstExternalAddition = BigNumber.from("0");
+  let ownValidatorBalancesAfterSecondExternalAddition = BigNumber.from("0");
+  let ownValidatorBalancesAfterThirdExternalAddition = BigNumber.from("0");
   const MIN_DELEGATION = ethers.utils.parseEther("1000");
   const BASE_ORCHESTRATOR_BALANCE = MIN_DELEGATION.mul("30");
 
@@ -83,20 +87,20 @@ describe("DelegationOrchestrator", () => {
 
     // Check that the delegation was successful
     for (const validator of ownValidators) {
-      const expectedDelegations = value.mul(2).add(MIN_DELEGATION);
+      ownValidatorBalancesAfterFirstExternalAddition = value.mul(2).div(ownValidators.length).add(MIN_DELEGATION);
       const validatorData = await mockDPOS.getValidator(validator.address);
-      expect(validatorData.info.total_stake).to.equal(expectedDelegations);
+      expect(validatorData.info.total_stake).to.equal(ownValidatorBalancesAfterFirstExternalAddition);
     }
     // Check that the event was emitted
     await expect(tx)
       .to.emit(orchestrator, "ExternalValidatorRegistered")
       .withArgs(newValidator1, newValidatorOwner1, value)
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[0], value.mul(2))
+      .withArgs(ownValidators[0], value.mul(2).div(ownValidators.length))
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[1], value.mul(2))
+      .withArgs(ownValidators[1], value.mul(2).div(ownValidators.length))
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[2], value.mul(2))
+      .withArgs(ownValidators[2], value.mul(2).div(ownValidators.length))
       .to.emit(mockDPOS, "ValidatorRegistered")
       .withArgs(newValidator1);
   });
@@ -143,7 +147,6 @@ describe("DelegationOrchestrator", () => {
     const contractBalance = await ethers.provider.getBalance(orchestrator.address);
     const validator = ethers.Wallet.createRandom().address;
     const value = contractBalance;
-    console.log(contractBalance.add(value).gte(value.mul(ownValidators.length)));
 
     await expect(
       orchestrator
@@ -183,20 +186,22 @@ describe("DelegationOrchestrator", () => {
 
     // Check that the delegation was successful
     for (const validator of ownValidators) {
-      const expectedDelegations = value.mul(2).add(MIN_DELEGATION);
+      ownValidatorBalancesAfterSecondExternalAddition = ownValidatorBalancesAfterFirstExternalAddition.add(
+        value.mul(2).div(ownValidators.length)
+      );
       const validatorData = await mockDPOS.getValidator(validator.address);
-      expect(validatorData.info.total_stake).to.equal(expectedDelegations.add(value.mul(2)));
+      expect(validatorData.info.total_stake).to.equal(ownValidatorBalancesAfterSecondExternalAddition);
     }
     // Check that the event was emitted
     await expect(tx)
       .to.emit(orchestrator, "ExternalValidatorRegistered")
       .withArgs(newValidator2, newValidatorOwner2, value)
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[0], value.mul(2))
+      .withArgs(ownValidators[0], value.mul(2).div(ownValidators.length))
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[1], value.mul(2))
+      .withArgs(ownValidators[1], value.mul(2).div(ownValidators.length))
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[2], value.mul(2))
+      .withArgs(ownValidators[2], value.mul(2).div(ownValidators.length))
       .to.emit(mockDPOS, "ValidatorRegistered")
       .withArgs(newValidator2);
   });
@@ -254,22 +259,23 @@ describe("DelegationOrchestrator", () => {
 
     // Check that the delegation was successful
     for (const validator of ownValidators) {
-      const expectedDelegations = value.mul(4).add(MIN_DELEGATION);
+      const addedValues = value.mul(2).div(ownValidators.length + 1);
+      ownValidatorBalancesAfterThirdExternalAddition = ownValidatorBalancesAfterSecondExternalAddition.add(addedValues);
       const validatorData = await mockDPOS.getValidator(validator.address);
-      expect(validatorData.info.total_stake).to.equal(expectedDelegations.add(value.mul(2)));
+      expect(validatorData.info.total_stake).to.equal(ownValidatorBalancesAfterThirdExternalAddition);
     }
     // Check that the event was emitted
     await expect(tx)
       .to.emit(orchestrator, "ExternalValidatorRegistered")
       .withArgs(newValidator3, newValidatorOwner3, value)
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[0], value.mul(2))
+      .withArgs(ownValidators[0], value.mul(2).div(ownValidators.length))
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[1], value.mul(2))
+      .withArgs(ownValidators[1], value.mul(2).div(ownValidators.length))
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[2], value.mul(2))
+      .withArgs(ownValidators[2], value.mul(2).div(ownValidators.length))
       .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[3], value.mul(2))
+      .withArgs(ownValidators[3], value.mul(2).div(ownValidators.length))
       .to.emit(mockDPOS, "ValidatorRegistered")
       .withArgs(newValidator3);
   });
