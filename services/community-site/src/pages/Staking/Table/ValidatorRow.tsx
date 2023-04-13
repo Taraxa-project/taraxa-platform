@@ -43,7 +43,7 @@ const ValidatorRow = ({
     <TableRow className={clsx('tableRow')}>
       <TableCell className="tableCell statusCell">
         <div className="status">
-          <div className={clsx('dot', validator.isActive && 'active')} />
+          <div className={clsx('dot', validator.status)} />
         </div>
       </TableCell>
       <TableCell className="tableCell nameCell">

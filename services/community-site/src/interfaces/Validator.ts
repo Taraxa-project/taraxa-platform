@@ -15,6 +15,12 @@ export interface ContractValidator {
   info: ContractValidatorInfo;
 }
 
+export enum ValidatorStatus {
+  Grey = 'grey',
+  Yellow = 'yellow',
+  Green = 'green',
+}
+
 export interface Validator {
   address: string;
   owner: string;
@@ -27,5 +33,6 @@ export interface Validator {
   endpoint: string;
   isFullyDelegated: boolean;
   isActive: boolean;
+  status: ValidatorStatus;
   rank: number;
 }

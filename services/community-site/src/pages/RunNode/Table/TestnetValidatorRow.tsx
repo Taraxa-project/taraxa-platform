@@ -14,7 +14,7 @@ const TestnetValidatorRow = ({
   onEdit: (validator: OwnNode) => void;
   onDelete: (validator: OwnNode) => void;
 }) => {
-  const { isActive, address, name, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
+  const { status, address, name, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
 
   const actions = (
     <div className="validatorActions">
@@ -46,9 +46,8 @@ const TestnetValidatorRow = ({
   );
 
   let className = 'dot';
-  if (isActive) {
-    className += ' active';
-  }
+  className += ` ${status}`;
+
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">

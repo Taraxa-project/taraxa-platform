@@ -1,13 +1,15 @@
 import { useCallback, useMemo } from 'react';
 
-import { Validator } from '../interfaces/Validator';
+import { Validator, ValidatorStatus } from '../interfaces/Validator';
 import { networks } from '../utils/networks';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
+import useValidators from './useValidators';
 
 export default () => {
   const { get } = useApi();
   const { chainId } = useMainnet();
+  const { isValidatorEligible } = useValidators();
 
   const updateValidatorsStats = useCallback(
     async (validators: Validator[]) => {
@@ -32,9 +34,18 @@ export default () => {
           const lastBlockDate = new Date(lastBlockTimestamp * 1000);
           const diff = new Date().getTime() - lastBlockDate.getTime();
           const diffHours = diff / 1000 / 60 / 60;
+          const producedBlocksInLast24hours = diffHours < 24;
+          const isEligible = await isValidatorEligible(validator.address);
+          const validatorStatus = isEligible
+            ? producedBlocksInLast24hours
+              ? ValidatorStatus.Green
+              : ValidatorStatus.Yellow
+            : ValidatorStatus.Grey;
+
           return {
             ...validator,
-            isActive: diffHours < 24,
+            isActive: producedBlocksInLast24hours,
+            status: validatorStatus,
           };
         }),
       );

@@ -66,8 +66,16 @@ body {
   background-color: #6a7085;
   border-radius: 50%;
 
-  &.active {
+  &.green {
     background-color: #15ac5b;
+  }
+
+  &.yellow {
+    background-color: #ffdd00;
+  }
+
+  &.grey {
+    background-color: #6a7085;
   }
 }
 

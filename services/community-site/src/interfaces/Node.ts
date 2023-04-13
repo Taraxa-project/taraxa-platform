@@ -1,3 +1,5 @@
+import { ValidatorStatus } from './Validator';
+
 export default interface Node {
   id: number;
   name: string;
@@ -14,4 +16,5 @@ export default interface Node {
   weeklyBlocksProduced: string | null;
   lastBlockCreatedAt: string | null;
   firstBlockCreatedAt: string | null;
+  status?: ValidatorStatus;
 }

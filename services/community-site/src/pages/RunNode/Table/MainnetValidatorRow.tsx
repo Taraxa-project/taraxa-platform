@@ -22,7 +22,7 @@ const MainnetValidatorRow = ({
 }: ValidatorRowProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
-    isActive,
+    status,
     address,
     commission,
     delegation,
@@ -32,9 +32,8 @@ const MainnetValidatorRow = ({
   } = validator;
 
   let className = 'dot';
-  if (isActive) {
-    className += ' active';
-  }
+  className += ` ${status}`;
+
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">
