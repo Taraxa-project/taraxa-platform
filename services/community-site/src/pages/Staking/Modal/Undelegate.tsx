@@ -53,6 +53,16 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
   ) => {
     event.preventDefault();
 
+    if (
+      parseFloat(undelegationTotal) < parseFloat(totalDelegation) &&
+      parseFloat(undelegationTotal) > parseFloat(totalDelegation) - 1000
+    ) {
+      setError(
+        'you can either undelegate all of your TARA or as many as you want but keep the minimum delegation (1000 TARA)',
+      );
+      return;
+    }
+
     if (parseFloat(undelegationTotal) > parseFloat(totalDelegation)) {
       setError('cannot exceed TARA available for delegation');
       return;
@@ -100,7 +110,14 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
           }}
           onKeyUp={(event) => {
             const inputValue = (event.target as HTMLInputElement).value;
-            if (parseFloat(inputValue) > parseFloat(totalDelegation)) {
+            if (
+              parseFloat(inputValue) < parseFloat(totalDelegation) &&
+              parseFloat(inputValue) > parseFloat(totalDelegation) - 1000
+            ) {
+              setError(
+                'you can either undelegate all of your TARA or as many as you want but keep the minimum delegation (1000 TARA)',
+              );
+            } else if (parseFloat(inputValue) > parseFloat(totalDelegation)) {
               setError(`must be a number smaller than or equal to the total current delegation`);
             } else {
               setError('');

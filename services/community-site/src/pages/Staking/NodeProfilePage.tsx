@@ -19,7 +19,7 @@ import { stripEth, weiToEth } from '../../utils/eth';
 
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
-import NickName from '../../components/Nickname/Nickname';
+import Nickname from '../../components/Nickname/Nickname';
 
 // interface BarFlexProps {
 //   communityDelegated: number;
@@ -227,7 +227,7 @@ const NodeProfilePage = () => {
               <>
                 <div className="nodeInfoTitle">Address / Nickname</div>
                 <div className="nodeInfoContent">
-                  <NickName address={validator.address} description={validator.description} />
+                  <Nickname address={validator.address} description={validator.description} />
                 </div>
               </>
             )}

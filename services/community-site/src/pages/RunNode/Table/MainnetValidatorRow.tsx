@@ -5,9 +5,8 @@ import { Button } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
 
 import { stripEth } from '../../../utils/eth';
-import { Validator } from '../../../interfaces/Validator';
-import { getValidatorStatusTooltip } from '../../../utils/getValidatorStatusTooltip';
-import NickName from '../../../components/Nickname/Nickname';
+import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -49,7 +48,7 @@ const MainnetValidatorRow = ({
       </TableCell>
       <TableCell className="tableCell nameCell">
         <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
-          <NickName address={address} description={description} />
+          <Nickname address={address} description={description} />
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">20%</TableCell>

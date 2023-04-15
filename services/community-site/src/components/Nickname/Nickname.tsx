@@ -7,7 +7,7 @@ interface NickNameProps {
   description?: string;
 }
 
-const NickName = ({ address, description }: NickNameProps) => {
+const Nickname = ({ address, description }: NickNameProps) => {
   return (
     <div className="nicknameContainer">
       <div className="address">{address}</div>
@@ -15,4 +15,4 @@ const NickName = ({ address, description }: NickNameProps) => {
     </div>
   );
 };
-export default NickName;
+export default Nickname;

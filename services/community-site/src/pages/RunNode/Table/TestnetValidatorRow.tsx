@@ -1,11 +1,10 @@
 import React from 'react';
 import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
-import { useHistory } from 'react-router-dom';
 
 import OwnNode from '../../../interfaces/OwnNode';
-import { getValidatorStatusTooltip } from '../../../utils/getValidatorStatusTooltip';
-import NickName from '../../../components/Nickname/Nickname';
+import Nickname from '../../../components/Nickname/Nickname';
+import { getValidatorStatusTooltip } from '../../../interfaces/Validator';
 
 const TestnetValidatorRow = ({
   validator,
@@ -17,7 +16,6 @@ const TestnetValidatorRow = ({
   onDelete: (validator: OwnNode) => void;
 }) => {
   const { status, address, description, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
-  const history = useHistory();
 
   const actions = (
     <div className="validatorActions">
@@ -61,8 +59,8 @@ const TestnetValidatorRow = ({
         </Tooltip>
       </TableCell>
       <TableCell className="tableCell nameCell">
-        <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
-          <NickName address={address} description={description} />
+        <div className="flexCell nodeLink">
+          <Nickname address={address} description={description} />
         </div>
       </TableCell>
       <TableCell className="tableCell nodeCell">{y}%</TableCell>

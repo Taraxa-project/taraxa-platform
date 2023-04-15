@@ -10,9 +10,8 @@ import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange
 import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
-import { Validator } from '../../../interfaces/Validator';
-import { getValidatorStatusTooltip } from '../../../utils/getValidatorStatusTooltip';
-import NickName from '../../../components/Nickname/Nickname';
+import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -54,7 +53,7 @@ const ValidatorRow = ({
           className="flexCell nodeLink"
           onClick={() => history.push(`/staking/${validator.address}`)}
         >
-          <NickName address={validator.address} description={validator.description} />
+          <Nickname address={validator.address} description={validator.description} />
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">20%</TableCell>

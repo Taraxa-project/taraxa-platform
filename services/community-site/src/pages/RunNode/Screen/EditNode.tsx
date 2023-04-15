@@ -10,7 +10,7 @@ interface EditNodeProps {
 }
 
 const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
-  const [name, setName] = useState(node.name || '');
+  const [name, setName] = useState(node.description || '');
   const [nameError, setNameError] = useState('');
   const [ip, setIp] = useState(node.ip || '');
   const [ipError, setIpError] = useState('');

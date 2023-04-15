@@ -38,9 +38,9 @@ export default () => {
           const isEligible = await isValidatorEligible(validator.address);
           const validatorStatus = isEligible
             ? producedBlocksInLast24hours
-              ? ValidatorStatus.Green
-              : ValidatorStatus.Yellow
-            : ValidatorStatus.Grey;
+              ? ValidatorStatus.ELIGIBLE
+              : ValidatorStatus.ELIGIBLE_INACTIVE
+            : ValidatorStatus.NOT_ELIGIBLE;
 
           return {
             ...validator,

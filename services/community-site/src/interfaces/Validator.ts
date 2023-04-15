@@ -16,9 +16,9 @@ export interface ContractValidator {
 }
 
 export enum ValidatorStatus {
-  Grey = 'grey',
-  Yellow = 'yellow',
-  Green = 'green',
+  NOT_ELIGIBLE = 'not-eligible',
+  ELIGIBLE_INACTIVE = 'eligible-inactive',
+  ELIGIBLE = 'eligible',
 }
 
 export interface Validator {
@@ -36,3 +36,16 @@ export interface Validator {
   status: ValidatorStatus;
   rank: number;
 }
+
+export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
+  switch (status) {
+    case ValidatorStatus.ELIGIBLE:
+      return 'Eligible';
+    case ValidatorStatus.ELIGIBLE_INACTIVE:
+      return 'Eligible but hasn`t produced blocks in the last 24 hours';
+    case ValidatorStatus.NOT_ELIGIBLE:
+      return 'Not eligible';
+    default:
+      return 'Not eligible';
+  }
+};

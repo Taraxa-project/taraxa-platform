@@ -21,7 +21,7 @@ export default () => {
     availableForDelegation: maxDelegation.sub(contractValidator.info.total_stake),
     isFullyDelegated: contractValidator.info.total_stake.eq(maxDelegation),
     isActive: false,
-    status: ValidatorStatus.Grey,
+    status: ValidatorStatus.NOT_ELIGIBLE,
     description: contractValidator.info.description,
     endpoint: contractValidator.info.endpoint,
     rank: 0,

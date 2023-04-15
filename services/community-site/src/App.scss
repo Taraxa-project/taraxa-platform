@@ -67,15 +67,15 @@ body {
   border-radius: 50%;
   cursor: pointer;
 
-  &.green {
+  &.eligible {
     background-color: #15ac5b;
   }
 
-  &.yellow {
+  &.eligible-inactive {
     background-color: #ffdd00;
   }
 
-  &.grey {
+  &.not-eligible {
     background-color: #6a7085;
   }
 }
