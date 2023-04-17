@@ -11,11 +11,11 @@ jobs:
         uses: crytic/slither-action@v0.3.0
         id: slither
         with:
-          solc-version: 0.8.19
+          solc-version: 0.8.18
           node-version: 16
           sarif: results.sarif
           fail-on: none
-          target: 'packages/testnet-delegation/contracts/'
+          target: 'packages/testnet-delegation/contracts/DelegationOrchestrator.sol'
           slither-config: 'packages/testnet-delegation/slither.config.json'
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
