@@ -29,3 +29,12 @@ export interface Validator {
   isActive: boolean;
   rank: number;
 }
+
+export interface ValidatorWithStats extends Validator {
+  pbftsProduced: number;
+  yield: number;
+}
+
+export interface YieldedValidator extends ValidatorWithStats {
+  blocksPerStake: number;
+}

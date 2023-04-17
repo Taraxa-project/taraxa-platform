@@ -19,6 +19,7 @@ import {
   LoadingTable,
 } from '@taraxa_project/taraxa-ui';
 
+import calulcateValidatorYield from '../../utils/validators';
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import useExplorerStats from '../../services/useExplorerStats';
@@ -161,7 +162,8 @@ const Delegation = ({ location }: { location: Location }) => {
       }
       setValidators(v);
       const validatorsWithStats = await updateValidatorsStats(v);
-      setValidators(validatorsWithStats);
+      const validatorsWithYield = calulcateValidatorYield(validatorsWithStats);
+      setValidators(validatorsWithYield);
     })();
   }, [showMyValidators, ownValidators]);
 

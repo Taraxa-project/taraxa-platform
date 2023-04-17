@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
-import { Validator } from '../interfaces/Validator';
+import { Validator, ValidatorWithStats } from '../interfaces/Validator';
 import { networks } from '../utils/networks';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
@@ -10,7 +10,7 @@ export default () => {
   const { chainId } = useMainnet();
 
   const updateValidatorsStats = useCallback(
-    async (validators: Validator[]) => {
+    async (validators: Validator[]): Promise<Validator[] | ValidatorWithStats[]> => {
       if (validators.length === 0) {
         return validators;
       }
@@ -24,7 +24,6 @@ export default () => {
           if (!stats.success) {
             return validator;
           }
-
           const lastBlockTimestamp = stats.response.lastPbftTimestamp;
           if (!lastBlockTimestamp) {
             return validator;
@@ -34,8 +33,9 @@ export default () => {
           const diffHours = diff / 1000 / 60 / 60;
           return {
             ...validator,
+            pbftsProduced: stats.response.pbftCount,
             isActive: diffHours < 24,
-          };
+          } as ValidatorWithStats;
         }),
       );
 

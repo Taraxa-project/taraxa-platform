@@ -11,7 +11,7 @@ import { formatValidatorName } from '../../../utils/string';
 import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
-import { Validator } from '../../../interfaces/Validator';
+import { Validator, ValidatorWithStats } from '../../../interfaces/Validator';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -54,7 +54,9 @@ const ValidatorRow = ({
           <div>{formatValidatorName(validator.address)}</div>
         </div>
       </TableCell>
-      <TableCell className="tableCell yieldCell">20%</TableCell>
+      <TableCell className="tableCell yieldCell">
+        {(validator as ValidatorWithStats).yield?.toFixed(2) || 0}%
+      </TableCell>
       <TableCell className="tableCell commissionCell">
         {currentBlockNumber &&
         currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD ? (
