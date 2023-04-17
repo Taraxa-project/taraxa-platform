@@ -1,10 +1,8 @@
-// (c) 2022-2023, Taraxa, Inc. All rights reserved.
+// (c) 2023-2024, Taraxa, Inc. All rights reserved.
 // SPDX-License-Identifier: MIT
-
-pragma solidity 0.8.19;
+pragma solidity 0.8.18;
 
 interface MockIDPOS {
-
     event Delegated(address indexed delegator, address indexed validator, uint256 amount);
     event Undelegated(address indexed delegator, address indexed validator, uint256 amount);
     event UndelegateConfirmed(address indexed delegator, address indexed validator, uint256 amount);
@@ -77,7 +75,8 @@ interface MockIDPOS {
 
     // Delegates tokens to specified validator
     function delegate(address validator) external payable;
-     // Registers new validator - validator also must delegate to himself, he can later withdraw his delegation
+
+    // Registers new validator - validator also must delegate to himself, he can later withdraw his delegation
     function registerValidator(
         address validator,
         bytes memory proof,

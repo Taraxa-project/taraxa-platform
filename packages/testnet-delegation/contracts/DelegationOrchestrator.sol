@@ -1,6 +1,6 @@
-// (c) 2022-2023, Taraxa, Inc. All rights reserved.
+// (c) 2023-2024, Taraxa, Inc. All rights reserved.
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity 0.8.18;
 
 import "./interfaces/IDelegation.sol";
 import "./interfaces/IDPOS.sol"; // import the DPOS contract interface
@@ -11,8 +11,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGuard {
     using Address for address;
-    uint256 MIN_REGISTRATION_DELEGATION = 1000000000000000000000;
-    IDPOS private dpos;
+    uint256 constant MIN_REGISTRATION_DELEGATION = 1000000000000000000000;
+    IDPOS private immutable dpos;
 
     address[] internalValidators;
     mapping(address => bool) validatorRegistered;

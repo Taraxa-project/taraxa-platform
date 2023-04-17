@@ -1,5 +1,6 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.19;
+// (c) 2023-2024, Taraxa, Inc. All rights reserved.
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.18;
 
 interface IDelegation {
     struct Validator {
