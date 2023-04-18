@@ -47,7 +47,8 @@ const RunValidator = () => {
   const { chainId: mainnetChainId } = useMainnet();
 
   const { getValidatorsFor } = useValidators();
-  const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
+  const { updateValidatorsRank, updateValidatorsStats, updateTestnetValidatorsStats } =
+    useExplorerStats();
   const delegationApi = useDelegationApi();
 
   const isLoggedIn = !!auth.user?.id;
@@ -78,22 +79,25 @@ const RunValidator = () => {
     }
   };
 
-  const getTestnetNodes = () => {
-    delegationApi
-      .get(`/nodes?type=testnet`, true)
-      .then((r) => {
-        if (r.success) {
-          setTestnetValidators(r.response);
-        } else {
-          setTestnetValidators([]);
-        }
-      })
-      .catch(() => setTestnetValidators([]));
+  const getTestnetNodes = async () => {
+    try {
+      const r = await delegationApi.get(`/nodes?type=testnet`, true);
+      if (r.success) {
+        const testnetValidators: OwnNode[] = r.response;
+        const validatorsWithStats = await updateTestnetValidatorsStats(testnetValidators);
+        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
+        setTestnetValidators(updatedValidators as OwnNode[]);
+      } else {
+        setTestnetValidators([]);
+      }
+    } catch (err) {
+      setTestnetValidators([]);
+    }
   };
 
   const deleteTestnetNode = async (node: OwnNode) => {
     await delegationApi.del(`/nodes/${node.id}`, true);
-    getTestnetNodes();
+    await getTestnetNodes();
   };
 
   useEffect(() => {
@@ -107,7 +111,9 @@ const RunValidator = () => {
   }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
-    getTestnetNodes();
+    (async () => {
+      await getTestnetNodes();
+    })();
   }, []);
 
   const fetchValidators = () => {
@@ -116,7 +122,7 @@ const RunValidator = () => {
         const myValidators = await getValidatorsFor(account);
         const validatorsWithStats = await updateValidatorsStats(myValidators);
         const updatedValidators = await updateValidatorsRank(validatorsWithStats);
-        setMainnetValidators(updatedValidators);
+        setMainnetValidators(updatedValidators as Validator[]);
       })();
     }
   };
