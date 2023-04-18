@@ -175,3 +175,102 @@ body {
     height: 52px;
   }
 }
+
+.detailsForm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  .inputContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 3rem;
+    align-items: flex-start;
+    @media only screen and (max-width: 1270px) {
+      flex-direction: column;
+    }
+
+    .detailsFormLabel {
+      width: 150px;
+      margin-right: 15px;
+      text-align: left;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+    .detailsFormUpdateLabel {
+      margin-top: 15px;
+    }
+    .detailsFormHelper {
+      text-align: left;
+    }
+    .detailsFormInput {
+      background-color: unset !important;
+      flex: 1;
+      width: calc(100% - 150px);
+      margin: 0;
+      padding: 0 0 5px;
+      @media only screen and (max-width: 1270px) {
+        width: 100%;
+      }
+    }
+    
+    .detailsDisabledInput {
+      margin: 0;
+      padding: 0 0 5px;
+      width: calc(100% - 150px);
+      color: #878ca4;
+      border-bottom: 1px solid #878ca4 !important;
+      @media only screen and (max-width: 1270px) {
+        width: 100%;
+      };
+      input {
+        margin-bottom: 0% !important;
+        border: none !important;
+        background-color: #151823 !important;
+      }
+    }
+
+    .detailsFormUpdate {
+      display: flex;
+      flex-direction: column;
+      width: calc(100% - (150px + 200px));
+      margin-right: 10px;
+      @media only screen and (max-width: 1270px) {
+        width: 100%;
+        gap: 1rem;
+        margin: 0;
+      }
+
+      .detailsFormUpdateInput {
+        background-color: unset !important;
+        flex: 1;
+        width: 100%;
+      }
+    }
+
+    .detailsFormUpdateBtn {
+      width: 200px;
+      @media only screen and (max-width: 1270px) {
+        margin-top: 1rem;
+      }
+    }
+  }
+}
+
+#detailsFormButtonsContainer {
+  display: flex;
+  flex-direction: 'row';
+  gap: 14px;
+
+  margin: 24px 0 0;
+
+  button {
+    min-width: 200px;
+  }
+
+  #grayButton {
+    background-color: #31364b;
+    color: white;
+  }
+}

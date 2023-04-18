@@ -9,7 +9,6 @@ import CloseIcon from '../../../assets/icons/close';
 import UpdateCommission, { VALIDATOR_COMMISSION_CHANGE_FREQUENCY } from '../Modal/UpdateCommission';
 import useValidators from '../../../services/useValidators';
 import useChain from '../../../services/useChain';
-import './updatevalidator.scss';
 
 const MAX_ENDPOINT_LENGTH = 50;
 const MAX_DESCRIPTION_LENGTH = 100;
@@ -113,10 +112,10 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
         }
       />
       <form onSubmit={submit}>
-        <div className="updateValidatorForm">
+        <div className="detailsForm">
           <div className="inputContainer">
             <Text
-              className="updateValidatorLabel"
+              className="detailsFormLabel"
               label="Node nickname"
               variant="body2"
               color="primary"
@@ -125,7 +124,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
               error={!!descriptionError}
               helperText={descriptionError}
               type="string"
-              className="updateValidatorInput"
+              className="detailsFormInput"
               placeholder="Give your node a memorable nickname"
               label=""
               color="secondary"
@@ -139,7 +138,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
           </div>
           <div className="inputContainer">
             <Text
-              className="updateValidatorLabel"
+              className="detailsFormLabel"
               label="Link to your social"
               variant="body2"
               color="primary"
@@ -148,7 +147,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
               error={!!endpointError}
               helperText={endpointError}
               type="string"
-              className="updateValidatorInput"
+              className="detailsFormInput"
               placeholder="Where stakers can find out more about you"
               label=""
               color="secondary"
@@ -162,12 +161,12 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
           </div>
           <div className="inputContainer">
             <Text
-              className="updateValidatorCommissionLabel"
+              className="detailsFormLabel detailsFormUpdateLabel"
               label="Commission"
               variant="body2"
               color="primary"
             />
-            <div className="updateValidatorCommission">
+            <div className="detailsFormUpdate">
               <InputField
                 // error={!canChangeCommission}
                 error={!canChangeCommission}
@@ -184,7 +183,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                       )}) to change it again!`
                 }
                 type="string"
-                className="updateValidatorCommissionInput"
+                className="detailsFormUpdateInput"
                 placeholder="0%"
                 label=""
                 color="secondary"
@@ -194,7 +193,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                 margin="normal"
               />
               <Text
-                className="updateValidatorHelper"
+                className="detailsFormHelper"
                 label={
                   canChangeCommission
                     ? ''
@@ -209,7 +208,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
               />
             </div>
             <Button
-              className="updateValidatorCommissionBtn"
+              className="detailsFormUpdateBtn"
               variant="contained"
               color="secondary"
               size="small"
@@ -221,7 +220,7 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
             />
           </div>
         </div>
-        <div id="updateValidatorButtonsContainer">
+        <div id="detailsFormButtonsContainer">
           <Button
             type="submit"
             label="Save changes"

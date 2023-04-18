@@ -47,59 +47,62 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
 
   return (
     <div className="editNodeScreen">
-      <Title title={`Edit node ${node.address}`} />
+      <Title
+        title={
+          <p>
+            Edit node{' '}
+            <span style={{ wordBreak: 'break-all', fontSize: '25px' }}>{node.address}</span>
+          </p>
+        }
+      />
       <form onSubmit={submit}>
-        <div className="editProfileForm">
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Node name (optional)"
-                variant="body2"
-                color="primary"
-              />
-              <InputField
-                error={!!nameError}
-                helperText={nameError}
-                type="string"
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={name}
-                variant="standard"
-                onChange={(event: any) => {
-                  setName(event.target.value);
-                }}
-                margin="normal"
-              />
-            </div>
+        <div className="detailsForm">
+          <div className="inputContainer">
+            <Text
+              className="detailsFormLabel"
+              label="Node name (optional)"
+              variant="body2"
+              color="primary"
+            />
+            <InputField
+              error={!!nameError}
+              helperText={nameError}
+              type="string"
+              className="detailsFormInput"
+              label=""
+              color="secondary"
+              value={name}
+              variant="standard"
+              onChange={(event: any) => {
+                setName(event.target.value);
+              }}
+              margin="normal"
+            />
           </div>
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Node IP (optional)"
-                variant="body2"
-                color="primary"
-              />
-              <InputField
-                error={!!ipError}
-                helperText={ipError}
-                type="string"
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={ip}
-                variant="standard"
-                onChange={(event: any) => {
-                  setIp(event.target.value);
-                }}
-                margin="normal"
-              />
-            </div>
+          <div className="inputContainer">
+            <Text
+              className="detailsFormLabel"
+              label="Node IP (optional)"
+              variant="body2"
+              color="primary"
+            />
+            <InputField
+              error={!!ipError}
+              helperText={ipError}
+              type="string"
+              className="detailsFormInput"
+              label=""
+              color="secondary"
+              value={ip}
+              variant="standard"
+              onChange={(event: any) => {
+                setIp(event.target.value);
+              }}
+              margin="normal"
+            />
           </div>
         </div>
-        <div id="buttonsContainer">
+        <div id="detailsFormButtonsContainer">
           <Button
             type="submit"
             label="Save changes"
