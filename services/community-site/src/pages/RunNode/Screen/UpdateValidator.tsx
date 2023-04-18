@@ -200,10 +200,9 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                     ? ''
                     : `Your validator's last commission change was at PBFT block ${
                         validator.lastCommissionChange
-                      }. You need to wait until PBFT block ${
-                        Number(validator.lastCommissionChange) +
-                        VALIDATOR_COMMISSION_CHANGE_FREQUENCY
-                      } to be able to update your commission.`
+                      }. You need to wait until PBFT block ~${blocksToDays(
+                        VALIDATOR_COMMISSION_CHANGE_FREQUENCY,
+                      )} to be able to update your commission.`
                 }
                 variant="inherit"
                 color="primary"
