@@ -11,7 +11,7 @@ const Nickname = ({ address, description }: NickNameProps) => {
   return (
     <div className="nicknameContainer">
       <div className="address">{address}</div>
-      <div>{description}</div>
+      {description && <div>{description}</div>}
     </div>
   );
 };
