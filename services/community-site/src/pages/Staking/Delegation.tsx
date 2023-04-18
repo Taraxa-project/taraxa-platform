@@ -19,7 +19,7 @@ import {
   LoadingTable,
 } from '@taraxa_project/taraxa-ui';
 
-import calulcateValidatorYield from '../../utils/validators';
+import calculateValidatorYield from '../../utils/validators';
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import useExplorerStats from '../../services/useExplorerStats';
@@ -162,7 +162,7 @@ const Delegation = ({ location }: { location: Location }) => {
       }
       setValidators(v);
       const validatorsWithStats = await updateValidatorsStats(v);
-      const validatorsWithYield = calulcateValidatorYield(validatorsWithStats);
+      const validatorsWithYield = calculateValidatorYield(validatorsWithStats);
       setValidators(validatorsWithYield);
     })();
   }, [showMyValidators, ownValidators]);
@@ -447,7 +447,7 @@ const Delegation = ({ location }: { location: Location }) => {
                   <TableRow className="tableHeadRow">
                     <TableCell className="tableHeadCell statusCell">Status</TableCell>
                     <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                    <TableCell className="tableHeadCell yieldCell">Yield, %</TableCell>
+                    <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
                     <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                     <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
                     <TableCell className="tableHeadCell delegationCell">

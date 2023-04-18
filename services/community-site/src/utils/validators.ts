@@ -1,23 +1,21 @@
-import { Validator, ValidatorWithStats, YieldedValidator } from '../interfaces/Validator';
+import { ValidatorWithStats, YieldedValidator } from '../interfaces/Validator';
 
-const calulcateValidatorYield = (validators: Validator[]): ValidatorWithStats[] | Validator[] => {
-  const hasStats = (validators[0] as ValidatorWithStats)?.pbftsProduced !== 0;
-  if (!hasStats) {
+const calculateValidatorYield = (validators: ValidatorWithStats[]): ValidatorWithStats[] => {
+  if (!validators.length) {
     return validators;
   }
-  const validatorsWithStats = validators as ValidatorWithStats[];
-  const validatorsWithStake: YieldedValidator[] = validatorsWithStats.map((v) => {
+  const validatorsWithStake: YieldedValidator[] = validators.map((v) => {
     return {
       ...v,
-      blocksPerStake: v.pbftsProduced || 0 / Number.parseFloat(v.delegation.toString()),
+      blocksPerStake: v.pbftsProduced / Number.parseFloat(v.delegation.toString()),
     };
   });
   const minBlockRatio = validatorsWithStake.reduce((prev, curr) =>
-    prev.blocksPerStake! < curr.blocksPerStake! ? prev : curr,
+    prev.blocksPerStake < curr.blocksPerStake ? prev : curr,
   );
 
   const maxBlockRatio = validatorsWithStake.reduce((prev, curr) =>
-    prev.blocksPerStake! > curr.blocksPerStake! ? prev : curr,
+    prev.blocksPerStake > curr.blocksPerStake ? prev : curr,
   );
   return validatorsWithStake.map((validator) => {
     const yieldRatio =
@@ -31,4 +29,4 @@ const calulcateValidatorYield = (validators: Validator[]): ValidatorWithStats[] 
     } as ValidatorWithStats;
   });
 };
-export default calulcateValidatorYield;
+export default calculateValidatorYield;

@@ -39,6 +39,7 @@ const ValidatorRow = ({
   undelegateDisabled = false,
 }: ValidatorRowProps) => {
   const history = useHistory();
+  const validatorWithYield = validator as ValidatorWithStats;
   return (
     <TableRow className={clsx('tableRow')}>
       <TableCell className="tableCell statusCell">
@@ -55,7 +56,7 @@ const ValidatorRow = ({
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">
-        {(validator as ValidatorWithStats).yield?.toFixed(2) || 0}%
+        {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
       </TableCell>
       <TableCell className="tableCell commissionCell">
         {currentBlockNumber &&

@@ -10,9 +10,9 @@ export default () => {
   const { chainId } = useMainnet();
 
   const updateValidatorsStats = useCallback(
-    async (validators: Validator[]): Promise<Validator[] | ValidatorWithStats[]> => {
+    async (validators: Validator[]): Promise<ValidatorWithStats[]> => {
       if (validators.length === 0) {
-        return validators;
+        return [] as ValidatorWithStats[];
       }
 
       const newValidators = await Promise.all(
@@ -21,13 +21,14 @@ export default () => {
             `${networks[chainId].indexerUrl}/address/${validator.address.toLowerCase()}/stats`,
           );
 
-          if (!stats.success) {
-            return validator;
+          if (!stats.success || !stats.response.lastPbftTimestamp) {
+            return {
+              ...validator,
+              pbftsProduced: 0,
+              isActive: false,
+            } as ValidatorWithStats;
           }
           const lastBlockTimestamp = stats.response.lastPbftTimestamp;
-          if (!lastBlockTimestamp) {
-            return validator;
-          }
           const lastBlockDate = new Date(lastBlockTimestamp * 1000);
           const diff = new Date().getTime() - lastBlockDate.getTime();
           const diffHours = diff / 1000 / 60 / 60;
