@@ -19,9 +19,8 @@ const calculateValidatorYield = (validators: ValidatorWithStats[]): ValidatorWit
   );
   return validatorsWithStake.map((validator) => {
     const yieldRatio =
-      ((parseFloat(validator.blocksPerStake.toString()) - minBlockRatio.blocksPerStake) /
-        (parseFloat(maxBlockRatio.blocksPerStake.toString()) -
-          parseFloat(minBlockRatio.blocksPerStake.toString()))) *
+      ((validator.blocksPerStake - minBlockRatio.blocksPerStake) /
+        (maxBlockRatio.blocksPerStake - minBlockRatio.blocksPerStake)) *
       20;
     return {
       ...validator,
