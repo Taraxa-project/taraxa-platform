@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, Button, InputField, Modal, useInterval } from '@taraxa_project/taraxa-ui';
+import { blocksToDays } from '../../../utils/time';
 import { useWalletPopup } from '../../../services/useWalletPopup';
 import { Validator } from '../../../interfaces/Validator';
 // import useValidators from 'services/community-site/src/services/useValidators';
@@ -186,10 +187,9 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                     ? ''
                     : `Your validator's last commission change was at PBFT block ${
                         validator.lastCommissionChange
-                      }. You need to wait until PBFT block ${
-                        Number(validator.lastCommissionChange) +
-                        VALIDATOR_COMMISSION_CHANGE_FREQUENCY
-                      } to be able to update your commission.`
+                      }. You need to wait until PBFT block ~${blocksToDays(
+                        VALIDATOR_COMMISSION_CHANGE_FREQUENCY,
+                      )} to be able to update your commission.`
                 }
                 variant="inherit"
                 color="primary"

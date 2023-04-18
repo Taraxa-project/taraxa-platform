@@ -19,6 +19,7 @@ import {
   LoadingTable,
 } from '@taraxa_project/taraxa-ui';
 
+import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import useExplorerStats from '../../services/useExplorerStats';
 import { useLoading } from '../../services/useLoading';
@@ -203,7 +204,6 @@ const Delegation = ({ location }: { location: Location }) => {
   const fullyDelegatedValidators = filteredValidators.filter(
     ({ isFullyDelegated }) => isFullyDelegated,
   );
-
   return (
     <div className="runnode">
       <Modals
@@ -318,7 +318,11 @@ const Delegation = ({ location }: { location: Location }) => {
                 title={
                   undelegation.block < currentBlock
                     ? `Undelegation from ${undelegation.address} has been confirmed.`
-                    : `Undelegation Request from ${undelegation.address} has been registered and will be confirmed at block ${undelegation.block}.`
+                    : `Undelegation Request from ${
+                        undelegation.address
+                      } has been registered and will be confirmed at block ${
+                        undelegation.block
+                      } (~${blocksToDays(undelegation.block - currentBlock)}). `
                 }
                 text={
                   undelegation.block < currentBlock
