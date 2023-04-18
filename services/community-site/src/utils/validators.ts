@@ -1,10 +1,10 @@
-import { ValidatorWithStats, YieldedValidator } from '../interfaces/Validator';
+import { ValidatorWithStats } from '../interfaces/Validator';
 
 const calculateValidatorYield = (validators: ValidatorWithStats[]): ValidatorWithStats[] => {
   if (!validators.length) {
     return validators;
   }
-  const validatorsWithStake: YieldedValidator[] = validators.map((v) => {
+  const validatorsWithStake = validators.map((v) => {
     return {
       ...v,
       blocksPerStake: v.pbftsProduced / Number.parseFloat(v.delegation.toString()),
