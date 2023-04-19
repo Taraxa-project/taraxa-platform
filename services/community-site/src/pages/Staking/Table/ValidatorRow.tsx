@@ -122,15 +122,17 @@ const ValidatorRow = ({
               onClick={() => setUndelegateFromValidator(validator)}
             />
           )}
-          <Button
-            size="small"
-            color="secondary"
-            variant="contained"
-            label="Claim"
-            disabled={actionsDisabled || stakingRewards.lte(BigNumber.from('0'))}
-            className="smallBtn"
-            onClick={() => setClaimFromValidator(stakingRewards, validator)}
-          />
+          {ownDelegation && (
+            <Button
+              size="small"
+              color="secondary"
+              variant="contained"
+              label="Claim"
+              disabled={actionsDisabled || stakingRewards.lte(BigNumber.from('0'))}
+              className="smallBtn"
+              onClick={() => setClaimFromValidator(stakingRewards, validator)}
+            />
+          )}
         </div>
       </TableCell>
     </TableRow>
