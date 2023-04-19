@@ -29,6 +29,7 @@ import useCMetamask from './services/useCMetamask';
 import { WalletPopupProvider } from './services/useWalletPopup';
 
 import './App.scss';
+import { RedelegationProvider } from './services/useRedelegation';
 
 declare global {
   interface Window {
@@ -144,7 +145,9 @@ function App() {
               <ModalProvider>
                 <WalletPopupProvider>
                   <SidebarProvider>
-                    <Root />
+                    <RedelegationProvider>
+                      <Root />
+                    </RedelegationProvider>
                   </SidebarProvider>
                 </WalletPopupProvider>
               </ModalProvider>
