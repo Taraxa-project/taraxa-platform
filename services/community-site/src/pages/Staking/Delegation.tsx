@@ -19,9 +19,9 @@ import {
   LoadingTable,
 } from '@taraxa_project/taraxa-ui';
 
+import calculateValidatorYield from '../../utils/validators';
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
-import useExplorerStats from '../../services/useExplorerStats';
 import { useLoading } from '../../services/useLoading';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
@@ -42,6 +42,7 @@ import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfac
 import { stripEth, weiToEth } from '../../utils/eth';
 import Undelegation from '../../interfaces/Undelegation';
 import { useWalletPopup } from '../../services/useWalletPopup';
+import useExplorerStats from '../../services/useExplorerStats';
 
 const Delegation = ({ location }: { location: Location }) => {
   const { user } = useAuth();
@@ -161,7 +162,8 @@ const Delegation = ({ location }: { location: Location }) => {
       }
       setValidators(v);
       const validatorsWithStats = await updateValidatorsStats(v);
-      setValidators(validatorsWithStats);
+      const validatorsWithYield = calculateValidatorYield(validatorsWithStats);
+      setValidators(validatorsWithYield);
     })();
   }, [showMyValidators, ownValidators]);
 
@@ -445,7 +447,7 @@ const Delegation = ({ location }: { location: Location }) => {
                   <TableRow className="tableHeadRow">
                     <TableCell className="tableHeadCell statusCell">Status</TableCell>
                     <TableCell className="tableHeadCell nameCell">Address / Nickname</TableCell>
-                    <TableCell className="tableHeadCell yieldCell">Yield Ratio</TableCell>
+                    <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
                     <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                     <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
                     <TableCell className="tableHeadCell delegationCell">

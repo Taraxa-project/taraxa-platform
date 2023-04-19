@@ -12,6 +12,7 @@ import {
   Modal,
 } from '@taraxa_project/taraxa-ui';
 
+import calculateValidatorYield from '../../utils/validators';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
@@ -47,8 +48,12 @@ const RunValidator = () => {
   const { chainId: mainnetChainId } = useMainnet();
 
   const { getValidatorsFor } = useValidators();
-  const { updateValidatorsRank, updateValidatorsStats, updateTestnetValidatorsStats } =
-    useExplorerStats();
+  const {
+    updateValidatorsRank,
+    updateValidatorsStats,
+    updateTestnetValidatorsStats,
+    updateTestnetValidatorsRank,
+  } = useExplorerStats();
   const delegationApi = useDelegationApi();
 
   const isLoggedIn = !!auth.user?.id;
@@ -84,9 +89,9 @@ const RunValidator = () => {
       const r = await delegationApi.get(`/nodes?type=testnet`, true);
       if (r.success) {
         const testnetValidators: OwnNode[] = r.response;
-        const validatorsWithStats = await updateTestnetValidatorsStats(testnetValidators);
-        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
-        setTestnetValidators(updatedValidators as OwnNode[]);
+        const updatedValidators = await updateTestnetValidatorsRank(testnetValidators);
+        const validatorsWithStats = await updateTestnetValidatorsStats(updatedValidators);
+        setTestnetValidators(validatorsWithStats);
       } else {
         setTestnetValidators([]);
       }
@@ -120,9 +125,10 @@ const RunValidator = () => {
     if (status === 'connected' && account) {
       (async () => {
         const myValidators = await getValidatorsFor(account);
-        const validatorsWithStats = await updateValidatorsStats(myValidators);
-        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
-        setMainnetValidators(updatedValidators as Validator[]);
+        const updatedValidators = await updateValidatorsRank(myValidators);
+        const validatorsWithStats = await updateValidatorsStats(updatedValidators);
+        const validatorsWithYieldEfficiency = calculateValidatorYield(validatorsWithStats);
+        setMainnetValidators(validatorsWithYieldEfficiency);
       })();
     }
   };
@@ -348,7 +354,7 @@ const RunValidator = () => {
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell statusCell">Status</TableCell>
                   <TableCell className="tableHeadCell nameCell">Address / Nickname</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Yield Ratio</TableCell>
+                  <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
                   <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                   <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
                   <TableCell className="tableHeadCell availableDelegation">

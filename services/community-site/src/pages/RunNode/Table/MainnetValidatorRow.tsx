@@ -5,7 +5,11 @@ import { Button } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
 
 import { stripEth } from '../../../utils/eth';
-import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import {
+  Validator,
+  ValidatorWithStats,
+  getValidatorStatusTooltip,
+} from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
@@ -37,6 +41,7 @@ const MainnetValidatorRow = ({
   let className = 'dot';
   className += ` ${status}`;
 
+  const validatorWithYield = validator as ValidatorWithStats;
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">
@@ -51,7 +56,9 @@ const MainnetValidatorRow = ({
           <Nickname address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell yieldCell">20%</TableCell>
+      <TableCell className="tableCell yieldCell">
+        {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
+      </TableCell>
       <TableCell className="tableCell commissionCell">
         {/* {row.hasPendingCommissionChange ? (
           <>

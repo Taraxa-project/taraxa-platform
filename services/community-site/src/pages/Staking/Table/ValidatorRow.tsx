@@ -10,7 +10,11 @@ import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange
 import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
-import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import {
+  Validator,
+  getValidatorStatusTooltip,
+  ValidatorWithStats,
+} from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
@@ -39,6 +43,7 @@ const ValidatorRow = ({
   undelegateDisabled = false,
 }: ValidatorRowProps) => {
   const history = useHistory();
+  const validatorWithYield = validator as ValidatorWithStats;
   return (
     <TableRow className={clsx('tableRow')}>
       <TableCell className="tableCell statusCell">
@@ -56,7 +61,9 @@ const ValidatorRow = ({
           <Nickname address={validator.address} description={validator.description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell yieldCell">20%</TableCell>
+      <TableCell className="tableCell yieldCell">
+        {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
+      </TableCell>
       <TableCell className="tableCell commissionCell">
         {currentBlockNumber &&
         currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD ? (

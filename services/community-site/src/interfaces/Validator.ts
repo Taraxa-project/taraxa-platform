@@ -49,3 +49,7 @@ export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
       return 'Not eligible';
   }
 };
+export interface ValidatorWithStats extends Validator {
+  pbftsProduced: number;
+  yield: number;
+}
