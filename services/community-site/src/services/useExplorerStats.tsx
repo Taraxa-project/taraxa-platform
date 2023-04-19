@@ -12,9 +12,13 @@ export default () => {
   const { chainId } = useMainnet();
   const { isValidatorEligible } = useValidators();
 
-  const getStats = async (validator: Validator | OwnNode, type: 'mainnet' | 'testnet') => {
+  const getStats = async (
+    validator: Validator | OwnNode,
+    type: 'mainnet' | 'testnet',
+    chain: number,
+  ) => {
     const stats = await get(
-      `${networks[chainId].indexerUrl}/address/${validator.address.toLowerCase()}/stats`,
+      `${networks[chain].indexerUrl}/address/${validator.address.toLowerCase()}/stats`,
     );
 
     if (!stats.success) {
@@ -94,7 +98,7 @@ export default () => {
 
       let newValidators = await Promise.all(
         validators.map(async (validator) => {
-          return getStats(validator, 'mainnet');
+          return getStats(validator, 'mainnet', chainId);
         }),
       );
       const validatorStats = await fetchValidatorStatsForWeek();
@@ -120,7 +124,7 @@ export default () => {
 
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
-          return getStats(validator, 'testnet');
+          return getStats(validator, 'testnet', 842);
         }),
       );
 
@@ -166,7 +170,7 @@ export default () => {
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
           const ranking = await get(
-            `${networks[chainId].indexerUrl}/validators/${validator.address.toLowerCase()}`,
+            `${networks[842].indexerUrl}/validators/${validator.address.toLowerCase()}`,
           );
 
           if (!ranking.success) {
