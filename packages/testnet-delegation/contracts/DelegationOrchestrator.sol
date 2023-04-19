@@ -29,62 +29,64 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGua
 
     receive() external payable {}
 
-    constructor(address[] memory _internalValidators, address _dpos) payable {
-        internalValidators = _internalValidators;
-        dpos = IDPOS(_dpos);
-        for (uint256 i = 0; i < _internalValidators.length; ++i) {
-            internalValidatorRegistered[_internalValidators[i]] = i + 1;
+    constructor(address[] memory validators, address dposAddress) payable {
+        internalValidators = validators;
+        dpos = IDPOS(dposAddress);
+        for (uint256 i = 0; i < validators.length; ++i) {
+            internalValidatorRegistered[validators[i]] = i + 1;
         }
     }
 
     /**
      * returns the array of external validator addresses for the owner
-     * @param _owner owner address
+     * @param validatorOwner owner address
      */
-    function getExternalValidatorsByOwner(address _owner) external view override returns (address[] memory validators) {
-        return externalValidatorsByOwners[_owner];
+    function getExternalValidatorsByOwner(
+        address validatorOwner
+    ) external view override returns (address[] memory validators) {
+        return externalValidatorsByOwners[validatorOwner];
     }
 
     /**
      * returns the owner of an external validator
-     * @param _validator the address of the extarnal validator
+     * @param validator the address of the extarnal validator
      */
-    function getOwnerOfExternalValidator(address _validator) external view returns (address owner) {
-        return externalValidatorOwners[_validator];
+    function getOwnerOfExternalValidator(address validator) external view returns (address owner) {
+        return externalValidatorOwners[validator];
     }
 
     /**
      * Adds the internal validator to the contract storage.
      * Must be called after scaling internal validators to keep the testnet majority.
-     * @param _newValidator the address of the new internal validator
+     * @param newValidator the address of the new internal validator
      */
-    function addInternalValidator(address _newValidator) external onlyOwner {
-        require(internalValidatorRegistered[_newValidator] == 0, "Validator already registered");
-        internalValidators.push(_newValidator);
-        internalValidatorRegistered[_newValidator] = internalValidators.length;
-        emit InternalValidatorAdded(_newValidator);
+    function addInternalValidator(address newValidator) external onlyOwner {
+        require(internalValidatorRegistered[newValidator] == 0, "Validator already registered");
+        internalValidators.push(newValidator);
+        internalValidatorRegistered[newValidator] = internalValidators.length;
+        emit InternalValidatorAdded(newValidator);
     }
 
     /**
      * Registers the new external validator after ensuring that internal ones still have vote majority.
-     * @param _validator address
-     * @param _proof proof
-     * @param _vrf_key public vrf key
-     * @param _commission commission in hundreds
-     * @param _description validator description
-     * @param _endpoint validator endpoint
+     * @param validator address
+     * @param proof proof
+     * @param vrfKey public vrf key
+     * @param commission commission in hundreds
+     * @param description validator description
+     * @param endpoint validator endpoint
      */
     function registerExternalValidator(
-        address _validator,
-        bytes memory _proof,
-        bytes memory _vrf_key,
-        uint16 _commission,
-        string calldata _description,
-        string calldata _endpoint
+        address validator,
+        bytes memory proof,
+        bytes memory vrfKey,
+        uint16 commission,
+        string calldata description,
+        string calldata endpoint
     ) external payable override nonReentrant {
         uint256 delegationValue = (2 * msg.value) / internalValidators.length;
         require(
-            externalValidatorRegistered[_validator] == 0 && internalValidatorRegistered[_validator] == 0,
+            externalValidatorRegistered[validator] == 0 && internalValidatorRegistered[validator] == 0,
             "Validator already registered"
         );
         require(msg.value >= (MIN_REGISTRATION_DELEGATION), "Sent value less than minimal delegation for registration");
@@ -106,12 +108,12 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGua
                 }
             }
         }
-        externalValidatorsByOwners[msg.sender].push(_validator);
-        externalValidators.push(_validator);
-        externalValidatorRegistered[_validator] = externalValidators.length;
-        externalValidatorOwners[_validator] = msg.sender;
-        dpos.registerValidator{value: msg.value}(_validator, _proof, _vrf_key, _commission, _description, _endpoint);
-        emit ExternalValidatorRegistered(_validator, msg.sender, msg.value);
+        externalValidatorsByOwners[msg.sender].push(validator);
+        externalValidators.push(validator);
+        externalValidatorRegistered[validator] = externalValidators.length;
+        externalValidatorOwners[validator] = msg.sender;
+        dpos.registerValidator{value: msg.value}(validator, proof, vrfKey, commission, description, endpoint);
+        emit ExternalValidatorRegistered(validator, msg.sender, msg.value);
     }
 
     /**

@@ -7,16 +7,16 @@ interface IDelegation {
     event InternalValidatorDelegationIncreased(address indexed validatorAddress, uint256 delegatedValue);
     event ExternalValidatorRegistered(address indexed wallet, address indexed delegator, uint256 tokens);
 
-    function getExternalValidatorsByOwner(address _owner) external view returns (address[] memory validators);
+    function getExternalValidatorsByOwner(address owner) external view returns (address[] memory validators);
 
-    function getOwnerOfExternalValidator(address _validator) external view returns (address owner);
+    function getOwnerOfExternalValidator(address validator) external view returns (address owner);
 
-    function addInternalValidator(address _newValidator) external;
+    function addInternalValidator(address newValidator) external;
 
     function registerExternalValidator(
-        address _validator,
+        address validator,
         bytes memory proof,
-        bytes memory vrf_key,
+        bytes memory vrfKey,
         uint16 commission,
         string calldata description,
         string calldata endpoint
