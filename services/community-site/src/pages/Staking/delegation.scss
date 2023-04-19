@@ -282,11 +282,11 @@ a.commissionChangeCheck {
   }
 
   .statusCell {
-    width: 5%;
+    width: 10%;
   }
 
   .nameCell {
-    width: 10%;
+    width: 320px;
   }
 
   .yieldCell {
@@ -294,7 +294,7 @@ a.commissionChangeCheck {
   }
 
   .commissionCell {
-    width: 10%;
+    width: 12.5%;
 
     .commissionDisplayPendingChangeWrapper {
       position: relative;
@@ -316,7 +316,7 @@ a.commissionChangeCheck {
   }
 
   .delegationCell {
-    width: 15%;
+    width: 12.5%;
   }
 
   .stackingCell {
@@ -352,7 +352,7 @@ a.commissionChangeCheck {
     }
   }
 
-  @media only screen and (max-width: 1270px) {
+  @media only screen and (max-width: 1420px) {
     .delegationTableContainer {
       max-width: calc(100vw - 500px);
       min-width: calc(100vw - 500px);
@@ -363,8 +363,11 @@ a.commissionChangeCheck {
       table-layout: fixed;
     }
 
+    .nameCell {
+      min-width: 300px;
+    }
+
     .statusCell,
-    .nameCell,
     .yieldCell,
     .commissionCell,
     .delegationCell,

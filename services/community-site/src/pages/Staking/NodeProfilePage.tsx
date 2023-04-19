@@ -19,6 +19,7 @@ import { stripEth, weiToEth } from '../../utils/eth';
 
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
+import Nickname from '../../components/Nickname/Nickname';
 
 // interface BarFlexProps {
 //   communityDelegated: number;
@@ -202,7 +203,14 @@ const NodeProfilePage = () => {
         onClaimFinish={() => {}}
         onClaimClose={() => {}}
       />
-      <Title title={`Validator ${validator.address}`} />
+      <Title
+        title={
+          <p>
+            Validator{' '}
+            <span style={{ wordBreak: 'break-all', fontSize: '25px' }}>{validator.address}</span>
+          </p>
+        }
+      />
       <div className="nodeInfoWrapper">
         <div className="nodeInfoFlex">
           <div className="nodeInfoColumn">
@@ -217,8 +225,10 @@ const NodeProfilePage = () => {
             <div className="nodeInfoContent">{validator.commission}%</div>
             {validator.description && (
               <>
-                <div className="nodeInfoTitle">Description</div>
-                <div className="nodeInfoContent">{validator.description}</div>
+                <div className="nodeInfoTitle">Address / Nickname</div>
+                <div className="nodeInfoContent">
+                  <Nickname address={validator.address} description={validator.description} />
+                </div>
               </>
             )}
             {validator.endpoint && (

@@ -103,66 +103,72 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
           closeIcon={CloseIcon}
         />
       )}
-      <Title title={`Edit validator ${validator.address}`} />
+      <Title
+        title={
+          <p>
+            Edit validator{' '}
+            <span style={{ wordBreak: 'break-all', fontSize: '25px' }}>{validator.address}</span>
+          </p>
+        }
+      />
       <form onSubmit={submit}>
-        <div className="editProfileForm">
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Validator description"
-                variant="body2"
-                color="primary"
-              />
-              <InputField
-                error={!!descriptionError}
-                helperText={descriptionError}
-                type="string"
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={description}
-                variant="standard"
-                onChange={(event: any) => {
-                  setDescription(event.target.value);
-                }}
-                margin="normal"
-              />
-            </div>
+        <div className="detailsForm">
+          <div className="inputContainer">
+            <Text
+              className="detailsFormLabel"
+              label="Node nickname"
+              variant="body2"
+              color="primary"
+            />
+            <InputField
+              error={!!descriptionError}
+              helperText={descriptionError}
+              type="string"
+              className="detailsFormInput"
+              placeholder="Give your node a memorable nickname"
+              label=""
+              color="secondary"
+              value={description}
+              variant="standard"
+              onChange={(event: any) => {
+                setDescription(event.target.value);
+              }}
+              margin="normal"
+            />
           </div>
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Validator website"
-                variant="body2"
-                color="primary"
-              />
-              <InputField
-                error={!!endpointError}
-                helperText={endpointError}
-                type="string"
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={endpoint}
-                variant="standard"
-                onChange={(event: any) => {
-                  setEndpoint(event.target.value);
-                }}
-                margin="normal"
-              />
-            </div>
+          <div className="inputContainer">
+            <Text
+              className="detailsFormLabel"
+              label="Link to your social"
+              variant="body2"
+              color="primary"
+            />
+            <InputField
+              error={!!endpointError}
+              helperText={endpointError}
+              type="string"
+              className="detailsFormInput"
+              placeholder="Where stakers can find out more about you"
+              label=""
+              color="secondary"
+              value={endpoint}
+              variant="standard"
+              onChange={(event: any) => {
+                setEndpoint(event.target.value);
+              }}
+              margin="normal"
+            />
           </div>
-          <div className="formInputContainer">
-            <div>
-              <Text
-                className="profile-inputLabel"
-                label="Current Commission"
-                variant="body2"
-                color="primary"
-              />
+          <div className="inputContainer">
+            <Text
+              className="detailsFormLabel detailsFormUpdateLabel"
+              label="Commission"
+              variant="body2"
+              color="primary"
+            />
+            <div className="detailsFormUpdate">
               <InputField
+                // error={!canChangeCommission}
                 error={!canChangeCommission}
                 helperText={
                   canChangeCommission
@@ -177,7 +183,8 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                       )}) to change it again!`
                 }
                 type="string"
-                className="profileInput"
+                className="detailsFormUpdateInput"
+                placeholder="0%"
                 label=""
                 color="secondary"
                 value={`${validator.commission} %`}
@@ -185,21 +192,35 @@ const UpdateValidator = ({ closeEditValidator, validator }: UpdateValidatorProps
                 variant="standard"
                 margin="normal"
               />
-              <Button
-                className="commissionUpdateWithLeftMargin"
-                variant="contained"
-                color="secondary"
-                size="small"
-                label="Change Commission"
-                onClick={() => {
-                  setIsUpdatingCommission(true);
-                }}
-                disabled={!canChangeCommission}
+              <Text
+                className="detailsFormHelper"
+                label={
+                  canChangeCommission
+                    ? ''
+                    : `Your validator's last commission change was at PBFT block ${
+                        validator.lastCommissionChange
+                      }. You need to wait until PBFT block ~${blocksToDays(
+                        VALIDATOR_COMMISSION_CHANGE_FREQUENCY,
+                      )} to be able to update your commission.`
+                }
+                variant="inherit"
+                color="primary"
               />
             </div>
+            <Button
+              className="detailsFormUpdateBtn"
+              variant="contained"
+              color="secondary"
+              size="small"
+              label="Change Commission"
+              onClick={() => {
+                setIsUpdatingCommission(true);
+              }}
+              disabled={!canChangeCommission}
+            />
           </div>
         </div>
-        <div id="buttonsContainer">
+        <div id="detailsFormButtonsContainer">
           <Button
             type="submit"
             label="Save changes"

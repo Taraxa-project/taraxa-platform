@@ -131,73 +131,67 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
 
   return (
     <form onSubmit={submit}>
-      <div className="editProfileForm">
-        <div className="formInputContainer">
-          <div>
-            <Text className="profile-inputLabel" label="Nickname" variant="body2" color="primary" />
+      <div className="detailsForm">
+        <div className="inputContainer">
+          <Text className="detailsFormLabel" label="Nickname" variant="body2" color="primary" />
+          <InputField
+            type="string"
+            error={hasNicknameError}
+            helperText={nicknameErrorMessage}
+            className="detailsFormInput"
+            label=""
+            color="secondary"
+            value={nickname}
+            variant="standard"
+            onChange={(event: any) => {
+              setNickname(event.target.value);
+              setChangesMade(true);
+            }}
+            margin="normal"
+          />
+        </div>
+
+        <div className="inputContainer">
+          <Text
+            className="detailsFormLabel"
+            label="Ethereum Wallet Address"
+            variant="body2"
+            color="primary"
+          />
+          {auth.user && !auth.user.eth_wallet && (
             <InputField
               type="string"
-              error={hasNicknameError}
-              helperText={nicknameErrorMessage}
-              className="profileInput"
+              error={hasEthWalletError}
+              helperText={ethWalletErrorMessage}
+              className="detailsFormInput"
               label=""
               color="secondary"
-              value={nickname}
+              value={ethWallet}
               variant="standard"
               onChange={(event: any) => {
-                setNickname(event.target.value);
+                setEthWallet(event.target.value);
                 setChangesMade(true);
               }}
               margin="normal"
             />
-          </div>
+          )}
+          {auth.user && auth.user.eth_wallet && (
+            <div className="detailsDisabledInput">{auth.user.eth_wallet}</div>
+          )}
         </div>
 
-        <div className="formInputContainer">
-          <div>
-            <Text
-              className="profile-inputLabel"
-              label="Ethereum Wallet Address"
-              variant="body2"
-              color="primary"
-            />
-            {auth.user && !auth.user.eth_wallet && (
-              <InputField
-                type="string"
-                error={hasEthWalletError}
-                helperText={ethWalletErrorMessage}
-                className="profileInput"
-                label=""
-                color="secondary"
-                value={ethWallet}
-                variant="standard"
-                onChange={(event: any) => {
-                  setEthWallet(event.target.value);
-                  setChangesMade(true);
-                }}
-                margin="normal"
-              />
-            )}
-            {auth.user && auth.user.eth_wallet && (
-              <div className="profileDisabledInput">{auth.user.eth_wallet}</div>
-            )}
-          </div>
+        <div className="inputContainer">
+          <Text className="detailsFormLabel" label="Email" variant="body2" color="primary" />
+          <div className="detailsDisabledInput">{email}</div>
         </div>
 
-        <div className="formInputContainer">
-          <div>
-            <Text className="profile-inputLabel" label="Email" variant="body2" color="primary" />
-            <div className="profileDisabledInput">{email}</div>
-          </div>
-        </div>
-
-        <div className="formInputContainer formProfileEditContainer">
-          <div>
-            <Text className="profile-inputLabel" label="Password" variant="body2" color="primary" />
-            <div className="profileDisabledInput">************</div>
+        <div className="inputContainer">
+          <Text className="detailsFormLabel" label="Password" variant="body2" color="primary" />
+          <div className="detailsFormUpdate">
+            <div className="detailsFormUpdateInput detailsDisabledInput">************</div>
           </div>
           <Button
-            className="profileEditButton smallBtn"
+            className="detailsFormUpdateBtn"
             variant="contained"
             color="secondary"
             size="small"
@@ -209,63 +203,59 @@ const EditProfile = ({ closeEditProfile }: EditProfileProps) => {
         </div>
 
         {updatingPassword && (
-          <div className="verticalFormContainer">
-            <div className="formInputContainer">
-              <div>
-                <Text
-                  className="profile-inputLabel"
-                  label="New password"
-                  variant="body2"
-                  color="primary"
-                />
-                <InputField
-                  type="password"
-                  error={hasPasswordError}
-                  helperText={passwordErrorMessage}
-                  className="profileInput"
-                  label=""
-                  color="secondary"
-                  value={password}
-                  variant="standard"
-                  onChange={(event: any) => {
-                    setPassword(event.target.value);
-                    setChangesMade(true);
-                  }}
-                  margin="normal"
-                />
-              </div>
+          <>
+            <div className="inputContainer">
+              <Text
+                className="detailsFormLabel detailsFormUpdateLabel"
+                label="New password"
+                variant="body2"
+                color="primary"
+              />
+              <InputField
+                type="password"
+                error={hasPasswordError}
+                helperText={passwordErrorMessage}
+                className="detailsFormInput"
+                label=""
+                color="secondary"
+                value={password}
+                variant="standard"
+                onChange={(event: any) => {
+                  setPassword(event.target.value);
+                  setChangesMade(true);
+                }}
+                margin="normal"
+              />
             </div>
 
-            <div className="formInputContainer">
-              <div>
-                <Text
-                  className="profile-inputLabel"
-                  label="Confirm new password"
-                  variant="body2"
-                  color="primary"
-                />
-                <InputField
-                  type="password"
-                  error={hasPasswordConfirmationError}
-                  helperText={passwordConfirmationErrorMessage}
-                  className="profileInput"
-                  label=""
-                  color="secondary"
-                  value={passwordConfirmation}
-                  variant="standard"
-                  onChange={(event: any) => {
-                    setPasswordConfirmation(event.target.value);
-                    setChangesMade(true);
-                  }}
-                  margin="normal"
-                />
-              </div>
+            <div className="inputContainer">
+              <Text
+                className="detailsFormLabel"
+                label="Confirm new password"
+                variant="body2"
+                color="primary"
+              />
+              <InputField
+                type="password"
+                error={hasPasswordConfirmationError}
+                helperText={passwordConfirmationErrorMessage}
+                className="detailsFormInput"
+                label=""
+                color="secondary"
+                value={passwordConfirmation}
+                variant="standard"
+                onChange={(event: any) => {
+                  setPasswordConfirmation(event.target.value);
+                  setChangesMade(true);
+                }}
+                margin="normal"
+              />
             </div>
-          </div>
+          </>
         )}
         {hasGeneralError && <Text label={generalErrorMessage!} variant="body1" color="error" />}
       </div>
-      <div id="buttonsContainer">
+      <div id="detailsFormButtonsContainer">
         <Button
           type="submit"
           label="Save changes"

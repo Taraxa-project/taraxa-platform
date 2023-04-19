@@ -1,0 +1,9 @@
+.nicknameContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .address {
+        font-size: 12px;
+    }
+}

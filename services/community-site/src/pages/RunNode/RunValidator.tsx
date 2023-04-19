@@ -48,7 +48,12 @@ const RunValidator = () => {
   const { chainId: mainnetChainId } = useMainnet();
 
   const { getValidatorsFor } = useValidators();
-  const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
+  const {
+    updateValidatorsRank,
+    updateValidatorsStats,
+    updateTestnetValidatorsStats,
+    updateTestnetValidatorsRank,
+  } = useExplorerStats();
   const delegationApi = useDelegationApi();
 
   const isLoggedIn = !!auth.user?.id;
@@ -79,22 +84,25 @@ const RunValidator = () => {
     }
   };
 
-  const getTestnetNodes = () => {
-    delegationApi
-      .get(`/nodes?type=testnet`, true)
-      .then((r) => {
-        if (r.success) {
-          setTestnetValidators(r.response);
-        } else {
-          setTestnetValidators([]);
-        }
-      })
-      .catch(() => setTestnetValidators([]));
+  const getTestnetNodes = async () => {
+    try {
+      const r = await delegationApi.get(`/nodes?type=testnet`, true);
+      if (r.success) {
+        const testnetValidators: OwnNode[] = r.response;
+        const updatedValidators = await updateTestnetValidatorsRank(testnetValidators);
+        const validatorsWithStats = await updateTestnetValidatorsStats(updatedValidators);
+        setTestnetValidators(validatorsWithStats);
+      } else {
+        setTestnetValidators([]);
+      }
+    } catch (err) {
+      setTestnetValidators([]);
+    }
   };
 
   const deleteTestnetNode = async (node: OwnNode) => {
     await delegationApi.del(`/nodes/${node.id}`, true);
-    getTestnetNodes();
+    await getTestnetNodes();
   };
 
   useEffect(() => {
@@ -108,7 +116,9 @@ const RunValidator = () => {
   }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
-    getTestnetNodes();
+    (async () => {
+      await getTestnetNodes();
+    })();
   }, []);
 
   const fetchValidators = () => {
@@ -343,7 +353,7 @@ const RunValidator = () => {
               <TableHead>
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
+                  <TableCell className="tableHeadCell nameCell">Address / Nickname</TableCell>
                   <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
                   <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                   <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
@@ -351,7 +361,7 @@ const RunValidator = () => {
                     Available for Delegation
                   </TableCell>
                   <TableCell className="tableHeadCell rankingCell">Ranking</TableCell>
-                  <TableCell className="tableHeadCell rewardsCell">Comission Rewards</TableCell>
+                  <TableCell className="tableHeadCell rewardsCell">Commission Rewards</TableCell>
                   <TableCell className="tableHeadCell actionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>

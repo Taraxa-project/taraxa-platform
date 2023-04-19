@@ -6,7 +6,7 @@ import InfoIcon from '../../assets/icons/info';
 import './title.scss';
 
 interface TitleProps {
-  title: string;
+  title: string | JSX.Element;
   subtitle?: string | JSX.Element;
   tooltip?: string;
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;

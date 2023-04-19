@@ -1,11 +1,16 @@
 import React from 'react';
-import { TableCell, TableRow } from '@mui/material';
+import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 // import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
+import { useHistory } from 'react-router-dom';
 
-import { formatValidatorName } from '../../../utils/string';
 import { stripEth } from '../../../utils/eth';
-import { Validator, ValidatorWithStats } from '../../../interfaces/Validator';
+import {
+  Validator,
+  ValidatorWithStats,
+  getValidatorStatusTooltip,
+} from '../../../interfaces/Validator';
+import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -22,7 +27,8 @@ const MainnetValidatorRow = ({
 }: ValidatorRowProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
-    isActive,
+    status,
+    description,
     address,
     commission,
     delegation,
@@ -30,20 +36,26 @@ const MainnetValidatorRow = ({
     commissionReward,
     rank,
   } = validator;
+  const history = useHistory();
 
   let className = 'dot';
-  if (isActive) {
-    className += ' active';
-  }
+  className += ` ${status}`;
+
   const validatorWithYield = validator as ValidatorWithStats;
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">
-        <div className="status">
-          <div className={className} />
+        <Tooltip title={getValidatorStatusTooltip(status)}>
+          <div className="status">
+            <div className={className} />
+          </div>
+        </Tooltip>
+      </TableCell>
+      <TableCell className="tableCell nameCell">
+        <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
+          <Nickname address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell nameCell">{formatValidatorName(address)}</TableCell>
       <TableCell className="tableCell yieldCell">
         {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
       </TableCell>

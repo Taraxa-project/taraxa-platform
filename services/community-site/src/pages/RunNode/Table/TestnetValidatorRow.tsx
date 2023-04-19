@@ -1,9 +1,10 @@
 import React from 'react';
-import { TableCell, TableRow } from '@mui/material';
+import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 
-import { formatValidatorName } from '../../../utils/string';
 import OwnNode from '../../../interfaces/OwnNode';
+import Nickname from '../../../components/Nickname/Nickname';
+import { getValidatorStatusTooltip } from '../../../interfaces/Validator';
 
 const TestnetValidatorRow = ({
   validator,
@@ -14,7 +15,7 @@ const TestnetValidatorRow = ({
   onEdit: (validator: OwnNode) => void;
   onDelete: (validator: OwnNode) => void;
 }) => {
-  const { isActive, address, name, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
+  const { status, address, description, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
 
   const actions = (
     <div className="validatorActions">
@@ -46,18 +47,21 @@ const TestnetValidatorRow = ({
   );
 
   let className = 'dot';
-  if (isActive) {
-    className += ' active';
-  }
+  className += ` ${status}`;
+
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">
-        <div className="status">
-          <div className={className} />
-        </div>
+        <Tooltip title={getValidatorStatusTooltip(status)}>
+          <div className="status">
+            <div className={className} />
+          </div>
+        </Tooltip>
       </TableCell>
-      <TableCell className="tableCell nodeCell">
-        {formatValidatorName(!name || name === '' ? address : name)}
+      <TableCell className="tableCell nameCell">
+        <div className="flexCell nodeLink">
+          <Nickname address={address} description={description} />
+        </div>
       </TableCell>
       <TableCell className="tableCell nodeCell">{y}%</TableCell>
       <TableCell className="tableCell nodeCell">{weeklyBlocksProduced}</TableCell>

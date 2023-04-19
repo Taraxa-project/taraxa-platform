@@ -2,16 +2,20 @@ import React from 'react';
 import clsx from 'clsx';
 import { BigNumber, ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
-import { TableCell, TableRow } from '@mui/material';
+import { TableCell, TableRow, Tooltip } from '@mui/material';
 
 import { Button } from '@taraxa_project/taraxa-ui';
 
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
-import { formatValidatorName } from '../../../utils/string';
 import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
-import { Validator, ValidatorWithStats } from '../../../interfaces/Validator';
+import {
+  Validator,
+  getValidatorStatusTooltip,
+  ValidatorWithStats,
+} from '../../../interfaces/Validator';
+import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -43,16 +47,18 @@ const ValidatorRow = ({
   return (
     <TableRow className={clsx('tableRow')}>
       <TableCell className="tableCell statusCell">
-        <div className="status">
-          <div className={clsx('dot', validator.isActive && 'active')} />
-        </div>
+        <Tooltip title={getValidatorStatusTooltip(validator.status)}>
+          <div className="status">
+            <div className={clsx('dot', validator.status)} />
+          </div>
+        </Tooltip>
       </TableCell>
       <TableCell className="tableCell nameCell">
         <div
           className="flexCell nodeLink"
           onClick={() => history.push(`/staking/${validator.address}`)}
         >
-          <div>{formatValidatorName(validator.address)}</div>
+          <Nickname address={validator.address} description={validator.description} />
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">

@@ -38,6 +38,7 @@
   .nodesTableContainer {
     width: 100%;
     overflow-x: auto;
+    margin-bottom: 1rem;
   }
 
   .nodesTable {
@@ -74,15 +75,17 @@
   }
 
   .statusCell {
-    width: 5%;
+    width: 10%;
   }
 
-  .nameCell,
   .yieldCell,
-  .commissionCell,
   .rankingCell,
   .rewardsCell {
     width: 10%;
+  }
+
+  .nameCell {
+    width: 320px;
   }
 
   .nodeCell {
@@ -90,17 +93,18 @@
   }
 
   .nodeActionsCell {
-    width: 30%;
+    width: 15%;
   }
 
   .availableDelegation,
+  .commissionCell,
   .delegationCell {
     text-align: start;
-    width: 15%;
+    width: 12%;
   }
 
   .actionsCell {
-    width: 15%;
+    width: 25%;
   }
 
   .validatorActions {
@@ -121,7 +125,7 @@
     }
   }
 
-  @media only screen and (max-width: 1270px) {
+  @media only screen and (max-width: 1420px) {
     .nodesTableContainer {
       max-width: calc(100vw - 500px);
       min-width: calc(100vw - 500px);
@@ -132,8 +136,11 @@
       table-layout: fixed;
     }
 
+    .nameCell {
+      min-width: 300px;
+    }
+
     .statusCell,
-    .nameCell,
     .yieldCell,
     .commissionCell,
     .delegationCell,
