@@ -102,7 +102,7 @@ const ValidatorRow = ({
             size="small"
             color="secondary"
             variant="contained"
-            label="Delegate"
+            label={ownDelegation ? 'Delegate More' : 'Delegate'}
             disabled={
               actionsDisabled ||
               validator.isFullyDelegated ||
@@ -111,15 +111,17 @@ const ValidatorRow = ({
             className="smallBtn"
             onClick={() => setDelegateToValidator(validator)}
           />
-          <Button
-            size="small"
-            color="error"
-            label="Un-delegate"
-            variant="contained"
-            disabled={actionsDisabled || !ownDelegation || undelegateDisabled}
-            className="smallBtn"
-            onClick={() => setUndelegateFromValidator(validator)}
-          />
+          {ownDelegation && (
+            <Button
+              size="small"
+              color="error"
+              label="Un-delegate"
+              variant="contained"
+              disabled={actionsDisabled || undelegateDisabled}
+              className="smallBtn"
+              onClick={() => setUndelegateFromValidator(validator)}
+            />
+          )}
           <Button
             size="small"
             color="secondary"

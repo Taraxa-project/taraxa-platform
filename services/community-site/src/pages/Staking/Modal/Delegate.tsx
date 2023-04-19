@@ -41,7 +41,7 @@ const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: De
     event.preventDefault();
 
     const delegationNumber = parseFloat(delegationTotal);
-    if (Number.isNaN(delegationNumber) || delegationNumber < 1000) {
+    if (!ownDelegation && (Number.isNaN(delegationNumber) || delegationNumber < 1000)) {
       setError('must be a number greater than 1,000');
       return;
     }
