@@ -46,7 +46,7 @@ const useProvideRedelegation = () => {
       setShowNotice(false);
       setShowPopup(false);
     }
-  }, [validatorFrom, validatorTo]);
+  }, [isRedelegating, validatorFrom, validatorTo]);
 
   return {
     isRedelegating,
