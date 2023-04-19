@@ -12,6 +12,7 @@ import {
   Modal,
 } from '@taraxa_project/taraxa-ui';
 
+import calculateValidatorYield from '../../utils/validators';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
@@ -114,9 +115,10 @@ const RunValidator = () => {
     if (status === 'connected' && account) {
       (async () => {
         const myValidators = await getValidatorsFor(account);
-        const validatorsWithStats = await updateValidatorsStats(myValidators);
-        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
-        setMainnetValidators(updatedValidators);
+        const updatedValidators = await updateValidatorsRank(myValidators);
+        const validatorsWithStats = await updateValidatorsStats(updatedValidators);
+        const validatorsWithYieldEfficiency = calculateValidatorYield(validatorsWithStats);
+        setMainnetValidators(validatorsWithYieldEfficiency);
       })();
     }
   };
@@ -342,7 +344,7 @@ const RunValidator = () => {
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell statusCell">Status</TableCell>
                   <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Expected Yield</TableCell>
+                  <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
                   <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
                   <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
                   <TableCell className="tableHeadCell availableDelegation">

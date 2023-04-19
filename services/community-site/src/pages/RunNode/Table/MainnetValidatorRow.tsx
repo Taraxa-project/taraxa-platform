@@ -5,7 +5,7 @@ import { Button } from '@taraxa_project/taraxa-ui';
 
 import { formatValidatorName } from '../../../utils/string';
 import { stripEth } from '../../../utils/eth';
-import { Validator } from '../../../interfaces/Validator';
+import { Validator, ValidatorWithStats } from '../../../interfaces/Validator';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -35,6 +35,7 @@ const MainnetValidatorRow = ({
   if (isActive) {
     className += ' active';
   }
+  const validatorWithYield = validator as ValidatorWithStats;
   return (
     <TableRow className="tableRow" key={address}>
       <TableCell className="tableCell statusCell">
@@ -43,7 +44,9 @@ const MainnetValidatorRow = ({
         </div>
       </TableCell>
       <TableCell className="tableCell nameCell">{formatValidatorName(address)}</TableCell>
-      <TableCell className="tableCell yieldCell">20%</TableCell>
+      <TableCell className="tableCell yieldCell">
+        {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
+      </TableCell>
       <TableCell className="tableCell commissionCell">
         {/* {row.hasPendingCommissionChange ? (
           <>
