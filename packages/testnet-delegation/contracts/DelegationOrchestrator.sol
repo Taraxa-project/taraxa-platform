@@ -14,11 +14,17 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGua
     uint256 constant MIN_REGISTRATION_DELEGATION = 1000 ether;
     IDPOS private immutable dpos;
 
+    // @note contains the internal validator addresses
     address[] internalValidators;
+    // @note contains the external validator addresses
     address[] externalValidators;
+    // @note backwards mapping to register ownage
     mapping(address => address) externalValidatorOwners;
+    // @note registrar of validators per owner
     mapping(address => address[]) externalValidatorsByOwners;
+    // @note registrar of indexes+1 of validators in the internalValidators
     mapping(address => uint256) internalValidatorRegistered;
+    // @note registrar of indexes+1 of validators in the externalValidators
     mapping(address => uint256) externalValidatorRegistered;
 
     receive() external payable {}
@@ -31,14 +37,27 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGua
         }
     }
 
+    /**
+     * returns the array of external validator addresses for the owner
+     * @param _owner owner address
+     */
     function getExternalValidatorsByOwner(address _owner) external view override returns (address[] memory validators) {
         return externalValidatorsByOwners[_owner];
     }
 
+    /**
+     * returns the owner of an external validator
+     * @param _validator the address of the extarnal validator
+     */
     function getOwnerOfExternalValidator(address _validator) external view returns (address owner) {
         return externalValidatorOwners[_validator];
     }
 
+    /**
+     * Adds the internal validator to the contract storage.
+     * Must be called after scaling internal validators to keep the testnet majority.
+     * @param _newValidator the address of the new internal validator
+     */
     function addInternalValidator(address _newValidator) external onlyOwner {
         require(internalValidatorRegistered[_newValidator] == 0, "Validator already registered");
         internalValidators.push(_newValidator);
@@ -46,6 +65,15 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGua
         emit InternalValidatorAdded(_newValidator);
     }
 
+    /**
+     * Registers the new external validator after ensuring that internal ones still have vote majority.
+     * @param _validator address
+     * @param _proof proof
+     * @param _vrf_key public vrf key
+     * @param _commission commission in hundreds
+     * @param _description validator description
+     * @param _endpoint validator endpoint
+     */
     function registerExternalValidator(
         address _validator,
         bytes memory _proof,
@@ -86,6 +114,9 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGua
         emit ExternalValidatorRegistered(_validator, msg.sender, msg.value);
     }
 
+    /**
+     * Internal method that sums the internal and external stakes in the same loop.
+     */
     function _calculateStakes() internal view returns (uint256, uint256) {
         bool hasMore = true;
         uint256 internalStake = 0;
