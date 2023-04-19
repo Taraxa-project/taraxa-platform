@@ -31,8 +31,8 @@ contract MockDpos is MockIDPOS {
         return validators[validator].account != address(0);
     }
 
-    function getValidator(address validator) external view returns (MockIDPOS.ValidatorData memory) {
-        return validators[validator];
+    function getValidator(address validator) external view returns (MockIDPOS.ValidatorBasicInfo memory) {
+        return validators[validator].info;
     }
 
     function delegate(address validator) external payable override {

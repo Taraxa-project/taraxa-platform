@@ -17,11 +17,11 @@ describe("DelegationOrchestrator", () => {
   let newValidatorOwner3: SignerWithAddress;
   let newValidator3: string;
   let newInternalValidator: string;
-  let ownValidatorBalancesAfterFirstExternalAddition = BigNumber.from("0");
-  let ownValidatorBalancesAfterSecondExternalAddition = BigNumber.from("0");
-  let ownValidatorBalancesAfterThirdExternalAddition = BigNumber.from("0");
   const MIN_DELEGATION = ethers.utils.parseEther("1000");
   const BASE_ORCHESTRATOR_BALANCE = MIN_DELEGATION.mul("30");
+  const ownValidatorBalancesAfterFirstExternalAddition = MIN_DELEGATION;
+  let ownValidatorBalancesAfterSecondExternalAddition = BigNumber.from("0");
+  let ownValidatorBalancesAfterThirdExternalAddition = BigNumber.from("0");
 
   const commission = 10;
   const description = "Test validator";
@@ -60,12 +60,13 @@ describe("DelegationOrchestrator", () => {
 
   it("MockDPOS - getValidator: Checks initial validator balances in mock DPOS", async () => {
     for (const validator of ownValidators) {
-      const validatorData = await mockDPOS.getValidator(validator.address);
-      expect(validatorData.info.total_stake).to.be.equal(MIN_DELEGATION);
+      const validatorInfo = await mockDPOS.getValidator(validator.address);
+      expect(validatorInfo.total_stake).to.be.equal(MIN_DELEGATION);
     }
   });
-  it("Orchestrator - registerExternalValidator: should register the first new validator", async () => {
+  it("Orchestrator - registerExternalValidator: should register the first new validator, not delegate to internals", async () => {
     newValidator1 = ethers.Wallet.createRandom().address;
+    console.log("Validator1 address: ", newValidator1);
     const value = MIN_DELEGATION;
 
     const tx = await orchestrator
@@ -77,30 +78,25 @@ describe("DelegationOrchestrator", () => {
         commission,
         description,
         endpoint,
-        { value }
+        { from: newValidatorOwner1.address, value }
       );
 
     // Check that the validator was registered
     const firstNewValidator = await mockDPOS.getValidator(newValidator1);
-    expect(firstNewValidator.account).to.equal(newValidator1);
-    expect(firstNewValidator.info.total_stake).to.equal(MIN_DELEGATION);
+    expect(firstNewValidator.owner).to.equal(orchestrator.address);
+    expect(firstNewValidator.total_stake).to.equal(MIN_DELEGATION);
 
+    const owner3 = await orchestrator.getOwnerOfExternalValidator(newValidator1);
+    expect(owner3).to.equal(newValidatorOwner1.address);
     // Check that the delegation was successful
     for (const validator of ownValidators) {
-      ownValidatorBalancesAfterFirstExternalAddition = value.mul(2).div(ownValidators.length).add(MIN_DELEGATION);
       const validatorData = await mockDPOS.getValidator(validator.address);
-      expect(validatorData.info.total_stake).to.equal(ownValidatorBalancesAfterFirstExternalAddition);
+      expect(validatorData.total_stake).to.equal(MIN_DELEGATION);
     }
     // Check that the event was emitted
     await expect(tx)
       .to.emit(orchestrator, "ExternalValidatorRegistered")
       .withArgs(newValidator1, newValidatorOwner1, value)
-      .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[0], value.mul(2).div(ownValidators.length))
-      .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[1], value.mul(2).div(ownValidators.length))
-      .to.emit(orchestrator, "InternalValidatorDelegationIncreased")
-      .withArgs(ownValidators[2], value.mul(2).div(ownValidators.length))
       .to.emit(mockDPOS, "ValidatorRegistered")
       .withArgs(newValidator1);
   });
@@ -119,7 +115,7 @@ describe("DelegationOrchestrator", () => {
           commission,
           description,
           endpoint,
-          { value }
+          { from: newValidatorOwner2.address, value }
         )
     ).to.be.revertedWith("Validator already registered");
   });
@@ -138,7 +134,7 @@ describe("DelegationOrchestrator", () => {
           commission,
           description,
           endpoint,
-          { value }
+          { from: newValidatorOwner2.address, value }
         )
     ).to.be.revertedWith("Sent value less than minimal delegation for registration");
   });
@@ -146,7 +142,7 @@ describe("DelegationOrchestrator", () => {
   it("Orchestrator -  registerExternalValidator: fails if contract doesn't have enough balance", async function () {
     const contractBalance = await ethers.provider.getBalance(orchestrator.address);
     const validator = ethers.Wallet.createRandom().address;
-    const value = contractBalance;
+    const value = contractBalance.mul(3);
 
     await expect(
       orchestrator
@@ -158,14 +154,14 @@ describe("DelegationOrchestrator", () => {
           commission,
           description,
           endpoint,
-          { value }
+          { from: newValidatorOwner2.address, value }
         )
     ).to.be.reverted;
   });
 
-  it("MockDPOS & Orchestrator - registerValidator & registerExternalValidator: should register the second new validator", async () => {
+  it("MockDPOS & Orchestrator - registerValidator & registerExternalValidator: should register the second new validator and delegate to internals", async () => {
     newValidator2 = ethers.Wallet.createRandom().address;
-    const value = MIN_DELEGATION;
+    const value = MIN_DELEGATION.mul(10);
 
     const tx = await orchestrator
       .connect(newValidatorOwner2)
@@ -176,21 +172,22 @@ describe("DelegationOrchestrator", () => {
         commission,
         description,
         endpoint,
-        { value }
+        { from: newValidatorOwner2.address, value }
       );
 
     // Check that the validator was registered
     const secondNewValidator = await mockDPOS.getValidator(newValidator2);
-    expect(secondNewValidator.account).to.equal(newValidator2);
-    expect(secondNewValidator.info.total_stake).to.equal(MIN_DELEGATION);
-
+    expect(secondNewValidator.owner).to.equal(orchestrator.address);
+    expect(secondNewValidator.total_stake).to.equal(value);
+    const owner1 = await orchestrator.getOwnerOfExternalValidator(newValidator2);
+    expect(owner1).to.equal(newValidatorOwner2.address);
     // Check that the delegation was successful
     for (const validator of ownValidators) {
       ownValidatorBalancesAfterSecondExternalAddition = ownValidatorBalancesAfterFirstExternalAddition.add(
         value.mul(2).div(ownValidators.length)
       );
       const validatorData = await mockDPOS.getValidator(validator.address);
-      expect(validatorData.info.total_stake).to.equal(ownValidatorBalancesAfterSecondExternalAddition);
+      expect(validatorData.total_stake).to.equal(ownValidatorBalancesAfterSecondExternalAddition);
     }
     // Check that the event was emitted
     await expect(tx)
@@ -222,7 +219,7 @@ describe("DelegationOrchestrator", () => {
       .withArgs(newInternalValidator);
   });
 
-  it("MockDPOS & Orchestrator - registerValidator & registerExternalValidator: should register a third new validator", async () => {
+  it("MockDPOS & Orchestrator - registerValidator & registerExternalValidator: should register a third new validator and delegate to internals", async () => {
     newValidator3 = ethers.Wallet.createRandom().address;
     const value = MIN_DELEGATION;
 
@@ -235,7 +232,7 @@ describe("DelegationOrchestrator", () => {
         commission,
         description,
         endpoint,
-        { value }
+        { from: owner.address, value }
       );
 
     await expect(dposRegistration).to.emit(mockDPOS, "ValidatorRegistered").withArgs(newInternalValidator);
@@ -249,20 +246,22 @@ describe("DelegationOrchestrator", () => {
         commission,
         description,
         endpoint,
-        { value }
+        { from: newValidatorOwner3.address, value }
       );
 
     // Check that the validator was registered
     const thirdNewValidator = await mockDPOS.getValidator(newValidator3);
-    expect(thirdNewValidator.account).to.equal(newValidator3);
-    expect(thirdNewValidator.info.total_stake).to.equal(MIN_DELEGATION);
-
+    expect(thirdNewValidator.owner).to.equal(orchestrator.address);
+    expect(thirdNewValidator.total_stake).to.equal(MIN_DELEGATION);
+    const owner2 = await orchestrator.getOwnerOfExternalValidator(newValidator3);
+    expect(owner2).to.equal(newValidatorOwner3.address);
     // Check that the delegation was successful
     for (const validator of ownValidators) {
-      const addedValues = value.mul(2).div(ownValidators.length + 1);
-      ownValidatorBalancesAfterThirdExternalAddition = ownValidatorBalancesAfterSecondExternalAddition.add(addedValues);
+      ownValidatorBalancesAfterThirdExternalAddition = ownValidatorBalancesAfterSecondExternalAddition.add(
+        value.mul(2).div(ownValidators.length + 1) // because we added an internal validator
+      );
       const validatorData = await mockDPOS.getValidator(validator.address);
-      expect(validatorData.info.total_stake).to.equal(ownValidatorBalancesAfterThirdExternalAddition);
+      expect(validatorData.total_stake).to.equal(ownValidatorBalancesAfterThirdExternalAddition);
     }
     // Check that the event was emitted
     await expect(tx)

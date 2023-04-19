@@ -85,4 +85,7 @@ interface MockIDPOS {
         string calldata description,
         string calldata endpoint
     ) external payable;
+
+    // Returns validator basic info (everything except list of his delegators)
+    function getValidator(address validator) external view returns (ValidatorBasicInfo memory validator_info);
 }
