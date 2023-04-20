@@ -9,7 +9,7 @@ interface NickNameProps {
 
 const Nickname = ({ address, description }: NickNameProps) => {
   return (
-    <div className="nicknameContainer">
+    <div className="nickname-container">
       <div className="address">{address}</div>
       {description && <div>{description}</div>}
     </div>

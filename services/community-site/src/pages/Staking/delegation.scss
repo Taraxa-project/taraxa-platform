@@ -614,3 +614,43 @@ a.commissionChangeCheck {
   border-radius: 4px !important;
   color: white !important;
 }
+
+.redelegation-notice {
+  position: fixed;
+  z-index: 10000;
+  width: 100%;
+  left: 0;
+  right: 0;
+  top: 10%;
+  margin: 0 auto;
+  background-color: #ffa726;
+  .notice-container {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    @media only screen and (max-width: 1003px) {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  }
+}
+
+.redelegation-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+}
+
+.redelegation-container {
+  background-color: #31364b;
+  border-radius: 4px;
+  padding: 7px 10px;
+  font-size: 14px;
+  > {
+    color: #15ac5b;
+    margin-bottom: 25px;
+  }
+}

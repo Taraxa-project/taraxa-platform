@@ -173,8 +173,8 @@ const NodeProfilePage = () => {
       <Modals
         balance={balance}
         reDelegatableBalance={ethers.BigNumber.from('0')}
-        delegatableValidators={[]}
         delegateToValidator={delegateToValidator}
+        showRedelegation={false}
         undelegateFromValidator={undelegateFromValidator}
         onDelegateSuccess={() => {
           // getBalances();

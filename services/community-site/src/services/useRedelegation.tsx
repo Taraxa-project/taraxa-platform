@@ -1,68 +1,99 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useContext, createContext, useEffect } from 'react';
+import React, { useState, useContext, createContext } from 'react';
+import { Skeleton } from '@mui/material';
+import { Button, Text } from '@taraxa_project/taraxa-ui';
 import { Validator } from '../interfaces/Validator';
 
 type Context = {
-  isRedelegating: boolean;
   validatorFrom: Validator | null;
   validatorTo: Validator | null;
-  showNotice: boolean;
   showPopup: boolean;
-  setValidatorFrom?: (validator: Validator | null) => void;
-  setValidatorTo?: (validator: Validator | null) => void;
-  setIsRedelegating?: (isRedelegation: boolean) => void;
+  setValidatorFrom: (validator: Validator) => void;
+  setValidatorTo: (validator: Validator) => void;
+  clearRedelegation: () => void;
+};
+
+const defaultSetValidator = (validator: Validator): void => {
+  // eslint-disable-next-line no-console
+  console.log('default validator: ', validator);
 };
 
 const initialState: Context = {
-  isRedelegating: false,
   validatorFrom: null,
   validatorTo: null,
-  showNotice: false,
   showPopup: false,
+  setValidatorFrom: defaultSetValidator,
+  setValidatorTo: defaultSetValidator,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  clearRedelegation: () => {},
 };
 
 const RedelegationContext = createContext<Context>(initialState);
 
 const useProvideRedelegation = () => {
-  const [isRedelegating, setIsRedelegating] = useState(false);
-  const [showNotice, setShowNotice] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const [validatorFrom, setValidatorFrom] = useState<Validator | null>(null);
   const [validatorTo, setValidatorTo] = useState<Validator | null>(null);
 
-  useEffect(() => {
-    if (isRedelegating) {
-      if (validatorTo) {
-        setShowNotice(true);
-        if (validatorFrom) {
-          setShowPopup(true);
-        } else {
-          setShowPopup(false);
-        }
-      } else {
-        setShowNotice(false);
-      }
-    } else {
-      setShowNotice(false);
-      setShowPopup(false);
-    }
-  }, [isRedelegating, validatorFrom, validatorTo]);
+  const clearRedelegation = () => {
+    setValidatorFrom(null);
+    setValidatorTo(null);
+  };
+
+  const notice = validatorFrom && !validatorTo && (
+    <div className="redelegation-notice">
+      <div className="notice-container">
+        <div>
+          <Text
+            label="Validator From"
+            variant="body1"
+            color="black"
+            style={{ marginBottom: '1rem' }}
+          />
+          <Text label={validatorFrom.address} variant="body1" color="black" />
+          <Text label={validatorFrom.description} variant="body1" color="black" />
+        </div>
+        <div>
+          <Text
+            label="Validator To"
+            variant="body1"
+            color="black"
+            style={{ marginBottom: '1rem' }}
+          />
+          <Skeleton variant="text" sx={{ fontSize: '1rem', width: '300px' }} />
+          <Skeleton variant="text" sx={{ fontSize: '1rem', width: '300px' }} />
+        </div>
+        <Button
+          size="small"
+          color="error"
+          label="Cancel"
+          variant="contained"
+          onClick={clearRedelegation}
+          disableElevation
+        />
+      </div>
+    </div>
+  );
+
+  const showPopup = !!validatorFrom && !!validatorTo;
 
   return {
-    isRedelegating,
-    showNotice,
+    notice,
     showPopup,
     validatorFrom,
     validatorTo,
     setValidatorFrom,
     setValidatorTo,
-    setIsRedelegating,
+    clearRedelegation,
   };
 };
 
 export const RedelegationProvider = ({ children }: { children: React.ReactNode }) => {
-  const value = useProvideRedelegation();
-  return <RedelegationContext.Provider value={value}>{children}</RedelegationContext.Provider>;
+  const { notice, ...value } = useProvideRedelegation();
+  return (
+    <RedelegationContext.Provider value={value}>
+      {notice}
+      {children}
+    </RedelegationContext.Provider>
+  );
 };
 
 export const useRedelegation = () => {

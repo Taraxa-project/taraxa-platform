@@ -50,6 +50,7 @@ import CopyTo from './components/CopyTo';
 import theme from './components/theme';
 import LoadingTable from './components/LoadingTable';
 import { useInterval } from './hooks/useInterval';
+import InfoCard from './components/InfoCard';
 
 export {
   AmountCard,
@@ -102,4 +103,5 @@ export {
   theme,
   useInterval,
   EmptyTable,
+  InfoCard,
 };
