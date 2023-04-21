@@ -15,7 +15,9 @@ export class GraphQLService {
     amount: string,
     nonce: number,
   ): Promise<ClaimDetails | null> {
-    const response = await this.graphQLClient.request(
+    const response = await this.graphQLClient.request<{
+      claims: ClaimDetails[];
+    }>(
       gql`
         query get_claims($address: Bytes!, $amount: BigInt!, $nonce: BigInt!) {
           claims(where: { user: $address, amount: $amount, nonce: $nonce }) {

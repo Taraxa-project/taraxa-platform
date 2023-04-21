@@ -3,12 +3,7 @@ import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
 import { In, LessThan, Raw, Repository } from 'typeorm';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
@@ -610,6 +605,37 @@ export class ClaimService {
     });
 
     return claims;
+  }
+  public async getAccountRewards(
+    account: AccountEntity,
+  ): Promise<RewardEntity[]> {
+    const rewards = await this.rewardRepository.find({
+      where: {
+        account,
+      },
+    });
+
+    return rewards;
+  }
+  public async getAccountClaims(
+    account: AccountEntity,
+  ): Promise<ClaimEntity[]> {
+    const rewards = await this.claimRepository.find({
+      where: {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address: account.address,
+        }),
+      },
+    });
+
+    return rewards;
+  }
+  public async getAllAccounts(): Promise<AccountEntity[]> {
+    const accounts = await this.accountRepository.find();
+    return accounts;
+  }
+  public async saveAccount(account: AccountEntity): Promise<AccountEntity> {
+    return await this.accountRepository.save(account);
   }
   public async unlockRewards(): Promise<void> {
     const now = new Date();
