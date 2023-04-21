@@ -64,7 +64,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_newValidator",
+          "name": "newValidator",
           "type": "address"
         }
       ],
@@ -77,7 +77,45 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_validator",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "getExternalValidatorsByOwner",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "validators",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validator",
+          "type": "address"
+        }
+      ],
+      "name": "getOwnerOfExternalValidator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validator",
           "type": "address"
         },
         {
@@ -87,7 +125,7 @@
         },
         {
           "internalType": "bytes",
-          "name": "vrf_key",
+          "name": "vrfKey",
           "type": "bytes"
         },
         {

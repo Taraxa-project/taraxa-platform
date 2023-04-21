@@ -8,8 +8,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "./CallProxy.sol";
 
-contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGuard {
+contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, ReentrancyGuard {
     using Address for address;
     uint256 constant MIN_REGISTRATION_DELEGATION = 1000 ether;
     IDPOS private immutable dpos;
@@ -27,9 +28,7 @@ contract DelegationOrchestrator is IDelegation, Ownable, Pausable, ReentrancyGua
     // @note registrar of indexes+1 of validators in the externalValidators
     mapping(address => uint256) externalValidatorRegistered;
 
-    receive() external payable {}
-
-    constructor(address[] memory validators, address dposAddress) payable {
+    constructor(address[] memory validators, address dposAddress) payable CallProxy(dposAddress) {
         internalValidators = validators;
         dpos = IDPOS(dposAddress);
         for (uint256 i = 0; i < validators.length; ++i) {

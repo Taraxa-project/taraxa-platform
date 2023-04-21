@@ -71,4 +71,9 @@ contract MockDpos is MockIDPOS {
 
         emit ValidatorRegistered(validator);
     }
+
+    function undelegate(address validator, uint256 amount) external override {
+        require(validators[validator].account != address(0), "Validator doesn't exist");
+        delete validators[validator];
+    }
 }

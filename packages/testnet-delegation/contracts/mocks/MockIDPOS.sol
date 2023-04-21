@@ -88,4 +88,7 @@ interface MockIDPOS {
 
     // Returns validator basic info (everything except list of his delegators)
     function getValidator(address validator) external view returns (ValidatorBasicInfo memory validator_info);
+
+    // Undelegates <amount> of tokens from specified validator - creates undelegate request
+    function undelegate(address validator, uint256 amount) external;
 }
