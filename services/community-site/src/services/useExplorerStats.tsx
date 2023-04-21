@@ -6,11 +6,13 @@ import useApi from './useApi';
 import useMainnet from './useMainnet';
 import useValidators from './useValidators';
 import OwnNode from '../interfaces/OwnNode';
+import { useValidatorsWeeklyStats } from './useValidatorsWeeklyStats';
 
 export default () => {
   const { get } = useApi();
   const { chainId } = useMainnet();
   const { isValidatorEligible } = useValidators();
+  const { validatorWeekStats, getPbftBlocksProduced } = useValidatorsWeeklyStats();
 
   const getStats = async (
     validator: Validator | OwnNode,
@@ -65,55 +67,25 @@ export default () => {
     };
   };
 
-  const fetchValidatorStatsForWeek = useCallback(async (): Promise<
-    { address: string; pbftCount: number; rank: number }[]
-  > => {
-    let validatorStats: { address: string; pbftCount: number; rank: number }[] = [];
-    let start = 0;
-    let hasNextPage = true;
-    while (hasNextPage) {
-      try {
-        const allValidators = await get(
-          `${networks[chainId].indexerUrl}/validators?limit=100&start=${start}`,
-        );
-        if (allValidators.success) {
-          validatorStats = [...validatorStats, ...allValidators.response.data];
-          hasNextPage = allValidators.response.hasNext;
-          start += 100;
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        hasNextPage = false;
-      }
-    }
-    return validatorStats;
-  }, []);
-
   const updateValidatorsStats = useCallback(
     async (validators: Validator[]): Promise<ValidatorWithStats[]> => {
       if (validators.length === 0) {
         return [] as ValidatorWithStats[];
       }
 
-      let newValidators = await Promise.all(
+      const newValidators = await Promise.all(
         validators.map(async (validator) => {
-          return getStats(validator, 'mainnet', chainId);
+          const validatorWithStats = await getStats(validator, 'mainnet', chainId);
+          const pbftsProduced = getPbftBlocksProduced(validatorWithStats.address);
+          return {
+            ...validatorWithStats,
+            pbftsProduced,
+          };
         }),
       );
-      const validatorStats = await fetchValidatorStatsForWeek();
-      newValidators = newValidators.map((validator) => {
-        return {
-          ...validator,
-          pbftsProduced:
-            validatorStats.find(
-              (stat) => stat.address.toLowerCase() === validator.address.toLowerCase(),
-            )?.pbftCount || 0,
-        };
-      });
       return newValidators as ValidatorWithStats[];
     },
-    [get],
+    [get, validatorWeekStats],
   );
 
   const updateTestnetValidatorsStats = useCallback(

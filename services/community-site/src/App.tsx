@@ -29,6 +29,8 @@ import useCMetamask from './services/useCMetamask';
 import { WalletPopupProvider } from './services/useWalletPopup';
 
 import './App.scss';
+import { ValidatorWeeklyStatsProvider } from './services/useValidatorsWeeklyStats';
+import { ValidatorsProvider } from './services/useAllValidators';
 
 declare global {
   interface Window {
@@ -144,7 +146,11 @@ function App() {
               <ModalProvider>
                 <WalletPopupProvider>
                   <SidebarProvider>
-                    <Root />
+                    <ValidatorWeeklyStatsProvider>
+                      <ValidatorsProvider>
+                        <Root />
+                      </ValidatorsProvider>
+                    </ValidatorWeeklyStatsProvider>
                   </SidebarProvider>
                 </WalletPopupProvider>
               </ModalProvider>

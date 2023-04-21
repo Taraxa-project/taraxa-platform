@@ -25,7 +25,6 @@ const MainnetValidatorRow = ({
   setValidatorInfo,
   setCommissionClaim,
 }: ValidatorRowProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
     status,
     description,
@@ -53,7 +52,7 @@ const MainnetValidatorRow = ({
       </TableCell>
       <TableCell className="tableCell nameCell">
         <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
-          <Nickname address={address} description={description} />
+          <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">
@@ -78,7 +77,7 @@ const MainnetValidatorRow = ({
       </TableCell>
       <TableCell className="tableCell rankingCell">{rank}</TableCell>
       <TableCell className="tableCell rewardsCell">{stripEth(commissionReward)}</TableCell>
-      <TableCell className="tableCell actionsCell">
+      <TableCell className="tableCell availableDelegationActionsCell">
         <div className="validatorActions">
           <Button
             size="small"

@@ -12,7 +12,6 @@ import {
   Modal,
 } from '@taraxa_project/taraxa-ui';
 
-import calculateValidatorYield from '../../utils/validators';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
@@ -26,7 +25,7 @@ import InfoIcon from '../../assets/icons/info';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
-import { Validator } from '../../interfaces/Validator';
+import { calculateValidatorYield, Validator } from '../../interfaces/Validator';
 import OwnNode from '../../interfaces/OwnNode';
 
 import RunValidatorModal from './Modal';
@@ -348,8 +347,8 @@ const RunValidator = () => {
           )}
         </div>
         {validatorType === 'mainnet' && mainnetValidators.length > 0 && (
-          <TableContainer className="nodesTableContainer">
-            <Table className="nodesTable">
+          <TableContainer className="validatorsTableContainer">
+            <Table className="validatorsTable">
               <TableHead>
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell statusCell">Status</TableCell>
