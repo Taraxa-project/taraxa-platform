@@ -16,6 +16,7 @@ contract CallProxy {
     address private immutable implementationAdrress;
 
     constructor(address implementation) {
+        require(implementation != address(0), "Zero address not a valid implementation address");
         implementationAdrress = implementation;
     }
 
