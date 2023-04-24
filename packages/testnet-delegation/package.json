@@ -7,7 +7,7 @@
     "test": "yarn run hardhat test",
     "coverage": "yarn run hardhat coverage",
     "deploy-local": "TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network local ./scripts/deploy_plain.ts",
-    "deploy-testnet": "env DEBUG='@openzeppelin:*' TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network testnet ./scripts/deploy_plain.ts",
+    "deploy-testnet": "env DEBUG='@openzeppelin:*' TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network testnet ./scripts/release.ts",
     "checkTx": "env DEBUG='@openzeppelin:*' TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network testnet ./scripts/receipt.ts",
     "checkTx:local": "env DEBUG='@openzeppelin:*' TS_NODE_TRANSPILE_ONLY=1 npx hardhat run --network local ./scripts/status.ts",
     "compile": "yarn run hardhat compile --network local"
