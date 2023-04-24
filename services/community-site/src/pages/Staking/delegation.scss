@@ -235,163 +235,6 @@ a.commissionChangeCheck {
     }
   }
 
-  .delegationTableContainer {
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  .delegationTable {
-    color: #ffffff;
-    table-layout: fixed;
-    width: 100%;
-  }
-
-  .tableHeadRow {
-    border-bottom: 1px solid #40465f;
-  }
-
-  .tableHeadCell {
-    color: #878ca4;
-    background-color: #1b1e2b;
-    border: none;
-    height: auto;
-    line-height: 8px;
-  }
-
-  .tableRow {
-    border-bottom: 1px solid #1e2231;
-  }
-
-  .tableCell {
-    color: #ffffff;
-    border: none;
-    height: auto;
-
-    .flexCell {
-      display: flex;
-      justify-content: space-between;
-    }
-  }
-
-  .nodeLink {
-    cursor: pointer;
-  }
-
-  .tableSection {
-    text-align: center;
-  }
-
-  .statusCell {
-    width: 10%;
-  }
-
-  .nameCell {
-    width: 320px;
-  }
-
-  .yieldCell {
-    width: 10%;
-  }
-
-  .commissionCell {
-    width: 12.5%;
-
-    .commissionDisplayPendingChangeWrapper {
-      position: relative;
-      padding-left: 30px;
-
-      svg {
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-
-      .commissionDisplayPendingChange {
-        color: #e96828;
-        background-color: #3d2c2c;
-        padding: 5px 10px;
-        border-radius: 8px;
-      }
-    }
-  }
-
-  .delegationCell {
-    width: 12.5%;
-  }
-
-  .stackingCell {
-    width: 10%;
-  }
-
-  .availableDelegation {
-    line-height: 32px;
-    vertical-align: middle;
-    text-align: start;
-    width: 15%;
-  }
-
-  .availableDelegationActionsCell {
-    width: 25%;
-
-    .validatorActions {
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      button {
-        min-width: 120px;
-      }
-      button:disabled,
-      button[disabled] {
-        background: #202534;
-        border: 1px solid #282c3e;
-      }
-    }
-  }
-
-  @media only screen and (max-width: 1420px) {
-    .delegationTableContainer {
-      max-width: calc(100vw - 500px);
-      min-width: calc(100vw - 500px);
-    }
-
-    .delegationTable {
-      width: auto;
-      table-layout: fixed;
-    }
-
-    .nameCell {
-      min-width: 300px;
-    }
-
-    .statusCell,
-    .yieldCell,
-    .commissionCell,
-    .delegationCell,
-    .stackingCell {
-      width: auto;
-      min-width: 100px !important;
-      max-width: 200px;
-    }
-
-    .availableDelegation,
-    .availableDelegationActionsCell {
-      width: auto;
-      min-width: 200px !important;
-      max-width: 300px;
-    }
-  }
-
-  @media only screen and (max-width: 760px) {
-    .delegationTableContainer {
-      max-width: calc(100vw - 90px);
-      min-width: calc(100vw - 90px);
-    }
-  }
-
   .runnode-content {
     text-align: left;
 
@@ -615,6 +458,10 @@ a.commissionChangeCheck {
   color: white !important;
 }
 
+.skeleton {
+  background-color: #4f5368 !important;
+}
+
 .redelegation-notice {
   position: fixed;
   z-index: 10000;
@@ -642,15 +489,4 @@ a.commissionChangeCheck {
   justify-content: center;
   align-items: center;
   font-size: 2rem;
-}
-
-.redelegation-container {
-  background-color: #31364b;
-  border-radius: 4px;
-  padding: 7px 10px;
-  font-size: 14px;
-  > {
-    color: #15ac5b;
-    margin-bottom: 25px;
-  }
 }

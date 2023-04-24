@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 
-import { AmountCard, Button, Checkbox, Icons, ProfileIcon } from '@taraxa_project/taraxa-ui';
+import { AmountCard, Button, Checkbox, Icons } from '@taraxa_project/taraxa-ui';
 
 import Delegation from '../../interfaces/Delegation';
 import useDelegation from '../../services/useDelegation';
@@ -13,12 +13,15 @@ import useChain from '../../services/useChain';
 import Title from '../../components/Title/Title';
 import useValidators from '../../services/useValidators';
 
-import { Validator } from '../../interfaces/Validator';
+import { Validator, ValidatorWithStats } from '../../interfaces/Validator';
 
 import { stripEth, weiToEth } from '../../utils/eth';
 
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
+import { useAllValidators } from '../../services/useAllValidators';
+import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
+import { useLoading } from '../../services/useLoading';
 import Nickname from '../../components/Nickname/Nickname';
 
 // interface BarFlexProps {
@@ -76,7 +79,7 @@ const NodeProfilePage = () => {
   const { getDelegations } = useDelegation();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
-  const [validator, setValidator] = useState<Validator | null>(null);
+  const [validator, setValidator] = useState<ValidatorWithStats | null>(null);
   const [delegationCount, setDelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<Delegation[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
@@ -84,15 +87,30 @@ const NodeProfilePage = () => {
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const { address } = useParams<{ address?: string }>();
   const [shouldFetch, setShouldFetch] = useState(false);
+  const { allValidatorsWithStats } = useAllValidators();
+  const { isLoading } = useLoading();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
   const canUndelegate = status === 'connected' && !!account;
 
   const fetchNode = useCallback(async () => {
     if (address) {
-      setValidator(await getValidator(address));
+      const ownValidator = await getValidator(address);
+      setValidator({
+        ...ownValidator,
+        pbftsProduced: 0,
+        yield: 0,
+      });
+      const validator = allValidatorsWithStats.find(
+        (v: ValidatorWithStats) => v.address === address,
+      );
+      setValidator({
+        ...ownValidator,
+        pbftsProduced: validator?.pbftsProduced || 0,
+        yield: validator?.yield || 0,
+      });
     }
-  }, [address]);
+  }, [address, allValidatorsWithStats]);
 
   const fetchDelegators = useCallback(async () => {
     if (address) {
@@ -165,9 +183,6 @@ const NodeProfilePage = () => {
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
   // const nodeActiveSince = new Date(validator?.firstBlockCreatedAt || Date.now());
 
-  if (!validator) {
-    return null;
-  }
   return (
     <div className="runnode">
       <Modals
@@ -203,45 +218,36 @@ const NodeProfilePage = () => {
         onClaimFinish={() => {}}
         onClaimClose={() => {}}
       />
-      <Title
-        title={
-          <p>
-            Validator{' '}
-            <span style={{ wordBreak: 'break-all', fontSize: '25px' }}>{validator.address}</span>
-          </p>
-        }
-      />
-      <div className="nodeInfoWrapper">
-        <div className="nodeInfoFlex">
-          <div className="nodeInfoColumn">
-            <div className="nodeTitle">
-              <ProfileIcon title={validator.address} size={40} />
-              <div>{validator.address}</div>
-            </div>
-            <div className="nodeAddress">{validator.address}</div>
-            <div className="nodeInfoTitle">expected yield</div>
-            <div className="nodeInfoContent">20%</div>
-            <div className="nodeInfoTitle">commission</div>
-            <div className="nodeInfoContent">{validator.commission}%</div>
-            {validator.description && (
-              <>
-                <div className="nodeInfoTitle">Address / Nickname</div>
-                <div className="nodeInfoContent">
-                  <Nickname address={validator.address} description={validator.description} />
-                </div>
-              </>
-            )}
-            {validator.endpoint && (
-              <>
-                <div className="nodeInfoTitle">node operator Website</div>
-                <div className="nodeInfoContent">
-                  <a rel="nofollow" href={validator.endpoint}>
-                    {validator.endpoint}
-                  </a>
-                </div>
-              </>
-            )}
-            {/* {validator?.firstBlockCreatedAt && (
+      <Title title="Validator" />
+      {!validator || isLoading ? (
+        <NodeProfilePageSkeleton />
+      ) : (
+        <div className="nodeInfoWrapper">
+          <div className="nodeInfoFlex">
+            <div className="nodeInfoColumn">
+              <Nickname
+                size="large"
+                showIcon
+                address={validator.address}
+                description={validator.description}
+              />
+              <div className="nodeInfoTitle">yield efficiency</div>
+              <div className="nodeInfoContent">
+                {validator.yield ? validator.yield.toFixed(2) : 0}%
+              </div>
+              <div className="nodeInfoTitle">commission</div>
+              <div className="nodeInfoContent">{validator.commission}%</div>
+              {validator.endpoint && (
+                <>
+                  <div className="nodeInfoTitle">node operator Website</div>
+                  <div className="nodeInfoContent">
+                    <a rel="nofollow" href={validator.endpoint}>
+                      {validator.endpoint}
+                    </a>
+                  </div>
+                </>
+              )}
+              {/* {validator?.firstBlockCreatedAt && (
               <>
                 <div className="nodeInfoTitle">node active since</div>
                 <div className="nodeInfoContent">{`${nodeActiveSince.getDate()} ${nodeActiveSince
@@ -249,27 +255,27 @@ const NodeProfilePage = () => {
                   .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
               </>
             )} */}
-          </div>
-          <div className="nodeDelegationColumn">
-            <div className="taraContainerWrapper">
-              <div className="taraContainer">
-                <AmountCard
-                  amount={ethers.utils.commify(
-                    Number(weiToEth(validator.availableForDelegation)).toFixed(2),
-                  )}
-                  unit="TARA"
-                />
-                <div className="taraContainerAmountDescription">Available for delegation</div>
-              </div>
-              <div className="taraContainer">
-                <AmountCard
-                  amount={ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}
-                  unit="TARA"
-                />
-                <div className="taraContainerAmountDescription">Total delegated</div>
-              </div>
             </div>
-            {/* <div className="nodeDelegationSplit">
+            <div className="nodeDelegationColumn">
+              <div className="taraContainerWrapper">
+                <div className="taraContainer">
+                  <AmountCard
+                    amount={ethers.utils.commify(
+                      Number(weiToEth(validator.availableForDelegation)).toFixed(2),
+                    )}
+                    unit="TARA"
+                  />
+                  <div className="taraContainerAmountDescription">Available for delegation</div>
+                </div>
+                <div className="taraContainer">
+                  <AmountCard
+                    amount={ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}
+                    unit="TARA"
+                  />
+                  <div className="taraContainerAmountDescription">Total delegated</div>
+                </div>
+              </div>
+              {/* <div className="nodeDelegationSplit">
               <BarFlex
                 communityDelegated={communityDelegated}
                 selfDelegated={selfDelegated}
@@ -297,73 +303,74 @@ const NodeProfilePage = () => {
                 </div>
               </div>
             </div> */}
-            <div className="delegationButtons">
-              <Button
-                onClick={() => setDelegateToValidator(validator)}
-                variant="contained"
-                color="secondary"
-                label="Delegate"
-                disabled={!canDelegate}
-              />
-              <Button
-                onClick={() => setUndelegateFromValidator(validator)}
-                variant="contained"
-                color="secondary"
-                label="Un-Delegate"
-                disabled={!canUndelegate}
-              />
+              <div className="delegationButtons">
+                <Button
+                  onClick={() => setDelegateToValidator(validator)}
+                  variant="contained"
+                  color="secondary"
+                  label="Delegate"
+                  disabled={!canDelegate}
+                />
+                <Button
+                  onClick={() => setUndelegateFromValidator(validator)}
+                  variant="contained"
+                  color="secondary"
+                  label="Un-Delegate"
+                  disabled={!canUndelegate}
+                />
+              </div>
             </div>
           </div>
-        </div>
-        {delegations.length !== 0 && (
-          <>
-            <hr className="nodeInfoDivider" />
-            <div className="delegatorsHeader">
-              <span className="delegatorsLegend">Delegators</span>
-              <div className="showOwnDelegation">
-                <Checkbox
-                  value={delegationAtTop}
-                  onChange={(e) => setDelegationAtTop(e.target.checked)}
-                />
-                Show my delegation at the top
-              </div>
-              <div className="delegatorsPagination">
-                <Button
-                  className="paginationButton"
-                  onClick={() => setDelegationPage(delegationPage - 1)}
-                  disabled={delegationCount <= 20 || delegationPage === 1}
-                  Icon={Icons.Left}
-                />
-                <Button
-                  className="paginationButton"
-                  onClick={() => setDelegationPage(delegationPage + 1)}
-                  disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
-                  Icon={Icons.Right}
-                />
-              </div>
-            </div>
-            <div className="tableHeader">
-              <span>Address</span>
-              <span>Amount of TARA delegated</span>
-            </div>
-            <div className="delegators">
-              {delegations.map((delegator, id) => (
-                <div key={id} className="delegatorRow">
-                  <div className="address">
-                    <span>{id + 1 + offsetIndex}.</span> {delegator.address}
-                  </div>
-                  <div className="badges">
-                    {delegator.address.toLowerCase() === account?.toLowerCase() && (
-                      <div className="ownStake">your delegation</div>
-                    )}
-                  </div>
-                  <div className="amount">{stripEth(delegator.stake)} TARA</div>
+          {delegations.length !== 0 && (
+            <>
+              <hr className="nodeInfoDivider" />
+              <div className="delegatorsHeader">
+                <span className="delegatorsLegend">Delegators</span>
+                <div className="showOwnDelegation">
+                  <Checkbox
+                    value={delegationAtTop}
+                    onChange={(e) => setDelegationAtTop(e.target.checked)}
+                  />
+                  Show my delegation at the top
                 </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+                <div className="delegatorsPagination">
+                  <Button
+                    className="paginationButton"
+                    onClick={() => setDelegationPage(delegationPage - 1)}
+                    disabled={delegationCount <= 20 || delegationPage === 1}
+                    Icon={Icons.Left}
+                  />
+                  <Button
+                    className="paginationButton"
+                    onClick={() => setDelegationPage(delegationPage + 1)}
+                    disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
+                    Icon={Icons.Right}
+                  />
+                </div>
+              </div>
+              <div className="tableHeader">
+                <span>Address</span>
+                <span>Amount of TARA delegated</span>
+              </div>
+              <div className="delegators">
+                {delegations.map((delegator, id) => (
+                  <div key={id} className="delegatorRow">
+                    <div className="address">
+                      <span>{id + 1 + offsetIndex}.</span> {delegator.address}
+                    </div>
+                    <div className="badges">
+                      {delegator.address.toLowerCase() === account?.toLowerCase() && (
+                        <div className="ownStake">your delegation</div>
+                      )}
+                    </div>
+                    <div className="amount">{stripEth(delegator.stake)} TARA</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -61,7 +61,7 @@ const ValidatorRow = ({
           className="flexCell nodeLink"
           onClick={() => history.push(`/staking/${validator.address}`)}
         >
-          <Nickname address={validator.address} description={validator.description} />
+          <Nickname showIcon address={validator.address} description={validator.description} />
         </div>
       </TableCell>
       <TableCell className="tableCell yieldCell">

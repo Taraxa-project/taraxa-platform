@@ -19,7 +19,6 @@ import {
   LoadingTable,
 } from '@taraxa_project/taraxa-ui';
 
-import calculateValidatorYield from '../../utils/validators';
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import { useLoading } from '../../services/useLoading';
@@ -36,13 +35,15 @@ import Modals from './Modal/Modals';
 import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
-import { Validator } from '../../interfaces/Validator';
+import './table.scss';
+import { calculateValidatorYield, Validator } from '../../interfaces/Validator';
 import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
 
 import { stripEth, weiToEth } from '../../utils/eth';
 import Undelegation from '../../interfaces/Undelegation';
 import { useWalletPopup } from '../../services/useWalletPopup';
 import useExplorerStats from '../../services/useExplorerStats';
+import { useAllValidators } from '../../services/useAllValidators';
 import { useRedelegation } from '../../services/useRedelegation';
 
 const Delegation = ({ location }: { location: Location }) => {
@@ -66,6 +67,7 @@ const Delegation = ({ location }: { location: Location }) => {
     new URLSearchParams(location.search).get('show_my_validators') !== null;
   const [showMyValidators, setShowMyValidators] = useState(showMyValidatorsQuery || false);
   const [showFullyDelegatedValidators, setShowFullyDelegatedValidators] = useState(true);
+  const { allValidatorsWithStats } = useAllValidators();
 
   const [isLoadingAccountData, setLoadingAccountData] = useState(false);
 
@@ -144,7 +146,9 @@ const Delegation = ({ location }: { location: Location }) => {
       (async () => {
         setLoadingAccountData(true);
         const myValidators = await getValidatorsWith(delegations.map((d) => d.address));
-        setOwnValidators(myValidators);
+        const myValidatorsWithStats = await updateValidatorsStats(myValidators);
+        const myValidatorsWithYield = calculateValidatorYield(myValidatorsWithStats);
+        setOwnValidators(myValidatorsWithYield);
         setLoadingAccountData(false);
       })();
     }
@@ -156,16 +160,11 @@ const Delegation = ({ location }: { location: Location }) => {
       if (showMyValidators) {
         v = ownValidators || [];
       } else {
-        setLoadingAccountData(true);
-        v = await getValidators();
-        setLoadingAccountData(false);
+        v = allValidatorsWithStats;
       }
       setValidators(v);
-      const validatorsWithStats = await updateValidatorsStats(v);
-      const validatorsWithYield = calculateValidatorYield(validatorsWithStats);
-      setValidators(validatorsWithYield);
     })();
-  }, [showMyValidators, ownValidators]);
+  }, [showMyValidators, ownValidators, allValidatorsWithStats]);
 
   const isNotLoggedOrKycEd = !user || user.kyc !== 'APPROVED'; // && user.confirmed
 
@@ -436,8 +435,8 @@ const Delegation = ({ location }: { location: Location }) => {
           </div>
         ) : (
           filteredValidators.length > 0 && (
-            <TableContainer className="delegationTableContainer">
-              <Table className="delegationTable">
+            <TableContainer className="validatorsTableContainer">
+              <Table className="validatorsTable">
                 <TableHead>
                   <TableRow className="tableHeadRow">
                     <TableCell className="tableHeadCell statusCell">Status</TableCell>
