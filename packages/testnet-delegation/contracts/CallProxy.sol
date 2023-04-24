@@ -13,11 +13,11 @@ pragma solidity 0.8.18;
  * The success and return data of the call will be returned back to the caller of the proxy.
  */
 contract CallProxy {
-    address private immutable implementationAdrress;
+    address private immutable implementationAddress;
 
     constructor(address implementation) {
         require(implementation != address(0), "Zero address not a valid implementation address");
-        implementationAdrress = implementation;
+        implementationAddress = implementation;
     }
 
     /**
@@ -25,7 +25,7 @@ contract CallProxy {
      *
      * This function does not return to its internal call site, it will return directly to the external caller.
      */
-    function _delegate(address implementation) internal {
+    function _delegate(address implementation) internal virtual {
         assembly {
             // Copy msg.data. We take full control of memory in this inline assembly
             // block because it will not return to Solidity code. We overwrite the
@@ -36,14 +36,17 @@ contract CallProxy {
             // out and outsize are 0 because we don't know the size yet.
             let result := call(gas(), implementation, callvalue(), 0, calldatasize(), 0, 0)
 
-            if iszero(result) {
-                returndatacopy(0, 0, returndatasize())
-                revert(0, returndatasize())
-            }
-
             // Copy the returned data.
             returndatacopy(0, 0, returndatasize())
-            return(0, returndatasize())
+
+            switch result
+            // delegatecall returns 0 on error.
+            case 0 {
+                revert(0, returndatasize())
+            }
+            default {
+                return(0, returndatasize())
+            }
         }
     }
 
@@ -52,7 +55,7 @@ contract CallProxy {
      * and {_fallback} should delegate.
      */
     function _implementation() internal view returns (address) {
-        return implementationAdrress;
+        return implementationAddress;
     }
 
     /**

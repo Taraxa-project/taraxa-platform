@@ -74,7 +74,7 @@ describe("DelegationOrchestrator Proxy tests", () => {
         "Random endpoint",
         { value: MIN_DELEGATION.mul(3) }
       );
-    expect(registerValidator).not.to.be.undefined;
+    expect(registerValidator).to.emit("MockDPOS", "ValidatorRegistered").withArgs(validator4);
 
     const funcSignature = "undelegate(address,uint256) external";
     const txData = ethersContract
@@ -85,6 +85,6 @@ describe("DelegationOrchestrator Proxy tests", () => {
       data: txData,
     };
     const txResult = await ethers.provider.send("eth_sendTransaction", [tx]);
-    expect(txResult).not.to.be.undefined;
+    expect(txResult).to.emit("MockDPOS", "Undelegated").withArgs(owner.address, validator4, MIN_DELEGATION);
   });
 });
