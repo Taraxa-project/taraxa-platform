@@ -1,61 +1,63 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import { Button, Text, InputField, AmountCard, AutocompleteField } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField, AmountCard, InfoCard } from '@taraxa_project/taraxa-ui';
 import useCMetamask from '../../../services/useCMetamask';
 
 import useDelegation from '../../../services/useDelegation';
 
 import { stripEth, weiToEth } from '../../../utils/eth';
-import { Validator } from '../../../interfaces/Validator';
 import { useWalletPopup } from '../../../services/useWalletPopup';
+import { useRedelegation } from '../../../services/useRedelegation';
+import { compareDelegationTo } from '../../../utils/compareDelegationTo';
 
 type ReDelegateProps = {
   reDelegatableBalance: ethers.BigNumber;
-  validatorFrom: Validator;
-  delegatableValidators: Validator[];
   onSuccess: () => void;
   onFinish: () => void;
 };
 
-const ReDelegate = ({
-  validatorFrom,
-  delegatableValidators,
-  reDelegatableBalance,
-  onSuccess,
-  onFinish,
-}: ReDelegateProps) => {
+const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegateProps) => {
   const { account } = useCMetamask();
   const { reDelegate } = useDelegation();
   const { asyncCallback } = useWalletPopup();
+  const { validatorFrom, validatorTo } = useRedelegation();
 
-  const [reDelegationTotal, setReDelegationTotal] = useState(reDelegatableBalance);
+  let maximumReDelegatable = '0';
+  maximumReDelegatable = weiToEth(reDelegatableBalance);
+  const [reDelegationTotal, setReDelegationTotal] = useState<string>(
+    maximumReDelegatable.toString(),
+  );
   const [error, setError] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [autocompleteError, setAutocompleteError] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [validatorTo, setValidatorTo] = useState<Validator>();
+
+  const delegatePercent = (percentage: number): string => {
+    return parseFloat((+maximumReDelegatable * (percentage / 100)).toFixed(2)).toString();
+  };
 
   const submit = async (
     event: React.MouseEvent<HTMLElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
-    if (!validatorTo) {
-      setAutocompleteError('Missing Validator to');
+    const reDelegationNumber = parseFloat(reDelegationTotal);
+
+    if (!validatorFrom) {
+      setError('Missing Validator from');
+      return;
     }
 
-    if (
-      reDelegationTotal.lt(ethers.BigNumber.from('1000').mul(ethers.BigNumber.from('10').pow(18)))
-    ) {
+    if (!validatorTo) {
+      setError('Missing Validator to');
+      return;
+    }
+
+    if (Number.isNaN(reDelegationNumber) || reDelegationNumber < 1000) {
       setError('must be a number greater than 1,000');
       return;
     }
 
-    // if (delegationTotal.gt(availableStakingBalance)) {
-    //   setError('cannot exceed TARA available for delegation');
-    //   return;
-    // }
-    if (reDelegationTotal.gt(validatorFrom.availableForDelegation)) {
+    if (
+      parseFloat(reDelegationTotal) > parseFloat(weiToEth(validatorFrom.availableForDelegation))
+    ) {
       setError("cannot exceed validator's ability to receive delegation");
       return;
     }
@@ -64,12 +66,17 @@ const ReDelegate = ({
       return;
     }
 
+    const reDelegateValue = ethers.utils.parseUnits(
+      reDelegationNumber.toString().replace(',', '.'),
+      18,
+    );
+
     setError('');
 
     if (!error && validatorTo?.address !== undefined && validatorTo?.address !== null) {
       asyncCallback(async () => {
         onFinish();
-        return await reDelegate(validatorFrom.address, validatorTo.address, reDelegationTotal);
+        return await reDelegate(validatorFrom.address, validatorTo.address, reDelegateValue);
       }, onSuccess);
     }
   };
@@ -77,49 +84,42 @@ const ReDelegate = ({
   return (
     <div className="delegateNodeModal">
       <Text
-        style={{ marginBottom: '32px', fontSize: '18px' }}
+        style={{ marginBottom: '12px', fontSize: '18px' }}
         align="center"
-        label="Re-Delegate from..."
+        label="Shift Delegation (Re-delegate)"
         variant="h6"
         color="primary"
       />
-      <div className="nodeDescriptor">
-        <p className="nodeAddressWrapper">
-          <span className="nodeAddress">{validatorFrom.address}</span>
-        </p>
-      </div>
-      <Text
-        style={{ marginBottom: '32px', fontSize: '18px' }}
-        align="center"
-        label="Re-Delegate to..."
-        variant="h6"
-        color="primary"
-      />
-      <AutocompleteField
-        options={delegatableValidators.map((d) => ({ label: d.address, id: d.address }))}
-        renderInput={(params) => (
-          <InputField
-            error={!!autocompleteError}
-            helperText={autocompleteError}
-            {...params}
-            label="Validator"
+      {validatorFrom && (
+        <div className="nodeDescriptor">
+          <Text
+            style={{ marginBottom: '12px', fontSize: '18px' }}
+            align="center"
+            label="FROM"
+            variant="body2"
+            color="primary"
           />
-        )}
-        onChange={(event, value) => {
-          const selectedValidator = delegatableValidators.find((d) => d.address === value?.label);
-          if (!selectedValidator) {
-            setAutocompleteError('Validator address must be part of the list');
-          } else {
-            setAutocompleteError('');
-            setValidatorTo(selectedValidator);
-          }
-        }}
-      />
+          <InfoCard title={validatorFrom.address} description={validatorFrom.description} />
+        </div>
+      )}
+      <div className="redelegation-arrow">⬇⬇⬇</div>
+      {validatorTo && (
+        <div className="nodeDescriptor">
+          <Text
+            style={{ marginBottom: '12px', fontSize: '18px' }}
+            align="center"
+            label="TO"
+            variant="body2"
+            color="primary"
+          />
+          <InfoCard title={validatorTo.address} description={validatorTo.description} />
+        </div>
+      )}
       {validatorTo && reDelegationTotal && (
         <div className="taraContainerWrapper" style={{ marginTop: '1rem' }}>
           <div className="taraContainer taraContainerBalance">
             <p className="taraContainerAmountDescription">Available TARA for re-delegation</p>
-            <AmountCard amount={stripEth(reDelegationTotal)} unit="TARA" />
+            <AmountCard amount={reDelegationTotal} unit="TARA" />
           </div>
           <div className="taraContainer">
             <p className="taraContainerAmountDescription">
@@ -131,36 +131,32 @@ const ReDelegate = ({
       )}
       <div className="taraInputWrapper">
         <p className="maxDelegatableDescription">Maximum delegate-able</p>
-        <p className="maxDelegatableTotal">{stripEth(reDelegationTotal)}</p>
+        <p className="maxDelegatableTotal">{reDelegationTotal}</p>
         <p className="maxDelegatableUnit">TARA</p>
         <InputField
           error={!!error}
           helperText={error}
           label="Enter amount..."
-          value={parseInt(weiToEth(reDelegationTotal), 10)}
+          value={reDelegationTotal}
           variant="outlined"
           type="text"
           fullWidth
           margin="normal"
           onChange={(event) => {
-            const currentVal = ethers.BigNumber.from(event.target.value || 0);
+            setReDelegationTotal(event.target.value);
+          }}
+          onKeyUp={(event) => {
+            const inputValue = (event.target as HTMLInputElement).value;
             if (
-              currentVal.lt(ethers.BigNumber.from('1000')) ||
-              currentVal.mul(ethers.BigNumber.from('10').pow(18)).gt(reDelegatableBalance)
+              compareDelegationTo(inputValue, '1000') ||
+              parseFloat(inputValue) > parseFloat(maximumReDelegatable)
             ) {
               setError(
-                `must be a number greater than 1,000 and lesser than or equal ${stripEth(
-                  reDelegatableBalance,
-                )}`,
+                `must be a number greater than 1,000 and lesser than or equal ${maximumReDelegatable}`,
               );
             } else {
               setError('');
             }
-            setReDelegationTotal(
-              ethers.BigNumber.from(event.target.value || 0).mul(
-                ethers.BigNumber.from('10').pow(18),
-              ),
-            );
           }}
         />
         <div className="delegatePercentWrapper">
@@ -170,7 +166,7 @@ const ReDelegate = ({
             label="25%"
             variant="contained"
             onClick={() => {
-              setReDelegationTotal(reDelegatableBalance.mul(25).div(100));
+              setReDelegationTotal(delegatePercent(25));
             }}
           />
           <Button
@@ -179,7 +175,7 @@ const ReDelegate = ({
             label="50%"
             variant="contained"
             onClick={() => {
-              setReDelegationTotal(reDelegatableBalance.mul(50).div(100));
+              setReDelegationTotal(delegatePercent(50));
             }}
           />
           <Button
@@ -188,7 +184,7 @@ const ReDelegate = ({
             label="75%"
             variant="contained"
             onClick={() => {
-              setReDelegationTotal(reDelegatableBalance.mul(75).div(100));
+              setReDelegationTotal(delegatePercent(75));
             }}
           />
           <Button
@@ -197,7 +193,7 @@ const ReDelegate = ({
             label="100%"
             variant="contained"
             onClick={() => {
-              setReDelegationTotal(reDelegatableBalance.mul(100).div(100));
+              setReDelegationTotal(maximumReDelegatable);
             }}
           />
         </div>

@@ -15,9 +15,8 @@ interface ModalsProps {
   claimRewardsFromValidator: Validator | null;
   reDelegatableBalance: ethers.BigNumber;
   delegateToValidator: Validator | null;
-  reDelegateFromValidator?: Validator | null;
   undelegateFromValidator: Validator | null;
-  delegatableValidators: Validator[];
+  showRedelegation: boolean;
   ownDelegation?: boolean;
   onClaimSuccess: () => void;
   onDelegateSuccess: () => void;
@@ -39,9 +38,8 @@ const Modals = ({
   claimRewardsFromValidator,
   reDelegatableBalance,
   delegateToValidator,
-  reDelegateFromValidator,
   undelegateFromValidator,
-  delegatableValidators,
+  showRedelegation,
   ownDelegation,
   onClaimSuccess,
   onDelegateSuccess,
@@ -77,29 +75,23 @@ const Modals = ({
           closeIcon={CloseIcon}
         />
       )}
-      {onReDelegateSuccess &&
-        onReDelegateClose &&
-        onReDelegateFinish &&
-        reDelegateFromValidator &&
-        reDelegatableBalance && (
-          <Modal
-            id="delegateModal"
-            title="Re-delegate to..."
-            show={!!reDelegateFromValidator}
-            children={
-              <ReDelegate
-                reDelegatableBalance={reDelegatableBalance}
-                validatorFrom={reDelegateFromValidator}
-                delegatableValidators={delegatableValidators}
-                onSuccess={() => onReDelegateSuccess()}
-                onFinish={() => onReDelegateFinish()}
-              />
-            }
-            parentElementID="root"
-            onRequestClose={() => onReDelegateClose()}
-            closeIcon={CloseIcon}
-          />
-        )}
+      {onReDelegateSuccess && onReDelegateClose && onReDelegateFinish && reDelegatableBalance && (
+        <Modal
+          id="delegateModal"
+          title="Re-delegate to..."
+          show={showRedelegation}
+          children={
+            <ReDelegate
+              reDelegatableBalance={reDelegatableBalance}
+              onSuccess={() => onReDelegateSuccess()}
+              onFinish={() => onReDelegateFinish()}
+            />
+          }
+          parentElementID="root"
+          onRequestClose={() => onReDelegateClose()}
+          closeIcon={CloseIcon}
+        />
+      )}
       {undelegateFromValidator && (
         <Modal
           id="delegateModal"

@@ -96,6 +96,11 @@ const NodeProfilePage = () => {
   const fetchNode = useCallback(async () => {
     if (address) {
       const ownValidator = await getValidator(address);
+      setValidator({
+        ...ownValidator,
+        pbftsProduced: 0,
+        yield: 0,
+      });
       const validator = allValidatorsWithStats.find(
         (v: ValidatorWithStats) => v.address === address,
       );
@@ -183,8 +188,8 @@ const NodeProfilePage = () => {
       <Modals
         balance={balance}
         reDelegatableBalance={ethers.BigNumber.from('0')}
-        delegatableValidators={[]}
         delegateToValidator={delegateToValidator}
+        showRedelegation={false}
         undelegateFromValidator={undelegateFromValidator}
         onDelegateSuccess={() => {
           // getBalances();

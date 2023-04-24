@@ -461,3 +461,32 @@ a.commissionChangeCheck {
 .skeleton {
   background-color: #4f5368 !important;
 }
+
+.redelegation-notice {
+  position: fixed;
+  z-index: 10000;
+  width: 100%;
+  left: 0;
+  right: 0;
+  top: 10%;
+  margin: 0 auto;
+  background-color: #ffa726;
+  .notice-container {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    @media only screen and (max-width: 1003px) {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  }
+}
+
+.redelegation-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+}
