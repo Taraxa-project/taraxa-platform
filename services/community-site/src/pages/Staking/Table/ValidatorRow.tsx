@@ -16,6 +16,7 @@ import {
   ValidatorWithStats,
 } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
+import { useRedelegation } from '../../../services/useRedelegation';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -43,6 +44,8 @@ const ValidatorRow = ({
   undelegateDisabled = false,
 }: ValidatorRowProps) => {
   const history = useHistory();
+  const { validatorFrom, setValidatorFrom, setValidatorTo } = useRedelegation();
+
   const validatorWithYield = validator as ValidatorWithStats;
   return (
     <TableRow className={clsx('tableRow')}>
@@ -88,30 +91,33 @@ const ValidatorRow = ({
       <TableCell className="tableCell stackingCell">{stripEth(stakingRewards)}</TableCell>
       <TableCell className="tableCell availableDelegationActionsCell">
         <div className="validatorActions">
-          {/* <Button
-            // hidden
-            size="small"
-            color="secondary"
-            variant="contained"
-            label="Re-Delegate"
-            disabled={actionsDisabled || !ownDelegation}
-            className="smallBtn"
-            onClick={() => setReDelegateFromValidator(validator)}
-          /> */}
-          <Button
-            size="small"
-            color="secondary"
-            variant="contained"
-            label={ownDelegation ? 'Delegate More' : 'Delegate'}
-            disabled={
-              actionsDisabled ||
-              validator.isFullyDelegated ||
-              validator.availableForDelegation.lte(0)
-            }
-            className="smallBtn"
-            onClick={() => setDelegateToValidator(validator)}
-          />
-          {ownDelegation && (
+          {!validatorFrom && ownDelegation && (
+            <Button
+              size="small"
+              color="warning"
+              variant="contained"
+              label="Shift delegation OUT"
+              disabled={actionsDisabled || !ownDelegation}
+              className="smallBtn"
+              onClick={() => setValidatorFrom(validator)}
+            />
+          )}
+          {!validatorFrom && (
+            <Button
+              size="small"
+              color="secondary"
+              variant="contained"
+              label={ownDelegation ? 'Delegate More' : 'Delegate'}
+              disabled={
+                actionsDisabled ||
+                validator.isFullyDelegated ||
+                validator.availableForDelegation.lte(0)
+              }
+              className="smallBtn"
+              onClick={() => setDelegateToValidator(validator)}
+            />
+          )}
+          {!validatorFrom && ownDelegation && (
             <Button
               size="small"
               color="error"
@@ -122,7 +128,7 @@ const ValidatorRow = ({
               onClick={() => setUndelegateFromValidator(validator)}
             />
           )}
-          {ownDelegation && (
+          {!validatorFrom && ownDelegation && (
             <Button
               size="small"
               color="secondary"
@@ -131,6 +137,17 @@ const ValidatorRow = ({
               disabled={actionsDisabled || stakingRewards.lte(BigNumber.from('0'))}
               className="smallBtn"
               onClick={() => setClaimFromValidator(stakingRewards, validator)}
+            />
+          )}
+          {validatorFrom && validatorFrom.address !== validator.address && (
+            <Button
+              size="small"
+              color="warning"
+              variant="contained"
+              label="Shift delegation IN"
+              disabled={actionsDisabled}
+              className="smallBtn"
+              onClick={() => setValidatorTo(validator)}
             />
           )}
         </div>

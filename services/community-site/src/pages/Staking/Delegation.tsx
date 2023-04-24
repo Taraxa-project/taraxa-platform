@@ -43,6 +43,7 @@ import { stripEth, weiToEth } from '../../utils/eth';
 import Undelegation from '../../interfaces/Undelegation';
 import { useWalletPopup } from '../../services/useWalletPopup';
 import useExplorerStats from '../../services/useExplorerStats';
+import { useRedelegation } from '../../services/useRedelegation';
 
 const Delegation = ({ location }: { location: Location }) => {
   const { user } = useAuth();
@@ -55,7 +56,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
-
+  const { validatorFrom, showPopup, clearRedelegation } = useRedelegation();
   const [validators, setValidators] = useState<Validator[]>([]);
   const [ownValidators, setOwnValidators] = useState<Validator[]>([]);
   const [delegations, setDelegations] = useState<DelegationInterface[]>([]);
@@ -75,7 +76,6 @@ const Delegation = ({ location }: { location: Location }) => {
   const [claimRewardsFromValidator, setClaimRewardsFromValidator] = useState<Validator | null>(
     null,
   );
-  const [reDelegateFromValidator, setReDelegateFromValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
 
@@ -212,12 +212,9 @@ const Delegation = ({ location }: { location: Location }) => {
         balance={balance}
         claimAmount={claimAmount}
         delegateToValidator={delegateToValidator}
-        reDelegateFromValidator={reDelegateFromValidator}
         undelegateFromValidator={undelegateFromValidator}
         claimRewardsFromValidator={claimRewardsFromValidator}
-        delegatableValidators={delegatableValidators?.filter(
-          (d) => d.address !== reDelegateFromValidator?.address,
-        )}
+        showRedelegation={showPopup}
         ownDelegation={
           !!delegateToValidator &&
           delegations
@@ -225,9 +222,7 @@ const Delegation = ({ location }: { location: Location }) => {
             .includes(delegateToValidator?.address.toLowerCase())
         }
         reDelegatableBalance={delegations
-          .filter(
-            (d) => d.address.toLowerCase() === reDelegateFromValidator?.address?.toLowerCase(),
-          )
+          .filter((d) => d.address.toLowerCase() === validatorFrom?.address?.toLowerCase())
           .reduce((prev, curr) => prev.add(curr.stake), ethers.BigNumber.from('0'))}
         onClaimSuccess={() => {
           fetchBalance();
@@ -251,11 +246,11 @@ const Delegation = ({ location }: { location: Location }) => {
         }}
         onClaimClose={() => setClaimRewardsFromValidator(null)}
         onDelegateClose={() => setDelegateToValidator(null)}
-        onReDelegateClose={() => setReDelegateFromValidator(null)}
+        onReDelegateClose={() => clearRedelegation()}
         onUndelegateClose={() => setUndelegateFromValidator(null)}
         onClaimFinish={() => setClaimRewardsFromValidator(null)}
         onDelegateFinish={() => setDelegateToValidator(null)}
-        onReDelegateFinish={() => setReDelegateFromValidator(null)}
+        onReDelegateFinish={() => clearRedelegation()}
         onUndelegateFinish={() => setUndelegateFromValidator(null)}
       />
       <div className="runnode-content">
