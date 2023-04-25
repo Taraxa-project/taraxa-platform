@@ -392,8 +392,8 @@ const RunValidator = () => {
           </TableContainer>
         )}
         {validatorType === ValidatorType.TESTNET && testnetValidators.length > 0 && (
-          <TableContainer>
-            <Table className="table">
+          <TableContainer className="validatorsTableContainer">
+            <Table className="validatorsTable">
               <TableHead>
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell statusCell">Status</TableCell>
