@@ -10,11 +10,7 @@ import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange
 import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
-import {
-  Validator,
-  getValidatorStatusTooltip,
-  ValidatorWithStats,
-} from '../../../interfaces/Validator';
+import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
 import { useRedelegation } from '../../../services/useRedelegation';
 
@@ -46,7 +42,7 @@ const ValidatorRow = ({
   const history = useHistory();
   const { validatorFrom, setValidatorFrom, setValidatorTo } = useRedelegation();
 
-  const validatorWithYield = validator as ValidatorWithStats;
+  const validatorWithYield = validator as Validator;
   return (
     <TableRow className={clsx('tableRow')}>
       <TableCell className="tableCell statusCell">

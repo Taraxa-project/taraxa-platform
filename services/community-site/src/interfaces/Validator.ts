@@ -21,6 +21,11 @@ export enum ValidatorStatus {
   ELIGIBLE = 'eligible',
 }
 
+export enum ValidatorType {
+  MAINNET = 'mainnet',
+  TESTNET = 'testnet',
+}
+
 export interface Validator {
   address: string;
   owner: string;
@@ -35,11 +40,9 @@ export interface Validator {
   isActive: boolean;
   status: ValidatorStatus;
   rank: number;
-}
-
-export interface ValidatorWithStats extends Validator {
   pbftsProduced: number;
   yield: number;
+  type: ValidatorType;
 }
 
 export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
@@ -55,7 +58,7 @@ export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
   }
 };
 
-export const calculateValidatorYield = (validators: ValidatorWithStats[]): ValidatorWithStats[] => {
+export const calculateValidatorYield = (validators: Validator[]): Validator[] => {
   if (!validators.length) {
     return validators;
   }
@@ -80,6 +83,6 @@ export const calculateValidatorYield = (validators: ValidatorWithStats[]): Valid
     return {
       ...validator,
       yield: yieldRatio,
-    } as ValidatorWithStats;
+    } as Validator;
   });
 };

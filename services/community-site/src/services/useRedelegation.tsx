@@ -1,7 +1,9 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useEffect, useContext, createContext } from 'react';
 import { Skeleton } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 import { Button, Text } from '@taraxa_project/taraxa-ui';
 import { Validator } from '../interfaces/Validator';
+import Nickname from '../components/Nickname/Nickname';
 
 type Context = {
   validatorFrom: Validator | null;
@@ -30,6 +32,7 @@ const initialState: Context = {
 const RedelegationContext = createContext<Context>(initialState);
 
 const useProvideRedelegation = () => {
+  const location = useLocation();
   const [validatorFrom, setValidatorFrom] = useState<Validator | null>(null);
   const [validatorTo, setValidatorTo] = useState<Validator | null>(null);
 
@@ -38,26 +41,23 @@ const useProvideRedelegation = () => {
     setValidatorTo(null);
   };
 
+  useEffect(() => {
+    clearRedelegation();
+  }, [location]);
+
   const notice = validatorFrom && !validatorTo && (
     <div className="redelegation-notice">
       <div className="notice-container">
         <div>
-          <Text
-            label="Validator From"
-            variant="body1"
-            color="black"
-            style={{ marginBottom: '1rem' }}
+          <Text label="Validator From" variant="body1" style={{ marginBottom: '1rem' }} />
+          <Nickname
+            showIcon
+            address={validatorFrom.address}
+            description={validatorFrom.description}
           />
-          <Text label={validatorFrom.address} variant="body1" color="black" />
-          <Text label={validatorFrom.description} variant="body1" color="black" />
         </div>
         <div>
-          <Text
-            label="Validator To"
-            variant="body1"
-            color="black"
-            style={{ marginBottom: '1rem' }}
-          />
+          <Text label="Validator To" variant="body1" style={{ marginBottom: '1rem' }} />
           <Skeleton variant="text" sx={{ fontSize: '1rem', width: '300px' }} />
           <Skeleton variant="text" sx={{ fontSize: '1rem', width: '300px' }} />
         </div>

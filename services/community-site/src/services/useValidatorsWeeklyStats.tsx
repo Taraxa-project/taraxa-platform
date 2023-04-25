@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext, useEffect, useCallback } from 'react';
+import React, { useContext, createContext, useEffect, useCallback, useRef } from 'react';
 import { networks } from '../utils/networks';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
@@ -20,12 +20,11 @@ const initialState: Context = {
 const ValdiatorWeeklyStatsContext = createContext<Context>(initialState);
 
 const useProvideValidatorWeeklyStats = () => {
-  const [validatorWeekStats, setValidatorWeekStats] = useState<ValidatorStats[]>([]);
+  const validatorWeekStats = useRef<ValidatorStats[]>([]);
   const { get } = useApi();
   const { chainId } = useMainnet();
 
   const fetchValidatorStatsForWeek = useCallback(async (): Promise<void> => {
-    let validatorStats: { address: string; pbftCount: number; rank: number }[] = [];
     let start = 0;
     let hasNextPage = true;
     while (hasNextPage) {
@@ -34,7 +33,10 @@ const useProvideValidatorWeeklyStats = () => {
           `${networks[chainId].indexerUrl}/validators?limit=100&start=${start}`,
         );
         if (allValidators.success) {
-          validatorStats = [...validatorStats, ...allValidators.response.data];
+          validatorWeekStats.current = [
+            ...validatorWeekStats.current,
+            ...allValidators.response.data,
+          ];
           hasNextPage = allValidators.response.hasNext;
           start += 100;
         }
@@ -44,25 +46,26 @@ const useProvideValidatorWeeklyStats = () => {
         hasNextPage = false;
       }
     }
-    setValidatorWeekStats(validatorStats);
   }, []);
 
   const getPbftBlocksProduced = (address: string) => {
     const pbftsProduced =
-      validatorWeekStats.find((stat) => stat.address.toLowerCase() === address.toLowerCase())
-        ?.pbftCount || 0;
+      validatorWeekStats.current.find(
+        (stat) => stat.address.toLowerCase() === address.toLowerCase(),
+      )?.pbftCount || 0;
 
     return pbftsProduced;
   };
 
   useEffect(() => {
-    (async () => {
-      await fetchValidatorStatsForWeek();
-    })();
+    if (validatorWeekStats.current.length === 0) {
+      // Fetch validator stats only if not already fetched
+      fetchValidatorStatsForWeek();
+    }
   }, [fetchValidatorStatsForWeek]);
 
   return {
-    validatorWeekStats,
+    validatorWeekStats: validatorWeekStats.current,
     getPbftBlocksProduced,
   };
 };

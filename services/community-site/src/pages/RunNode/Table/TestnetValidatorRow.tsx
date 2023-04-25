@@ -2,20 +2,19 @@ import React from 'react';
 import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 
-import OwnNode from '../../../interfaces/OwnNode';
 import Nickname from '../../../components/Nickname/Nickname';
-import { getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
 
 const TestnetValidatorRow = ({
   validator,
   onEdit,
   onDelete,
 }: {
-  validator: OwnNode;
-  onEdit: (validator: OwnNode) => void;
-  onDelete: (validator: OwnNode) => void;
+  validator: Validator;
+  onEdit: (validator: Validator) => void;
+  onDelete: (validator: Validator) => void;
 }) => {
-  const { status, address, description, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
+  const { status, address, description, yield: y, pbftsProduced, rank } = validator;
 
   const actions = (
     <div className="validatorActions">
@@ -35,7 +34,7 @@ const TestnetValidatorRow = ({
         color="secondary"
         className="smallBtn"
         label="Delete"
-        disabled={!validator.canDelete}
+        // disabled={!validator.canDelete}
         onClick={() => {
           const confirmation = window.confirm();
           if (confirmation) {
@@ -60,14 +59,14 @@ const TestnetValidatorRow = ({
       </TableCell>
       <TableCell className="tableCell nameCell">
         <div className="flexCell nodeLink">
-          <Nickname address={address} description={description} />
+          <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell nodeCell">{y}%</TableCell>
-      <TableCell className="tableCell nodeCell">{weeklyBlocksProduced}</TableCell>
-      <TableCell className="tableCell nodeCell">{weeklyRank || 0}</TableCell>
-      <TableCell className="tableCell nodeActionsCell" align="right">
-        {actions}
+      <TableCell className="tableCell yieldCell">{y}%</TableCell>
+      <TableCell className="tableCell pbftsCell">{pbftsProduced}</TableCell>
+      <TableCell className="tableCell rankingCell">{rank || 0}</TableCell>
+      <TableCell className="tableCell availableDelegationActionsCell" align="right">
+        <div className="validatorActions">{actions}</div>
       </TableCell>
     </TableRow>
   );

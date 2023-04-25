@@ -13,7 +13,7 @@ import useChain from '../../services/useChain';
 import Title from '../../components/Title/Title';
 import useValidators from '../../services/useValidators';
 
-import { Validator, ValidatorWithStats } from '../../interfaces/Validator';
+import { Validator } from '../../interfaces/Validator';
 
 import { stripEth, weiToEth } from '../../utils/eth';
 
@@ -79,7 +79,7 @@ const NodeProfilePage = () => {
   const { getDelegations } = useDelegation();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
-  const [validator, setValidator] = useState<ValidatorWithStats | null>(null);
+  const [validator, setValidator] = useState<Validator | null>(null);
   const [delegationCount, setDelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<Delegation[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
@@ -101,9 +101,7 @@ const NodeProfilePage = () => {
         pbftsProduced: 0,
         yield: 0,
       });
-      const validator = allValidatorsWithStats.find(
-        (v: ValidatorWithStats) => v.address === address,
-      );
+      const validator = allValidatorsWithStats.find((v: Validator) => v.address === address);
       setValidator({
         ...ownValidator,
         pbftsProduced: validator?.pbftsProduced || 0,
