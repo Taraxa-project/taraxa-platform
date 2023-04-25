@@ -25,7 +25,7 @@ import InfoIcon from '../../assets/icons/info';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
-import { Validator } from '../../interfaces/Validator';
+import { Validator, ValidatorType } from '../../interfaces/Validator';
 import { Node, nodeToValidator } from '../../interfaces/Node';
 
 import RunValidatorModal from './Modal';
@@ -66,8 +66,10 @@ const RunValidator = () => {
     setIsOpenRegisterValidatorModal(false);
   };
 
-  const [validatorType, setValidatorType] = useState<'mainnet' | 'testnet'>(
-    networkParam === 'testnet' || networkParam === 'mainnet' ? networkParam : 'mainnet',
+  const [validatorType, setValidatorType] = useState<ValidatorType>(
+    networkParam === ValidatorType.TESTNET || networkParam === ValidatorType.MAINNET
+      ? networkParam
+      : ValidatorType.MAINNET,
   );
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
@@ -89,6 +91,7 @@ const RunValidator = () => {
       if (r.success) {
         const testnetNodes: Node[] = r.response;
         const testnetValidators = testnetNodes.map((n) => nodeToValidator(n));
+        setTestnetValidators(testnetValidators);
         const updatedValidators = await updateTestnetValidatorsRank(testnetValidators);
         const validatorsWithStats = await updateTestnetValidatorsStats(updatedValidators);
         setTestnetValidators(validatorsWithStats);
@@ -117,14 +120,14 @@ const RunValidator = () => {
 
   useEffect(() => {
     (async () => {
-      if (validatorType === 'testnet') {
+      if (validatorType === ValidatorType.TESTNET) {
         await getTestnetNodes();
       }
     })();
   }, [shouldFetch, validatorType]);
 
   const fetchValidators = () => {
-    if (status === 'connected' && account && validatorType === 'mainnet') {
+    if (status === 'connected' && account && validatorType === ValidatorType.MAINNET) {
       (async () => {
         const myValidators = await getValidatorsFor(account);
         const validatorsWithYieldEfficiency: Validator[] = myValidators.map((v) => {
@@ -145,11 +148,11 @@ const RunValidator = () => {
     fetchValidators();
   }, [status, account, shouldFetch, validatorType, allValidatorsWithStats]);
 
-  const nodeTypeLabel = validatorType === 'mainnet' ? 'Mainnet' : 'Testnet';
+  const nodeTypeLabel = validatorType === ValidatorType.MAINNET ? 'Mainnet' : 'Testnet';
 
   let canRegisterValidator = false;
 
-  if (validatorType === 'mainnet') {
+  if (validatorType === ValidatorType.MAINNET) {
     if (!isOnWrongChain) {
       if (status === 'connected') {
         if (account) {
@@ -159,7 +162,7 @@ const RunValidator = () => {
     }
   }
 
-  if (validatorType === 'testnet') {
+  if (validatorType === ValidatorType.TESTNET) {
     if (isLoggedIn) {
       canRegisterValidator = true;
     }
@@ -169,11 +172,11 @@ const RunValidator = () => {
   let blocksProduced = 0;
   let weeklyRating = 0;
 
-  if (validatorType === 'mainnet') {
+  if (validatorType === ValidatorType.MAINNET) {
     activeValidators = mainnetValidators.filter((v) => v.isActive).length;
   }
 
-  if (validatorType === 'testnet') {
+  if (validatorType === ValidatorType.TESTNET) {
     activeValidators = testnetValidators.filter((v) => v.isActive).length;
     blocksProduced = testnetValidators.reduce((prev, curr) => prev + curr.pbftsProduced!, 0);
     weeklyRating = 0;
@@ -238,13 +241,12 @@ const RunValidator = () => {
         validatorType={validatorType}
         onClose={() => closeRegisterValidatorModal()}
         onSuccess={() => {
-          // getNodes();
           setShouldFetch(true);
           closeRegisterValidatorModal();
         }}
       />
       <div className="runnode-content">
-        {validatorType === 'mainnet' && status !== 'connected' && (
+        {validatorType === ValidatorType.MAINNET && status !== 'connected' && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -253,7 +255,7 @@ const RunValidator = () => {
             />
           </div>
         )}
-        {validatorType === 'mainnet' && status === 'connected' && isOnWrongChain && (
+        {validatorType === ValidatorType.MAINNET && status === 'connected' && isOnWrongChain && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -264,7 +266,7 @@ const RunValidator = () => {
             </Notification>
           </div>
         )}
-        {validatorType === 'testnet' && !isLoggedIn && (
+        {validatorType === ValidatorType.TESTNET && !isLoggedIn && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -280,22 +282,22 @@ const RunValidator = () => {
             <Text label="My nodes" variant="h6" color="primary" className="box-title" />
             <Button
               size="small"
-              className={clsx('nodeTypeTab', validatorType === 'mainnet' && 'active')}
+              className={clsx('nodeTypeTab', validatorType === ValidatorType.MAINNET && 'active')}
               label="Mainnet"
               variant="contained"
               onClick={() => {
-                setValidatorType('mainnet');
-                window.location.hash = 'mainnet';
+                setValidatorType(ValidatorType.MAINNET);
+                window.location.hash = ValidatorType.MAINNET;
               }}
             />
             <Button
               size="small"
-              className={clsx('nodeTypeTab', validatorType === 'testnet' && 'active')}
+              className={clsx('nodeTypeTab', validatorType === ValidatorType.TESTNET && 'active')}
               label="Testnet"
               variant="contained"
               onClick={() => {
-                setValidatorType('testnet');
-                window.location.hash = 'testnet';
+                setValidatorType(ValidatorType.TESTNET);
+                window.location.hash = ValidatorType.TESTNET;
               }}
             />
           </div>
@@ -310,8 +312,8 @@ const RunValidator = () => {
           />
         </div>
         <div className="cardContainer">
-          {((validatorType === 'mainnet' && mainnetValidators.length > 0) ||
-            (validatorType === 'testnet' && testnetValidators.length > 0)) && (
+          {((validatorType === ValidatorType.MAINNET && mainnetValidators.length > 0) ||
+            (validatorType === ValidatorType.TESTNET && testnetValidators.length > 0)) && (
             <>
               <BaseCard
                 title={activeValidators.toString()}
@@ -330,8 +332,8 @@ const RunValidator = () => {
               />
             </>
           )}
-          {((validatorType === 'mainnet' && mainnetValidators.length === 0) ||
-            (validatorType === 'testnet' && testnetValidators.length === 0)) && (
+          {((validatorType === ValidatorType.MAINNET && mainnetValidators.length === 0) ||
+            (validatorType === ValidatorType.TESTNET && testnetValidators.length === 0)) && (
             <>
               <IconCard
                 title="Register a node"
@@ -357,7 +359,7 @@ const RunValidator = () => {
             </>
           )}
         </div>
-        {validatorType === 'mainnet' && mainnetValidators.length > 0 && (
+        {validatorType === ValidatorType.MAINNET && mainnetValidators.length > 0 && (
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
@@ -389,7 +391,7 @@ const RunValidator = () => {
             </Table>
           </TableContainer>
         )}
-        {validatorType === 'testnet' && testnetValidators.length > 0 && (
+        {validatorType === ValidatorType.TESTNET && testnetValidators.length > 0 && (
           <TableContainer>
             <Table className="table">
               <TableHead>

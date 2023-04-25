@@ -5,6 +5,7 @@ import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import { useDelegationApi } from '../../../services/useApi';
 import useValidators from '../../../services/useValidators';
 import { useWalletPopup } from '../../../services/useWalletPopup';
+import { ValidatorType } from '../../../interfaces/Validator';
 
 const RegisterNode = ({
   balance,
@@ -13,7 +14,7 @@ const RegisterNode = ({
   onClose,
 }: {
   balance: ethers.BigNumber;
-  type: 'mainnet' | 'testnet';
+  type: ValidatorType;
   onSuccess: () => void;
   onClose: () => void;
 }) => {
@@ -78,14 +79,14 @@ const RegisterNode = ({
       address,
       addressProof,
       vrfKey,
-      commission: type === 'mainnet' ? parseInt(commission, 10) : null,
+      commission: type === ValidatorType.MAINNET ? parseInt(commission, 10) : null,
     };
 
     if (ip) {
       payload.ip = ip;
     }
 
-    if (type === 'mainnet') {
+    if (type === ValidatorType.MAINNET) {
       if (balance.lt(minimumRequiredBalance)) {
         setError('You don`t have enough balance to register a new validator');
         return;
@@ -203,7 +204,7 @@ const RegisterNode = ({
               setVrfKey(event.target.value);
             }}
           />
-          {type === 'testnet' && (
+          {type === ValidatorType.TESTNET && (
             <InputField
               label="Node IP (optional)"
               error={!!ipError}
@@ -218,7 +219,7 @@ const RegisterNode = ({
               }}
             />
           )}
-          {type === 'mainnet' && (
+          {type === ValidatorType.MAINNET && (
             <InputField
               label="Commission"
               error={!!commissionError}
