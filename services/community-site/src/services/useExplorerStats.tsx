@@ -80,7 +80,7 @@ export default () => {
       );
       return newValidators as Validator[];
     },
-    [get, validatorWeekStats],
+    [get, validatorWeekStats, getPbftBlocksProduced],
   );
 
   const updateTestnetValidatorsStats = useCallback(

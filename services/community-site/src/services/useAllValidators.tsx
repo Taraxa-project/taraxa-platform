@@ -24,10 +24,11 @@ const useProvideValidators = () => {
     (async () => {
       startLoading!();
       const myValidators = await getValidators();
+      setAllValidatorsWithStats(myValidators);
+      finishLoading!();
       const updatedValidators = await updateValidatorsRank(myValidators);
       const validatorsWithStats = await updateValidatorsStats(updatedValidators);
       const validatorsWithYieldEfficiency = calculateValidatorYield(validatorsWithStats);
-      finishLoading!();
       setAllValidatorsWithStats(validatorsWithYieldEfficiency);
     })();
   };
