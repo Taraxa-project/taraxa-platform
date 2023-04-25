@@ -25,8 +25,8 @@ import InfoIcon from '../../assets/icons/info';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
-import { Validator, ValidatorWithStats } from '../../interfaces/Validator';
-import OwnNode from '../../interfaces/OwnNode';
+import { Validator } from '../../interfaces/Validator';
+import { Node, nodeToValidator } from '../../interfaces/Node';
 
 import RunValidatorModal from './Modal';
 import References from './References';
@@ -71,11 +71,11 @@ const RunValidator = () => {
   );
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
-  const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
+  const [testnetValidators, setTestnetValidators] = useState<Validator[]>([]);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
-  const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
+  const [currentEditedNode, setCurrentEditedNode] = useState<null | Validator>(null);
 
   const fetchBalance = async () => {
     if (status === 'connected' && account && provider) {
@@ -87,7 +87,8 @@ const RunValidator = () => {
     try {
       const r = await delegationApi.get(`/nodes?type=testnet`, true);
       if (r.success) {
-        const testnetValidators: OwnNode[] = r.response;
+        const testnetNodes: Node[] = r.response;
+        const testnetValidators = testnetNodes.map((n) => nodeToValidator(n));
         const updatedValidators = await updateTestnetValidatorsRank(testnetValidators);
         const validatorsWithStats = await updateTestnetValidatorsStats(updatedValidators);
         setTestnetValidators(validatorsWithStats);
@@ -99,8 +100,8 @@ const RunValidator = () => {
     }
   }, [validatorType]);
 
-  const deleteTestnetNode = async (node: OwnNode) => {
-    await delegationApi.del(`/nodes/${node.id}`, true);
+  const deleteTestnetNode = async (node: Validator) => {
+    await delegationApi.del(`/nodes/${node.address}`, true);
     await getTestnetNodes();
   };
 
@@ -126,14 +127,14 @@ const RunValidator = () => {
     if (status === 'connected' && account && validatorType === 'mainnet') {
       (async () => {
         const myValidators = await getValidatorsFor(account);
-        const validatorsWithYieldEfficiency: ValidatorWithStats[] = myValidators.map((v) => {
+        const validatorsWithYieldEfficiency: Validator[] = myValidators.map((v) => {
           const foundValidator = allValidatorsWithStats.find(
             (validatorWithStats) => validatorWithStats.address === v.address,
           );
           return {
             ...v,
             ...foundValidator,
-          } as ValidatorWithStats;
+          } as Validator;
         });
         setMainnetValidators(validatorsWithYieldEfficiency);
       })();
@@ -174,7 +175,7 @@ const RunValidator = () => {
 
   if (validatorType === 'testnet') {
     activeValidators = testnetValidators.filter((v) => v.isActive).length;
-    blocksProduced = testnetValidators.reduce((prev, curr) => prev + curr.blocksProduced!, 0);
+    blocksProduced = testnetValidators.reduce((prev, curr) => prev + curr.pbftsProduced!, 0);
     weeklyRating = 0;
   }
 
@@ -406,7 +407,7 @@ const RunValidator = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {testnetValidators.map((v: OwnNode) => (
+                {testnetValidators.map((v: Validator) => (
                   <TestnetValidatorRow
                     key={v.address}
                     validator={v}

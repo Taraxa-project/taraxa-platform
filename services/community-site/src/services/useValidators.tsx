@@ -1,7 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { ethers } from 'ethers';
 
-import { ContractValidator, Validator, ValidatorStatus } from '../interfaces/Validator';
+import {
+  ContractValidator,
+  Validator,
+  ValidatorStatus,
+  ValidatorType,
+} from '../interfaces/Validator';
 import { useLoading } from './useLoading';
 import useDpos from './useDpos';
 
@@ -25,6 +30,9 @@ export default () => {
     description: contractValidator.info.description,
     endpoint: contractValidator.info.endpoint,
     rank: 0,
+    pbftsProduced: 0,
+    yield: 0,
+    type: ValidatorType.MAINNET,
   });
 
   const getValidators = useCallback(async (): Promise<Validator[]> => {

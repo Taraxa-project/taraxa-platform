@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { Text, Button, InputField } from '@taraxa_project/taraxa-ui';
 import Title from '../../../components/Title/Title';
 import { useDelegationApi } from '../../../services/useApi';
-import OwnNode from '../../../interfaces/OwnNode';
+import { Validator } from '../../../interfaces/Validator';
 
 interface EditNodeProps {
   closeEditNode: (refreshNodes: boolean) => void;
-  node: OwnNode;
+  node: Validator;
 }
 
 const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
   const [name, setName] = useState(node.description || '');
   const [nameError, setNameError] = useState('');
-  const [ip, setIp] = useState(node.ip || '');
+  const [ip, setIp] = useState(node.address || '');
   const [ipError, setIpError] = useState('');
   const delegationApi = useDelegationApi();
 
@@ -23,7 +23,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
     setNameError('');
     setIpError('');
     const result = await delegationApi.put(
-      `/nodes/${node.id}`,
+      `/nodes/${node.address}`,
       { name: name || null, ip: ip || null },
       true,
     );

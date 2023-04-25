@@ -1,11 +1,11 @@
 import React, { useState, useContext, createContext, useEffect } from 'react';
-import { calculateValidatorYield, ValidatorWithStats } from '../interfaces/Validator';
+import { calculateValidatorYield, Validator } from '../interfaces/Validator';
 import useValidators from './useValidators';
 import useExplorerStats from './useExplorerStats';
 import { useLoading } from './useLoading';
 
 type Context = {
-  allValidatorsWithStats: ValidatorWithStats[];
+  allValidatorsWithStats: Validator[];
 };
 
 const initialState: Context = {
@@ -15,7 +15,7 @@ const initialState: Context = {
 const ValidatorsContext = createContext<Context>(initialState);
 
 const useProvideValidators = () => {
-  const [allValidatorsWithStats, setAllValidatorsWithStats] = useState<ValidatorWithStats[]>([]);
+  const [allValidatorsWithStats, setAllValidatorsWithStats] = useState<Validator[]>([]);
   const { getValidators } = useValidators();
   const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
   const { startLoading, finishLoading } = useLoading();

@@ -1,11 +1,10 @@
 import { useCallback, useMemo } from 'react';
 
-import { Validator, ValidatorStatus, ValidatorWithStats } from '../interfaces/Validator';
+import { Validator, ValidatorStatus, ValidatorType } from '../interfaces/Validator';
 import { networks } from '../utils/networks';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
 import useValidators from './useValidators';
-import OwnNode from '../interfaces/OwnNode';
 import { useValidatorsWeeklyStats } from './useValidatorsWeeklyStats';
 
 export default () => {
@@ -14,11 +13,7 @@ export default () => {
   const { isValidatorEligible } = useValidators();
   const { validatorWeekStats, getPbftBlocksProduced } = useValidatorsWeeklyStats();
 
-  const getStats = async (
-    validator: Validator | OwnNode,
-    type: 'mainnet' | 'testnet',
-    chain: number,
-  ) => {
+  const getStats = async (validator: Validator, chain: number) => {
     const stats = await get(
       `${networks[chain].indexerUrl}/address/${validator.address.toLowerCase()}/stats`,
     );
@@ -47,7 +42,7 @@ export default () => {
 
     let validatorStatus: ValidatorStatus;
 
-    if (type === 'mainnet') {
+    if (validator.type === ValidatorType.MAINNET) {
       const isEligible = await isValidatorEligible(validator.address);
       validatorStatus = isEligible
         ? producedBlocksInLast24hours
@@ -68,14 +63,14 @@ export default () => {
   };
 
   const updateValidatorsStats = useCallback(
-    async (validators: Validator[]): Promise<ValidatorWithStats[]> => {
+    async (validators: Validator[]): Promise<Validator[]> => {
       if (validators.length === 0) {
-        return [] as ValidatorWithStats[];
+        return [] as Validator[];
       }
 
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
-          const validatorWithStats = await getStats(validator, 'mainnet', chainId);
+          const validatorWithStats = await getStats(validator, chainId);
           const pbftsProduced = getPbftBlocksProduced(validatorWithStats.address);
           return {
             ...validatorWithStats,
@@ -83,24 +78,24 @@ export default () => {
           };
         }),
       );
-      return newValidators as ValidatorWithStats[];
+      return newValidators as Validator[];
     },
     [get, validatorWeekStats],
   );
 
   const updateTestnetValidatorsStats = useCallback(
-    async (validators: OwnNode[]) => {
+    async (validators: Validator[]) => {
       if (validators.length === 0) {
         return validators;
       }
 
       const newValidators = await Promise.all(
         validators.map(async (validator) => {
-          return getStats(validator, 'testnet', 842);
+          return getStats(validator, 842);
         }),
       );
 
-      return newValidators as OwnNode[];
+      return newValidators as Validator[];
     },
     [get],
   );
@@ -134,7 +129,7 @@ export default () => {
   );
 
   const updateTestnetValidatorsRank = useCallback(
-    async (validators: OwnNode[]) => {
+    async (validators: Validator[]) => {
       if (validators.length === 0) {
         return validators;
       }
