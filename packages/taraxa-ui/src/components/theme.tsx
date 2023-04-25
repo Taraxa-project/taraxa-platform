@@ -19,6 +19,14 @@ const theme: Theme = createTheme({
       main: '#40465F',
       contrastText: '#FFFFFF',
     },
+    warning: {
+      main: '#ffa726',
+      contrastText: '#FFFFFF',
+    },
+    danger: {
+      main: '#f44336',
+      contrastText: '#FFFFFF',
+    },
     grey: {
       A100: '#31364B',
       100: '#6A7085',

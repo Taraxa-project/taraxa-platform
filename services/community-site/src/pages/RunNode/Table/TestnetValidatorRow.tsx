@@ -59,12 +59,12 @@ const TestnetValidatorRow = ({
       </TableCell>
       <TableCell className="tableCell nameCell">
         <div className="flexCell nodeLink">
-          <Nickname address={address} description={description} />
+          <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell nodeCell">{y}%</TableCell>
-      <TableCell className="tableCell nodeCell">{pbftsProduced}</TableCell>
-      <TableCell className="tableCell nodeCell">{rank || 0}</TableCell>
+      <TableCell className="tableCell yieldCell">{y}%</TableCell>
+      <TableCell className="tableCell pbftsCell">{pbftsProduced}</TableCell>
+      <TableCell className="tableCell rankingCell">{rank || 0}</TableCell>
       <TableCell className="tableCell availableDelegationActionsCell" align="right">
         <div className="validatorActions">{actions}</div>
       </TableCell>

@@ -397,15 +397,17 @@ const RunValidator = () => {
               <TableHead>
                 <TableRow className="tableHeadRow">
                   <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nodeCell">Name</TableCell>
-                  <TableCell className="tableHeadCell nodeCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell nodeCell">
+                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
+                  <TableCell className="tableHeadCell yieldCell">Expected Yield</TableCell>
+                  <TableCell className="tableHeadCell pbftsCell">
                     Number of blocks produced
                   </TableCell>
-                  <TableCell className="tableHeadCell nodeCell" colSpan={2}>
+                  <TableCell className="tableHeadCell rankingCell" colSpan={2}>
                     Ranking
                   </TableCell>
-                  <TableCell className="tableHeadCell nodeActionsCell">&nbsp;</TableCell>
+                  <TableCell className="tableHeadCell availableDelegationActionsCell">
+                    &nbsp;
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
