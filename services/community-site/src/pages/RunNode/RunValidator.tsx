@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import clsx from 'clsx';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
@@ -25,7 +25,7 @@ import InfoIcon from '../../assets/icons/info';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
-import { calculateValidatorYield, Validator } from '../../interfaces/Validator';
+import { Validator, ValidatorWithStats } from '../../interfaces/Validator';
 import OwnNode from '../../interfaces/OwnNode';
 
 import RunValidatorModal from './Modal';
@@ -39,6 +39,7 @@ import EditNode from './Screen/EditNode';
 import Claim from '../Staking/Modal/Claim';
 import UpdateValidator from './Screen/UpdateValidator';
 import useExplorerStats from '../../services/useExplorerStats';
+import { useAllValidators } from '../../services/useAllValidators';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -47,13 +48,10 @@ const RunValidator = () => {
   const { chainId: mainnetChainId } = useMainnet();
 
   const { getValidatorsFor } = useValidators();
-  const {
-    updateValidatorsRank,
-    updateValidatorsStats,
-    updateTestnetValidatorsStats,
-    updateTestnetValidatorsRank,
-  } = useExplorerStats();
+  const { allValidatorsWithStats } = useAllValidators();
+  const { updateTestnetValidatorsStats, updateTestnetValidatorsRank } = useExplorerStats();
   const delegationApi = useDelegationApi();
+  const networkParam = window.location.hash.replace('#', '');
 
   const isLoggedIn = !!auth.user?.id;
   const isOnWrongChain = chainId !== mainnetChainId;
@@ -68,7 +66,9 @@ const RunValidator = () => {
     setIsOpenRegisterValidatorModal(false);
   };
 
-  const [validatorType, setValidatorType] = useState<'mainnet' | 'testnet'>('mainnet');
+  const [validatorType, setValidatorType] = useState<'mainnet' | 'testnet'>(
+    networkParam === 'testnet' || networkParam === 'mainnet' ? networkParam : 'mainnet',
+  );
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
   const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
@@ -83,7 +83,7 @@ const RunValidator = () => {
     }
   };
 
-  const getTestnetNodes = async () => {
+  const getTestnetNodes = useCallback(async () => {
     try {
       const r = await delegationApi.get(`/nodes?type=testnet`, true);
       if (r.success) {
@@ -97,7 +97,7 @@ const RunValidator = () => {
     } catch (err) {
       setTestnetValidators([]);
     }
-  };
+  }, [validatorType]);
 
   const deleteTestnetNode = async (node: OwnNode) => {
     await delegationApi.del(`/nodes/${node.id}`, true);
@@ -116,17 +116,25 @@ const RunValidator = () => {
 
   useEffect(() => {
     (async () => {
-      await getTestnetNodes();
+      if (validatorType === 'testnet') {
+        await getTestnetNodes();
+      }
     })();
-  }, []);
+  }, [shouldFetch, validatorType]);
 
   const fetchValidators = () => {
-    if (status === 'connected' && account) {
+    if (status === 'connected' && account && validatorType === 'mainnet') {
       (async () => {
         const myValidators = await getValidatorsFor(account);
-        const updatedValidators = await updateValidatorsRank(myValidators);
-        const validatorsWithStats = await updateValidatorsStats(updatedValidators);
-        const validatorsWithYieldEfficiency = calculateValidatorYield(validatorsWithStats);
+        const validatorsWithYieldEfficiency: ValidatorWithStats[] = myValidators.map((v) => {
+          const foundValidator = allValidatorsWithStats.find(
+            (validatorWithStats) => validatorWithStats.address === v.address,
+          );
+          return {
+            ...v,
+            ...foundValidator,
+          } as ValidatorWithStats;
+        });
         setMainnetValidators(validatorsWithYieldEfficiency);
       })();
     }
@@ -134,7 +142,7 @@ const RunValidator = () => {
 
   useEffect(() => {
     fetchValidators();
-  }, [status, account, shouldFetch]);
+  }, [status, account, shouldFetch, validatorType, allValidatorsWithStats]);
 
   const nodeTypeLabel = validatorType === 'mainnet' ? 'Mainnet' : 'Testnet';
 
@@ -276,6 +284,7 @@ const RunValidator = () => {
               variant="contained"
               onClick={() => {
                 setValidatorType('mainnet');
+                window.location.hash = 'mainnet';
               }}
             />
             <Button
@@ -285,6 +294,7 @@ const RunValidator = () => {
               variant="contained"
               onClick={() => {
                 setValidatorType('testnet');
+                window.location.hash = 'testnet';
               }}
             />
           </div>

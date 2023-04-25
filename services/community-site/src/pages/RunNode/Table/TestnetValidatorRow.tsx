@@ -66,8 +66,8 @@ const TestnetValidatorRow = ({
       <TableCell className="tableCell nodeCell">{y}%</TableCell>
       <TableCell className="tableCell nodeCell">{weeklyBlocksProduced}</TableCell>
       <TableCell className="tableCell nodeCell">{weeklyRank || 0}</TableCell>
-      <TableCell className="tableCell nodeActionsCell" align="right">
-        {actions}
+      <TableCell className="tableCell availableDelegationActionsCell" align="right">
+        <div className="validatorActions">{actions}</div>
       </TableCell>
     </TableRow>
   );
