@@ -25,7 +25,7 @@ contract CallProxy {
      *
      * This function does not return to its internal call site, it will return directly to the external caller.
      */
-    function _delegate(address implementation) internal virtual {
+    function _delegate(address implementation) internal virtual returns (bytes memory returnData) {
         assembly {
             // Copy msg.data. We take full control of memory in this inline assembly
             // block because it will not return to Solidity code. We overwrite the
@@ -63,7 +63,7 @@ contract CallProxy {
      *
      * This function does not return to its internal call site, it will return directly to the external caller.
      */
-    function _fallback() internal {
+    function _fallback() internal returns (bytes memory returnData) {
         _beforeFallback();
         _delegate(_implementation());
     }
@@ -72,7 +72,7 @@ contract CallProxy {
      * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other
      * function in the contract matches the call data.
      */
-    fallback() external payable {
+    fallback(bytes calldata) external payable returns (bytes memory returnData) {
         _fallback();
     }
 

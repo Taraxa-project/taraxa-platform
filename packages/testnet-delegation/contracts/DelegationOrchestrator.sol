@@ -16,17 +16,17 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
     IDPOS private immutable dpos;
 
     // @note contains the internal validator addresses
-    address[] internalValidators;
+    address[] public internalValidators;
     // @note contains the external validator addresses
-    address[] externalValidators;
+    address[] public externalValidators;
     // @note backwards mapping to register ownage
     mapping(address => address) externalValidatorOwners;
     // @note registrar of validators per owner
     mapping(address => address[]) externalValidatorsByOwners;
     // @note registrar of indexes+1 of validators in the internalValidators
-    mapping(address => uint256) internalValidatorRegistered;
+    mapping(address => uint256) public internalValidatorRegistered;
     // @note registrar of indexes+1 of validators in the externalValidators
-    mapping(address => uint256) externalValidatorRegistered;
+    mapping(address => uint256) public externalValidatorRegistered;
 
     constructor(address[] memory validators, address dposAddress) payable CallProxy(dposAddress) {
         internalValidators = validators;
@@ -44,6 +44,18 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
         address validatorOwner
     ) external view override returns (address[] memory validators) {
         return externalValidatorsByOwners[validatorOwner];
+    }
+
+    /**
+     * returns the validator struct
+     * @param validator address
+     */
+    function getExternalValidator(
+        address validator
+    ) external view override returns (IDPOS.ValidatorBasicInfo memory validatorData) {
+        IDPOS.ValidatorBasicInfo memory validatorInfo = dpos.getValidator(validator);
+        validatorInfo.owner = externalValidatorOwners[validator];
+        return validatorInfo;
     }
 
     /**
