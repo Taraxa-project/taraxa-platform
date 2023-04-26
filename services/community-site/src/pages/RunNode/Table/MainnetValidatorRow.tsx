@@ -1,9 +1,9 @@
 import React from 'react';
-import { TableCell, TableRow, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
 // import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { useHistory } from 'react-router-dom';
-
+import { TableCell, TableRow } from '../../../components/Table/Table';
 import { stripEth } from '../../../utils/eth';
 import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
@@ -38,23 +38,23 @@ const MainnetValidatorRow = ({
 
   const validatorWithYield = validator as Validator;
   return (
-    <TableRow className="tableRow" key={address}>
-      <TableCell className="tableCell statusCell">
+    <TableRow key={address}>
+      <TableCell className="statusCell">
         <Tooltip title={getValidatorStatusTooltip(status)}>
           <div className="status">
             <div className={className} />
           </div>
         </Tooltip>
       </TableCell>
-      <TableCell className="tableCell nameCell">
+      <TableCell className="nameCell">
         <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
           <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell yieldCell">
+      <TableCell className="yieldCell">
         {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
       </TableCell>
-      <TableCell className="tableCell commissionCell">
+      <TableCell className="commissionCell">
         {/* {row.hasPendingCommissionChange ? (
           <>
             <NodeCommissionChangeIcon />{' '}
@@ -67,13 +67,11 @@ const MainnetValidatorRow = ({
         )} */}
         {commission}%
       </TableCell>
-      <TableCell className="tableCell delegationCell">{stripEth(delegation)}</TableCell>
-      <TableCell className="tableCell availableDelegation">
-        {stripEth(availableForDelegation)}
-      </TableCell>
-      <TableCell className="tableCell rankingCell">{rank}</TableCell>
-      <TableCell className="tableCell rewardsCell">{stripEth(commissionReward)}</TableCell>
-      <TableCell className="tableCell availableDelegationActionsCell">
+      <TableCell className="delegationCell">{stripEth(delegation)}</TableCell>
+      <TableCell className="availableDelegation">{stripEth(availableForDelegation)}</TableCell>
+      <TableCell className="rankingCell">{rank}</TableCell>
+      <TableCell className="rewardsCell">{stripEth(commissionReward)}</TableCell>
+      <TableCell className="availableDelegationActionsCell">
         <div className="validatorActions">
           <Button
             size="small"

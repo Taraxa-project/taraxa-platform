@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import clsx from 'clsx';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import {
   Notification,
   Text,
@@ -11,7 +10,14 @@ import {
   Tooltip,
   Modal,
 } from '@taraxa_project/taraxa-ui';
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '../../components/Table/Table';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
@@ -363,18 +369,34 @@ const RunValidator = () => {
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
-                <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Address / Nickname</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
-                  <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
-                  <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
-                  <TableCell className="tableHeadCell availableDelegation">
+                <TableRow head>
+                  <TableCell head className="statusCell">
+                    Status
+                  </TableCell>
+                  <TableCell head className="nameCell">
+                    Address / Nickname
+                  </TableCell>
+                  <TableCell head className="yieldCell">
+                    Yield Efficiency
+                  </TableCell>
+                  <TableCell head className="commissionCell">
+                    Commission
+                  </TableCell>
+                  <TableCell head className="delegationCell">
+                    Delegation
+                  </TableCell>
+                  <TableCell head className="availableDelegation">
                     Available for Delegation
                   </TableCell>
-                  <TableCell className="tableHeadCell rankingCell">Ranking</TableCell>
-                  <TableCell className="tableHeadCell rewardsCell">Commission Rewards</TableCell>
-                  <TableCell className="tableHeadCell actionsCell">&nbsp;</TableCell>
+                  <TableCell head className="rankingCell">
+                    Ranking
+                  </TableCell>
+                  <TableCell head className="rewardsCell">
+                    Commission Rewards
+                  </TableCell>
+                  <TableCell head className="actionsCell">
+                    &nbsp;
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -395,17 +417,23 @@ const RunValidator = () => {
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
-                <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell pbftsCell">
+                <TableRow head>
+                  <TableCell head className="statusCell">
+                    Status
+                  </TableCell>
+                  <TableCell head className="nameCell">
+                    Name
+                  </TableCell>
+                  <TableCell head className="yieldCell">
+                    Expected Yield
+                  </TableCell>
+                  <TableCell head className="pbftsCell">
                     Number of blocks produced
                   </TableCell>
-                  <TableCell className="tableHeadCell rankingCell" colSpan={2}>
+                  <TableCell head className="rankingCell" colSpan={2}>
                     Ranking
                   </TableCell>
-                  <TableCell className="tableHeadCell availableDelegationActionsCell">
+                  <TableCell head className="availableDelegationActionsCell">
                     &nbsp;
                   </TableCell>
                 </TableRow>

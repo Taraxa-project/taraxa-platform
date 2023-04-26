@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import {
-  Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import { Divider } from '@mui/material';
+
 import {
   Text,
   Notification,
@@ -18,7 +11,14 @@ import {
   useInterval,
   LoadingTable,
 } from '@taraxa_project/taraxa-ui';
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '../../components/Table/Table';
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import { useLoading } from '../../services/useLoading';
@@ -35,7 +35,6 @@ import Modals from './Modal/Modals';
 import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
-import './table.scss';
 import { calculateValidatorYield, Validator } from '../../interfaces/Validator';
 import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
 
@@ -438,17 +437,29 @@ const Delegation = ({ location }: { location: Location }) => {
             <TableContainer className="validatorsTableContainer">
               <Table className="validatorsTable">
                 <TableHead>
-                  <TableRow className="tableHeadRow">
-                    <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                    <TableCell className="tableHeadCell nameCell">Address / Nickname</TableCell>
-                    <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
-                    <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
-                    <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
-                    <TableCell className="tableHeadCell delegationCell">
+                  <TableRow head>
+                    <TableCell head className="statusCell">
+                      Status
+                    </TableCell>
+                    <TableCell head className="nameCell">
+                      Address / Nickname
+                    </TableCell>
+                    <TableCell head className="yieldCell">
+                      Yield Efficiency
+                    </TableCell>
+                    <TableCell head className="commissionCell">
+                      Commission
+                    </TableCell>
+                    <TableCell head className="delegationCell">
+                      Delegation
+                    </TableCell>
+                    <TableCell head className="delegationCell">
                       Available for Delegation
                     </TableCell>
-                    <TableCell className="tableHeadCell stackingCell">Staking Rewards</TableCell>
-                    <TableCell className="tableHeadCell availableDelegationActionsCell">
+                    <TableCell head className="stackingCell">
+                      Staking Rewards
+                    </TableCell>
+                    <TableCell head className="availableDelegationActionsCell">
                       &nbsp;
                     </TableCell>
                   </TableRow>
@@ -469,7 +480,6 @@ const Delegation = ({ location }: { location: Location }) => {
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
-                        // setReDelegateFromValidator={setReDelegateFromValidator}
                         setDelegateToValidator={setDelegateToValidator}
                         setUndelegateFromValidator={setUndelegateFromValidator}
                         setClaimFromValidator={initClaim}
@@ -484,8 +494,8 @@ const Delegation = ({ location }: { location: Location }) => {
                     ))}
                   {fullyDelegatedValidators.length > 0 && (
                     <>
-                      <TableRow className="tableRow">
-                        <TableCell className="tableCell tableSection" colSpan={8}>
+                      <TableRow>
+                        <TableCell className="tableSection" colSpan={8}>
                           <div className="fullyDelegatedSeparator">fully delegated</div>
                         </TableCell>
                       </TableRow>
@@ -504,7 +514,6 @@ const Delegation = ({ location }: { location: Location }) => {
                             .map((d) => d.address.toLowerCase())
                             .includes(validator.address.toLowerCase())}
                           setClaimFromValidator={initClaim}
-                          // setReDelegateFromValidator={setReDelegateFromValidator}
                           setDelegateToValidator={setDelegateToValidator}
                           setUndelegateFromValidator={setUndelegateFromValidator}
                           undelegateDisabled={
