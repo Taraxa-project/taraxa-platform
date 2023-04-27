@@ -370,34 +370,16 @@ const RunValidator = () => {
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
-                <TableRow head>
-                  <TableCell head className="statusCell">
-                    Status
-                  </TableCell>
-                  <TableCell head className="nameCell">
-                    Address / Nickname
-                  </TableCell>
-                  <TableCell head className="yieldCell">
-                    Yield Efficiency
-                  </TableCell>
-                  <TableCell head className="commissionCell">
-                    Commission
-                  </TableCell>
-                  <TableCell head className="delegationCell">
-                    Delegation
-                  </TableCell>
-                  <TableCell head className="availableDelegation">
-                    Available for Delegation
-                  </TableCell>
-                  <TableCell head className="rankingCell">
-                    Ranking
-                  </TableCell>
-                  <TableCell head className="rewardsCell">
-                    Commission Rewards
-                  </TableCell>
-                  <TableCell head className="actionsCell">
-                    &nbsp;
-                  </TableCell>
+                <TableRow>
+                  <TableCell className="statusCell">Status</TableCell>
+                  <TableCell className="nameCell">Address / Nickname</TableCell>
+                  <TableCell className="yieldCell">Yield Efficiency</TableCell>
+                  <TableCell className="commissionCell">Commission</TableCell>
+                  <TableCell className="delegationCell">Delegation</TableCell>
+                  <TableCell className="availableDelegation">Available for Delegation</TableCell>
+                  <TableCell className="rankingCell">Ranking</TableCell>
+                  <TableCell className="rewardsCell">Commission Rewards</TableCell>
+                  <TableCell className="actionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -425,25 +407,15 @@ const RunValidator = () => {
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
-                <TableRow head>
-                  <TableCell head className="statusCell">
-                    Status
-                  </TableCell>
-                  <TableCell head className="nameCell">
-                    Name
-                  </TableCell>
-                  <TableCell head className="yieldCell">
-                    Expected Yield
-                  </TableCell>
-                  <TableCell head className="pbftsCell">
-                    Number of blocks produced
-                  </TableCell>
-                  <TableCell head className="rankingCell" colSpan={2}>
+                <TableRow>
+                  <TableCell className="statusCell">Status</TableCell>
+                  <TableCell className="nameCell">Name</TableCell>
+                  <TableCell className="yieldCell">Expected Yield</TableCell>
+                  <TableCell className="pbftsCell">Number of blocks produced</TableCell>
+                  <TableCell className="rankingCell" colSpan={2}>
                     Ranking
                   </TableCell>
-                  <TableCell head className="availableDelegationActionsCell">
-                    &nbsp;
-                  </TableCell>
+                  <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

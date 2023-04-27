@@ -437,31 +437,15 @@ const Delegation = ({ location }: { location: Location }) => {
             <TableContainer className="validatorsTableContainer">
               <Table className="validatorsTable">
                 <TableHead>
-                  <TableRow head>
-                    <TableCell head className="statusCell">
-                      Status
-                    </TableCell>
-                    <TableCell head className="nameCell">
-                      Address / Nickname
-                    </TableCell>
-                    <TableCell head className="yieldCell">
-                      Yield Efficiency
-                    </TableCell>
-                    <TableCell head className="commissionCell">
-                      Commission
-                    </TableCell>
-                    <TableCell head className="delegationCell">
-                      Delegation
-                    </TableCell>
-                    <TableCell head className="delegationCell">
-                      Available for Delegation
-                    </TableCell>
-                    <TableCell head className="rewardsCell">
-                      Staking Rewards
-                    </TableCell>
-                    <TableCell head className="availableDelegationActionsCell">
-                      &nbsp;
-                    </TableCell>
+                  <TableRow>
+                    <TableCell className="statusCell">Status</TableCell>
+                    <TableCell className="nameCell">Address / Nickname</TableCell>
+                    <TableCell className="yieldCell">Yield Efficiency</TableCell>
+                    <TableCell className="commissionCell">Commission</TableCell>
+                    <TableCell className="delegationCell">Delegation</TableCell>
+                    <TableCell className="delegationCell">Available for Delegation</TableCell>
+                    <TableCell className="rewardsCell">Staking Rewards</TableCell>
+                    <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

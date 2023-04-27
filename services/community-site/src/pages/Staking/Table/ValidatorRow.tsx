@@ -83,17 +83,6 @@ const ValidatorRow = ({
       <TableCell className="rewardsCell">{stripEth(stakingRewards)}</TableCell>
       <TableCell className="availableDelegationActionsCell">
         <div className="validatorActions">
-          {!validatorFrom && ownDelegation && (
-            <Button
-              size="small"
-              color="warning"
-              variant="contained"
-              label="Shift delegation OUT"
-              disabled={actionsDisabled || !ownDelegation}
-              className="smallBtn"
-              onClick={() => setValidatorFrom(validator)}
-            />
-          )}
           {!validatorFrom && (
             <Button
               size="small"
@@ -112,23 +101,23 @@ const ValidatorRow = ({
           {!validatorFrom && ownDelegation && (
             <Button
               size="small"
-              color="error"
-              label="Un-delegate"
-              variant="contained"
-              disabled={actionsDisabled || undelegateDisabled}
-              className="smallBtn"
-              onClick={() => setUndelegateFromValidator(validator)}
-            />
-          )}
-          {!validatorFrom && ownDelegation && (
-            <Button
-              size="small"
               color="secondary"
               variant="contained"
               label="Claim"
               disabled={actionsDisabled || stakingRewards.lte(BigNumber.from('0'))}
               className="smallBtn"
               onClick={() => setClaimFromValidator(stakingRewards, validator)}
+            />
+          )}
+          {!validatorFrom && ownDelegation && (
+            <Button
+              size="small"
+              color="warning"
+              variant="contained"
+              label="Shift delegation OUT"
+              disabled={actionsDisabled || !ownDelegation}
+              className="smallBtn"
+              onClick={() => setValidatorFrom(validator)}
             />
           )}
           {validatorFrom && validatorFrom.address !== validator.address && (
@@ -140,6 +129,17 @@ const ValidatorRow = ({
               disabled={actionsDisabled}
               className="smallBtn"
               onClick={() => setValidatorTo(validator)}
+            />
+          )}
+          {!validatorFrom && ownDelegation && (
+            <Button
+              size="small"
+              color="error"
+              label="Un-delegate"
+              variant="contained"
+              disabled={actionsDisabled || undelegateDisabled}
+              className="smallBtn"
+              onClick={() => setUndelegateFromValidator(validator)}
             />
           )}
         </div>

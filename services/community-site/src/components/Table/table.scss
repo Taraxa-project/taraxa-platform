@@ -17,39 +17,42 @@
     width: 100%;
   }
 
-  .tableHeadRow {
-    border-bottom: 1px solid #40465f;
+  .tableHead {
+    .tableRow {
+      border-bottom: 1px solid #40465f;
+    }
+    .tableCell {
+      color: #878ca4 !important;
+      background-color: #1b1e2b;
+      border: none;
+      height: auto;
+      line-height: 16px;
+      border-bottom: 1px solid #1e2231 !important;
+    }
   }
 
-  .tableHeadCell {
-    color: #878ca4 !important;
-    background-color: #1b1e2b;
-    border: none;
-    height: auto;
-    line-height: 16px;
-    border-bottom: 1px solid #1e2231 !important;
+  .tableBody {
+    .tableRow {
+      border-bottom: 1px solid #1e2231;
+    }
+
+    .tableCell {
+      color: #ffffff;
+      border: none;
+      height: auto;
+
+      .flexCell {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
   }
-  
+
   .tableCellGrey {
     color: #4f5368 !important;
     border: none;
     height: auto;
     border-bottom: 1px solid #1e2231 !important;
-  }
-
-  .tableRow {
-    border-bottom: 1px solid #1e2231;
-  }
-
-  .tableCell {
-    color: #ffffff;
-    border: none;
-    height: auto;
-
-    .flexCell {
-      display: flex;
-      justify-content: space-between;
-    }
   }
 
   .nodeLink {

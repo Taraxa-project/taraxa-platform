@@ -34,12 +34,10 @@ export interface TableBodyProps extends MTableBodyProps {
 
 export interface TableRowProps extends MTableRowProps {
   className?: string;
-  head?: boolean;
 }
 
 export interface TableCellProps extends MTableCellProps {
   className?: string;
-  head?: boolean;
 }
 
 export const TableContainer = ({ children, className }: TableContainerProps) => {
@@ -51,25 +49,17 @@ export const Table = ({ children, className }: TableProps) => {
 };
 
 export const TableHead = ({ children, className }: TableHeadProps) => {
-  return <MTableHead className={clsx(className)}>{children}</MTableHead>;
+  return <MTableHead className={clsx('tableHead', className)}>{children}</MTableHead>;
 };
 
 export const TableBody = ({ children, className }: TableBodyProps) => {
-  return <MTableBody className={clsx(className)}>{children}</MTableBody>;
+  return <MTableBody className={clsx('tableBody', className)}>{children}</MTableBody>;
 };
 
-export const TableRow = ({ children, className, head = false }: TableRowProps) => {
-  return (
-    <MTableRow className={clsx(!head && 'tableRow', head && 'tableHeadRow', className)}>
-      {children}
-    </MTableRow>
-  );
+export const TableRow = ({ children, className }: TableRowProps) => {
+  return <MTableRow className={clsx('tableRow', className)}>{children}</MTableRow>;
 };
 
-export const TableCell = ({ children, className, head = false }: TableCellProps) => {
-  return (
-    <MTableCell className={clsx(!head && 'tableCell', head && 'tableHeadCell', className)}>
-      {children}
-    </MTableCell>
-  );
+export const TableCell = ({ children, className }: TableCellProps) => {
+  return <MTableCell className={clsx('tableCell', className)}>{children}</MTableCell>;
 };
