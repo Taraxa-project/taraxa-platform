@@ -456,7 +456,7 @@ const Delegation = ({ location }: { location: Location }) => {
                     <TableCell head className="delegationCell">
                       Available for Delegation
                     </TableCell>
-                    <TableCell head className="stackingCell">
+                    <TableCell head className="rewardsCell">
                       Staking Rewards
                     </TableCell>
                     <TableCell head className="availableDelegationActionsCell">

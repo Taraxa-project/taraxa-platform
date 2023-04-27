@@ -1,10 +1,10 @@
 import React from 'react';
+import { ethers } from 'ethers';
 import { Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
-// import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { useHistory } from 'react-router-dom';
 import { TableCell, TableRow } from '../../../components/Table/Table';
-import { stripEth } from '../../../utils/eth';
+import { stripEth, weiToEth } from '../../../utils/eth';
 import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
 
@@ -30,6 +30,7 @@ const MainnetValidatorRow = ({
     availableForDelegation,
     commissionReward,
     rank,
+    isFullyDelegated,
   } = validator;
   const history = useHistory();
 
@@ -54,21 +55,17 @@ const MainnetValidatorRow = ({
       <TableCell className="yieldCell">
         {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
       </TableCell>
-      <TableCell className="commissionCell">
-        {/* {row.hasPendingCommissionChange ? (
-          <>
-            <NodeCommissionChangeIcon />{' '}
-            <span className="commissionDisplayPendingChange">
-              {row.currentCommission} ➞ {row.pendingCommission}
-            </span>
-          </>
-        ) : (
-          row.currentCommission
-        )} */}
-        {commission}%
+      <TableCell className="commissionCell">{commission}%</TableCell>
+      <TableCell className="delegationCell">
+        <strong>{ethers.utils.commify(Number(weiToEth(delegation)).toFixed(2))}</strong>
       </TableCell>
-      <TableCell className="delegationCell">{stripEth(delegation)}</TableCell>
-      <TableCell className="availableDelegation">{stripEth(availableForDelegation)}</TableCell>
+      <TableCell className="availableDelegation">
+        <div className="availableDelegation">
+          {isFullyDelegated
+            ? '0 (Fully delegated)'
+            : ethers.utils.commify(Number(weiToEth(availableForDelegation)).toFixed(2))}
+        </div>
+      </TableCell>
       <TableCell className="rankingCell">{rank}</TableCell>
       <TableCell className="rewardsCell">{stripEth(commissionReward)}</TableCell>
       <TableCell className="availableDelegationActionsCell">

@@ -39,7 +39,6 @@ const ValidatorRow = ({
   const history = useHistory();
   const { validatorFrom, setValidatorFrom, setValidatorTo } = useRedelegation();
 
-  const validatorWithYield = validator as Validator;
   return (
     <TableRow>
       <TableCell className="statusCell">
@@ -58,7 +57,7 @@ const ValidatorRow = ({
         </div>
       </TableCell>
       <TableCell className="yieldCell">
-        {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
+        {validator.yield ? validator.yield.toFixed(2) : 0}%
       </TableCell>
       <TableCell className="commissionCell">
         {currentBlockNumber &&
@@ -74,14 +73,14 @@ const ValidatorRow = ({
       <TableCell className="delegationCell">
         <strong>{ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}</strong>
       </TableCell>
-      <TableCell className="delegationCell">
+      <TableCell className="availableDelegation">
         <div className="availableDelegation">
           {validator.isFullyDelegated
             ? '0 (Fully delegated)'
             : ethers.utils.commify(Number(weiToEth(validator.availableForDelegation)).toFixed(2))}
         </div>
       </TableCell>
-      <TableCell className="stackingCell">{stripEth(stakingRewards)}</TableCell>
+      <TableCell className="rewardsCell">{stripEth(stakingRewards)}</TableCell>
       <TableCell className="availableDelegationActionsCell">
         <div className="validatorActions">
           {!validatorFrom && ownDelegation && (

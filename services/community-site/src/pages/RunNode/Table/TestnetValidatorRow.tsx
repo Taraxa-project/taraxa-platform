@@ -17,35 +17,6 @@ const TestnetValidatorRow = ({
 }) => {
   const { status, address, description, yield: y, pbftsProduced, rank } = validator;
 
-  const actions = (
-    <div className="validatorActions">
-      <Button
-        size="small"
-        variant="contained"
-        color="secondary"
-        className="smallBtn"
-        label="Edit"
-        onClick={() => {
-          onEdit(validator);
-        }}
-      />
-      <Button
-        size="small"
-        variant="contained"
-        color="secondary"
-        className="smallBtn"
-        label="Delete"
-        // disabled={!validator.canDelete}
-        onClick={() => {
-          const confirmation = window.confirm();
-          if (confirmation) {
-            onDelete(validator);
-          }
-        }}
-      />
-    </div>
-  );
-
   let className = 'dot';
   className += ` ${status}`;
 
@@ -67,7 +38,32 @@ const TestnetValidatorRow = ({
       <TableCell className="pbftsCell">{pbftsProduced}</TableCell>
       <TableCell className="rankingCell">{rank || 0}</TableCell>
       <TableCell className="availableDelegationActionsCell" align="right">
-        <div className="validatorActions">{actions}</div>
+        <div className="validatorActions">
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            className="smallBtn"
+            label="Edit"
+            onClick={() => {
+              onEdit(validator);
+            }}
+          />
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            className="smallBtn"
+            label="Delete"
+            // disabled={!validator.canDelete}
+            onClick={() => {
+              const confirmation = window.confirm();
+              if (confirmation) {
+                onDelete(validator);
+              }
+            }}
+          />
+        </div>
       </TableCell>
     </TableRow>
   );
