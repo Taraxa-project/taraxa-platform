@@ -40,26 +40,42 @@ export interface TableCellProps extends MTableCellProps {
   className?: string;
 }
 
-export const TableContainer = ({ children, className }: TableContainerProps) => {
-  return <MTableContainer className={clsx(className)}>{children}</MTableContainer>;
+export const TableContainer = ({ children, ...props }: TableContainerProps) => {
+  return <MTableContainer {...props}>{children}</MTableContainer>;
 };
 
-export const Table = ({ children, className }: TableProps) => {
-  return <MTable className={clsx(className)}>{children}</MTable>;
+export const Table = ({ children, ...props }: TableProps) => {
+  return <MTable {...props}>{children}</MTable>;
 };
 
-export const TableHead = ({ children, className }: TableHeadProps) => {
-  return <MTableHead className={clsx('tableHead', className)}>{children}</MTableHead>;
+export const TableHead = ({ children, className, ...props }: TableHeadProps) => {
+  return (
+    <MTableHead className={clsx('tableHead', className)} {...props}>
+      {children}
+    </MTableHead>
+  );
 };
 
-export const TableBody = ({ children, className }: TableBodyProps) => {
-  return <MTableBody className={clsx('tableBody', className)}>{children}</MTableBody>;
+export const TableBody = ({ children, className, ...props }: TableBodyProps) => {
+  return (
+    <MTableBody className={clsx('tableBody', className)} {...props}>
+      {children}
+    </MTableBody>
+  );
 };
 
-export const TableRow = ({ children, className }: TableRowProps) => {
-  return <MTableRow className={clsx('tableRow', className)}>{children}</MTableRow>;
+export const TableRow = ({ children, className, ...props }: TableRowProps) => {
+  return (
+    <MTableRow className={clsx('tableRow', className)} {...props}>
+      {children}
+    </MTableRow>
+  );
 };
 
-export const TableCell = ({ children, className }: TableCellProps) => {
-  return <MTableCell className={clsx('tableCell', className)}>{children}</MTableCell>;
+export const TableCell = ({ children, className, ...props }: TableCellProps) => {
+  return (
+    <MTableCell className={clsx('tableCell', className)} {...props}>
+      {children}
+    </MTableCell>
+  );
 };
