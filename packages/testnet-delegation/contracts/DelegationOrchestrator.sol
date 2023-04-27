@@ -13,6 +13,7 @@ import "./CallProxy.sol";
 contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, ReentrancyGuard {
     using Address for address;
     uint256 constant MIN_REGISTRATION_DELEGATION = 1000 ether;
+    bytes4 constant REGISTER_VALIDATOR_SELECTOR = 0xd6fdc127;
     IDPOS private immutable dpos;
 
     // @note contains the internal validator addresses
@@ -108,11 +109,16 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
         uint256 internalStake = 0;
         uint256 externalStake = 0;
         (internalStake, externalStake) = _calculateStakes();
+        require(internalStake != 0 || externalStake != 0, "Calculating current stakes failed!");
         uint256 majorityStake = 2 * externalStake + msg.value + MIN_REGISTRATION_DELEGATION;
         if (internalStake < majorityStake) {
             // Delegate 2*tokens to our validators
             for (uint8 i = 0; i < internalValidators.length; ) {
-                dpos.delegate{value: delegationValue}(internalValidators[i]);
+                (bool hasDelegated, ) = address(dpos).call{value: delegationValue}(
+                    abi.encodeWithSignature("delegate(address)", internalValidators[i])
+                );
+
+                require(hasDelegated, "Delegate call failed");
                 emit InternalValidatorDelegationIncreased(internalValidators[i], delegationValue);
                 unchecked {
                     ++i;
@@ -123,7 +129,19 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
         externalValidators.push(validator);
         externalValidatorRegistered[validator] = externalValidators.length;
         externalValidatorOwners[validator] = msg.sender;
-        dpos.registerValidator{value: msg.value}(validator, proof, vrfKey, commission, description, endpoint);
+        bytes memory input = abi.encodeWithSelector(
+            REGISTER_VALIDATOR_SELECTOR,
+            validator,
+            proof,
+            vrfKey,
+            commission,
+            description,
+            endpoint
+        );
+        (bool hasRegistered, ) = address(dpos).call{value: msg.value}(input);
+
+        require(hasRegistered, "Register validator call failed");
+
         emit ExternalValidatorRegistered(validator, msg.sender, msg.value);
     }
 
