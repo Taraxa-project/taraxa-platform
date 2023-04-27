@@ -138,7 +138,7 @@ export default () => {
       description: string,
       endpoint: string,
     ): Promise<ethers.providers.TransactionResponse> => {
-      return await browserDpos!.registerValidator(
+      return await browserDpos!.registerExternalValidator(
         validator,
         proof,
         vrfKey,
