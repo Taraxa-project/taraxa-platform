@@ -247,11 +247,9 @@ function Redeem() {
           <TableContainer className="redeemTable">
             <Table className="redeemTable">
               <TableHead>
-                <TableRow head>
+                <TableRow>
                   {columns.map((col, ind) => (
-                    <TableCell head key={ind}>
-                      {col}
-                    </TableCell>
+                    <TableCell key={ind}>{col}</TableCell>
                   ))}
                 </TableRow>
               </TableHead>
