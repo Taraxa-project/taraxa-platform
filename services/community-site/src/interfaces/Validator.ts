@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 
 interface ContractValidatorInfo {
   owner: string;
@@ -59,30 +59,14 @@ export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
 };
 
 export const calculateValidatorYield = (validators: Validator[]): Validator[] => {
-  if (!validators.length) {
-    return validators;
-  }
-  const validatorsWithStake = validators.map((v) => {
-    return {
-      ...v,
-      blocksPerStake: v.pbftsProduced / Number.parseFloat(v.delegation.toString()),
-    };
-  });
-  const minBlockRatio = validatorsWithStake.reduce((prev, curr) =>
-    prev.blocksPerStake < curr.blocksPerStake ? prev : curr,
-  );
+  return validators.map((validator) => {
+    const { pbftsProduced, delegation } = validator;
+    const d = delegation.div(BigNumber.from(10).pow(18));
 
-  const maxBlockRatio = validatorsWithStake.reduce((prev, curr) =>
-    prev.blocksPerStake > curr.blocksPerStake ? prev : curr,
-  );
-  return validatorsWithStake.map((validator) => {
-    const yieldRatio =
-      ((validator.blocksPerStake - minBlockRatio.blocksPerStake) /
-        (maxBlockRatio.blocksPerStake - minBlockRatio.blocksPerStake)) *
-      100;
+    const yieldRatio = BigNumber.from(pbftsProduced).mul(BigNumber.from(10).pow(6)).div(d);
     return {
       ...validator,
-      yield: yieldRatio,
+      yield: Math.round(Number(yieldRatio.toString())),
     } as Validator;
   });
 };
