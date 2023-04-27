@@ -9,6 +9,7 @@ import {
   BaseCard,
   Tooltip,
   Modal,
+  EmptyTable,
 } from '@taraxa_project/taraxa-ui';
 import {
   Table,
@@ -365,7 +366,7 @@ const RunValidator = () => {
             </>
           )}
         </div>
-        {validatorType === ValidatorType.MAINNET && mainnetValidators.length > 0 && (
+        {validatorType === ValidatorType.MAINNET && (
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
@@ -400,20 +401,27 @@ const RunValidator = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {mainnetValidators.map((v: Validator) => (
-                  <MainnetValidatorRow
-                    key={v.address}
-                    validator={v}
-                    actionsDisabled={status !== 'connected' || !account}
-                    setValidatorInfo={setValidatorInfo}
-                    setCommissionClaim={setValidatorToClaimFrom}
+                {mainnetValidators.length > 0 ? (
+                  mainnetValidators.map((v: Validator) => (
+                    <MainnetValidatorRow
+                      key={v.address}
+                      validator={v}
+                      actionsDisabled={status !== 'connected' || !account}
+                      setValidatorInfo={setValidatorInfo}
+                      setCommissionClaim={setValidatorToClaimFrom}
+                    />
+                  ))
+                ) : (
+                  <EmptyTable
+                    colspan={9}
+                    message="Looks like you haven`t registered any mainnet validators yet..."
                   />
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
         )}
-        {validatorType === ValidatorType.TESTNET && testnetValidators.length > 0 && (
+        {validatorType === ValidatorType.TESTNET && (
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
@@ -439,14 +447,21 @@ const RunValidator = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {testnetValidators.map((v: Validator) => (
-                  <TestnetValidatorRow
-                    key={v.address}
-                    validator={v}
-                    onEdit={setCurrentEditedNode}
-                    onDelete={deleteTestnetNode}
+                {testnetValidators.length > 0 ? (
+                  testnetValidators.map((v: Validator) => (
+                    <TestnetValidatorRow
+                      key={v.address}
+                      validator={v}
+                      onEdit={setCurrentEditedNode}
+                      onDelete={deleteTestnetNode}
+                    />
+                  ))
+                ) : (
+                  <EmptyTable
+                    colspan={6}
+                    message="Looks like you haven`t registered any testnet validators yet..."
                   />
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>

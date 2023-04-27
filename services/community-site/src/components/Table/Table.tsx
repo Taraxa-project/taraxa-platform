@@ -47,7 +47,7 @@ export const TableContainer = ({ children, className }: TableContainerProps) => 
 };
 
 export const Table = ({ children, className }: TableProps) => {
-  return <MTable className={clsx('tableRow', className)}>{children}</MTable>;
+  return <MTable className={clsx(className)}>{children}</MTable>;
 };
 
 export const TableHead = ({ children, className }: TableHeadProps) => {

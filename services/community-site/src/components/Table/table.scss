@@ -1,8 +1,14 @@
-.runnode {
+.runnode,
+.redeem {
   .validatorsTableContainer {
     width: 100%;
     overflow-x: auto;
     margin-bottom: 1rem;
+  }
+
+  .redeemTable {
+    min-width: 750;
+    color: #ffffff !important;
   }
 
   .validatorsTable {
@@ -16,11 +22,19 @@
   }
 
   .tableHeadCell {
-    color: #878ca4;
+    color: #878ca4 !important;
     background-color: #1b1e2b;
     border: none;
     height: auto;
     line-height: 16px;
+    border-bottom: 1px solid #1e2231 !important;
+  }
+  
+  .tableCellGrey {
+    color: #4f5368 !important;
+    border: none;
+    height: auto;
+    border-bottom: 1px solid #1e2231 !important;
   }
 
   .tableRow {
