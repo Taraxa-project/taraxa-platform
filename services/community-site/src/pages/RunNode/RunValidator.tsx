@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import clsx from 'clsx';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import {
   Notification,
   Text,
@@ -10,8 +9,16 @@ import {
   BaseCard,
   Tooltip,
   Modal,
+  EmptyTable,
 } from '@taraxa_project/taraxa-ui';
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '../../components/Table/Table';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
@@ -359,66 +366,102 @@ const RunValidator = () => {
             </>
           )}
         </div>
-        {validatorType === ValidatorType.MAINNET && mainnetValidators.length > 0 && (
+        {validatorType === ValidatorType.MAINNET && (
           <TableContainer className="validatorsTableContainer">
             <Table className="validatorsTable">
               <TableHead>
-                <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Address / Nickname</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Yield Efficiency</TableCell>
-                  <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
-                  <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
-                  <TableCell className="tableHeadCell availableDelegation">
+                <TableRow head>
+                  <TableCell head className="statusCell">
+                    Status
+                  </TableCell>
+                  <TableCell head className="nameCell">
+                    Address / Nickname
+                  </TableCell>
+                  <TableCell head className="yieldCell">
+                    Yield Efficiency
+                  </TableCell>
+                  <TableCell head className="commissionCell">
+                    Commission
+                  </TableCell>
+                  <TableCell head className="delegationCell">
+                    Delegation
+                  </TableCell>
+                  <TableCell head className="availableDelegation">
                     Available for Delegation
                   </TableCell>
-                  <TableCell className="tableHeadCell rankingCell">Ranking</TableCell>
-                  <TableCell className="tableHeadCell rewardsCell">Commission Rewards</TableCell>
-                  <TableCell className="tableHeadCell actionsCell">&nbsp;</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {mainnetValidators.map((v: Validator) => (
-                  <MainnetValidatorRow
-                    key={v.address}
-                    validator={v}
-                    actionsDisabled={status !== 'connected' || !account}
-                    setValidatorInfo={setValidatorInfo}
-                    setCommissionClaim={setValidatorToClaimFrom}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-        {validatorType === ValidatorType.TESTNET && testnetValidators.length > 0 && (
-          <TableContainer className="validatorsTableContainer">
-            <Table className="validatorsTable">
-              <TableHead>
-                <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell pbftsCell">
-                    Number of blocks produced
-                  </TableCell>
-                  <TableCell className="tableHeadCell rankingCell" colSpan={2}>
+                  <TableCell head className="rankingCell">
                     Ranking
                   </TableCell>
-                  <TableCell className="tableHeadCell availableDelegationActionsCell">
+                  <TableCell head className="rewardsCell">
+                    Commission Rewards
+                  </TableCell>
+                  <TableCell head className="actionsCell">
                     &nbsp;
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {testnetValidators.map((v: Validator) => (
-                  <TestnetValidatorRow
-                    key={v.address}
-                    validator={v}
-                    onEdit={setCurrentEditedNode}
-                    onDelete={deleteTestnetNode}
+                {mainnetValidators.length > 0 ? (
+                  mainnetValidators.map((v: Validator) => (
+                    <MainnetValidatorRow
+                      key={v.address}
+                      validator={v}
+                      actionsDisabled={status !== 'connected' || !account}
+                      setValidatorInfo={setValidatorInfo}
+                      setCommissionClaim={setValidatorToClaimFrom}
+                    />
+                  ))
+                ) : (
+                  <EmptyTable
+                    colspan={9}
+                    message="Looks like you haven`t registered any mainnet validators yet..."
                   />
-                ))}
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        {validatorType === ValidatorType.TESTNET && (
+          <TableContainer className="validatorsTableContainer">
+            <Table className="validatorsTable">
+              <TableHead>
+                <TableRow head>
+                  <TableCell head className="statusCell">
+                    Status
+                  </TableCell>
+                  <TableCell head className="nameCell">
+                    Name
+                  </TableCell>
+                  <TableCell head className="yieldCell">
+                    Expected Yield
+                  </TableCell>
+                  <TableCell head className="pbftsCell">
+                    Number of blocks produced
+                  </TableCell>
+                  <TableCell head className="rankingCell" colSpan={2}>
+                    Ranking
+                  </TableCell>
+                  <TableCell head className="availableDelegationActionsCell">
+                    &nbsp;
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {testnetValidators.length > 0 ? (
+                  testnetValidators.map((v: Validator) => (
+                    <TestnetValidatorRow
+                      key={v.address}
+                      validator={v}
+                      onEdit={setCurrentEditedNode}
+                      onDelete={deleteTestnetNode}
+                    />
+                  ))
+                ) : (
+                  <EmptyTable
+                    colspan={6}
+                    message="Looks like you haven`t registered any testnet validators yet..."
+                  />
+                )}
               </TableBody>
             </Table>
           </TableContainer>

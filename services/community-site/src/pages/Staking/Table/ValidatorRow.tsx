@@ -2,10 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import { BigNumber, ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
-import { TableCell, TableRow, Tooltip } from '@mui/material';
-
+import { Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
-
+import { TableCell, TableRow } from '../../../components/Table/Table';
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { stripEth, weiToEth } from '../../../utils/eth';
 
@@ -21,7 +20,6 @@ type ValidatorRowProps = {
   ownDelegation: boolean;
   setDelegateToValidator: (node: Validator) => void;
   setClaimFromValidator: (amount: BigNumber, node: Validator) => void;
-  // setReDelegateFromValidator: (node: Validator) => void;
   setUndelegateFromValidator: (node: Validator) => void;
   currentBlockNumber?: number;
   undelegateDisabled?: boolean;
@@ -34,7 +32,6 @@ const ValidatorRow = ({
   ownDelegation,
   setDelegateToValidator,
   setClaimFromValidator,
-  // setReDelegateFromValidator,
   setUndelegateFromValidator,
   currentBlockNumber,
   undelegateDisabled = false,
@@ -42,17 +39,16 @@ const ValidatorRow = ({
   const history = useHistory();
   const { validatorFrom, setValidatorFrom, setValidatorTo } = useRedelegation();
 
-  const validatorWithYield = validator as Validator;
   return (
-    <TableRow className={clsx('tableRow')}>
-      <TableCell className="tableCell statusCell">
+    <TableRow>
+      <TableCell className="statusCell">
         <Tooltip title={getValidatorStatusTooltip(validator.status)}>
           <div className="status">
             <div className={clsx('dot', validator.status)} />
           </div>
         </Tooltip>
       </TableCell>
-      <TableCell className="tableCell nameCell">
+      <TableCell className="nameCell">
         <div
           className="flexCell nodeLink"
           onClick={() => history.push(`/staking/${validator.address}`)}
@@ -60,10 +56,10 @@ const ValidatorRow = ({
           <Nickname showIcon address={validator.address} description={validator.description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell yieldCell">
-        {validatorWithYield.yield ? validatorWithYield.yield.toFixed(2) : 0}%
+      <TableCell className="yieldCell">
+        {validator.yield ? validator.yield.toFixed(2) : 0}%
       </TableCell>
-      <TableCell className="tableCell commissionCell">
+      <TableCell className="commissionCell">
         {currentBlockNumber &&
         currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD ? (
           <div className="commissionDisplayPendingChangeWrapper">
@@ -74,18 +70,18 @@ const ValidatorRow = ({
           `${validator.commission}%`
         )}
       </TableCell>
-      <TableCell className="tableCell delegationCell">
+      <TableCell className="delegationCell">
         <strong>{ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}</strong>
       </TableCell>
-      <TableCell className="tableCell delegationCell">
+      <TableCell className="availableDelegation">
         <div className="availableDelegation">
           {validator.isFullyDelegated
             ? '0 (Fully delegated)'
             : ethers.utils.commify(Number(weiToEth(validator.availableForDelegation)).toFixed(2))}
         </div>
       </TableCell>
-      <TableCell className="tableCell stackingCell">{stripEth(stakingRewards)}</TableCell>
-      <TableCell className="tableCell availableDelegationActionsCell">
+      <TableCell className="rewardsCell">{stripEth(stakingRewards)}</TableCell>
+      <TableCell className="availableDelegationActionsCell">
         <div className="validatorActions">
           {!validatorFrom && ownDelegation && (
             <Button

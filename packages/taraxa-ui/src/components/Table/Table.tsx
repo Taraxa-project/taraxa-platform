@@ -24,6 +24,7 @@ export interface TableProps {
     Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
     data: any[];
   }[];
+  showPagination?: boolean;
   fixedLayout?: boolean;
   initialRowsPerPage?: number;
   currentPage?: number;
@@ -35,6 +36,7 @@ export interface TableProps {
 export default function Table({
   columns,
   rows,
+  showPagination = true,
   fixedLayout = true,
   initialRowsPerPage,
   onPageChange,
@@ -45,7 +47,7 @@ export default function Table({
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(
-    initialRowsPerPage || 25
+    showPagination ? initialRowsPerPage || 25 : rows.length
   );
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
@@ -80,26 +82,28 @@ export default function Table({
           className={isMobile ? classes.mobilePaper : classes.paper}
           elevation={0}
         >
-          <TablePagination
-            rowsPerPageOptions={[25, 50, 75, 100]}
-            component='div'
-            count={totalCount || rows.length}
-            rowsPerPage={initialRowsPerPage || rowsPerPage}
-            page={currentPage || page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            SelectProps={{
-              MenuProps: { classes: { paper: classes.tablePaginationList } },
-            }}
-            classes={{
-              root: classes.tablePagination,
-              selectLabel: classes.tablePaginationCaption,
-              selectIcon: classes.tablePaginationSelectIcon,
-              select: classes.tablePaginationSelect,
-              actions: classes.tablePaginationActions,
-              menuItem: classes.tablePaginationSelect,
-            }}
-          />
+          {showPagination && (
+            <TablePagination
+              rowsPerPageOptions={[25, 50, 75, 100]}
+              component='div'
+              count={totalCount || rows.length}
+              rowsPerPage={initialRowsPerPage || rowsPerPage}
+              page={currentPage || page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              SelectProps={{
+                MenuProps: { classes: { paper: classes.tablePaginationList } },
+              }}
+              classes={{
+                root: classes.tablePagination,
+                selectLabel: classes.tablePaginationCaption,
+                selectIcon: classes.tablePaginationSelectIcon,
+                select: classes.tablePaginationSelect,
+                actions: classes.tablePaginationActions,
+                menuItem: classes.tablePaginationSelect,
+              }}
+            />
+          )}
           <TableContainer>
             <MTable
               className={classes.table}

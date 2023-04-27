@@ -3,7 +3,13 @@ import { TableCell, TableRow } from '@mui/material';
 import { NotFound } from '../Icons';
 import useStyles from './EmptyTable.styles';
 
-const EmptyTable = ({ colspan }: { colspan: number }) => {
+const EmptyTable = ({
+  colspan,
+  message,
+}: {
+  colspan: number;
+  message?: string;
+}) => {
   const classes = useStyles();
 
   return (
@@ -13,7 +19,7 @@ const EmptyTable = ({ colspan }: { colspan: number }) => {
           <span className={classes.text}>
             <NotFound />
             <br />
-            No data available yet...
+            {message || 'No data available yet...'}
           </span>
         </div>
       </TableCell>

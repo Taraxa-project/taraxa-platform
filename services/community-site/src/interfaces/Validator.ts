@@ -79,7 +79,7 @@ export const calculateValidatorYield = (validators: Validator[]): Validator[] =>
     const yieldRatio =
       ((validator.blocksPerStake - minBlockRatio.blocksPerStake) /
         (maxBlockRatio.blocksPerStake - minBlockRatio.blocksPerStake)) *
-      20;
+      100;
     return {
       ...validator,
       yield: yieldRatio,

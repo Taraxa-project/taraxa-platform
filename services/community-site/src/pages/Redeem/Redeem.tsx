@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { BaseCard, Button, Label, Loading, Notification, Icons } from '@taraxa_project/taraxa-ui';
-
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import moment from 'moment';
-
+import {
+  BaseCard,
+  Button,
+  Label,
+  Loading,
+  Notification,
+  Icons,
+  EmptyTable,
+} from '@taraxa_project/taraxa-ui';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '../../components/Table/Table';
 import WhiteCheckIcon from '../../assets/icons/checkWhite';
-import NotFoundIcon from '../../assets/icons/notFound';
 import RedeemSidebar from '../../assets/icons/redeemSidebar';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
@@ -23,20 +35,6 @@ import useChain from '../../services/useChain';
 import useMainnet from '../../services/useMainnet';
 import WrongNetwork from '../../components/WrongNetwork';
 import { useWalletPopup } from '../../services/useWalletPopup';
-
-const EmptyRewards = () => (
-  <TableRow className="tableRow">
-    <TableCell colSpan={4} className="tableCell">
-      <div className="noRewardContainer">
-        <span className="noRewardText">
-          <NotFoundIcon />
-          <br />
-          Looks like you haven’t received any rewards yet...
-        </span>
-      </div>
-    </TableCell>
-  </TableRow>
-);
 
 function Redeem() {
   const { status, account } = useCMetamask();
@@ -246,12 +244,12 @@ function Redeem() {
           <WhiteCheckIcon /> <span style={{ marginLeft: '10px' }}>Redemption History</span>
         </div>
         {claims ? (
-          <TableContainer className="table">
-            <Table className="table">
+          <TableContainer className="redeemTable">
+            <Table className="redeemTable">
               <TableHead>
-                <TableRow className="tableHeadRow">
+                <TableRow head>
                   {columns.map((col, ind) => (
-                    <TableCell className="tableHeadCell" key={ind}>
+                    <TableCell head key={ind}>
                       {col}
                     </TableCell>
                   ))}
@@ -261,10 +259,8 @@ function Redeem() {
                 {claims && claims.length > 0 ? (
                   claims.map((row: Claim, ind: number) => {
                     return (
-                      <TableRow className="tableRow" key={ind}>
-                        <TableCell className="tableCell">
-                          {formatEth(roundEth(weiToEth(row.numberOfTokens)))}
-                        </TableCell>
+                      <TableRow key={ind}>
+                        <TableCell>{formatEth(roundEth(weiToEth(row.numberOfTokens)))}</TableCell>
                         <TableCell className="tableCellGrey">
                           {moment(
                             row.claimedAt
@@ -276,7 +272,7 @@ function Redeem() {
                             .format('ll')
                             .toUpperCase()}
                         </TableCell>
-                        <TableCell className="tableCell">
+                        <TableCell>
                           {!row.claimed ? (
                             <Label
                               variant="secondary"
@@ -291,7 +287,7 @@ function Redeem() {
                             />
                           )}
                         </TableCell>
-                        <TableCell className="tableCell">
+                        <TableCell>
                           {!row.claimed && (
                             <Button
                               size="small"
@@ -311,7 +307,10 @@ function Redeem() {
                     );
                   })
                 ) : (
-                  <EmptyRewards />
+                  <EmptyTable
+                    colspan={4}
+                    message="Looks like you haven`t received any rewards yet..."
+                  />
                 )}
               </TableBody>
             </Table>
