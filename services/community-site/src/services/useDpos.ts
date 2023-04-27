@@ -37,7 +37,7 @@ function useDpos() {
 
     try {
       const contract = new ethers.Contract(
-        '0x00000000000000000000000000000000000000fe',
+        '0xC403E07453693aD68A939fB909D36d87d8682Fe5',
         abi,
         mainnetProvider,
       );
@@ -57,7 +57,7 @@ function useDpos() {
       return instance;
     }
     const contract = new ethers.Contract(
-      '0x00000000000000000000000000000000000000fe',
+      '0xC403E07453693aD68A939fB909D36d87d8682Fe5',
       abi,
       browserProvider,
     );
