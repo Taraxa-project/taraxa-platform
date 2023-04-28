@@ -288,10 +288,8 @@ export class DelegationService {
   async ensureDelegation(nodeId: number, type: string, address: string) {
     // Check if node exists in the database
     let node: Node;
-    let isInternal = false;
     try {
       node = await this.nodeRepository.findOneOrFail({ id: nodeId });
-      isInternal = node.isOwnValidator;
     } catch (e) {
       node = null;
     }
@@ -343,7 +341,6 @@ export class DelegationService {
       // add call to undelegation, create undelegation, save in db
       // await this.blockchainService.unregisterValidator(address);
     } else {
-      let toDelegate = totalNodeDelegation.sub(currentDelegation);
       if (!isNodeRegistered) {
         let isCreatedOnchain: boolean;
         if (type === NodeType.TESTNET) {
@@ -352,22 +349,7 @@ export class DelegationService {
               address,
               node.addressProof,
               node.vrfKey,
-              isInternal,
             );
-        }
-        if (type === NodeType.MAINNET) {
-          isCreatedOnchain =
-            await this.mainnetBlockchainService.registerValidator(
-              address,
-              node.addressProof,
-              node.vrfKey,
-              isInternal,
-            );
-          if (isCreatedOnchain) {
-            toDelegate = totalNodeDelegation.sub(
-              this.mainnetBlockchainService.defaultDelegationAmount,
-            );
-          }
         }
         if (node) {
           node.isCreatedOnchain = isCreatedOnchain;

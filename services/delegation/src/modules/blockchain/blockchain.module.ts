@@ -21,7 +21,7 @@ const getProviders = () => [
         ethereum.testnetEndpoint,
         ethereum.testnetWallet,
         delegation.testnetDelegation,
-        delegation.testnetOwnNodes,
+        ethereum.dposProxyAddress,
       );
     },
     inject: [delegationConfig.KEY, ethereumConfig.KEY],

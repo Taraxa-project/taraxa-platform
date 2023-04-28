@@ -16,6 +16,7 @@ app:
   dbCommunityName: taraxa-community-default
   queueHost: default-queue.address
   indexerStakingUrl: http://default-taraxa-indexer:8000/subgraphs/name/taraxa_project/staking
+  dposProxyAddress: ''
 
   serverPort: 3000
   dbPort: 5432

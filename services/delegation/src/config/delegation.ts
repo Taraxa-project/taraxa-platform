@@ -2,20 +2,6 @@ import { ethers } from 'ethers';
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('delegation', () => {
-  let ownNodes = [];
-
-  if (process.env.TESTNET_OWN_NODES !== '') {
-    try {
-      ownNodes = JSON.parse(process.env.TESTNET_OWN_NODES);
-    } catch (e) {
-      ownNodes = [];
-      console.error(
-        `Could not parse own nodes JSON`,
-        process.env.TESTNET_OWN_NODES,
-      );
-    }
-  }
-
   return {
     yield: 20,
     commissionChangeThreshold: 5,
@@ -28,7 +14,6 @@ export default registerAs('delegation', () => {
       ethers.BigNumber.from(10).pow(18),
     ),
     mainnetDelegation: ethers.BigNumber.from(10).pow(18), // not sure why this is here
-    testnetOwnNodes: ownNodes,
     undelegationConfirmationDelay: Number(
       process.env.NR_BLOCKS_UNDELEGATION_DELAY || 5,
     ),
