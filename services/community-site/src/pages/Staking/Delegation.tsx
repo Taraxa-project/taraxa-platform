@@ -68,8 +68,6 @@ const Delegation = ({ location }: { location: Location }) => {
   const [showFullyDelegatedValidators, setShowFullyDelegatedValidators] = useState(true);
   const { allValidatorsWithStats } = useAllValidators();
 
-  const [isLoadingAccountData, setLoadingAccountData] = useState(false);
-
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [claimAmount, setClaimAmount] = useState(ethers.BigNumber.from('0'));
   const [currentBlock, setCurrentBlock] = useState(0);
@@ -122,9 +120,7 @@ const Delegation = ({ location }: { location: Location }) => {
   useEffect(() => {
     if (status === 'connected' && account) {
       (async () => {
-        setLoadingAccountData(true);
         setDelegations(await getDelegations(account));
-        setLoadingAccountData(false);
       })();
     }
   }, [status, account, chainId, shouldFetch]);
@@ -132,10 +128,8 @@ const Delegation = ({ location }: { location: Location }) => {
   useEffect(() => {
     if (status === 'connected' && account && provider) {
       (async () => {
-        setLoadingAccountData(true);
         const unDelegations = await getUndelegations(account);
         setUndelegations(unDelegations);
-        setLoadingAccountData(false);
       })();
     }
   }, [status, account, chainId, shouldFetch]);
@@ -143,12 +137,10 @@ const Delegation = ({ location }: { location: Location }) => {
   useEffect(() => {
     if (delegations.length > 0) {
       (async () => {
-        setLoadingAccountData(true);
         const myValidators = await getValidatorsWith(delegations.map((d) => d.address));
         const myValidatorsWithStats = await updateValidatorsStats(myValidators);
         const myValidatorsWithYield = calculateValidatorYield(myValidatorsWithStats);
         setOwnValidators(myValidatorsWithYield);
-        setLoadingAccountData(false);
       })();
     }
   }, [delegations]);
@@ -351,7 +343,7 @@ const Delegation = ({ location }: { location: Location }) => {
             {status === 'connected' && !isOnWrongChain && (
               <Switch
                 className="switch"
-                disabled={isLoadingAccountData || isLoading}
+                disabled={isLoading}
                 name="Only show my validators"
                 checked={showMyValidators}
                 label="Only show my validators"
@@ -363,7 +355,7 @@ const Delegation = ({ location }: { location: Location }) => {
             )}
             <Switch
               className="switch"
-              disabled={isLoadingAccountData || isLoading}
+              disabled={isLoading}
               name="Show fully delegated nodes"
               checked={showFullyDelegatedValidators}
               label="Show fully delegated nodes"
@@ -379,17 +371,17 @@ const Delegation = ({ location }: { location: Location }) => {
             <BaseCard
               title={totalValidators !== -1 ? totalValidators.toString() : '0'}
               description="Number of network validators"
-              isLoading={totalValidators === -1}
+              isLoading={isLoading}
             />
             <BaseCard
               title={stripEth(averageDelegation)}
               description="Average TARA delegatated to validators"
-              isLoading={totalValidators === -1}
+              isLoading={isLoading}
             />
             <BaseCard
               title={stripEth(totalDelegation)}
               description="Total TARA delegated to validators"
-              isLoading={totalValidators === -1}
+              isLoading={isLoading}
             />
           </div>
         )}
@@ -398,26 +390,26 @@ const Delegation = ({ location }: { location: Location }) => {
             <BaseCard
               title={`${delegations.length || 0}`}
               description="My Validators - number of validators I delegated to"
-              isLoading={isLoadingAccountData}
+              isLoading={isLoading}
             />
             <BaseCard
               title={stripEth(totalDelegationOfAddress)}
               description="My Delegated TARA - total number of delegated tokens"
-              isLoading={isLoadingAccountData}
+              isLoading={isLoading}
             />
             <BaseCard
               title={stripEth(totalClaimableRewards)}
               description="Claimable TARA - Staking rewards that are instantly claimable."
-              isLoading={isLoadingAccountData}
+              isLoading={isLoading}
             />
             <BaseCard
               title={stripEth(undelegatedTara)}
               description="Undelegated TARA - TARA that is awaiting release from delegation and can be claimed or the undelegation request can be canceled."
-              isLoading={isLoadingAccountData}
+              isLoading={isLoading}
             />
           </div>
         )}
-        {filteredValidators.length === 0 && !isLoadingAccountData && !isLoading && (
+        {filteredValidators.length === 0 && !isLoading && (
           <Text
             label="No nodes found matching the selected filters"
             variant="h6"
@@ -425,7 +417,7 @@ const Delegation = ({ location }: { location: Location }) => {
             style={{ marginLeft: '20px', marginTop: '20px' }}
           />
         )}
-        {isLoadingAccountData || isLoading ? (
+        {isLoading ? (
           <div
             style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '2rem' }}
           >

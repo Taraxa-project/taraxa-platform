@@ -14,12 +14,22 @@ const useStyles = makeStyles(() => {
       margin: '10px 0 10px 10px',
       fontSize: '14px',
       fontWeight: 700,
+      wordBreak: 'break-word',
+    },
+    subtitle: {
+      margin: '5px 0 10px 10px',
+      color: '#878ca4',
+      textAlign: 'left',
+      fontSize: '14px',
+      fontWeight: 500,
+      wordBreak: 'break-word',
     },
     description: {
       margin: '5px 0 10px 10px',
       color: '#878ca4',
       textAlign: 'left',
       fontSize: '14px',
+      wordBreak: 'break-word',
     },
   };
 });

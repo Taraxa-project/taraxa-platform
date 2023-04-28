@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import { Button, Text, InputField, AmountCard, InfoCard } from '@taraxa_project/taraxa-ui';
+import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 import useCMetamask from '../../../services/useCMetamask';
 
 import useDelegation from '../../../services/useDelegation';
 
-import { stripEth, weiToEth } from '../../../utils/eth';
+import { weiToEth } from '../../../utils/eth';
 import { useWalletPopup } from '../../../services/useWalletPopup';
 import { useRedelegation } from '../../../services/useRedelegation';
 import { compareDelegationTo } from '../../../utils/compareDelegationTo';
+import Nickname from '../../../components/Nickname/Nickname';
 
 type ReDelegateProps = {
   reDelegatableBalance: ethers.BigNumber;
@@ -99,7 +100,12 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
             variant="body2"
             color="primary"
           />
-          <InfoCard title={validatorFrom.address} description={validatorFrom.description} />
+          <Nickname
+            size="medium"
+            showIcon
+            address={validatorFrom.address}
+            description={validatorFrom.description}
+          />
         </div>
       )}
       <div className="redelegation-arrow">⬇⬇⬇</div>
@@ -112,10 +118,15 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
             variant="body2"
             color="primary"
           />
-          <InfoCard title={validatorTo.address} description={validatorTo.description} />
+          <Nickname
+            size="medium"
+            showIcon
+            address={validatorTo.address}
+            description={validatorTo.description}
+          />
         </div>
       )}
-      {validatorTo && reDelegationTotal && (
+      {/* {validatorTo && reDelegationTotal && (
         <div className="taraContainerWrapper" style={{ marginTop: '1rem' }}>
           <div className="taraContainer taraContainerBalance">
             <p className="taraContainerAmountDescription">Available TARA for re-delegation</p>
@@ -128,7 +139,7 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
             <AmountCard amount={stripEth(validatorTo.availableForDelegation)} unit="TARA" />
           </div>
         </div>
-      )}
+      )} */}
       <div className="taraInputWrapper">
         <p className="maxDelegatableDescription">Maximum delegate-able</p>
         <p className="maxDelegatableTotal">{reDelegationTotal}</p>

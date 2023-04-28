@@ -111,7 +111,7 @@ const RunValidator = () => {
   }, [validatorType]);
 
   const deleteTestnetNode = async (node: Validator) => {
-    await delegationApi.del(`/nodes/${node.address}`, true);
+    await delegationApi.del(`/nodes/${node.id}`, true);
     await getTestnetNodes();
   };
 
