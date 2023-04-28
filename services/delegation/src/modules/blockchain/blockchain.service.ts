@@ -39,8 +39,14 @@ export class BlockchainService {
     endpoint: string,
     walletKey: string,
     defaultDelegationAmount: ethers.BigNumber,
+    dposProxyAddress: string,
   ) {
-    return new BlockchainService(endpoint, walletKey, defaultDelegationAmount);
+    return new BlockchainService(
+      endpoint,
+      walletKey,
+      defaultDelegationAmount,
+      dposProxyAddress,
+    );
   }
 
   async getCurrentBlockNumber() {
