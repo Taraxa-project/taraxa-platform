@@ -46,21 +46,6 @@ describe("DelegationOrchestrator Proxy tests", () => {
     ethersContract = new ethers.Contract(orchestrator.address, IDPOS.abi);
   });
 
-  it("Is able to forward getValdiator call", async () => {
-    const directCall = await mockDPOS.getValidator(ownValidators[0].address);
-    expect(directCall.owner).to.equal(ownValidators[1].address);
-
-    const funcSignature =
-      "getValidator(address) external view returns (uint256,uint256,uint256,uint16,uint64,address,string,string)";
-    const txData = ethersContract.interface.encodeFunctionData(funcSignature, [ownValidators[0].address]);
-    const tx = {
-      to: orchestrator.address,
-      data: txData,
-    };
-    const txResult = await ethers.provider.send("eth_sendTransaction", [tx]);
-    expect(txResult).not.to.be.undefined;
-  });
-
   it("is able to undelegate", async () => {
     const validator4 = ethers.Wallet.createRandom().address;
     const registerValidator = await mockDPOS

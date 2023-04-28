@@ -38,33 +38,51 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
     }
 
     /**
-     * returns the array of external validator addresses for the owner
-     * @param validatorOwner owner address
-     */
-    function getExternalValidatorsByOwner(
-        address validatorOwner
-    ) external view override returns (address[] memory validators) {
-        return externalValidatorsByOwners[validatorOwner];
-    }
-
-    /**
      * returns the validator struct
      * @param validator address
      */
-    function getExternalValidator(
+    function getValidator(
         address validator
     ) external view override returns (IDPOS.ValidatorBasicInfo memory validatorData) {
         IDPOS.ValidatorBasicInfo memory validatorInfo = dpos.getValidator(validator);
-        validatorInfo.owner = externalValidatorOwners[validator];
+        if (externalValidatorOwners[validator] != address(0)) {
+            validatorInfo.owner = externalValidatorOwners[validator];
+        }
         return validatorInfo;
+    }
+
+    function getValidators(uint32 batch) external view returns (IDPOS.ValidatorData[] memory validators, bool end) {
+        return _fetchValidatorsFromImplementation(batch);
     }
 
     /**
      * returns the owner of an external validator
-     * @param validator the address of the extarnal validator
+     * @param owner the address of the extarnal validator
      */
-    function getOwnerOfExternalValidator(address validator) external view returns (address owner) {
-        return externalValidatorOwners[validator];
+    function getValidatorsFor(
+        address owner,
+        uint32 batch
+    ) external view returns (IDPOS.ValidatorData[] memory validators, bool end) {
+        IDPOS.ValidatorData[] memory _validators;
+        bool _end;
+        (_validators, _end) = _fetchValidatorsFromImplementation(batch);
+        uint16 length = 0;
+        IDPOS.ValidatorData[] memory _validatorsOfOwner = new IDPOS.ValidatorData[](1);
+        for (uint16 i = 0; i < _validators.length; ) {
+            if (_validators[i].info.owner == owner) {
+                ++length;
+                IDPOS.ValidatorData[] memory _temp = new IDPOS.ValidatorData[](length);
+                for (uint y = 0; i < _validatorsOfOwner.length; y++) {
+                    _temp[y] = _validatorsOfOwner[y];
+                }
+                _temp[length - 1] = _validators[i];
+                _validatorsOfOwner = _temp;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return (_validatorsOfOwner, _end);
     }
 
     /**
@@ -88,7 +106,7 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
      * @param description validator description
      * @param endpoint validator endpoint
      */
-    function registerExternalValidator(
+    function registerValidator(
         address validator,
         bytes memory proof,
         bytes memory vrfKey,
@@ -170,5 +188,22 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
             }
         }
         return (internalStake, externalStake);
+    }
+
+    function _fetchValidatorsFromImplementation(
+        uint32 batch
+    ) internal view returns (IDPOS.ValidatorData[] memory validators, bool) {
+        IDPOS.ValidatorData[] memory _validators;
+        bool end;
+        (_validators, end) = dpos.getValidators(batch);
+        for (uint8 i = 0; i < _validators.length; ) {
+            if (externalValidatorOwners[_validators[i].account] != address(0)) {
+                _validators[i].info.owner = externalValidatorOwners[_validators[i].account];
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return (_validators, end);
     }
 }

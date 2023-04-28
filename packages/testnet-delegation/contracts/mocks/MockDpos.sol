@@ -6,6 +6,7 @@ import "./MockIDPOS.sol";
 
 contract MockDpos is MockIDPOS {
     mapping(address => MockIDPOS.ValidatorData) public validators;
+    MockIDPOS.ValidatorData[] validatorDatas;
 
     constructor(address[] memory _internalValidators) payable {
         for (uint256 i = 0; i < _internalValidators.length; ++i) {
@@ -20,6 +21,7 @@ contract MockDpos is MockIDPOS {
             );
             MockIDPOS.ValidatorData memory validatorData = MockIDPOS.ValidatorData(_internalValidators[i], info);
             validators[_internalValidators[i]] = validatorData;
+            validatorDatas.push(validatorData);
         }
         require(
             validators[_internalValidators[_internalValidators.length - 1]].account != address(0),
@@ -33,6 +35,47 @@ contract MockDpos is MockIDPOS {
 
     function getValidator(address validator) external view returns (MockIDPOS.ValidatorBasicInfo memory) {
         return validators[validator].info;
+    }
+
+    function getValidators(uint32 batch) external view returns (ValidatorData[] memory validatorsOut, bool end) {
+        if(batch == 0){
+            if(validatorDatas.length < 100){
+                batch = uint32(validatorDatas.length);
+            }else{
+                batch = 100;
+            }
+        }
+        ValidatorData[] memory _validators = new ValidatorData[](batch);
+        for (uint8 i = 0; i < batch; ) {
+            _validators[i] = ValidatorData(validatorDatas[i].account, validatorDatas[i].info);
+            unchecked {
+                ++i;
+            }
+        }
+        return (_validators, false);
+    }
+
+    function getValidatorsFor(
+        address owner,
+        uint32 batch
+    ) external view returns (ValidatorData[] memory validatorsOut, bool end) {
+         if(batch == 0){
+            if(validatorDatas.length < 100){
+                batch = uint32(validatorDatas.length);
+            }else{
+                batch = 100;
+            }
+        }
+        ValidatorData[] memory _validators = new ValidatorData[](batch);
+        for (uint8 i = 0; i < batch; ) {
+            if (validatorDatas[i].info.owner == owner) {
+                _validators[i] = ValidatorData(validatorDatas[i].account, validatorDatas[i].info);
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return (_validators, false);
     }
 
     function delegate(address validator) external payable override {
@@ -68,6 +111,7 @@ contract MockDpos is MockIDPOS {
         );
         MockIDPOS.ValidatorData memory validatorData = MockIDPOS.ValidatorData(validator, info);
         validators[validator] = validatorData;
+        validatorDatas.push(validatorData);
 
         emit ValidatorRegistered(validator);
     }

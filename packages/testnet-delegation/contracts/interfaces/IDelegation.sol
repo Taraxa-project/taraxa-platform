@@ -9,17 +9,20 @@ interface IDelegation {
     event InternalValidatorDelegationIncreased(address indexed validatorAddress, uint256 delegatedValue);
     event ExternalValidatorRegistered(address indexed wallet, address indexed delegator, uint256 tokens);
 
-    function getExternalValidator(
+    function getValidator(
         address validator
     ) external view returns (IDPOS.ValidatorBasicInfo memory validatorInfo);
 
-    function getExternalValidatorsByOwner(address owner) external view returns (address[] memory extValidators);
+    function getValidators(uint32 batch) external view returns (IDPOS.ValidatorData[] memory validators, bool end);
 
-    function getOwnerOfExternalValidator(address validator) external view returns (address owner);
+    function getValidatorsFor(
+        address owner,
+        uint32 batch
+    ) external view returns (IDPOS.ValidatorData[] memory validators, bool end);
 
     function addInternalValidator(address newValidator) external;
 
-    function registerExternalValidator(
+    function registerValidator(
         address validator,
         bytes memory proof,
         bytes memory vrfKey,
