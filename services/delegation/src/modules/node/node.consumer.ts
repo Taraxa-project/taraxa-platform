@@ -94,6 +94,7 @@ export class NodeConsumer implements OnModuleInit {
             node.address,
             node.addressProof,
             node.vrfKey,
+            node.isOwnValidator,
           );
       }
 
@@ -103,6 +104,7 @@ export class NodeConsumer implements OnModuleInit {
             node.address,
             node.addressProof,
             node.vrfKey,
+            node.isOwnValidator,
           );
       }
       await this.nodeRepository.save(node);

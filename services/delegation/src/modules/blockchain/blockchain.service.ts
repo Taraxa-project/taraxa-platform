@@ -30,6 +30,7 @@ export class BlockchainService {
         'function getValidator(address validator) view returns (tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) validator_info)',
         'function getValidators(uint32 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)',
         'function registerValidator(address validator, bytes proof, bytes vrf_key, uint16 commission, string description, string endpoint) payable',
+        'function addInternalValidator(address validator) external',
       ],
       this.provider,
     ).connect(this.wallet);
@@ -74,10 +75,12 @@ export class BlockchainService {
     address: string,
     addressProof: string,
     vrfKey: string,
+    internal = false,
   ) {
-    await this.rebalanceOwnNodes(true);
-
     try {
+      const validatorData = await this.contract.getValidator(address);
+      if (validatorData && validatorData.owner) return true;
+
       const tx = await this.contract.registerValidator(
         address,
         addressProof,
@@ -91,11 +94,14 @@ export class BlockchainService {
         },
       );
       await tx.wait();
+      if (internal) {
+        const registration = await this.contract.addInternalValidator(address);
+        await registration.wait();
+      }
       return true;
     } catch (e) {
       console.error(`Could not create validator ${address}`, e);
     }
-
     return false;
   }
 
