@@ -20,21 +20,11 @@ import {
   DPOS,
 } from '../generated/DPOS/DPOS';
 import {
-  CommissionRewardsClaimedEvent,
-  CommissionSetEvent,
-  DelegatedEvent,
-  DelegationData,
-  DelegatorInfo,
-  RedelegatedEvent,
-  RewardsClaimedEvent,
-  UndelegateCanceledEvent,
-  UndelegateConfirmedEvent,
-  UndelegatedEvent,
-  UndelegationData,
-  ValidatorBasicInfo,
-  ValidatorData,
-  ValidatorInfoSetEvent,
-  ValidatorRegisteredEvent,
+  BasicInfo,
+  Delegation,
+  Delegator,
+  Undelegation,
+  Validator,
 } from '../generated/schema';
 
 // Each of the handler functions honors the following flow:
@@ -43,7 +33,6 @@ import {
 // 3. Fills the Schema Object with data from the event or from chain
 // 4. Saves the new object
 // 5. Updates all other objects mentioning the new one
-// 6. Saves the Event object
 
 /**
  * Reimplementation of string[].find()
@@ -86,15 +75,28 @@ function filterString(array: string[], str: string): string[] {
 function updateTotalStakeOfValidator(
   validatorAddress: string,
   addStake: BigInt = BigInt.zero(),
-  reduceStake: BigInt = BigInt.zero()
+  reduceStake: BigInt = BigInt.zero(),
+  own: boolean
 ): void {
-  const validatorInfo = ValidatorBasicInfo.load(validatorAddress);
+  const validatorInfo = BasicInfo.load(validatorAddress);
   if (validatorInfo) {
     if (addStake) {
       validatorInfo.totalStake = validatorInfo.totalStake.plus(addStake);
+      if (own) {
+        validatorInfo.selfStake = validatorInfo.selfStake.plus(addStake);
+      } else {
+        validatorInfo.externalStake =
+          validatorInfo.externalStake.plus(addStake);
+      }
     }
     if (reduceStake) {
       validatorInfo.totalStake = validatorInfo.totalStake.minus(reduceStake);
+      if (own) {
+        validatorInfo.selfStake = validatorInfo.selfStake.minus(reduceStake);
+      } else {
+        validatorInfo.externalStake =
+          validatorInfo.externalStake.minus(reduceStake);
+      }
     }
     validatorInfo.save();
   }
@@ -108,10 +110,10 @@ function updateTotalStakeOfValidator(
 function getValidatorInfoFromContract(
   validator: Address,
   event: ethereum.Event
-): ValidatorBasicInfo {
-  let basicInfo = ValidatorBasicInfo.load(validator.toHexString());
+): BasicInfo {
+  let basicInfo = BasicInfo.load(validator.toHexString());
   if (!basicInfo) {
-    basicInfo = new ValidatorBasicInfo(validator.toHexString());
+    basicInfo = new BasicInfo(validator.toHexString());
   }
 
   const dpos = DPOS.bind(event.address);
@@ -119,7 +121,6 @@ function getValidatorInfoFromContract(
   const chainData = dpos.getValidator(validator);
 
   basicInfo.commission = chainData.commission;
-  basicInfo.commissionReward = chainData.commission_reward;
   if (chainData.description) {
     basicInfo.description = chainData.description.toString();
   } else {
@@ -145,16 +146,16 @@ function getValidatorInfoFromContract(
  * @param validator validator hex address
  * @returns the validatorData object
  */
-function enforceValidatorDataExists(
+function enforceValidatorExists(
   validator: Address,
   event: ethereum.Event
-): ValidatorData {
+): Validator {
   log.info('Enforcing validator: ' + validator.toHexString(), [
     validator.toHexString(),
   ]);
-  let validatorData = ValidatorData.load(validator.toHexString());
+  let validatorData = Validator.load(validator.toHexString());
   if (!validatorData) {
-    validatorData = new ValidatorData(validator.toHexString());
+    validatorData = new Validator(validator.toHexString());
     validatorData.account = validator.toHexString();
     validatorData.delegations = [];
     validatorData.undelegations = [];
@@ -168,22 +169,38 @@ function enforceValidatorDataExists(
 
 export function handleValidatorRegistered(event: ValidatorRegistered): void {
   const validator = event.params.validator;
-  enforceValidatorDataExists(validator, event);
-
-  const registeredEvent = new ValidatorRegisteredEvent(validator.toHexString());
-  registeredEvent.validator = validator.toHexString();
-  registeredEvent.save();
+  enforceValidatorExists(validator, event);
 }
 
 export function handleValidatorInfoSet(event: ValidatorInfoSet): void {
   const validator = event.params.validator;
-  enforceValidatorDataExists(validator, event);
+  enforceValidatorExists(validator, event);
+}
 
-  const validatorInfoSetEvent = new ValidatorInfoSetEvent(
-    event.transaction.hash.toHexString()
-  );
-  validatorInfoSetEvent.validator = validator.toHexString();
-  validatorInfoSetEvent.save();
+function getOrInitDelegator(delegator: Address) {
+  let delegatorInfo = Delegator.load(delegator.toHexString());
+  if (!delegatorInfo) {
+    delegatorInfo = new Delegator(delegator.toHexString());
+    delegatorInfo.account = delegator.toHexString();
+    delegatorInfo.totalStake = BigInt.zero();
+    delegatorInfo.rewards = BigInt.zero();
+    delegatorInfo.delegations = [];
+    delegatorInfo.undelegations = [];
+  }
+  return delegatorInfo;
+}
+
+function getOrInitDelegation(delegator: Address, validator: Address) {
+  const delegationId = `${delegator.toHexString()}-${validator.toHexString()}`;
+  let delegation = Delegation.load(delegationId);
+  if (delegation) return delegation;
+  delegation = new Delegation(delegationId);
+  delegation.delegator = delegator.toHexString();
+  delegation.validator = validator.toHexString();
+  delegation.amount = BigInt.zero();
+  delegation.active = true;
+  delegation.save();
+  return delegation;
 }
 
 export function handleDelegated(event: Delegated): void {
@@ -191,55 +208,58 @@ export function handleDelegated(event: Delegated): void {
   const validator = event.params.validator;
   const amount = event.params.amount;
 
-  const validatorData = enforceValidatorDataExists(validator, event);
-
-  let newDelegation = new DelegationData(event.transaction.hash.toHexString());
-  newDelegation.account = validator.toHexString();
-  newDelegation.delegator = delegator.toHexString();
-  newDelegation.validator = validator.toHexString();
-
-  log.warning('Event data: ', [
-    delegator.toHexString(),
-    validator.toHexString(),
-    amount.toString(),
-  ]);
-
-  let delegatorInfo = DelegatorInfo.load(
+  // Init delegation
+  let newDelegation = new Delegation(event.transaction.hash.toHexString());
+  let newCurrentDelegation = new Delegation(
     `${delegator.toHexString()}-${validator.toHexString()}`
   );
-  if (!delegatorInfo) {
-    delegatorInfo = new DelegatorInfo(
-      `${delegator.toHexString()}-${validator.toHexString()}`
-    );
-    delegatorInfo.stake = amount;
-  } else {
-    delegatorInfo.stake = delegatorInfo.stake.plus(amount);
-  }
-  if (!delegatorInfo.rewards) {
-    delegatorInfo.rewards = new BigInt(0);
-  }
 
-  delegatorInfo.save();
+  const validatorData = enforceValidatorExists(validator, event);
 
+  // Update Validator
+  validatorData.currentDelegations = validatorData.currentDelegations.concat([
+    newCurrentDelegation.id,
+  ]);
   validatorData.delegations = validatorData.delegations.concat([
     newDelegation.id,
   ]);
 
+  const validatorInfo = BasicInfo.load(validatorData.info);
+  const isOwnDelegation =
+    validatorInfo?.owner.toLowerCase() ===
+    delegator.toHexString().toLowerCase();
+
+  updateTotalStakeOfValidator(
+    validator.toHexString(),
+    amount,
+    BigInt.zero(),
+    isOwnDelegation
+  );
+
   validatorData.save();
 
+  // Update Delegator
+  let delegatorInfo = getOrInitDelegator(delegator);
+
+  delegatorInfo.totalStake = delegatorInfo.totalStake.plus(amount);
+  delegatorInfo.delegations = delegatorInfo.delegations.concat([
+    newCurrentDelegation.id,
+  ]);
+  delegatorInfo.save();
+
+  // Save current delegation
+  newCurrentDelegation.delegator = delegatorInfo.id;
+  newCurrentDelegation.validator = validatorData.id;
+  newCurrentDelegation.amount = amount;
+  newCurrentDelegation.active = true;
+  newCurrentDelegation.save();
+
+  // Save Delegation
   newDelegation.delegator = delegatorInfo.id;
   newDelegation.validator = validatorData.id;
+  newDelegation.amount = amount;
+  newDelegation.active = true;
   newDelegation.save();
-
-  updateTotalStakeOfValidator(validator.toHexString(), amount);
-
-  const delegatedEvent = new DelegatedEvent(
-    event.transaction.hash.toHexString()
-  );
-  delegatedEvent.amount = amount;
-  delegatedEvent.delegator = delegator.toHexString();
-  delegatedEvent.validator = validator.toHexString();
-  delegatedEvent.save();
 }
 
 export function handleUndelegated(event: Undelegated): void {
@@ -247,42 +267,70 @@ export function handleUndelegated(event: Undelegated): void {
   const validator = event.params.validator;
   const amount = event.params.amount;
 
-  const validatorData = enforceValidatorDataExists(validator, event);
+  // Init undelegation
+  const id = event.transaction.hash.toHexString();
+  const currentId = `${delegator.toHexString()}-${validator.toHexString()}`;
+  let newUnDelegationData = new Undelegation(id);
 
-  let newUnDelegationData = new UndelegationData(delegator.toHexString());
-  newUnDelegationData.stake = amount;
-  newUnDelegationData.block = event.block.number;
+  const validatorData = enforceValidatorExists(validator, event);
 
-  let delegatorInfo = DelegatorInfo.load(
-    `${delegator.toHexString()}-${validator.toHexString()}`
-  );
-  if (!delegatorInfo) {
-    delegatorInfo = new DelegatorInfo(
-      `${delegator.toHexString()}-${validator.toHexString()}`
-    );
-    delegatorInfo.stake = delegatorInfo.stake.minus(amount);
-  }
-
-  delegatorInfo.save();
-
+  // Update Validator
   validatorData.undelegations = validatorData.undelegations.concat([
     newUnDelegationData.id,
   ]);
 
+  // Update current Delegation of Validator
+  const currentDelegation = Delegation.load(currentId);
+  if (currentDelegation) {
+    currentDelegation.amount = currentDelegation.amount.minus(amount);
+    if (currentDelegation.amount.isZero()) {
+      currentDelegation.active = false;
+    }
+    currentDelegation.save();
+  }
+
+  const validatorInfo = BasicInfo.load(validatorData.info);
+  const isOwnUndelegation =
+    validatorInfo?.owner.toLowerCase() ===
+    delegator.toHexString().toLowerCase();
+
+  updateTotalStakeOfValidator(
+    validator.toHexString(),
+    BigInt.zero(),
+    amount,
+    isOwnUndelegation
+  );
+
   validatorData.save();
 
+  // Update Delegator
+  let delegatorInfo = getOrInitDelegator(delegator);
+
+  delegatorInfo.totalStake = delegatorInfo.totalStake.minus(amount);
+  delegatorInfo.undelegations = delegatorInfo.undelegations.concat([
+    newUnDelegationData.id,
+  ]);
+
+  // Update matching delegation if found
+  const delegation = Delegation.load(id);
+  if (delegation) {
+    delegation.active = false;
+    delegation.save();
+  }
+
+  delegatorInfo.save();
+
+  // Save Undelegation
+  newUnDelegationData.delegator = delegatorInfo.id;
   newUnDelegationData.validator = validatorData.id;
-  newUnDelegationData.save();
-
-  updateTotalStakeOfValidator(validator.toHexString(), BigInt.zero(), amount);
-
-  const undelegatedEvent = new UndelegatedEvent(
-    event.transaction.hash.toHexString()
+  newUnDelegationData.stake = amount;
+  newUnDelegationData.eligibilityBlock = event.block.number.plus(
+    new BigInt(25000)
   );
-  undelegatedEvent.amount = amount;
-  undelegatedEvent.delegator = delegator.toHexString();
-  undelegatedEvent.validator = validator.toHexString();
-  undelegatedEvent.save();
+  newUnDelegationData.validator = validatorData.id;
+  newUnDelegationData.confirmed = false;
+  newUnDelegationData.canceled = false;
+  newUnDelegationData.save();
 }
 
 export function handleRedelegated(event: Redelegated): void {
@@ -291,40 +339,71 @@ export function handleRedelegated(event: Redelegated): void {
   const to = event.params.to;
   const amount = event.params.amount;
 
-  const validatorDataFrom = enforceValidatorDataExists(from, event);
-  const validatorDataTo = enforceValidatorDataExists(to, event);
-  validatorDataFrom.delegations = filterString(
-    validatorDataFrom.delegations,
-    delegator.toHexString()
-  );
-  validatorDataFrom.save();
-  const delegationId = findString(
-    validatorDataTo.delegations,
-    delegator.toHexString()
-  );
-  let newDelegationData = new DelegationData(delegator.toHexString());
-  if (delegationId) {
-    newDelegationData = DelegationData.load(delegationId)!;
+  // Init delegations from
+  let newCurrentDelegationFrom = `${delegator.toHexString()}-${from.toHexString()}`;
+
+  // Update validators
+  const validatorDataFrom = enforceValidatorExists(from, event);
+  const validatorDataTo = enforceValidatorExists(to, event);
+
+  const currentDelegationFrom = Delegation.load(newCurrentDelegationFrom);
+  if (currentDelegationFrom) {
+    currentDelegationFrom.amount = currentDelegationFrom.amount.minus(amount);
+    currentDelegationFrom.save();
   }
-  newDelegationData.account = event.address.toHexString();
+
+  // Create delegations
+  let newDelegationData = getOrInitDelegation(delegator, to);
   newDelegationData.delegator = delegator.toHexString();
   newDelegationData.validator = validatorDataTo.id;
+  newDelegationData.amount = newDelegationData.amount.plus(amount);
   newDelegationData.save();
-  validatorDataTo.delegations = validatorDataTo.delegations.concat([
+
+  const delegation = new Delegation(event.transaction.hash.toHexString());
+  delegation.delegator = delegator.toHexString();
+  delegation.validator = validatorDataTo.id;
+  delegation.amount = amount;
+  delegation.save();
+
+  // Update Delegator
+  let delegatorInfo = getOrInitDelegator(delegator);
+  delegatorInfo.delegations = delegatorInfo.delegations.concat([
     newDelegationData.id,
   ]);
 
-  updateTotalStakeOfValidator(from.toHexString(), BigInt.zero(), amount);
-  updateTotalStakeOfValidator(to.toHexString(), amount, BigInt.zero());
+  // Update validators
+  validatorDataTo.delegations = validatorDataTo.delegations.concat([
+    delegation.id,
+  ]);
 
-  const redelegatedEvent = new RedelegatedEvent(
-    event.transaction.hash.toHexString()
+  validatorDataTo.currentDelegations = validatorDataTo.delegations.concat([
+    newDelegationData.id,
+  ]);
+
+  const validatorInfoFrom = BasicInfo.load(validatorDataFrom.info);
+  const validatorInfoTo = BasicInfo.load(validatorDataTo.info);
+  const isOwnUndelegationFrom =
+    validatorInfoFrom?.owner.toLowerCase() ===
+    delegator.toHexString().toLowerCase();
+  const isOwnDelegationTo =
+    validatorInfoTo?.owner.toLowerCase() ===
+    delegator.toHexString().toLowerCase();
+
+  updateTotalStakeOfValidator(
+    from.toHexString(),
+    BigInt.zero(),
+    amount,
+    isOwnUndelegationFrom
   );
-  redelegatedEvent.amount = amount;
-  redelegatedEvent.delegator = delegator.toHexString();
-  redelegatedEvent.from = from.toHexString();
-  redelegatedEvent.to = to.toHexString();
-  redelegatedEvent.save();
+  updateTotalStakeOfValidator(
+    to.toHexString(),
+    amount,
+    BigInt.zero(),
+    isOwnDelegationTo
+  );
+
+  validatorDataFrom.save();
+  validatorDataTo.save();
 }
 
 export function handleUndelegateConfirmed(event: UndelegateConfirmed): void {
@@ -332,14 +411,7 @@ export function handleUndelegateConfirmed(event: UndelegateConfirmed): void {
   const validator = event.params.validator;
   const amount = event.params.amount;
 
-  enforceValidatorDataExists(validator, event);
-  const undelegateConfirmedEvent = new UndelegateConfirmedEvent(
-    event.transaction.hash.toHexString()
-  );
-  undelegateConfirmedEvent.amount = amount;
-  undelegateConfirmedEvent.delegator = delegator.toHexString();
-  undelegateConfirmedEvent.validator = validator.toHexString();
-  undelegateConfirmedEvent.save();
+  enforceValidatorExists(validator, event);
 }
 
 export function handleUndelegateCanceled(event: UndelegateCanceled): void {
@@ -347,7 +419,7 @@ export function handleUndelegateCanceled(event: UndelegateCanceled): void {
   const validator = event.params.validator;
   const amount = event.params.amount;
 
-  const validatorData = enforceValidatorDataExists(validator, event);
+  const validatorData = enforceValidatorExists(validator, event);
   const relevantUndelegation = findString(
     validatorData.undelegations,
     delegator.toHexString()
@@ -412,7 +484,7 @@ export function handleCommissionRewardsClaimed(
   const account = event.params.account;
   const validator = event.params.validator;
 
-  const validatorData = enforceValidatorDataExists(validator, event);
+  const validatorData = enforceValidatorExists(validator, event);
   const basicInfo = ValidatorBasicInfo.load(validatorData.info);
   if (basicInfo) {
     basicInfo.commissionReward = BigInt.zero();
@@ -430,7 +502,7 @@ export function handleRewardsClaimed(event: RewardsClaimed): void {
   const account = event.params.account;
   const validator = event.params.validator;
 
-  const validatorData = enforceValidatorDataExists(validator, event);
+  const validatorData = enforceValidatorExists(validator, event);
   const relevantDelegation = findString(
     validatorData.delegations,
     account.toHexString()
@@ -460,7 +532,7 @@ export function handleCommissionSet(event: CommissionSet): void {
   const commission = event.params.commission;
   const validator = event.params.validator;
 
-  enforceValidatorDataExists(validator, event);
+  enforceValidatorExists(validator, event);
 
   const commissionSetEvent = new CommissionSetEvent(
     event.transaction.hash.toHexString()

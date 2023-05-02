@@ -1,7 +1,8 @@
-type ValidatorBasicInfo @entity(immutable: false) {
+type BasicInfo @entity(immutable: false) {
   id: ID!
   totalStake: BigInt!
-  commissionReward: BigInt!
+  selfStake: BigInt!
+  externalStake: BigInt!
   commission: Int!
   lastCommissionChange: BigInt!
   owner: String!
@@ -9,100 +10,47 @@ type ValidatorBasicInfo @entity(immutable: false) {
   endpoint: String
 }
 
-type ValidatorData @entity(immutable: false) {
+type Validator @entity(immutable: false) {
   id: ID!
   account: String!
-  info: ValidatorBasicInfo!
-  delegations: [DelegationData!]!
-  undelegations: [UndelegationData!]!
+  isEligible: Boolean!
+  info: BasicInfo!
+  currentDelegations: [Delegation!]!
+  delegations: [Delegation!]!
+  undelegations: [Undelegation!]!
 }
 
-type DelegationData @entity(immutable: false) {
+type Delegator @entity(immutable: false) {
   id: ID!
   account: String!
-  delegator: String!
-  validator: String!
+  totalStake: BigInt!
+  rewards: BigInt!
+  delegations: [Delegation!]!
+  undelegations: [Undelegation!]!
 }
 
-type UndelegationData @entity(immutable: false) {
+
+type Delegation @entity(immutable: false) {
+  id: ID!
+  amount: BigInt!
+  delegator: Delegator!
+  validator: Validator!
+}
+
+type Undelegation @entity(immutable: false) {
   id: ID!
   stake: BigInt!
-  block: BigInt!
-  validator: String!
+  eligibilityBlock: BigInt!
+  confirmed: Boolean!
+  canceled: Boolean!
+  delegator: Delegator!
+  validator: Validator!
 }
 
-type UndelegateRequest @entity(immutable: false) {
+type CommissionChange @entity(immutable: true) {
   id: ID!
-  eligibleBlockNum: BigInt!
-  amount: BigInt!
-}
-
-type DelegatorInfo @entity(immutable: false) {
-  id: ID!
-  stake: BigInt!
-  rewards: BigInt
-}
-
-type DelegatedEvent @entity(immutable: true) {
-  id: ID!
-  delegator: String!
-  validator: String!
-  amount: BigInt!
-}
-
-type UndelegatedEvent @entity(immutable: true) {
-  id: ID!
-  delegator: String!
-  validator: String!
-  amount: BigInt!
-}
-
-type UndelegateConfirmedEvent @entity(immutable: true) {
-  id: ID!
-  delegator: String!
-  validator: String!
-  amount: BigInt!
-}
-
-type UndelegateCanceledEvent @entity(immutable: true) {
-  id: ID!
-  delegator: String!
-  validator: String!
-  amount: BigInt!
-}
-
-type RedelegatedEvent @entity(immutable: true) {
-  id: ID!
-  delegator: String!
-  from: String!
-  to: String!
-  amount: BigInt!
-}
-
-type RewardsClaimedEvent @entity(immutable: true) {
-  id: ID!
-  account: String!
-  validator: String!
-}
-
-type CommissionRewardsClaimedEvent @entity(immutable: true) {
-  id: ID!
-  account: String!
-  validator: String!
-}
-
-type CommissionSetEvent @entity(immutable: true) {
-  id: ID!
-  validator: String!
   commission: Int!
-}
-
-type ValidatorRegisteredEvent @entity(immutable: true) {
-  id: ID!
-  validator: String!
-}
-
-type ValidatorInfoSetEvent @entity(immutable: true) {
-  id: ID!
-  validator: String!
+  registrationBlock: Int!
+  applianceBlock: Int!
+  validator: Validator!
 }
