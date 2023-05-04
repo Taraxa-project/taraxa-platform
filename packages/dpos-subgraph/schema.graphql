@@ -13,28 +13,28 @@ type BasicInfo @entity(immutable: false) {
 type Validator @entity(immutable: false) {
   id: ID!
   account: String!
-  isEligible: Boolean
-  info: BasicInfo!
+  # isEligible: Boolean
+  # info: BasicInfo!
   currentDelegations: [Delegation!]!
-  delegations: [Delegation!]!
-  undelegations: [Undelegation!]!
+  # delegations: [Delegation!]!
+  # undelegations: [Undelegation!]!
   commissionChanges: [CommissionChange!]
 }
 
-type Delegator @entity(immutable: false) {
-  id: ID!
-  account: String!
-  totalStake: BigInt!
-  rewards: BigInt!
-  currentDelegations: [Delegation!]!
-  delegations: [Delegation!]!
-  undelegations: [Undelegation!]!
-}
+# type Delegator @entity(immutable: false) {
+#   id: ID!
+#   account: String!
+#   totalStake: BigInt!
+#   rewards: BigInt!
+#   currentDelegations: [Delegation!]!
+#   delegations: [Delegation!]!
+#   undelegations: [Undelegation!]!
+# }
 
 type Delegation @entity(immutable: false) {
   id: ID!
   amount: BigInt!
-  delegator: Delegator!
+  delegator: String!
   validator: Validator!
 }
 
@@ -44,7 +44,7 @@ type Undelegation @entity(immutable: false) {
   eligibilityBlock: BigInt!
   confirmed: Boolean!
   canceled: Boolean!
-  delegator: Delegator!
+  delegator: String!
   validator: Validator!
 }
 

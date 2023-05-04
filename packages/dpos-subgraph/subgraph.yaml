@@ -38,8 +38,8 @@ dataSources:
           handler: handleUndelegateConfirmed
         - event: Undelegated(indexed address,indexed address,uint256)
           handler: handleUndelegated
-        - event: ValidatorInfoSet(indexed address)
-          handler: handleValidatorInfoSet
+        # - event: ValidatorInfoSet(indexed address)
+        #   handler: handleValidatorInfoSet
         - event: ValidatorRegistered(indexed address)
           handler: handleValidatorRegistered
       # blockHandlers:
