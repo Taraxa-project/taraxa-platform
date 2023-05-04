@@ -24,8 +24,6 @@ dataSources:
         - name: DPOS
           file: ./abis/DPOS.json
       eventHandlers:
-        - event: CommissionRewardsClaimed(indexed address,indexed address,uint256)
-          handler: handleCommissionRewardsClaimed
         - event: CommissionSet(indexed address,uint16)
           handler: handleCommissionSet
         - event: Delegated(indexed address,indexed address,uint256)
