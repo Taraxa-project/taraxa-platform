@@ -79,7 +79,7 @@ function updateTotalStakeOfValidator(
   validatorAddress: string,
   addStake: BigInt = BigInt.zero(),
   reduceStake: BigInt = BigInt.zero(),
-  own: boolean
+  own: boolean = false
 ): void {
   const validatorInfo = BasicInfo.load(validatorAddress);
   if (validatorInfo) {
@@ -180,7 +180,7 @@ export function handleValidatorInfoSet(event: ValidatorInfoSet): void {
   enforceValidatorExists(validator, event);
 }
 
-function getOrInitDelegator(delegator: Address) {
+function getOrInitDelegator(delegator: Address): Delegator {
   let delegatorInfo = Delegator.load(delegator.toHexString());
   if (!delegatorInfo) {
     delegatorInfo = new Delegator(delegator.toHexString());
@@ -193,7 +193,10 @@ function getOrInitDelegator(delegator: Address) {
   return delegatorInfo;
 }
 
-function getOrInitCurrentDelegation(delegator: Address, validator: Address) {
+function getOrInitCurrentDelegation(
+  delegator: Address,
+  validator: Address
+): Delegation {
   const delegationId = `${delegator.toHexString()}-${validator.toHexString()}`;
   let delegation = Delegation.load(delegationId);
   if (delegation) return delegation;
@@ -228,16 +231,18 @@ export function handleDelegated(event: Delegated): void {
   }
 
   const validatorInfo = BasicInfo.load(validatorData.info);
-  const isOwnDelegation =
-    validatorInfo?.owner.toLowerCase() ===
-    delegator.toHexString().toLowerCase();
+  if (validatorInfo) {
+    const isOwnDelegation =
+      validatorInfo.owner.toLowerCase() ===
+      delegator.toHexString().toLowerCase();
 
-  updateTotalStakeOfValidator(
-    validator.toHexString(),
-    amount,
-    BigInt.zero(),
-    isOwnDelegation
-  );
+    updateTotalStakeOfValidator(
+      validator.toHexString(),
+      amount,
+      BigInt.zero(),
+      isOwnDelegation
+    );
+  }
 
   validatorData.save();
 
@@ -309,16 +314,18 @@ export function handleUndelegated(event: Undelegated): void {
   }
 
   const validatorInfo = BasicInfo.load(validatorData.info);
-  const isOwnUndelegation =
-    validatorInfo?.owner.toLowerCase() ===
-    delegator.toHexString().toLowerCase();
+  if (validatorInfo) {
+    const isOwnUndelegation =
+      validatorInfo.owner.toLowerCase() ===
+      delegator.toHexString().toLowerCase();
 
-  updateTotalStakeOfValidator(
-    validator.toHexString(),
-    BigInt.zero(),
-    amount,
-    isOwnUndelegation
-  );
+    updateTotalStakeOfValidator(
+      validator.toHexString(),
+      BigInt.zero(),
+      amount,
+      isOwnUndelegation
+    );
+  }
 
   validatorData.save();
 
@@ -402,25 +409,30 @@ export function handleRedelegated(event: Redelegated): void {
 
   const validatorInfoFrom = BasicInfo.load(validatorDataFrom.info);
   const validatorInfoTo = BasicInfo.load(validatorDataTo.info);
-  const isOwnUndelegationFrom =
-    validatorInfoFrom?.owner.toLowerCase() ===
-    delegator.toHexString().toLowerCase();
-  const isOwnDelegationTo =
-    validatorInfoTo?.owner.toLowerCase() ===
-    delegator.toHexString().toLowerCase();
+  if (validatorInfoFrom) {
+    const isOwnUndelegationFrom =
+      validatorInfoFrom.owner.toLowerCase() ===
+      delegator.toHexString().toLowerCase();
 
-  updateTotalStakeOfValidator(
-    from.toHexString(),
-    BigInt.zero(),
-    amount,
-    isOwnUndelegationFrom
-  );
-  updateTotalStakeOfValidator(
-    to.toHexString(),
-    amount,
-    BigInt.zero(),
-    isOwnDelegationTo
-  );
+    updateTotalStakeOfValidator(
+      from.toHexString(),
+      BigInt.zero(),
+      amount,
+      isOwnUndelegationFrom
+    );
+  }
+  if (validatorInfoTo) {
+    const isOwnDelegationTo =
+      validatorInfoTo.owner.toLowerCase() ===
+      delegator.toHexString().toLowerCase();
+
+    updateTotalStakeOfValidator(
+      to.toHexString(),
+      amount,
+      BigInt.zero(),
+      isOwnDelegationTo
+    );
+  }
 
   validatorDataFrom.save();
   validatorDataTo.save();
@@ -435,8 +447,8 @@ export function handleUndelegateConfirmed(event: UndelegateConfirmed): void {
 
   const validatorData = Validator.load(validator.toHexString());
   if (validatorData) {
-    for (const undelegationId of validatorData.undelegations) {
-      const undelegation = Undelegation.load(undelegationId);
+    for (let i = 0; i < validatorData.undelegations.length; i++) {
+      const undelegation = Undelegation.load(validatorData.undelegations[i]);
       if (undelegation) {
         if (
           undelegation.delegator.toLowerCase() ===
@@ -460,8 +472,8 @@ export function handleUndelegateCanceled(event: UndelegateCanceled): void {
   enforceValidatorExists(validator, event);
   const validatorData = Validator.load(validator.toHexString());
   if (validatorData) {
-    for (const undelegationId of validatorData.undelegations) {
-      const undelegation = Undelegation.load(undelegationId);
+    for (let i = 0; i < validatorData.undelegations.length; i++) {
+      const undelegation = Undelegation.load(validatorData.undelegations[i]);
       if (undelegation) {
         if (
           undelegation.delegator.toLowerCase() ===
@@ -496,18 +508,20 @@ export function handleUndelegateCanceled(event: UndelegateCanceled): void {
       delegatorData.currentDelegations =
         delegatorData.currentDelegations.concat([delegation.id]);
     }
-    const validatorInfo = BasicInfo.load(validatorData?.info);
-    const isOwnDelegation =
-      validatorInfo!.owner.toLowerCase() ===
-      delegator.toHexString().toLowerCase();
+    const validatorInfo = BasicInfo.load(validatorData.info);
+    if (validatorInfo) {
+      const isOwnDelegation =
+        validatorInfo.owner.toLowerCase() ===
+        delegator.toHexString().toLowerCase();
 
-    updateTotalStakeOfValidator(
-      validator.toHexString(),
-      amount,
-      BigInt.zero(),
-      isOwnDelegation
-    );
-    validatorInfo?.save();
+      updateTotalStakeOfValidator(
+        validator.toHexString(),
+        amount,
+        BigInt.zero(),
+        isOwnDelegation
+      );
+      validatorInfo.save();
+    }
     validatorData.save();
 
     delegatorData.totalStake = delegatorData.totalStake.plus(amount);
@@ -517,7 +531,6 @@ export function handleUndelegateCanceled(event: UndelegateCanceled): void {
 
 export function handleRewardsClaimed(event: RewardsClaimed): void {
   const account = event.params.account;
-  const validator = event.params.validator;
   const amount = event.params.amount;
 
   const delegator = Delegator.load(account.toHexString());
@@ -539,10 +552,10 @@ export function handleCommissionSet(event: CommissionSet): void {
     );
     commissionChange.commission = commission;
     commissionChange.validator = validatorData.id;
-    commissionChange.registrationBlock = event.block.number;
-    commissionChange.applianceBlock = event.block.number.plus(
-      new BigInt(25000)
-    );
+    commissionChange.registrationBlock = event.block.number.toI32();
+    commissionChange.applianceBlock = event.block.number
+      .plus(new BigInt(25000))
+      .toI32();
     commissionChange.save();
     basicInfo.lastCommissionChange = event.block.number;
     basicInfo.commission = commission;
