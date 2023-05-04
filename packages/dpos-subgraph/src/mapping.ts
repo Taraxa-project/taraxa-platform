@@ -563,59 +563,62 @@ export function handleCommissionSet(event: CommissionSet): void {
   }
 }
 
-export function handleGenesis(block: ethereum.Block): void {
-  if (!block.number.equals(BigInt.fromI32(1))) {
-    return;
-  }
-  log.info('Genesis block: ' + block.hash.toHexString(), [
-    block.hash.toHexString(),
-  ]);
+// export function handleGenesis(block: ethereum.Block): void {
+//   if (!block.number.equals(BigInt.fromI32(1))) {
+//     return;
+//   }
+//   log.info('Genesis block: ' + block.hash.toHexString(), [
+//     block.hash.toHexString(),
+//   ]);
 
-  const dpos = DPOS.bind(
-    Address.fromString('0x00000000000000000000000000000000000000FE')
-  );
+//   const dpos = DPOS.bind(
+//     Address.fromString('0x00000000000000000000000000000000000000FE')
+//   );
 
-  let page = BigInt.zero();
-  let hasNextPage = true;
-  while (hasNextPage) {
-    const validatorData = dpos.getValidators(page);
-    hasNextPage = !validatorData.getEnd();
+//   let page = BigInt.zero();
+//   let hasNextPage = true;
+//   while (hasNextPage) {
+//     const validatorData = dpos.getValidators(page);
+//     hasNextPage = !validatorData.getEnd();
 
-    const validators = validatorData.getValidators();
-    for (let i = 0; i < validators.length; i++) {
-      const validator = validators[i];
-      const validatorId = validator.account.toHexString();
+//     const validators = validatorData.getValidators();
+//     for (let i = 0; i < validators.length; i++) {
+//       const validator = validators[i];
+//       const validatorId = validator.account.toHexString();
 
-      let validatorData = Validator.load(validatorId);
-      if (!validatorData) {
-        validatorData = new Validator(validatorId);
-        validatorData.account = validatorId;
-        validatorData.delegations = [];
-        validatorData.undelegations = [];
+//       let validatorData = Validator.load(validatorId);
+//       if (!validatorData) {
+//         validatorData = new Validator(validatorId);
+//         validatorData.account = validatorId;
+//         validatorData.delegations = [];
+//         validatorData.undelegations = [];
+//         validatorData.currentDelegations = [];
 
-        let basicInfo = BasicInfo.load(validatorId);
-        if (!basicInfo) {
-          basicInfo = new BasicInfo(validatorId);
+//         let basicInfo = BasicInfo.load(validatorId);
+//         if (!basicInfo) {
+//           basicInfo = new BasicInfo(validatorId);
 
-          basicInfo.totalStake = BigInt.zero();
-          basicInfo.lastCommissionChange = BigInt.zero();
+//           basicInfo.totalStake = BigInt.zero();
+//           basicInfo.selfStake = BigInt.zero();
+//           basicInfo.externalStake = BigInt.zero();
+//           basicInfo.lastCommissionChange = BigInt.zero();
 
-          const validatorInfo = validator.info;
-          basicInfo.description = validatorInfo.description
-            ? validatorInfo.description.toString()
-            : '';
-          basicInfo.endpoint = validatorInfo.endpoint
-            ? validatorInfo.endpoint.toString()
-            : '';
+//           const validatorInfo = validator.info;
+//           basicInfo.description = validatorInfo.description
+//             ? validatorInfo.description.toString()
+//             : '';
+//           basicInfo.endpoint = validatorInfo.endpoint
+//             ? validatorInfo.endpoint.toString()
+//             : '';
 
-          basicInfo.commission = validatorInfo.commission;
-          basicInfo.owner = validatorInfo.owner.toHexString();
-          basicInfo.save();
-        }
+//           basicInfo.commission = validatorInfo.commission;
+//           basicInfo.owner = validatorInfo.owner.toHexString();
+//           basicInfo.save();
+//         }
 
-        validatorData.info = basicInfo.id;
-        validatorData.save();
-      }
-    }
-  }
-}
+//         validatorData.info = basicInfo.id;
+//         validatorData.save();
+//       }
+//     }
+//   }
+// }

@@ -13,7 +13,7 @@ type BasicInfo @entity(immutable: false) {
 type Validator @entity(immutable: false) {
   id: ID!
   account: String!
-  isEligible: Boolean!
+  isEligible: Boolean
   info: BasicInfo!
   currentDelegations: [Delegation!]!
   delegations: [Delegation!]!
@@ -30,7 +30,6 @@ type Delegator @entity(immutable: false) {
   delegations: [Delegation!]!
   undelegations: [Undelegation!]!
 }
-
 
 type Delegation @entity(immutable: false) {
   id: ID!

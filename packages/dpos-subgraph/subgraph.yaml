@@ -42,6 +42,6 @@ dataSources:
           handler: handleValidatorInfoSet
         - event: ValidatorRegistered(indexed address)
           handler: handleValidatorRegistered
-      blockHandlers:
-        - handler: handleGenesis
+      # blockHandlers:
+      #   - handler: handleGenesis
       file: ./src/mapping.ts
