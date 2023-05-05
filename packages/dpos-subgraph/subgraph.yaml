@@ -14,11 +14,11 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - BasicInfo
+        # - BasicInfo
         - Validator
-        - Delegator
+        # - Delegator
         - Delegation
-        - Undelegation
+        # - Undelegation
         - CommissionChange
       abis:
         - name: DPOS
@@ -30,12 +30,12 @@ dataSources:
           handler: handleDelegated
         - event: Redelegated(indexed address,indexed address,indexed address,uint256)
           handler: handleRedelegated
-        - event: RewardsClaimed(indexed address,indexed address,uint256)
-          handler: handleRewardsClaimed
-        - event: UndelegateCanceled(indexed address,indexed address,uint256)
-          handler: handleUndelegateCanceled
-        - event: UndelegateConfirmed(indexed address,indexed address,uint256)
-          handler: handleUndelegateConfirmed
+        # - event: RewardsClaimed(indexed address,indexed address,uint256)
+        #   handler: handleRewardsClaimed
+        # - event: UndelegateCanceled(indexed address,indexed address,uint256)
+        #   handler: handleUndelegateCanceled
+        # - event: UndelegateConfirmed(indexed address,indexed address,uint256)
+        #   handler: handleUndelegateConfirmed
         - event: Undelegated(indexed address,indexed address,uint256)
           handler: handleUndelegated
         # - event: ValidatorInfoSet(indexed address)

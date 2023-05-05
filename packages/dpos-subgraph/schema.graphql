@@ -15,10 +15,10 @@ type Validator @entity(immutable: false) {
   account: String!
   # isEligible: Boolean
   # info: BasicInfo!
-  currentDelegations: [Delegation!]!
-  # delegations: [Delegation!]!
-  # undelegations: [Undelegation!]!
-  commissionChanges: [CommissionChange!]
+  # currentDelegations: [Delegation!]!
+  delegations: [Delegation!]!
+  undelegations: [Undelegation!]!
+  commissionChanges: [CommissionChange!]!
 }
 
 # type Delegator @entity(immutable: false) {

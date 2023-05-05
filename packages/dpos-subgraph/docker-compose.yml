@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.27.0
+    image: graphprotocol/graph-node:v0.30.0
     ports:
       - '8000:8000'
       - '8001:8001'
@@ -19,8 +19,8 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mainnet:https://rpc-pr-2404.prnet.taraxa.io'
-      GRAPH_LOG: info
+      ethereum: 'mainnet:https://rpc-pr-2460.prnet.taraxa.io'
+      GRAPH_LOG: debug
   ipfs:
     image: ipfs/kubo:v0.19.0
     ports:
@@ -31,7 +31,7 @@ services:
     image: postgres:15.2-alpine
     ports:
       - '5432:5432'
-    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    command: ['postgres', '-cshared_preload_libraries=pg_stat_statements']
     environment:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
