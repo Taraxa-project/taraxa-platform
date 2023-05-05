@@ -56,42 +56,6 @@ function filterString(array: string[], str: string): string[] {
   return cleanArray;
 }
 
-// /**
-//  * Basic maths for updating stake of validator
-//  * @param validatorAddress hex address of validator
-//  * @param addStake stake to add
-//  * @param reduceStake stake to reduce
-//  */
-// function updateTotalStakeOfValidator(
-//   validatorAddress: string,
-//   addStake: BigInt = BigInt.zero(),
-//   reduceStake: BigInt = BigInt.zero(),
-//   own: boolean = false
-// ): void {
-//   const validatorInfo = BasicInfo.load(validatorAddress);
-//   if (validatorInfo) {
-//     if (addStake) {
-//       validatorInfo.totalStake = validatorInfo.totalStake.plus(addStake);
-//       if (own) {
-//         validatorInfo.selfStake = validatorInfo.selfStake.plus(addStake);
-//       } else {
-//         validatorInfo.externalStake =
-//           validatorInfo.externalStake.plus(addStake);
-//       }
-//     }
-//     if (reduceStake) {
-//       validatorInfo.totalStake = validatorInfo.totalStake.minus(reduceStake);
-//       if (own) {
-//         validatorInfo.selfStake = validatorInfo.selfStake.minus(reduceStake);
-//       } else {
-//         validatorInfo.externalStake =
-//           validatorInfo.externalStake.minus(reduceStake);
-//       }
-//     }
-//     validatorInfo.save();
-//   }
-// }
-
 /**
  * Reads the validator info data from the contract and ensures the info exists in the subgraph.
  * In addition, if the validator didn't exist beforehand it adds the inital stake as the first delegation
