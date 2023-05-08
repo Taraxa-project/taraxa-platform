@@ -1,25 +1,14 @@
-type BasicInfo @entity(immutable: false) {
-  id: ID!
-  totalStake: BigInt!
-  selfStake: BigInt!
-  externalStake: BigInt!
-  commission: Int!
-  lastCommissionChange: BigInt!
-  owner: String!
-  description: String
-  endpoint: String
-}
-
-type Validator @entity(immutable: false) {
-  id: ID!
-  account: String!
-  # isEligible: Boolean
-  # info: BasicInfo!
-  # currentDelegations: [Delegation!]!
-  delegations: [Delegation!]!
-  undelegations: [Undelegation!]!
-  commissionChanges: [CommissionChange!]!
-}
+# type BasicInfo @entity(immutable: false) {
+#   id: ID!
+#   totalStake: BigInt!
+#   selfStake: BigInt!
+#   externalStake: BigInt!
+#   commission: Int!
+#   lastCommissionChange: BigInt!
+#   owner: String!
+#   description: String
+#   endpoint: String
+# }
 
 # type Delegator @entity(immutable: false) {
 #   id: ID!
@@ -30,6 +19,18 @@ type Validator @entity(immutable: false) {
 #   delegations: [Delegation!]!
 #   undelegations: [Undelegation!]!
 # }
+
+type Validator @entity(immutable: false) {
+  id: ID!
+  account: String!
+  deleted: Boolean!
+  delegations: [Delegation!]!
+  undelegations: [Undelegation!]!
+  commissionChanges: [CommissionChange!]!
+  # isEligible: Boolean
+  # info: BasicInfo!
+  # currentDelegations: [Delegation!]!
+}
 
 type Delegation @entity(immutable: false) {
   id: ID!
