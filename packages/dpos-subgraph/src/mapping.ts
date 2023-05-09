@@ -187,8 +187,6 @@ function updateOrAddDelegation(delegationExistsForValidator: string, newDelegati
         newDelegation.id,
       ]);
     }
-    newDelegation.validator = validatorData.id;
-    newDelegation.delegator = delegator.toHexString();
     newDelegation.amount = amount;
     newDelegation.save();
   }
