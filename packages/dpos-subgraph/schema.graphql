@@ -23,13 +23,12 @@
 type Validator @entity(immutable: false) {
   id: ID!
   account: String!
-  deleted: Boolean!
   delegations: [Delegation!]!
+  currentDelegations: [Delegation!]!
   undelegations: [Undelegation!]!
   commissionChanges: [CommissionChange!]!
   # isEligible: Boolean
   # info: BasicInfo!
-  # currentDelegations: [Delegation!]!
 }
 
 type Delegation @entity(immutable: false) {
