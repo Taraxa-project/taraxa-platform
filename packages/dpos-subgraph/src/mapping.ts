@@ -66,7 +66,7 @@ function enforceValidatorFromContract(
     account.toHexString(),
   ]);
   let validator = Validator.load(account.toHexString());
-  if (validator === null) {
+  if (!validator) {
     log.debug(`Validator ${account.toHexString()} not found in store. Creating...`, [account.toHexString()])
     validator = new Validator(account.toHexString());
     validator.account = account.toHexString();
@@ -77,7 +77,7 @@ function enforceValidatorFromContract(
     const dpos = DPOS.bind(event.address);
 
     const call = dpos.try_getValidator(account);
-    if (call.reverted || !call.value || call.value === null) {
+    if (call.reverted || !call.value) {
       // in case the call reverted that means that the validator has been deleted from the contract so we need to delete it from the store
       store.remove("Validator", validator.id);
       log.warning(`Validator ${validator.id} marked as deleted!`, [validator.id]);
@@ -137,7 +137,7 @@ function extractInitialDelegationFromContract(
 function getOrInitCurrentDelegation(validator: Address, delegator: Address): Delegation {
   const delegationId = `${validator.toHexString()}-${delegator.toHexString()}`;
   let delegation = Delegation.load(delegationId);
-  if (delegation === null) {
+  if (!delegation) {
     delegation = new Delegation(delegationId);
     delegation.validator = validator.toHexString();
     delegation.delegator = delegator.toHexString();
@@ -150,7 +150,7 @@ function getOrInitCurrentDelegation(validator: Address, delegator: Address): Del
 function getOrInitDelegation(event: ethereum.Event, validator: Address, delegator: Address): Delegation {
   const delegationId = event.transaction.hash.toHexString();
   let delegation = Delegation.load(delegationId);
-  if (delegation === null) {
+  if (!delegation) {
     delegation = new Delegation(delegationId);
     delegation.validator = validator.toHexString();
     delegation.delegator = delegator.toHexString();
@@ -163,14 +163,14 @@ function getOrInitDelegation(event: ethereum.Event, validator: Address, delegato
 function getOrInitUndelegation(validator: Address, delegator: Address): Undelegation {
   const delegationId = `${validator.toHexString()}-${delegator.toHexString()}`;
   let undelegation = Undelegation.load(delegationId);
-  if (undelegation === null) {
+  if (!undelegation) {
     undelegation = new Undelegation(delegationId);
   }
   return undelegation;
 }
 
 function updateOrAddDelegation(delegationExistsForValidator: string, newDelegation: Delegation, amount: BigInt, validatorData: Validator, delegator: Address, add: boolean, current: boolean): void {
-  if (delegationExistsForValidator && delegationExistsForValidator !== '') {
+  if (delegationExistsForValidator) {
     if (add) {
       newDelegation.amount = newDelegation.amount.plus(amount);
     } else {
@@ -290,7 +290,7 @@ export function handleUndelegateCanceled(event: UndelegateCanceled): void {
 
   const undelegationId = `${validator.toHexString()}-${delegator.toHexString()}`;
   const undelegation = Undelegation.load(undelegationId);
-  if (undelegation !== null) {
+  if (undelegation) {
     undelegation.canceled = true;
     undelegation.save();
   } else {
@@ -307,7 +307,7 @@ export function handleUndelegateConfirmed(event: UndelegateCanceled): void {
 
   const undelegationId = `${validator.toHexString()}-${delegator.toHexString()}`;
   const undelegation = Undelegation.load(undelegationId);
-  if (undelegation !== null) {
+  if (undelegation) {
     undelegation.confirmed = true;
     undelegation.save();
   } else {
@@ -325,7 +325,7 @@ export function handleRedelegated(event: Redelegated): void {
   const fromValidator = enforceValidatorFromContract(from, event);
   const toValidator = enforceValidatorFromContract(to, event);
 
-  if (fromValidator !== null && toValidator !== null) {
+  if (fromValidator && toValidator) {
     // Create delegations
     const newDelegationDataTo = getOrInitDelegation(event, to, delegator);
 
