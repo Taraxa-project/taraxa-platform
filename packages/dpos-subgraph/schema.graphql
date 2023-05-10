@@ -23,10 +23,9 @@
 type Validator @entity(immutable: false) {
   id: ID!
   account: String!
-  delegations: [Delegation!]!
-  currentDelegations: [Delegation!]!
-  undelegations: [Undelegation!]!
-  commissionChanges: [CommissionChange!]!
+  currentDelegations: [Delegation!]! @derivedFrom(field: "validator")
+  undelegations: [Undelegation!]! @derivedFrom(field: "validator")
+  commissionChanges: [CommissionChange!]! @derivedFrom(field: "validator")
   # isEligible: Boolean
   # info: BasicInfo!
 }
