@@ -176,9 +176,7 @@ export function handleUndelegated(event: Undelegated): void {
   undelegation.stake = amount;
   undelegation.save();
   const currentDelegation = getOrInitCurrentDelegation(validator, delegator);
-  currentDelegation.amount = currentDelegation.amount.minus(amount);
-  currentDelegation.save();
-
+  updateOrAddDelegation(currentDelegation, amount, false);
 
   // @dev Commenting this until https://github.com/graphprotocol/graph-tooling/pull/977 is released
   // let totalDelegation = BigInt.zero();
