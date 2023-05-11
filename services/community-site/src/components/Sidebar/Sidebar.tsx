@@ -5,7 +5,7 @@ import { Button, Sidebar as MSidebar } from '@taraxa_project/taraxa-ui';
 import useCMetamask from '../../services/useCMetamask';
 
 import BountiesSidebar from '../../assets/icons/bountiesSidebar';
-import DelegationSidebar from '../../assets/icons/delegationSidebar';
+import StakingSidebar from '../../assets/icons/stakingSidebar';
 import DeploySidebar from '../../assets/icons/deploySidebar';
 import ExplorerSidebar from '../../assets/icons/explorerSidebar';
 import GetStarted from '../../assets/icons/getStarted';
@@ -50,8 +50,8 @@ const Sidebar = () => {
       label: 'Earn',
       items: [
         {
-          Link: <NavLink label="Delegation" Icon={DelegationSidebar} to="/delegation" />,
-          name: 'delegation',
+          Link: <NavLink label="Staking" Icon={StakingSidebar} to="/staking" />,
+          name: 'staking',
         },
         {
           Link: <NavLink label="Bounties" Icon={BountiesSidebar} to="/bounties" />,
@@ -62,7 +62,7 @@ const Sidebar = () => {
     },
     {
       name: 'testnet',
-      label: 'Testnet',
+      label: 'Participate',
       items: [
         {
           Link: <NavLink label="Run a node" Icon={NodeSidebar} to="/node" />,

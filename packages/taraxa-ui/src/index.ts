@@ -38,6 +38,7 @@ import NetworkMenu from './components/NetworkMenu';
 import Label from './components/Label';
 import PageTitle from './components/PageTitle';
 import BarChart from './components/BarChart';
+import EmptyTable from './components/EmptyTable';
 import {
   TransactionDetails,
   shortenHash,
@@ -49,6 +50,7 @@ import CopyTo from './components/CopyTo';
 import theme from './components/theme';
 import LoadingTable from './components/LoadingTable';
 import { useInterval } from './hooks/useInterval';
+import InfoCard from './components/InfoCard';
 
 export {
   AmountCard,
@@ -100,4 +102,6 @@ export {
   CopyTo,
   theme,
   useInterval,
+  EmptyTable,
+  InfoCard,
 };

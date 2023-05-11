@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import clsx from 'clsx';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import {
   Notification,
   Text,
@@ -10,15 +9,22 @@ import {
   BaseCard,
   Tooltip,
   Modal,
+  EmptyTable,
 } from '@taraxa_project/taraxa-ui';
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '../../components/Table/Table';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
 import useChain from '../../services/useChain';
 import { useDelegationApi } from '../../services/useApi';
 import useValidators from '../../services/useValidators';
-import useDelegation from '../../services/useDelegation';
 
 import NodeIcon from '../../assets/icons/node';
 import InfoIcon from '../../assets/icons/info';
@@ -26,9 +32,8 @@ import InfoIcon from '../../assets/icons/info';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
-import { Validator } from '../../interfaces/Validator';
-import Delegation from '../../interfaces/Delegation';
-import OwnNode from '../../interfaces/OwnNode';
+import { Validator, ValidatorType } from '../../interfaces/Validator';
+import { Node, nodeToValidator } from '../../interfaces/Node';
 
 import RunValidatorModal from './Modal';
 import References from './References';
@@ -38,22 +43,22 @@ import TestnetValidatorRow from './Table/TestnetValidatorRow';
 import './runvalidator.scss';
 import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
-import Claim from '../Delegation/Modal/Claim';
+import Claim from '../Staking/Modal/Claim';
 import UpdateValidator from './Screen/UpdateValidator';
 import useExplorerStats from '../../services/useExplorerStats';
+import { useAllValidators } from '../../services/useAllValidators';
 
 const RunValidator = () => {
   const auth = useAuth();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { chainId, provider } = useChain();
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { getValidatorsWith, getValidatorsFor } = useValidators();
-  const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
+  const { getValidatorsFor } = useValidators();
+  const { allValidatorsWithStats } = useAllValidators();
+  const { updateTestnetValidatorsStats, updateTestnetValidatorsRank } = useExplorerStats();
   const delegationApi = useDelegationApi();
-  const { getDelegations } = useDelegation();
+  const networkParam = window.location.hash.replace('#', '');
 
   const isLoggedIn = !!auth.user?.id;
   const isOnWrongChain = chainId !== mainnetChainId;
@@ -68,15 +73,18 @@ const RunValidator = () => {
     setIsOpenRegisterValidatorModal(false);
   };
 
-  const [validatorType, setValidatorType] = useState<'mainnet' | 'testnet'>('mainnet');
+  const [validatorType, setValidatorType] = useState<ValidatorType>(
+    networkParam === ValidatorType.TESTNET || networkParam === ValidatorType.MAINNET
+      ? networkParam
+      : ValidatorType.MAINNET,
+  );
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [mainnetValidators, setMainnetValidators] = useState<Validator[]>([]);
-  const [testnetValidators, setTestnetValidators] = useState<OwnNode[]>([]);
-  const [delegations, setDelegations] = useState<Delegation[] | null>(null);
+  const [testnetValidators, setTestnetValidators] = useState<Validator[]>([]);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
-  const [currentEditedNode, setCurrentEditedNode] = useState<null | OwnNode>(null);
+  const [currentEditedNode, setCurrentEditedNode] = useState<null | Validator>(null);
 
   const fetchBalance = async () => {
     if (status === 'connected' && account && provider) {
@@ -84,74 +92,74 @@ const RunValidator = () => {
     }
   };
 
-  const getTestnetNodes = () => {
-    delegationApi
-      .get(`/nodes?type=testnet`, true)
-      .then((r) => {
-        if (r.success) {
-          setTestnetValidators(r.response);
-        } else {
-          setTestnetValidators([]);
-        }
-      })
-      .catch(() => setTestnetValidators([]));
-  };
+  const getTestnetNodes = useCallback(async () => {
+    try {
+      const r = await delegationApi.get(`/nodes?type=testnet`, true);
+      if (r.success) {
+        const testnetNodes: Node[] = r.response;
+        const testnetValidators = testnetNodes.map((n) => nodeToValidator(n));
+        setTestnetValidators(testnetValidators);
+        const updatedValidators = await updateTestnetValidatorsRank(testnetValidators);
+        const validatorsWithStats = await updateTestnetValidatorsStats(updatedValidators);
+        setTestnetValidators(validatorsWithStats);
+      } else {
+        setTestnetValidators([]);
+      }
+    } catch (err) {
+      setTestnetValidators([]);
+    }
+  }, [validatorType]);
 
-  const deleteTestnetNode = async (node: OwnNode) => {
-    await delegationApi.del(`/nodes/${node.id}`, true);
-    getTestnetNodes();
+  const deleteTestnetNode = async (node: Validator) => {
+    await delegationApi.del(`/nodes/${node.address}`, true);
+    await getTestnetNodes();
   };
 
   useEffect(() => {
-    fetchBalance();
+    const intervalBalancePeriod = 8000;
+    const intervalFetchBalance = setInterval(() => {
+      fetchBalance();
+    }, intervalBalancePeriod);
+    return () => {
+      clearInterval(intervalFetchBalance);
+    };
   }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
-    getTestnetNodes();
-  }, []);
-
-  useEffect(() => {
-    if (status === 'connected' && account) {
-      (async () => {
-        setDelegations(await getDelegations(account));
-      })();
-    }
-  }, [status, account, shouldFetch]);
+    (async () => {
+      if (validatorType === ValidatorType.TESTNET) {
+        await getTestnetNodes();
+      }
+    })();
+  }, [shouldFetch, validatorType]);
 
   const fetchValidators = () => {
-    if (status === 'connected' && account && delegations?.length === 0) {
+    if (status === 'connected' && account && validatorType === ValidatorType.MAINNET) {
       (async () => {
         const myValidators = await getValidatorsFor(account);
-        const validatorsWithStats = await updateValidatorsStats(myValidators);
-        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
-        setMainnetValidators(updatedValidators);
+        const validatorsWithYieldEfficiency: Validator[] = myValidators.map((v) => {
+          const foundValidator = allValidatorsWithStats.find(
+            (validatorWithStats) => validatorWithStats.address === v.address,
+          );
+          return {
+            ...v,
+            ...foundValidator,
+          } as Validator;
+        });
+        setMainnetValidators(validatorsWithYieldEfficiency);
       })();
     }
   };
 
   useEffect(() => {
     fetchValidators();
-  }, [status, account, shouldFetch, delegations]);
+  }, [status, account, shouldFetch, validatorType, allValidatorsWithStats]);
 
-  useEffect(() => {
-    if (status === 'connected' && account && delegations && delegations.length > 0) {
-      (async () => {
-        const mainnetValidators = await getValidatorsWith(delegations.map((d) => d.address));
-        const myValidators = mainnetValidators.filter(
-          (validator) => validator.owner.toLowerCase() === account.toLowerCase(),
-        );
-        const validatorsWithStats = await updateValidatorsStats(myValidators);
-        const updatedValidators = await updateValidatorsRank(validatorsWithStats);
-        setMainnetValidators(updatedValidators);
-      })();
-    }
-  }, [status, account, delegations, shouldFetch]);
-
-  const nodeTypeLabel = validatorType === 'mainnet' ? 'Mainnet' : 'Testnet';
+  const nodeTypeLabel = validatorType === ValidatorType.MAINNET ? 'Mainnet' : 'Testnet';
 
   let canRegisterValidator = false;
 
-  if (validatorType === 'mainnet') {
+  if (validatorType === ValidatorType.MAINNET) {
     if (!isOnWrongChain) {
       if (status === 'connected') {
         if (account) {
@@ -161,7 +169,7 @@ const RunValidator = () => {
     }
   }
 
-  if (validatorType === 'testnet') {
+  if (validatorType === ValidatorType.TESTNET) {
     if (isLoggedIn) {
       canRegisterValidator = true;
     }
@@ -171,13 +179,13 @@ const RunValidator = () => {
   let blocksProduced = 0;
   let weeklyRating = 0;
 
-  if (validatorType === 'mainnet') {
+  if (validatorType === ValidatorType.MAINNET) {
     activeValidators = mainnetValidators.filter((v) => v.isActive).length;
   }
 
-  if (validatorType === 'testnet') {
+  if (validatorType === ValidatorType.TESTNET) {
     activeValidators = testnetValidators.filter((v) => v.isActive).length;
-    blocksProduced = testnetValidators.reduce((prev, curr) => prev + curr.blocksProduced!, 0);
+    blocksProduced = testnetValidators.reduce((prev, curr) => prev + curr.pbftsProduced!, 0);
     weeklyRating = 0;
   }
 
@@ -226,6 +234,7 @@ const RunValidator = () => {
               validator={validatorToClaimFrom}
               onSuccess={() => setValidatorToClaimFrom(null)}
               onFinish={() => setValidatorToClaimFrom(null)}
+              commissionMode
             />
           }
           parentElementID="root"
@@ -239,13 +248,12 @@ const RunValidator = () => {
         validatorType={validatorType}
         onClose={() => closeRegisterValidatorModal()}
         onSuccess={() => {
-          // getNodes();
           setShouldFetch(true);
           closeRegisterValidatorModal();
         }}
       />
       <div className="runnode-content">
-        {validatorType === 'mainnet' && status !== 'connected' && (
+        {validatorType === ValidatorType.MAINNET && status !== 'connected' && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -254,7 +262,7 @@ const RunValidator = () => {
             />
           </div>
         )}
-        {validatorType === 'mainnet' && status === 'connected' && isOnWrongChain && (
+        {validatorType === ValidatorType.MAINNET && status === 'connected' && isOnWrongChain && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -265,7 +273,7 @@ const RunValidator = () => {
             </Notification>
           </div>
         )}
-        {validatorType === 'testnet' && !isLoggedIn && (
+        {validatorType === ValidatorType.TESTNET && !isLoggedIn && (
           <div className="notification">
             <Notification
               title="Notice:"
@@ -281,20 +289,22 @@ const RunValidator = () => {
             <Text label="My nodes" variant="h6" color="primary" className="box-title" />
             <Button
               size="small"
-              className={clsx('nodeTypeTab', validatorType === 'mainnet' && 'active')}
+              className={clsx('nodeTypeTab', validatorType === ValidatorType.MAINNET && 'active')}
               label="Mainnet"
               variant="contained"
               onClick={() => {
-                setValidatorType('mainnet');
+                setValidatorType(ValidatorType.MAINNET);
+                window.location.hash = ValidatorType.MAINNET;
               }}
             />
             <Button
               size="small"
-              className={clsx('nodeTypeTab', validatorType === 'testnet' && 'active')}
+              className={clsx('nodeTypeTab', validatorType === ValidatorType.TESTNET && 'active')}
               label="Testnet"
               variant="contained"
               onClick={() => {
-                setValidatorType('testnet');
+                setValidatorType(ValidatorType.TESTNET);
+                window.location.hash = ValidatorType.TESTNET;
               }}
             />
           </div>
@@ -309,8 +319,8 @@ const RunValidator = () => {
           />
         </div>
         <div className="cardContainer">
-          {((validatorType === 'mainnet' && mainnetValidators.length > 0) ||
-            (validatorType === 'testnet' && testnetValidators.length > 0)) && (
+          {((validatorType === ValidatorType.MAINNET && mainnetValidators.length > 0) ||
+            (validatorType === ValidatorType.TESTNET && testnetValidators.length > 0)) && (
             <>
               <BaseCard
                 title={activeValidators.toString()}
@@ -329,8 +339,8 @@ const RunValidator = () => {
               />
             </>
           )}
-          {((validatorType === 'mainnet' && mainnetValidators.length === 0) ||
-            (validatorType === 'testnet' && testnetValidators.length === 0)) && (
+          {((validatorType === ValidatorType.MAINNET && mainnetValidators.length === 0) ||
+            (validatorType === ValidatorType.TESTNET && testnetValidators.length === 0)) && (
             <>
               <IconCard
                 title="Register a node"
@@ -356,64 +366,74 @@ const RunValidator = () => {
             </>
           )}
         </div>
-        {validatorType === 'mainnet' && mainnetValidators.length > 0 && (
-          <TableContainer className="nodesTableContainer">
-            <Table className="nodesTable">
+        {validatorType === ValidatorType.MAINNET && (
+          <TableContainer className="validatorsTableContainer">
+            <Table className="validatorsTable">
               <TableHead>
-                <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nameCell">Name</TableCell>
-                  <TableCell className="tableHeadCell yieldCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell commissionCell">Commission</TableCell>
-                  <TableCell className="tableHeadCell delegationCell">Delegation</TableCell>
-                  <TableCell className="tableHeadCell availableDelegation">
-                    Available for Delegation
-                  </TableCell>
-                  <TableCell className="tableHeadCell rankingCell">Ranking</TableCell>
-                  <TableCell className="tableHeadCell rewardsCell">Comission Rewards</TableCell>
-                  <TableCell className="tableHeadCell actionsCell">&nbsp;</TableCell>
+                <TableRow>
+                  <TableCell className="statusCell">Status</TableCell>
+                  <TableCell className="nameCell">Address / Nickname</TableCell>
+                  <TableCell className="yieldCell">Yield Efficiency</TableCell>
+                  <TableCell className="commissionCell">Commission</TableCell>
+                  <TableCell className="delegationCell">Delegation</TableCell>
+                  <TableCell className="availableDelegation">Available for Delegation</TableCell>
+                  <TableCell className="rankingCell">Ranking</TableCell>
+                  <TableCell className="rewardsCell">Commission Rewards</TableCell>
+                  <TableCell className="actionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {mainnetValidators.map((v: Validator) => (
-                  <MainnetValidatorRow
-                    key={v.address}
-                    validator={v}
-                    actionsDisabled={status !== 'connected' || !account}
-                    setValidatorInfo={setValidatorInfo}
-                    setCommissionClaim={setValidatorToClaimFrom}
+                {mainnetValidators.length > 0 ? (
+                  mainnetValidators.map((v: Validator) => (
+                    <MainnetValidatorRow
+                      key={v.address}
+                      validator={v}
+                      actionsDisabled={status !== 'connected' || !account}
+                      setValidatorInfo={setValidatorInfo}
+                      setCommissionClaim={setValidatorToClaimFrom}
+                    />
+                  ))
+                ) : (
+                  <EmptyTable
+                    colspan={9}
+                    message="Looks like you haven`t registered any mainnet validators yet..."
                   />
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
         )}
-        {validatorType === 'testnet' && testnetValidators.length > 0 && (
-          <TableContainer>
-            <Table className="table">
+        {validatorType === ValidatorType.TESTNET && (
+          <TableContainer className="validatorsTableContainer">
+            <Table className="validatorsTable">
               <TableHead>
-                <TableRow className="tableHeadRow">
-                  <TableCell className="tableHeadCell statusCell">Status</TableCell>
-                  <TableCell className="tableHeadCell nodeCell">Name</TableCell>
-                  <TableCell className="tableHeadCell nodeCell">Expected Yield</TableCell>
-                  <TableCell className="tableHeadCell nodeCell">
-                    Number of blocks produced
-                  </TableCell>
-                  <TableCell className="tableHeadCell nodeCell" colSpan={2}>
+                <TableRow>
+                  <TableCell className="statusCell">Status</TableCell>
+                  <TableCell className="nameCell">Name</TableCell>
+                  <TableCell className="yieldCell">Expected Yield</TableCell>
+                  <TableCell className="pbftsCell">Number of blocks produced</TableCell>
+                  <TableCell className="rankingCell" colSpan={2}>
                     Ranking
                   </TableCell>
-                  <TableCell className="tableHeadCell nodeActionsCell">&nbsp;</TableCell>
+                  <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {testnetValidators.map((v: OwnNode) => (
-                  <TestnetValidatorRow
-                    key={v.address}
-                    validator={v}
-                    onEdit={setCurrentEditedNode}
-                    onDelete={deleteTestnetNode}
+                {testnetValidators.length > 0 ? (
+                  testnetValidators.map((v: Validator) => (
+                    <TestnetValidatorRow
+                      key={v.address}
+                      validator={v}
+                      onEdit={setCurrentEditedNode}
+                      onDelete={deleteTestnetNode}
+                    />
+                  ))
+                ) : (
+                  <EmptyTable
+                    colspan={6}
+                    message="Looks like you haven`t registered any testnet validators yet..."
                   />
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>

@@ -4,7 +4,7 @@ import { useHistory, withRouter, RouteComponentProps } from 'react-router-dom';
 
 import { IconCard, ToggleButton, Notification } from '@taraxa_project/taraxa-ui';
 
-import DelegationIcon from '../../assets/icons/delegation';
+import StakingIcon from '../../assets/icons/staking';
 import BountiesIcon from '../../assets/icons/bounties';
 import RedeemIcon from '../../assets/icons/redeem';
 import NodeIcon from '../../assets/icons/node';
@@ -48,7 +48,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
 
   const toggleOptions = [
     { value: 'earn', label: 'Earn' },
-    { value: 'testnet', label: 'Testnet' },
+    { value: 'testnet', label: 'Participate' },
   ];
 
   const onToggle = (event: React.MouseEvent<HTMLElement>, value: string) => {
@@ -86,11 +86,11 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
           }}
         >
           <IconCard
-            title="Delegation"
-            description="Earn rewards and help test & secure the Taraxa’s network."
+            title="Staking"
+            description="Earn rewards and help secure the Taraxa network."
             onClickText="Get Started"
-            onClickButton={() => history.push('/delegation')}
-            Icon={DelegationIcon}
+            onClickButton={() => history.push('/staking')}
+            Icon={StakingIcon}
           />
           <IconCard
             title="Bounties"
@@ -113,7 +113,11 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             display: isMobile && toggleValue !== 'testnet' ? 'none' : 'inherit',
           }}
         >
-          <Notification title="TESTNET" text="Join Taraxa’s public testnet." variant="success" />
+          <Notification
+            title="Participate"
+            text="Participate in Taraxa`s public networks."
+            variant="success"
+          />
         </div>
         <div
           className="cardContainer"

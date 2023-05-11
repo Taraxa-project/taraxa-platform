@@ -16,8 +16,8 @@ import Footer from './components/Footer/Footer';
 import Sidebar from './components/Sidebar/Sidebar';
 
 import Home from './pages/Home/Home';
-import Delegation from './pages/Delegation/Delegation';
-import NodeProfilePage from './pages/Delegation/NodeProfilePage';
+import Staking from './pages/Staking/Delegation';
+import NodeProfilePage from './pages/Staking/NodeProfilePage';
 import Bounties from './pages/Bounties/Bounties';
 import BountyDetails from './pages/Bounties/BountyDetails';
 import BountySubmit from './pages/Bounties/BountySubmit';
@@ -29,6 +29,9 @@ import useCMetamask from './services/useCMetamask';
 import { WalletPopupProvider } from './services/useWalletPopup';
 
 import './App.scss';
+import { ValidatorWeeklyStatsProvider } from './services/useValidatorsWeeklyStats';
+import { ValidatorsProvider } from './services/useAllValidators';
+import { RedelegationProvider } from './services/useRedelegation';
 
 declare global {
   interface Window {
@@ -113,8 +116,10 @@ const Root = () => {
             <Switch>
               <Route exact path="/first-login" component={Home} />
               <Route exact path="/reset-password/:code" component={Home} />
-              <Route exact path="/delegation" component={Delegation} />
+              <Route exact path="/delegation" component={Staking} />
               <Route exact path="/delegation/:address" component={NodeProfilePage} />
+              <Route exact path="/staking" component={Staking} />
+              <Route exact path="/staking/:address" component={NodeProfilePage} />
               <Route exact path="/bounties" component={Bounties} />
               <Route exact path="/bounties/:id" component={BountyDetails} />
               <Route exact path="/bounties/:id/submit" component={BountySubmit} />
@@ -142,7 +147,13 @@ function App() {
               <ModalProvider>
                 <WalletPopupProvider>
                   <SidebarProvider>
-                    <Root />
+                    <ValidatorWeeklyStatsProvider>
+                      <ValidatorsProvider>
+                        <RedelegationProvider>
+                          <Root />
+                        </RedelegationProvider>
+                      </ValidatorsProvider>
+                    </ValidatorWeeklyStatsProvider>
                   </SidebarProvider>
                 </WalletPopupProvider>
               </ModalProvider>

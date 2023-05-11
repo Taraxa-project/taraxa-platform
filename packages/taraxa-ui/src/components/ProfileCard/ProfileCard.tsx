@@ -70,7 +70,7 @@ const ProfileCard = ({
                 className={classes.label}
                 color='textSecondary'
               >
-                TARA address (ERC20):
+                TARA address:
               </Typography>
               <Typography
                 variant='body1'

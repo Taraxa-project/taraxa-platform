@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { BatchEntity } from './entity/batch.entity';
@@ -12,6 +12,7 @@ import { RewardController } from './reward.controller';
 import { AccountController } from './account.controller';
 import { ClaimController } from './claim.controller';
 import { ClaimService } from './claim.service';
+import { ClaimTaskService } from './claim-task.service';
 import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLService } from './graphql.connector.service';
@@ -51,4 +52,15 @@ import { GraphQLService } from './graphql.connector.service';
   providers: [ClaimService, GraphQLService],
   exports: [ClaimService],
 })
-export class ClaimModule {}
+export class ClaimModule {
+  static forRoot(type = 'web'): DynamicModule {
+    let providers = [];
+    if (type === 'cron') {
+      providers = [ClaimTaskService];
+    }
+    return {
+      module: ClaimModule,
+      providers,
+    };
+  }
+}

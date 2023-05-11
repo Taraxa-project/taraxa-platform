@@ -1,7 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { ethers } from 'ethers';
 
-import { ContractValidator, Validator } from '../interfaces/Validator';
+import {
+  ContractValidator,
+  Validator,
+  ValidatorStatus,
+  ValidatorType,
+} from '../interfaces/Validator';
 import { useLoading } from './useLoading';
 import useDpos from './useDpos';
 
@@ -21,9 +26,13 @@ export default () => {
     availableForDelegation: maxDelegation.sub(contractValidator.info.total_stake),
     isFullyDelegated: contractValidator.info.total_stake.eq(maxDelegation),
     isActive: false,
+    status: ValidatorStatus.NOT_ELIGIBLE,
     description: contractValidator.info.description,
     endpoint: contractValidator.info.endpoint,
     rank: 0,
+    pbftsProduced: 0,
+    yield: 0,
+    type: ValidatorType.MAINNET,
   });
 
   const getValidators = useCallback(async (): Promise<Validator[]> => {
@@ -110,6 +119,16 @@ export default () => {
     [mainnetDpos],
   );
 
+  const isValidatorEligible = useCallback(
+    async (address: string): Promise<boolean> => {
+      startLoading!();
+      const isEligible = await mainnetDpos!.isValidatorEligible(address);
+      finishLoading!();
+      return isEligible;
+    },
+    [mainnetDpos],
+  );
+
   const registerValidator = useCallback(
     async (
       validator: string,
@@ -164,6 +183,7 @@ export default () => {
       getValidatorsFor,
       setValidatorInfo,
       setCommission,
+      isValidatorEligible,
     }),
     [getValidators, getValidatorsWith, getValidator],
   );

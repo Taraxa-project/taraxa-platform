@@ -9,7 +9,7 @@ export const formatTransactionStatus = (
     case 0:
       return TransactionStatus.FAILURE;
     case null:
-      return TransactionStatus.NOT_YET_MINED;
+      return TransactionStatus.NOT_YET_FINALIZED;
     default:
       return TransactionStatus.LOADING;
   }

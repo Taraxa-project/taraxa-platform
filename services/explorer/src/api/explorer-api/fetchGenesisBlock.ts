@@ -1,40 +1,28 @@
-import axios, { AxiosResponse } from 'axios';
-import { useQuery } from 'react-query';
+import axios from 'axios';
+import { BigNumber } from 'ethers';
+import { displayWeiOrTara, getAddressTransactionType } from '../../utils';
+import {
+  AddressTxResponse,
+  FetchWithPagination,
+  ResultWithPagination,
+} from '../types';
 
-const getGenesisBlock = (endpoint: string) => {
-  if (!endpoint) {
-    return;
-  }
-  const url = `${endpoint}/pbft/genesis`;
-  return axios.get(url);
-};
-
-export const useGetGenesisBlock = (
+export const useGetGenesisBlock = async (
   endpoint: string,
-  enabled: boolean
-): {
-  data: AxiosResponse<any>;
-  isError: boolean;
-  error: unknown;
-  isLoading: boolean;
-  isFetching: boolean;
-} => {
-  const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['genesis-block', endpoint],
-    () => getGenesisBlock(endpoint),
-    {
-      onError: (error) => {
-        // eslint-disable-next-line no-console
-        console.log('ERROR: ', error);
-      },
-      enabled,
-    }
-  );
+  params: Partial<FetchWithPagination>
+): Promise<ResultWithPagination<AddressTxResponse>> => {
+  const url = `${endpoint}/address/GENESIS/transactions`;
+  const response = await axios.get(url, { params });
   return {
-    data,
-    isError,
-    error,
-    isLoading,
-    isFetching,
+    ...response.data,
+    data: response.data.data.map((tx: AddressTxResponse) => ({
+      ...tx,
+      status: tx.status ? 1 : 0,
+      gasUsed: tx.gasUsed?.toString(),
+      gasPrice: displayWeiOrTara(tx.gasPrice?.toString()),
+      gas: tx.gas?.toString(),
+      action: getAddressTransactionType(tx.type),
+      value: displayWeiOrTara(BigNumber.from(tx.value)),
+    })),
   };
 };

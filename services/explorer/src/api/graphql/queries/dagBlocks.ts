@@ -30,7 +30,7 @@ query dag_details_query($hash: Bytes32) {
     transactionCount
     vdf
     signature
-    transactions{
+    transactions {
       hash
       block {
         number
@@ -46,6 +46,11 @@ query dag_details_query($hash: Bytes32) {
       }
       gasUsed
       gasPrice
+      gas
+      inputData,
+      createdContract {
+        address
+      }
     }
   }
 }

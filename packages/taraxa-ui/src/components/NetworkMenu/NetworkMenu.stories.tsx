@@ -8,8 +8,8 @@ export default {
 } as Meta;
 
 enum Network {
-  TESTNET = 'Californicum Testnet',
-  MAINNET = 'Mainnet Candidate',
+  TESTNET = 'Testnet',
+  MAINNET = 'Mainnet',
 }
 
 const Template: Story<any> = (args) => <NetworkMenu {...args} />;

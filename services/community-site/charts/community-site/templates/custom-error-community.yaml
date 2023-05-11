@@ -5,7 +5,7 @@ metadata:
   labels:
     app: custom-error-community
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: custom-error-community
@@ -35,7 +35,7 @@ spec:
 
 <H1>We're sorry... </H1>
 
-Unfortunately United States persons are unable to participate in our community activities.
+Unfortunately, persons from the United States and US OFAC-Sanctioned regions are unable to participate in our community activities.
 
 Please contact us at <a href='mailto:support@taraxa.io'>
 

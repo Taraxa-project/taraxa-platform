@@ -1,0 +1,178 @@
+.runnode,
+.redeem {
+  .validatorsTableContainer {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+
+  .redeemTable {
+    min-width: 750;
+    color: #ffffff !important;
+  }
+
+  .validatorsTable {
+    color: #ffffff;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .tableHead {
+    .tableRow {
+      border-bottom: 1px solid #40465f;
+    }
+    .tableCell {
+      color: #878ca4 !important;
+      background-color: #1b1e2b;
+      border: none;
+      height: auto;
+      line-height: 16px;
+      border-bottom: 1px solid #1e2231 !important;
+    }
+  }
+
+  .tableBody {
+    .tableRow {
+      border-bottom: 1px solid #1e2231;
+    }
+
+    .tableCell {
+      color: #ffffff;
+      border: none;
+      height: auto;
+
+      .flexCell {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+
+  .tableCellGrey {
+    color: #4f5368 !important;
+    border: none;
+    height: auto;
+    border-bottom: 1px solid #1e2231 !important;
+  }
+
+  .nodeLink {
+    cursor: pointer;
+  }
+
+  .tableSection {
+    text-align: center;
+  }
+
+  .statusCell {
+    width: 60px;
+  }
+
+  .nameCell {
+    width: 410px;
+  }
+
+  .nodeActionsCell {
+    width: 15%;
+  }
+
+  .yieldCell,
+  .rankingCell,
+  .pbftsCell,
+  .rewardsCell {
+    width: 100px;
+  }
+
+  .availableDelegation,
+  .delegationCell,
+  .commissionCell {
+    text-align: start;
+    width: 100px;
+  }
+
+  .actionsCell {
+    width: 150px;
+  }
+
+  .commissionCell {
+    .commissionDisplayPendingChangeWrapper {
+      position: relative;
+      padding-left: 30px;
+
+      svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .commissionDisplayPendingChange {
+        color: #e96828;
+        background-color: #3d2c2c;
+        padding: 5px 10px;
+        border-radius: 8px;
+      }
+    }
+  }
+
+  .availableDelegation {
+    vertical-align: middle;
+    text-align: start;
+  }
+
+  .availableDelegationActionsCell {
+    width: 25%;
+
+    .validatorActions {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      button {
+        min-width: 120px;
+      }
+      button:disabled,
+      button[disabled] {
+        background: #202534;
+        border: 1px solid #282c3e;
+      }
+    }
+  }
+
+  @media only screen and (max-width: 1620px) {
+    .validatorsTableContainer {
+      max-width: calc(100vw - 500px);
+      min-width: calc(100vw - 500px);
+    }
+
+    .validatorsTable {
+      width: auto;
+      table-layout: fixed;
+    }
+
+    .yieldCell,
+    .commissionCell,
+    .delegationCell,
+    .rankingCell,
+    .rewardsCell {
+      width: auto;
+      min-width: 100px !important;
+      max-width: 200px;
+    }
+
+    .availableDelegation,
+    .availableDelegationActionsCell {
+      width: auto;
+      min-width: 200px !important;
+      max-width: 200px;
+    }
+  }
+
+  @media only screen and (max-width: 760px) {
+    .validatorsTableContainer {
+      max-width: calc(100vw - 90px);
+      min-width: calc(100vw - 90px);
+    }
+  }
+}

@@ -6,6 +6,10 @@ export const transactionQuery = `
       nonce,
       hash,
       gas,
+      inputData,
+      createdContract {
+        address
+      }
       from {
 				address
 			},
@@ -21,6 +25,7 @@ export const transactionQuery = `
         timestamp,
 			},
       gasUsed,
+      gas,
       cumulativeGasUsed,
       logs {
         index,

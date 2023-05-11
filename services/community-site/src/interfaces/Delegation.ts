@@ -16,4 +16,4 @@ export default interface Delegation {
   rewards: ethers.BigNumber;
 }
 
-export const COMMISSION_CHANGE_THRESHOLD = 25000;
+export const COMMISSION_CHANGE_THRESHOLD = 108000;

@@ -1,11 +1,12 @@
 import React from 'react';
-import { TableCell, TableRow } from '@mui/material';
+import { ethers } from 'ethers';
+import { Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
-// import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
-
-import { formatValidatorName } from '../../../utils/string';
-import { stripEth } from '../../../utils/eth';
-import { Validator } from '../../../interfaces/Validator';
+import { useHistory } from 'react-router-dom';
+import { TableCell, TableRow } from '../../../components/Table/Table';
+import { stripEth, weiToEth } from '../../../utils/eth';
+import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {
   validator: Validator;
@@ -20,50 +21,52 @@ const MainnetValidatorRow = ({
   setValidatorInfo,
   setCommissionClaim,
 }: ValidatorRowProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
-    isActive,
+    status,
+    description,
     address,
     commission,
     delegation,
     availableForDelegation,
     commissionReward,
     rank,
+    isFullyDelegated,
   } = validator;
+  const history = useHistory();
 
   let className = 'dot';
-  if (isActive) {
-    className += ' active';
-  }
+  className += ` ${status}`;
+
+  const validatorWithYield = validator as Validator;
   return (
-    <TableRow className="tableRow" key={address}>
-      <TableCell className="tableCell statusCell">
-        <div className="status">
-          <div className={className} />
+    <TableRow key={address}>
+      <TableCell className="statusCell">
+        <Tooltip title={getValidatorStatusTooltip(status)}>
+          <div className="status">
+            <div className={className} />
+          </div>
+        </Tooltip>
+      </TableCell>
+      <TableCell className="nameCell">
+        <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
+          <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell nameCell">{formatValidatorName(address)}</TableCell>
-      <TableCell className="tableCell yieldCell">20%</TableCell>
-      <TableCell className="tableCell commissionCell">
-        {/* {row.hasPendingCommissionChange ? (
-          <>
-            <NodeCommissionChangeIcon />{' '}
-            <span className="commissionDisplayPendingChange">
-              {row.currentCommission} ➞ {row.pendingCommission}
-            </span>
-          </>
-        ) : (
-          row.currentCommission
-        )} */}
-        {commission}%
+      <TableCell className="yieldCell">{validatorWithYield.yield || 0}</TableCell>
+      <TableCell className="commissionCell">{commission}%</TableCell>
+      <TableCell className="delegationCell">
+        <strong>{ethers.utils.commify(Number(weiToEth(delegation)).toFixed(2))}</strong>
       </TableCell>
-      <TableCell className="tableCell delegationCell">{stripEth(delegation)}</TableCell>
-      <TableCell className="tableCell availableDelegation">
-        {stripEth(availableForDelegation)}
+      <TableCell className="availableDelegation">
+        <div className="availableDelegation">
+          {isFullyDelegated
+            ? '0 (Fully delegated)'
+            : ethers.utils.commify(Number(weiToEth(availableForDelegation)).toFixed(2))}
+        </div>
       </TableCell>
-      <TableCell className="tableCell rankingCell">{rank}</TableCell>
-      <TableCell className="tableCell rewardsCell">{stripEth(commissionReward)}</TableCell>
-      <TableCell className="tableCell actionsCell">
+      <TableCell className="rankingCell">{rank}</TableCell>
+      <TableCell className="rewardsCell">{stripEth(commissionReward)}</TableCell>
+      <TableCell className="availableDelegationActionsCell">
         <div className="validatorActions">
           <Button
             size="small"
@@ -82,7 +85,7 @@ const MainnetValidatorRow = ({
             color="secondary"
             label="Claim"
             className="smallBtn"
-            disabled={actionsDisabled}
+            disabled={actionsDisabled || commissionReward.isZero()}
             onClick={() => {
               setCommissionClaim(validator);
             }}

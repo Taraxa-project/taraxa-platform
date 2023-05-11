@@ -15,7 +15,16 @@ export const blockQuery = `
 			},
 			difficulty,
 		  totalDifficulty,
-      transactionCount,
+      transactionCount
+    }
+  }
+`;
+
+export const blockTransactionsQuery = `
+  query block_transactions_query($number: Long, $hash: Bytes32) {
+    block (number: $number, hash: $hash) {
+      number,
+      hash,
       transactions {
 				from {
 					address
@@ -24,12 +33,17 @@ export const blockQuery = `
 					address
 				},
         gasUsed,
+        gas,
         gasPrice
+        inputData,
+        createdContract {
+          address
+        }
         status, hash, value, block {
           timestamp,
           number
         }
-      },
+      }
     }
   }
 `;

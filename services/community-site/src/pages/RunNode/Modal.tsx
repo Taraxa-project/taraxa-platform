@@ -5,11 +5,12 @@ import { Modal } from '@taraxa_project/taraxa-ui';
 
 import CloseIcon from '../../assets/icons/close';
 import RegisterNode from './Modal/RegisterNode';
+import { ValidatorType } from '../../interfaces/Validator';
 
 interface RunValidatorModalProps {
   balance: ethers.BigNumber;
   isOpen: boolean;
-  validatorType: 'mainnet' | 'testnet';
+  validatorType: ValidatorType;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -28,7 +29,7 @@ const RunValidatorModal = ({
   }
 
   const modal = (
-    <RegisterNode balance={balance} type={validatorType} onSuccess={() => onSuccess()} />
+    <RegisterNode balance={balance} type={validatorType} onSuccess={onSuccess} onClose={onClose} />
   );
 
   return (

@@ -1,35 +1,36 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from 'urql';
 import cleanDeep from 'clean-deep';
-import { blockQuery } from '../../api';
-import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
+import { useQuery } from 'urql';
+import { blockQuery, blockTransactionsQuery } from '../../api';
+import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { PbftBlock, Transaction } from '../../models';
-import { displayWeiOrTara } from '../../utils';
-import { useGetGenesisBlock } from '../../api/explorer-api/fetchGenesisBlock';
+import { useIndexer } from '../../hooks/useIndexer';
+import { useGetGenesisBlock } from '../../api';
+import { displayWeiOrTara, getTransactionType } from '../../utils';
 
 export const usePBFTDataContainerEffects = (
   blockNumber?: number,
   txHash?: string
 ): {
-  blockData: PbftBlock;
+  blockData?: PbftBlock;
   transactions: Transaction[];
+  transactionsTotal: number;
+  transactionsPage: number;
+  transactionsRowsPerPage: number;
+  transactionsHandleChangePage: (p: number) => void;
+  transactionsHandleChangeRowsPerPage: (l: number) => void;
   currentNetwork: string;
   showLoadingSkeleton: boolean;
-  genesisTransactions: Transaction[];
-  showNetworkChanged: boolean;
 } => {
-  const { backendEndpoint, currentNetwork } = useExplorerNetwork();
-  const [network] = useState(currentNetwork);
-  const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
+  const [showLoadingSkeleton, setShowLoadingSkeleton] = useState<boolean>(true);
+  const [blockData, setBlockData] = useState<PbftBlock | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactionsTotal, setTransactionsTotal] = useState<number>(0);
 
-  const [blockData, setBlockData] = useState<PbftBlock>({} as PbftBlock);
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {} as Transaction,
-  ]);
-  const [genesisTransactions, setGenesisTransactions] = useState<Transaction[]>(
-    [{} as Transaction]
-  );
-  const [{ fetching, data }] = useQuery({
+  const { currentNetwork } = useExplorerNetwork();
+  const { initLoading, finishLoading } = useExplorerLoader();
+
+  const [{ fetching: isFetchingBlock, data: blockResponse }] = useQuery({
     query: blockQuery,
     variables: cleanDeep({
       number: blockNumber,
@@ -37,71 +38,93 @@ export const usePBFTDataContainerEffects = (
     }),
     pause: !(blockNumber !== null || blockNumber !== undefined) && !txHash,
   });
-  const { initLoading, finishLoading } = useExplorerLoader();
-  const [showLoadingSkeleton, setShowLoadingSkeleton] =
-    useState<boolean>(false);
-
-  const {
-    data: genesisBlock,
-    isFetching: isFetchingGenesis,
-    isLoading: isLoadingGenesis,
-  } = useGetGenesisBlock(backendEndpoint, blockNumber === 0);
 
   useEffect(() => {
-    if (fetching || isFetchingGenesis || isLoadingGenesis) {
+    if (blockResponse && blockResponse.block) {
+      setBlockData(blockResponse.block);
+    }
+  }, [blockResponse]);
+
+  const [
+    { fetching: isFetchingTransactions, data: blockTransactionsResponse },
+  ] = useQuery({
+    query: blockTransactionsQuery,
+    variables: cleanDeep({
+      number: blockNumber,
+      hash: txHash,
+    }),
+    pause: !blockData || blockData.transactionCount === 0 || blockNumber === 0,
+  });
+
+  const {
+    data: genesisTransactions,
+    total: genesisTransactionsTotal,
+    page: transactionsPage,
+    rowsPerPage: transactionsRowsPerPage,
+    handleChangePage,
+    handleChangeRowsPerPage,
+  } = useIndexer(
+    {
+      queryName: `genesis-pbft-block`,
+    },
+    useGetGenesisBlock,
+    blockNumber !== 0
+  );
+
+  useEffect(() => {
+    if (
+      blockTransactionsResponse &&
+      blockTransactionsResponse.block &&
+      blockTransactionsResponse.block.transactions
+    ) {
+      const trx = blockTransactionsResponse.block.transactions;
+      setTransactions(
+        trx
+          .map((tx: Transaction) => ({
+            ...tx,
+            value: displayWeiOrTara(tx.value),
+            gasUsed: `${tx.gasUsed}`,
+            gas: tx.gas?.toString(),
+            action: getTransactionType(tx),
+          }))
+          .slice(
+            transactionsPage * transactionsRowsPerPage,
+            transactionsPage * transactionsRowsPerPage + transactionsRowsPerPage
+          )
+      );
+      setTransactionsTotal(trx.length);
+    }
+  }, [blockTransactionsResponse, transactionsPage, transactionsRowsPerPage]);
+
+  useEffect(() => {
+    if (blockNumber === 0 && genesisTransactions) {
+      setTransactions(genesisTransactions);
+      setTransactionsTotal(genesisTransactionsTotal);
+    } else {
+      setTransactions([]);
+      setTransactionsTotal(0);
+    }
+  }, [blockNumber, genesisTransactions, genesisTransactionsTotal]);
+
+  useEffect(() => {
+    if (isFetchingBlock || isFetchingTransactions) {
       initLoading();
       setShowLoadingSkeleton(true);
     } else {
       finishLoading();
       setShowLoadingSkeleton(false);
     }
-  }, [currentNetwork, fetching, isFetchingGenesis, isLoadingGenesis]);
-
-  useEffect(() => {
-    if (data?.block) {
-      setShowNetworkChanged(false);
-      setBlockData(data.block);
-      setTransactions(
-        data?.block?.transactions?.map((tx: Transaction) => {
-          return {
-            ...tx,
-            value: displayWeiOrTara(tx.value),
-            gasUsed: displayWeiOrTara(tx.gasUsed),
-          };
-        })
-      );
-    }
-    if (data?.block === null) {
-      setShowNetworkChanged(true);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (genesisBlock?.data) {
-      setGenesisTransactions(
-        genesisBlock?.data?.transactions?.map((tx: Transaction) => {
-          return {
-            ...tx,
-            value: displayWeiOrTara(tx.value),
-            gasUsed: displayWeiOrTara(tx.gasUsed),
-          };
-        })
-      );
-    }
-  }, [genesisBlock]);
-
-  useEffect(() => {
-    if (currentNetwork !== network) {
-      setShowNetworkChanged(true);
-    }
-  }, [currentNetwork, network]);
+  }, [isFetchingBlock, isFetchingTransactions]);
 
   return {
     blockData,
     transactions,
+    transactionsTotal,
+    transactionsPage,
+    transactionsRowsPerPage,
+    transactionsHandleChangePage: handleChangePage,
+    transactionsHandleChangeRowsPerPage: handleChangeRowsPerPage,
     currentNetwork,
     showLoadingSkeleton,
-    genesisTransactions,
-    showNetworkChanged,
   };
 };

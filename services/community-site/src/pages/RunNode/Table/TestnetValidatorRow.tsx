@@ -1,69 +1,69 @@
 import React from 'react';
-import { TableCell, TableRow } from '@mui/material';
+import { Tooltip } from '@mui/material';
 import { Button } from '@taraxa_project/taraxa-ui';
+import { TableCell, TableRow } from '../../../components/Table/Table';
 
-import { formatValidatorName } from '../../../utils/string';
-import OwnNode from '../../../interfaces/OwnNode';
+import Nickname from '../../../components/Nickname/Nickname';
+import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
 
 const TestnetValidatorRow = ({
   validator,
   onEdit,
   onDelete,
 }: {
-  validator: OwnNode;
-  onEdit: (validator: OwnNode) => void;
-  onDelete: (validator: OwnNode) => void;
+  validator: Validator;
+  onEdit: (validator: Validator) => void;
+  onDelete: (validator: Validator) => void;
 }) => {
-  const { isActive, address, name, yield: y, weeklyBlocksProduced, weeklyRank } = validator;
-
-  const actions = (
-    <div className="validatorActions">
-      <Button
-        size="small"
-        variant="contained"
-        color="secondary"
-        className="smallBtn"
-        label="Edit"
-        onClick={() => {
-          onEdit(validator);
-        }}
-      />
-      <Button
-        size="small"
-        variant="contained"
-        color="secondary"
-        className="smallBtn"
-        label="Delete"
-        disabled={!validator.canDelete}
-        onClick={() => {
-          const confirmation = window.confirm();
-          if (confirmation) {
-            onDelete(validator);
-          }
-        }}
-      />
-    </div>
-  );
+  const { status, address, description, yield: y, pbftsProduced, rank } = validator;
 
   let className = 'dot';
-  if (isActive) {
-    className += ' active';
-  }
+  className += ` ${status}`;
+
   return (
-    <TableRow className="tableRow" key={address}>
-      <TableCell className="tableCell statusCell">
-        <div className="status">
-          <div className={className} />
+    <TableRow key={address}>
+      <TableCell className="statusCell">
+        <Tooltip title={getValidatorStatusTooltip(status)}>
+          <div className="status">
+            <div className={className} />
+          </div>
+        </Tooltip>
+      </TableCell>
+      <TableCell className="nameCell">
+        <div className="flexCell nodeLink">
+          <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="tableCell nodeCell">
-        {formatValidatorName(!name || name === '' ? address : name)}
-      </TableCell>
-      <TableCell className="tableCell nodeCell">{y}%</TableCell>
-      <TableCell className="tableCell nodeCell">{weeklyBlocksProduced}</TableCell>
-      <TableCell className="tableCell nodeCell">{weeklyRank || 0}</TableCell>
-      <TableCell className="tableCell nodeActionsCell" align="right">
-        {actions}
+      <TableCell className="yieldCell">{y}%</TableCell>
+      <TableCell className="pbftsCell">{pbftsProduced}</TableCell>
+      <TableCell className="rankingCell">{rank || 0}</TableCell>
+      <TableCell className="availableDelegationActionsCell" align="right">
+        <div className="validatorActions">
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            className="smallBtn"
+            label="Edit"
+            onClick={() => {
+              onEdit(validator);
+            }}
+          />
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            className="smallBtn"
+            label="Delete"
+            // disabled={!validator.canDelete}
+            onClick={() => {
+              const confirmation = window.confirm();
+              if (confirmation) {
+                onDelete(validator);
+              }
+            }}
+          />
+        </div>
       </TableCell>
     </TableRow>
   );
