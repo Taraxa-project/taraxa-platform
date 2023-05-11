@@ -5,8 +5,7 @@ import { useParams } from 'react-router-dom';
 
 import { AmountCard, Button, Checkbox, Icons } from '@taraxa_project/taraxa-ui';
 
-import Delegation from '../../interfaces/Delegation';
-import useDelegation from '../../services/useDelegation';
+import useDposSubgraph from '../../services/useDposSubgraph';
 import useCMetamask from '../../services/useCMetamask';
 import useChain from '../../services/useChain';
 
@@ -23,65 +22,107 @@ import { useAllValidators } from '../../services/useAllValidators';
 import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
 import { useLoading } from '../../services/useLoading';
 import Nickname from '../../components/Nickname/Nickname';
+import { DelegationGQL } from '../../interfaces/Delegation';
 
-// interface BarFlexProps {
-//   communityDelegated: number;
-//   selfDelegated: number;
-//   availableDelegation: number;
-// }
+interface BarFlexProps {
+  communityDelegated: number;
+  selfDelegated: number;
+  availableDelegation: number;
+}
 
-// const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
-//   let cdParsed = communityDelegated;
-//   let sdParsed = selfDelegated;
-//   let adParsed = availableDelegation;
-//   if (cdParsed + sdParsed + adParsed > 100) {
-//     /**
-//      * Highest number = 100 - sum of lowest numbers
-//      */
-//     if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
-//     if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
-//     if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
-//   }
-//   return (
-//     <div className="barFlex">
-//       <div
-//         className="percentageAmount"
-//         style={{
-//           width: `${cdParsed}%`,
-//         }}
-//       >
-//         <div className="barPercentage" style={{ background: '#15AC5B' }} />
-//       </div>
-//       <div
-//         className="percentageAmount"
-//         style={{
-//           width: `${sdParsed}%`,
-//         }}
-//       >
-//         <div className="barPercentage" style={{ background: '#8E8E8E' }} />
-//       </div>
-//       <div
-//         className="percentageAmount"
-//         style={{
-//           width: `${adParsed}%`,
-//         }}
-//       >
-//         <div className="barPercentage" style={{ background: '#48BDFF' }} />
-//       </div>
-//     </div>
-//   );
-// };
+const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
+  let cdParsed = communityDelegated;
+  let sdParsed = selfDelegated;
+  let adParsed = availableDelegation;
+  if (cdParsed + sdParsed + adParsed > 100) {
+    /**
+     * Highest number = 100 - sum of lowest numbers
+     */
+    if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
+    if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
+    if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
+  }
+  return (
+    <div className="barFlex">
+      <div
+        className="percentageAmount"
+        style={{
+          width: `${cdParsed}%`,
+        }}
+      >
+        <div className="barPercentage" style={{ background: '#15AC5B' }} />
+      </div>
+      <div
+        className="percentageAmount"
+        style={{
+          width: `${sdParsed}%`,
+        }}
+      >
+        <div className="barPercentage" style={{ background: '#8E8E8E' }} />
+      </div>
+      <div
+        className="percentageAmount"
+        style={{
+          width: `${adParsed}%`,
+        }}
+      >
+        <div className="barPercentage" style={{ background: '#48BDFF' }} />
+      </div>
+    </div>
+  );
+};
+
+function calculateDelegationSpread(validator: Validator | null, delegations: DelegationGQL[]) {
+  const delegationPossible =
+    validator?.delegation
+      .add(validator?.availableForDelegation)
+      .div(BigNumber.from('10').pow(BigNumber.from('18')))
+      ?.toNumber() || 1;
+
+  const _ownDelegation = delegations.find(
+    (d) => d.delegator.toLowerCase() === validator?.owner?.toLowerCase(),
+  );
+  const ownDelegation = _ownDelegation
+    ? BigNumber.from(_ownDelegation.amount)
+        .div(BigNumber.from('10').pow(BigNumber.from('18')))
+        ?.toNumber()
+    : 0;
+
+  const availableForDelegation = parseFloat(
+    validator?.availableForDelegation
+      ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
+      ?.toString() || '0',
+  );
+
+  const validatorDelegation = parseFloat(
+    validator?.delegation?.div(BigNumber.from('10').pow(BigNumber.from('18')))?.toString() || '1',
+  );
+  const communityDelegatedTotal = validatorDelegation - ownDelegation;
+
+  const communityDelegated =
+    delegations.length > 0
+      ? Math.max(Math.round(communityDelegatedTotal * 100) / delegationPossible, 1)
+      : 0;
+
+  const selfDelegated = Math.max(Math.round((ownDelegation / delegationPossible) * 100), 1);
+
+  const availableDelegation = Math.max(
+    Math.round((availableForDelegation / delegationPossible) * 100),
+    1,
+  );
+  return { availableDelegation, selfDelegated, communityDelegated };
+}
 
 const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
   const { getValidator } = useValidators();
-  const { getDelegations } = useDelegation();
+  const { getValidatorDelegations } = useDposSubgraph();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
   const [delegationCount, setDelegationCount] = useState<number>(0);
-  const [delegations, setDelegations] = useState<Delegation[] | []>([]);
+  const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
@@ -112,7 +153,8 @@ const NodeProfilePage = () => {
 
   const fetchDelegators = useCallback(async () => {
     if (address) {
-      const delegations = await getDelegations(address);
+      const delegations = await getValidatorDelegations(address);
+      console.log(delegations);
       setDelegations(delegations);
       setDelegationCount(delegations.length);
     } else {
@@ -134,48 +176,16 @@ const NodeProfilePage = () => {
     })();
   }, [status, account, provider]);
 
-  // const delegationPossible =
-  //   validator?.delegation
-  //     .add(validator?.availableForDelegation)
-  //     .div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //     ?.toNumber() || 1;
+  const { availableDelegation, selfDelegated, communityDelegated } = calculateDelegationSpread(
+    validator,
+    delegations,
+  );
 
-  // const ownDelegation =
-  //   delegations.length > 0
-  //     ? delegations
-  //         .find((d) => d.address.toLowerCase() === validator?.owner?.toLowerCase())
-  //         ?.stake?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //         ?.toNumber() || 0
-  //     : delegationPossible;
-
-  // const communityDelegated =
-  //   delegations.length > 0
-  //     ? Math.max(
-  //         Math.round(
-  //           (parseFloat(
-  //             validator?.delegation
-  //               ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //               ?.toString() || '1',
-  //           ) -
-  //             ownDelegation / delegationPossible) *
-  //             100,
-  //         ),
-  //         1,
-  //       )
-  //     : 0;
-
-  // const selfDelegated = Math.max(Math.round((ownDelegation / delegationPossible) * 100), 1);
-
-  // const availableForDelegation = parseFloat(
-  //   validator?.availableForDelegation
-  //     ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //     ?.toString() || '0',
-  // );
-
-  // const availableDelegation = Math.max(
-  //   Math.round((availableForDelegation / delegationPossible) * 100),
-  //   1,
-  // );
+  console.log({
+    available: availableDelegation,
+    self: selfDelegated,
+    community: communityDelegated,
+  });
 
   const delegationTotalPages = Math.ceil(delegationCount / 20);
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
@@ -243,14 +253,6 @@ const NodeProfilePage = () => {
                   </div>
                 </>
               )}
-              {/* {validator?.firstBlockCreatedAt && (
-              <>
-                <div className="nodeInfoTitle">node active since</div>
-                <div className="nodeInfoContent">{`${nodeActiveSince.getDate()} ${nodeActiveSince
-                  .toLocaleString('en-US', { month: 'short' })
-                  .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
-              </>
-            )} */}
             </div>
             <div className="nodeDelegationColumn">
               <div className="taraContainerWrapper">
@@ -271,34 +273,34 @@ const NodeProfilePage = () => {
                   <div className="taraContainerAmountDescription">Total delegated</div>
                 </div>
               </div>
-              {/* <div className="nodeDelegationSplit">
-              <BarFlex
-                communityDelegated={communityDelegated}
-                selfDelegated={selfDelegated}
-                availableDelegation={availableDelegation}
-              />
-              <div className="percentagesBar">
-                <span>0%</span>
-                <span>25%</span>
-                <span>50%</span>
-                <span>75%</span>
-                <span>100%</span>
+              <div className="nodeDelegationSplit">
+                <BarFlex
+                  communityDelegated={communityDelegated}
+                  selfDelegated={selfDelegated}
+                  availableDelegation={availableDelegation}
+                />
+                <div className="percentagesBar">
+                  <span>0%</span>
+                  <span>25%</span>
+                  <span>50%</span>
+                  <span>75%</span>
+                  <span>100%</span>
+                </div>
+                <div className="percentageLegends">
+                  <div className="percentageLegend">
+                    <div className="legendColor" style={{ background: '#15AC5B' }} />
+                    community-delegated
+                  </div>
+                  <div className="percentageLegend">
+                    <div className="legendColor" style={{ background: '#8E8E8E' }} />
+                    self-delegated
+                  </div>
+                  <div className="percentageLegend">
+                    <div className="legendColor" style={{ background: '#48BDFF' }} />
+                    available for delegation
+                  </div>
+                </div>
               </div>
-              <div className="percentageLegends">
-                <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#15AC5B' }} />
-                  community-delegated
-                </div>
-                <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#8E8E8E' }} />
-                  self-delegated
-                </div>
-                <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#48BDFF' }} />
-                  available for delegation
-                </div>
-              </div>
-            </div> */}
               <div className="delegationButtons">
                 <Button
                   onClick={() => setDelegateToValidator(validator)}
@@ -349,17 +351,17 @@ const NodeProfilePage = () => {
                 <span>Amount of TARA delegated</span>
               </div>
               <div className="delegators">
-                {delegations.map((delegator, id) => (
+                {delegations.map((delegation, id) => (
                   <div key={id} className="delegatorRow">
                     <div className="address">
-                      <span>{id + 1 + offsetIndex}.</span> {delegator.address}
+                      <span>{id + 1 + offsetIndex}.</span> {delegation.delegator}
                     </div>
                     <div className="badges">
-                      {delegator.address.toLowerCase() === account?.toLowerCase() && (
+                      {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
                         <div className="ownStake">your delegation</div>
                       )}
                     </div>
-                    <div className="amount">{stripEth(delegator.stake)} TARA</div>
+                    <div className="amount">{stripEth(delegation.amount)} TARA</div>
                   </div>
                 ))}
               </div>
