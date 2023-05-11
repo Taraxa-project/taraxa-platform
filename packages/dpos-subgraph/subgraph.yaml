@@ -15,12 +15,9 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Validator
         - Delegation
+        - Undelegation
         - CommissionChange
-        # - BasicInfo
-        # - Delegator
-        # - Undelegation
       abis:
         - name: DPOS
           file: ./abis/Dpos.json
@@ -33,14 +30,8 @@ dataSources:
           handler: handleRedelegated
         - event: Undelegated(indexed address,indexed address,uint256)
           handler: handleUndelegated
-        - event: ValidatorRegistered(indexed address)
-          handler: handleValidatorRegistered
         - event: UndelegateCanceled(indexed address,indexed address,uint256)
           handler: handleUndelegateCanceled
         - event: UndelegateConfirmed(indexed address,indexed address,uint256)
           handler: handleUndelegateConfirmed
-        # - event: RewardsClaimed(indexed address,indexed address,uint256)
-        #   handler: handleRewardsClaimed
-        # - event: ValidatorInfoSet(indexed address)
-        #   handler: handleValidatorInfoSet
       file: ./src/mapping.ts

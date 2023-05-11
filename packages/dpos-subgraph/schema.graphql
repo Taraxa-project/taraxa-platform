@@ -20,31 +20,30 @@
 #   undelegations: [Undelegation!]!
 # }
 
-type Validator @entity(immutable: false) {
-  id: ID!
-  account: String!
-  currentDelegations: [Delegation!]! @derivedFrom(field: "validator")
-  undelegations: [Undelegation!]! @derivedFrom(field: "validator")
-  commissionChanges: [CommissionChange!]! @derivedFrom(field: "validator")
-  # isEligible: Boolean
-  # info: BasicInfo!
-}
+# type Validator @entity(immutable: false) {
+#   id: ID!
+#   account: String!
+#   currentDelegations: [Delegation!]! @derivedFrom(field: "validator")
+#   currentDelegationIds: [String!]!
+#   undelegations: [Undelegation!]! @derivedFrom(field: "validator")
+#   commissionChanges: [CommissionChange!]! @derivedFrom(field: "validator")
+#   # isEligible: Boolean
+#   # info: BasicInfo!
+# }
 
 type Delegation @entity(immutable: false) {
   id: ID!
   amount: BigInt!
   delegator: String!
-  validator: Validator!
+  validator: String!
 }
 
 type Undelegation @entity(immutable: false) {
   id: ID!
   stake: BigInt!
   eligibilityBlock: BigInt!
-  confirmed: Boolean!
-  canceled: Boolean!
   delegator: String!
-  validator: Validator!
+  validator: String!
 }
 
 type CommissionChange @entity(immutable: true) {
@@ -52,5 +51,5 @@ type CommissionChange @entity(immutable: true) {
   commission: Int!
   registrationBlock: Int!
   applianceBlock: Int!
-  validator: Validator!
+  validator: String!
 }
