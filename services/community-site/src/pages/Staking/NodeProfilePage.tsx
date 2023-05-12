@@ -23,54 +23,7 @@ import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
 import { useLoading } from '../../services/useLoading';
 import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
-
-interface BarFlexProps {
-  communityDelegated: number;
-  selfDelegated: number;
-  availableDelegation: number;
-}
-
-const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
-  let cdParsed = communityDelegated;
-  let sdParsed = selfDelegated;
-  let adParsed = availableDelegation;
-  if (cdParsed + sdParsed + adParsed > 100) {
-    /**
-     * Highest number = 100 - sum of lowest numbers
-     */
-    if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
-    if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
-    if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
-  }
-  return (
-    <div className="barFlex">
-      <div
-        className="percentageAmount"
-        style={{
-          width: `${cdParsed}%`,
-        }}
-      >
-        <div className="barPercentage" style={{ background: '#15AC5B' }} />
-      </div>
-      <div
-        className="percentageAmount"
-        style={{
-          width: `${sdParsed}%`,
-        }}
-      >
-        <div className="barPercentage" style={{ background: '#8E8E8E' }} />
-      </div>
-      <div
-        className="percentageAmount"
-        style={{
-          width: `${adParsed}%`,
-        }}
-      >
-        <div className="barPercentage" style={{ background: '#48BDFF' }} />
-      </div>
-    </div>
-  );
-};
+import { BarFlex } from './BarFlex';
 
 function calculateDelegationSpread(validator: Validator | null, delegations: DelegationGQL[]) {
   const delegationPossible =
@@ -153,8 +106,18 @@ const NodeProfilePage = () => {
 
   const fetchDelegators = useCallback(async () => {
     if (address) {
-      const delegations = await getValidatorDelegations(address);
-      console.log(delegations);
+      let delegations = await getValidatorDelegations(address);
+      if (delegationAtTop) {
+        const myDelegation = delegations.find(
+          (d) => d.delegator.toLowerCase() === account?.toLowerCase(),
+        );
+        if (myDelegation) {
+          delegations = delegations.filter(
+            (d) => d.delegator.toLowerCase() !== account?.toLowerCase(),
+          );
+          delegations.unshift(myDelegation);
+        }
+      }
       setDelegations(delegations);
       setDelegationCount(delegations.length);
     } else {
@@ -181,15 +144,8 @@ const NodeProfilePage = () => {
     delegations,
   );
 
-  console.log({
-    available: availableDelegation,
-    self: selfDelegated,
-    community: communityDelegated,
-  });
-
   const delegationTotalPages = Math.ceil(delegationCount / 20);
   const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
-  // const nodeActiveSince = new Date(validator?.firstBlockCreatedAt || Date.now());
 
   return (
     <div className="runnode">
