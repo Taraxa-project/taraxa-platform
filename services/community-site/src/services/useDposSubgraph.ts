@@ -8,7 +8,7 @@ export default () => {
 
   const getValidatorDelegations = async (validator: string): Promise<DelegationGQL[]> => {
     const query = `{
-            delegations(where: {validator: "${validator.toLowerCase()}", amount_gte: 0}){
+            delegations(where: {validator: "${validator.toLowerCase()}", amount_gt: 0}){
                 id
                 amount
                 delegator
