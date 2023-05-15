@@ -69,18 +69,19 @@ function calculateDelegationSpread(validator: Validator | null, delegations: Del
   return { availableDelegation, selfDelegated, communityDelegated };
 }
 
+const DELEGATIONS_PER_PAGE = 25;
+
 const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
   const { getValidator } = useValidators();
-  const { getValidatorDelegations, getValidatorCommissionChanges } = useDposSubgraph();
+  const { getValidatorDelegationsPaginate, getValidatorCommissionChanges } = useDposSubgraph();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
-  const [delegationCount, setDelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
   const [commissionChanges, setCommissionChanges] = useState<CommissionChangeGQL[] | []>([]);
-  const [delegationPage, setDelegationPage] = useState<number>(1);
+  const [delegationPage, setDelegationPage] = useState<number>(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const [detailType, setDetailType] = useState<ViewType>(ViewType.DELEGATIONS);
@@ -111,7 +112,11 @@ const NodeProfilePage = () => {
 
   const fetchDelegators = useCallback(async () => {
     if (address) {
-      let delegations = await getValidatorDelegations(address);
+      let delegations = await getValidatorDelegationsPaginate(
+        address,
+        delegationPage,
+        DELEGATIONS_PER_PAGE,
+      );
       if (delegationAtTop) {
         const myDelegation = delegations.find(
           (d) => d.delegator.toLowerCase() === account?.toLowerCase(),
@@ -124,10 +129,8 @@ const NodeProfilePage = () => {
         }
       }
       setDelegations(delegations);
-      setDelegationCount(delegations.length);
     } else {
       setDelegations([]);
-      setDelegationCount(0);
     }
   }, [address, delegationAtTop, delegationPage]);
 
@@ -138,7 +141,7 @@ const NodeProfilePage = () => {
     } else {
       setCommissionChanges([]);
     }
-  }, [address, delegationAtTop, delegationPage]);
+  }, [address]);
 
   useEffect(() => {
     fetchNode();
@@ -158,9 +161,6 @@ const NodeProfilePage = () => {
     validator,
     delegations,
   );
-
-  const delegationTotalPages = Math.ceil(delegationCount / 20);
-  const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
 
   return (
     <div className="runnode">
@@ -329,13 +329,13 @@ const NodeProfilePage = () => {
                   <Button
                     className="paginationButton"
                     onClick={() => setDelegationPage(delegationPage - 1)}
-                    disabled={delegationCount <= 20 || delegationPage === 1}
+                    disabled={delegationPage === 0}
                     Icon={Icons.Left}
                   />
                   <Button
                     className="paginationButton"
                     onClick={() => setDelegationPage(delegationPage + 1)}
-                    disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
+                    disabled={delegations.length < DELEGATIONS_PER_PAGE}
                     Icon={Icons.Right}
                   />
                 </div>
@@ -348,7 +348,7 @@ const NodeProfilePage = () => {
                 {delegations.map((delegation, id) => (
                   <div key={id} className="delegatorRow">
                     <div className="address">
-                      <span>{id + 1 + offsetIndex}.</span> {delegation.delegator}
+                      <span>{id + 1}.</span> {delegation.delegator}
                     </div>
                     <div className="badges">
                       {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
@@ -366,20 +366,6 @@ const NodeProfilePage = () => {
               <hr className="nodeInfoDivider" />
               <div className="delegatorsHeader">
                 <span className="delegatorsLegend">Commission Changes</span>
-                {/* <div className="delegatorsPagination">
-                  <Button
-                    className="paginationButton"
-                    onClick={() => setDelegationPage(delegationPage - 1)}
-                    disabled={delegationCount <= 20 || delegationPage === 1}
-                    Icon={Icons.Left}
-                  />
-                  <Button
-                    className="paginationButton"
-                    onClick={() => setDelegationPage(delegationPage + 1)}
-                    disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
-                    Icon={Icons.Right}
-                  />
-                </div> */}
               </div>
               <div className="tableHeader">
                 <span>Commission</span>
