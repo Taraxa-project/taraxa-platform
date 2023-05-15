@@ -25,7 +25,7 @@ export default () => {
     validator: string,
   ): Promise<CommissionChangeGQL[]> => {
     const query = `{
-            commissionChanges(where: {validator: "${validator.toLowerCase()}", amount_gt: 0}){
+            commissionChanges(where: {validator: "${validator.toLowerCase()}"}){
                 id
                 amount
                 delegator
