@@ -3,7 +3,7 @@ type Delegation @entity(immutable: false) {
   amount: BigInt!
   delegator: String!
   validator: String!
-  date: BigInt!
+  timestamp: BigInt!
 }
 
 type CommissionChange @entity(immutable: true) {
@@ -12,5 +12,5 @@ type CommissionChange @entity(immutable: true) {
   registrationBlock: Int!
   applianceBlock: Int!
   validator: String!
-  date: BigInt!
+  timestamp: BigInt!
 }
