@@ -35,7 +35,7 @@ export function handleDelegated(event: Delegated): void {
   log.debug('Handling delegation' + amount.toString(), [amount.toString()]);
   const newCurrentDelegation = getOrInitCurrentDelegation(validator, delegator);
   newCurrentDelegation.amount = newCurrentDelegation.amount.plus(amount);
-  newCurrentDelegation.date = event.block.number;
+  newCurrentDelegation.date = event.block.timestamp;
   newCurrentDelegation.save();
 }
 
@@ -54,7 +54,7 @@ export function handleUndelegateCanceled(event: UndelegateCanceled): void {
 
   const currentDelegation = getOrInitCurrentDelegation(validator, delegator);
   currentDelegation.amount = currentDelegation.amount.plus(event.params.amount);
-  currentDelegation.date = event.block.number;
+  currentDelegation.date = event.block.timestamp;
   currentDelegation.save();
 }
 
@@ -74,7 +74,7 @@ export function handleRedelegated(event: Redelegated): void {
   currentDelegationDataFrom.save();
 
   currentDelegationDataTo.amount = currentDelegationDataTo.amount.plus(amount);
-  currentDelegationDataTo.date = event.block.number;
+  currentDelegationDataTo.date = event.block.timestamp;
   currentDelegationDataTo.save();
 }
 
