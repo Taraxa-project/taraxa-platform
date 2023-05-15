@@ -395,7 +395,7 @@ const NodeProfilePage = () => {
                     </div>
                     <div className="amount">{change.registrationBlock}</div>
                     <div className="amount">{change.applianceBlock}</div>
-                    <div className="amount">{change.date}</div>
+                    <div className="amount">{change.timestamp}</div>
                   </div>
                 ))}
               </div>

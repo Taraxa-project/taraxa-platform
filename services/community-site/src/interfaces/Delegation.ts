@@ -21,7 +21,7 @@ export interface DelegationGQL {
   delegator: string;
   validator: string;
   amount: ethers.BigNumber;
-  date: number;
+  timestamp: number;
 }
 
 export const COMMISSION_CHANGE_THRESHOLD = 108000;

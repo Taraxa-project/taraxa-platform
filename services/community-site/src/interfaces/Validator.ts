@@ -50,7 +50,7 @@ export interface CommissionChangeGQL {
   commission: number;
   applianceBlock: number;
   registrationBlock: number;
-  date: number;
+  timestamp: number;
 }
 
 export const getValidatorStatusTooltip = (status: ValidatorStatus) => {

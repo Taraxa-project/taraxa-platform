@@ -10,12 +10,12 @@ export default () => {
   const getValidatorDelegations = useCallback(
     async (validator: string): Promise<DelegationGQL[]> => {
       const query = `{
-            delegations(where: {validator: "${validator.toLowerCase()}", amount_gt: 0},  orderBy: date, orderDirection: desc){
+            delegations(where: {validator: "${validator.toLowerCase()}", amount_gt: 0},  orderBy: timestamp, orderDirection: desc){
                 id
                 amount
                 delegator
                 validator
-                date
+                timestamp
             }
         }`;
       const request = await post(basePath, { query });
@@ -28,12 +28,12 @@ export default () => {
   const getValidatorCommissionChanges = useCallback(
     async (validator: string): Promise<CommissionChangeGQL[]> => {
       const query = `{
-            commissionChanges(where: {validator: "${validator.toLowerCase()}"}, orderBy: date, orderDirection: desc){
+            commissionChanges(where: {validator: "${validator.toLowerCase()}"}, orderBy: timestamp, orderDirection: desc){
               commission
               registrationBlock
               applianceBlock
               validator
-              date
+              timestamp
             }
         }`;
       const request = await post(basePath, { query });
