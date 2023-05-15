@@ -16,7 +16,6 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Delegation
-        - Undelegation
         - CommissionChange
       abis:
         - name: DPOS
@@ -32,6 +31,4 @@ dataSources:
           handler: handleUndelegated
         - event: UndelegateCanceled(indexed address,indexed address,uint256)
           handler: handleUndelegateCanceled
-        - event: UndelegateConfirmed(indexed address,indexed address,uint256)
-          handler: handleUndelegateConfirmed
       file: ./src/mapping.ts
