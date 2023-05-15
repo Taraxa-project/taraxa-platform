@@ -2,28 +2,31 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
+import clsx from 'clsx';
 
-import { AmountCard, Button, Checkbox, Icons } from '@taraxa_project/taraxa-ui';
+import { AmountCard, Button, Checkbox, Icons, Text } from '@taraxa_project/taraxa-ui';
 
 import useDposSubgraph from '../../services/useDposSubgraph';
 import useCMetamask from '../../services/useCMetamask';
 import useChain from '../../services/useChain';
-
-import Title from '../../components/Title/Title';
 import useValidators from '../../services/useValidators';
-
-import { Validator } from '../../interfaces/Validator';
-
-import { stripEth, weiToEth } from '../../utils/eth';
-
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
+import NodeIcon from '../../assets/icons/node';
+
+import { CommissionChangeGQL, Validator } from '../../interfaces/Validator';
+import { stripEth, weiToEth } from '../../utils/eth';
 import { useAllValidators } from '../../services/useAllValidators';
 import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
 import { useLoading } from '../../services/useLoading';
 import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
 import { BarFlex } from './BarFlex';
+
+enum ViewType {
+  DELEGATIONS,
+  COMMISSION_CHANGES,
+}
 
 function calculateDelegationSpread(validator: Validator | null, delegations: DelegationGQL[]) {
   const delegationPossible =
@@ -32,18 +35,18 @@ function calculateDelegationSpread(validator: Validator | null, delegations: Del
       .div(BigNumber.from('10').pow(BigNumber.from('18')))
       ?.toNumber() || 1;
 
-  const _ownDelegation = delegations.find(
+  const hasOwnDelegation = delegations.find(
     (d) => d.delegator.toLowerCase() === validator?.owner?.toLowerCase(),
   );
-  const ownDelegation = _ownDelegation
-    ? BigNumber.from(_ownDelegation.amount)
+  const ownDelegation = hasOwnDelegation
+    ? BigNumber.from(hasOwnDelegation.amount)
         .div(BigNumber.from('10').pow(BigNumber.from('18')))
         ?.toNumber()
     : 0;
 
   const availableForDelegation = parseFloat(
-    validator?.availableForDelegation
-      ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
+    (validator?.availableForDelegation || BigNumber.from(0))
+      .div(BigNumber.from('10').pow(BigNumber.from('18')))
       ?.toString() || '0',
   );
 
@@ -70,15 +73,17 @@ const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
   const { getValidator } = useValidators();
-  const { getValidatorDelegations } = useDposSubgraph();
+  const { getValidatorDelegations, getValidatorCommissionChanges } = useDposSubgraph();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
   const [delegationCount, setDelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
+  const [commissionChanges, setCommissionChanges] = useState<CommissionChangeGQL[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
+  const [detailType, setDetailType] = useState<ViewType>(ViewType.DELEGATIONS);
   const { address } = useParams<{ address?: string }>();
   const [shouldFetch, setShouldFetch] = useState(false);
   const { allValidatorsWithStats } = useAllValidators();
@@ -126,10 +131,20 @@ const NodeProfilePage = () => {
     }
   }, [address, delegationAtTop, delegationPage]);
 
+  const fetchCommissionChanges = useCallback(async () => {
+    if (address) {
+      const commissionChanges = await getValidatorCommissionChanges(address);
+      setCommissionChanges(commissionChanges);
+    } else {
+      setCommissionChanges([]);
+    }
+  }, [address, delegationAtTop, delegationPage]);
+
   useEffect(() => {
     fetchNode();
     fetchDelegators();
-  }, [fetchNode, fetchDelegators, shouldFetch]);
+    fetchCommissionChanges();
+  }, [fetchNode, fetchDelegators, fetchCommissionChanges, shouldFetch]);
 
   useEffect(() => {
     (async () => {
@@ -182,7 +197,30 @@ const NodeProfilePage = () => {
         onClaimFinish={() => {}}
         onClaimClose={() => {}}
       />
-      <Title title="Validator" />
+      <div className="nodeTypes">
+        <div className="nodeTitleContainer">
+          <NodeIcon />
+          <Text label="Validator" variant="h6" color="primary" className="box-title" />
+          <Button
+            size="small"
+            className={clsx('nodeTypeTab', detailType === ViewType.DELEGATIONS && 'active')}
+            label="Delegations"
+            variant="contained"
+            onClick={() => {
+              setDetailType(ViewType.DELEGATIONS);
+            }}
+          />
+          <Button
+            size="small"
+            className={clsx('nodeTypeTab', detailType === ViewType.COMMISSION_CHANGES && 'active')}
+            label="Commissions"
+            variant="contained"
+            onClick={() => {
+              setDetailType(ViewType.COMMISSION_CHANGES);
+            }}
+          />
+        </div>
+      </div>
       {!validator || isLoading ? (
         <NodeProfilePageSkeleton />
       ) : (
@@ -275,7 +313,7 @@ const NodeProfilePage = () => {
               </div>
             </div>
           </div>
-          {delegations.length !== 0 && (
+          {detailType === ViewType.DELEGATIONS && delegations.length !== 0 && (
             <>
               <hr className="nodeInfoDivider" />
               <div className="delegatorsHeader">
@@ -318,6 +356,46 @@ const NodeProfilePage = () => {
                       )}
                     </div>
                     <div className="amount">{stripEth(delegation.amount)} TARA</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {detailType === ViewType.COMMISSION_CHANGES && commissionChanges.length !== 0 && (
+            <>
+              <hr className="nodeInfoDivider" />
+              <div className="delegatorsHeader">
+                <span className="delegatorsLegend">Commission Changes</span>
+                {/* <div className="delegatorsPagination">
+                  <Button
+                    className="paginationButton"
+                    onClick={() => setDelegationPage(delegationPage - 1)}
+                    disabled={delegationCount <= 20 || delegationPage === 1}
+                    Icon={Icons.Left}
+                  />
+                  <Button
+                    className="paginationButton"
+                    onClick={() => setDelegationPage(delegationPage + 1)}
+                    disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
+                    Icon={Icons.Right}
+                  />
+                </div> */}
+              </div>
+              <div className="tableHeader">
+                <span>Commission</span>
+                <span>Registration Block</span>
+                <span>Applied at Block</span>
+                <span>Creation timestamp</span>
+              </div>
+              <div className="delegators">
+                {commissionChanges.map((change, id) => (
+                  <div key={id} className="commissionRow">
+                    <div className="amount">
+                      <span>{id + 1 + offsetIndex}.</span> {change.commission / 100} %
+                    </div>
+                    <div className="amount">{change.registrationBlock}</div>
+                    <div className="amount">{change.applianceBlock}</div>
+                    <div className="amount">{change.date}</div>
                   </div>
                 ))}
               </div>

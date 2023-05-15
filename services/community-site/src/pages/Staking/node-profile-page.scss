@@ -399,5 +399,13 @@
         }
       }
     }
+
+    .commissionRow {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin-top: 2px;
+      justify-content: space-between;
+    }
   }
 }
