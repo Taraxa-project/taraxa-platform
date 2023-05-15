@@ -1,18 +1,12 @@
-import { Address, BigInt, ethereum, log, store } from '@graphprotocol/graph-ts';
+import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 import {
   CommissionSet,
-  DPOS,
   Delegated,
   Redelegated,
   UndelegateCanceled,
   Undelegated,
-  ValidatorRegistered,
 } from '../generated/DPOS/DPOS';
-import {
-  CommissionChange,
-  Delegation,
-  Undelegation,
-} from '../generated/schema';
+import { CommissionChange, Delegation } from '../generated/schema';
 
 function getOrInitCurrentDelegation(
   validator: Address,
@@ -28,52 +22,10 @@ function getOrInitCurrentDelegation(
     delegation.validator = validator.toHexString();
     delegation.delegator = delegator.toHexString();
     delegation.amount = BigInt.zero();
+    delegation.date = BigInt.zero();
     delegation.save();
   }
   return delegation;
-}
-
-function getOrInitUndelegation(
-  validator: Address,
-  delegator: Address
-): Undelegation {
-  const delegationId = `${validator.toHexString()}-${delegator.toHexString()}`;
-  let undelegation = Undelegation.load(delegationId);
-  if (!undelegation) {
-    undelegation = new Undelegation(delegationId);
-    undelegation.delegator = delegator.toHexString();
-    undelegation.validator = validator.toHexString();
-    undelegation.stake = BigInt.zero();
-    undelegation.eligibilityBlock = BigInt.zero();
-    undelegation.save();
-  }
-  return undelegation;
-}
-
-function updateOrAddDelegation(
-  newDelegation: Delegation,
-  amount: BigInt,
-  add: boolean
-): void {
-  if (add) {
-    newDelegation.amount = newDelegation.amount.plus(amount);
-  } else {
-    newDelegation.amount = newDelegation.amount.minus(amount);
-  }
-  newDelegation.save();
-}
-
-function updateOrAddUndelegation(
-  undelegation: Undelegation,
-  amount: BigInt,
-  add: boolean
-): void {
-  if (add) {
-    undelegation.stake = undelegation.stake.plus(amount);
-  } else {
-    undelegation.stake = undelegation.stake.minus(amount);
-  }
-  undelegation.save();
 }
 
 export function handleDelegated(event: Delegated): void {
@@ -82,65 +34,28 @@ export function handleDelegated(event: Delegated): void {
   const amount = event.params.amount;
   log.debug('Handling delegation' + amount.toString(), [amount.toString()]);
   const newCurrentDelegation = getOrInitCurrentDelegation(validator, delegator);
-
-  updateOrAddDelegation(newCurrentDelegation, amount, true);
+  newCurrentDelegation.amount = newCurrentDelegation.amount.plus(amount);
+  newCurrentDelegation.date = event.block.number;
+  newCurrentDelegation.save();
 }
 
 export function handleUndelegated(event: Undelegated): void {
   const delegator = event.params.delegator;
   const validator = event.params.validator;
   const amount = event.params.amount;
-
-  const undelegation = getOrInitUndelegation(validator, delegator);
-  log.debug('Handling undelegation' + undelegation.id, [undelegation.id]);
-  const eligibility = event.block.number.plus(BigInt.fromI32(25000));
-  undelegation.eligibilityBlock = eligibility;
-  updateOrAddUndelegation(undelegation, amount, true);
-  undelegation.save();
-
   const currentDelegation = getOrInitCurrentDelegation(validator, delegator);
-  updateOrAddDelegation(currentDelegation, amount, false);
+  currentDelegation.amount = currentDelegation.amount.minus(amount);
+  currentDelegation.save();
 }
 
 export function handleUndelegateCanceled(event: UndelegateCanceled): void {
   const delegator = event.params.delegator;
   const validator = event.params.validator;
 
-  const undelegationId = `${validator.toHexString()}-${delegator.toHexString()}`;
-  const undelegation = Undelegation.load(undelegationId);
-  if (undelegation) {
-    store.remove('Undelegation', undelegation.id);
-    log.warning(
-      `Removed undelegation ${undelegationId} from store as canceled`,
-      [undelegationId]
-    );
-  } else {
-    log.error(`Could not find undelegation ${undelegationId} to cancel`, [
-      undelegationId,
-    ]);
-  }
   const currentDelegation = getOrInitCurrentDelegation(validator, delegator);
   currentDelegation.amount = currentDelegation.amount.plus(event.params.amount);
+  currentDelegation.date = event.block.number;
   currentDelegation.save();
-}
-
-export function handleUndelegateConfirmed(event: UndelegateCanceled): void {
-  const delegator = event.params.delegator;
-  const validator = event.params.validator;
-
-  const undelegationId = `${validator.toHexString()}-${delegator.toHexString()}`;
-  const undelegation = Undelegation.load(undelegationId);
-  if (undelegation) {
-    store.remove('Undelegation', undelegation.id);
-    log.warning(
-      `Removed undelegation ${undelegationId} from store as confirmed`,
-      [undelegationId]
-    );
-  } else {
-    log.error(`Cound not find undelegation ${undelegationId} to confirm`, [
-      undelegationId,
-    ]);
-  }
 }
 
 export function handleRedelegated(event: Redelegated): void {
@@ -154,8 +69,13 @@ export function handleRedelegated(event: Redelegated): void {
   const currentDelegationDataFrom = getOrInitCurrentDelegation(from, delegator);
 
   // Update delegations
-  updateOrAddDelegation(currentDelegationDataFrom, amount, false);
-  updateOrAddDelegation(currentDelegationDataTo, amount, true);
+  currentDelegationDataFrom.amount =
+    currentDelegationDataFrom.amount.minus(amount);
+  currentDelegationDataFrom.save();
+
+  currentDelegationDataTo.amount = currentDelegationDataTo.amount.plus(amount);
+  currentDelegationDataTo.date = event.block.number;
+  currentDelegationDataTo.save();
 }
 
 export function handleCommissionSet(event: CommissionSet): void {
@@ -168,5 +88,6 @@ export function handleCommissionSet(event: CommissionSet): void {
   commissionChange.registrationBlock = event.block.number.toI32();
   const appliance = event.block.number.plus(BigInt.fromI32(25000));
   commissionChange.applianceBlock = appliance.toI32();
+  commissionChange.date = event.block.timestamp;
   commissionChange.save();
 }
