@@ -377,7 +377,7 @@ const NodeProfilePage = () => {
                 {commissionChanges.map((change, id) => (
                   <div key={id} className="commissionRow">
                     <div className="amount">
-                      <span>{id + 1 + offsetIndex}.</span> {change.commission / 100} %
+                      <span>{id + 1}.</span> {change.commission / 100} %
                     </div>
                     <div className="amount">{change.registrationBlock}</div>
                     <div className="amount">{change.applianceBlock}</div>
