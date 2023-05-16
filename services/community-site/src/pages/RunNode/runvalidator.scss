@@ -241,6 +241,15 @@
       }
     }
   }
+
+  .tableContainer {
+    @media only screen and (min-width: 768px) {
+      width: 50vw;
+      
+    }
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .App {

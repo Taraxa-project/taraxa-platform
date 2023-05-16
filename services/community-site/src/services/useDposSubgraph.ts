@@ -45,7 +45,7 @@ export default () => {
     [],
   );
 
-  const getValidatorCommissionChanges = useCallback(
+  const getAllValidatorCommissionChanges = useCallback(
     async (validator: string): Promise<CommissionChangeGQL[]> => {
       const query = `{
             commissionChanges(where: {validator: "${validator.toLowerCase()}"}, orderBy: timestamp, orderDirection: desc){
@@ -57,7 +57,87 @@ export default () => {
             }
         }`;
       const request = await post(basePath, { query });
-      const changes = request.response.data.commissionChanges;
+      let changes = request.response.data.commissionChanges;
+      changes = [
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+      ];
+      return changes;
+    },
+    [],
+  );
+
+  const getValidatorCommissionChangesPaginate = useCallback(
+    async (validator: string, page: number, pageCount: number): Promise<CommissionChangeGQL[]> => {
+      const query = `{
+            commissionChanges(where: {validator: "${validator.toLowerCase()}"}, orderBy: timestamp, orderDirection: desc, first: ${pageCount}, skip: ${
+        page * pageCount
+      }){
+              commission
+              registrationBlock
+              applianceBlock
+              validator
+              timestamp
+            }
+        }`;
+      const request = await post(basePath, { query });
+      let changes = request.response.data.commissionChanges;
+      changes = [
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+        {
+          commission: 133,
+          registrationBlock: 10000,
+          applianceBlock: 31000,
+          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
+          timestamp: 1684154579,
+        },
+      ];
       return changes;
     },
     [],
@@ -66,8 +146,14 @@ export default () => {
     () => ({
       getValidatorDelegationsPaginate,
       getAllValidatorDelegations,
-      getValidatorCommissionChanges,
+      getAllValidatorCommissionChanges,
+      getValidatorCommissionChangesPaginate,
     }),
-    [getValidatorDelegationsPaginate, getAllValidatorDelegations, getValidatorCommissionChanges],
+    [
+      getValidatorDelegationsPaginate,
+      getAllValidatorDelegations,
+      getAllValidatorCommissionChanges,
+      getValidatorCommissionChangesPaginate,
+    ],
   );
 };

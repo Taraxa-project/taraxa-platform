@@ -4,7 +4,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 import clsx from 'clsx';
 
-import { AmountCard, Button, Checkbox, Icons, Text } from '@taraxa_project/taraxa-ui';
+import { AmountCard, Button, Checkbox, Chip, Icons, Text } from '@taraxa_project/taraxa-ui';
 
 import useDposSubgraph from '../../services/useDposSubgraph';
 import useCMetamask from '../../services/useCMetamask';
@@ -22,6 +22,7 @@ import { useLoading } from '../../services/useLoading';
 import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
 import { BarFlex } from './BarFlex';
+import Title from '../../components/Title/Title';
 
 enum ViewType {
   DELEGATIONS,
@@ -69,19 +70,21 @@ function calculateDelegationSpread(validator: Validator | null, delegations: Del
   return { availableDelegation, selfDelegated, communityDelegated };
 }
 
-const DELEGATIONS_PER_PAGE = 25;
+const TABLE_ROWS_PER_PAGE = 20;
 
 const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
   const { getValidator } = useValidators();
-  const { getValidatorDelegationsPaginate, getValidatorCommissionChanges } = useDposSubgraph();
+  const { getValidatorDelegationsPaginate, getValidatorCommissionChangesPaginate } =
+    useDposSubgraph();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
   const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
   const [commissionChanges, setCommissionChanges] = useState<CommissionChangeGQL[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(0);
+  const [commissionPage, setCommissionPage] = useState<number>(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const [detailType, setDetailType] = useState<ViewType>(ViewType.DELEGATIONS);
@@ -115,7 +118,7 @@ const NodeProfilePage = () => {
       let delegations = await getValidatorDelegationsPaginate(
         address,
         delegationPage,
-        DELEGATIONS_PER_PAGE,
+        TABLE_ROWS_PER_PAGE,
       );
       if (delegationAtTop) {
         const myDelegation = delegations.find(
@@ -136,7 +139,11 @@ const NodeProfilePage = () => {
 
   const fetchCommissionChanges = useCallback(async () => {
     if (address) {
-      const commissionChanges = await getValidatorCommissionChanges(address);
+      const commissionChanges = await getValidatorCommissionChangesPaginate(
+        address,
+        commissionPage,
+        TABLE_ROWS_PER_PAGE,
+      );
       setCommissionChanges(commissionChanges);
     } else {
       setCommissionChanges([]);
@@ -197,30 +204,7 @@ const NodeProfilePage = () => {
         onClaimFinish={() => {}}
         onClaimClose={() => {}}
       />
-      <div className="nodeTypes">
-        <div className="nodeTitleContainer">
-          <NodeIcon />
-          <Text label="Validator" variant="h6" color="primary" className="box-title" />
-          <Button
-            size="small"
-            className={clsx('nodeTypeTab', detailType === ViewType.DELEGATIONS && 'active')}
-            label="Delegations"
-            variant="contained"
-            onClick={() => {
-              setDetailType(ViewType.DELEGATIONS);
-            }}
-          />
-          <Button
-            size="small"
-            className={clsx('nodeTypeTab', detailType === ViewType.COMMISSION_CHANGES && 'active')}
-            label="Commissions"
-            variant="contained"
-            onClick={() => {
-              setDetailType(ViewType.COMMISSION_CHANGES);
-            }}
-          />
-        </div>
-      </div>
+      <Title title="Validator" />
       {!validator || isLoading ? (
         <NodeProfilePageSkeleton />
       ) : (
@@ -313,60 +297,108 @@ const NodeProfilePage = () => {
               </div>
             </div>
           </div>
-          {detailType === ViewType.DELEGATIONS && delegations.length !== 0 && (
-            <>
-              <hr className="nodeInfoDivider" />
+          <>
+            <hr className="nodeInfoDivider" />
+            <div className="nodeTypes">
+              <div className="nodeTitleContainer">
+                <NodeIcon />
+                <Text label="Stats" variant="h6" color="primary" className="box-title" />
+                <Button
+                  size="small"
+                  className={clsx('nodeTypeTab', detailType === ViewType.DELEGATIONS && 'active')}
+                  label="Delegations"
+                  variant="contained"
+                  onClick={() => {
+                    setDetailType(ViewType.DELEGATIONS);
+                  }}
+                />
+                <Button
+                  size="small"
+                  className={clsx(
+                    'nodeTypeTab',
+                    detailType === ViewType.COMMISSION_CHANGES && 'active',
+                  )}
+                  label="Commissions"
+                  variant="contained"
+                  onClick={() => {
+                    setDetailType(ViewType.COMMISSION_CHANGES);
+                  }}
+                />
+              </div>
+            </div>
+            <div className="tableContainer">
               <div className="delegatorsHeader">
-                <span className="delegatorsLegend">Delegators</span>
-                <div className="showOwnDelegation">
-                  <Checkbox
-                    value={delegationAtTop}
-                    onChange={(e) => setDelegationAtTop(e.target.checked)}
-                  />
-                  Show my delegation at the top
-                </div>
+                <span className="delegatorsLegend">
+                  {detailType === ViewType.DELEGATIONS ? 'Delegators' : 'Commission Changes'}
+                </span>
+                {detailType === ViewType.DELEGATIONS && (
+                  <div className="showOwnDelegation">
+                    <Checkbox
+                      value={delegationAtTop}
+                      checked={delegationAtTop}
+                      onChange={(e) => setDelegationAtTop(e.target.checked)}
+                    />
+                    Show my delegation at the top
+                  </div>
+                )}
                 <div className="delegatorsPagination">
                   <Button
                     className="paginationButton"
-                    onClick={() => setDelegationPage(delegationPage - 1)}
-                    disabled={delegationPage === 0}
+                    onClick={() =>
+                      detailType === ViewType.DELEGATIONS
+                        ? setDelegationPage(delegationPage - 1)
+                        : setCommissionPage(commissionPage - 1)
+                    }
+                    disabled={
+                      detailType === ViewType.DELEGATIONS
+                        ? delegationPage === 0
+                        : commissionPage === 0
+                    }
                     Icon={Icons.Left}
                   />
                   <Button
                     className="paginationButton"
-                    onClick={() => setDelegationPage(delegationPage + 1)}
-                    disabled={delegations.length < DELEGATIONS_PER_PAGE}
+                    onClick={() =>
+                      detailType === ViewType.DELEGATIONS
+                        ? setDelegationPage(delegationPage + 1)
+                        : setCommissionPage(commissionPage + 1)
+                    }
+                    disabled={
+                      detailType === ViewType.DELEGATIONS
+                        ? delegations.length < TABLE_ROWS_PER_PAGE
+                        : commissionChanges.length < TABLE_ROWS_PER_PAGE
+                    }
                     Icon={Icons.Right}
                   />
                 </div>
               </div>
-              <div className="tableHeader">
-                <span>Address</span>
-                <span>Amount of TARA delegated</span>
-              </div>
-              <div className="delegators">
-                {delegations.map((delegation, id) => (
-                  <div key={id} className="delegatorRow">
-                    <div className="address">
-                      <span>{id + 1}.</span> {delegation.delegator}
-                    </div>
-                    <div className="badges">
-                      {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
-                        <div className="ownStake">your delegation</div>
-                      )}
-                    </div>
-                    <div className="amount">{stripEth(delegation.amount)} TARA</div>
+              {detailType === ViewType.DELEGATIONS && delegations.length !== 0 && (
+                <>
+                  <div className="tableHeader">
+                    <span>Address</span>
+                    <span>Amount of TARA delegated</span>
                   </div>
-                ))}
-              </div>
-            </>
-          )}
+                  <div className="delegators">
+                    {delegations.map((delegation, id) => (
+                      <div key={id} className="delegatorRow">
+                        <div className="address">
+                          <span>{id + 1}.</span> {delegation.delegator}
+                        </div>
+                        <div className="badges">
+                          {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
+                            <Chip label="Your delegation" variant="filled" color="warning" />
+                          )}
+                        </div>
+                        <div className="amount">{stripEth(delegation.amount)} TARA</div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </>
           {detailType === ViewType.COMMISSION_CHANGES && commissionChanges.length !== 0 && (
-            <>
-              <hr className="nodeInfoDivider" />
-              <div className="delegatorsHeader">
-                <span className="delegatorsLegend">Commission Changes</span>
-              </div>
+            <div className="tableContainer">
               <div className="tableHeader">
                 <span>Commission</span>
                 <span>Registration Block</span>
@@ -385,7 +417,7 @@ const NodeProfilePage = () => {
                   </div>
                 ))}
               </div>
-            </>
+            </div>
           )}
         </div>
       )}
