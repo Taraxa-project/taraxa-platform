@@ -43,6 +43,8 @@ export interface Validator {
   pbftsProduced: number;
   yield: number;
   type: ValidatorType;
+  ip?: string;
+  id?: number;
 }
 
 export interface CommissionChangeGQL {

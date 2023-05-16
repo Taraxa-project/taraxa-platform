@@ -12,7 +12,7 @@ interface EditNodeProps {
 const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
   const [name, setName] = useState(node.description || '');
   const [nameError, setNameError] = useState('');
-  const [ip, setIp] = useState(node.address || '');
+  const [ip, setIp] = useState(node.ip || '');
   const [ipError, setIpError] = useState('');
   const delegationApi = useDelegationApi();
 
@@ -23,7 +23,7 @@ const EditNode = ({ closeEditNode, node }: EditNodeProps) => {
     setNameError('');
     setIpError('');
     const result = await delegationApi.put(
-      `/nodes/${node.address}`,
+      `/nodes/${node.id}`,
       { name: name || null, ip: ip || null },
       true,
     );

@@ -13,7 +13,7 @@ export default () => {
 
   const getDelegations = useCallback(
     async (address: string): Promise<Delegation[]> => {
-      startLoading!();
+      // startLoading!();
 
       let newDelegations: ContractDelegation[] = [];
       let page = 0;
@@ -31,7 +31,7 @@ export default () => {
           hasNextPage = false;
         }
       }
-      finishLoading!();
+      // finishLoading!();
 
       return newDelegations.map((delegation: ContractDelegation) => ({
         address: delegation.account,

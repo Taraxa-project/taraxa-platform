@@ -37,7 +37,6 @@ const MainnetValidatorRow = ({
   let className = 'dot';
   className += ` ${status}`;
 
-  const validatorWithYield = validator as Validator;
   return (
     <TableRow key={address}>
       <TableCell className="statusCell">
@@ -52,7 +51,7 @@ const MainnetValidatorRow = ({
           <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="yieldCell">{validatorWithYield.yield || 0}</TableCell>
+      <TableCell className="yieldCell">{validator.yield || 0}</TableCell>
       <TableCell className="commissionCell">{commission}%</TableCell>
       <TableCell className="delegationCell">
         <strong>{ethers.utils.commify(Number(weiToEth(delegation)).toFixed(2))}</strong>
