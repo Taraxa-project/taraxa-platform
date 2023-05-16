@@ -1,0 +1,16 @@
+type Delegation @entity(immutable: false) {
+  id: ID!
+  amount: BigInt!
+  delegator: String!
+  validator: String!
+  date: BigInt!
+}
+
+type CommissionChange @entity(immutable: true) {
+  id: ID!
+  commission: Int!
+  registrationBlock: Int!
+  applianceBlock: Int!
+  validator: String!
+  date: BigInt!
+}
