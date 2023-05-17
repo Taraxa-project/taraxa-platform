@@ -90,15 +90,22 @@ const useApi = (baseUrl = process.env.REACT_APP_API_HOST) => {
   }, []);
 
   const post = useCallback(
-    async <T>(url: string, data: Record<string, unknown> | FormData, includeToken = false) => {
+    async <T>(
+      url: string,
+      data: Record<string, unknown> | FormData,
+      includeToken = false,
+      shouldLoad = true,
+    ) => {
       const responseHandler = new TypedResponseHandler<T>();
       const options = getOptions(includeToken);
-      startLoading!();
+      if (shouldLoad) startLoading!();
       return axios
         .post<T>(getUrl(url), data, options)
         .then((response) => responseHandler.handleResponse(response))
         .catch((err) => getErrorResponse(err))
-        .finally(() => finishLoading!());
+        .finally(() => {
+          if (shouldLoad) finishLoading!();
+        });
     },
     [getOptions, getUrl, getErrorResponse],
   );

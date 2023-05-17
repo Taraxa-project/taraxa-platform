@@ -70,7 +70,7 @@ function calculateDelegationSpread(validator: Validator | null, delegations: Del
   return { availableDelegation, selfDelegated, communityDelegated };
 }
 
-const TABLE_ROWS_PER_PAGE = 20;
+const TABLE_ROWS_PER_PAGE = 2;
 
 const NodeProfilePage = () => {
   const { provider } = useChain();
@@ -152,9 +152,12 @@ const NodeProfilePage = () => {
 
   useEffect(() => {
     fetchNode();
+  }, [fetchNode, shouldFetch]);
+
+  useEffect(() => {
     fetchDelegators();
     fetchCommissionChanges();
-  }, [fetchNode, fetchDelegators, fetchCommissionChanges, shouldFetch]);
+  }, [fetchDelegators, fetchCommissionChanges, shouldFetch]);
 
   useEffect(() => {
     (async () => {

@@ -20,7 +20,7 @@ export default () => {
           timestamp
       }
   }`;
-      const request = await post(basePath, { query });
+      const request = await post(basePath, { query }, false, false);
       const delegations = request.response.data.delegations;
       return delegations;
     },
@@ -38,7 +38,7 @@ export default () => {
                 timestamp
             }
         }`;
-      const request = await post(basePath, { query });
+      const request = await post(basePath, { query }, false, false);
       const delegations = request.response.data.delegations;
       return delegations;
     },
@@ -56,7 +56,7 @@ export default () => {
               timestamp
             }
         }`;
-      const request = await post(basePath, { query });
+      const request = await post(basePath, { query }, false, false);
       let changes = request.response.data.commissionChanges;
       changes = [
         {
@@ -106,7 +106,7 @@ export default () => {
               timestamp
             }
         }`;
-      const request = await post(basePath, { query });
+      const request = await post(basePath, { query }, false, false);
       let changes = request.response.data.commissionChanges;
       changes = [
         {
