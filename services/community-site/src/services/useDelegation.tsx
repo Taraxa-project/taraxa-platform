@@ -68,6 +68,7 @@ export default () => {
         address: undelegation.validator,
         stake: undelegation.stake,
         block: undelegation.block.toNumber(),
+        validatorExists: undelegation.validator_exists,
       }));
       return formattedUndelegations;
     },
