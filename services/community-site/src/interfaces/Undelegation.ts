@@ -4,11 +4,12 @@ export interface ContractUndelegation {
   validator: string;
   stake: ethers.BigNumber;
   block: ethers.BigNumber;
-  validatorExists: boolean;
+  validator_exists: boolean;
 }
 
 export default interface Undelegation {
   address: string;
   stake: ethers.BigNumber;
   block: number;
+  validatorExists: boolean;
 }
