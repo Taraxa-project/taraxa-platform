@@ -346,6 +346,7 @@
     .delegatorRow {
       display: flex;
       flex-direction: row;
+      justify-content: space-between;
       align-items: center;
       margin-top: 2px;
 
@@ -369,6 +370,10 @@
 
         /* neutral/000 */
         color: #ffffff;
+      }
+
+      .amount {
+        margin-right: 5rem;
       }
 
       .badges {

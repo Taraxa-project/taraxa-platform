@@ -384,11 +384,11 @@ const NodeProfilePage = () => {
                         <div className="address">
                           <span>{id + 1}.</span> {delegation.delegator}
                         </div>
-                        <div className="badges">
-                          {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
+                        {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
+                          <div className="badges">
                             <Chip label="Your delegation" variant="filled" color="warning" />
-                          )}
-                        </div>
+                          </div>
+                        )}
                         <div className="amount">{stripEth(delegation.amount)} TARA</div>
                       </div>
                     ))}
