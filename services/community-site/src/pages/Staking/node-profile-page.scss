@@ -344,6 +344,9 @@
     flex-direction: column;
 
     .delegatorRow {
+      @media only screen and (max-width: px) {
+        margin-right: 5rem;
+      }
       display: flex;
       flex-direction: row;
       justify-content: space-between;
@@ -373,7 +376,9 @@
       }
 
       .amount {
-        margin-right: 5rem;
+        @media only screen and (min-width: 1290px) {
+          margin-right: 5rem;
+        }
       }
 
       .badges {

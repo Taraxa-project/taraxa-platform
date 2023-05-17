@@ -18,7 +18,6 @@ import { CommissionChangeGQL, Validator } from '../../interfaces/Validator';
 import { stripEth, weiToEth } from '../../utils/eth';
 import { useAllValidators } from '../../services/useAllValidators';
 import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
-import { useLoading } from '../../services/useLoading';
 import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
 import { BarFlex } from './BarFlex';
@@ -70,7 +69,7 @@ function calculateDelegationSpread(validator: Validator | null, delegations: Del
   return { availableDelegation, selfDelegated, communityDelegated };
 }
 
-const TABLE_ROWS_PER_PAGE = 2;
+const TABLE_ROWS_PER_PAGE = 20;
 
 const NodeProfilePage = () => {
   const { provider } = useChain();
@@ -91,7 +90,6 @@ const NodeProfilePage = () => {
   const { address } = useParams<{ address?: string }>();
   const [shouldFetch, setShouldFetch] = useState(false);
   const { allValidatorsWithStats } = useAllValidators();
-  const { isLoading } = useLoading();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
   const canUndelegate = status === 'connected' && !!account;
@@ -156,8 +154,11 @@ const NodeProfilePage = () => {
 
   useEffect(() => {
     fetchDelegators();
+  }, [fetchDelegators, shouldFetch]);
+
+  useEffect(() => {
     fetchCommissionChanges();
-  }, [fetchDelegators, fetchCommissionChanges, shouldFetch]);
+  }, [fetchCommissionChanges]);
 
   useEffect(() => {
     (async () => {
@@ -208,7 +209,7 @@ const NodeProfilePage = () => {
         onClaimClose={() => {}}
       />
       <Title title="Validator" />
-      {!validator || isLoading ? (
+      {!validator ? (
         <NodeProfilePageSkeleton />
       ) : (
         <div className="nodeInfoWrapper">
@@ -384,9 +385,7 @@ const NodeProfilePage = () => {
                   <div className="delegators">
                     {delegations.map((delegation, id) => (
                       <div key={id} className="delegatorRow">
-                        <div className="address">
-                          <span>{id + 1}.</span> {delegation.delegator}
-                        </div>
+                        <div className="address">{delegation.delegator}</div>
                         {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
                           <div className="badges">
                             <Chip label="Your delegation" variant="filled" color="warning" />
@@ -411,9 +410,7 @@ const NodeProfilePage = () => {
               <div className="delegators">
                 {commissionChanges.map((change, id) => (
                   <div key={id} className="commissionRow">
-                    <div className="amount">
-                      <span>{id + 1}.</span> {change.commission / 100} %
-                    </div>
+                    <div className="amount">{change.commission / 100} %</div>
                     <div className="amount">{change.registrationBlock}</div>
                     <div className="amount">{change.applianceBlock}</div>
                     <div className="amount">{change.timestamp}</div>

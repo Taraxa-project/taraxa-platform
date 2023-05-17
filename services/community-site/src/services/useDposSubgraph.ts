@@ -20,7 +20,7 @@ export default () => {
           timestamp
       }
   }`;
-      const request = await post(basePath, { query }, false, false);
+      const request = await post(basePath, { query });
       const delegations = request.response.data.delegations;
       return delegations;
     },
@@ -38,7 +38,7 @@ export default () => {
                 timestamp
             }
         }`;
-      const request = await post(basePath, { query }, false, false);
+      const request = await post(basePath, { query });
       const delegations = request.response.data.delegations;
       return delegations;
     },
@@ -56,38 +56,8 @@ export default () => {
               timestamp
             }
         }`;
-      const request = await post(basePath, { query }, false, false);
-      let changes = request.response.data.commissionChanges;
-      changes = [
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-      ];
+      const request = await post(basePath, { query });
+      const changes = request.response.data.commissionChanges;
       return changes;
     },
     [],
@@ -106,38 +76,8 @@ export default () => {
               timestamp
             }
         }`;
-      const request = await post(basePath, { query }, false, false);
-      let changes = request.response.data.commissionChanges;
-      changes = [
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-        {
-          commission: 133,
-          registrationBlock: 10000,
-          applianceBlock: 31000,
-          validator: '0xd30975cC3E1Af9F26929Ab4F336265d2B10f10c9',
-          timestamp: 1684154579,
-        },
-      ];
+      const request = await post(basePath, { query });
+      const changes = request.response.data.commissionChanges;
       return changes;
     },
     [],
