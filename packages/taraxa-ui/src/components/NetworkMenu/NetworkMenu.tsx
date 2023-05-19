@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   CssBaseline,
   IconButton,
@@ -30,7 +30,6 @@ const NetworkMenu = ({
   disableNetworkSelection = false,
 }: NetworkMenuProps) => {
   const classes = useStyles();
-  const [selectedNetwork, setSelectedNetwork] = useState(currentNetwork);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -42,7 +41,7 @@ const NetworkMenu = ({
   };
 
   const onNetworkClick = (network: string) => {
-    setSelectedNetwork(network);
+    handleClose();
     if (typeof onNetworkChange === 'function') onNetworkChange(network);
   };
 
@@ -84,7 +83,7 @@ const NetworkMenu = ({
               selected: classes.menuItemSelected,
             }}
             key={`${network}-${Date.now()}`}
-            selected={network === selectedNetwork}
+            selected={network === currentNetwork}
             disabled={disableNetworkSelection}
             onClick={() => onNetworkClick(network)}
           >
