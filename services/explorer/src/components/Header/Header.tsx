@@ -4,6 +4,7 @@ import {
   Button,
   Header as THeader,
   NetworkMenu,
+  SearchInput,
 } from '@taraxa_project/taraxa-ui';
 import { Box, Drawer, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -30,7 +31,14 @@ export const Header = (): JSX.Element => {
   } = useHeaderEffects();
 
   const buttons = (
-    <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'flex-end',
+      }}
+    >
       {headerButtons?.length &&
         headerButtons.map((button: HeaderBtn) => {
           return (
@@ -78,20 +86,21 @@ export const Header = (): JSX.Element => {
       className='header'
       color='primary'
       position='relative'
-      withSearch
       maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
-      searchInputProps={{
-        onInputChange,
-        onChange: onLabelSelect,
-        loading: isLoading,
-        open: !!searchString,
-        options: searchOptions,
-        onClear,
-        searchString,
-      }}
     >
+      <SearchInput
+        placeholder={'Hash or number...'}
+        open={!!searchString}
+        fullWidth
+        onInputChange={onInputChange}
+        onChange={onLabelSelect}
+        loading={isLoading}
+        options={searchOptions}
+        onClear={onClear}
+        searchString={searchString}
+      />
       {isMobile ? hamburger : buttons}
       <Drawer
         anchor='right'

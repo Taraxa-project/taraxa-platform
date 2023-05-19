@@ -15,28 +15,14 @@ import {
 import { useMediaQuery } from 'react-responsive';
 import theme from '../theme';
 import { useHeaderStyles } from './Header.styles';
-import SearchInput from '../SearchInput';
-import { SearchInputProps } from '../SearchInput/SearchInput';
 
 export interface HeaderProps extends AppBarProps {
   title: string;
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-  searchPlaceholder?: string;
-  withSearch?: boolean;
-  searchInputProps?: SearchInputProps;
   maxWidth?: Breakpoint;
 }
 
-function Header({
-  title,
-  Icon,
-  children,
-  maxWidth,
-  withSearch = false,
-  searchInputProps,
-  searchPlaceholder = 'Hash or number...',
-  ...props
-}: HeaderProps) {
+function Header({ title, Icon, children, maxWidth, ...props }: HeaderProps) {
   const classes = useHeaderStyles();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
@@ -70,14 +56,6 @@ function Header({
                   </Typography>
                 </Link>
               </Box>
-              {withSearch && (
-                <SearchInput
-                  className={classes.searchInput}
-                  fullWidth
-                  {...searchInputProps}
-                  placeholder={searchPlaceholder}
-                />
-              )}
               <div
                 className={
                   isMobile

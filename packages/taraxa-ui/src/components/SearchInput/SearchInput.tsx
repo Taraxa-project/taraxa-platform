@@ -37,6 +37,7 @@ export interface SearchInputProps {
   options?: Option[];
   loading?: boolean;
   searchString?: string;
+  style?: React.CSSProperties;
 }
 
 const SearchOption = ({
@@ -138,6 +139,7 @@ const SearchInput = ({
   onInputChange,
   onClear,
   searchString,
+  style,
 }: SearchInputProps) => {
   const classes = useStyles();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -179,6 +181,7 @@ const SearchInput = ({
       <CssBaseline />
       <AbsoluteBoxWithRef ref={boxElementRef}>
         <TextFieldWithRef
+          style={style}
           ref={searchInputRef}
           variant='outlined'
           type='text'
