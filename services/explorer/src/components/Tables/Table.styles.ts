@@ -2,6 +2,19 @@ import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles(() => {
   return {
+    root: {
+      width: '100%',
+    },
+    paper: {
+      width: '100%',
+      marginBottom: '5%',
+      backgroundColor: '#151823 !important',
+    },
+    mobilePaper: {
+      width: '100%',
+      marginBottom: '5%',
+      backgroundColor: '#151823 !important',
+    },
     table: {
       minWidth: 750,
       color: '#FFFFFF',
