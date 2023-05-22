@@ -340,9 +340,6 @@ const NodeProfilePage = () => {
           <div className="centeredContainer">
             <div className="validatorsTableContainer">
               <div className="delegatorsHeader">
-                <span className="delegatorsLegend">
-                  {detailType === ViewType.DELEGATIONS ? 'Delegators' : 'Commission Changes'}
-                </span>
                 {detailType === ViewType.DELEGATIONS && (
                   <div className="showOwnDelegation">
                     <Checkbox
@@ -388,7 +385,7 @@ const NodeProfilePage = () => {
               <TableContainer className="validatorsTableContainer">
                 {detailType === ViewType.DELEGATIONS && delegations.length !== 0 && (
                   <Table className="validatorsTable">
-                    <TableHead className="validatorTableHead">
+                    <TableHead className="tableHead">
                       <TableRow>
                         <TableCell className="halfCell">Address</TableCell>
                         <TableCell className="halfCell">Amount of TARA delegated</TableCell>
@@ -403,7 +400,16 @@ const NodeProfilePage = () => {
                               <Chip
                                 label="Your delegation"
                                 variant="filled"
-                                color="warning"
+                                color="secondary"
+                                style={{ marginLeft: '1rem' }}
+                              />
+                            )}
+                            {validator.owner.toLowerCase() ===
+                              delegation.delegator.toLowerCase() && (
+                              <Chip
+                                label="Self-delegation"
+                                variant="filled"
+                                color="info"
                                 style={{ marginLeft: '1rem' }}
                               />
                             )}
@@ -418,7 +424,7 @@ const NodeProfilePage = () => {
                 )}
                 {detailType === ViewType.COMMISSION_CHANGES && commissionChanges.length !== 0 && (
                   <Table className="validatorsTable">
-                    <TableHead className="validatorTableHead">
+                    <TableHead className="tableHead">
                       <TableRow>
                         <TableCell className="quarterCell">Commission</TableCell>
                         <TableCell className="quarterCell">Registration Block</TableCell>
@@ -433,7 +439,7 @@ const NodeProfilePage = () => {
                             {+(parseFloat(`${change.commission}` || '0') / 100).toPrecision(2)} %
                           </TableCell>
                           <TableCell className="quarterCell">{change.registrationBlock}</TableCell>
-                          <TableCell className="quarterCell">{change.applianceBlock}</TableCell>
+                          <TableCell className="quarterCell">{change.applyAtBlock}</TableCell>
                           <TableCell className="quarterCell">
                             {change.timestamp}(
                             {new Date(change.timestamp * 1000).toLocaleDateString()} -{' '}

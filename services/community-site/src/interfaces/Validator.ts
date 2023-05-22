@@ -50,7 +50,7 @@ export interface Validator {
 export interface CommissionChangeGQL {
   validator: string;
   commission: number;
-  applianceBlock: number;
+  applyAtBlock: number;
   registrationBlock: number;
   timestamp: number;
 }

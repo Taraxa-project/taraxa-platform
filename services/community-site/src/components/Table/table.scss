@@ -17,8 +17,7 @@
     width: 100%;
   }
 
-  .tableHead,
-  .validatorTableHead {
+  .tableHead {
     .tableRow {
       border-bottom: 1px solid #40465f;
     }
@@ -30,10 +29,6 @@
       line-height: 16px;
       border-bottom: 1px solid #1e2231 !important;
     }
-  }
-
-  .validatorTableHead {
-    width: 100%;
   }
 
   .tableBody {
