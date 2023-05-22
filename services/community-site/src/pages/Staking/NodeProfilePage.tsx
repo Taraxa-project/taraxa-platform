@@ -390,14 +390,14 @@ const NodeProfilePage = () => {
                   <Table className="validatorsTable">
                     <TableHead className="validatorTableHead">
                       <TableRow>
-                        <TableCell className="addressCell">Address</TableCell>
-                        <TableCell className="nodeActionsCell">Amount of TARA delegated</TableCell>
+                        <TableCell className="halfCell">Address</TableCell>
+                        <TableCell className="halfCell">Amount of TARA delegated</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody className="">
                       {delegations.map((delegation, id) => (
                         <TableRow key={id} className="">
-                          <TableCell className="nameCell">
+                          <TableCell className="halfCell">
                             {delegation.delegator}
                             {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
                               <Chip
@@ -408,7 +408,7 @@ const NodeProfilePage = () => {
                               />
                             )}
                           </TableCell>
-                          <TableCell className="delegationCell">
+                          <TableCell className="halfCell">
                             {stripEth(delegation.amount)} TARA
                           </TableCell>
                         </TableRow>
@@ -420,21 +420,21 @@ const NodeProfilePage = () => {
                   <Table className="validatorsTable">
                     <TableHead className="validatorTableHead">
                       <TableRow>
-                        <TableCell className="yieldCell">Commission</TableCell>
-                        <TableCell className="yieldCell">Registration Block</TableCell>
-                        <TableCell className="delegationCell">Applied at Block</TableCell>
-                        <TableCell className="addressCell">Creation timestamp</TableCell>
+                        <TableCell className="quarterCell">Commission</TableCell>
+                        <TableCell className="quarterCell">Registration Block</TableCell>
+                        <TableCell className="quarterCell">Applied at Block</TableCell>
+                        <TableCell className="quarterCell">Creation timestamp</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody className="">
                       {commissionChanges.map((change, id) => (
                         <TableRow key={id} className="">
-                          <TableCell className="yieldCell">
+                          <TableCell className="quarterCell">
                             {+(parseFloat(`${change.commission}` || '0') / 100).toPrecision(2)} %
                           </TableCell>
-                          <TableCell className="yieldCell">{change.registrationBlock}</TableCell>
-                          <TableCell className="yieldCell">{change.applianceBlock}</TableCell>
-                          <TableCell className="addressCell">
+                          <TableCell className="quarterCell">{change.registrationBlock}</TableCell>
+                          <TableCell className="quarterCell">{change.applianceBlock}</TableCell>
+                          <TableCell className="quarterCell">
                             {change.timestamp}(
                             {new Date(change.timestamp * 1000).toLocaleDateString()} -{' '}
                             {new Date(change.timestamp * 1000).toLocaleTimeString()})

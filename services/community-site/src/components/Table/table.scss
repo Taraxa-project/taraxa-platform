@@ -31,6 +31,7 @@
       border-bottom: 1px solid #1e2231 !important;
     }
   }
+
   .validatorTableHead {
     width: 100%;
   }
@@ -88,6 +89,15 @@
   .pbftsCell,
   .rewardsCell {
     width: 100px;
+  }
+
+  .halfCell {
+    width: 50%;
+  }
+
+  .quarterCell {
+    width: 25%;
+    min-width: 280px;
   }
 
   .availableDelegation,
