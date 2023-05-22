@@ -429,7 +429,7 @@ const NodeProfilePage = () => {
                         <TableCell className="quarterCell">Commission</TableCell>
                         <TableCell className="quarterCell">Registration Block</TableCell>
                         <TableCell className="quarterCell">Applied at Block</TableCell>
-                        <TableCell className="quarterCell">Creation timestamp</TableCell>
+                        <TableCell className="quarterCell">Created at</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody className="">
@@ -441,9 +441,8 @@ const NodeProfilePage = () => {
                           <TableCell className="quarterCell">{change.registrationBlock}</TableCell>
                           <TableCell className="quarterCell">{change.applyAtBlock}</TableCell>
                           <TableCell className="quarterCell">
-                            {change.timestamp}(
                             {new Date(change.timestamp * 1000).toLocaleDateString()} -{' '}
-                            {new Date(change.timestamp * 1000).toLocaleTimeString()})
+                            {new Date(change.timestamp * 1000).toLocaleTimeString()}
                           </TableCell>
                         </TableRow>
                       ))}

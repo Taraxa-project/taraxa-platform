@@ -51,7 +51,7 @@ export default () => {
             commissionChanges(where: {validator: "${validator.toLowerCase()}"}, orderBy: timestamp, orderDirection: desc){
               commission
               registrationBlock
-              applianceBlock
+              applyAtBlock
               validator
               timestamp
             }
@@ -71,7 +71,7 @@ export default () => {
       }){
               commission
               registrationBlock
-              applianceBlock
+              applyAtBlock
               validator
               timestamp
             }

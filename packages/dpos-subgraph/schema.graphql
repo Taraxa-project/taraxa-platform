@@ -10,7 +10,7 @@ type CommissionChange @entity(immutable: true) {
   id: ID!
   commission: Int!
   registrationBlock: Int!
-  applianceBlock: Int!
+  applyAtBlock: Int!
   validator: String!
   timestamp: BigInt!
 }

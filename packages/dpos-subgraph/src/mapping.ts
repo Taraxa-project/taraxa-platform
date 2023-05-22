@@ -86,8 +86,8 @@ export function handleCommissionSet(event: CommissionSet): void {
   commissionChange.commission = commission;
   commissionChange.validator = validator.toHexString();
   commissionChange.registrationBlock = event.block.number.toI32();
-  const appliance = event.block.number.plus(BigInt.fromI32(25000));
-  commissionChange.applianceBlock = appliance.toI32();
+  const appliesAt = event.block.number.plus(BigInt.fromI32(25000));
+  commissionChange.applyAtBlock = appliesAt.toI32();
   commissionChange.timestamp = event.block.timestamp;
   commissionChange.save();
 }
