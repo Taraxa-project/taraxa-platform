@@ -375,12 +375,6 @@
         color: #ffffff;
       }
 
-      .amount {
-        @media only screen and (min-width: 1290px) {
-          margin-right: 5rem;
-        }
-      }
-
       .badges {
         display: flex;
         flex: 1 0 auto;
@@ -417,5 +411,11 @@
       margin-top: 2px;
       justify-content: space-between;
     }
+
+    .centeredContainer{
+      display: flex;
+      justify-content: center;
+    }
+
   }
 }

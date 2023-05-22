@@ -22,6 +22,14 @@ import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
 import { BarFlex } from './BarFlex';
 import Title from '../../components/Title/Title';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableContainer,
+} from '../../components/Table/Table';
 
 enum ViewType {
   DELEGATIONS,
@@ -301,36 +309,36 @@ const NodeProfilePage = () => {
               </div>
             </div>
           </div>
-          <>
-            <hr className="nodeInfoDivider" />
-            <div className="nodeTypes">
-              <div className="nodeTitleContainer">
-                <NodeIcon />
-                <Text label="Stats" variant="h6" color="primary" className="box-title" />
-                <Button
-                  size="small"
-                  className={clsx('nodeTypeTab', detailType === ViewType.DELEGATIONS && 'active')}
-                  label="Delegations"
-                  variant="contained"
-                  onClick={() => {
-                    setDetailType(ViewType.DELEGATIONS);
-                  }}
-                />
-                <Button
-                  size="small"
-                  className={clsx(
-                    'nodeTypeTab',
-                    detailType === ViewType.COMMISSION_CHANGES && 'active',
-                  )}
-                  label="Commissions"
-                  variant="contained"
-                  onClick={() => {
-                    setDetailType(ViewType.COMMISSION_CHANGES);
-                  }}
-                />
-              </div>
+          <hr className="nodeInfoDivider" />
+          <div className="nodeTypes">
+            <div className="nodeTitleContainer">
+              <NodeIcon />
+              <Text label="Stats" variant="h6" color="primary" className="box-title" />
+              <Button
+                size="small"
+                className={clsx('nodeTypeTab', detailType === ViewType.DELEGATIONS && 'active')}
+                label="Delegations"
+                variant="contained"
+                onClick={() => {
+                  setDetailType(ViewType.DELEGATIONS);
+                }}
+              />
+              <Button
+                size="small"
+                className={clsx(
+                  'nodeTypeTab',
+                  detailType === ViewType.COMMISSION_CHANGES && 'active',
+                )}
+                label="Commissions"
+                variant="contained"
+                onClick={() => {
+                  setDetailType(ViewType.COMMISSION_CHANGES);
+                }}
+              />
             </div>
-            <div className="tableContainer">
+          </div>
+          <div className="centeredContainer">
+            <div className="validatorsTableContainer">
               <div className="delegatorsHeader">
                 <span className="delegatorsLegend">
                   {detailType === ViewType.DELEGATIONS ? 'Delegators' : 'Commission Changes'}
@@ -376,49 +384,69 @@ const NodeProfilePage = () => {
                   />
                 </div>
               </div>
-              {detailType === ViewType.DELEGATIONS && delegations.length !== 0 && (
-                <>
-                  <div className="tableHeader">
-                    <span>Address</span>
-                    <span>Amount of TARA delegated</span>
-                  </div>
-                  <div className="delegators">
-                    {delegations.map((delegation, id) => (
-                      <div key={id} className="delegatorRow">
-                        <div className="address">{delegation.delegator}</div>
-                        {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
-                          <div className="badges">
-                            <Chip label="Your delegation" variant="filled" color="warning" />
-                          </div>
-                        )}
-                        <div className="amount">{stripEth(delegation.amount)} TARA</div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
+              <br />
+              <TableContainer className="validatorsTableContainer">
+                {detailType === ViewType.DELEGATIONS && delegations.length !== 0 && (
+                  <Table className="validatorsTable">
+                    <TableHead className="validatorTableHead">
+                      <TableRow>
+                        <TableCell className="addressCell">Address</TableCell>
+                        <TableCell className="nodeActionsCell">Amount of TARA delegated</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody className="">
+                      {delegations.map((delegation, id) => (
+                        <TableRow key={id} className="">
+                          <TableCell className="nameCell">
+                            {delegation.delegator}
+                            {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
+                              <Chip
+                                label="Your delegation"
+                                variant="filled"
+                                color="warning"
+                                style={{ marginLeft: '1rem' }}
+                              />
+                            )}
+                          </TableCell>
+                          <TableCell className="delegationCell">
+                            {stripEth(delegation.amount)} TARA
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+                {detailType === ViewType.COMMISSION_CHANGES && commissionChanges.length !== 0 && (
+                  <Table className="validatorsTable">
+                    <TableHead className="validatorTableHead">
+                      <TableRow>
+                        <TableCell className="yieldCell">Commission</TableCell>
+                        <TableCell className="yieldCell">Registration Block</TableCell>
+                        <TableCell className="delegationCell">Applied at Block</TableCell>
+                        <TableCell className="addressCell">Creation timestamp</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody className="">
+                      {commissionChanges.map((change, id) => (
+                        <TableRow key={id} className="">
+                          <TableCell className="yieldCell">
+                            {+(parseFloat(`${change.commission}` || '0') / 100).toPrecision(2)} %
+                          </TableCell>
+                          <TableCell className="yieldCell">{change.registrationBlock}</TableCell>
+                          <TableCell className="yieldCell">{change.applianceBlock}</TableCell>
+                          <TableCell className="addressCell">
+                            {change.timestamp}(
+                            {new Date(change.timestamp * 1000).toLocaleDateString()} -{' '}
+                            {new Date(change.timestamp * 1000).toLocaleTimeString()})
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </TableContainer>
             </div>
-          </>
-          {detailType === ViewType.COMMISSION_CHANGES && commissionChanges.length !== 0 && (
-            <div className="tableContainer">
-              <div className="tableHeader">
-                <span>Commission</span>
-                <span>Registration Block</span>
-                <span>Applied at Block</span>
-                <span>Creation timestamp</span>
-              </div>
-              <div className="delegators">
-                {commissionChanges.map((change, id) => (
-                  <div key={id} className="commissionRow">
-                    <div className="amount">{change.commission / 100} %</div>
-                    <div className="amount">{change.registrationBlock}</div>
-                    <div className="amount">{change.applianceBlock}</div>
-                    <div className="amount">{change.timestamp}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       )}
     </div>

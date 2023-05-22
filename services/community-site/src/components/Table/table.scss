@@ -17,7 +17,8 @@
     width: 100%;
   }
 
-  .tableHead {
+  .tableHead,
+  .validatorTableHead {
     .tableRow {
       border-bottom: 1px solid #40465f;
     }
@@ -29,6 +30,9 @@
       line-height: 16px;
       border-bottom: 1px solid #1e2231 !important;
     }
+  }
+  .validatorTableHead {
+    width: 100%;
   }
 
   .tableBody {
@@ -69,6 +73,10 @@
 
   .nameCell {
     width: 410px;
+  }
+
+  .addressCell {
+    width: 800px;
   }
 
   .nodeActionsCell {
