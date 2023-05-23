@@ -1,1 +1,9 @@
-export { default } from './Table';
+export {
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TablePagination,
+} from './Table';

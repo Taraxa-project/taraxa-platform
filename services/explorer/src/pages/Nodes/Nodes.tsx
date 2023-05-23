@@ -1,5 +1,4 @@
 import React from 'react';
-import { AwardCard, EmptyTable } from '@taraxa_project/taraxa-ui';
 import {
   Box,
   IconButton,
@@ -11,7 +10,9 @@ import {
   TableRow,
   TableCell,
   TableBody,
-} from '@mui/material';
+  AwardCard,
+  EmptyTable,
+} from '@taraxa_project/taraxa-ui';
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';

@@ -3,23 +3,18 @@ import {
   CssBaseline,
   ThemeProvider,
   MenuItem as MMenuItem,
+  MenuItemProps,
 } from '@mui/material';
 
 import theme from '../theme';
 
 import '../app.scss';
 
-const MenuItem = ({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) => {
+const MenuItem = ({ children, ...props }: MenuItemProps) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <MMenuItem onClick={onClick}>{label}</MMenuItem>
+      <MMenuItem {...props}>{children}</MMenuItem>
     </ThemeProvider>
   );
 };

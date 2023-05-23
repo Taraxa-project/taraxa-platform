@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import { BlockCard } from '@taraxa_project/taraxa-ui';
+import { Box, BlockCard } from '@taraxa_project/taraxa-ui';
 import { PageTitle } from '../../components';
 import { useHomeEffects } from './Home.effects';
 import ChartContainer from './ChartContainer';

@@ -1,13 +1,14 @@
 import React from 'react';
 import {
   Box,
+  Typography,
+  Button,
+  InputField,
+  MenuItem,
   FormControl,
   FormHelperText,
-  MenuItem,
   Select,
-  Typography,
-} from '@mui/material';
-import { Button, InputField } from '@taraxa_project/taraxa-ui';
+} from '@taraxa_project/taraxa-ui';
 import AccessAlarmSharpIcon from '@mui/icons-material/AccessAlarmSharp';
 import moment from 'moment';
 import { Controller } from 'react-hook-form';

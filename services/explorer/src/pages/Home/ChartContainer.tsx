@@ -1,13 +1,11 @@
 import React from 'react';
-import { Grid } from '@mui/material';
-import { BarChart } from '@taraxa_project/taraxa-ui';
+import { BarChart, Grid, theme } from '@taraxa_project/taraxa-ui';
 import {
   calculateDagEfficiency,
   calculateDagsPerSecond,
   calculatePBFTBlockTime,
   calculateTransactionsPerSecond,
 } from '../../utils';
-import { theme } from '../../theme-provider';
 import { DagBlock, PbftBlock } from '../../models';
 
 export interface ChartContainerProps {

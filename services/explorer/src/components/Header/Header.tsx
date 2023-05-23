@@ -1,14 +1,16 @@
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
 import {
+  Box,
+  Drawer,
+  IconButton,
   Button,
   Header as THeader,
   NetworkMenu,
   SearchInput,
+  theme,
 } from '@taraxa_project/taraxa-ui';
-import { Box, Drawer, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { theme } from '../../theme-provider';
 import { TaraxaIcon } from '../icons';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
 import { DrawerElements } from './DrawerElements';
@@ -74,7 +76,7 @@ export const Header = (): JSX.Element => {
       onClick={toggleDrawer(true)}
       color='primary'
       aria-label='upload picture'
-      component='label'
+      // component='label'
     >
       <MenuIcon />
     </IconButton>

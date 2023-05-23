@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography } from '@taraxa_project/taraxa-ui';
 import React, { FC } from 'react';
 
 export interface PageTitleProps {

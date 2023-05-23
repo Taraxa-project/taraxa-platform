@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Box } from '@mui/material';
-import { theme } from '@taraxa_project/taraxa-ui';
+import { Box, theme } from '@taraxa_project/taraxa-ui';
 import { HashLinkType, zeroX } from '../../utils';
 
 export const HashLink = ({

@@ -1,6 +1,11 @@
-import { Box, IconButton } from '@mui/material';
 import React, { FC } from 'react';
-import { Button, NetworkMenu, theme } from '@taraxa_project/taraxa-ui';
+import {
+  Box,
+  IconButton,
+  Button,
+  NetworkMenu,
+  theme,
+} from '@taraxa_project/taraxa-ui';
 import CloseIcon from '@mui/icons-material/Close';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { HeaderBtn } from './Header.effects';

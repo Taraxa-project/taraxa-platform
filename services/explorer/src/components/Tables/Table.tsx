@@ -1,19 +1,18 @@
 import React from 'react';
-import {
-  TableBody,
-  TableCell,
-  TableContainer,
-  TablePagination,
-  TableRow,
-  Paper,
-  Table as MTable,
-  TableHead,
-} from '@mui/material';
-
 import moment from 'moment';
 import { useMediaQuery } from 'react-responsive';
 import useStyles from './Table.styles';
-import { EmptyTable } from '@taraxa_project/taraxa-ui';
+import {
+  Paper,
+  EmptyTable,
+  TablePagination,
+  TableContainer,
+  TableRow,
+  TableHead,
+  TableBody,
+  Table as MTable,
+  TableCell,
+} from '@taraxa_project/taraxa-ui';
 
 export interface TableProps {
   columns: { path: string; name: string }[];
