@@ -3,17 +3,14 @@ import {
   AppBar,
   AppBarProps,
   Container,
-  CssBaseline,
   Toolbar,
   Typography,
-  ThemeProvider,
   Box,
   Breakpoint,
   Link,
   StyledEngineProvider,
 } from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
-import theme from '../theme';
 import { useHeaderStyles } from './Header.styles';
 
 export interface HeaderProps extends AppBarProps {
@@ -28,50 +25,46 @@ function Header({ title, Icon, children, maxWidth, ...props }: HeaderProps) {
 
   return (
     <StyledEngineProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppBar {...props} variant='elevation'>
-          <Container maxWidth={maxWidth || false}>
-            <Toolbar variant='regular'>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                {Icon && (
-                  <Link
-                    className={classes.headerIconLink}
-                    href='/'
-                    underline='none'
-                  >
-                    <Icon />
-                  </Link>
-                )}
-
-                <Link className={classes.titleLink} href='/' underline='none'>
-                  <Typography variant='h2' noWrap className={classes.titleText}>
-                    {title}
-                  </Typography>
+      <AppBar {...props} variant='elevation'>
+        <Container maxWidth={maxWidth || false}>
+          <Toolbar variant='regular'>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {Icon && (
+                <Link
+                  className={classes.headerIconLink}
+                  href='/'
+                  underline='none'
+                >
+                  <Icon />
                 </Link>
-              </Box>
-              <div
-                className={
-                  isMobile
-                    ? [
-                        classes.sectionDesktop,
-                        classes.sectionDesktopMobile,
-                      ].join(' ')
-                    : classes.sectionDesktop
-                }
-              >
-                {children}
-              </div>
-            </Toolbar>
-          </Container>
-        </AppBar>
-      </ThemeProvider>
+              )}
+
+              <Link className={classes.titleLink} href='/' underline='none'>
+                <Typography variant='h2' noWrap className={classes.titleText}>
+                  {title}
+                </Typography>
+              </Link>
+            </Box>
+            <div
+              className={
+                isMobile
+                  ? [classes.sectionDesktop, classes.sectionDesktopMobile].join(
+                      ' '
+                    )
+                  : classes.sectionDesktop
+              }
+            >
+              {children}
+            </div>
+          </Toolbar>
+        </Container>
+      </AppBar>
     </StyledEngineProvider>
   );
 }

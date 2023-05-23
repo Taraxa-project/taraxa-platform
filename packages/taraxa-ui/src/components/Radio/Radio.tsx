@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Radio as MRadio,
-  RadioProps as MRadioProps,
-  CssBaseline,
-  ThemeProvider,
-} from '@mui/material';
-import theme from '../theme';
+import { Radio as MRadio, RadioProps as MRadioProps } from '@mui/material';
 
 export type RadioProps = MRadioProps;
 
@@ -20,19 +14,16 @@ const Radio = ({
   value,
 }: RadioProps) => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MRadio
-        checked={checked}
-        onChange={onChange}
-        name={name}
-        id={id}
-        className={className}
-        disabled={disabled}
-        color={color}
-        value={value}
-      />
-    </ThemeProvider>
+    <MRadio
+      checked={checked}
+      onChange={onChange}
+      name={name}
+      id={id}
+      className={className}
+      disabled={disabled}
+      color={color}
+      value={value}
+    />
   );
 };
 

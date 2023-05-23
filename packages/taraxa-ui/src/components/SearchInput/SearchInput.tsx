@@ -1,7 +1,6 @@
 import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 import {
   Box,
-  CssBaseline,
   IconButton,
   InputAdornment,
   ListItemIcon,
@@ -11,14 +10,12 @@ import {
   Paper,
   TextField,
   TextFieldProps,
-  ThemeProvider,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import debounce from 'lodash.debounce';
 import useStyles from './SearchInput.styles';
 import { Search, RightArrow, NotFound } from '../Icons';
 import Loading from '../Loading';
-import theme from '../theme';
 
 export interface Option {
   type: string;
@@ -53,36 +50,33 @@ const SearchOption = ({
 }) => {
   const classes = useStyles();
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MenuItem
-        onClick={onClick}
-        disableGutters
+    <MenuItem
+      onClick={onClick}
+      disableGutters
+      classes={{
+        root: classes.listItem,
+      }}
+      {...props}
+    >
+      <ListItemText
+        inset
         classes={{
-          root: classes.listItem,
+          primary: classes.listItemPrimary,
+          secondary: classes.listItemSecondary,
+          root: classes.listItemTextRoot,
         }}
-        {...props}
-      >
-        <ListItemText
-          inset
-          classes={{
-            primary: classes.listItemPrimary,
-            secondary: classes.listItemSecondary,
-            root: classes.listItemTextRoot,
-          }}
-          primary={`${type}:`}
-          secondary={label}
-          style={{
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-            marginLeft: '10px',
-          }}
-        />
-        <ListItemIcon classes={{ root: classes.listItemSecondaryRoot }}>
-          <RightArrow />
-        </ListItemIcon>
-      </MenuItem>
-    </ThemeProvider>
+        primary={`${type}:`}
+        secondary={label}
+        style={{
+          textOverflow: 'ellipsis',
+          overflow: 'hidden',
+          marginLeft: '10px',
+        }}
+      />
+      <ListItemIcon classes={{ root: classes.listItemSecondaryRoot }}>
+        <RightArrow />
+      </ListItemIcon>
+    </MenuItem>
   );
 };
 
@@ -177,67 +171,64 @@ const SearchInput = ({
   }, [debouncedResults]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AbsoluteBoxWithRef ref={boxElementRef}>
-        <TextFieldWithRef
-          style={style}
-          ref={searchInputRef}
-          variant='outlined'
-          type='text'
-          name='search-field'
-          fullWidth={fullWidth}
-          className={className}
-          rootClass={classes.input}
-          placeholder={placeholder}
-          onChange={(e) => debouncedResults(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment
-                classes={{ root: classes.iconRoot }}
-                position='start'
-              >
-                {loading ? <Loading size={28} color='#6A7085' /> : <Search />}
-              </InputAdornment>
-            ),
-            endAdornment: searchString && (
-              <InputAdornment position='end'>
-                <IconButton onClick={handleClear} edge='end'>
-                  <CloseIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-        <AbsolutePaperWithRef
-          ref={absoluteElementRef}
-          classes={classes.paper}
-          visibility={open ? 'visible' : 'hidden'}
-        >
-          {open && (
-            <MenuList>
-              {options?.length > 0 ? (
-                options.map((option: Option) => (
-                  <SearchOption
-                    onClick={() => {
-                      handleOptionSelect(option);
-                      handleClear();
-                    }}
-                    key={`${option.type}-${option.value}`}
-                    type={option.type}
-                    label={option.label}
-                  />
-                ))
-              ) : (
-                <MenuItem>
-                  <NotFound /> Nothing found...
-                </MenuItem>
-              )}
-            </MenuList>
-          )}
-        </AbsolutePaperWithRef>
-      </AbsoluteBoxWithRef>
-    </ThemeProvider>
+    <AbsoluteBoxWithRef ref={boxElementRef}>
+      <TextFieldWithRef
+        style={style}
+        ref={searchInputRef}
+        variant='outlined'
+        type='text'
+        name='search-field'
+        fullWidth={fullWidth}
+        className={className}
+        rootClass={classes.input}
+        placeholder={placeholder}
+        onChange={(e) => debouncedResults(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment
+              classes={{ root: classes.iconRoot }}
+              position='start'
+            >
+              {loading ? <Loading size={28} color='#6A7085' /> : <Search />}
+            </InputAdornment>
+          ),
+          endAdornment: searchString && (
+            <InputAdornment position='end'>
+              <IconButton onClick={handleClear} edge='end'>
+                <CloseIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+      <AbsolutePaperWithRef
+        ref={absoluteElementRef}
+        classes={classes.paper}
+        visibility={open ? 'visible' : 'hidden'}
+      >
+        {open && (
+          <MenuList>
+            {options?.length > 0 ? (
+              options.map((option: Option) => (
+                <SearchOption
+                  onClick={() => {
+                    handleOptionSelect(option);
+                    handleClear();
+                  }}
+                  key={`${option.type}-${option.value}`}
+                  type={option.type}
+                  label={option.label}
+                />
+              ))
+            ) : (
+              <MenuItem>
+                <NotFound /> Nothing found...
+              </MenuItem>
+            )}
+          </MenuList>
+        )}
+      </AbsolutePaperWithRef>
+    </AbsoluteBoxWithRef>
   );
 };
 

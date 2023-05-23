@@ -1,16 +1,8 @@
 import React from 'react';
-import {
-  CssBaseline,
-  IconButton,
-  Menu,
-  MenuItem,
-  ThemeProvider,
-  Tooltip,
-} from '@mui/material';
+import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
-import theme from '../theme';
 
 export interface NetworkMenuProps {
   networks: string[];
@@ -46,8 +38,7 @@ const NetworkMenu = ({
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Tooltip title='Network'>
         <IconButton
           className={classes.networkButton}
@@ -92,7 +83,7 @@ const NetworkMenu = ({
           </MenuItem>
         ))}
       </Menu>
-    </ThemeProvider>
+    </>
   );
 };
 

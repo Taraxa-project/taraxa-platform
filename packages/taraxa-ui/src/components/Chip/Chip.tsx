@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Chip as MChip,
-  CssBaseline,
-  ThemeProvider,
-  ChipProps as MChipProps,
-} from '@mui/material';
-import theme from '../theme';
+import { Chip as MChip, ChipProps as MChipProps } from '@mui/material';
 
 export type ChipProps = MChipProps;
 
@@ -25,24 +19,21 @@ const Chip = ({
   style,
 }: ChipProps) => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MChip
-        clickable={clickable}
-        color={color}
-        avatar={avatar}
-        deleteIcon={deleteIcon}
-        disabled={disabled}
-        icon={icon}
-        label={label}
-        size={size}
-        onDelete={onDelete}
-        variant={variant}
-        onClick={onClick}
-        className={className}
-        style={style}
-      />
-    </ThemeProvider>
+    <MChip
+      clickable={clickable}
+      color={color}
+      avatar={avatar}
+      deleteIcon={deleteIcon}
+      disabled={disabled}
+      icon={icon}
+      label={label}
+      size={size}
+      onDelete={onDelete}
+      variant={variant}
+      onClick={onClick}
+      className={className}
+      style={style}
+    />
   );
 };
 
