@@ -2,9 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { BigNumber, ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
-import { Tooltip } from '@mui/material';
-import { Button } from '@taraxa_project/taraxa-ui';
-import { TableCell, TableRow } from '../../../components/Table/Table';
+import { MuiTooltip, Button, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { stripEth, weiToEth } from '../../../utils/eth';
 
@@ -42,11 +40,11 @@ const ValidatorRow = ({
   return (
     <TableRow>
       <TableCell className="statusCell">
-        <Tooltip title={getValidatorStatusTooltip(validator.status)}>
+        <MuiTooltip title={getValidatorStatusTooltip(validator.status)}>
           <div className="status">
             <div className={clsx('dot', validator.status)} />
           </div>
-        </Tooltip>
+        </MuiTooltip>
       </TableCell>
       <TableCell className="nameCell">
         <div

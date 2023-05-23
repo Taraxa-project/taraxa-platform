@@ -75,11 +75,12 @@ import {
   Typography,
   CircularProgress,
   IconButton,
-  Card as MuiCard,
+  MuiCard,
   CardContent,
   Drawer,
   Tabs,
   Tab,
+  MuiTooltip,
 } from './components/DataDisplay';
 
 import { FormControl, FormHelperText, Select } from './components/FormElements';
@@ -161,4 +162,5 @@ export {
   FormControl,
   FormHelperText,
   Select,
+  MuiTooltip,
 };

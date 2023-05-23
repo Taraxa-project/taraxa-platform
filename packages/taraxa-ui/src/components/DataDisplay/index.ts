@@ -3,9 +3,10 @@ export {
   Typography,
   CircularProgress,
   IconButton,
-  Card,
+  MuiCard,
   CardContent,
   Drawer,
   Tabs,
   Tab,
+  MuiTooltip,
 } from './DataDisplay';

@@ -9,15 +9,14 @@ import {
   Notification,
   Icons,
   EmptyTable,
-} from '@taraxa_project/taraxa-ui';
-import {
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-} from '../../components/Table/Table';
+} from '@taraxa_project/taraxa-ui';
+
 import WhiteCheckIcon from '../../assets/icons/checkWhite';
 import RedeemSidebar from '../../assets/icons/redeemSidebar';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';

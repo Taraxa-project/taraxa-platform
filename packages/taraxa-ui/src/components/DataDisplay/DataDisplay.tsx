@@ -18,6 +18,8 @@ import {
   TabsProps,
   Tab as MTab,
   TabProps,
+  Tooltip as MTooltip,
+  TooltipProps,
 } from '@mui/material';
 
 export type TypographyProps = MTypographyProps & {
@@ -44,7 +46,7 @@ export const IconButton = ({ children, ...props }: IconButtonProps) => {
   return <MIconButton {...props}>{children}</MIconButton>;
 };
 
-export const Card = ({ children, ...props }: CardProps) => {
+export const MuiCard = ({ children, ...props }: CardProps) => {
   return <MCard {...props}>{children}</MCard>;
 };
 
@@ -62,4 +64,12 @@ export const Tabs = ({ children, ...props }: TabsProps) => {
 
 export const Tab = ({ children, ...props }: TabProps) => {
   return <MTab {...props}>{children}</MTab>;
+};
+
+export const MuiTooltip = ({ children, ...props }: TooltipProps) => {
+  return (
+    <MTooltip {...props} enterTouchDelay={100}>
+      {children}
+    </MTooltip>
+  );
 };
