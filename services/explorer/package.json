@@ -39,8 +39,6 @@
   "dependencies": {
     "@hookform/resolvers": "^2.9.7",
     "@mui/icons-material": "^5.8.4",
-    "@mui/lab": "^5.0.0-alpha.95",
-    "@mui/material": "^5.10.1",
     "@mui/styles": "^5.9.3",
     "@taraxa_project/explorer-shared": "^0.0.1",
     "@taraxa_project/taraxa-ui": "^0.0.1",
@@ -80,13 +78,13 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
+    "@types/date-and-time": "^0.13.0",
     "@types/jest": "^27.0.0",
+    "@types/luxon": "^3.0.1",
     "@types/node": "^12.0.0",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.3",
-    "@types/react-router-dom": "^5.3.3",
-    "@types/crypto-js": "^4.1.1",
-    "@types/date-and-time": "^0.13.0",
-    "@types/luxon": "^3.0.1"
+    "@types/react-router-dom": "^5.3.3"
   }
 }
