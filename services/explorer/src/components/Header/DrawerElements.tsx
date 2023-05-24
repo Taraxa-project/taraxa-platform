@@ -5,8 +5,8 @@ import {
   Button,
   NetworkMenu,
   theme,
+  MuiIcons,
 } from '@taraxa_project/taraxa-ui';
-import CloseIcon from '@mui/icons-material/Close';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { HeaderBtn } from './Header.effects';
 
@@ -40,7 +40,7 @@ export const DrawerElements: FC<DrawerElementsProps> = ({
           aria-label='upload picture'
           component='label'
         >
-          <CloseIcon />
+          <MuiIcons.Close />
         </IconButton>
         <NetworkMenu
           networks={networks}

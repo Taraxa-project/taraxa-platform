@@ -39,7 +39,7 @@ export default function Table({
   onRowsPerPageChange,
   currentPage,
   totalCount,
-}: TableProps) {
+}: TableProps): JSX.Element {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(
