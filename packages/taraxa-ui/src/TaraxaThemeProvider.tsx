@@ -1,12 +1,8 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import theme from './components/theme';
 
-export interface TaraxaThemeProviderProps {
-  children: React.ReactNode;
-}
-
-const TaraxaThemeProvider = ({ children }: TaraxaThemeProviderProps) => {
+const TaraxaThemeProvider = ({ children }: PropsWithChildren<any>) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
