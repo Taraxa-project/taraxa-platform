@@ -1,3 +1,4 @@
+import * as MuiIcons from '@mui/icons-material';
 import Button from './components/Button';
 import Text from './components/Text';
 import Card from './components/Card';
@@ -163,4 +164,5 @@ export {
   FormHelperText,
   Select,
   MuiTooltip,
+  MuiIcons,
 };

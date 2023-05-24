@@ -8,9 +8,9 @@ import {
   Header as THeader,
   NetworkMenu,
   SearchInput,
+  MuiIcons,
   theme,
 } from '@taraxa_project/taraxa-ui';
-import MenuIcon from '@mui/icons-material/Menu';
 import { TaraxaIcon } from '../icons';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
 import { DrawerElements } from './DrawerElements';
@@ -78,7 +78,7 @@ export const Header = (): JSX.Element => {
       aria-label='upload picture'
       // component='label'
     >
-      <MenuIcon />
+      <MuiIcons.Menu />
     </IconButton>
   );
 
