@@ -410,10 +410,8 @@ const RunValidator = () => {
                   <TableCell className="nameCell">Name</TableCell>
                   <TableCell className="yieldCell">Expected Yield</TableCell>
                   <TableCell className="pbftsCell">Number of blocks produced</TableCell>
-                  <TableCell className="rankingCell" colSpan={2}>
-                    Ranking
-                  </TableCell>
-                  <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
+                  <TableCell className="rankingCell">Ranking</TableCell>
+                  <TableCell className="actionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

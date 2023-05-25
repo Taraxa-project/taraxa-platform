@@ -374,7 +374,7 @@ a.commissionChangeCheck {
   }
 
   .nameCell {
-    width: 410px;
+    width: 415px;
     @extend .noOverflow;
   }
 
@@ -433,7 +433,6 @@ a.commissionChangeCheck {
 
   .availableDelegationActionsCell {
     width: 25%;
-    @extend .noOverflow;
 
     .validatorActions {
       width: 100%;
