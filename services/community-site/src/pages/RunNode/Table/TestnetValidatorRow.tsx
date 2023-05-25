@@ -35,7 +35,7 @@ const TestnetValidatorRow = ({
       <TableCell className="yieldCell">{y}%</TableCell>
       <TableCell className="pbftsCell">{pbftsProduced}</TableCell>
       <TableCell className="rankingCell">{rank || 0}</TableCell>
-      <TableCell className="availableDelegationActionsCell" align="right">
+      <TableCell className="availableDelegationActionsCell">
         <div className="validatorActions">
           <Button
             size="small"
