@@ -1,6 +1,6 @@
-import { Box, Paper } from '@mui/material';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { Box, Paper } from '@taraxa_project/taraxa-ui';
 import { AddressDetails, AddressTables, PageTitle } from '../../components';
 import { useAddressInfoEffects } from './AddressInfo.effects';
 import AddressLoadingSkeleton from './AddressLoadingSkeleton';

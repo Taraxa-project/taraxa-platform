@@ -1,18 +1,9 @@
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
-import {
-  CssBaseline,
-  Drawer,
-  DrawerProps,
-  List,
-  ThemeProvider,
-} from '@mui/material';
+import { Drawer, DrawerProps, List } from '@mui/material';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-
 import Text from '../Text';
-
-import theme from '../theme';
 
 import '../app.scss';
 import useStyles from './Sidebar.styles';
@@ -146,47 +137,44 @@ const Sidebar = ({
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Drawer
-        className='sidebar'
-        variant={!isMobile ? 'permanent' : 'temporary'}
-        classes={{ paper: paperClasses.join(' ') }}
-        anchor={isMobile ? 'right' : 'left'}
-        elevation={0}
-        {...props}
-      >
-        <div>
-          <List
-            disablePadding={disablePadding}
-            dense={dense}
-            id='sidebarList'
-            className={className || ''}
-          >
-            {items.map((sidebarItem, index) => (
-              <SidebarItem
-                key={`${sidebarItem.label}${index}`}
-                depthStep={depthStep || 10}
-                depth={depth || 0}
-                subItem={false}
-                items={sidebarItem.items ? sidebarItem.items : []}
-                label={sidebarItem.label ? sidebarItem.label : ''}
-                Link={sidebarItem.Link ? sidebarItem.Link : undefined}
-                name={sidebarItem.name ? sidebarItem.name : undefined}
-              />
-            ))}
-          </List>
-          {children}
-        </div>
-        <div>
-          <Text
-            label={`© Taraxa ${new Date().getFullYear()}`}
-            variant='body1'
-            color='textSecondary'
-          />
-        </div>
-      </Drawer>
-    </ThemeProvider>
+    <Drawer
+      className='sidebar'
+      variant={!isMobile ? 'permanent' : 'temporary'}
+      classes={{ paper: paperClasses.join(' ') }}
+      anchor={isMobile ? 'right' : 'left'}
+      elevation={0}
+      {...props}
+    >
+      <div>
+        <List
+          disablePadding={disablePadding}
+          dense={dense}
+          id='sidebarList'
+          className={className || ''}
+        >
+          {items.map((sidebarItem, index) => (
+            <SidebarItem
+              key={`${sidebarItem.label}${index}`}
+              depthStep={depthStep || 10}
+              depth={depth || 0}
+              subItem={false}
+              items={sidebarItem.items ? sidebarItem.items : []}
+              label={sidebarItem.label ? sidebarItem.label : ''}
+              Link={sidebarItem.Link ? sidebarItem.Link : undefined}
+              name={sidebarItem.name ? sidebarItem.name : undefined}
+            />
+          ))}
+        </List>
+        {children}
+      </div>
+      <div>
+        <Text
+          label={`© Taraxa ${new Date().getFullYear()}`}
+          variant='body1'
+          color='textSecondary'
+        />
+      </div>
+    </Drawer>
   );
 };
 

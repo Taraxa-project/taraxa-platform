@@ -1,3 +1,4 @@
+import * as MuiIcons from '@mui/icons-material';
 import Button from './components/Button';
 import Text from './components/Text';
 import Card from './components/Card';
@@ -19,7 +20,15 @@ import ProfileBasicCard from './components/ProfileBasicCard';
 import ProfileSubmissionsCard from './components/ProfileSubmissionsCard';
 import LinkedCards from './components/LinkedCards';
 import Snackbar from './components/Snackbar';
-import Table from './components/Table';
+import {
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TablePagination,
+} from './components/Table';
 import ToggleButton from './components/ToggleButton';
 import Tooltip from './components/Tooltip';
 import TopCard from './components/TopCard';
@@ -51,8 +60,34 @@ import theme from './components/theme';
 import LoadingTable from './components/LoadingTable';
 import { useInterval } from './hooks/useInterval';
 import InfoCard from './components/InfoCard';
+import TaraxaThemeProvider from './TaraxaThemeProvider';
+
+import {
+  Paper,
+  Box,
+  Grid,
+  Container,
+  Skeleton,
+  Stack,
+} from './components/Layout';
+
+import {
+  Divider,
+  Typography,
+  CircularProgress,
+  IconButton,
+  MuiCard,
+  CardContent,
+  Drawer,
+  Tabs,
+  Tab,
+  MuiTooltip,
+} from './components/DataDisplay';
+
+import { FormControl, FormHelperText, Select } from './components/FormElements';
 
 export {
+  TaraxaThemeProvider,
   AmountCard,
   Button,
   Text,
@@ -76,7 +111,13 @@ export {
   ProfileSubmissionsCard,
   LinkedCards,
   Snackbar,
+  TableContainer,
   Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TablePagination,
   ToggleButton,
   Tooltip,
   TopCard,
@@ -104,4 +145,24 @@ export {
   useInterval,
   EmptyTable,
   InfoCard,
+  Paper,
+  Box,
+  Grid,
+  Container,
+  Skeleton,
+  Stack,
+  Divider,
+  Typography,
+  CircularProgress,
+  IconButton,
+  MuiCard,
+  CardContent,
+  Drawer,
+  Tabs,
+  Tab,
+  FormControl,
+  FormHelperText,
+  Select,
+  MuiTooltip,
+  MuiIcons,
 };

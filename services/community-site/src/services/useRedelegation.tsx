@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
-import { Skeleton } from '@mui/material';
 import { useLocation } from 'react-router-dom';
-import { Button, Text } from '@taraxa_project/taraxa-ui';
+import { Button, Text, Skeleton } from '@taraxa_project/taraxa-ui';
 import { Validator } from '../interfaces/Validator';
 import Nickname from '../components/Nickname/Nickname';
 

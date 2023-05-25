@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  CssBaseline,
-  ThemeProvider,
-  Menu as MMenu,
-  MenuItem as MMenuItem,
-} from '@mui/material';
-
-import theme from '../theme';
+import { Menu as MMenu, MenuItem as MMenuItem } from '@mui/material';
 
 import '../app.scss';
 
@@ -19,21 +12,18 @@ const Menu = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MMenu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-      >
-        <MMenuItem onClick={handleClose}>Profile</MMenuItem>
-        <MMenuItem onClick={handleClose}>My account</MMenuItem>
-        <MMenuItem onClick={handleClose}>Logout</MMenuItem>
-      </MMenu>
-    </ThemeProvider>
+    <MMenu
+      anchorEl={anchorEl}
+      open={open}
+      onClose={handleClose}
+      MenuListProps={{
+        'aria-labelledby': 'basic-button',
+      }}
+    >
+      <MMenuItem onClick={handleClose}>Profile</MMenuItem>
+      <MMenuItem onClick={handleClose}>My account</MMenuItem>
+      <MMenuItem onClick={handleClose}>Logout</MMenuItem>
+    </MMenu>
   );
 };
 

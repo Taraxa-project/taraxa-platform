@@ -1,5 +1,5 @@
 import React from 'react';
-import { Skeleton } from '@mui/material';
+import { Skeleton } from '@taraxa_project/taraxa-ui';
 
 const NodeProfilePageSkeleton = (): JSX.Element => {
   return (

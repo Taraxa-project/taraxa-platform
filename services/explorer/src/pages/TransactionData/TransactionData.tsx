@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Divider, Paper, Typography } from '@mui/material';
-import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
+import {
+  Box,
+  Divider,
+  Paper,
+  Typography,
+  CopyTo,
+  Icons,
+} from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
 import {
   AddressLink,

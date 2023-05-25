@@ -10,15 +10,13 @@ import {
   Tooltip,
   Modal,
   EmptyTable,
-} from '@taraxa_project/taraxa-ui';
-import {
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-} from '../../components/Table/Table';
+} from '@taraxa_project/taraxa-ui';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';

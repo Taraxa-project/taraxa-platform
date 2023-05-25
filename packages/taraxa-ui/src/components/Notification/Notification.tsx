@@ -1,10 +1,6 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider } from '@mui/material';
 import Text from '../Text';
 import { Exclamation } from '../Icons';
-
-import theme from '../theme';
-
 import useStyles from './Notification.styles';
 
 export interface NotificationProps {
@@ -39,37 +35,34 @@ const Notification = ({
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <div className={containerStyle}>
-        <div className={classes.icon}>
-          <Exclamation color={iconColor} />
-        </div>
-        <div>
-          {title && (
-            <Text
-              label={title}
-              variant='body1'
-              color='primary'
-              fontWeight='700'
-              fontSize='16px'
-              className={classes.title}
-            />
-          )}
-          {text && (
-            <Text
-              label={text}
-              variant='body2'
-              color='primary'
-              className={classes.text}
-            />
-          )}
-          {children && (
-            <div className={classes.childrenContainer}>{children}</div>
-          )}
-        </div>
+    <div className={containerStyle}>
+      <div className={classes.icon}>
+        <Exclamation color={iconColor} />
       </div>
-    </ThemeProvider>
+      <div>
+        {title && (
+          <Text
+            label={title}
+            variant='body1'
+            color='primary'
+            fontWeight='700'
+            fontSize='16px'
+            className={classes.title}
+          />
+        )}
+        {text && (
+          <Text
+            label={text}
+            variant='body2'
+            color='primary'
+            className={classes.text}
+          />
+        )}
+        {children && (
+          <div className={classes.childrenContainer}>{children}</div>
+        )}
+      </div>
+    </div>
   );
 };
 

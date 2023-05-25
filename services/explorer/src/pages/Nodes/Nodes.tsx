@@ -1,5 +1,4 @@
 import React from 'react';
-import { AwardCard, EmptyTable } from '@taraxa_project/taraxa-ui';
 import {
   Box,
   IconButton,
@@ -11,11 +10,12 @@ import {
   TableRow,
   TableCell,
   TableBody,
-} from '@mui/material';
+  AwardCard,
+  EmptyTable,
+  MuiIcons,
+} from '@taraxa_project/taraxa-ui';
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const NodesPage = (): JSX.Element => {
   const {
@@ -57,7 +57,7 @@ const NodesPage = (): JSX.Element => {
             color='secondary'
             disabled={loading}
           >
-            <ArrowBackIosIcon />
+            <MuiIcons.ArrowBackIos />
           </IconButton>
           <Typography color='secondary' fontSize='18px'>
             W{weekNumber} {year}
@@ -68,7 +68,7 @@ const NodesPage = (): JSX.Element => {
             aria-label='next'
             color='secondary'
           >
-            <ArrowForwardIosIcon />
+            <MuiIcons.ArrowForwardIos />
           </IconButton>
         </Box>
       )}
