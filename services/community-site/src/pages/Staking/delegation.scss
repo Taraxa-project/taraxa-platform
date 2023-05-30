@@ -374,7 +374,8 @@ a.commissionChangeCheck {
   }
 
   .nameCell {
-    width: 415px;
+    width: 450px;
+    padding: 10px 6px !important;
     @extend .noOverflow;
   }
 
@@ -389,13 +390,23 @@ a.commissionChangeCheck {
   .pbftsCell,
   .rewardsCell {
     width: 100px;
+    line-height: 16px;
     @extend .noOverflow;
   }
 
-  .delegationCell,
   .commissionCell {
     text-align: start;
     width: 100px;
+    @extend .noOverflow;
+  }
+
+  .availableDelegation,
+  .delegationCell {
+    line-height: 16px;
+    vertical-align: middle;
+    text-align: start;
+    width: 130px;
+    padding: 10px 6px !important;
     @extend .noOverflow;
   }
 
@@ -423,12 +434,6 @@ a.commissionChangeCheck {
         border-radius: 8px;
       }
     }
-  }
-
-  .availableDelegation {
-    vertical-align: middle;
-    text-align: start;
-    @extend .noOverflow;
   }
 
   .availableDelegationActionsCell {
