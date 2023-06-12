@@ -1,13 +1,8 @@
-import { Queue } from 'bull';
 import { LessThan, Repository } from 'typeorm';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { InjectQueue } from '@nestjs/bull';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Node } from '../node/node.entity';
 import { DelegationService } from './delegation.service';
-import { ENSURE_DELEGATION_JOB } from './delegation.constants';
-import { EnsureDelegationJob } from './job/ensure-delegation.job';
 import {
   BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
   BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
@@ -21,12 +16,8 @@ export class DelegationTaskService implements OnModuleInit {
   private readonly logger = new Logger(DelegationTaskService.name);
 
   constructor(
-    @InjectRepository(Node)
-    private nodeRepository: Repository<Node>,
     @InjectRepository(Undelegation)
     private undelegationRepository: Repository<Undelegation>,
-    @InjectQueue('delegation')
-    private delegationQueue: Queue,
     private delegationService: DelegationService,
     @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
     private testnetBlockchainService: BlockchainService,
@@ -35,19 +26,6 @@ export class DelegationTaskService implements OnModuleInit {
   ) {}
   onModuleInit() {
     this.logger.debug(`Init ${DelegationTaskService.name} cron`);
-  }
-
-  @Cron('0 0 * * *')
-  async ensureDelegation() {
-    this.logger.debug('Starting delegation worker...');
-    const nodes = await this.nodeRepository.find({ type: 'mainnet' });
-
-    for (const node of nodes) {
-      await this.delegationQueue.add(
-        ENSURE_DELEGATION_JOB,
-        new EnsureDelegationJob(node.id, node.type, node.address),
-      );
-    }
   }
 
   @Cron('0 0 * * *')
@@ -69,9 +47,7 @@ export class DelegationTaskService implements OnModuleInit {
   @Cron('0 * * * *')
   async triggerUndelegations() {
     this.logger.debug('Starting undelegation trigger worker...');
-    const un = await this.undelegationRepository.find({
-      triggered: false,
-    });
+    const un = await this.delegationService.getUntriggeredUndelegations();
     for (const u of un) {
       try {
         await this.delegationService.undelegateFromChain(u);
@@ -79,6 +55,7 @@ export class DelegationTaskService implements OnModuleInit {
           `Sent undelegation transaction for validator ${u.address}`,
         );
       } catch (e) {
+        console.error(e);
         this.logger.error(
           `Could not send undelegation transaction for validator ${u.address}`,
         );
@@ -89,36 +66,18 @@ export class DelegationTaskService implements OnModuleInit {
   @Cron('0 * * * *')
   async confirmUndelegation() {
     this.logger.debug('Starting undelegation confirmation worker...');
-    const currentTestnetBlock =
+    const currentBlock =
       await this.testnetBlockchainService.getCurrentBlockNumber();
-    const currentMainnetBlock =
-      await this.mainnetBlockchainService.getCurrentBlockNumber();
-    let mainnetnetUndelegationsInScope = [];
-    let testnetUndelegationsInScope = [];
-    mainnetnetUndelegationsInScope = await this.undelegationRepository.find({
-      where: {
-        confirmationBlock: LessThan(currentMainnetBlock),
-        chain: NodeType.MAINNET,
-        confirmed: false,
-      },
-    });
-    testnetUndelegationsInScope = await this.undelegationRepository.find({
-      where: {
-        confirmationBlock: LessThan(currentTestnetBlock),
-        chain: NodeType.TESTNET,
-        confirmed: false,
-      },
-    });
-    const undelegationsInScope = testnetUndelegationsInScope.concat(
-      mainnetnetUndelegationsInScope,
-    );
-    for (const undelegation of undelegationsInScope) {
+    const undelegations =
+      await this.delegationService.getUnconfirmedUndelegations(currentBlock);
+    for (const undelegation of undelegations) {
       try {
         await this.delegationService.confirmUndelegation(undelegation);
         this.logger.log(
           `Confirmed undelegation for validator ${undelegation.address}`,
         );
       } catch (e) {
+        console.error(e);
         this.logger.error(
           `Could not confirm undelegation for validator ${undelegation.address}`,
         );

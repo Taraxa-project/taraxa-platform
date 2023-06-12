@@ -24,9 +24,9 @@ export class BlockchainService {
       '0x00000000000000000000000000000000000000fe',
       [
         'function delegate(address validator) payable',
-        'function undelegate(address validator, uint256 amount) external',
-        'function confirmUndelegate(address validator) external',
-        'function cancelUndelegate(address validator) external',
+        'function undelegate(address validator, uint256 amount)',
+        'function confirmUndelegate(address validator)',
+        'function cancelUndelegate(address validator)',
         'function getValidator(address validator) view returns (tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) validator_info)',
         'function getValidators(uint32 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)',
         'function registerValidator(address validator, bytes proof, bytes vrf_key, uint16 commission, string description, string endpoint) payable',
