@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
@@ -16,7 +15,6 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   const [events] = useState<
     { name?: string; from?: string; to?: string; value?: string }[]
   >([]);
-  const [dagData] = useState<BlockData[]>();
   const [transactionData, setTransactionData] = useState<Transaction>();
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: transactiondata }] = useQuery({
@@ -62,7 +60,6 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   return {
     transactionData,
-    dagData,
     events,
     currentNetwork,
     showLoadingSkeleton,

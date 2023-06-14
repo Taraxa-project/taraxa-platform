@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Divider,
   Paper,
   Typography,
   CopyTo,
-  Icons,
 } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
 import {
@@ -14,7 +13,6 @@ import {
   GreenRightArrow,
   HashLink,
   PageTitle,
-  TableTabs,
 } from '../../components';
 import {
   HashLinkType,
@@ -24,60 +22,20 @@ import {
   getTransactionType,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
-import { BlocksTable } from '../../components/Tables';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
-import useStyles from './TransactionData.styles';
-import { TableTabsProps } from '../../models';
 import LoadingSkeletonTx from './LoadingSkeletonTx';
+import TransactionDataTables from './TransactionDataTables';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
-  const classes = useStyles();
   const {
     transactionData,
-    dagData,
     events,
     currentNetwork,
     showLoadingSkeleton,
     showNetworkChanged,
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
-
-  const [dagsRowsPerPage, setDagsRowsPerPage] = useState(25);
-  const [dagsPage, setDagsPage] = useState(0);
-
-  const tableTabs: TableTabsProps = {
-    tabs: [
-      {
-        label: 'DAG Blocks',
-        index: 0,
-        icon: (
-          <Box className={classes.tabIconContainer}>
-            <Icons.Block />
-          </Box>
-        ),
-        iconPosition: 'start',
-        children: (
-          <BlocksTable
-            blocksData={dagData?.slice(
-              dagsPage * dagsRowsPerPage,
-              dagsPage * dagsRowsPerPage + dagsRowsPerPage
-            )}
-            type='dag'
-            totalCount={dagData?.length}
-            pageNo={dagsPage}
-            rowsPage={dagsRowsPerPage}
-            changePage={(p: number) => setDagsPage(p)}
-            changeRows={(l: number) => {
-              setDagsRowsPerPage(l);
-              setDagsPage(0);
-            }}
-          />
-        ),
-      },
-    ],
-    initialValue: 0,
-  };
 
   return (
     <>
@@ -115,6 +73,7 @@ const TransactionDataContainer = (): JSX.Element => {
               flexDirection='column'
               alignItems='left'
               margin='2rem 2rem 2rem'
+              pb={3}
               gap='1.5rem'
             >
               <Box
@@ -227,18 +186,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 transactionData?.inputData !== '0x' && (
                   <DataRow title='Data' data={`${transactionData.inputData}`} />
                 )}
-              <Divider light />
-              {dagData?.length && (
-                <Box
-                  display='flex'
-                  flexDirection='column'
-                  alignItems='flex-start'
-                  alignContent='center'
-                  style={{ overflowWrap: 'anywhere' }}
-                >
-                  <TableTabs {...tableTabs} />
-                </Box>
-              )}
+              <TransactionDataTables txHash={txHash} />
             </Box>
           )}
         </Paper>

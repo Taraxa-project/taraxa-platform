@@ -1,6 +1,8 @@
 import { Transaction } from '../models';
 
-export const getAddressTransactionType = (type: 0 | 1 | 2): string => {
+export const getAddressTransactionType = (
+  type: 0 | 1 | 2 | 3 | 4 | 5
+): string => {
   switch (type) {
     case 0:
       return 'Transfer';
@@ -8,6 +10,12 @@ export const getAddressTransactionType = (type: 0 | 1 | 2): string => {
       return 'Contract Call';
     case 2:
       return 'Contract Creation';
+    case 3:
+      return 'Internal Transfer';
+    case 4:
+      return 'Internal Contract Call';
+    case 5:
+      return 'Internal Contract Creation';
     default:
       return 'NA';
   }
