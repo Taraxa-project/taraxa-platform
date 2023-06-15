@@ -24,7 +24,7 @@ import {
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import LoadingSkeletonTx from './LoadingSkeletonTx';
-import TransactionDataTables from './TransactionDataTables';
+import TransactionDataTabs from './TransactionDataTabs';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
@@ -186,7 +186,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 transactionData?.inputData !== '0x' && (
                   <DataRow title='Data' data={`${transactionData.inputData}`} />
                 )}
-              <TransactionDataTables txHash={txHash} />
+              <TransactionDataTabs txHash={txHash} />
             </Box>
           )}
         </Paper>

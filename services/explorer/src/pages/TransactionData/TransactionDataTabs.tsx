@@ -11,13 +11,13 @@ import { TransactionIcon } from '../../components/icons';
 import { BlocksTable, TransactionsTable } from '../../components/Tables';
 import { TableTabs } from '../../components';
 
-type TransactionDataTablesProps = {
+type TransactionDataTabsProps = {
   txHash: string;
 };
 
-const TransactionDataTables = ({
+const TransactionDataTabs = ({
   txHash,
-}: TransactionDataTablesProps): JSX.Element => {
+}: TransactionDataTabsProps): JSX.Element => {
   const classes = useStyles();
 
   const { backendEndpoint } = useExplorerNetwork();
@@ -150,4 +150,4 @@ const TransactionDataTables = ({
   );
 };
 
-export default TransactionDataTables;
+export default TransactionDataTabs;
