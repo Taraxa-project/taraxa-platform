@@ -20,6 +20,7 @@ import {
   timestampToAge,
   formatTransactionStatus,
   getTransactionType,
+  TransactionType,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -186,7 +187,12 @@ const TransactionDataContainer = (): JSX.Element => {
                 transactionData?.inputData !== '0x' && (
                   <DataRow title='Data' data={`${transactionData.inputData}`} />
                 )}
-              <TransactionDataTabs txHash={txHash} />
+              {(getTransactionType(transactionData) ===
+                TransactionType.Contract_Call ||
+                getTransactionType(transactionData) ===
+                  TransactionType.Contract_Creation) && (
+                <TransactionDataTabs txHash={txHash} />
+              )}
             </Box>
           )}
         </Paper>

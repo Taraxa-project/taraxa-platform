@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { Box, Divider, Icons } from '@taraxa_project/taraxa-ui';
+import { Box, Divider } from '@taraxa_project/taraxa-ui';
 
-import { BlockData, TableTabsProps, Transaction } from '../../models';
+import { TableTabsProps, Transaction } from '../../models';
 import { useGetInternalTransactionsByTxHash } from '../../api/explorer-api/fetchInternalTransactions';
 import { displayWeiOrTara, getAddressTransactionType } from '../../utils';
 import { useExplorerNetwork } from '../../hooks';
 import useStyles from './TransactionData.styles';
 import { TransactionIcon } from '../../components/icons';
-import { BlocksTable, TransactionsTable } from '../../components/Tables';
+import { TransactionsTable } from '../../components/Tables';
 import { TableTabs } from '../../components';
 
 type TransactionDataTabsProps = {
@@ -24,14 +24,10 @@ const TransactionDataTabs = ({
   const [internalTransactions, setInternalTransactions] = useState<
     Transaction[]
   >([]);
-  const [dagData] = useState<BlockData[]>();
   const [tabsStep, setTabsStep] = useState<number>(0);
 
   const [itxPage, setItxPage] = useState(0);
   const [itxRowsPerPage, setItxRowsPerPage] = useState(25);
-
-  const [dagsRowsPerPage, setDagsRowsPerPage] = useState(25);
-  const [dagsPage, setDagsPage] = useState(0);
 
   const { data: internalTxesData } = useGetInternalTransactionsByTxHash(
     backendEndpoint,
@@ -49,7 +45,7 @@ const TransactionDataTabs = ({
           },
           value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
           gasPrice: `${ethers.BigNumber.from(tx.gasPrice)} Wei`,
-          gas: tx.gas?.toString(),
+          gas: tx.gas?.toString() || '0',
           status: tx.status ? 1 : 0,
           gasUsed: tx.gasUsed?.toString(),
           from: {
@@ -66,14 +62,13 @@ const TransactionDataTabs = ({
   }, [internalTxesData]);
 
   const totalItxCount = internalTransactions.length;
-  const totalDagCount = dagData?.length;
 
   const tableTabs: TableTabsProps = {
     tabs: [],
     initialValue: tabsStep,
   };
 
-  if (!totalItxCount && !totalDagCount) return;
+  if (!totalItxCount) return;
 
   if (totalItxCount > 0) {
     tableTabs.tabs.push({
@@ -98,36 +93,6 @@ const TransactionDataTabs = ({
           changeRows={(l: number) => {
             setItxRowsPerPage(l);
             setItxPage(0);
-          }}
-        />
-      ),
-    });
-  }
-
-  if (totalDagCount > 0) {
-    tableTabs.tabs.push({
-      label: 'DAG Blocks',
-      index: 1,
-      icon: (
-        <Box className={classes.tabIconContainer}>
-          <Icons.Block />
-        </Box>
-      ),
-      iconPosition: 'start',
-      children: (
-        <BlocksTable
-          blocksData={dagData?.slice(
-            dagsPage * dagsRowsPerPage,
-            dagsPage * dagsRowsPerPage + dagsRowsPerPage
-          )}
-          type='dag'
-          totalCount={totalDagCount}
-          pageNo={dagsPage}
-          rowsPage={dagsRowsPerPage}
-          changePage={(p: number) => setDagsPage(p)}
-          changeRows={(l: number) => {
-            setDagsRowsPerPage(l);
-            setDagsPage(0);
           }}
         />
       ),
