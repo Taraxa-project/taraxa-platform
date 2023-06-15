@@ -39,9 +39,9 @@ const TransactionDataTables = ({
   );
 
   useEffect(() => {
-    if (internalTxesData?.data?.length > 0) {
+    if (internalTxesData?.data?.data?.length > 0) {
       setInternalTransactions(
-        internalTxesData.data?.map((tx: any) => ({
+        internalTxesData.data.data.map((tx: any) => ({
           hash: tx.hash,
           block: {
             number: tx.blockNumber,
