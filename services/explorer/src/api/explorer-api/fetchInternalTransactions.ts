@@ -11,7 +11,7 @@ const getInternalTrans = (endpoint: string, hash: string) => {
 
 export const useGetInternalTransactionsByTxHash = (
   endpoint: string,
-  address: string
+  hash: string
 ): {
   data: AxiosResponse<any>;
   isError: boolean;
@@ -20,14 +20,14 @@ export const useGetInternalTransactionsByTxHash = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['internal-transactions', address, endpoint],
-    () => getInternalTrans(endpoint, address),
+    ['internal-transactions', hash, endpoint],
+    () => getInternalTrans(endpoint, hash),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console
         console.log('ERROR: ', error);
       },
-      enabled: !!address,
+      enabled: !!hash,
     }
   );
 
