@@ -76,11 +76,12 @@ const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
   const { getValidator } = useValidators();
-  const { getDelegations } = useDelegation();
+  const { getDelegations, getUndelegations } = useDelegation();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
   const [delegationCount, setDelegationCount] = useState<number>(0);
+  const [accountUndelegationCount, setAccountUndelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<Delegation[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
@@ -91,7 +92,7 @@ const NodeProfilePage = () => {
   const { isLoading } = useLoading();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
-  const canUndelegate = status === 'connected' && !!account;
+  const canUndelegate = status === 'connected' && !!account && accountUndelegationCount === 0;
 
   const fetchNode = useCallback(async () => {
     if (address) {
@@ -121,10 +122,23 @@ const NodeProfilePage = () => {
     }
   }, [address, delegationAtTop, delegationPage]);
 
+  const fetchUndelegations = useCallback(async () => {
+    if (account && address) {
+      const undelegations = await getUndelegations(account);
+      const undelegationsOfAddress = undelegations.filter(
+        (u) => u.address.toLowerCase() === address.toLowerCase(),
+      ).length;
+      setAccountUndelegationCount(undelegationsOfAddress);
+    } else {
+      setAccountUndelegationCount(0);
+    }
+  }, [address, account, getUndelegations]);
+
   useEffect(() => {
     fetchNode();
     fetchDelegators();
-  }, [fetchNode, fetchDelegators, shouldFetch]);
+    fetchUndelegations();
+  }, [fetchNode, fetchDelegators, fetchUndelegations, shouldFetch]);
 
   useEffect(() => {
     (async () => {
