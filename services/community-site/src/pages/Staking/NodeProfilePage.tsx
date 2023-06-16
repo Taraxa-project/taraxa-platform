@@ -81,7 +81,7 @@ const NodeProfilePage = () => {
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
   const [delegationCount, setDelegationCount] = useState<number>(0);
-  const [undelegationCount, setUndelegationCount] = useState<number>(0);
+  const [accountUndelegationCount, setAccountUndelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<Delegation[] | []>([]);
   const [delegationPage, setDelegationPage] = useState<number>(1);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
@@ -92,7 +92,7 @@ const NodeProfilePage = () => {
   const { isLoading } = useLoading();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
-  const canUndelegate = status === 'connected' && !!account && undelegationCount === 0;
+  const canUndelegate = status === 'connected' && !!account && accountUndelegationCount === 0;
 
   const fetchNode = useCallback(async () => {
     if (address) {
@@ -125,20 +125,20 @@ const NodeProfilePage = () => {
   const fetchUndelegations = useCallback(async () => {
     if (account && address) {
       const undelegations = await getUndelegations(account);
-      const undelegationsCount = undelegations.filter(
+      const undelegationsOfAddress = undelegations.filter(
         (u) => u.address.toLowerCase() === address.toLowerCase(),
       ).length;
-      setUndelegationCount(undelegationsCount);
+      setAccountUndelegationCount(undelegationsOfAddress);
     } else {
-      setUndelegationCount(0);
+      setAccountUndelegationCount(0);
     }
-  }, [address]);
+  }, [address, account, getUndelegations]);
 
   useEffect(() => {
     fetchNode();
     fetchDelegators();
     fetchUndelegations();
-  }, [fetchNode, fetchDelegators, shouldFetch]);
+  }, [fetchNode, fetchDelegators, fetchUndelegations, shouldFetch]);
 
   useEffect(() => {
     (async () => {
