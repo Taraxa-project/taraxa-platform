@@ -65,7 +65,11 @@ export const calculateValidatorYield = (validators: Validator[]): Validator[] =>
     const { pbftsProduced, delegation } = validator;
     const d = delegation.div(BigNumber.from(10).pow(18));
 
-    const yieldRatio = BigNumber.from(pbftsProduced).mul(BigNumber.from(10).pow(6)).div(d);
+    let yieldRatio = BigNumber.from(0);
+
+    if (!d.isZero()) {
+      yieldRatio = BigNumber.from(pbftsProduced).mul(BigNumber.from(10).pow(6)).div(d);
+    }
     return {
       ...validator,
       yield: Math.round(Number(yieldRatio.toString())),
