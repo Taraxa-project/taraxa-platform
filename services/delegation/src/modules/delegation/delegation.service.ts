@@ -5,6 +5,7 @@ import {
   Connection,
   FindConditions,
   FindOneOptions,
+  LessThan,
   Raw,
   Repository,
 } from 'typeorm';
@@ -734,6 +735,24 @@ export class DelegationService {
         `Could not save undelegation for ${address} with value ${amount} from node ${nodeId}`,
       );
     }
+  }
+
+  public getUntriggeredUndelegations(): Promise<Undelegation[]> {
+    return this.undelegationRepository.find({
+      triggered: false,
+    });
+  }
+
+  public getUnconfirmedUndelegations(
+    currentBlock: number,
+  ): Promise<Undelegation[]> {
+    return this.undelegationRepository.find({
+      where: {
+        confirmationBlock: LessThan(currentBlock),
+        chain: NodeType.TESTNET,
+        confirmed: false,
+      },
+    });
   }
 
   public async undelegateFromChain(undelegation: Undelegation) {

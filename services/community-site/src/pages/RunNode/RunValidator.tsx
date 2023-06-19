@@ -10,15 +10,13 @@ import {
   Tooltip,
   Modal,
   EmptyTable,
-} from '@taraxa_project/taraxa-ui';
-import {
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-} from '../../components/Table/Table';
+} from '@taraxa_project/taraxa-ui';
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
@@ -412,10 +410,8 @@ const RunValidator = () => {
                   <TableCell className="nameCell">Name</TableCell>
                   <TableCell className="yieldCell">Expected Yield</TableCell>
                   <TableCell className="pbftsCell">Number of blocks produced</TableCell>
-                  <TableCell className="rankingCell" colSpan={2}>
-                    Ranking
-                  </TableCell>
-                  <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
+                  <TableCell className="rankingCell">Ranking</TableCell>
+                  <TableCell className="actionsCell">&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

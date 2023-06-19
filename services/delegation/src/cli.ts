@@ -6,20 +6,7 @@ import { AppCoreModule } from './modules/app-core.module';
 import { NodeService } from './modules/node/node.service';
 import { DelegationService } from './modules/delegation/delegation.service';
 import { RewardService } from './modules/reward/reward.service';
-import {
-  BLOCKCHAIN_TESTNET_INSTANCE_TOKEN,
-  BLOCKCHAIN_MAINNET_INSTANCE_TOKEN,
-} from './modules/blockchain/blockchain.constant';
-
-interface Node {
-  id: number;
-  type: string;
-  address: string;
-}
-
-interface Delegations {
-  [address: string]: string;
-}
+import { BLOCKCHAIN_TESTNET_INSTANCE_TOKEN } from './modules/blockchain/blockchain.constant';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(
@@ -33,7 +20,6 @@ async function bootstrap() {
   const delegationService = app.get(DelegationService);
   const rewardService = app.get(RewardService);
   const testnetBlockchainService = app.get(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN);
-  const mainnetBlockchainService = app.get(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN);
 
   const nodes = async (type: string) => {
     return nodeService.findNodes({ type });
@@ -71,32 +57,6 @@ async function bootstrap() {
       await delegationService.ensureDelegation(id, type, address);
       console.log(`------------------------------`);
     }
-  };
-
-  const mainnetEnsureDelegation = async () => {
-    const nodes = await nodeService.findAllMainnetNodes();
-    let count = 0;
-    for (const node of nodes) {
-      count++;
-      const { id, type, address, deletedAt } = node;
-      const isDeleted = deletedAt !== null;
-      console.log(`${count} / ${nodes.length}: Rebalancing ${address}...`);
-      console.log(`ensuring delegation...`);
-      console.log(`Deleted: ${isDeleted ? 'Y' : 'N'}`);
-      try {
-        const validator = await mainnetBlockchainService.getValidator(address);
-        console.log(`currentDelegation: ${validator.total_stake.toString()}`);
-      } catch (e) {
-        console.log(`Node isn't registered as a validator.`);
-      }
-      await delegationService.ensureDelegation(id, type, address);
-      console.log(`------------------------------`);
-    }
-  };
-
-  const rebalanceMainnet = async () => {
-    await mainnetBlockchainService.rebalanceOwnNodes();
-    return Promise.resolve();
   };
 
   const rebalanceTestnet = async () => {
@@ -157,6 +117,51 @@ async function bootstrap() {
     return Promise.resolve();
   };
 
+  const triggerUndelegations = async () => {
+    const undelegations = await delegationService.getUntriggeredUndelegations();
+    let cnt = 0;
+    for (const undelegation of undelegations) {
+      cnt++;
+      console.log(
+        `${cnt} / ${undelegations.length}: Sending undelegation transaction for validator ${undelegation.address}...`,
+      );
+      try {
+        await delegationService.undelegateFromChain(undelegation);
+      } catch (e) {
+        console.error(e);
+        console.error(
+          `Could not send undelegation transaction for validator ${undelegation.address}`,
+        );
+      }
+    }
+    console.log(`Total: ${cnt}/${undelegations.length}`);
+    console.log(`------------------------------`);
+  };
+
+  const confirmUndelegations = async () => {
+    const currentBlock = await testnetBlockchainService.getCurrentBlockNumber();
+    const undelegations = await delegationService.getUnconfirmedUndelegations(
+      currentBlock,
+    );
+    let cnt = 0;
+    for (const undelegation of undelegations) {
+      cnt++;
+      console.log(
+        `${cnt} / ${undelegations.length}: Sending undelegation confirmation transaction for validator ${undelegation.address}...`,
+      );
+      try {
+        await delegationService.confirmUndelegation(undelegation);
+      } catch (e) {
+        console.error(e);
+        console.error(
+          `Could not confirm undelegation for validator ${undelegation.address}`,
+        );
+      }
+    }
+    console.log(`Total: ${cnt}/${undelegations.length}`);
+    console.log(`------------------------------`);
+  };
+
   await yargs(hideBin(process.argv))
     .command('testnet-nodes', 'get all testnet nodes', testnetNodes)
     .command('mainnet-nodes', 'get all mainnets nodes', mainnetNodes)
@@ -164,16 +169,6 @@ async function bootstrap() {
       'testnet-ensure-delegation',
       'ensure delegation for all testnet nodes',
       testnetEnsureDelegation,
-    )
-    .command(
-      'mainnet-ensure-delegation',
-      'ensure delegation for all mainnet nodes',
-      mainnetEnsureDelegation,
-    )
-    .command(
-      'rebalance-mainnet',
-      'rebalances own node delegations for mainnet',
-      rebalanceMainnet,
     )
     .command(
       'rebalance-testnet',
@@ -207,6 +202,16 @@ async function bootstrap() {
       async (argv) => {
         return await calculateRewardsForEpoch(argv.epoch as number);
       },
+    )
+    .command(
+      'confirm-undelegations',
+      'confirm undelegation requests',
+      confirmUndelegations,
+    )
+    .command(
+      'trigger-undelegations',
+      'triggers undelegation requests',
+      triggerUndelegations,
     ).argv;
   await app.close();
 }

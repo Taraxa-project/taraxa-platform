@@ -1,7 +1,7 @@
 import React from 'react';
-import { Table } from '@taraxa_project/taraxa-ui';
 import { useTransactionEffects } from './Transactions.effects';
 import { PageTitle } from '../../components';
+import Table from '../../components/Tables/Table';
 
 const TransactionsPage = (): JSX.Element => {
   const { rows, columns, currentNetwork } = useTransactionEffects();

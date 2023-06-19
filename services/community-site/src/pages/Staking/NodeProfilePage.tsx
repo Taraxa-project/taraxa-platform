@@ -4,8 +4,22 @@ import { BigNumber, ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 import clsx from 'clsx';
 
-import { AmountCard, Button, Checkbox, Chip, Icons, Text } from '@taraxa_project/taraxa-ui';
+import {
+  AmountCard,
+  Button,
+  Checkbox,
+  Chip,
+  Icons,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Text,
+} from '@taraxa_project/taraxa-ui';
 
+import useDelegation from '../../services/useDelegation';
 import useDposSubgraph from '../../services/useDposSubgraph';
 import useCMetamask from '../../services/useCMetamask';
 import useChain from '../../services/useChain';
@@ -22,14 +36,6 @@ import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
 import { BarFlex } from './BarFlex';
 import Title from '../../components/Title/Title';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableContainer,
-} from '../../components/Table/Table';
 
 enum ViewType {
   DELEGATIONS,
@@ -83,14 +89,16 @@ const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
   const { getValidator } = useValidators();
+  const { getUndelegations } = useDelegation();
   const { getValidatorDelegationsPaginate, getValidatorCommissionChangesPaginate } =
     useDposSubgraph();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
+  const [accountUndelegationCount, setAccountUndelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
   const [commissionChanges, setCommissionChanges] = useState<CommissionChangeGQL[] | []>([]);
-  const [delegationPage, setDelegationPage] = useState<number>(0);
+  const [delegationPage, setDelegationPage] = useState<number>(1);
   const [commissionPage, setCommissionPage] = useState<number>(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
@@ -100,7 +108,7 @@ const NodeProfilePage = () => {
   const { allValidatorsWithStats } = useAllValidators();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
-  const canUndelegate = status === 'connected' && !!account;
+  const canUndelegate = status === 'connected' && !!account && accountUndelegationCount === 0;
 
   const fetchNode = useCallback(async () => {
     if (address) {
@@ -156,17 +164,27 @@ const NodeProfilePage = () => {
     }
   }, [address]);
 
-  useEffect(() => {
-    fetchNode();
-  }, [fetchNode, shouldFetch]);
-
-  useEffect(() => {
-    fetchDelegators();
-  }, [fetchDelegators, shouldFetch]);
+  const fetchUndelegations = useCallback(async () => {
+    if (account && address) {
+      const undelegations = await getUndelegations(account);
+      const undelegationsOfAddress = undelegations.filter(
+        (u) => u.address.toLowerCase() === address.toLowerCase(),
+      ).length;
+      setAccountUndelegationCount(undelegationsOfAddress);
+    } else {
+      setAccountUndelegationCount(0);
+    }
+  }, [address, account, getUndelegations]);
 
   useEffect(() => {
     fetchCommissionChanges();
   }, [fetchCommissionChanges]);
+
+  useEffect(() => {
+    fetchNode();
+    fetchDelegators();
+    fetchUndelegations();
+  }, [fetchNode, fetchDelegators, fetchUndelegations, shouldFetch]);
 
   useEffect(() => {
     (async () => {

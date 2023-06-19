@@ -1,6 +1,5 @@
 import React from 'react';
-import { CssBaseline, ThemeProvider, CircularProgress } from '@mui/material';
-import theme from '../theme';
+import { CircularProgress } from '@mui/material';
 import '../app.scss';
 
 export interface LoadingProps {
@@ -9,12 +8,7 @@ export interface LoadingProps {
 }
 
 const Loading = ({ size, color }: LoadingProps) => {
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <CircularProgress size={size} style={{ color }} />
-    </ThemeProvider>
-  );
+  return <CircularProgress size={size} style={{ color }} />;
 };
 
 export default Loading;

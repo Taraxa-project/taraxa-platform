@@ -3,7 +3,7 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import { MetaMaskProvider } from 'metamask-react';
 import { useMediaQuery } from 'react-responsive';
-import { Notification } from '@taraxa_project/taraxa-ui';
+import { Notification, TaraxaThemeProvider } from '@taraxa_project/taraxa-ui';
 
 import { AuthProvider, useAuth } from './services/useAuth';
 import { LoadingProvider } from './services/useLoading';
@@ -24,7 +24,6 @@ import BountySubmit from './pages/Bounties/BountySubmit';
 import Redeem from './pages/Redeem/Redeem';
 import Profile from './pages/Profile/Profile';
 import RunValidator from './pages/RunNode/RunValidator';
-import Wallet from './pages/Wallet/Wallet';
 import useCMetamask from './services/useCMetamask';
 import { WalletPopupProvider } from './services/useWalletPopup';
 
@@ -126,7 +125,6 @@ const Root = () => {
               <Route exact path="/redeem" component={Redeem} />
               <Route exact path="/profile" component={Profile} />
               <Route exact path="/node" component={RunValidator} />
-              <Route exact path="/wallet" component={Wallet} />
               <Route exact path="/" component={Home} />
             </Switch>
           </div>
@@ -144,19 +142,21 @@ function App() {
         <LoadingProvider>
           <AuthProvider>
             <BrowserRouter>
-              <ModalProvider>
-                <WalletPopupProvider>
-                  <SidebarProvider>
-                    <ValidatorWeeklyStatsProvider>
-                      <ValidatorsProvider>
-                        <RedelegationProvider>
-                          <Root />
-                        </RedelegationProvider>
-                      </ValidatorsProvider>
-                    </ValidatorWeeklyStatsProvider>
-                  </SidebarProvider>
-                </WalletPopupProvider>
-              </ModalProvider>
+              <TaraxaThemeProvider>
+                <ModalProvider>
+                  <WalletPopupProvider>
+                    <SidebarProvider>
+                      <ValidatorWeeklyStatsProvider>
+                        <ValidatorsProvider>
+                          <RedelegationProvider>
+                            <Root />
+                          </RedelegationProvider>
+                        </ValidatorsProvider>
+                      </ValidatorWeeklyStatsProvider>
+                    </SidebarProvider>
+                  </WalletPopupProvider>
+                </ModalProvider>
+              </TaraxaThemeProvider>
             </BrowserRouter>
           </AuthProvider>
         </LoadingProvider>

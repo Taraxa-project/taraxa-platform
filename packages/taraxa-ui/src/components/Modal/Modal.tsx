@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CssBaseline, ThemeProvider } from '@mui/material';
 import RModal from 'react-modal';
-import theme from '../theme';
 import Button from '../Button';
 import '../app.scss';
 
@@ -78,23 +76,20 @@ const Modal = ({
   RModal.setAppElement(`#${parentElementID}`);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RModal
-        onRequestClose={onRequestClose}
-        isOpen={show}
-        style={customStyles}
-        contentLabel={title}
-        id={id}
-      >
-        <Button
-          Icon={closeIcon}
-          onClick={onRequestClose}
-          className='modalClose'
-        />
-        {children}
-      </RModal>
-    </ThemeProvider>
+    <RModal
+      onRequestClose={onRequestClose}
+      isOpen={show}
+      style={customStyles}
+      contentLabel={title}
+      id={id}
+    >
+      <Button
+        Icon={closeIcon}
+        onClick={onRequestClose}
+        className='modalClose'
+      />
+      {children}
+    </RModal>
   );
 };
 

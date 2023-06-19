@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import { Divider } from '@mui/material';
 
 import {
+  Divider,
   Text,
   Notification,
   Button,
@@ -10,15 +10,14 @@ import {
   BaseCard,
   useInterval,
   LoadingTable,
-} from '@taraxa_project/taraxa-ui';
-import {
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-} from '../../components/Table/Table';
+} from '@taraxa_project/taraxa-ui';
+
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import { useLoading } from '../../services/useLoading';
@@ -435,7 +434,7 @@ const Delegation = ({ location }: { location: Location }) => {
                     <TableCell className="yieldCell">Yield Efficiency</TableCell>
                     <TableCell className="commissionCell">Commission</TableCell>
                     <TableCell className="delegationCell">Delegation</TableCell>
-                    <TableCell className="delegationCell">Available for Delegation</TableCell>
+                    <TableCell className="availableDelegation">Available for Delegation</TableCell>
                     <TableCell className="rewardsCell">Staking Rewards</TableCell>
                     <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
                   </TableRow>

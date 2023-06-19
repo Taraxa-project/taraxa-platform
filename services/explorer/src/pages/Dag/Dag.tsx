@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from '@taraxa_project/taraxa-ui';
+import Table from '../../components/Tables/Table';
 import { useDagEffects } from './Dag.effects';
 import { PageTitle } from '../../components';
 

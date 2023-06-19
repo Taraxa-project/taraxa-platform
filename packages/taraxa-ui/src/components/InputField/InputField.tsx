@@ -1,11 +1,5 @@
 import React, { ChangeEventHandler } from 'react';
-import {
-  TextField,
-  TextFieldProps,
-  CssBaseline,
-  ThemeProvider,
-} from '@mui/material';
-import theme from '../theme';
+import { TextField, TextFieldProps } from '@mui/material';
 import useStyles from './InputField.styles';
 
 export type InputFieldProps = {
@@ -36,25 +30,22 @@ export type InputFieldProps = {
 const InputField = ({ max, min, ...props }: InputFieldProps) => {
   const classes = useStyles();
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <TextField
-        classes={{
-          root: classes.input,
-        }}
-        InputProps={
-          max && min
-            ? {
-                inputProps: {
-                  max,
-                  min,
-                },
-              }
-            : undefined
-        }
-        {...props}
-      />
-    </ThemeProvider>
+    <TextField
+      classes={{
+        root: classes.input,
+      }}
+      InputProps={
+        max && min
+          ? {
+              inputProps: {
+                max,
+                min,
+              },
+            }
+          : undefined
+      }
+      {...props}
+    />
   );
 };
 

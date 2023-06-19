@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
-import { ThemeProvider } from '@mui/material/styles';
-import { theme } from './theme';
 import { StylesProvider, createGenerateClassName } from '@mui/styles';
+import { TaraxaThemeProvider } from '@taraxa_project/taraxa-ui';
 
 interface Props {
   children: React.ReactNode;
@@ -14,7 +13,7 @@ const generateClassName = createGenerateClassName({
 export const ExplorerThemeProvider: FC<Props> = ({ children }) => {
   return (
     <StylesProvider generateClassName={generateClassName}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      <TaraxaThemeProvider>{children}</TaraxaThemeProvider>
     </StylesProvider>
   );
 };

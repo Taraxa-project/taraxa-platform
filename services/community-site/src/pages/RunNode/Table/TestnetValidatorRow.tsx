@@ -1,7 +1,5 @@
 import React from 'react';
-import { Tooltip } from '@mui/material';
-import { Button } from '@taraxa_project/taraxa-ui';
-import { TableCell, TableRow } from '../../../components/Table/Table';
+import { MuiTooltip, Button, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
 
 import Nickname from '../../../components/Nickname/Nickname';
 import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
@@ -23,11 +21,11 @@ const TestnetValidatorRow = ({
   return (
     <TableRow key={address}>
       <TableCell className="statusCell">
-        <Tooltip title={getValidatorStatusTooltip(status)}>
+        <MuiTooltip title={getValidatorStatusTooltip(status)}>
           <div className="status">
             <div className={className} />
           </div>
-        </Tooltip>
+        </MuiTooltip>
       </TableCell>
       <TableCell className="nameCell">
         <div className="flexCell nodeLink">
@@ -37,7 +35,7 @@ const TestnetValidatorRow = ({
       <TableCell className="yieldCell">{y}%</TableCell>
       <TableCell className="pbftsCell">{pbftsProduced}</TableCell>
       <TableCell className="rankingCell">{rank || 0}</TableCell>
-      <TableCell className="availableDelegationActionsCell" align="right">
+      <TableCell className="availableDelegationActionsCell">
         <div className="validatorActions">
           <Button
             size="small"

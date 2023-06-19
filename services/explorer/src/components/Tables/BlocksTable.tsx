@@ -1,15 +1,16 @@
 import React from 'react';
 import {
+  theme,
+  Box,
+  EmptyTable,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-  TableContainer,
-  Box,
   TablePagination,
-} from '@mui/material';
-import { theme, EmptyTable } from '@taraxa_project/taraxa-ui';
+  TableContainer,
+} from '@taraxa_project/taraxa-ui';
 import { HashLink } from '..';
 import { BlockData } from '../../models';
 import { HashLinkType } from '../../utils';

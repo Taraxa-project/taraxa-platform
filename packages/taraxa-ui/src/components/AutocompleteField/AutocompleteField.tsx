@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  CssBaseline,
-  ThemeProvider,
-  Autocomplete,
-  AutocompleteProps,
-} from '@mui/material';
-import theme from '../theme';
+import { Autocomplete, AutocompleteProps } from '@mui/material';
 import useStyles from './AutocompleteField.styles';
 
 interface AutocompleteOption {
@@ -27,17 +21,14 @@ const AutocompleteField = ({
 }: AutocompleteFieldProps<AutocompleteOption>) => {
   const classes = useStyles();
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Autocomplete
-        {...props}
-        disablePortal
-        options={options}
-        isOptionEqualToValue={(option, value) => option.label === value.label}
-        id={id || 'mui-autocomplete'}
-        className={classes.autocomplete}
-      />
-    </ThemeProvider>
+    <Autocomplete
+      {...props}
+      disablePortal
+      options={options}
+      isOptionEqualToValue={(option, value) => option.label === value.label}
+      id={id || 'mui-autocomplete'}
+      className={classes.autocomplete}
+    />
   );
 };
 

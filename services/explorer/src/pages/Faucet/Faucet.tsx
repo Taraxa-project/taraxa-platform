@@ -1,14 +1,15 @@
 import React from 'react';
 import {
   Box,
+  Typography,
+  Button,
+  InputField,
+  MenuItem,
   FormControl,
   FormHelperText,
-  MenuItem,
   Select,
-  Typography,
-} from '@mui/material';
-import { Button, InputField } from '@taraxa_project/taraxa-ui';
-import AccessAlarmSharpIcon from '@mui/icons-material/AccessAlarmSharp';
+  MuiIcons,
+} from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
 import { Controller } from 'react-hook-form';
 import { RequestLimit } from '../../utils';
@@ -33,7 +34,7 @@ const FaucetPage = (): JSX.Element => {
         marginTop='8rem'
         marginBottom='1rem'
       >
-        <AccessAlarmSharpIcon color='error' />{' '}
+        <MuiIcons.AccessAlarmSharp color='error' />{' '}
         {`Withdrawing ${amount} TARA will get you locked out until ${moment(
           new Date().setDate(new Date().getDate() + amount)
         ).format('DD/MM/YY HH:mm:ss')}`}

@@ -1,6 +1,5 @@
 import React from 'react';
-import { CircularProgress } from '@mui/material';
-import { Icons, Label } from '@taraxa_project/taraxa-ui';
+import { CircularProgress, Icons, Label } from '@taraxa_project/taraxa-ui';
 import { DateTime } from 'luxon';
 import moment from 'moment';
 import { HashLink } from '../components/Links';

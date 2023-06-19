@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-  BottomNavigationActionProps as MBottomNavigationActionProps,
-  CssBaseline,
-  ThemeProvider,
-} from '@mui/material';
+import { BottomNavigationActionProps as MBottomNavigationActionProps } from '@mui/material';
 import { useMediaQuery } from 'react-responsive';
-import theme from '../theme';
 import Text from '../Text';
 import useStyles from './Footer.styles';
 import logo from '../../images/logo.svg';
@@ -20,71 +15,60 @@ const Footer = ({ items, description, links }: FooterProps) => {
   const classes = useStyles();
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <div className={isMobile ? classes.footerMobile : classes.footer}>
-        <div className={isMobile ? classes.logoMobile : classes.logo}>
-          <div
-            className={isMobile ? classes.footerSVGMobile : classes.footerSVG}
-          >
-            <img src={logo} alt='Taraxa' />
-          </div>
-          {items && !isMobile && (
-            <ul className={classes.footerUl}>
-              {items.map((item) => (
-                <li key={item.label} className={classes.footerLi}>
-                  {item.Icon}
-                </li>
-              ))}
-            </ul>
-          )}
+    <div className={isMobile ? classes.footerMobile : classes.footer}>
+      <div className={isMobile ? classes.logoMobile : classes.logo}>
+        <div className={isMobile ? classes.footerSVGMobile : classes.footerSVG}>
+          <img src={logo} alt='Taraxa' />
         </div>
-        {description && (
-          <div
-            className={
-              isMobile ? classes.descriptionMobile : classes.description
-            }
-          >
-            <Text
-              label={description}
-              variant='body1'
-              color='textSecondary'
-              style={{ textAlign: 'left' }}
-            />
-          </div>
-        )}
-        {isMobile && items && (
-          <div className={classes.mobileIcons}>
-            <ul className={classes.mobileFooterUL}>
-              {items.map((item) => (
-                <li key={item.label} className={classes.footerLi}>
-                  {item.Icon}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {links && (
-          <div className={classes.footerList}>
-            {links.map((link) => (
-              <a
-                key={link.label}
-                href={link.link}
-                target='_blank'
-                className={classes.footerParagraph}
-                rel='noreferrer'
-              >
-                <Text
-                  label={link.label}
-                  variant='body1'
-                  color='textSecondary'
-                />
-              </a>
+        {items && !isMobile && (
+          <ul className={classes.footerUl}>
+            {items.map((item) => (
+              <li key={item.label} className={classes.footerLi}>
+                {item.Icon}
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
-    </ThemeProvider>
+      {description && (
+        <div
+          className={isMobile ? classes.descriptionMobile : classes.description}
+        >
+          <Text
+            label={description}
+            variant='body1'
+            color='textSecondary'
+            style={{ textAlign: 'left' }}
+          />
+        </div>
+      )}
+      {isMobile && items && (
+        <div className={classes.mobileIcons}>
+          <ul className={classes.mobileFooterUL}>
+            {items.map((item) => (
+              <li key={item.label} className={classes.footerLi}>
+                {item.Icon}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {links && (
+        <div className={classes.footerList}>
+          {links.map((link) => (
+            <a
+              key={link.label}
+              href={link.link}
+              target='_blank'
+              className={classes.footerParagraph}
+              rel='noreferrer'
+            >
+              <Text label={link.label} variant='body1' color='textSecondary' />
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
