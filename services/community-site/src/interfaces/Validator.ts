@@ -47,6 +47,14 @@ export interface Validator {
   id?: number;
 }
 
+export interface CommissionChangeGQL {
+  validator: string;
+  commission: number;
+  applyAtBlock: number;
+  registrationBlock: number;
+  timestamp: number;
+}
+
 export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
   switch (status) {
     case ValidatorStatus.ELIGIBLE:

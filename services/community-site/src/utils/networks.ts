@@ -50,4 +50,16 @@ export const networks: Networks = {
     },
     indexerUrl: 'https://indexer.devnet.taraxa.io',
   },
+  200: {
+    chainName: 'Taraxa PRnet',
+    rpcUrl: 'https://rpc-pr-2460.prnet.taraxa.io/',
+    iconUrl: 'https://community.taraxa.io/logo192.png',
+    blockExplorerUrl: 'https://explorer-pr-2460.prnet.taraxa.io/',
+    nativeCurrency: {
+      name: 'TARA',
+      symbol: 'TARA',
+      decimals: 18,
+    },
+    indexerUrl: 'https://indexer-pr-2460.prnet.taraxa.io',
+  },
 };
