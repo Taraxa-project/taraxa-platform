@@ -42,12 +42,14 @@ enum ViewType {
   COMMISSION_CHANGES,
 }
 
+const VALIDATOR_MAX_DELEGATION = 80000000;
+
 function calculateDelegationSpread(validator: Validator | null, delegations: DelegationGQL[]) {
   const delegationPossible =
     validator?.delegation
       .add(validator?.availableForDelegation)
       .div(BigNumber.from('10').pow(BigNumber.from('18')))
-      ?.toNumber() || 1;
+      ?.toNumber() || VALIDATOR_MAX_DELEGATION;
 
   const hasOwnDelegation = delegations.find(
     (d) => d.delegator.toLowerCase() === validator?.owner?.toLowerCase(),
@@ -162,7 +164,7 @@ const NodeProfilePage = () => {
     } else {
       setCommissionChanges([]);
     }
-  }, [address]);
+  }, [address, commissionPage]);
 
   const fetchUndelegations = useCallback(async () => {
     if (account && address) {
@@ -262,6 +264,14 @@ const NodeProfilePage = () => {
                 </>
               )}
             </div>
+            {/* {validator?.firstBlockCreatedAt && (
+              <>
+                <div className="nodeInfoTitle">node active since</div>
+                <div className="nodeInfoContent">{`${nodeActiveSince.getDate()} ${nodeActiveSince
+                  .toLocaleString('en-US', { month: 'short' })
+                  .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
+              </>
+            )} */}
             <div className="nodeDelegationColumn">
               <div className="taraContainerWrapper">
                 <div className="taraContainer">
@@ -347,7 +357,7 @@ const NodeProfilePage = () => {
                   'nodeTypeTab',
                   detailType === ViewType.COMMISSION_CHANGES && 'active',
                 )}
-                label="Commissions"
+                label="Commission Changes"
                 variant="contained"
                 onClick={() => {
                   setDetailType(ViewType.COMMISSION_CHANGES);
@@ -406,7 +416,7 @@ const NodeProfilePage = () => {
                   <Table className="validatorsTable">
                     <TableHead className="tableHead">
                       <TableRow>
-                        <TableCell className="halfCell">Address</TableCell>
+                        <TableCell className="halfCell">Delegator</TableCell>
                         <TableCell className="halfCell">Amount of TARA delegated</TableCell>
                       </TableRow>
                     </TableHead>

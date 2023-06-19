@@ -27,42 +27,6 @@ export default () => {
     [],
   );
 
-  const getAllValidatorDelegations = useCallback(
-    async (validator: string): Promise<DelegationGQL[]> => {
-      const query = `{
-            delegations(where: {validator: "${validator.toLowerCase()}", amount_gt: 0},  orderBy: timestamp, orderDirection: desc){
-                id
-                amount
-                delegator
-                validator
-                timestamp
-            }
-        }`;
-      const request = await post(basePath, { query });
-      const delegations = request.response.data.delegations;
-      return delegations;
-    },
-    [],
-  );
-
-  const getAllValidatorCommissionChanges = useCallback(
-    async (validator: string): Promise<CommissionChangeGQL[]> => {
-      const query = `{
-            commissionChanges(where: {validator: "${validator.toLowerCase()}"}, orderBy: timestamp, orderDirection: desc){
-              commission
-              registrationBlock
-              applyAtBlock
-              validator
-              timestamp
-            }
-        }`;
-      const request = await post(basePath, { query });
-      const changes = request.response.data.commissionChanges;
-      return changes;
-    },
-    [],
-  );
-
   const getValidatorCommissionChangesPaginate = useCallback(
     async (validator: string, page: number, pageCount: number): Promise<CommissionChangeGQL[]> => {
       const query = `{
@@ -85,15 +49,8 @@ export default () => {
   return useMemo(
     () => ({
       getValidatorDelegationsPaginate,
-      getAllValidatorDelegations,
-      getAllValidatorCommissionChanges,
       getValidatorCommissionChangesPaginate,
     }),
-    [
-      getValidatorDelegationsPaginate,
-      getAllValidatorDelegations,
-      getAllValidatorCommissionChanges,
-      getValidatorCommissionChangesPaginate,
-    ],
+    [getValidatorDelegationsPaginate, getValidatorCommissionChangesPaginate],
   );
 };
