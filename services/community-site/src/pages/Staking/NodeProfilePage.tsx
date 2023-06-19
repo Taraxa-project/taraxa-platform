@@ -98,7 +98,7 @@ const NodeProfilePage = () => {
   const [accountUndelegationCount, setAccountUndelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
   const [commissionChanges, setCommissionChanges] = useState<CommissionChangeGQL[] | []>([]);
-  const [delegationPage, setDelegationPage] = useState<number>(1);
+  const [delegationPage, setDelegationPage] = useState<number>(0);
   const [commissionPage, setCommissionPage] = useState<number>(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
@@ -352,6 +352,7 @@ const NodeProfilePage = () => {
                 onClick={() => {
                   setDetailType(ViewType.COMMISSION_CHANGES);
                 }}
+                disabled={!commissionChanges.length}
               />
             </div>
           </div>
