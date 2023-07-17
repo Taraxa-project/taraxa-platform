@@ -11,6 +11,7 @@ import {
   TransactionTableRow,
   DagTableRow,
   PbftTableRow,
+  HoldersTableData,
 } from '../models';
 import { HashLinkType } from './Enums';
 
@@ -179,5 +180,24 @@ export const toNodeTableRow = ({
     rank,
     nodeAddress: addressLink,
     blocksProduced: pbftCount.toLocaleString('en-US'),
+  };
+};
+
+export const toHolderTableRow = ({
+  rank,
+  address,
+  balance,
+}: HoldersTableData): {
+  rank: number;
+  address: JSX.Element;
+  balance: string;
+} => {
+  const addressLink = (
+    <HashLink linkType={HashLinkType.ADDRESSES} width='auto' hash={address} />
+  );
+  return {
+    rank,
+    address: addressLink,
+    balance: balance,
   };
 };

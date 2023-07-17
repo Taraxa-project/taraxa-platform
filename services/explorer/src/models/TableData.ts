@@ -42,6 +42,12 @@ export interface NodesTableData {
   pbftCount: number;
 }
 
+export interface HoldersTableData {
+  rank: number;
+  address: string;
+  balance: string;
+}
+
 export interface ColumnData {
   path: string;
   name: string;
