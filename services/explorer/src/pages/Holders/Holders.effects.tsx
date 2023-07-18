@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
-import { FetchWithPaginationResult, Holder } from '../../api';
+import { FetchWithPaginationResult, Holder, useGetTokenPrice } from '../../api';
 import { useExplorerNetwork } from '../../hooks';
 import { Network, toHolderTableRow } from '../../utils';
 import { useGetHolders } from 'src/api/indexer/fetchHolders';
+import { useGetTotalSupply } from 'src/api/indexer/fetchTotalSupply';
+import { BigNumber } from 'ethers';
 
 const cols: ColumnData[] = [
   { path: 'rank', name: 'Rank' },
-  { path: 'address', name: 'Holder Address' },
-  { path: 'balance', name: 'Holder Balance' },
+  { path: 'address', name: 'Address' },
+  { path: 'balance', name: 'Quantity' },
+  { path: 'percentage', name: 'Percentage' },
+  { path: 'value', name: 'Value' },
 ];
 
 export const useHoldersEffects = () => {
@@ -17,8 +21,12 @@ export const useHoldersEffects = () => {
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
     usePagination();
 
+  const { data: tokenPriceData } = useGetTokenPrice();
+
   const [loading, setLoading] = useState<boolean>(false);
+  const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(0));
   const [tableData, setTableData] = useState([]);
+  const [start, setStart] = useState<number>(0);
   const [pagination, setPagination] = useState<FetchWithPaginationResult>({
     start: 0,
     limit: rowsPerPage,
@@ -26,23 +34,22 @@ export const useHoldersEffects = () => {
     hasNext: true,
   });
 
+  const fetchTotalSupply = useCallback(async () => {
+    setLoading(true);
+    const indexerEndpoint = getNetworkIndexerEndpoint(currentNetwork);
+    try {
+      const totalSupply = await useGetTotalSupply(indexerEndpoint);
+      setTotalSupply(BigNumber.from(totalSupply));
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentNetwork]);
+
   const updateValidators = useCallback(async () => {
     setLoading(true);
-    let indexerEndpoint = '';
-    switch (currentNetwork) {
-      case Network.MAINNET:
-        indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
-        break;
-      case Network.TESTNET:
-        indexerEndpoint = process.env.REACT_APP_TESTNET_INDEXER_HOST || '';
-        break;
-      case Network.DEVNET:
-        indexerEndpoint = process.env.REACT_APP_DEVNET_INDEXER_HOST || '';
-        break;
-      default:
-        indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
-        break;
-    }
+    const indexerEndpoint = getNetworkIndexerEndpoint(currentNetwork);
     try {
       const holders = await useGetHolders(indexerEndpoint, {
         start: pagination.start,
@@ -63,29 +70,35 @@ export const useHoldersEffects = () => {
     } finally {
       setLoading(false);
     }
-  }, [rowsPerPage]);
+  }, [rowsPerPage, start]);
 
   useEffect(() => {
     updateValidators();
+    fetchTotalSupply();
   }, [currentNetwork, updateValidators]);
 
   const handlePreviousPage = () => {
     setPagination({ ...pagination, start: pagination.start - rowsPerPage });
+    setStart(start - rowsPerPage);
     handleChangePage(0);
   };
 
   const handleNextPage = () => {
     setPagination({ ...pagination, start: pagination.start + rowsPerPage });
+    setStart(start + rowsPerPage);
     handleChangePage(0);
   };
 
   const onChangePage = (p: number) => {
+    console.log('p', p);
     setPagination({ ...pagination, start: p * rowsPerPage });
+    setStart(p * rowsPerPage);
     handleChangePage(p);
   };
 
   const onChangeRowsPerPage = (l: number) => {
     setPagination({ ...pagination, start: 0, limit: l });
+    setStart(0);
     handleChangeRowsPerPage(l);
   };
 
@@ -100,7 +113,9 @@ export const useHoldersEffects = () => {
       toHolderTableRow({
         rank: i + 1,
         address: holder.address,
-        balance: holder.balance,
+        balance: BigNumber.from(holder.balance || '0'),
+        totalSupply: totalSupply || BigNumber.from(0),
+        taraPrice: (tokenPriceData?.data[0].current_price as number) || 0,
       })
     ),
     rowsPerPage,
@@ -113,3 +128,21 @@ export const useHoldersEffects = () => {
     pagination,
   };
 };
+function getNetworkIndexerEndpoint(currentNetwork: string) {
+  let indexerEndpoint = '';
+  switch (currentNetwork) {
+    case Network.MAINNET:
+      indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
+      break;
+    case Network.TESTNET:
+      indexerEndpoint = process.env.REACT_APP_TESTNET_INDEXER_HOST || '';
+      break;
+    case Network.DEVNET:
+      indexerEndpoint = process.env.REACT_APP_DEVNET_INDEXER_HOST || '';
+      break;
+    default:
+      indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
+      break;
+  }
+  return indexerEndpoint;
+}

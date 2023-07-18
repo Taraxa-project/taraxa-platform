@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers';
+
 export enum TransactionStatus {
   SUCCESS = '0x1',
   FAILURE = '0x0',
@@ -45,7 +47,9 @@ export interface NodesTableData {
 export interface HoldersTableData {
   rank: number;
   address: string;
-  balance: string;
+  balance: BigNumber;
+  totalSupply: BigNumber;
+  taraPrice: number;
 }
 
 export interface ColumnData {

@@ -61,6 +61,8 @@ const HoldersPage = (): JSX.Element => {
                     </TableCell>
                     <TableCell align='center'>{row.address}</TableCell>
                     <TableCell align='center'>{row.balance}</TableCell>
+                    <TableCell align='center'>{row.percentage}</TableCell>
+                    <TableCell align='center'>{row.value}</TableCell>
                   </TableRow>
                 ))
               ) : (
