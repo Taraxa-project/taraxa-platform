@@ -12,5 +12,5 @@ const Template: Story<any> = (args) => <BarFlexCell {...args} />;
 
 export const Primary = Template.bind({});
 Primary.args = {
-  percentage: 68.5554332,
+  percentage: 75,
 };
