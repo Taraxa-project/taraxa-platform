@@ -25,7 +25,7 @@ const HoldersPage = (): JSX.Element => {
   } = useHoldersEffects();
   return (
     <>
-      <PageTitle title='Nodes' subtitle='List of TARAXA owners on Mainnet' />
+      <PageTitle title='Holders' subtitle='List of TARA holders on Mainnet' />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
@@ -36,7 +36,9 @@ const HoldersPage = (): JSX.Element => {
           onPageChange={(
             event: React.MouseEvent<HTMLButtonElement> | null,
             page: number
-          ) => handleChangePage(page)}
+          ) => {
+            handleChangePage(page);
+          }}
           onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) =>
             handleChangeRowsPerPage(parseInt(event.target.value, 10))
           }

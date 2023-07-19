@@ -19,7 +19,7 @@ import {
   HoldersTableData,
 } from '../models';
 import { HashLinkType } from './Enums';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
@@ -202,7 +202,6 @@ export const toHolderTableRow = ({
   percentage: JSX.Element;
   value: string;
 } => {
-  console.log('balance', balance.toString());
   const addressLink = (
     <HashLink linkType={HashLinkType.ADDRESSES} width='auto' hash={address} />
   );
@@ -224,9 +223,9 @@ export const toHolderTableRow = ({
   }
   const barFlexCell = <BarFlexCell percentage={percentageNum} />;
   const etherBalance = ethers.utils.formatEther(balance);
-  const value = `${(
+  const value = `$${(
     Number.parseFloat(etherBalance) * taraPrice
-  ).toLocaleString()} $`;
+  ).toLocaleString()}`;
   return {
     rank,
     address: addressLink,

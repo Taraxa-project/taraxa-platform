@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
 import { FetchWithPaginationResult, Holder, useGetTokenPrice } from '../../api';
-import { useExplorerNetwork } from '../../hooks';
+import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { Network, toHolderTableRow } from '../../utils';
 import { useGetHolders } from 'src/api/indexer/fetchHolders';
 import { useGetTotalSupply } from 'src/api/indexer/fetchTotalSupply';
@@ -20,10 +20,9 @@ export const useHoldersEffects = () => {
   const { currentNetwork } = useExplorerNetwork();
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
     usePagination();
-
   const { data: tokenPriceData } = useGetTokenPrice();
+  const { initLoading, finishLoading } = useExplorerLoader();
 
-  const [loading, setLoading] = useState<boolean>(false);
   const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(0));
   const [tableData, setTableData] = useState([]);
   const [start, setStart] = useState<number>(0);
@@ -35,7 +34,7 @@ export const useHoldersEffects = () => {
   });
 
   const fetchTotalSupply = useCallback(async () => {
-    setLoading(true);
+    initLoading();
     const indexerEndpoint = getNetworkIndexerEndpoint(currentNetwork);
     try {
       const totalSupply = await useGetTotalSupply(indexerEndpoint);
@@ -43,12 +42,12 @@ export const useHoldersEffects = () => {
     } catch (error) {
       console.log('error', error);
     } finally {
-      setLoading(false);
+      finishLoading();
     }
   }, [currentNetwork]);
 
   const updateValidators = useCallback(async () => {
-    setLoading(true);
+    initLoading();
     const indexerEndpoint = getNetworkIndexerEndpoint(currentNetwork);
     try {
       const holders = await useGetHolders(indexerEndpoint, {
@@ -60,7 +59,7 @@ export const useHoldersEffects = () => {
       if (holders?.hasNext) {
         setPagination({
           ...pagination,
-          start: pagination.start + rowsPerPage,
+          start: pagination.start * rowsPerPage,
           hasNext: true,
           total: holders?.total || 0,
         });
@@ -68,14 +67,14 @@ export const useHoldersEffects = () => {
     } catch (error) {
       console.log('error', error);
     } finally {
-      setLoading(false);
+      finishLoading();
     }
-  }, [rowsPerPage, start]);
+  }, [rowsPerPage, start, currentNetwork]);
 
   useEffect(() => {
-    updateValidators();
     fetchTotalSupply();
-  }, [currentNetwork, updateValidators]);
+    updateValidators();
+  }, [currentNetwork, updateValidators, fetchTotalSupply]);
 
   const handlePreviousPage = () => {
     setPagination({ ...pagination, start: pagination.start - rowsPerPage });
@@ -90,7 +89,6 @@ export const useHoldersEffects = () => {
   };
 
   const onChangePage = (p: number) => {
-    console.log('p', p);
     setPagination({ ...pagination, start: p * rowsPerPage });
     setStart(p * rowsPerPage);
     handleChangePage(p);
@@ -124,7 +122,6 @@ export const useHoldersEffects = () => {
     handleChangeRowsPerPage: onChangeRowsPerPage,
     handlePreviousPage,
     handleNextPage,
-    loading,
     pagination,
   };
 };
