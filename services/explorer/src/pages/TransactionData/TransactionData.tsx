@@ -24,16 +24,18 @@ import {
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
-import LoadingSkeletonTx from './LoadingSkeletonTx';
+import LoadingSkeletonTx, { DecodedLoadingSkeleton } from './LoadingSkeletonTx';
 import TransactionDataTabs from './TransactionDataTabs';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const {
     transactionData,
+    callData,
     events,
     currentNetwork,
     showLoadingSkeleton,
+    showLoadingDecodedSkeleton,
     showNetworkChanged,
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
@@ -192,6 +194,27 @@ const TransactionDataContainer = (): JSX.Element => {
                 getTransactionType(transactionData) ===
                   TransactionType.Contract_Creation) && (
                 <TransactionDataTabs txHash={txHash} />
+              )}
+              <Divider />
+              <Typography variant='h6' component='h6' color='primary'>
+                Decoded function data
+              </Typography>
+              {showLoadingDecodedSkeleton ? (
+                <DecodedLoadingSkeleton />
+              ) : (
+                <>
+                  {callData?.name && (
+                    <DataRow title='Function name' data={`${callData.name}`} />
+                  )}
+                  {callData?.params &&
+                    callData.params.map((param, i) => (
+                      <DataRow
+                        key={param + '-' + i}
+                        title={`[${i}]`}
+                        data={`${param || 'Not Set'}`}
+                      />
+                    ))}
+                </>
               )}
             </Box>
           )}
