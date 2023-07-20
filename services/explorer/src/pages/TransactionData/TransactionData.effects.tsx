@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import { deZeroX, displayWeiOrTara } from '../../utils';
-import { BlockData, Transaction } from '../../models';
+import {
+  TransactionType,
+  deZeroX,
+  displayWeiOrTara,
+  getTransactionType,
+} from '../../utils';
+import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { transactionQuery } from '../../api';
+import { useGetDecodedTransactionsByTxHash } from '../../api/explorer-api/fetchDecodedTransactions';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
@@ -16,6 +22,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     { name?: string; from?: string; to?: string; value?: string }[]
   >([]);
   const [transactionData, setTransactionData] = useState<Transaction>();
+
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: transactiondata }] = useQuery({
     query: transactionQuery,
@@ -24,7 +31,18 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     },
     pause: !txHash,
   });
+
+  const { backendEndpoint } = useExplorerNetwork();
+  const txType = getTransactionType(transactionData);
+  const { isFetching, data: decodedTxData } = useGetDecodedTransactionsByTxHash(
+    backendEndpoint,
+    txType as TransactionType,
+    txHash
+  );
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
+    useState<boolean>(false);
+
+  const [showLoadingDecodedSkeleton, setShowLoadingDecodedSkeleton] =
     useState<boolean>(false);
 
   useEffect(() => {
@@ -53,6 +71,16 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   }, [fetching]);
 
   useEffect(() => {
+    if (isFetching) {
+      initLoading();
+      setShowLoadingDecodedSkeleton(true);
+    } else {
+      finishLoading();
+      setShowLoadingDecodedSkeleton(false);
+    }
+  }, [fetching]);
+
+  useEffect(() => {
     if (currentNetwork !== network) {
       setShowNetworkChanged(true);
     }
@@ -60,9 +88,11 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   return {
     transactionData,
+    decodedTxData,
     events,
     currentNetwork,
     showLoadingSkeleton,
+    showLoadingDecodedSkeleton,
     showNetworkChanged,
   };
 };

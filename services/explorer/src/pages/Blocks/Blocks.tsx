@@ -18,10 +18,7 @@ const BlocksPage = (): JSX.Element => {
     <>
       <PageTitle
         title='Blocks'
-        subtitle={`Blocks list on the ${currentNetwork}: showing the last ${
-          rows ? rows.length : 0
-        }
-          records.`}
+        subtitle={`Blocks list on the ${currentNetwork}`}
       />
       <Table
         rows={rows}

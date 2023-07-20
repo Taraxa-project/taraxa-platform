@@ -31,7 +31,7 @@ export const transactionQuery = `
         index,
         topics,
         data,
-      }
+      },
     }
   }
 `;
