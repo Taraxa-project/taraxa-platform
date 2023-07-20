@@ -37,6 +37,13 @@ export type FetchWithPagination = {
   limit: number;
 };
 
+export type FetchWithPaginationResult = {
+  start: number;
+  limit: number;
+  total: number;
+  hasNext: boolean;
+};
+
 export type ResultWithPagination<T> = {
   start: number;
   end: number;
@@ -86,10 +93,21 @@ export interface AddressTxResponse {
   type?: 0 | 1 | 2;
 }
 
+export interface HoldersResponse {
+  address: string;
+  balance: string;
+}
+
 export interface RankedNode extends ITaraxaNode {
   rank: number;
   address: string;
   pbftCount: number;
+}
+
+export interface Holder {
+  rank: number;
+  address: string;
+  balance: string;
 }
 
 export interface Paginate<T> {

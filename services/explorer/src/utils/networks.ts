@@ -116,3 +116,22 @@ export const networkRedirect = (network: string): void => {
     window.location.replace(redirectUrl);
   }
 };
+
+export const recreateNetworkIndexerConnection = (currentNetwork: string) => {
+  let indexerEndpoint: string;
+  switch (currentNetwork) {
+    case Network.MAINNET:
+      indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
+      break;
+    case Network.TESTNET:
+      indexerEndpoint = process.env.REACT_APP_TESTNET_INDEXER_HOST || '';
+      break;
+    case Network.DEVNET:
+      indexerEndpoint = process.env.REACT_APP_DEVNET_INDEXER_HOST || '';
+      break;
+    default:
+      indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
+      break;
+  }
+  return indexerEndpoint;
+};

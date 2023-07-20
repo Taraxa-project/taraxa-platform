@@ -47,6 +47,7 @@ import NetworkMenu from './components/NetworkMenu';
 import Label from './components/Label';
 import PageTitle from './components/PageTitle';
 import BarChart from './components/BarChart';
+import ProgressBar from './components/ProgressBar';
 import EmptyTable from './components/EmptyTable';
 import {
   TransactionDetails,
@@ -134,6 +135,7 @@ export {
   Label,
   PageTitle,
   BarChart,
+  ProgressBar,
   TransactionDetails,
   shortenHash,
   BlockCard,

@@ -7,6 +7,7 @@ import {
   recreateAPIConnection,
   recreateFaucetConnection,
   networkRedirect,
+  recreateNetworkIndexerConnection,
 } from '../utils';
 
 type Context = {
@@ -15,6 +16,7 @@ type Context = {
   graphQLClient: Client;
   backendEndpoint: string;
   faucetEndpoint: string;
+  indexerEndpoint: string;
   setNetwork: (network: string) => void;
   disableNetworkSelection: boolean;
 };
@@ -30,6 +32,7 @@ const initialState: Context = {
   graphQLClient: createClient(recreateGraphQLConnection(Network.MAINNET)),
   backendEndpoint: recreateAPIConnection(Network.MAINNET),
   faucetEndpoint: recreateFaucetConnection(Network.MAINNET),
+  indexerEndpoint: recreateNetworkIndexerConnection(Network.MAINNET),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   disableNetworkSelection: false,
@@ -53,6 +56,10 @@ const useNetworkSelection = () => {
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
     recreateFaucetConnection(currentNetwork)
   );
+
+  const [indexerEndpoint, setIndexerEndpoint] = useState<string>(
+    recreateNetworkIndexerConnection(currentNetwork)
+  );
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
   };
@@ -61,6 +68,7 @@ const useNetworkSelection = () => {
     setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
     setBackendEndpoint(recreateAPIConnection(currentNetwork));
     setFaucetEndpoint(recreateFaucetConnection(currentNetwork));
+    setIndexerEndpoint(recreateNetworkIndexerConnection(currentNetwork));
     networkRedirect(currentNetwork);
   }, [currentNetwork]);
 
@@ -71,6 +79,7 @@ const useNetworkSelection = () => {
     graphQLClient,
     backendEndpoint,
     faucetEndpoint,
+    indexerEndpoint,
     disableNetworkSelection: !!hostNetwork,
   };
 };
