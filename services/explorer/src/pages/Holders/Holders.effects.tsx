@@ -3,7 +3,7 @@ import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
 import { FetchWithPaginationResult, Holder, useGetTokenPrice } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
-import { Network, toHolderTableRow } from '../../utils';
+import { toHolderTableRow } from '../../utils';
 import { useGetHolders } from 'src/api/indexer/fetchHolders';
 import { useGetTotalSupply } from 'src/api/indexer/fetchTotalSupply';
 import { BigNumber } from 'ethers';
@@ -17,7 +17,7 @@ const cols: ColumnData[] = [
 ];
 
 export const useHoldersEffects = () => {
-  const { currentNetwork } = useExplorerNetwork();
+  const { currentNetwork, indexerEndpoint } = useExplorerNetwork();
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
     usePagination();
   const { data: tokenPriceData } = useGetTokenPrice();
@@ -35,7 +35,6 @@ export const useHoldersEffects = () => {
 
   const fetchTotalSupply = useCallback(async () => {
     initLoading();
-    const indexerEndpoint = getNetworkIndexerEndpoint(currentNetwork);
     try {
       const totalSupply = await useGetTotalSupply(indexerEndpoint);
       setTotalSupply(BigNumber.from(totalSupply));
@@ -48,7 +47,6 @@ export const useHoldersEffects = () => {
 
   const updateValidators = useCallback(async () => {
     initLoading();
-    const indexerEndpoint = getNetworkIndexerEndpoint(currentNetwork);
     try {
       const holders = await useGetHolders(indexerEndpoint, {
         start: pagination.start,
@@ -125,21 +123,3 @@ export const useHoldersEffects = () => {
     pagination,
   };
 };
-function getNetworkIndexerEndpoint(currentNetwork: string) {
-  let indexerEndpoint = '';
-  switch (currentNetwork) {
-    case Network.MAINNET:
-      indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
-      break;
-    case Network.TESTNET:
-      indexerEndpoint = process.env.REACT_APP_TESTNET_INDEXER_HOST || '';
-      break;
-    case Network.DEVNET:
-      indexerEndpoint = process.env.REACT_APP_DEVNET_INDEXER_HOST || '';
-      break;
-    default:
-      indexerEndpoint = process.env.REACT_APP_MAINNET_INDEXER_HOST || '';
-      break;
-  }
-  return indexerEndpoint;
-}
