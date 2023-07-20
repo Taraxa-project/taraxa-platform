@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  BarFlexCell,
+  ProgressBar,
   CircularProgress,
   Icons,
   Label,
@@ -221,7 +221,7 @@ export const toHolderTableRow = ({
   } else {
     percentageNum = divided;
   }
-  const barFlexCell = <BarFlexCell percentage={percentageNum} />;
+  const percentageBar = <ProgressBar percentage={percentageNum} />;
   const etherBalance = ethers.utils.formatEther(balance);
   const value = `$${(
     Number.parseFloat(etherBalance) * taraPrice
@@ -230,7 +230,7 @@ export const toHolderTableRow = ({
     rank,
     address: addressLink,
     balance: ethers.utils.commify(ethers.utils.formatEther(balance)),
-    percentage: barFlexCell,
+    percentage: percentageBar,
     value,
   };
 };

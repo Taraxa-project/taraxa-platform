@@ -1,7 +1,7 @@
 import { makeStyles } from '@mui/styles';
 import theme from '../theme';
 
-export interface BarFlexCellProps {
+export interface ProgressBarCellProps {
   percentage: number;
 }
 

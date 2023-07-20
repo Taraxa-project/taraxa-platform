@@ -1,14 +1,14 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
-import BarFlexCell from './BarFlexCell';
+import ProgressBar from './ProgressBar';
 
 export default {
-  title: 'Components/BarFlexCell',
-  component: BarFlexCell,
+  title: 'Components/ProgressBar',
+  component: ProgressBar,
   argTypes: { percentage: { control: 'number' } },
 } as Meta;
 
-const Template: Story<any> = (args) => <BarFlexCell {...args} />;
+const Template: Story<any> = (args) => <ProgressBar {...args} />;
 
 export const Primary = Template.bind({});
 Primary.args = {

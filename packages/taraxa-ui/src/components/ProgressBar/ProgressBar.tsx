@@ -1,8 +1,8 @@
 import React from 'react';
-import useStyles, { BarFlexCellProps } from './BarFlexCell.styles';
+import useStyles, { ProgressBarCellProps } from './ProgressBar.styles';
 import theme from '../theme';
 
-const BarFlexCell: React.FC<BarFlexCellProps> = ({ percentage }) => {
+const ProgressBar: React.FC<ProgressBarCellProps> = ({ percentage }) => {
   const classes = useStyles();
   return (
     <div className={classes.cellContainer}>
@@ -32,4 +32,4 @@ const BarFlexCell: React.FC<BarFlexCellProps> = ({ percentage }) => {
   );
 };
 
-export default BarFlexCell;
+export default ProgressBar;
