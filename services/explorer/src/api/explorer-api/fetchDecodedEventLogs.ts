@@ -1,18 +1,17 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
-import { TransactionType } from '../../utils';
 
-const getDecodedTrans = (endpoint: string, hash: string) => {
+const getDecodedEvents = (endpoint: string, hash: string) => {
   if (!hash || !endpoint) {
     return;
   }
-  const url = `${endpoint}/transaction/${hash}`;
+  const url = `${endpoint}/transaction/${hash}/logs`;
   return axios.get(url);
 };
 
-export const useGetDecodedTransactionsByTxHash = (
+export const useGetDecodedLogsByTxHash = (
   endpoint: string,
-  txType: TransactionType,
+  hasLogs: boolean,
   hash: string
 ): {
   data: AxiosResponse<any>;
@@ -22,18 +21,14 @@ export const useGetDecodedTransactionsByTxHash = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['decoded-transactions', hash, endpoint, txType],
-    () => getDecodedTrans(endpoint, hash),
+    ['decoded-events', hash, endpoint, hasLogs],
+    () => getDecodedEvents(endpoint, hash),
     {
       onError: (error) => {
         // eslint-disable-next-line no-console
         console.log('ERROR: ', error);
       },
-      enabled:
-        !!hash &&
-        !!txType &&
-        txType !== TransactionType.Internal_Transfer &&
-        txType !== TransactionType.Transfer,
+      enabled: !!hash && hasLogs,
     }
   );
 
