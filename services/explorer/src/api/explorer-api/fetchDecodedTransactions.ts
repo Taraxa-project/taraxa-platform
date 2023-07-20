@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
-import { TransactionType } from 'src/utils';
+import { CallData } from '../../models';
+import { TransactionType } from '../../utils';
 
 const getDecodedTrans = (endpoint: string, hash: string) => {
   if (!hash || !endpoint) {

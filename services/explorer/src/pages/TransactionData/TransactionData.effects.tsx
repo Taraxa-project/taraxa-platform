@@ -7,11 +7,11 @@ import {
   displayWeiOrTara,
   getTransactionType,
 } from '../../utils';
-import { BlockData, CallData, Transaction } from '../../models';
+import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { transactionQuery } from '../../api';
-import { useGetDecodedTransactionsByTxHash } from 'src/api/explorer-api/fetchDecodedTransactions';
+import { useGetDecodedTransactionsByTxHash } from '../../api/explorer-api/fetchDecodedTransactions';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
@@ -22,7 +22,6 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     { name?: string; from?: string; to?: string; value?: string }[]
   >([]);
   const [transactionData, setTransactionData] = useState<Transaction>();
-  const [callData, setCallData] = useState<CallData>();
 
   const { initLoading, finishLoading } = useExplorerLoader();
   const [{ fetching, data: transactiondata }] = useQuery({
@@ -62,12 +61,6 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   }, [transactiondata]);
 
   useEffect(() => {
-    if (decodedTxData && decodedTxData.data && decodedTxData.status === 200) {
-      setCallData(decodedTxData.data.calldata);
-    }
-  }, [decodedTxData]);
-
-  useEffect(() => {
     if (fetching) {
       initLoading();
       setShowLoadingSkeleton(true);
@@ -95,7 +88,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   return {
     transactionData,
-    callData,
+    decodedTxData,
     events,
     currentNetwork,
     showLoadingSkeleton,

@@ -26,12 +26,13 @@ import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import LoadingSkeletonTx, { DecodedLoadingSkeleton } from './LoadingSkeletonTx';
 import TransactionDataTabs from './TransactionDataTabs';
+import { CallData } from '../../models';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const {
     transactionData,
-    callData,
+    decodedTxData,
     events,
     currentNetwork,
     showLoadingSkeleton,
@@ -40,6 +41,7 @@ const TransactionDataContainer = (): JSX.Element => {
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
 
+  const callData = decodedTxData?.data?.calldata as CallData;
   return (
     <>
       <PageTitle
@@ -203,10 +205,11 @@ const TransactionDataContainer = (): JSX.Element => {
                 <DecodedLoadingSkeleton />
               ) : (
                 <>
-                  {callData?.name && (
+                  {callData && callData.name && (
                     <DataRow title='Function name' data={`${callData.name}`} />
                   )}
-                  {callData?.params &&
+                  {callData &&
+                    callData.params &&
                     callData.params.map((param, i) => (
                       <DataRow
                         key={param + '-' + i}
