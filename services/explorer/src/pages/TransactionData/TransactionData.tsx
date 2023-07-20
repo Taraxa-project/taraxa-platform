@@ -211,7 +211,11 @@ const TransactionDataContainer = (): JSX.Element => {
                       <DataRow
                         key={param + '-' + i}
                         title={`[${i}]`}
-                        data={`${param || 'Not Set'}`}
+                        data={`${
+                          Array.isArray(param)
+                            ? param.join(', ')
+                            : param || 'Not Set'
+                        }`}
                       />
                     ))}
                 </>
