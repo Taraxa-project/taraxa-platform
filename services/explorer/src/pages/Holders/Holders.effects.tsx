@@ -4,8 +4,8 @@ import { usePagination } from '../../hooks/usePagination';
 import { FetchWithPaginationResult, Holder, useGetTokenPrice } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { toHolderTableRow } from '../../utils';
-import { useGetHolders } from 'src/api/indexer/fetchHolders';
-import { useGetTotalSupply } from 'src/api/indexer/fetchTotalSupply';
+import { useGetHolders } from '../../api/indexer/fetchHolders';
+import { useGetTotalSupply } from '../../api/indexer/fetchTotalSupply';
 import { BigNumber } from 'ethers';
 
 const cols: ColumnData[] = [
