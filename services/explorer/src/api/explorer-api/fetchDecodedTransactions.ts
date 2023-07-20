@@ -22,7 +22,7 @@ export const useGetDecodedTransactionsByTxHash = (
   isFetching: boolean;
 } => {
   const { data, isError, error, isLoading, isFetching } = useQuery(
-    ['internal-transactions', hash, endpoint],
+    ['decoded-transactions', hash, endpoint, txType],
     () => getDecodedTrans(endpoint, hash),
     {
       onError: (error) => {
