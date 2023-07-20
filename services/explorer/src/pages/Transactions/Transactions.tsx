@@ -10,10 +10,7 @@ const TransactionsPage = (): JSX.Element => {
     <>
       <PageTitle
         title='Transactions'
-        subtitle={`Transactions list on the ${currentNetwork}: showing the last ${
-          rows ? rows.length : 0
-        }
-          records.`}
+        subtitle={`Transactions list on the ${currentNetwork}`}
       />
       <Table rows={rows} columns={columns} />
     </>
