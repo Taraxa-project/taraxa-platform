@@ -13,6 +13,8 @@ import {
   GreenRightArrow,
   HashLink,
   PageTitle,
+  TableTabs,
+  TransactionIcon,
 } from '../../components';
 import {
   HashLinkType,
@@ -21,19 +23,23 @@ import {
   formatTransactionStatus,
   getTransactionType,
   TransactionType,
+  EventData,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import LoadingSkeletonTx, { DecodedLoadingSkeleton } from './LoadingSkeletonTx';
 import TransactionDataTabs from './TransactionDataTabs';
-import { CallData } from '../../models';
+import { CallData, TableTabsProps } from '../../models';
+import useStyles from './TransactionData.styles';
 
 const TransactionDataContainer = (): JSX.Element => {
+  const classes = useStyles();
   const { txHash } = useParams();
   const {
+    setTabsStep,
     transactionData,
     decodedTxData,
-    events,
+    decodedLogData,
     currentNetwork,
     showLoadingSkeleton,
     showLoadingDecodedSkeleton,
@@ -41,7 +47,155 @@ const TransactionDataContainer = (): JSX.Element => {
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
 
+  const tableTabs: TableTabsProps = {
+    tabs: [],
+    initialValue: 0,
+  };
+
   const callData = decodedTxData?.data?.calldata as CallData;
+  const logDatas = decodedLogData?.data?.data as EventData[];
+
+  if (decodedTxData) {
+    tableTabs.tabs.push({
+      label: 'Function Data',
+      index: 0,
+      icon: (
+        <Box className={classes.tabIconContainer}>
+          <TransactionIcon />
+        </Box>
+      ),
+      iconPosition: 'start',
+      children: (
+        <Box
+          display='flex'
+          flexDirection='column'
+          justifyContent='flex-start'
+          gap='1rem'
+          mt={2}
+        >
+          {showLoadingDecodedSkeleton ? (
+            <DecodedLoadingSkeleton />
+          ) : (
+            <>
+              <Typography variant='h6' component='h6' color='primary'>
+                Transaction data
+              </Typography>
+              {callData && callData.name && (
+                <DataRow title='Function name' data={`${callData.name}`} />
+              )}
+              {callData &&
+                callData.params &&
+                callData.params.map((param, i) => (
+                  <DataRow
+                    key={param + '-' + i}
+                    title={`[${i}]`}
+                    data={`${
+                      Array.isArray(param)
+                        ? param.join(', ')
+                        : param || 'Not Set'
+                    }`}
+                  />
+                ))}
+            </>
+          )}
+        </Box>
+      ),
+    });
+  }
+
+  if (decodedLogData) {
+    tableTabs.tabs.push({
+      label: 'Event Logs',
+      index: 1,
+      icon: (
+        <Box className={classes.tabIconContainer}>
+          <TransactionIcon />
+        </Box>
+      ),
+      iconPosition: 'start',
+      children: (
+        <Box
+          display='flex'
+          flexDirection='column'
+          justifyContent='flex-start'
+          gap='1rem'
+          mt={2}
+        >
+          {showLoadingDecodedSkeleton ? (
+            <DecodedLoadingSkeleton />
+          ) : (
+            <>
+              <Typography variant='h6' component='h6' color='primary'>
+                Event Data
+              </Typography>
+              {logDatas &&
+                logDatas.length > 0 &&
+                logDatas.map((logData, i) => (
+                  <div key={`${logData.name}-${i}`}>
+                    {logData && logData.address && (
+                      <DataRow
+                        key={`${logData.address}`}
+                        title='Address'
+                        data={`${logData.address}`}
+                      />
+                    )}
+                    {logData && logData.name && (
+                      <DataRow
+                        key={`${logData.name}`}
+                        title='Name'
+                        data={`${logData.name}`}
+                      />
+                    )}
+                    {logData && logData.topics && (
+                      <>
+                        <DataRow
+                          key={`${logData.topics.length}`}
+                          title='Topics'
+                          data='&nbsp;'
+                        />
+                        {logData.topics.map((t, i) => (
+                          <DataRow
+                            key={`${t}`}
+                            title={`[${i}]`}
+                            data={`-> ${t}`}
+                          />
+                        ))}
+                      </>
+                    )}
+                    {logData && logData.params && logData.params.length > 0 && (
+                      <>
+                        <DataRow
+                          key={`${logData.params.length}`}
+                          title='Decoded Topics'
+                          data='&nbsp;'
+                        />
+                        {logData.params.map((p, i) => (
+                          <DataRow
+                            key={`${p}`}
+                            title={`[${i}]`}
+                            data={`-> ${p}`}
+                          />
+                        ))}
+                      </>
+                    )}
+                    {logData && logData.data && (
+                      <DataRow
+                        key={`${logData.data}`}
+                        title='Data'
+                        data={`${logData.data}`}
+                      />
+                    )}
+                    <br />
+                    <Divider />
+                  </div>
+                ))}
+            </>
+          )}
+        </Box>
+      ),
+    });
+  }
+
   return (
     <>
       <PageTitle
@@ -126,12 +280,6 @@ const TransactionDataContainer = (): JSX.Element => {
                 }
               />
               <Divider light />
-              {events?.length !== 0 && (
-                <DataRow
-                  title='Transaction action'
-                  data={events.map((e) => `${e.name}`).join(' ')}
-                />
-              )}
               <DataRow
                 title='Action'
                 data={`${getTransactionType(transactionData)}`}
@@ -197,31 +345,14 @@ const TransactionDataContainer = (): JSX.Element => {
                   TransactionType.Contract_Creation) && (
                 <TransactionDataTabs txHash={txHash} />
               )}
-              <Divider />
-              <Typography variant='h6' component='h6' color='primary'>
-                Decoded function data
-              </Typography>
-              {showLoadingDecodedSkeleton ? (
-                <DecodedLoadingSkeleton />
-              ) : (
+              {(decodedLogData && decodedLogData?.data !== undefined) ||
+              (decodedTxData && decodedTxData?.data !== undefined) ? (
                 <>
-                  {callData && callData.name && (
-                    <DataRow title='Function name' data={`${callData.name}`} />
-                  )}
-                  {callData &&
-                    callData.params &&
-                    callData.params.map((param, i) => (
-                      <DataRow
-                        key={param + '-' + i}
-                        title={`[${i}]`}
-                        data={`${
-                          Array.isArray(param)
-                            ? param.join(', ')
-                            : param || 'Not Set'
-                        }`}
-                      />
-                    ))}
+                  <Divider />
+                  <TableTabs {...tableTabs} setTabsStep={setTabsStep} />
                 </>
+              ) : (
+                <></>
               )}
             </Box>
           )}

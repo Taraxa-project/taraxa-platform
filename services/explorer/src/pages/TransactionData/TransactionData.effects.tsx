@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import {
+  EventData,
   TransactionType,
   deZeroX,
   displayWeiOrTara,
@@ -11,16 +12,14 @@ import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { transactionQuery } from '../../api';
-import { useGetDecodedTransactionsByTxHash } from '../../api/explorer-api/fetchDecodedTransactions';
+import { useGetDecodedLogsByTxHash } from '../../api/explorer-api/fetchDecodedEventLogs';
+import { useGetDecodedTransactionsByTxHash } from 'src/api/explorer-api/fetchDecodedTransactions';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
   const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
-
-  const [events] = useState<
-    { name?: string; from?: string; to?: string; value?: string }[]
-  >([]);
+  const [tabsStep, setTabsStep] = useState<number>(0);
   const [transactionData, setTransactionData] = useState<Transaction>();
 
   const { initLoading, finishLoading } = useExplorerLoader();
@@ -39,6 +38,9 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     txType as TransactionType,
     txHash
   );
+  const hasLogs = transactionData?.logs?.length > 0;
+  const { isFetching: isFetchingLogs, data: decodedLogData } =
+    useGetDecodedLogsByTxHash(backendEndpoint, hasLogs, txHash);
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
 
@@ -53,6 +55,10 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
         value: displayWeiOrTara(transactiondata?.transaction.value),
         gasUsed: `${transactiondata?.transaction.gasUsed}`,
         gasPrice: `${transactiondata?.transaction.gasPrice} Wei`,
+        logs: transactiondata?.transaction.logs?.map((log: EventData) => ({
+          ...log,
+          data: log.data ? JSON.stringify(log.data) : '',
+        })),
       });
     }
     if (transactiondata?.transaction === null) {
@@ -78,7 +84,17 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
       finishLoading();
       setShowLoadingDecodedSkeleton(false);
     }
-  }, [fetching]);
+  }, [isFetching]);
+
+  useEffect(() => {
+    if (isFetchingLogs) {
+      initLoading();
+      setShowLoadingDecodedSkeleton(true);
+    } else {
+      finishLoading();
+      setShowLoadingDecodedSkeleton(false);
+    }
+  }, [isFetchingLogs]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
@@ -87,9 +103,11 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   }, [currentNetwork, network]);
 
   return {
+    tabsStep,
+    setTabsStep,
     transactionData,
     decodedTxData,
-    events,
+    decodedLogData,
     currentNetwork,
     showLoadingSkeleton,
     showLoadingDecodedSkeleton,
