@@ -1,21 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import {
-  TransactionType,
-  deZeroX,
-  displayWeiOrTara,
-  getTransactionType,
-} from '../../utils';
+import { deZeroX, displayWeiOrTara, getTransactionType } from '../../utils';
 import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import {
-  EventData,
-  transactionQuery,
-  useGetDecodedLogsByTxHash,
-  useGetDecodedTransactionsByTxHash,
-} from '../../api';
+import { EventData, transactionQuery } from '../../api';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
@@ -33,14 +23,10 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     pause: !txHash,
   });
 
-  const { backendEndpoint } = useExplorerNetwork();
   const txType = getTransactionType(transactionData);
   const hasLogs = transactionData?.logs?.length > 0;
 
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
-    useState<boolean>(false);
-
-  const [showLoadingDecodedSkeleton, setShowLoadingDecodedSkeleton] =
     useState<boolean>(false);
 
   useEffect(() => {
@@ -84,7 +70,6 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     transactionData,
     currentNetwork,
     showLoadingSkeleton,
-    showLoadingDecodedSkeleton,
     showNetworkChanged,
     txType,
     hasLogs,

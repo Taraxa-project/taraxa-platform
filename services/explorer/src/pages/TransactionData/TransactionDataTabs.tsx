@@ -116,10 +116,10 @@ const TransactionDataTabs = ({
     });
   }
 
-  if (callData) {
+  if (decodedTxData) {
     tableTabs.tabs.push({
       label: 'Function Data',
-      index: 1,
+      index: totalItxCount > 0 ? 1 : 0,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.Tips />
@@ -161,7 +161,7 @@ const TransactionDataTabs = ({
   if (dataLogs?.length > 0) {
     tableTabs.tabs.push({
       label: 'Event Logs',
-      index: 2,
+      index: totalItxCount > 0 ? (decodedTxData ? 2 : 1) : 1,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.File />
