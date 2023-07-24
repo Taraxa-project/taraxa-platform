@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
 import {
-  EventData,
   TransactionType,
   deZeroX,
   displayWeiOrTara,
@@ -11,9 +10,12 @@ import {
 import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
-import { transactionQuery } from '../../api';
-import { useGetDecodedLogsByTxHash } from '../../api/explorer-api/fetchDecodedEventLogs';
-import { useGetDecodedTransactionsByTxHash } from 'src/api/explorer-api/fetchDecodedTransactions';
+import {
+  EventData,
+  transactionQuery,
+  useGetDecodedLogsByTxHash,
+  useGetDecodedTransactionsByTxHash,
+} from '../../api';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
   const { currentNetwork } = useExplorerNetwork();
@@ -23,7 +25,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   const [transactionData, setTransactionData] = useState<Transaction>();
 
   const { initLoading, finishLoading } = useExplorerLoader();
-  const [{ fetching, data: transactiondata }] = useQuery({
+  const [{ fetching, data: txData }] = useQuery({
     query: transactionQuery,
     variables: {
       hash: deZeroX(txHash),
@@ -33,11 +35,12 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   const { backendEndpoint } = useExplorerNetwork();
   const txType = getTransactionType(transactionData);
-  const { isFetching, data: decodedTxData } = useGetDecodedTransactionsByTxHash(
-    backendEndpoint,
-    txType as TransactionType,
-    txHash
-  );
+  const { isFetching: isFetchingDecodedTx, data: decodedTxData } =
+    useGetDecodedTransactionsByTxHash(
+      backendEndpoint,
+      txType as TransactionType,
+      txHash
+    );
   const hasLogs = transactionData?.logs?.length > 0;
   const { isFetching: isFetchingLogs, data: decodedLogData } =
     useGetDecodedLogsByTxHash(backendEndpoint, hasLogs, txHash);
@@ -48,50 +51,52 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     useState<boolean>(false);
 
   useEffect(() => {
-    if (transactiondata?.transaction) {
+    if (txData?.transaction) {
       setShowNetworkChanged(false);
       setTransactionData({
-        ...transactiondata?.transaction,
-        value: displayWeiOrTara(transactiondata?.transaction.value),
-        gasUsed: `${transactiondata?.transaction.gasUsed}`,
-        gasPrice: `${transactiondata?.transaction.gasPrice} Wei`,
-        logs: transactiondata?.transaction.logs?.map((log: EventData) => ({
+        ...txData?.transaction,
+        value: displayWeiOrTara(txData?.transaction.value),
+        gasUsed: `${txData?.transaction.gasUsed}`,
+        gasPrice: `${txData?.transaction.gasPrice} Wei`,
+        logs: txData?.transaction.logs?.map((log: EventData) => ({
           ...log,
           data: log.data ? JSON.stringify(log.data) : '',
         })),
       });
     }
-    if (transactiondata?.transaction === null) {
+    if (txData?.transaction === null) {
       setShowNetworkChanged(true);
     }
-  }, [transactiondata]);
+  }, [txData]);
+
+  useEffect(() => {
+    if (fetching || isFetchingDecodedTx || isFetchingLogs) {
+      initLoading();
+    } else {
+      finishLoading();
+    }
+  }, [fetching, isFetchingDecodedTx, isFetchingLogs]);
 
   useEffect(() => {
     if (fetching) {
-      initLoading();
       setShowLoadingSkeleton(true);
     } else {
-      finishLoading();
       setShowLoadingSkeleton(false);
     }
   }, [fetching]);
 
   useEffect(() => {
-    if (isFetching) {
-      initLoading();
+    if (isFetchingDecodedTx) {
       setShowLoadingDecodedSkeleton(true);
     } else {
-      finishLoading();
       setShowLoadingDecodedSkeleton(false);
     }
-  }, [isFetching]);
+  }, [isFetchingDecodedTx]);
 
   useEffect(() => {
     if (isFetchingLogs) {
-      initLoading();
       setShowLoadingDecodedSkeleton(true);
     } else {
-      finishLoading();
       setShowLoadingDecodedSkeleton(false);
     }
   }, [isFetchingLogs]);

@@ -23,7 +23,6 @@ import {
   formatTransactionStatus,
   getTransactionType,
   TransactionType,
-  EventData,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -31,6 +30,7 @@ import LoadingSkeletonTx, { DecodedLoadingSkeleton } from './LoadingSkeletonTx';
 import TransactionDataTabs from './TransactionDataTabs';
 import { CallData, TableTabsProps } from '../../models';
 import useStyles from './TransactionData.styles';
+import { EventData } from '../../api';
 
 const TransactionDataContainer = (): JSX.Element => {
   const classes = useStyles();
@@ -186,7 +186,7 @@ const TransactionDataContainer = (): JSX.Element => {
                       />
                     )}
                     <br />
-                    <Divider />
+                    {i < logDatas.length - 1 && <Divider />}
                   </div>
                 ))}
             </>

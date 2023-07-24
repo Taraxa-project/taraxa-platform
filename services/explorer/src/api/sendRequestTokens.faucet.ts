@@ -1,4 +1,4 @@
-import { ToastData } from '../utils';
+import { ToastData } from './types';
 
 export async function sendRequestTokens(
   address: string,

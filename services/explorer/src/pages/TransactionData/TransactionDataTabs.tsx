@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { Box, Divider } from '@taraxa_project/taraxa-ui';
 
 import { TableTabsProps, Transaction } from '../../models';
-import { useGetInternalTransactionsByTxHash } from '../../api/explorer-api/fetchInternalTransactions';
+import { useGetInternalTransactionsByTxHash } from '../../api';
 import { displayWeiOrTara, getAddressTransactionType } from '../../utils';
 import { useExplorerNetwork } from '../../hooks';
 import useStyles from './TransactionData.styles';
