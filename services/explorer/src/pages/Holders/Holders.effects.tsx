@@ -21,7 +21,7 @@ const cols: ColumnData[] = [
 ];
 
 export const useHoldersEffects = () => {
-  const { currentNetwork, indexerEndpoint } = useExplorerNetwork();
+  const { currentNetwork, backendEndpoint } = useExplorerNetwork();
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
     usePagination();
   const { data: tokenPriceData } = useGetTokenPrice();
@@ -40,7 +40,7 @@ export const useHoldersEffects = () => {
   const fetchTotalSupply = useCallback(async () => {
     initLoading();
     try {
-      const totalSupply = await useGetTotalSupply(indexerEndpoint);
+      const totalSupply = await useGetTotalSupply(backendEndpoint);
       setTotalSupply(BigNumber.from(totalSupply));
     } catch (error) {
       console.log('error', error);
@@ -52,7 +52,7 @@ export const useHoldersEffects = () => {
   const updateValidators = useCallback(async () => {
     initLoading();
     try {
-      const holders = await useGetHolders(indexerEndpoint, {
+      const holders = await useGetHolders(backendEndpoint, {
         start: pagination.start,
         limit: rowsPerPage,
       });

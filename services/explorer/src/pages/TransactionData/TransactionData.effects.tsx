@@ -35,15 +35,8 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
 
   const { backendEndpoint } = useExplorerNetwork();
   const txType = getTransactionType(transactionData);
-  const { isFetching: isFetchingDecodedTx, data: decodedTxData } =
-    useGetDecodedTransactionsByTxHash(
-      backendEndpoint,
-      txType as TransactionType,
-      txHash
-    );
   const hasLogs = transactionData?.logs?.length > 0;
-  const { isFetching: isFetchingLogs, data: decodedLogData } =
-    useGetDecodedLogsByTxHash(backendEndpoint, hasLogs, txHash);
+
   const [showLoadingSkeleton, setShowLoadingSkeleton] =
     useState<boolean>(false);
 
@@ -70,36 +63,14 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
   }, [txData]);
 
   useEffect(() => {
-    if (fetching || isFetchingDecodedTx || isFetchingLogs) {
-      initLoading();
-    } else {
-      finishLoading();
-    }
-  }, [fetching, isFetchingDecodedTx, isFetchingLogs]);
-
-  useEffect(() => {
     if (fetching) {
+      initLoading();
       setShowLoadingSkeleton(true);
     } else {
+      finishLoading();
       setShowLoadingSkeleton(false);
     }
   }, [fetching]);
-
-  useEffect(() => {
-    if (isFetchingDecodedTx) {
-      setShowLoadingDecodedSkeleton(true);
-    } else {
-      setShowLoadingDecodedSkeleton(false);
-    }
-  }, [isFetchingDecodedTx]);
-
-  useEffect(() => {
-    if (isFetchingLogs) {
-      setShowLoadingDecodedSkeleton(true);
-    } else {
-      setShowLoadingDecodedSkeleton(false);
-    }
-  }, [isFetchingLogs]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
@@ -111,11 +82,11 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     tabsStep,
     setTabsStep,
     transactionData,
-    decodedTxData,
-    decodedLogData,
     currentNetwork,
     showLoadingSkeleton,
     showLoadingDecodedSkeleton,
     showNetworkChanged,
+    txType,
+    hasLogs,
   };
 };
