@@ -154,7 +154,7 @@ const TransactionDataTabs = ({
   if (dataLogs?.length > 0) {
     tableTabs.tabs.push({
       label: 'Event Logs',
-      index: totalItxCount > 0 ? (decodedTxData ? 2 : 1) : 1,
+      index: totalItxCount > 0 ? (callData && callData.name ? 2 : 1) : 1,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.File />
