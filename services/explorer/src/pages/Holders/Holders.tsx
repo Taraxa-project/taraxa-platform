@@ -59,7 +59,11 @@ const HoldersPage = (): JSX.Element => {
             <TableBody>
               {rows && rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow tabIndex={-1} data-key={index} key={index}>
+                  <TableRow
+                    tabIndex={-1}
+                    data-key={index}
+                    key={`${index}-${row.value}`}
+                  >
                     <TableCell align='center'>
                       {row.rank + page * rowsPerPage}
                     </TableCell>
