@@ -3,7 +3,7 @@ import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
 import { FetchWithPagination, Holder, useGetTokenPrice } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
-import { toHolderTableRow } from '../../utils';
+import { toHolderTableRow } from './HolderUtils';
 import { useGetHolders } from '../../api/indexer/fetchHolders';
 import { useGetTotalSupply } from '../../api/indexer/fetchTotalSupply';
 import { BigNumber } from 'ethers';
