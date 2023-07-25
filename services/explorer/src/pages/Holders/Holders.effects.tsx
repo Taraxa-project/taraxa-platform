@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
-import { FetchWithPagination, Holder, useGetTokenPrice } from '../../api';
+import { Holder, useGetTokenPrice } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
-import { toHolderTableRow } from './HolderUtils';
+import { toHolderTableRow } from './HolderRow';
 import { useGetHolders } from '../../api/indexer/fetchHolders';
 import { useGetTotalSupply } from '../../api/indexer/fetchTotalSupply';
 import { BigNumber } from 'ethers';

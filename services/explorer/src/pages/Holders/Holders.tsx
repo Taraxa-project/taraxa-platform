@@ -64,7 +64,7 @@ const HoldersPage = (): JSX.Element => {
                       {row.rank + page * rowsPerPage}
                     </TableCell>
                     <TableCell align='center'>{row.address}</TableCell>
-                    <TableCell align='center'>{row.balance}</TableCell>
+                    <TableCell align='center'>{row.balanceStr}</TableCell>
                     <TableCell align='center'>{row.percentage}</TableCell>
                     <TableCell align='center'>{row.value}</TableCell>
                   </TableRow>

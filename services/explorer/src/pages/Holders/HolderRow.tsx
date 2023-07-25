@@ -13,7 +13,7 @@ export const toHolderTableRow = ({
 }: HoldersTableData): {
   rank: number;
   address: JSX.Element;
-  balance: string;
+  balanceStr: string;
   percentage: JSX.Element;
   value: string;
 } => {
@@ -36,7 +36,7 @@ export const toHolderTableRow = ({
   return {
     rank,
     address: addressLink,
-    balance: utils.commify(utils.formatEther(balance)),
+    balanceStr: utils.commify(utils.formatEther(balance)),
     percentage: percentageBar,
     value,
   };
