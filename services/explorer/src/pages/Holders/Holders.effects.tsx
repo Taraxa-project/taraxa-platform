@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
-import { FetchWithPaginationResult, Holder, useGetTokenPrice } from '../../api';
+import { FetchWithPagination, Holder, useGetTokenPrice } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { toHolderTableRow } from '../../utils';
 import { useGetHolders } from '../../api/indexer/fetchHolders';
@@ -26,7 +26,9 @@ export const useHoldersEffects = () => {
   const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(0));
   const [tableData, setTableData] = useState([]);
   const [start, setStart] = useState<number>(0);
-  const [pagination, setPagination] = useState<FetchWithPaginationResult>({
+  const [pagination, setPagination] = useState<
+    FetchWithPagination & { total: number; hasNext: boolean }
+  >({
     start: 0,
     limit: rowsPerPage,
     total: 0,
@@ -98,8 +100,8 @@ export const useHoldersEffects = () => {
     handleChangeRowsPerPage(l);
   };
 
-  const title = `Top holders`;
-  const description = `Current Top holders on TARAXA ${currentNetwork}`;
+  const title = `Holders`;
+  const description = `Current holders on Taraxa ${currentNetwork}`;
 
   return {
     title,

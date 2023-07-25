@@ -78,7 +78,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
       finishLoading();
       setShowLoadingDecodedSkeleton(false);
     }
-  }, [fetching]);
+  }, [isFetching]);
 
   useEffect(() => {
     if (currentNetwork !== network) {

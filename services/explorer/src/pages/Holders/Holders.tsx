@@ -15,6 +15,8 @@ import { useHoldersEffects } from './Holders.effects';
 
 const HoldersPage = (): JSX.Element => {
   const {
+    title,
+    description,
     cols,
     rows,
     rowsPerPage,
@@ -25,7 +27,7 @@ const HoldersPage = (): JSX.Element => {
   } = useHoldersEffects();
   return (
     <>
-      <PageTitle title='Holders' subtitle='List of TARA holders on Mainnet' />
+      <PageTitle title={title} subtitle={description} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}

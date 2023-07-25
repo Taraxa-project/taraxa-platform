@@ -37,13 +37,6 @@ export type FetchWithPagination = {
   limit: number;
 };
 
-export type FetchWithPaginationResult = {
-  start: number;
-  limit: number;
-  total: number;
-  hasNext: boolean;
-};
-
 export type ResultWithPagination<T> = {
   start: number;
   end: number;
