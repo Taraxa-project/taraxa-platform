@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
-import { Holder, useGetTokenPrice } from '../../api';
+import {
+  Holder,
+  useGetHolders,
+  useGetTokenPrice,
+  useGetTotalSupply,
+} from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { toHolderTableRow } from './HolderRow';
-import { useGetHolders } from '../../api/indexer/fetchHolders';
-import { useGetTotalSupply } from '../../api/indexer/fetchTotalSupply';
 import { BigNumber } from 'ethers';
 
 const cols: ColumnData[] = [
@@ -17,7 +20,7 @@ const cols: ColumnData[] = [
 ];
 
 export const useHoldersEffects = () => {
-  const { currentNetwork, indexerEndpoint } = useExplorerNetwork();
+  const { currentNetwork, backendEndpoint } = useExplorerNetwork();
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
     usePagination();
   const { data: tokenPriceData } = useGetTokenPrice();
@@ -31,19 +34,19 @@ export const useHoldersEffects = () => {
   const fetchTotalSupply = useCallback(async () => {
     initLoading();
     try {
-      const totalSupply = await useGetTotalSupply(indexerEndpoint);
+      const totalSupply = await useGetTotalSupply(backendEndpoint);
       setTotalSupply(BigNumber.from(totalSupply));
     } catch (error) {
       console.log('error', error);
     } finally {
       finishLoading();
     }
-  }, [indexerEndpoint]);
+  }, [backendEndpoint]);
 
   const updateValidators = useCallback(async () => {
     initLoading();
     try {
-      const holders = await useGetHolders(indexerEndpoint, {
+      const holders = await useGetHolders(backendEndpoint, {
         start,
         limit: rowsPerPage,
       });
@@ -54,7 +57,7 @@ export const useHoldersEffects = () => {
     } finally {
       finishLoading();
     }
-  }, [rowsPerPage, start, indexerEndpoint]);
+  }, [rowsPerPage, start, backendEndpoint]);
 
   useEffect(() => {
     fetchTotalSupply();
