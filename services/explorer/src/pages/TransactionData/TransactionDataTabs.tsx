@@ -9,11 +9,7 @@ import {
   useGetDecodedTransactionsByTxHash,
   useGetInternalTransactionsByTxHash,
 } from '../../api';
-import {
-  TransactionType,
-  displayWeiOrTara,
-  getAddressTransactionType,
-} from '../../utils';
+import { displayWeiOrTara, getAddressTransactionType } from '../../utils';
 import { useExplorerNetwork } from '../../hooks';
 import useStyles from './TransactionData.styles';
 import { TransactionsTable } from '../../components/Tables';
@@ -21,13 +17,11 @@ import { DataRow, TableTabs } from '../../components';
 
 type TransactionDataTabsProps = {
   txHash: string;
-  txType: string;
   hasLogs: boolean;
 };
 
 const TransactionDataTabs = ({
   txHash,
-  txType,
   hasLogs,
 }: TransactionDataTabsProps): JSX.Element => {
   const classes = useStyles();
@@ -44,7 +38,6 @@ const TransactionDataTabs = ({
   );
   const { data: decodedTxData } = useGetDecodedTransactionsByTxHash(
     backendEndpoint,
-    txType as TransactionType,
     txHash
   );
   const { data: decodedLogData } = useGetDecodedLogsByTxHash(
@@ -116,7 +109,7 @@ const TransactionDataTabs = ({
     });
   }
 
-  if (decodedTxData) {
+  if (callData && callData.name) {
     tableTabs.tabs.push({
       label: 'Function Data',
       index: totalItxCount > 0 ? 1 : 0,

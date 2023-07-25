@@ -31,7 +31,6 @@ const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const {
     transactionData,
-    txType,
     hasLogs,
     currentNetwork,
     showLoadingSkeleton,
@@ -186,11 +185,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 TransactionType.Contract_Call ||
                 getTransactionType(transactionData) ===
                   TransactionType.Contract_Creation) && (
-                <TransactionDataTabs
-                  txHash={txHash}
-                  txType={txType}
-                  hasLogs={hasLogs}
-                />
+                <TransactionDataTabs txHash={txHash} hasLogs={hasLogs} />
               )}
             </Box>
           )}
