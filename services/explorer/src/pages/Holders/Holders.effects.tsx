@@ -2,14 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { ColumnData } from '../../models';
 import { usePagination } from '../../hooks/usePagination';
 import {
-  FetchWithPaginationResult,
   Holder,
-  useGetTokenPrice,
   useGetHolders,
+  useGetTokenPrice,
   useGetTotalSupply,
 } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
-import { toHolderTableRow } from '../../utils';
+import { toHolderTableRow } from './HolderRow';
 import { BigNumber } from 'ethers';
 
 const cols: ColumnData[] = [
@@ -30,12 +29,7 @@ export const useHoldersEffects = () => {
   const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(0));
   const [tableData, setTableData] = useState([]);
   const [start, setStart] = useState<number>(0);
-  const [pagination, setPagination] = useState<FetchWithPaginationResult>({
-    start: 0,
-    limit: rowsPerPage,
-    total: 0,
-    hasNext: true,
-  });
+  const [total, setTotal] = useState<number>(0);
 
   const fetchTotalSupply = useCallback(async () => {
     initLoading();
@@ -47,31 +41,23 @@ export const useHoldersEffects = () => {
     } finally {
       finishLoading();
     }
-  }, [currentNetwork]);
+  }, [backendEndpoint]);
 
   const updateValidators = useCallback(async () => {
     initLoading();
     try {
       const holders = await useGetHolders(backendEndpoint, {
-        start: pagination.start,
+        start,
         limit: rowsPerPage,
       });
-
+      if (holders?.total) setTotal(holders?.total);
       setTableData(holders?.data || []);
-      if (holders?.hasNext) {
-        setPagination({
-          ...pagination,
-          start: pagination.start * rowsPerPage,
-          hasNext: true,
-          total: holders?.total || 0,
-        });
-      }
     } catch (error) {
       console.log('error', error);
     } finally {
       finishLoading();
     }
-  }, [rowsPerPage, start, currentNetwork]);
+  }, [rowsPerPage, start, backendEndpoint]);
 
   useEffect(() => {
     fetchTotalSupply();
@@ -79,31 +65,27 @@ export const useHoldersEffects = () => {
   }, [currentNetwork, updateValidators, fetchTotalSupply]);
 
   const handlePreviousPage = () => {
-    setPagination({ ...pagination, start: pagination.start - rowsPerPage });
     setStart(start - rowsPerPage);
-    handleChangePage(0);
+    handleChangePage((start - rowsPerPage) / rowsPerPage);
   };
 
   const handleNextPage = () => {
-    setPagination({ ...pagination, start: pagination.start + rowsPerPage });
     setStart(start + rowsPerPage);
-    handleChangePage(0);
+    handleChangePage((start + rowsPerPage) / rowsPerPage);
   };
 
   const onChangePage = (p: number) => {
-    setPagination({ ...pagination, start: p * rowsPerPage });
     setStart(p * rowsPerPage);
     handleChangePage(p);
   };
 
   const onChangeRowsPerPage = (l: number) => {
-    setPagination({ ...pagination, start: 0, limit: l });
     setStart(0);
     handleChangeRowsPerPage(l);
   };
 
-  const title = `Top holders`;
-  const description = `Current Top holders on TARAXA ${currentNetwork}`;
+  const title = `Holders`;
+  const description = `Current holders on Taraxa ${currentNetwork}`;
 
   return {
     title,
@@ -124,6 +106,7 @@ export const useHoldersEffects = () => {
     handleChangeRowsPerPage: onChangeRowsPerPage,
     handlePreviousPage,
     handleNextPage,
-    pagination,
+    start,
+    total,
   };
 };

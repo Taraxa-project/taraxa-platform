@@ -15,22 +15,24 @@ import { useHoldersEffects } from './Holders.effects';
 
 const HoldersPage = (): JSX.Element => {
   const {
+    title,
+    description,
     cols,
     rows,
     rowsPerPage,
     page,
     handleChangePage,
     handleChangeRowsPerPage,
-    pagination,
+    total,
   } = useHoldersEffects();
   return (
     <>
-      <PageTitle title='Holders' subtitle='List of TARA holders on Mainnet' />
+      <PageTitle title={title} subtitle={description} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
           component='div'
-          count={pagination.total}
+          count={total}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(
@@ -57,12 +59,16 @@ const HoldersPage = (): JSX.Element => {
             <TableBody>
               {rows && rows.length > 0 ? (
                 rows.map((row, index) => (
-                  <TableRow tabIndex={-1} data-key={index} key={index}>
+                  <TableRow
+                    tabIndex={-1}
+                    data-key={index}
+                    key={`${index}-${row.value}`}
+                  >
                     <TableCell align='center'>
                       {row.rank + page * rowsPerPage}
                     </TableCell>
                     <TableCell align='center'>{row.address}</TableCell>
-                    <TableCell align='center'>{row.balance}</TableCell>
+                    <TableCell align='center'>{row.balanceStr}</TableCell>
                     <TableCell align='center'>{row.percentage}</TableCell>
                     <TableCell align='center'>{row.value}</TableCell>
                   </TableRow>
