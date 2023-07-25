@@ -23,7 +23,7 @@ const HoldersPage = (): JSX.Element => {
     page,
     handleChangePage,
     handleChangeRowsPerPage,
-    pagination,
+    total,
   } = useHoldersEffects();
   return (
     <>
@@ -32,7 +32,7 @@ const HoldersPage = (): JSX.Element => {
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
           component='div'
-          count={pagination.total}
+          count={total}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(
