@@ -62,7 +62,7 @@ const HoldersPage = (): JSX.Element => {
                   <TableRow
                     tabIndex={-1}
                     data-key={index}
-                    key={`${index}-${row.value}`}
+                    key={`${index}-${row.address.props.hash || ''}`}
                   >
                     <TableCell align='center'>
                       {row.rank + page * rowsPerPage}
