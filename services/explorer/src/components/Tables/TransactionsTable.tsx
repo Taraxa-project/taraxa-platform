@@ -16,6 +16,7 @@ import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
 import { Transaction as TransactionBase } from '../../models';
+import { ethers } from 'ethers';
 
 export interface Transaction extends TransactionBase {
   timestamp?: number;
@@ -179,7 +180,10 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {tx.value?.toString()}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
-                    {tx.gas?.toString()}
+                    {ethers.BigNumber.from(tx.gasUsed)
+                      .mul(ethers.BigNumber.from(tx.gasPrice))
+                      .toString()}{' '}
+                    Wei
                   </TableCell>
                 </TableRow>
               ))
