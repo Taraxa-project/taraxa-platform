@@ -31,7 +31,7 @@ const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
   const {
     transactionData,
-    events,
+    hasLogs,
     currentNetwork,
     showLoadingSkeleton,
     showNetworkChanged,
@@ -122,12 +122,6 @@ const TransactionDataContainer = (): JSX.Element => {
                 }
               />
               <Divider light />
-              {events?.length !== 0 && (
-                <DataRow
-                  title='Transaction action'
-                  data={events.map((e) => `${e.name}`).join(' ')}
-                />
-              )}
               <DataRow
                 title='Action'
                 data={`${getTransactionType(transactionData)}`}
@@ -191,7 +185,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 TransactionType.Contract_Call ||
                 getTransactionType(transactionData) ===
                   TransactionType.Contract_Creation) && (
-                <TransactionDataTabs txHash={txHash} />
+                <TransactionDataTabs txHash={txHash} hasLogs={hasLogs} />
               )}
             </Box>
           )}

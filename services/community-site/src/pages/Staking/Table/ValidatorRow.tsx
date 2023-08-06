@@ -54,7 +54,7 @@ const ValidatorRow = ({
           <Nickname showIcon address={validator.address} description={validator.description} />
         </div>
       </TableCell>
-      <TableCell className="yieldCell">{validator.yield || 0}</TableCell>
+      <TableCell className="yieldCell">{validator.yield || 0}%</TableCell>
       <TableCell className="commissionCell">
         {currentBlockNumber &&
         currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD ? (

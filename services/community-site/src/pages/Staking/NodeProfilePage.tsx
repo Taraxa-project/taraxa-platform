@@ -250,7 +250,7 @@ const NodeProfilePage = () => {
                 description={validator.description}
               />
               <div className="nodeInfoTitle">yield efficiency</div>
-              <div className="nodeInfoContent">{validator.yield || 0}</div>
+              <div className="nodeInfoContent">{validator.yield || 0}%</div>
               <div className="nodeInfoTitle">commission</div>
               <div className="nodeInfoContent">{validator.commission}%</div>
               {validator.endpoint && (

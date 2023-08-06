@@ -33,6 +33,7 @@ export enum SearchLabelOption {
   PBFT = 'pbft',
   DAG = 'dag',
   ADDRESS = 'address',
+  HOLDERS = 'holders',
 }
 
 export const useHeaderEffects = () => {
@@ -207,6 +208,13 @@ export const useHeaderEffects = () => {
       selected: false,
       onAction: () => onClick('node'),
     },
+    {
+      label: 'Holders',
+      color: 'primary',
+      variant: 'text',
+      selected: false,
+      onAction: () => onClick('holder'),
+    },
   ];
   if (currentNetwork !== Network.MAINNET) {
     headerButtons.push({
@@ -255,6 +263,9 @@ export const useHeaderEffects = () => {
         break;
       case SearchLabelOption.ADDRESS:
         navigate(`/address/${option.label}`);
+        break;
+      case SearchLabelOption.HOLDERS:
+        navigate(`/holders`);
         break;
       default:
         break;
