@@ -1,5 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import useApi from './useApi';
+import useMainnet from './useMainnet';
+import { networks } from '../utils/networks';
 
 export type YieldResponse = {
   fromBlock: number;
@@ -9,8 +11,8 @@ export type YieldResponse = {
 
 export default () => {
   const { get } = useApi();
-
-  const indexerUrl = `${process.env.REACT_APP_INDEXER_API_HOST}`;
+  const { chainId } = useMainnet();
+  const indexerUrl = `${networks[chainId].indexerUrl}`;
 
   const getYieldForAddress = useCallback(
     async (address: string): Promise<YieldResponse> => {

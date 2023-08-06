@@ -24,7 +24,7 @@ export const networks: Networks = {
       symbol: 'TARA',
       decimals: 18,
     },
-    indexerUrl: 'https://indexer.mainnet.taraxa.io',
+    indexerUrl: 'https://indexer.mainnet.explorer.taraxa.io',
   },
   842: {
     chainName: 'Taraxa Testnet',
@@ -36,7 +36,7 @@ export const networks: Networks = {
       symbol: 'TARA',
       decimals: 18,
     },
-    indexerUrl: 'https://indexer.testnet.taraxa.io',
+    indexerUrl: 'https://indexer.testnet.explorer.taraxa.io',
   },
   843: {
     chainName: 'Taraxa Devnet',
@@ -48,7 +48,7 @@ export const networks: Networks = {
       symbol: 'TARA',
       decimals: 18,
     },
-    indexerUrl: 'https://indexer.devnet.taraxa.io',
+    indexerUrl: 'https://indexer.devnet.explorer.taraxa.io',
   },
   200: {
     chainName: 'Taraxa PRnet',
