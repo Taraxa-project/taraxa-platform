@@ -14,18 +14,6 @@ import { balanceWeiToTara, formatTokensValue } from '../../utils';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
 import { useIndexer } from '../../hooks/useIndexer';
 
-export interface TransactionResponse {
-  hash: string;
-  from: string;
-  to: string;
-  status: number;
-  gasUsed: string;
-  gasPrice: string;
-  value: string;
-  block: number;
-  age: number;
-}
-
 export const useAddressInfoEffects = (account: string) => {
   const [tabsStep, setTabsStep] = useState<number>(0);
 
@@ -95,7 +83,7 @@ export const useAddressInfoEffects = (account: string) => {
   }, [accountDetails, tokenPriceData, addressStats]);
 
   const pbftTablePagination = useIndexer(
-    { queryName: 'address-txs', dependency: account },
+    { queryName: 'address-pbfts', dependency: account },
     useGetPbftsByAddress(account)
   );
   const dagTablePagination = useIndexer(
@@ -103,7 +91,7 @@ export const useAddressInfoEffects = (account: string) => {
     useGetDagsByAddress(account)
   );
   const txTablePagination = useIndexer(
-    { queryName: 'address-pbfts', dependency: account },
+    { queryName: 'address-txs', dependency: account },
     useGetTransactionsByAddress(account)
   );
 

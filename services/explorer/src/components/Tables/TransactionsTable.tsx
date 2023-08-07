@@ -179,7 +179,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {tx.value?.toString()}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
-                    {tx.gas?.toString()}
+                    {typeof tx.gasCost !== 'undefined'
+                      ? tx.gasCost.toString()
+                      : tx.gas?.toString()}
                   </TableCell>
                 </TableRow>
               ))

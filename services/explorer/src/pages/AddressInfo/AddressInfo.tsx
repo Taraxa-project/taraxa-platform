@@ -29,13 +29,7 @@ const AddressInfoPage = (): JSX.Element => {
         <AddressLoadingSkeleton />
       ) : (
         <Paper elevation={1}>
-          <Box
-            display='flex'
-            flexDirection='column'
-            alignItems='left'
-            margin='2rem 2rem 2rem'
-            gap='1.5rem'
-          >
+          <Box display='flex' flexDirection='column' margin='2rem' gap='1.5rem'>
             <AddressDetails
               details={addressInfoDetails}
               isFetchingAddressStats={isFetchingAddressStats}

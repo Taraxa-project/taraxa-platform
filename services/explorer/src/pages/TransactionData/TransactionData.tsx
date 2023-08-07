@@ -133,7 +133,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 (transactionData?.to ||
                   transactionData?.createdContract?.address) && (
                   <DataRow
-                    title='FROM/TO'
+                    title='From / To'
                     data={
                       <Box
                         display='flex'
@@ -166,7 +166,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 )}
               {transactionData?.gas && transactionData?.gasPrice && (
                 <DataRow
-                  title='Gas Used/ Gas Limit'
+                  title='Gas Used / Gas Limit'
                   data={`${transactionData.gasUsed} / ${transactionData.gas}`}
                 />
               )}

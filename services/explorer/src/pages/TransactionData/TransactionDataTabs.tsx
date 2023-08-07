@@ -55,8 +55,7 @@ const TransactionDataTabs = ({
             timestamp: tx.timestamp,
           },
           value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
-          gasPrice: `${ethers.BigNumber.from(tx.gasPrice)} Wei`,
-          gas: tx.gas?.toString() || '0',
+          gasCost: tx.gasCost,
           status: tx.status ? 1 : 0,
           gasUsed: tx.gasUsed?.toString(),
           from: {
@@ -112,7 +111,7 @@ const TransactionDataTabs = ({
   if (callData && callData.name) {
     tableTabs.tabs.push({
       label: 'Function Data',
-      index: totalItxCount > 0 ? 1 : 0,
+      index: tableTabs.tabs.length,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.Tips />
@@ -154,7 +153,7 @@ const TransactionDataTabs = ({
   if (dataLogs?.length > 0) {
     tableTabs.tabs.push({
       label: 'Event Logs',
-      index: totalItxCount > 0 ? (callData && callData.name ? 2 : 1) : 0,
+      index: tableTabs.tabs.length,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.File />
