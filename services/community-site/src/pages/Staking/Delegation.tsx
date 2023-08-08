@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import { Divider } from '@mui/material';
 
 import {
+  Divider,
   Text,
   Notification,
   Button,
@@ -10,15 +10,14 @@ import {
   BaseCard,
   useInterval,
   LoadingTable,
-} from '@taraxa_project/taraxa-ui';
-import {
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-} from '../../components/Table/Table';
+} from '@taraxa_project/taraxa-ui';
+
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
 import { useLoading } from '../../services/useLoading';
@@ -35,7 +34,7 @@ import Modals from './Modal/Modals';
 import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
-import { calculateValidatorYield, Validator } from '../../interfaces/Validator';
+import { Validator } from '../../interfaces/Validator';
 import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
 
 import { stripEth, weiToEth } from '../../utils/eth';
@@ -44,6 +43,7 @@ import { useWalletPopup } from '../../services/useWalletPopup';
 import useExplorerStats from '../../services/useExplorerStats';
 import { useAllValidators } from '../../services/useAllValidators';
 import { useRedelegation } from '../../services/useRedelegation';
+import useIndexerYields from '../../services/useIndexerYields';
 
 const Delegation = ({ location }: { location: Location }) => {
   const { user } = useAuth();
@@ -53,6 +53,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { isLoading } = useLoading();
   const { asyncCallback } = useWalletPopup();
 
+  const { getYieldForAddress } = useIndexerYields();
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
@@ -108,6 +109,14 @@ const Delegation = ({ location }: { location: Location }) => {
     setShouldFetch(true);
   };
 
+  const getYieldsForValidators = async (validators: Validator[]): Promise<Validator[]> => {
+    for (let i = 0; i < validators.length; i++) {
+      const validatorYield = await getYieldForAddress(validators[i].address);
+      validators[i].yield = validatorYield.yield;
+    }
+    return validators;
+  };
+
   useEffect(() => {
     fetchBalance();
   }, [status, account, chainId, shouldFetch]);
@@ -139,8 +148,8 @@ const Delegation = ({ location }: { location: Location }) => {
       (async () => {
         const myValidators = await getValidatorsWith(delegations.map((d) => d.address));
         const myValidatorsWithStats = await updateValidatorsStats(myValidators);
-        const myValidatorsWithYield = calculateValidatorYield(myValidatorsWithStats);
-        setOwnValidators(myValidatorsWithYield);
+        const myValidatorsWithYields = await getYieldsForValidators(myValidatorsWithStats);
+        setOwnValidators(myValidatorsWithYields);
       })();
     }
   }, [delegations]);
@@ -435,7 +444,7 @@ const Delegation = ({ location }: { location: Location }) => {
                     <TableCell className="yieldCell">Yield Efficiency</TableCell>
                     <TableCell className="commissionCell">Commission</TableCell>
                     <TableCell className="delegationCell">Delegation</TableCell>
-                    <TableCell className="delegationCell">Available for Delegation</TableCell>
+                    <TableCell className="availableDelegation">Available for Delegation</TableCell>
                     <TableCell className="rewardsCell">Staking Rewards</TableCell>
                     <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
                   </TableRow>

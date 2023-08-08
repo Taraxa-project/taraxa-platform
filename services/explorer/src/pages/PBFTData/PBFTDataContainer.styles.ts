@@ -1,5 +1,5 @@
 import { makeStyles } from '@mui/styles';
-import { theme } from '../../theme-provider';
+import { theme } from '@taraxa_project/taraxa-ui';
 
 const useStyles = makeStyles(
   () => {

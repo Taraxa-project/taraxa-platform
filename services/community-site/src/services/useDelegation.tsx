@@ -6,10 +6,13 @@ import Undelegation, { ContractUndelegation } from '../interfaces/Undelegation';
 
 import { useLoading } from './useLoading';
 import useDpos from './useDpos';
+import { WalletPopupState, useWalletPopup } from './useWalletPopup';
 
 export default () => {
   const { startLoading, finishLoading } = useLoading();
   const { mainnetDpos, browserDpos } = useDpos();
+
+  const { changeState } = useWalletPopup();
 
   const getDelegations = useCallback(
     async (address: string): Promise<Delegation[]> => {
@@ -18,6 +21,9 @@ export default () => {
       let newDelegations: ContractDelegation[] = [];
       let page = 0;
       let hasNextPage = true;
+
+      let hasError = false;
+
       while (hasNextPage) {
         try {
           const allDelegations = await mainnetDpos!.getDelegations(address, page);
@@ -29,8 +35,39 @@ export default () => {
           // eslint-disable-next-line no-console
           console.error(e);
           hasNextPage = false;
+          hasError = true;
         }
       }
+
+      // Quick fix using last known block tag
+      if (hasError) {
+        changeState!(
+          WalletPopupState.ERROR,
+          'Data out of sync',
+          'Something went wrong while getting the data. Staking amounts may be incorrect.',
+        );
+
+        newDelegations = [];
+        page = 0;
+        hasNextPage = true;
+        hasError = false;
+        while (hasNextPage) {
+          try {
+            const allDelegations = await mainnetDpos!.getDelegations(address, page, {
+              blockTag: 2916681,
+            });
+
+            newDelegations = [...newDelegations, ...allDelegations.delegations];
+            hasNextPage = !allDelegations.end;
+            page++;
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error(e);
+            hasNextPage = false;
+          }
+        }
+      }
+
       // finishLoading!();
 
       return newDelegations.map((delegation: ContractDelegation) => ({

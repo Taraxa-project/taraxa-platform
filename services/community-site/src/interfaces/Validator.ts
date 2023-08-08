@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 
 interface ContractValidatorInfo {
   owner: string;
@@ -47,6 +47,14 @@ export interface Validator {
   id?: number;
 }
 
+export interface CommissionChangeGQL {
+  validator: string;
+  commission: number;
+  applyAtBlock: number;
+  registrationBlock: number;
+  timestamp: number;
+}
+
 export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
   switch (status) {
     case ValidatorStatus.ELIGIBLE:
@@ -58,21 +66,4 @@ export const getValidatorStatusTooltip = (status: ValidatorStatus) => {
     default:
       return 'Not eligible';
   }
-};
-
-export const calculateValidatorYield = (validators: Validator[]): Validator[] => {
-  return validators.map((validator) => {
-    const { pbftsProduced, delegation } = validator;
-    const d = delegation.div(BigNumber.from(10).pow(18));
-
-    let yieldRatio = BigNumber.from(0);
-
-    if (!d.isZero()) {
-      yieldRatio = BigNumber.from(pbftsProduced).mul(BigNumber.from(10).pow(6)).div(d);
-    }
-    return {
-      ...validator,
-      yield: Math.round(Number(yieldRatio.toString())),
-    } as Validator;
-  });
 };

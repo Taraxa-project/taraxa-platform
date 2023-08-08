@@ -1,6 +1,6 @@
-import { Box, Paper } from '@mui/material';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { Box, Paper } from '@taraxa_project/taraxa-ui';
 import { AddressDetails, AddressTables, PageTitle } from '../../components';
 import { useAddressInfoEffects } from './AddressInfo.effects';
 import AddressLoadingSkeleton from './AddressLoadingSkeleton';
@@ -29,13 +29,7 @@ const AddressInfoPage = (): JSX.Element => {
         <AddressLoadingSkeleton />
       ) : (
         <Paper elevation={1}>
-          <Box
-            display='flex'
-            flexDirection='column'
-            alignItems='left'
-            margin='2rem 2rem 2rem'
-            gap='1.5rem'
-          >
+          <Box display='flex' flexDirection='column' margin='2rem' gap='1.5rem'>
             <AddressDetails
               details={addressInfoDetails}
               isFetchingAddressStats={isFetchingAddressStats}

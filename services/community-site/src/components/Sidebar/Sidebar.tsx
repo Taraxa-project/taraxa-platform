@@ -84,7 +84,7 @@ const Sidebar = () => {
             <NavLink
               label="Deploy DApps"
               Icon={DeploySidebar}
-              to={{ pathname: 'https://sandbox.testnet.taraxa.io/' }}
+              to={{ pathname: 'https://www.taraxa.io/build/' }}
               target="_blank"
               rel="noopener noreferrer"
             />

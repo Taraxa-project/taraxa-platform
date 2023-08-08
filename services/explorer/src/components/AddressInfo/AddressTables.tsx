@@ -1,5 +1,4 @@
-import { Box, Divider } from '@mui/material';
-import { Icons } from '@taraxa_project/taraxa-ui';
+import { Box, Divider, Icons } from '@taraxa_project/taraxa-ui';
 import useStyles from './AddressDetails.styles';
 import { BlocksTable, TransactionsTable } from '../Tables';
 import { TransactionIcon } from '../icons';
@@ -82,7 +81,7 @@ export const AddressTables = ({
   if (totalDagCount > 0 && dagBlocks?.length > 0) {
     tableTabs.tabs.push({
       label: 'DAG Blocks',
-      index: (totalTxCount > 0 && transactions?.length) > 0 ? 1 : 0,
+      index: tableTabs.tabs.length,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.Block />
@@ -106,12 +105,7 @@ export const AddressTables = ({
   if (totalPbftCount > 0 && pbftBlocks?.length > 0) {
     tableTabs.tabs.push({
       label: 'PBFT Blocks',
-      index:
-        totalTxCount > 0 && transactions?.length > 0
-          ? totalDagCount > 0
-            ? 2
-            : 1
-          : 1,
+      index: tableTabs.tabs.length,
       icon: (
         <Box className={classes.tabIconContainer}>
           <Icons.Block />

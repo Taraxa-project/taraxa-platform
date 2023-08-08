@@ -1,12 +1,6 @@
 import React, { useMediaQuery } from 'react-responsive';
 import clsx from 'clsx';
-import {
-  Box,
-  CircularProgress,
-  CssBaseline,
-  ThemeProvider,
-} from '@mui/material';
-import theme from '../theme';
+import { Box, CircularProgress } from '@mui/material';
 
 import useStyles from './LoadingWidget.styles';
 
@@ -32,25 +26,22 @@ const LoadingWidget = ({
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box
-        id={widgetId}
-        className={rootClasses}
-        display='flex'
-        alignItems='center'
-        justifyContent='center'
-        alignContent='center'
-      >
-        <CircularProgress
-          id={progressId}
-          size={35}
-          thickness={4.5}
-          className={classes.progress}
-        />{' '}
-        <p style={{ marginLeft: '1rem' }}>Loading...</p>
-      </Box>
-    </ThemeProvider>
+    <Box
+      id={widgetId}
+      className={rootClasses}
+      display='flex'
+      alignItems='center'
+      justifyContent='center'
+      alignContent='center'
+    >
+      <CircularProgress
+        id={progressId}
+        size={35}
+        thickness={4.5}
+        className={classes.progress}
+      />{' '}
+      <p style={{ marginLeft: '1rem' }}>Loading...</p>
+    </Box>
   );
 };
 

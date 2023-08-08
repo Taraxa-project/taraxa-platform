@@ -1,9 +1,7 @@
 import React from 'react';
 import { ethers } from 'ethers';
-import { Tooltip } from '@mui/material';
-import { Button } from '@taraxa_project/taraxa-ui';
+import { Button, MuiTooltip, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
 import { useHistory } from 'react-router-dom';
-import { TableCell, TableRow } from '../../../components/Table/Table';
 import { stripEth, weiToEth } from '../../../utils/eth';
 import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
@@ -40,18 +38,18 @@ const MainnetValidatorRow = ({
   return (
     <TableRow key={address}>
       <TableCell className="statusCell">
-        <Tooltip title={getValidatorStatusTooltip(status)}>
+        <MuiTooltip title={getValidatorStatusTooltip(status)}>
           <div className="status">
             <div className={className} />
           </div>
-        </Tooltip>
+        </MuiTooltip>
       </TableCell>
       <TableCell className="nameCell">
         <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
           <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
-      <TableCell className="yieldCell">{validator.yield || 0}</TableCell>
+      <TableCell className="yieldCell">{validator.yield || 0}%</TableCell>
       <TableCell className="commissionCell">{commission}%</TableCell>
       <TableCell className="delegationCell">
         <strong>{ethers.utils.commify(Number(weiToEth(delegation)).toFixed(2))}</strong>

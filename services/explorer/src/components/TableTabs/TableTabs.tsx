@@ -1,6 +1,5 @@
 import React, { FC, SyntheticEvent, useState } from 'react';
-import { Box, Tab } from '@mui/material';
-import Tabs from '@mui/material/Tabs';
+import { Box, Tabs, Tab } from '@taraxa_project/taraxa-ui';
 import { TableTabsProps, TabPanelProps, TabModel } from '../../models';
 
 const TabPanel: FC<TabPanelProps> = ({

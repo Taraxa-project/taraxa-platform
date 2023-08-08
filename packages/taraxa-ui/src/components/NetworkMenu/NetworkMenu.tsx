@@ -1,16 +1,8 @@
-import React, { useState } from 'react';
-import {
-  CssBaseline,
-  IconButton,
-  Menu,
-  MenuItem,
-  ThemeProvider,
-  Tooltip,
-} from '@mui/material';
+import React from 'react';
+import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { Check } from '../Icons';
 import useStyles from './NetworkMenu.styles';
-import theme from '../theme';
 
 export interface NetworkMenuProps {
   networks: string[];
@@ -30,7 +22,6 @@ const NetworkMenu = ({
   disableNetworkSelection = false,
 }: NetworkMenuProps) => {
   const classes = useStyles();
-  const [selectedNetwork, setSelectedNetwork] = useState(currentNetwork);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -42,13 +33,12 @@ const NetworkMenu = ({
   };
 
   const onNetworkClick = (network: string) => {
-    setSelectedNetwork(network);
+    handleClose();
     if (typeof onNetworkChange === 'function') onNetworkChange(network);
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Tooltip title='Network'>
         <IconButton
           className={classes.networkButton}
@@ -84,7 +74,7 @@ const NetworkMenu = ({
               selected: classes.menuItemSelected,
             }}
             key={`${network}-${Date.now()}`}
-            selected={network === selectedNetwork}
+            selected={network === currentNetwork}
             disabled={disableNetworkSelection}
             onClick={() => onNetworkClick(network)}
           >
@@ -93,7 +83,7 @@ const NetworkMenu = ({
           </MenuItem>
         ))}
       </Menu>
-    </ThemeProvider>
+    </>
   );
 };
 

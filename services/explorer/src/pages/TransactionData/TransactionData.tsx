@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
-import { Box, Divider, Paper, Typography } from '@mui/material';
-import { CopyTo, Icons } from '@taraxa_project/taraxa-ui';
+import React from 'react';
+import {
+  Box,
+  Divider,
+  Paper,
+  Typography,
+  CopyTo,
+} from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
 import {
   AddressLink,
@@ -8,7 +13,6 @@ import {
   GreenRightArrow,
   HashLink,
   PageTitle,
-  TableTabs,
 } from '../../components';
 import {
   HashLinkType,
@@ -16,62 +20,23 @@ import {
   timestampToAge,
   formatTransactionStatus,
   getTransactionType,
+  TransactionType,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
-import { BlocksTable } from '../../components/Tables';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
-import useStyles from './TransactionData.styles';
-import { TableTabsProps } from '../../models';
 import LoadingSkeletonTx from './LoadingSkeletonTx';
+import TransactionDataTabs from './TransactionDataTabs';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
-  const classes = useStyles();
   const {
     transactionData,
-    dagData,
-    events,
+    hasLogs,
     currentNetwork,
     showLoadingSkeleton,
     showNetworkChanged,
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
-
-  const [dagsRowsPerPage, setDagsRowsPerPage] = useState(25);
-  const [dagsPage, setDagsPage] = useState(0);
-
-  const tableTabs: TableTabsProps = {
-    tabs: [
-      {
-        label: 'DAG Blocks',
-        index: 0,
-        icon: (
-          <Box className={classes.tabIconContainer}>
-            <Icons.Block />
-          </Box>
-        ),
-        iconPosition: 'start',
-        children: (
-          <BlocksTable
-            blocksData={dagData?.slice(
-              dagsPage * dagsRowsPerPage,
-              dagsPage * dagsRowsPerPage + dagsRowsPerPage
-            )}
-            type='dag'
-            totalCount={dagData?.length}
-            pageNo={dagsPage}
-            rowsPage={dagsRowsPerPage}
-            changePage={(p: number) => setDagsPage(p)}
-            changeRows={(l: number) => {
-              setDagsRowsPerPage(l);
-              setDagsPage(0);
-            }}
-          />
-        ),
-      },
-    ],
-    initialValue: 0,
-  };
 
   return (
     <>
@@ -109,6 +74,7 @@ const TransactionDataContainer = (): JSX.Element => {
               flexDirection='column'
               alignItems='left'
               margin='2rem 2rem 2rem'
+              pb={3}
               gap='1.5rem'
             >
               <Box
@@ -156,12 +122,6 @@ const TransactionDataContainer = (): JSX.Element => {
                 }
               />
               <Divider light />
-              {events?.length !== 0 && (
-                <DataRow
-                  title='Transaction action'
-                  data={events.map((e) => `${e.name}`).join(' ')}
-                />
-              )}
               <DataRow
                 title='Action'
                 data={`${getTransactionType(transactionData)}`}
@@ -173,7 +133,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 (transactionData?.to ||
                   transactionData?.createdContract?.address) && (
                   <DataRow
-                    title='FROM/TO'
+                    title='From / To'
                     data={
                       <Box
                         display='flex'
@@ -206,7 +166,7 @@ const TransactionDataContainer = (): JSX.Element => {
                 )}
               {transactionData?.gas && transactionData?.gasPrice && (
                 <DataRow
-                  title='Gas Used/ Gas Limit'
+                  title='Gas Used / Gas Limit'
                   data={`${transactionData.gasUsed} / ${transactionData.gas}`}
                 />
               )}
@@ -221,17 +181,11 @@ const TransactionDataContainer = (): JSX.Element => {
                 transactionData?.inputData !== '0x' && (
                   <DataRow title='Data' data={`${transactionData.inputData}`} />
                 )}
-              <Divider light />
-              {dagData?.length && (
-                <Box
-                  display='flex'
-                  flexDirection='column'
-                  alignItems='flex-start'
-                  alignContent='center'
-                  style={{ overflowWrap: 'anywhere' }}
-                >
-                  <TableTabs {...tableTabs} />
-                </Box>
+              {(getTransactionType(transactionData) ===
+                TransactionType.Contract_Call ||
+                getTransactionType(transactionData) ===
+                  TransactionType.Contract_Creation) && (
+                <TransactionDataTabs txHash={txHash} hasLogs={hasLogs} />
               )}
             </Box>
           )}

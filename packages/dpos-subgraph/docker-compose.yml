@@ -19,7 +19,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mainnet:https://rpc-pr-2460.prnet.taraxa.io'
+      ethereum: 'mainnet:https://rpc.mainnet.taraxa.io'
       GRAPH_LOG: debug
   ipfs:
     image: ipfs/kubo:v0.19.0

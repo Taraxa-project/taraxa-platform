@@ -1,7 +1,11 @@
 import React from 'react';
-import Skeleton from '@mui/material/Skeleton';
-import Stack from '@mui/material/Stack';
-import { Card, CardContent, Divider } from '@mui/material';
+import {
+  MuiCard as Card,
+  CardContent,
+  Divider,
+  Skeleton,
+  Stack,
+} from '@taraxa_project/taraxa-ui';
 import useStyles from './BlockCardSkeleton.styles';
 
 const BlockCardSkeleton = (): JSX.Element => {

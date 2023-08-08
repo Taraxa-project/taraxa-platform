@@ -2,96 +2,115 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
+import clsx from 'clsx';
 
-import { AmountCard, Button, Checkbox, Icons } from '@taraxa_project/taraxa-ui';
+import {
+  AmountCard,
+  Button,
+  Checkbox,
+  Chip,
+  Icons,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Text,
+} from '@taraxa_project/taraxa-ui';
 
-import Delegation from '../../interfaces/Delegation';
 import useDelegation from '../../services/useDelegation';
+import useDposSubgraph from '../../services/useDposSubgraph';
 import useCMetamask from '../../services/useCMetamask';
 import useChain from '../../services/useChain';
-
-import Title from '../../components/Title/Title';
 import useValidators from '../../services/useValidators';
-
-import { Validator } from '../../interfaces/Validator';
-
-import { stripEth, weiToEth } from '../../utils/eth';
-
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
+import NodeIcon from '../../assets/icons/node';
+
+import { CommissionChangeGQL, Validator } from '../../interfaces/Validator';
+import { stripEth, weiToEth } from '../../utils/eth';
 import { useAllValidators } from '../../services/useAllValidators';
 import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
-import { useLoading } from '../../services/useLoading';
 import Nickname from '../../components/Nickname/Nickname';
+import { DelegationGQL } from '../../interfaces/Delegation';
+import { BarFlex } from './BarFlex';
+import Title from '../../components/Title/Title';
 
-// interface BarFlexProps {
-//   communityDelegated: number;
-//   selfDelegated: number;
-//   availableDelegation: number;
-// }
+enum ViewType {
+  DELEGATIONS,
+  COMMISSION_CHANGES,
+}
 
-// const BarFlex = ({ communityDelegated, selfDelegated, availableDelegation }: BarFlexProps) => {
-//   let cdParsed = communityDelegated;
-//   let sdParsed = selfDelegated;
-//   let adParsed = availableDelegation;
-//   if (cdParsed + sdParsed + adParsed > 100) {
-//     /**
-//      * Highest number = 100 - sum of lowest numbers
-//      */
-//     if (cdParsed >= sdParsed && cdParsed >= adParsed) cdParsed = 100 - (sdParsed + adParsed);
-//     if (sdParsed >= cdParsed && sdParsed >= adParsed) sdParsed = 100 - (cdParsed + adParsed);
-//     if (adParsed >= cdParsed && adParsed >= sdParsed) adParsed = 100 - (sdParsed + cdParsed);
-//   }
-//   return (
-//     <div className="barFlex">
-//       <div
-//         className="percentageAmount"
-//         style={{
-//           width: `${cdParsed}%`,
-//         }}
-//       >
-//         <div className="barPercentage" style={{ background: '#15AC5B' }} />
-//       </div>
-//       <div
-//         className="percentageAmount"
-//         style={{
-//           width: `${sdParsed}%`,
-//         }}
-//       >
-//         <div className="barPercentage" style={{ background: '#8E8E8E' }} />
-//       </div>
-//       <div
-//         className="percentageAmount"
-//         style={{
-//           width: `${adParsed}%`,
-//         }}
-//       >
-//         <div className="barPercentage" style={{ background: '#48BDFF' }} />
-//       </div>
-//     </div>
-//   );
-// };
+const VALIDATOR_MAX_DELEGATION = 80000000;
+
+function calculateDelegationSpread(validator: Validator | null, delegations: DelegationGQL[]) {
+  const delegationPossible =
+    validator?.delegation
+      .add(validator?.availableForDelegation)
+      .div(BigNumber.from('10').pow(BigNumber.from('18')))
+      ?.toNumber() || VALIDATOR_MAX_DELEGATION;
+
+  const hasOwnDelegation = delegations.find(
+    (d) => d.delegator.toLowerCase() === validator?.owner?.toLowerCase(),
+  );
+  const ownDelegation = hasOwnDelegation
+    ? BigNumber.from(hasOwnDelegation.amount)
+        .div(BigNumber.from('10').pow(BigNumber.from('18')))
+        ?.toNumber()
+    : 0;
+
+  const availableForDelegation = parseFloat(
+    (validator?.availableForDelegation || BigNumber.from(0))
+      .div(BigNumber.from('10').pow(BigNumber.from('18')))
+      ?.toString() || '0',
+  );
+
+  const validatorDelegation = parseFloat(
+    validator?.delegation?.div(BigNumber.from('10').pow(BigNumber.from('18')))?.toString() || '1',
+  );
+  const communityDelegatedTotal = validatorDelegation - ownDelegation;
+
+  const communityDelegated =
+    delegations.length > 0
+      ? Math.max(Math.round(communityDelegatedTotal * 100) / delegationPossible, 1)
+      : 0;
+
+  const selfDelegated = Math.max(Math.round((ownDelegation / delegationPossible) * 100), 1);
+
+  const availableDelegation = Math.max(
+    Math.round((availableForDelegation / delegationPossible) * 100),
+    1,
+  );
+  return { availableDelegation, selfDelegated, communityDelegated };
+}
+
+const TABLE_ROWS_PER_PAGE = 20;
 
 const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
   const { getValidator } = useValidators();
-  const { getDelegations } = useDelegation();
+  const { getUndelegations } = useDelegation();
+  const { getValidatorDelegationsPaginate, getValidatorCommissionChangesPaginate } =
+    useDposSubgraph();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
-  const [delegationCount, setDelegationCount] = useState<number>(0);
-  const [delegations, setDelegations] = useState<Delegation[] | []>([]);
-  const [delegationPage, setDelegationPage] = useState<number>(1);
+  const [accountUndelegationCount, setAccountUndelegationCount] = useState<number>(0);
+  const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
+  const [commissionChanges, setCommissionChanges] = useState<CommissionChangeGQL[] | []>([]);
+  const [delegationPage, setDelegationPage] = useState<number>(0);
+  const [commissionPage, setCommissionPage] = useState<number>(0);
   const [delegateToValidator, setDelegateToValidator] = useState<Validator | null>(null);
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
+  const [detailType, setDetailType] = useState<ViewType>(ViewType.DELEGATIONS);
   const { address } = useParams<{ address?: string }>();
   const [shouldFetch, setShouldFetch] = useState(false);
   const { allValidatorsWithStats } = useAllValidators();
-  const { isLoading } = useLoading();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
-  const canUndelegate = status === 'connected' && !!account;
+  const canUndelegate = status === 'connected' && !!account && accountUndelegationCount === 0;
 
   const fetchNode = useCallback(async () => {
     if (address) {
@@ -112,19 +131,62 @@ const NodeProfilePage = () => {
 
   const fetchDelegators = useCallback(async () => {
     if (address) {
-      const delegations = await getDelegations(address);
+      let delegations = await getValidatorDelegationsPaginate(
+        address,
+        delegationPage,
+        TABLE_ROWS_PER_PAGE,
+      );
+      if (delegationAtTop) {
+        const myDelegation = delegations.find(
+          (d) => d.delegator.toLowerCase() === account?.toLowerCase(),
+        );
+        if (myDelegation) {
+          delegations = delegations.filter(
+            (d) => d.delegator.toLowerCase() !== account?.toLowerCase(),
+          );
+          delegations.unshift(myDelegation);
+        }
+      }
       setDelegations(delegations);
-      setDelegationCount(delegations.length);
     } else {
       setDelegations([]);
-      setDelegationCount(0);
     }
   }, [address, delegationAtTop, delegationPage]);
+
+  const fetchCommissionChanges = useCallback(async () => {
+    if (address) {
+      const commissionChanges = await getValidatorCommissionChangesPaginate(
+        address,
+        commissionPage,
+        TABLE_ROWS_PER_PAGE,
+      );
+      setCommissionChanges(commissionChanges);
+    } else {
+      setCommissionChanges([]);
+    }
+  }, [address, commissionPage]);
+
+  const fetchUndelegations = useCallback(async () => {
+    if (account && address) {
+      const undelegations = await getUndelegations(account);
+      const undelegationsOfAddress = undelegations.filter(
+        (u) => u.address.toLowerCase() === address.toLowerCase(),
+      ).length;
+      setAccountUndelegationCount(undelegationsOfAddress);
+    } else {
+      setAccountUndelegationCount(0);
+    }
+  }, [address, account, getUndelegations]);
+
+  useEffect(() => {
+    fetchCommissionChanges();
+  }, [fetchCommissionChanges]);
 
   useEffect(() => {
     fetchNode();
     fetchDelegators();
-  }, [fetchNode, fetchDelegators, shouldFetch]);
+    fetchUndelegations();
+  }, [fetchNode, fetchDelegators, fetchUndelegations, shouldFetch]);
 
   useEffect(() => {
     (async () => {
@@ -134,52 +196,10 @@ const NodeProfilePage = () => {
     })();
   }, [status, account, provider]);
 
-  // const delegationPossible =
-  //   validator?.delegation
-  //     .add(validator?.availableForDelegation)
-  //     .div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //     ?.toNumber() || 1;
-
-  // const ownDelegation =
-  //   delegations.length > 0
-  //     ? delegations
-  //         .find((d) => d.address.toLowerCase() === validator?.owner?.toLowerCase())
-  //         ?.stake?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //         ?.toNumber() || 0
-  //     : delegationPossible;
-
-  // const communityDelegated =
-  //   delegations.length > 0
-  //     ? Math.max(
-  //         Math.round(
-  //           (parseFloat(
-  //             validator?.delegation
-  //               ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //               ?.toString() || '1',
-  //           ) -
-  //             ownDelegation / delegationPossible) *
-  //             100,
-  //         ),
-  //         1,
-  //       )
-  //     : 0;
-
-  // const selfDelegated = Math.max(Math.round((ownDelegation / delegationPossible) * 100), 1);
-
-  // const availableForDelegation = parseFloat(
-  //   validator?.availableForDelegation
-  //     ?.div(BigNumber.from('10').pow(BigNumber.from('18')))
-  //     ?.toString() || '0',
-  // );
-
-  // const availableDelegation = Math.max(
-  //   Math.round((availableForDelegation / delegationPossible) * 100),
-  //   1,
-  // );
-
-  const delegationTotalPages = Math.ceil(delegationCount / 20);
-  const offsetIndex = delegationPage === 1 ? 0 : 20 * (delegationPage - 1);
-  // const nodeActiveSince = new Date(validator?.firstBlockCreatedAt || Date.now());
+  const { availableDelegation, selfDelegated, communityDelegated } = calculateDelegationSpread(
+    validator,
+    delegations,
+  );
 
   return (
     <div className="runnode">
@@ -217,7 +237,7 @@ const NodeProfilePage = () => {
         onClaimClose={() => {}}
       />
       <Title title="Validator" />
-      {!validator || isLoading ? (
+      {!validator ? (
         <NodeProfilePageSkeleton />
       ) : (
         <div className="nodeInfoWrapper">
@@ -230,7 +250,7 @@ const NodeProfilePage = () => {
                 description={validator.description}
               />
               <div className="nodeInfoTitle">yield efficiency</div>
-              <div className="nodeInfoContent">{validator.yield || 0}</div>
+              <div className="nodeInfoContent">{validator.yield || 0}%</div>
               <div className="nodeInfoTitle">commission</div>
               <div className="nodeInfoContent">{validator.commission}%</div>
               {validator.endpoint && (
@@ -243,7 +263,8 @@ const NodeProfilePage = () => {
                   </div>
                 </>
               )}
-              {/* {validator?.firstBlockCreatedAt && (
+            </div>
+            {/* {validator?.firstBlockCreatedAt && (
               <>
                 <div className="nodeInfoTitle">node active since</div>
                 <div className="nodeInfoContent">{`${nodeActiveSince.getDate()} ${nodeActiveSince
@@ -251,7 +272,6 @@ const NodeProfilePage = () => {
                   .toUpperCase()} ${nodeActiveSince.getFullYear().toString().substring(2)}`}</div>
               </>
             )} */}
-            </div>
             <div className="nodeDelegationColumn">
               <div className="taraContainerWrapper">
                 <div className="taraContainer">
@@ -271,34 +291,34 @@ const NodeProfilePage = () => {
                   <div className="taraContainerAmountDescription">Total delegated</div>
                 </div>
               </div>
-              {/* <div className="nodeDelegationSplit">
-              <BarFlex
-                communityDelegated={communityDelegated}
-                selfDelegated={selfDelegated}
-                availableDelegation={availableDelegation}
-              />
-              <div className="percentagesBar">
-                <span>0%</span>
-                <span>25%</span>
-                <span>50%</span>
-                <span>75%</span>
-                <span>100%</span>
+              <div className="nodeDelegationSplit">
+                <BarFlex
+                  communityDelegated={communityDelegated}
+                  selfDelegated={selfDelegated}
+                  availableDelegation={availableDelegation}
+                />
+                <div className="percentagesBar">
+                  <span>0%</span>
+                  <span>25%</span>
+                  <span>50%</span>
+                  <span>75%</span>
+                  <span>100%</span>
+                </div>
+                <div className="percentageLegends">
+                  <div className="percentageLegend">
+                    <div className="legendColor" style={{ background: '#15AC5B' }} />
+                    community-delegated
+                  </div>
+                  <div className="percentageLegend">
+                    <div className="legendColor" style={{ background: '#8E8E8E' }} />
+                    self-delegated
+                  </div>
+                  <div className="percentageLegend">
+                    <div className="legendColor" style={{ background: '#48BDFF' }} />
+                    available for delegation
+                  </div>
+                </div>
               </div>
-              <div className="percentageLegends">
-                <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#15AC5B' }} />
-                  community-delegated
-                </div>
-                <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#8E8E8E' }} />
-                  self-delegated
-                </div>
-                <div className="percentageLegend">
-                  <div className="legendColor" style={{ background: '#48BDFF' }} />
-                  available for delegation
-                </div>
-              </div>
-            </div> */}
               <div className="delegationButtons">
                 <Button
                   onClick={() => setDelegateToValidator(validator)}
@@ -317,54 +337,150 @@ const NodeProfilePage = () => {
               </div>
             </div>
           </div>
-          {delegations.length !== 0 && (
-            <>
-              <hr className="nodeInfoDivider" />
+          <hr className="nodeInfoDivider" />
+          <div className="nodeTypes">
+            <div className="nodeTitleContainer">
+              <NodeIcon />
+              <Text label="Stats" variant="h6" color="primary" className="box-title" />
+              <Button
+                size="small"
+                className={clsx('nodeTypeTab', detailType === ViewType.DELEGATIONS && 'active')}
+                label="Delegations"
+                variant="contained"
+                onClick={() => {
+                  setDetailType(ViewType.DELEGATIONS);
+                }}
+              />
+              <Button
+                size="small"
+                className={clsx(
+                  'nodeTypeTab',
+                  detailType === ViewType.COMMISSION_CHANGES && 'active',
+                )}
+                label="Commission Changes"
+                variant="contained"
+                onClick={() => {
+                  setDetailType(ViewType.COMMISSION_CHANGES);
+                }}
+                disabled={!commissionChanges.length}
+              />
+            </div>
+          </div>
+          <div className="centeredContainer">
+            <div className="validatorsTableContainer">
               <div className="delegatorsHeader">
-                <span className="delegatorsLegend">Delegators</span>
-                <div className="showOwnDelegation">
-                  <Checkbox
-                    value={delegationAtTop}
-                    onChange={(e) => setDelegationAtTop(e.target.checked)}
-                  />
-                  Show my delegation at the top
-                </div>
+                {detailType === ViewType.DELEGATIONS && (
+                  <div className="showOwnDelegation">
+                    <Checkbox
+                      value={delegationAtTop}
+                      checked={delegationAtTop}
+                      onChange={(e) => setDelegationAtTop(e.target.checked)}
+                    />
+                    Show my delegation at the top
+                  </div>
+                )}
                 <div className="delegatorsPagination">
                   <Button
                     className="paginationButton"
-                    onClick={() => setDelegationPage(delegationPage - 1)}
-                    disabled={delegationCount <= 20 || delegationPage === 1}
+                    onClick={() =>
+                      detailType === ViewType.DELEGATIONS
+                        ? setDelegationPage(delegationPage - 1)
+                        : setCommissionPage(commissionPage - 1)
+                    }
+                    disabled={
+                      detailType === ViewType.DELEGATIONS
+                        ? delegationPage === 0
+                        : commissionPage === 0
+                    }
                     Icon={Icons.Left}
                   />
                   <Button
                     className="paginationButton"
-                    onClick={() => setDelegationPage(delegationPage + 1)}
-                    disabled={delegationCount <= 20 || delegationPage === delegationTotalPages}
+                    onClick={() =>
+                      detailType === ViewType.DELEGATIONS
+                        ? setDelegationPage(delegationPage + 1)
+                        : setCommissionPage(commissionPage + 1)
+                    }
+                    disabled={
+                      detailType === ViewType.DELEGATIONS
+                        ? delegations.length < TABLE_ROWS_PER_PAGE
+                        : commissionChanges.length < TABLE_ROWS_PER_PAGE
+                    }
                     Icon={Icons.Right}
                   />
                 </div>
               </div>
-              <div className="tableHeader">
-                <span>Address</span>
-                <span>Amount of TARA delegated</span>
-              </div>
-              <div className="delegators">
-                {delegations.map((delegator, id) => (
-                  <div key={id} className="delegatorRow">
-                    <div className="address">
-                      <span>{id + 1 + offsetIndex}.</span> {delegator.address}
-                    </div>
-                    <div className="badges">
-                      {delegator.address.toLowerCase() === account?.toLowerCase() && (
-                        <div className="ownStake">your delegation</div>
-                      )}
-                    </div>
-                    <div className="amount">{stripEth(delegator.stake)} TARA</div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+              <br />
+              <TableContainer className="validatorsTableContainer">
+                {detailType === ViewType.DELEGATIONS && delegations.length !== 0 && (
+                  <Table className="validatorsTable">
+                    <TableHead className="tableHead">
+                      <TableRow>
+                        <TableCell className="halfCell">Delegator</TableCell>
+                        <TableCell className="halfCell">Amount of TARA delegated</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody className="">
+                      {delegations.map((delegation, id) => (
+                        <TableRow key={id} className="">
+                          <TableCell className="halfCell">
+                            {delegation.delegator}
+                            {delegation.delegator.toLowerCase() === account?.toLowerCase() && (
+                              <Chip
+                                label="Your delegation"
+                                variant="filled"
+                                color="secondary"
+                                style={{ marginLeft: '1rem' }}
+                              />
+                            )}
+                            {validator.owner.toLowerCase() ===
+                              delegation.delegator.toLowerCase() && (
+                              <Chip
+                                label="Self-delegation"
+                                variant="filled"
+                                color="info"
+                                style={{ marginLeft: '1rem' }}
+                              />
+                            )}
+                          </TableCell>
+                          <TableCell className="halfCell">
+                            {stripEth(delegation.amount)} TARA
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+                {detailType === ViewType.COMMISSION_CHANGES && commissionChanges.length !== 0 && (
+                  <Table className="validatorsTable">
+                    <TableHead className="tableHead">
+                      <TableRow>
+                        <TableCell className="quarterCell">Commission</TableCell>
+                        <TableCell className="quarterCell">Registration Block</TableCell>
+                        <TableCell className="quarterCell">Applied at Block</TableCell>
+                        <TableCell className="quarterCell">Created at</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody className="">
+                      {commissionChanges.map((change, id) => (
+                        <TableRow key={id} className="">
+                          <TableCell className="quarterCell">
+                            {+(parseFloat(`${change.commission}` || '0') / 100).toPrecision(2)} %
+                          </TableCell>
+                          <TableCell className="quarterCell">{change.registrationBlock}</TableCell>
+                          <TableCell className="quarterCell">{change.applyAtBlock}</TableCell>
+                          <TableCell className="quarterCell">
+                            {new Date(change.timestamp * 1000).toLocaleDateString()} -{' '}
+                            {new Date(change.timestamp * 1000).toLocaleTimeString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </TableContainer>
+            </div>
+          </div>
         </div>
       )}
     </div>

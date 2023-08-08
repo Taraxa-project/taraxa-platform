@@ -27,10 +27,8 @@ export const useGetTransactionsByAddress = (
           timestamp: tx.timestamp,
         },
         value: displayWeiOrTara(ethers.BigNumber.from(tx.value)),
-        gasPrice: `${ethers.BigNumber.from(tx.gasPrice)} Wei`,
-        gas: tx.gas?.toString(),
+        gasCost: tx.gasCost,
         status: tx.status ? 1 : 0,
-        gasUsed: tx.gasUsed?.toString(),
         from: {
           address: tx.from,
         },

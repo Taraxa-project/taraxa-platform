@@ -22,7 +22,7 @@ function getOrInitCurrentDelegation(
     delegation.validator = validator.toHexString();
     delegation.delegator = delegator.toHexString();
     delegation.amount = BigInt.zero();
-    delegation.date = BigInt.zero();
+    delegation.timestamp = BigInt.zero();
     delegation.save();
   }
   return delegation;
@@ -35,7 +35,7 @@ export function handleDelegated(event: Delegated): void {
   log.debug('Handling delegation' + amount.toString(), [amount.toString()]);
   const newCurrentDelegation = getOrInitCurrentDelegation(validator, delegator);
   newCurrentDelegation.amount = newCurrentDelegation.amount.plus(amount);
-  newCurrentDelegation.date = event.block.timestamp;
+  newCurrentDelegation.timestamp = event.block.timestamp;
   newCurrentDelegation.save();
 }
 
@@ -54,7 +54,7 @@ export function handleUndelegateCanceled(event: UndelegateCanceled): void {
 
   const currentDelegation = getOrInitCurrentDelegation(validator, delegator);
   currentDelegation.amount = currentDelegation.amount.plus(event.params.amount);
-  currentDelegation.date = event.block.timestamp;
+  currentDelegation.timestamp = event.block.timestamp;
   currentDelegation.save();
 }
 
@@ -74,7 +74,7 @@ export function handleRedelegated(event: Redelegated): void {
   currentDelegationDataFrom.save();
 
   currentDelegationDataTo.amount = currentDelegationDataTo.amount.plus(amount);
-  currentDelegationDataTo.date = event.block.timestamp;
+  currentDelegationDataTo.timestamp = event.block.timestamp;
   currentDelegationDataTo.save();
 }
 
@@ -86,8 +86,8 @@ export function handleCommissionSet(event: CommissionSet): void {
   commissionChange.commission = commission;
   commissionChange.validator = validator.toHexString();
   commissionChange.registrationBlock = event.block.number.toI32();
-  const appliance = event.block.number.plus(BigInt.fromI32(25000));
-  commissionChange.applianceBlock = appliance.toI32();
-  commissionChange.date = event.block.timestamp;
+  const appliesAt = event.block.number.plus(BigInt.fromI32(25000));
+  commissionChange.applyAtBlock = appliesAt.toI32();
+  commissionChange.timestamp = event.block.timestamp;
   commissionChange.save();
 }

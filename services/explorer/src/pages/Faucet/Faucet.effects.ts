@@ -4,8 +4,8 @@ import { useSnackbar } from 'notistack';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { sendRequestTokens } from '../../api';
-import { RequestLimit, ToastData } from '../../utils';
+import { ToastData, sendRequestTokens } from '../../api';
+import { RequestLimit } from '../../utils';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 

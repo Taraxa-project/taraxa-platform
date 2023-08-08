@@ -9,7 +9,7 @@ import {
   Legend,
   ChartDataset,
 } from 'chart.js';
-import { CssBaseline, ThemeProvider, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import useStyles from './BarChart.styles';
 import theme from '../theme';
@@ -84,15 +84,12 @@ const BarChart = ({
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box className={classes.boxRoot}>
-        <Box className={classes.innerBox}>
-          <Bar options={setTick(tick)} data={parseData()} />
-          <Box className={classes.titleHolder}>{title}</Box>
-        </Box>
+    <Box className={classes.boxRoot}>
+      <Box className={classes.innerBox}>
+        <Bar options={setTick(tick)} data={parseData()} />
+        <Box className={classes.titleHolder}>{title}</Box>
       </Box>
-    </ThemeProvider>
+    </Box>
   );
 };
 

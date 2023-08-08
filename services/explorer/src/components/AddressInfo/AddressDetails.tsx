@@ -1,7 +1,12 @@
 import clsx from 'clsx';
-import { Box, Grid, Typography } from '@mui/material';
 import { toSvg } from 'jdenticon';
-import { CopyTo, Loading } from '@taraxa_project/taraxa-ui';
+import {
+  Box,
+  Grid,
+  Typography,
+  CopyTo,
+  Loading,
+} from '@taraxa_project/taraxa-ui';
 import { zeroX } from '../../utils';
 import useStyles from './AddressDetails.styles';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -40,7 +45,6 @@ export const AddressDetails = ({
         />
         <Typography
           variant='h6'
-          component='h6'
           style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
         >
           {zeroX(details?.address)}

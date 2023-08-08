@@ -8,9 +8,10 @@ import {
   Box,
   TablePagination,
   TableContainer,
-} from '@mui/material';
-import { Icons, EmptyTable } from '@taraxa_project/taraxa-ui';
-import { theme } from '../../theme-provider';
+  Icons,
+  EmptyTable,
+  theme,
+} from '@taraxa_project/taraxa-ui';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
@@ -178,7 +179,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {tx.value?.toString()}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
-                    {tx.gas?.toString()}
+                    {typeof tx.gasCost !== 'undefined'
+                      ? tx.gasCost.toString()
+                      : tx.gas?.toString()}
                   </TableCell>
                 </TableRow>
               ))
