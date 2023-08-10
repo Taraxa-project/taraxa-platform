@@ -2,7 +2,7 @@ import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
-import { In, LessThan, Raw, Repository } from 'typeorm';
+import { Connection, In, LessThan, Raw, Repository } from 'typeorm';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -65,6 +65,7 @@ export class ClaimService {
     private readonly claimRepository: Repository<ClaimEntity>,
     @InjectRepository(AddressChangesEntity)
     private readonly addressChangeRepository: Repository<AddressChangesEntity>,
+    private connection: Connection,
     @Inject(general.KEY)
     private readonly generalConfig: ConfigType<typeof general>,
     @Inject(ethereum.KEY)
@@ -458,35 +459,79 @@ export class ClaimService {
     } else throw new NotFoundException();
   }
   public async createClaim(address: string): Promise<ClaimEntity> {
-    const unclaimed = await this.claimRepository.findOne({
-      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-        address,
-      }),
-      claimed: false,
-    });
+    const claimTableName = this.claimRepository.metadata.tableName;
+    const accountTableName = this.accountRepository.metadata.tableName;
 
-    if (unclaimed) return unclaimed;
+    let claim: ClaimEntity;
 
-    const { availableToBeClaimed } = await this.accountRepository.findOneOrFail(
-      {
-        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          address,
-        }),
-      },
-    );
+    const queryRunner = this.connection.createQueryRunner();
 
-    if (
-      ethers.BigNumber.from(availableToBeClaimed).lte(ethers.BigNumber.from(0))
-    ) {
-      throw new Error('No tokens to claim');
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.query(
+        `LOCK TABLE "${claimTableName}" IN EXCLUSIVE MODE;`,
+      );
+      await queryRunner.query(
+        `LOCK TABLE "${accountTableName}" IN EXCLUSIVE MODE;`,
+      );
+
+      claim = await queryRunner.manager.findOne(
+        ClaimEntity,
+        {
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+          claimed: false,
+        },
+        {
+          transaction: false,
+        },
+      );
+
+      if (claim) {
+        throw new Error('Already created');
+      }
+
+      const { availableToBeClaimed } = await queryRunner.manager.findOneOrFail(
+        AccountEntity,
+        {
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+        },
+        {
+          transaction: false,
+        },
+      );
+
+      if (
+        ethers.BigNumber.from(availableToBeClaimed).lte(
+          ethers.BigNumber.from(0),
+        )
+      ) {
+        throw new Error('No tokens to claim');
+      }
+
+      claim = new ClaimEntity();
+      claim.address = address;
+      claim.numberOfTokens = availableToBeClaimed;
+      await queryRunner.manager.save(claim, {
+        transaction: false,
+      });
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      if (err.message === 'No tokens to claim') {
+        throw new Error('No tokens to claim');
+      }
+    } finally {
+      await queryRunner.release();
     }
 
-    const claim = new ClaimEntity();
-    claim.address = address;
-    claim.numberOfTokens = availableToBeClaimed;
-
-    const newClaim = await this.claimRepository.save(claim);
-    return newClaim;
+    return claim;
   }
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
