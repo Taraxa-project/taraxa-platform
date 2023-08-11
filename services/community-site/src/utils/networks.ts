@@ -36,7 +36,7 @@ export const networks: Networks = {
       symbol: 'TARA',
       decimals: 18,
     },
-    indexerUrl: 'https://indexer.testnet.explorer.taraxa.io',
+    indexerUrl: 'https://indexer.explorer.taraxa.io',
   },
   843: {
     chainName: 'Taraxa Devnet',
