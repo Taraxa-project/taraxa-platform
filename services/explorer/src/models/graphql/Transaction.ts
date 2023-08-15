@@ -10,6 +10,7 @@ export interface Transaction {
   value?: number | BigNumber | string;
   gasPrice?: number | BigNumber | string;
   gas?: number | BigNumber | string;
+  gasCost?: number | BigNumber | string;
   inputData?: number | string;
   block?: Partial<PbftBlock>;
   status?: number;

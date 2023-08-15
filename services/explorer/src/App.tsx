@@ -5,6 +5,7 @@ import { Header, Footer } from './components';
 import TransactionsPage from './pages/Transactions/Transactions';
 import BlocksPage from './pages/Blocks/Blocks';
 import NodesPage from './pages/Nodes/Nodes';
+import HoldersPage from './pages/Holders/Holders';
 import TransactionDataContainer from './pages/TransactionData/TransactionData';
 import AddressInfoPage from './pages/AddressInfo/AddressInfo';
 import DAGDataContainer from './pages/BlockData/DAGDataContainer';
@@ -37,6 +38,7 @@ const Root = (): JSX.Element => {
             <Route path='/block/:txHash' element={<DAGDataContainer />} />
             <Route path='/pbft/:identifier' element={<PBFTDataContainer />} />
             <Route path='/node' element={<NodesPage />} />
+            <Route path='/holder' element={<HoldersPage />} />
             <Route path='/tx' element={<TransactionsPage />} />
             <Route path='/dag' element={<DagPage />} />
             <Route path='/tx/:txHash' element={<TransactionDataContainer />} />

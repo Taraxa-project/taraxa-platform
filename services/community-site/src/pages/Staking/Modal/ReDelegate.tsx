@@ -39,8 +39,6 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
   ) => {
     event.preventDefault();
 
-    const reDelegationNumber = parseFloat(reDelegationTotal);
-
     if (!validatorFrom) {
       setError('Missing Validator from');
       return;
@@ -51,7 +49,7 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
       return;
     }
 
-    if (Number.isNaN(reDelegationNumber) || reDelegationNumber < 1000) {
+    if (Number.isNaN(parseFloat(reDelegationTotal)) || parseFloat(reDelegationTotal) < 1000) {
       setError('must be a number greater than 1,000');
       return;
     }
@@ -68,7 +66,7 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
     }
 
     const reDelegateValue = ethers.utils.parseUnits(
-      reDelegationNumber.toString().replace(',', '.'),
+      reDelegationTotal.toString().replace(',', '.'),
       18,
     );
 

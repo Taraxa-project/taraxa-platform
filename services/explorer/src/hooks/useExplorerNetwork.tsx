@@ -53,6 +53,7 @@ const useNetworkSelection = () => {
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
     recreateFaucetConnection(currentNetwork)
   );
+
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
   };

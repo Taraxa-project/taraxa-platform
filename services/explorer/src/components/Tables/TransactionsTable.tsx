@@ -180,9 +180,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {tx.value?.toString()}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
-                    {ethers.BigNumber.from(tx.gasUsed)
-                      .mul(ethers.BigNumber.from(tx.gasPrice))
-                      .toString()}{' '}
+                    {typeof tx.gasCost !== 'undefined'
+                      ? tx.gasCost.toString()
+                      : tx.gas?.toString()}{' '}
                     Wei
                   </TableCell>
                 </TableRow>
