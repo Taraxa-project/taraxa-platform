@@ -27,7 +27,6 @@ type Context = {
   modalTitle: string;
   modalContent: JSX.Element | null;
   asyncCallback: (callback: AsyncCallbackType, onSuccess?: () => void) => Promise<void>;
-  changeState?: (state: WalletPopupState, title?: string, message?: string) => void;
 };
 
 const initialState: Context = {
@@ -206,7 +205,6 @@ const useProvideWalletPopup = () => {
   };
 
   return {
-    changeState,
     state,
     showPopup,
     isMobile,
