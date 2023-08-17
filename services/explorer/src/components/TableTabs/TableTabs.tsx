@@ -47,7 +47,7 @@ export const TableTabs: FC<TableTabsProps> = ({
         aria-label='icon position tabs example'
         indicatorColor='secondary'
       >
-        {tabs?.length &&
+        {tabs?.length > 0 &&
           tabs.map((tab: TabModel) => (
             <Tab
               key={`${tab.label}-${tab.index}}`}
@@ -58,7 +58,7 @@ export const TableTabs: FC<TableTabsProps> = ({
             />
           ))}
       </Tabs>
-      {tabs?.length &&
+      {tabs?.length > 0 &&
         tabs.map((tab: TabModel) => (
           <TabPanel
             value={value}
