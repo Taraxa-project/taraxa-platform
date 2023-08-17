@@ -24,7 +24,7 @@ export default registerAs('delegation', () => {
     ),
     maxDelegation: 80000000,
     eligibilityThreshold: 1000000,
-    testnetDelegation: ethers.BigNumber.from(1000000).mul(
+    testnetDelegation: ethers.BigNumber.from(500000).mul(
       ethers.BigNumber.from(10).pow(18),
     ),
     mainnetDelegation: ethers.BigNumber.from(10).pow(18),
