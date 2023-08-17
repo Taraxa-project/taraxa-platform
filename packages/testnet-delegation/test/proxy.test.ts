@@ -17,7 +17,7 @@ describe("DelegationOrchestrator Proxy tests", () => {
 
   let ethersContract: baseEthers.Contract;
   before(async () => {
-    const [signer, signer1, signer2, signer3, signer4] = await ethers.getSigners();
+    const [signer, signer1, signer2] = await ethers.getSigners();
     ownValidators = [signer, signer1, signer2];
     newValidatorOwner1 = signer1;
 
