@@ -1,7 +1,5 @@
 import moment from 'moment';
 
-const FIRST_EPOCH = moment('2021-10-15T00:00:00Z').utc();
-
 export type Epoch = {
   epoch: number;
   startDate: number;
@@ -9,6 +7,9 @@ export type Epoch = {
 };
 
 export const getEpochs = (currentDate: number): Epoch[] => {
+  const FIRST_EPOCH = moment('2021-10-15T00:00:00Z').utc();
+  const LAST_EPOCH = moment('2023-04-03T10:00:00Z').utc();
+
   const getEpoch = (epoch: number, date: moment.Moment) => ({
     epoch,
     startDate: date.startOf('day').unix(),
@@ -26,6 +27,12 @@ export const getEpochs = (currentDate: number): Epoch[] => {
     );
     if (nextEpoch.startDate <= currentDate && nextEpoch.endDate > currentDate) {
       break;
+    }
+    if (nextEpoch.startDate > LAST_EPOCH.unix()) {
+      break;
+    }
+    if (nextEpoch.endDate > LAST_EPOCH.unix()) {
+      nextEpoch.endDate = LAST_EPOCH.unix();
     }
     epochs.push(nextEpoch);
   }

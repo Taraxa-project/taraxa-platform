@@ -3,7 +3,6 @@ import { Client, createClient as urqlCreateClient } from 'urql';
 import {
   Network,
   getDomainName,
-  SELECTED_NETWORK,
   recreateGraphQLConnection,
   recreateAPIConnection,
   recreateFaucetConnection,
@@ -40,10 +39,9 @@ const ExplorerNetworkContext = createContext<Context>(initialState);
 
 const useNetworkSelection = () => {
   const networks = Object.values(Network);
-  const savedNetwork = localStorage.getItem(SELECTED_NETWORK);
   const hostNetwork = getDomainName();
   const [currentNetwork, setCurrentNetwork] = useState<string>(
-    hostNetwork || savedNetwork || Network.MAINNET
+    hostNetwork || Network.MAINNET
   );
 
   const [graphQLClient, setGraphQLClient] = useState<Client>(
@@ -55,9 +53,9 @@ const useNetworkSelection = () => {
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
     recreateFaucetConnection(currentNetwork)
   );
+
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
-    localStorage.setItem(SELECTED_NETWORK, network);
   };
 
   useEffect(() => {

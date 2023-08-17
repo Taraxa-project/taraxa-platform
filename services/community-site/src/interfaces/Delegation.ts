@@ -1,9 +1,27 @@
-export default interface Delegation {
-  id: number;
-  user: number;
-  address: string;
-  value: number;
-  createdAt: string;
-  isOwnDelegation: boolean;
-  isSelfDelegation: boolean;
+import { ethers } from 'ethers';
+
+interface ContractDelegationInfo {
+  rewards: ethers.BigNumber;
+  stake: ethers.BigNumber;
 }
+
+export interface ContractDelegation {
+  account: string;
+  delegation: ContractDelegationInfo;
+}
+
+export default interface Delegation {
+  address: string;
+  stake: ethers.BigNumber;
+  rewards: ethers.BigNumber;
+}
+
+export interface DelegationGQL {
+  id: string;
+  delegator: string;
+  validator: string;
+  amount: ethers.BigNumber;
+  timestamp: number;
+}
+
+export const COMMISSION_CHANGE_THRESHOLD = 108000;

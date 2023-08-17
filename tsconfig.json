@@ -42,6 +42,9 @@
       "path": "packages/explorer-shared"
     },
     {
+      "path": "packages/dpos-subgraph"
+    },
+    {
       "path": "services/community-site"
     },
     {

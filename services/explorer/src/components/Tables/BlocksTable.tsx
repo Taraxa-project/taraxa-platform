@@ -1,15 +1,16 @@
 import React from 'react';
 import {
+  theme,
+  Box,
+  EmptyTable,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-  TableContainer,
-  Box,
   TablePagination,
-} from '@mui/material';
-import { theme } from '@taraxa_project/taraxa-ui';
+  TableContainer,
+} from '@taraxa_project/taraxa-ui';
 import { HashLink } from '..';
 import { BlockData } from '../../models';
 import { HashLinkType } from '../../utils';
@@ -90,31 +91,38 @@ export const BlocksTable: React.FC<{
             </TableRow>
           </TableHead>
           <TableBody>
-            {blocksData?.map((block, i) => (
-              <TableRow key={`${block.hash}-${i}`}>
-                <TableCell variant='body'>
-                  {timestampToAge(block.timestamp)}
-                </TableCell>
-                {type === 'dag' && (
-                  <TableCell variant='body'>{block.level}</TableCell>
-                )}
-                {type === 'pbft' && (
-                  <TableCell variant='body'>{block.number}</TableCell>
-                )}
-                <TableCell variant='body'>
-                  {type === 'pbft' && (
-                    <HashLink linkType={HashLinkType.PBFT} hash={block.hash} />
-                  )}
+            {blocksData && blocksData.length > 0 ? (
+              blocksData.map((block, i) => (
+                <TableRow key={`${block.hash}-${i}`}>
+                  <TableCell variant='body'>
+                    {timestampToAge(block.timestamp)}
+                  </TableCell>
                   {type === 'dag' && (
-                    <HashLink
-                      linkType={HashLinkType.BLOCKS}
-                      hash={block.hash}
-                    />
+                    <TableCell variant='body'>{block.level}</TableCell>
                   )}
-                </TableCell>
-                <TableCell variant='body'>{block.transactionCount}</TableCell>
-              </TableRow>
-            ))}
+                  {type === 'pbft' && (
+                    <TableCell variant='body'>{block.number}</TableCell>
+                  )}
+                  <TableCell variant='body'>
+                    {type === 'pbft' && (
+                      <HashLink
+                        linkType={HashLinkType.PBFT}
+                        hash={block.hash}
+                      />
+                    )}
+                    {type === 'dag' && (
+                      <HashLink
+                        linkType={HashLinkType.BLOCKS}
+                        hash={block.hash}
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell variant='body'>{block.transactionCount}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <EmptyTable colspan={5} />
+            )}
           </TableBody>
         </Table>
       </TableContainer>

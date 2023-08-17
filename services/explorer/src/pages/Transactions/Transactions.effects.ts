@@ -7,12 +7,14 @@ import {
   PbftBlock,
   Transaction,
   TransactionTableData,
+  TransactionTableRow,
 } from '../../models';
 import { blocksQueryWithTransactions } from '../../api';
 import {
   formatTransactionStatus,
   fromWeiToTara,
   MIN_WEI_TO_CONVERT,
+  toTransactionTableRow,
 } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
 import { ethers } from 'ethers';
@@ -20,11 +22,11 @@ import { ethers } from 'ethers';
 export const displayThreshold =
   process.env.REACT_APP_DISPLAY_TXES_FOR_LAST_BLOCK || 25;
 export const useTransactionEffects = (): {
-  data: TransactionTableData[];
+  rows: { data: TransactionTableRow[] }[];
   columns: ColumnData[];
   currentNetwork: string;
 } => {
-  const [data, setData] = useState<TransactionTableData[]>([]);
+  const [rows, setRows] = useState<{ data: TransactionTableRow[] }[]>([]);
   const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
   const { finalBlock } = useNodeStateContext();
@@ -55,16 +57,16 @@ export const useTransactionEffects = (): {
 
   useEffect(() => {
     if (blockData?.blocks) {
-      const blocks = blockData?.blocks as PbftBlock[];
-      let txData: TransactionTableData[] = [...data];
+      const blocks = blockData.blocks as PbftBlock[];
+      let txData: TransactionTableData[] = [];
       blocks.forEach((block) => {
         if (block) {
-          const transactions = block?.transactions;
+          const transactions = block.transactions;
           if (transactions?.length > 0) {
-            const rows = transactions?.map((tx: Transaction) => {
+            const rows = transactions.map((tx: Transaction) => {
               return {
-                timestamp: Number(block?.timestamp),
-                block: `${block?.number}`,
+                timestamp: Number(block.timestamp),
+                block: `${block.number}`,
                 status: formatTransactionStatus(tx.status),
                 txHash: tx.hash,
                 value:
@@ -78,15 +80,18 @@ export const useTransactionEffects = (): {
           }
         }
       });
-      setData(txData);
+      const rows = txData
+        .sort((d1, d2) => (+d1.block < +d2.block ? 1 : -1))
+        .map((row) => toTransactionTableRow(row));
+      setRows(rows);
     }
   }, [blockData]);
 
   useEffect(() => {
     if (currentNetwork !== network) {
-      setData([]);
+      setRows([]);
     }
   }, [currentNetwork, network]);
 
-  return { data, columns, currentNetwork };
+  return { rows, columns, currentNetwork };
 };

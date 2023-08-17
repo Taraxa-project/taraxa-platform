@@ -1,6 +1,5 @@
 import React from 'react';
-import { CircularProgress } from '@mui/material';
-import { Icons, Label } from '@taraxa_project/taraxa-ui';
+import { CircularProgress, Icons, Label } from '@taraxa_project/taraxa-ui';
 import { DateTime } from 'luxon';
 import moment from 'moment';
 import { HashLink } from '../components/Links';
@@ -9,6 +8,9 @@ import {
   TransactionTableData,
   TransactionStatus,
   NodesTableData,
+  TransactionTableRow,
+  DagTableRow,
+  PbftTableRow,
 } from '../models';
 import { HashLinkType } from './Enums';
 
@@ -56,13 +58,7 @@ export const statusToLabel = (state: TransactionStatus): JSX.Element => {
 export const toTransactionTableRow = (
   props: TransactionTableData
 ): {
-  data: {
-    timestamp: string;
-    block: JSX.Element;
-    status: JSX.Element;
-    txHash: JSX.Element;
-    value: string;
-  }[];
+  data: TransactionTableRow[];
 } => {
   const { timestamp, block, status: state, txHash, value, token } = props;
   const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
@@ -121,12 +117,7 @@ export const timestampToAge = (timestamp: string | number): string => {
 export const toBlockTableRow = (
   props: BlockData
 ): {
-  data: {
-    timestamp: string;
-    block: JSX.Element;
-    hash: JSX.Element;
-    transactionCount: number;
-  }[];
+  data: PbftTableRow[];
 } => {
   const { timestamp, block, hash, transactionCount } = props;
 
@@ -151,12 +142,7 @@ export const toBlockTableRow = (
 export const toDagBlockTableRow = (
   props: BlockData
 ): {
-  data: {
-    timestamp: string;
-    level: number;
-    hash: JSX.Element;
-    transactionCount: number;
-  }[];
+  data: DagTableRow[];
 } => {
   const { timestamp, level, hash, transactionCount } = props;
 

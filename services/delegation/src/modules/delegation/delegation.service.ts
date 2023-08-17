@@ -5,6 +5,7 @@ import {
   Connection,
   FindConditions,
   FindOneOptions,
+  LessThan,
   Raw,
   Repository,
 } from 'typeorm';
@@ -36,6 +37,7 @@ import { CreateUndelegationNonceDto } from './dto/create-undelegation-nonce.dto'
 import { BalancesDto } from './dto/balances.dto';
 import { BalancesByNodeDto } from './dto/balances-by-node.dto';
 import { Undelegation } from './undelegation.entity';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class DelegationService {
@@ -55,6 +57,7 @@ export class DelegationService {
     private eventEmitter: EventEmitter2,
     private config: ConfigService,
     private stakingService: StakingService,
+    private httpService: HttpService,
     private connection: Connection,
     @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
     private testnetBlockchainService: BlockchainService,
@@ -368,10 +371,122 @@ export class DelegationService {
           await this.nodeRepository.save(node);
         }
       }
-      if (type === NodeType.MAINNET && !toDelegate.isZero()) {
-        await this.mainnetBlockchainService.delegate(address, toDelegate);
-      }
     }
+  }
+
+  async unDelegateAll(type: string, address: string) {
+    if (type === NodeType.MAINNET) {
+      const node = await this.nodeRepository.findOne({ where: { address } });
+      await this.ensureDelegation(node?.id, NodeType.MAINNET, address);
+    } else {
+      // await this.ensureTestnetDelegation(address, ethers.BigNumber.from(0));
+    }
+  }
+
+  async getDelegation(
+    address: string,
+    type: 'mainnet' | 'testnet',
+  ): Promise<ethers.BigNumber> {
+    const formattedAddress = address.toLowerCase();
+    const currentDelegations = await this.getDelegationsFor(type);
+    return currentDelegations[formattedAddress]
+      ? ethers.BigNumber.from(currentDelegations[formattedAddress])
+      : ethers.BigNumber.from(0);
+  }
+
+  async getDelegationsFor(
+    type: 'mainnet' | 'testnet',
+  ): Promise<{ [address: string]: string }> {
+    let endpoint: string;
+    let delegatorAddress: string;
+    if (type === 'mainnet') {
+      endpoint = this.config.get<string>('ethereum.mainnetEndpoint');
+      delegatorAddress = this.stakingService.mainnetWalletAddress;
+    } else {
+      endpoint = this.config.get<string>('ethereum.testnetEndpoint');
+      delegatorAddress = this.stakingService.testnetWalletAddress;
+    }
+    const formattedAddress = delegatorAddress.toLowerCase();
+    const state = await this.httpService
+      .post(
+        endpoint,
+        {
+          jsonrpc: '2.0',
+          method: 'taraxa_queryDPOS',
+          params: [
+            {
+              account_queries: {
+                [formattedAddress]: {
+                  inbound_deposits_addrs_only: false,
+                  outbound_deposits_addrs_only: false,
+                  with_inbound_deposits: true,
+                  with_outbound_deposits: true,
+                  with_staking_balance: true,
+                },
+              },
+              with_eligible_count: true,
+            },
+          ],
+          id: 1,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      .toPromise();
+
+    if (state.status !== 200) {
+      throw new Error('Failed to get DPOS stake');
+    }
+
+    return state.data.result.account_results[formattedAddress]
+      .outbound_deposits;
+  }
+
+  async rebalanceMainnet() {
+    const ownNodes = await this.getOwnNodes('mainnet');
+
+    for (const node of ownNodes) {
+      const nodeEntity = await this.nodeRepository.findOne({ where: { node } });
+      await this.ensureDelegation(nodeEntity?.id, NodeType.MAINNET, node);
+    }
+  }
+
+  private async getOwnNodes(type: 'mainnet' | 'testnet'): Promise<string[]> {
+    let endpoint: string;
+    if (type === 'mainnet') {
+      endpoint = this.config.get<string>('ethereum.mainnetEndpoint');
+    } else {
+      endpoint = this.config.get<string>('ethereum.testnetEndpoint');
+    }
+
+    const state = await this.httpService
+      .post(
+        endpoint,
+        {
+          jsonrpc: '2.0',
+          method: 'taraxa_getConfig',
+          params: [],
+          id: 1,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      .toPromise();
+
+    if (state.status !== 200) {
+      throw new Error('Failed to get DPOS stake');
+    }
+
+    const genesisState = state.data.result.final_chain.state.dpos.genesis_state;
+    const genesisStateKey = Object.keys(genesisState)[0];
+
+    return Object.keys(genesisState[genesisStateKey]);
   }
 
   async getDelegators() {
@@ -620,6 +735,24 @@ export class DelegationService {
         `Could not save undelegation for ${address} with value ${amount} from node ${nodeId}`,
       );
     }
+  }
+
+  public getUntriggeredUndelegations(): Promise<Undelegation[]> {
+    return this.undelegationRepository.find({
+      triggered: false,
+    });
+  }
+
+  public getUnconfirmedUndelegations(
+    currentBlock: number,
+  ): Promise<Undelegation[]> {
+    return this.undelegationRepository.find({
+      where: {
+        confirmationBlock: LessThan(currentBlock),
+        chain: NodeType.TESTNET,
+        confirmed: false,
+      },
+    });
   }
 
   public async undelegateFromChain(undelegation: Undelegation) {

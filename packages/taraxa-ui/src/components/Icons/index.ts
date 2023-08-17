@@ -22,6 +22,8 @@ import Clipboard from './Clipboard';
 import GreenRightArrow from './GreenRightArrow';
 import TransactionIcon from './TransactionIcon';
 import TransactionBlock from './TransactionBlock';
+import File from './File';
+import Tips from './Tips';
 
 export {
   Left,
@@ -48,6 +50,8 @@ export {
   GreenRightArrow,
   TransactionIcon,
   TransactionBlock,
+  File,
+  Tips,
 };
 
 export default {
@@ -74,4 +78,6 @@ export default {
   GreenRightArrow,
   TransactionIcon,
   TransactionBlock,
+  File,
+  Tips,
 };

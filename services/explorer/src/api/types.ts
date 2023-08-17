@@ -77,15 +77,30 @@ export interface AddressTxResponse {
   to: string;
   status: number;
   gasUsed: string;
+  gas: string;
   gasPrice: string;
   value: string;
   block: number;
   age: number;
   timestamp?: number;
+  type?: 0 | 1 | 2;
+}
+
+export interface HoldersResponse {
+  address: string;
+  balance: string;
 }
 
 export interface RankedNode extends ITaraxaNode {
   rank: number;
+  address: string;
+  pbftCount: number;
+}
+
+export interface Holder {
+  rank: number;
+  address: string;
+  balance: string;
 }
 
 export interface Paginate<T> {
@@ -109,3 +124,21 @@ export interface TablePagination<T> {
 
 export type BlockTablePagination = TablePagination<BlockData>;
 export type TxTablePaginate = TablePagination<Transaction>;
+
+export type ToastData = {
+  display: boolean;
+  variant?: 'success' | 'error' | 'warning' | undefined;
+  text?: string;
+};
+
+export type EventData = {
+  address: string;
+  data: string;
+  logIndex: number;
+  name: string;
+  params: any[];
+  removed: boolean;
+  topics: string[];
+  transactionHash: string;
+  transactionIndex: number;
+};

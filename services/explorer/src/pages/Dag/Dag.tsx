@@ -1,12 +1,11 @@
 import React from 'react';
-import { Table } from '@taraxa_project/taraxa-ui';
+import Table from '../../components/Tables/Table';
 import { useDagEffects } from './Dag.effects';
 import { PageTitle } from '../../components';
-import { toDagBlockTableRow } from '../../utils';
 
 export const DagPage = (): JSX.Element => {
   const {
-    data,
+    rows,
     columns,
     rowsPerPage,
     page,
@@ -14,8 +13,6 @@ export const DagPage = (): JSX.Element => {
     handleChangeRowsPerPage,
     totalCount,
   } = useDagEffects();
-
-  const rows = data ? [...data.map((row) => toDagBlockTableRow(row))] : [];
 
   return (
     <>

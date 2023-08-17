@@ -42,7 +42,7 @@ RUN SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer-shared bui
 RUN SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer build
 
 # nginx
-FROM nginx:1.18-alpine
+FROM nginx:1.25.1-alpine
 
 COPY services/explorer/docker-files/nginx.conf /etc/nginx/conf.d/default.conf
 COPY services/explorer/docker-files/entrypoint.sh /entrypoint.sh

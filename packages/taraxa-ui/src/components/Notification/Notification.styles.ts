@@ -30,6 +30,9 @@ const useStyles = makeStyles(() => {
       fontSize: '16px',
       lineHeight: '24px',
     },
+    childrenContainer: {
+      marginTop: '12px',
+    },
   };
 });
 export default useStyles;

@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers';
+
 export enum TransactionStatus {
   SUCCESS = '0x1',
   FAILURE = '0x0',
@@ -14,10 +16,40 @@ export interface TransactionTableData {
   token: string;
 }
 
+export interface TransactionTableRow {
+  timestamp: string;
+  block: JSX.Element;
+  status: JSX.Element;
+  txHash: JSX.Element;
+  value: string;
+}
+
+export interface DagTableRow {
+  timestamp: string;
+  level: number;
+  hash: JSX.Element;
+  transactionCount: number;
+}
+
+export interface PbftTableRow {
+  timestamp: string;
+  block: JSX.Element;
+  hash: JSX.Element;
+  transactionCount: number;
+}
+
 export interface NodesTableData {
   rank: number;
   address: string;
   pbftCount: number;
+}
+
+export interface HoldersTableData {
+  rank: number;
+  address: string;
+  balance: BigNumber;
+  totalSupply: BigNumber;
+  taraPrice: number;
 }
 
 export interface ColumnData {

@@ -5,7 +5,6 @@ import { useHistory, withRouter, RouteComponentProps } from 'react-router-dom';
 import { IconCard, ToggleButton, Notification } from '@taraxa_project/taraxa-ui';
 
 import StakingIcon from '../../assets/icons/staking';
-import DelegationIcon from '../../assets/icons/delegation';
 import BountiesIcon from '../../assets/icons/bounties';
 import RedeemIcon from '../../assets/icons/redeem';
 import NodeIcon from '../../assets/icons/node';
@@ -49,7 +48,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
 
   const toggleOptions = [
     { value: 'earn', label: 'Earn' },
-    { value: 'testnet', label: 'Testnet' },
+    { value: 'testnet', label: 'Participate' },
   ];
 
   const onToggle = (event: React.MouseEvent<HTMLElement>, value: string) => {
@@ -88,17 +87,10 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
         >
           <IconCard
             title="Staking"
-            description="Earn rewards while helping to secure Taraxa’s network."
+            description="Earn rewards and help secure the Taraxa network."
             onClickText="Get Started"
             onClickButton={() => history.push('/staking')}
             Icon={StakingIcon}
-          />
-          <IconCard
-            title="Delegation"
-            description="Earn rewards and help test & secure the Taraxa’s network."
-            onClickText="Get Started"
-            onClickButton={() => history.push('/delegation')}
-            Icon={DelegationIcon}
           />
           <IconCard
             title="Bounties"
@@ -107,13 +99,6 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             onClickButton={() => history.push('/bounties')}
             Icon={BountiesIcon}
           />
-        </div>
-        <div
-          className="cardContainer"
-          style={{
-            display: isMobile && toggleValue !== 'earn' ? 'none' : isMobile ? 'inherit' : 'flex',
-          }}
-        >
           <IconCard
             title="Redeem"
             description="Redeem TARA points for $TARA tokens and cool Taraxa swag."
@@ -122,14 +107,17 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             Icon={RedeemIcon}
           />
         </div>
-
         <div
           className="notification"
           style={{
             display: isMobile && toggleValue !== 'testnet' ? 'none' : 'inherit',
           }}
         >
-          <Notification title="TESTNET" text="Join Taraxa’s public testnet." variant="success" />
+          <Notification
+            title="Participate"
+            text="Participate in Taraxa`s public networks."
+            variant="success"
+          />
         </div>
         <div
           className="cardContainer"
@@ -149,7 +137,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Explore the ledger and find the transaction’s data."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open('https://explorer.testnet.taraxa.io/', '_blank', 'noreferrer noopener')
+              window.open('https://testnet.explorer.taraxa.io/', '_blank', 'noreferrer noopener')
             }
             Icon={ExplorerIcon}
           />
@@ -158,7 +146,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Earn rewards while learning about Taraxa and grow it’s ecosystem."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open('https://sandbox.testnet.taraxa.io/', '_blank', 'noreferrer noopener')
+              window.open('https://www.taraxa.io/build/', '_blank', 'noreferrer noopener')
             }
             Icon={DeployIcon}
           />

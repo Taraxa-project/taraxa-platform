@@ -1,0 +1,17 @@
+{
+  "name": "@taraxa_project/onchain-economics",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ taraxa_project/dpos",
+    "create-local": "graph create --node http://localhost:8020/ taraxa_project/dpos",
+    "remove-local": "graph remove --node http://localhost:8020/ taraxa_project/dpos",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 taraxa_project/dpos"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.44.0",
+    "@graphprotocol/graph-ts": "0.29.3"
+  }
+}

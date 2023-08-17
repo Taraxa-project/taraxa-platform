@@ -50,45 +50,7 @@
       border-color: white !important;
     }
   }
-  .table {
-    min-width: 750;
-    color: #ffffff !important;
-  }
-
-  .tableHeadRow {
-    border-bottom: 1px solid #1e2231 !important;
-  }
-
-  .tableHeadCell {
-    color: #878ca4 !important;
-    background-color: #1b1e2b;
-    border: none;
-    height: auto;
-    line-height: 8px;
-  }
-
-  .tableRow {
-    border-bottom: 1px solid #1e2231 !important;
-  }
-
-  .tableCell {
-    color: #ffffff !important;
-    border: none;
-    height: auto;
-    border-bottom: 1px solid #1e2231 !important;
-  }
-
-  .tableCellGrey {
-    color: #4f5368 !important;
-    border: none;
-    height: auto;
-    border-bottom: 1px solid #1e2231 !important;
-  }
-
-  .tableSection {
-    text-align: center;
-  }
-
+  
   .container-row {
     max-height: 15px !important;
     display: flex;
@@ -120,29 +82,6 @@
     background-color: #202534;
   }
 
-  .noRewardText {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    letter-spacing: -0.03em;
-    color: #878ca4;
-    height: 170px;
-  }
-
-  .noRewardContainer {
-    background: #181b27;
-    border-radius: 2px;
-    margin-right: -16px !important;
-    margin-left: -16px !important;
-  }
-
   .tableHeader {
     font-family: 'Inter';
     font-style: normal;
@@ -154,4 +93,10 @@
     color: #ffffff;
     margin-bottom: 3%;
   }
+  
+  .redeemTable {
+    min-width: 750;
+    color: #ffffff !important;
+  }
+
 }

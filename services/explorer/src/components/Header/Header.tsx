@@ -1,13 +1,16 @@
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
 import {
+  Box,
+  Drawer,
+  IconButton,
   Button,
   Header as THeader,
   NetworkMenu,
+  SearchInput,
+  MuiIcons,
+  theme,
 } from '@taraxa_project/taraxa-ui';
-import { Box, Drawer, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { theme } from '../../theme-provider';
 import { TaraxaIcon } from '../icons';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
 import { DrawerElements } from './DrawerElements';
@@ -30,7 +33,14 @@ export const Header = (): JSX.Element => {
   } = useHeaderEffects();
 
   const buttons = (
-    <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'flex-end',
+      }}
+    >
       {headerButtons?.length &&
         headerButtons.map((button: HeaderBtn) => {
           return (
@@ -66,9 +76,9 @@ export const Header = (): JSX.Element => {
       onClick={toggleDrawer(true)}
       color='primary'
       aria-label='upload picture'
-      component='label'
+      // component='label'
     >
-      <MenuIcon />
+      <MuiIcons.Menu />
     </IconButton>
   );
 
@@ -78,20 +88,21 @@ export const Header = (): JSX.Element => {
       className='header'
       color='primary'
       position='relative'
-      withSearch
       maxWidth='xl'
       Icon={TaraxaIcon}
       elevation={0}
-      searchInputProps={{
-        onInputChange,
-        onChange: onLabelSelect,
-        loading: isLoading,
-        open: !!searchString,
-        options: searchOptions,
-        onClear,
-        searchString,
-      }}
     >
+      <SearchInput
+        placeholder={'Hash or number...'}
+        open={!!searchString}
+        fullWidth
+        onInputChange={onInputChange}
+        onChange={onLabelSelect}
+        loading={isLoading}
+        options={searchOptions}
+        onClear={onClear}
+        searchString={searchString}
+      />
       {isMobile ? hamburger : buttons}
       <Drawer
         anchor='right'

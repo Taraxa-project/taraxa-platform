@@ -7,3 +7,5 @@ charts/
 services/node-status
 .github
 legacy/
+**/generated/**
+**/mapping.ts

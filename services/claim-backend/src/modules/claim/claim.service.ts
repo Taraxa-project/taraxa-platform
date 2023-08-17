@@ -2,13 +2,8 @@ import * as ethUtil from 'ethereumjs-util';
 import * as abi from 'ethereumjs-abi';
 import { ethers } from 'ethers';
 import { BigNumber } from 'bignumber.js';
-import { In, LessThan, Raw, Repository } from 'typeorm';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Connection, In, LessThan, Raw, Repository } from 'typeorm';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
@@ -70,6 +65,7 @@ export class ClaimService {
     private readonly claimRepository: Repository<ClaimEntity>,
     @InjectRepository(AddressChangesEntity)
     private readonly addressChangeRepository: Repository<AddressChangesEntity>,
+    private connection: Connection,
     @Inject(general.KEY)
     private readonly generalConfig: ConfigType<typeof general>,
     @Inject(ethereum.KEY)
@@ -434,36 +430,22 @@ export class ClaimService {
     return accounts;
   }
   public async account(address: string): Promise<Partial<AccountEntity>> {
-    try {
-      const claim = await this.claimRepository.findOne({
-        where: {
-          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-            address,
-          }),
-          claimed: false,
-        },
-      });
-      if (claim) {
-        const nonce = claim.id * 13;
-
-        const indexedClaims = await this.graphService.getIndexedClaim(
+    const claim = await this.claimRepository.findOne({
+      where: {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
           address,
-          claim.numberOfTokens,
-          nonce,
-        );
-        if (indexedClaims) {
-          const confirmation = ethers.BigNumber.from(indexedClaims[0].amount);
-          if (
-            confirmation.gt(ethers.BigNumber.from('0')) &&
-            confirmation.eq(ethers.BigNumber.from(claim.numberOfTokens))
-          ) {
-            await this.markAsClaimed(claim.id);
-          }
-        }
+        }),
+        claimed: false,
+      },
+    });
+
+    if (claim) {
+      const isClaimed = await this.isClaimClaimed(claim);
+      if (isClaimed) {
+        await this.markAsClaimed(claim);
       }
-    } catch (error) {
-      console.log('Could not mark current claims', error.message);
     }
+
     const accountData = await this.accountRepository.findOne({
       address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
         address,
@@ -477,44 +459,84 @@ export class ClaimService {
     } else throw new NotFoundException();
   }
   public async createClaim(address: string): Promise<ClaimEntity> {
-    const unclaimed = await this.claimRepository.findOne({
-      address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-        address,
-      }),
-      claimed: false,
-    });
+    const claimTableName = this.claimRepository.metadata.tableName;
+    const accountTableName = this.accountRepository.metadata.tableName;
 
-    if (unclaimed) return unclaimed;
+    let claim: ClaimEntity;
 
-    const { availableToBeClaimed } = await this.accountRepository.findOneOrFail(
-      {
-        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
-          address,
-        }),
-      },
-    );
+    const queryRunner = this.connection.createQueryRunner();
 
-    if (
-      ethers.BigNumber.from(availableToBeClaimed).lte(ethers.BigNumber.from(0))
-    ) {
-      throw new Error('No tokens to claim');
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.query(
+        `LOCK TABLE "${claimTableName}" IN EXCLUSIVE MODE;`,
+      );
+      await queryRunner.query(
+        `LOCK TABLE "${accountTableName}" IN EXCLUSIVE MODE;`,
+      );
+
+      claim = await queryRunner.manager.findOne(
+        ClaimEntity,
+        {
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+          claimed: false,
+        },
+        {
+          transaction: false,
+        },
+      );
+
+      if (claim) {
+        throw new Error('Already created');
+      }
+
+      const { availableToBeClaimed } = await queryRunner.manager.findOneOrFail(
+        AccountEntity,
+        {
+          address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+            address,
+          }),
+        },
+        {
+          transaction: false,
+        },
+      );
+
+      if (
+        ethers.BigNumber.from(availableToBeClaimed).lte(
+          ethers.BigNumber.from(0),
+        )
+      ) {
+        throw new Error('No tokens to claim');
+      }
+
+      claim = new ClaimEntity();
+      claim.address = address;
+      claim.numberOfTokens = availableToBeClaimed;
+      await queryRunner.manager.save(claim, {
+        transaction: false,
+      });
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      if (err.message === 'No tokens to claim') {
+        throw new Error('No tokens to claim');
+      }
+    } finally {
+      await queryRunner.release();
     }
 
-    const claim = new ClaimEntity();
-    claim.address = address;
-    claim.numberOfTokens = availableToBeClaimed;
-
-    const newClaim = await this.claimRepository.save(claim);
-    return newClaim;
+    return claim;
   }
   public async claim(id: number): Promise<ClaimEntity> {
     return this.claimRepository.findOneOrFail({ id });
   }
-  public async markAsClaimed(id: number): Promise<void | ClaimEntity> {
-    const claim = await this.claimRepository.findOne({
-      where: { id, claimed: false },
-    });
-
+  public async markAsClaimed(claim: ClaimEntity): Promise<void | ClaimEntity> {
     if (!claim) {
       return;
     }
@@ -538,6 +560,31 @@ export class ClaimService {
 
     await this.accountRepository.save(account);
     return await this.claimRepository.save(claim);
+  }
+  public async isClaimClaimed(claim: ClaimEntity): Promise<boolean> {
+    if (!claim) {
+      return false;
+    }
+
+    const { address, numberOfTokens } = claim;
+
+    const nonce = claim.id * 13;
+    const indexedClaim = await this.graphService.getClaim(
+      address,
+      numberOfTokens,
+      nonce,
+    );
+    if (indexedClaim) {
+      const confirmation = ethers.BigNumber.from(indexedClaim.amount);
+      if (
+        confirmation.gt(ethers.BigNumber.from('0')) &&
+        confirmation.eq(ethers.BigNumber.from(numberOfTokens))
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
   public async patchClaim(id: number): Promise<Partial<AccountClaimEntity>> {
     const claim = await this.claimRepository.findOneOrFail({ id });
@@ -594,6 +641,46 @@ export class ClaimService {
       numberOfTokens: this.bNStringToString(claim.numberOfTokens),
     }));
     return claims;
+  }
+  public async getUnclaimedClaims(): Promise<ClaimEntity[]> {
+    const claims = await this.claimRepository.find({
+      where: {
+        claimed: false,
+      },
+    });
+
+    return claims;
+  }
+  public async getAccountRewards(
+    account: AccountEntity,
+  ): Promise<RewardEntity[]> {
+    const rewards = await this.rewardRepository.find({
+      where: {
+        account,
+      },
+    });
+
+    return rewards;
+  }
+  public async getAccountClaims(
+    account: AccountEntity,
+  ): Promise<ClaimEntity[]> {
+    const rewards = await this.claimRepository.find({
+      where: {
+        address: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:address)`, {
+          address: account.address,
+        }),
+      },
+    });
+
+    return rewards;
+  }
+  public async getAllAccounts(): Promise<AccountEntity[]> {
+    const accounts = await this.accountRepository.find();
+    return accounts;
+  }
+  public async saveAccount(account: AccountEntity): Promise<AccountEntity> {
+    return await this.accountRepository.save(account);
   }
   public async unlockRewards(): Promise<void> {
     const now = new Date();

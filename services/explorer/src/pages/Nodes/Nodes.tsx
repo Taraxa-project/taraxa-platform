@@ -1,5 +1,4 @@
 import React from 'react';
-import { AwardCard } from '@taraxa_project/taraxa-ui';
 import {
   Box,
   IconButton,
@@ -11,14 +10,12 @@ import {
   TableRow,
   TableCell,
   TableBody,
-} from '@mui/material';
+  AwardCard,
+  EmptyTable,
+  MuiIcons,
+} from '@taraxa_project/taraxa-ui';
 import { PageTitle } from '../../components';
 import { useNodesEffects } from './Nodes.effects';
-import { toNodeTableRow } from '../../utils';
-import { DateTime } from 'luxon';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { NodesTableData } from '../../models';
 
 const NodesPage = (): JSX.Element => {
   const {
@@ -27,7 +24,7 @@ const NodesPage = (): JSX.Element => {
     subtitle,
     description,
     cols,
-    tableData,
+    rows,
     rowsPerPage,
     page,
     handleChangePage,
@@ -40,13 +37,9 @@ const NodesPage = (): JSX.Element => {
     loading,
     weekPagination,
   } = useNodesEffects();
-  const rows = tableData.map((row: NodesTableData) => toNodeTableRow(row));
   return (
     <>
-      <PageTitle
-        title='Nodes'
-        subtitle='List of TARAXA nodes on Mainnet Candidate'
-      />
+      <PageTitle title='Nodes' subtitle='List of TARAXA nodes on Mainnet' />
       {weekPagination && (
         <Box
           sx={{
@@ -64,7 +57,7 @@ const NodesPage = (): JSX.Element => {
             color='secondary'
             disabled={loading}
           >
-            <ArrowBackIosIcon />
+            <MuiIcons.ArrowBackIos />
           </IconButton>
           <Typography color='secondary' fontSize='18px'>
             W{weekNumber} {year}
@@ -75,7 +68,7 @@ const NodesPage = (): JSX.Element => {
             aria-label='next'
             color='secondary'
           >
-            <ArrowForwardIosIcon />
+            <MuiIcons.ArrowForwardIos />
           </IconButton>
         </Box>
       )}
@@ -112,15 +105,19 @@ const NodesPage = (): JSX.Element => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row, index) => (
-                <TableRow tabIndex={-1} data-key={index} key={index}>
-                  <TableCell align='center'>
-                    {row.rank + page * rowsPerPage}
-                  </TableCell>
-                  <TableCell align='center'>{row.nodeAddress}</TableCell>
-                  <TableCell align='center'>{row.blocksProduced}</TableCell>
-                </TableRow>
-              ))}
+              {rows && rows.length > 0 ? (
+                rows.map((row, index) => (
+                  <TableRow tabIndex={-1} data-key={index} key={index}>
+                    <TableCell align='center'>
+                      {row.rank + page * rowsPerPage}
+                    </TableCell>
+                    <TableCell align='center'>{row.nodeAddress}</TableCell>
+                    <TableCell align='center'>{row.blocksProduced}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <EmptyTable colspan={cols.length} />
+              )}
             </TableBody>
           </Table>
         </TableContainer>

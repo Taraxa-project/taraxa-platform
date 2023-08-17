@@ -33,6 +33,7 @@ export const blockTransactionsQuery = `
 					address
 				},
         gasUsed,
+        gas,
         gasPrice
         inputData,
         createdContract {

@@ -8,9 +8,10 @@ import {
   Box,
   TablePagination,
   TableContainer,
-} from '@mui/material';
-import { Icons } from '@taraxa_project/taraxa-ui';
-import { theme } from '../../theme-provider';
+  Icons,
+  EmptyTable,
+  theme,
+} from '@taraxa_project/taraxa-ui';
 import { AddressLink, HashLink } from '../Links';
 import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
 import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
@@ -120,65 +121,73 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactionsData?.map((tx, i) => (
-              <TableRow key={`${tx.hash}-${i}`}>
-                <TableCell variant='body'>
-                  <HashLink
-                    linkType={HashLinkType.TRANSACTIONS}
-                    hash={tx.hash}
-                    disabled={tx.hash?.toLowerCase().startsWith('genesis')}
-                    wrap
-                  />
-                </TableCell>
-                <TableCell variant='body'>{tx.block?.number || 0}</TableCell>
-                <TableCell variant='body'>{tx.action}</TableCell>
-                <TableCell variant='body'>
-                  <Box
-                    display='flex'
-                    flexDirection='row'
-                    alignItems='center'
-                    alignContent='center'
-                    justifyContent='space-evenly'
-                    maxWidth='20rem'
-                    gap='0.2rem'
-                  >
-                    <AddressLink
-                      disabled={zeroX(tx?.from?.address || (tx.from as string))
-                        ?.toLowerCase()
-                        .startsWith('0xgenesis')}
-                      address={tx?.from?.address || (tx.from as string)}
+            {transactionsData && transactionsData.length > 0 ? (
+              transactionsData.map((tx, i) => (
+                <TableRow key={`${tx.hash}-${i}`}>
+                  <TableCell variant='body'>
+                    <HashLink
+                      linkType={HashLinkType.TRANSACTIONS}
+                      hash={tx.hash}
+                      disabled={tx.hash?.toLowerCase().startsWith('genesis')}
+                      wrap
                     />
-                    <Icons.GreenRightArrow />
-                    <AddressLink
-                      disabled={zeroX(
-                        tx.to?.address ||
+                  </TableCell>
+                  <TableCell variant='body'>{tx.block?.number || 0}</TableCell>
+                  <TableCell variant='body'>{tx.action}</TableCell>
+                  <TableCell variant='body'>
+                    <Box
+                      display='flex'
+                      flexDirection='row'
+                      alignItems='center'
+                      alignContent='center'
+                      justifyContent='space-evenly'
+                      maxWidth='20rem'
+                      gap='0.2rem'
+                    >
+                      <AddressLink
+                        disabled={zeroX(
+                          tx?.from?.address || (tx.from as string)
+                        )
+                          ?.toLowerCase()
+                          .startsWith('0xgenesis')}
+                        address={tx?.from?.address || (tx.from as string)}
+                      />
+                      <Icons.GreenRightArrow />
+                      <AddressLink
+                        disabled={zeroX(
+                          tx.to?.address ||
+                            (tx.to as string) ||
+                            tx.createdContract?.address
+                        )
+                          ?.toLowerCase()
+                          .startsWith('0xgenesis')}
+                        address={
+                          tx.to?.address ||
                           (tx.to as string) ||
                           tx.createdContract?.address
-                      )
-                        ?.toLowerCase()
-                        .startsWith('0xgenesis')}
-                      address={
-                        tx.to?.address ||
-                        (tx.to as string) ||
-                        tx.createdContract?.address
-                      }
-                    />
-                  </Box>
-                </TableCell>
-                <TableCell variant='body' width='5rem !important'>
-                  {statusToLabel(formatTransactionStatus(tx.status))}
-                </TableCell>
-                <TableCell variant='body' width='5rem !important'>
-                  {timestampToAge(tx.block?.timestamp || tx.timestamp)}
-                </TableCell>
-                <TableCell variant='body' width='5rem !important'>
-                  {tx.value?.toString()}
-                </TableCell>
-                <TableCell variant='body' width='5rem !important'>
-                  {tx.gas?.toString()}
-                </TableCell>
-              </TableRow>
-            ))}
+                        }
+                      />
+                    </Box>
+                  </TableCell>
+                  <TableCell variant='body' width='5rem !important'>
+                    {statusToLabel(formatTransactionStatus(tx.status))}
+                  </TableCell>
+                  <TableCell variant='body' width='5rem !important'>
+                    {timestampToAge(tx.block?.timestamp || tx.timestamp)}
+                  </TableCell>
+                  <TableCell variant='body' width='5rem !important'>
+                    {tx.value?.toString()}
+                  </TableCell>
+                  <TableCell variant='body' width='5rem !important'>
+                    {typeof tx.gasCost !== 'undefined'
+                      ? tx.gasCost.toString()
+                      : tx.gas?.toString()}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <EmptyTable colspan={8} />
+            )}
           </TableBody>
         </Table>
       </TableContainer>

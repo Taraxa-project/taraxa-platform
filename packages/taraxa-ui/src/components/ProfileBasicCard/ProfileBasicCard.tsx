@@ -4,12 +4,8 @@ import {
   CardProps as MCardProps,
   CardContent,
   CardActions,
-  CssBaseline,
-  ThemeProvider,
   Typography,
 } from '@mui/material';
-
-import theme from '../theme';
 
 import useStyles from './ProfileBasicCard.styles';
 
@@ -31,51 +27,48 @@ const ProfileBasicCard = ({
 }: ProfileBasicCardProps) => {
   const classes = useStyles();
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MCard className={classes.root} elevation={0} variant='outlined'>
-        {Icon && (
-          <div className={classes.iconContainer}>
-            <div className={classes.icon}>
-              <Icon />
-            </div>
-            <Typography variant='body1' fontWeight='400' color='primary'>
-              {title}
-            </Typography>
+    <MCard className={classes.root} elevation={0} variant='outlined'>
+      {Icon && (
+        <div className={classes.iconContainer}>
+          <div className={classes.icon}>
+            <Icon />
           </div>
-        )}
-        {!Icon && (
-          <Typography variant='body1' color='primary'>
+          <Typography variant='body1' fontWeight='400' color='primary'>
             {title}
           </Typography>
-        )}
-        <CardContent className={classes.content}>
-          {value && (
-            <Typography
-              variant='h4'
-              fontWeight='700'
-              className={classes.value}
-              color='primary'
-            >
-              {value}
-            </Typography>
-          )}
-          {children}
+        </div>
+      )}
+      {!Icon && (
+        <Typography variant='body1' color='primary'>
+          {title}
+        </Typography>
+      )}
+      <CardContent className={classes.content}>
+        {value && (
           <Typography
-            variant='body1'
-            className={classes.description}
-            color='textSecondary'
+            variant='h4'
+            fontWeight='700'
+            className={classes.value}
+            color='primary'
           >
-            {description}
+            {value}
           </Typography>
-        </CardContent>
-        {buttonOptions && (
-          <CardActions className={classes.actions} disableSpacing>
-            {buttonOptions}
-          </CardActions>
         )}
-      </MCard>
-    </ThemeProvider>
+        {children}
+        <Typography
+          variant='body1'
+          className={classes.description}
+          color='textSecondary'
+        >
+          {description}
+        </Typography>
+      </CardContent>
+      {buttonOptions && (
+        <CardActions className={classes.actions} disableSpacing>
+          {buttonOptions}
+        </CardActions>
+      )}
+    </MCard>
   );
 };
 

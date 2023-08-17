@@ -16,7 +16,9 @@ const useSubmissions = () => {
       return;
     }
 
-    const data = await api.get(`/submissions?user.id=${auth.user!.id}`);
+    const data = await api.get(
+      `/submissions?_limit=1000&_sort=created_at:DESC&user.id=${auth.user!.id}`,
+    );
     if (!data.success) {
       return;
     }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
+import { useQuery } from 'urql';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails } from '../../models';
 import {
@@ -10,21 +11,8 @@ import {
   useGetTransactionsByAddress,
 } from '../../api';
 import { balanceWeiToTara, formatTokensValue } from '../../utils';
-import { useQuery } from 'urql';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
 import { useIndexer } from '../../hooks/useIndexer';
-
-export interface TransactionResponse {
-  hash: string;
-  from: string;
-  to: string;
-  status: number;
-  gasUsed: string;
-  gasPrice: string;
-  value: string;
-  block: number;
-  age: number;
-}
 
 export const useAddressInfoEffects = (account: string) => {
   const [tabsStep, setTabsStep] = useState<number>(0);
@@ -94,9 +82,18 @@ export const useAddressInfoEffects = (account: string) => {
     setAddressInfoDetails(addressDetails);
   }, [accountDetails, tokenPriceData, addressStats]);
 
-  const pbftTablePagination = useIndexer(useGetPbftsByAddress(account));
-  const dagTablePagination = useIndexer(useGetDagsByAddress(account));
-  const txTablePagination = useIndexer(useGetTransactionsByAddress(account));
+  const pbftTablePagination = useIndexer(
+    { queryName: 'address-pbfts', dependency: account },
+    useGetPbftsByAddress(account)
+  );
+  const dagTablePagination = useIndexer(
+    { queryName: 'address-dags', dependency: account },
+    useGetDagsByAddress(account)
+  );
+  const txTablePagination = useIndexer(
+    { queryName: 'address-txs', dependency: account },
+    useGetTransactionsByAddress(account)
+  );
 
   return {
     addressInfoDetails,

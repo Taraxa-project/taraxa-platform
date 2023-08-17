@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { BaseCard, Button, Label, Loading, Notification, Icons } from '@taraxa_project/taraxa-ui';
-
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import moment from 'moment';
+import {
+  BaseCard,
+  Button,
+  Label,
+  Loading,
+  Notification,
+  Icons,
+  EmptyTable,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@taraxa_project/taraxa-ui';
 
 import WhiteCheckIcon from '../../assets/icons/checkWhite';
-import NotFoundIcon from '../../assets/icons/notFound';
 import RedeemSidebar from '../../assets/icons/redeemSidebar';
 import useRedeem, { Claim, ClaimData, ClaimResponse } from '../../services/useRedeem';
 import { weiToEth, formatEth, roundEth } from '../../utils/eth';
 
-import useToken from '../../services/useToken';
 import useClaim from '../../services/useClaim';
 import useApi from '../../services/useApi';
 
@@ -20,29 +30,20 @@ import Title from '../../components/Title/Title';
 import './redeem.scss';
 import useCMetamask from '../../services/useCMetamask';
 import RedeemModals from './Modal/Modals';
-
-const EmptyRewards = () => (
-  <TableRow className="tableRow">
-    <TableCell colSpan={4} className="tableCell">
-      <div className="noRewardContainer">
-        <span className="noRewardText">
-          <NotFoundIcon />
-          <br />
-          Looks like you haven’t received any rewards yet...
-        </span>
-      </div>
-    </TableCell>
-  </TableRow>
-);
+import useChain from '../../services/useChain';
+import useMainnet from '../../services/useMainnet';
+import WrongNetwork from '../../components/WrongNetwork';
+import { useWalletPopup } from '../../services/useWalletPopup';
 
 function Redeem() {
   const { status, account } = useCMetamask();
-  const token = useToken();
   const claim = useClaim();
   const api = useApi();
   const redeem = useRedeem();
+  const { chainId, provider } = useChain();
+  const { chainId: mainnetChainId } = useMainnet();
+  const { asyncCallback } = useWalletPopup();
 
-  const [tokenBalance, setTokenBalance] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [availableToBeClaimed, setAvailableToBeClaimed] = useState<ethers.BigNumber>(
     ethers.BigNumber.from('0'),
   );
@@ -50,9 +51,23 @@ function Redeem() {
   const [claimed, setClaimed] = useState<ethers.BigNumber>(ethers.BigNumber.from('0'));
   const [isLoadingClaims, setLoadingClaims] = useState<boolean>(false);
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
 
   const [isWarnOpen, setWarnOpen] = useState<boolean>(false);
   const [underClaim, setUnderClaim] = useState<number>(0);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+
+  const isOnWrongChain = chainId !== mainnetChainId;
+
+  const fetchBalance = async () => {
+    if (status === 'connected' && account && provider) {
+      setBalance(await provider.getBalance(account));
+    }
+  };
+
+  useEffect(() => {
+    fetchBalance();
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
@@ -110,22 +125,6 @@ function Redeem() {
     }
   }, [account, availableToBeClaimed]);
 
-  useEffect(() => {
-    const getTokenBalance = async () => {
-      if (!token || !account) {
-        return;
-      }
-      try {
-        const balance = await token.balanceOf(account);
-        setTokenBalance(balance);
-      } catch (error) {
-        setTokenBalance(ethers.BigNumber.from('0'));
-      }
-    };
-
-    getTokenBalance();
-  }, [account, token]);
-
   const onClaim = async (ind: number) => {
     if (!claim) {
       return;
@@ -154,15 +153,22 @@ function Redeem() {
         );
         if (claimPatchData.success) {
           const { availableToBeClaimed, nonce, hash } = claimPatchData.response;
-          const claimTx = await claim.claim(account, availableToBeClaimed, nonce, hash);
 
-          await claimTx.wait(1);
+          asyncCallback(
+            async () => {
+              return await claim.claim(account, availableToBeClaimed, nonce, hash, {
+                gasLimit: 70000,
+              });
+            },
+            () => {
+              setShouldFetch(true);
+            },
+          );
 
           setAvailableToBeClaimed(ethers.BigNumber.from('0'));
           setClaimed((currentClaimed) =>
             currentClaimed.add(ethers.BigNumber.from(availableToBeClaimed)),
           );
-          setTokenBalance((balance) => balance.add(ethers.BigNumber.from(availableToBeClaimed)));
         }
       }
     } catch (e) {}
@@ -172,7 +178,7 @@ function Redeem() {
 
   return (
     <div className="redeem">
-      {isWarnOpen && (
+      {isWarnOpen && !isOnWrongChain && (
         <RedeemModals
           taraAmount={claims[underClaim].numberOfTokens}
           warningModal={isWarnOpen}
@@ -203,6 +209,17 @@ function Redeem() {
                 />
               </div>
             )}
+            {status === 'connected' && isOnWrongChain && (
+              <div className="notification">
+                <Notification
+                  title="Notice:"
+                  text="You need to be connected to the Taraxa Mainnet network"
+                  variant="danger"
+                >
+                  <WrongNetwork />
+                </Notification>
+              </div>
+            )}
             <div className="cardContainer">
               <BaseCard
                 title={formatEth(roundEth(weiToEth(availableToBeClaimed)))}
@@ -213,7 +230,7 @@ function Redeem() {
                 description="TARA claimed total"
               />
               <BaseCard
-                title={formatEth(roundEth(weiToEth(tokenBalance)))}
+                title={formatEth(roundEth(weiToEth(balance)))}
                 description="Current wallet balance"
               />
             </div>
@@ -226,14 +243,12 @@ function Redeem() {
           <WhiteCheckIcon /> <span style={{ marginLeft: '10px' }}>Redemption History</span>
         </div>
         {claims ? (
-          <TableContainer className="table">
-            <Table className="table">
+          <TableContainer className="redeemTable">
+            <Table className="redeemTable">
               <TableHead>
-                <TableRow className="tableHeadRow">
+                <TableRow>
                   {columns.map((col, ind) => (
-                    <TableCell className="tableHeadCell" key={ind}>
-                      {col}
-                    </TableCell>
+                    <TableCell key={ind}>{col}</TableCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -241,10 +256,8 @@ function Redeem() {
                 {claims && claims.length > 0 ? (
                   claims.map((row: Claim, ind: number) => {
                     return (
-                      <TableRow className="tableRow" key={ind}>
-                        <TableCell className="tableCell">
-                          {formatEth(roundEth(weiToEth(row.numberOfTokens)))}
-                        </TableCell>
+                      <TableRow key={ind}>
+                        <TableCell>{formatEth(roundEth(weiToEth(row.numberOfTokens)))}</TableCell>
                         <TableCell className="tableCellGrey">
                           {moment(
                             row.claimedAt
@@ -256,7 +269,7 @@ function Redeem() {
                             .format('ll')
                             .toUpperCase()}
                         </TableCell>
-                        <TableCell className="tableCell">
+                        <TableCell>
                           {!row.claimed ? (
                             <Label
                               variant="secondary"
@@ -271,7 +284,7 @@ function Redeem() {
                             />
                           )}
                         </TableCell>
-                        <TableCell className="tableCell">
+                        <TableCell>
                           {!row.claimed && (
                             <Button
                               size="small"
@@ -279,7 +292,7 @@ function Redeem() {
                               color="secondary"
                               label="Redeem"
                               className="smallBtn"
-                              disabled={row.numberOfTokens.eq(0) || row.claimed}
+                              disabled={row.numberOfTokens.eq(0) || row.claimed || isOnWrongChain}
                               onClick={() => {
                                 setWarnOpen(true);
                                 setUnderClaim(claims.indexOf(row));
@@ -291,7 +304,10 @@ function Redeem() {
                     );
                   })
                 ) : (
-                  <EmptyRewards />
+                  <EmptyTable
+                    colspan={4}
+                    message="Looks like you haven`t received any rewards yet..."
+                  />
                 )}
               </TableBody>
             </Table>

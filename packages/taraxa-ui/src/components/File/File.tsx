@@ -1,6 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import theme from '../theme';
 
 import { Attachment } from '../Icons';
 import Button from '../Button';
@@ -25,8 +23,7 @@ const File = ({ onChange }: FileProps) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <input
         className={classes.input}
         ref={uploadRef}
@@ -43,7 +40,7 @@ const File = ({ onChange }: FileProps) => {
         onClick={() => uploadRef.current?.click()}
         fullWidth
       />
-    </ThemeProvider>
+    </>
   );
 };
 
