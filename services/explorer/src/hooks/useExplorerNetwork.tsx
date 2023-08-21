@@ -7,6 +7,7 @@ import {
   recreateAPIConnection,
   recreateFaucetConnection,
   networkRedirect,
+  recreateRPCConnection,
 } from '../utils';
 
 type Context = {
@@ -14,6 +15,7 @@ type Context = {
   currentNetwork: string;
   graphQLClient: Client;
   backendEndpoint: string;
+  rpcEndpoint: string;
   faucetEndpoint: string;
   setNetwork: (network: string) => void;
   disableNetworkSelection: boolean;
@@ -29,6 +31,7 @@ const initialState: Context = {
   currentNetwork: Network.MAINNET,
   graphQLClient: createClient(recreateGraphQLConnection(Network.MAINNET)),
   backendEndpoint: recreateAPIConnection(Network.MAINNET),
+  rpcEndpoint: recreateRPCConnection(Network.MAINNET),
   faucetEndpoint: recreateFaucetConnection(Network.MAINNET),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
@@ -50,6 +53,9 @@ const useNetworkSelection = () => {
   const [backendEndpoint, setBackendEndpoint] = useState<string>(
     recreateAPIConnection(currentNetwork)
   );
+  const [rpcEndpoint, setRpcEndpoint] = useState<string>(
+    recreateRPCConnection(currentNetwork)
+  );
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
     recreateFaucetConnection(currentNetwork)
   );
@@ -61,6 +67,7 @@ const useNetworkSelection = () => {
   useEffect(() => {
     setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
     setBackendEndpoint(recreateAPIConnection(currentNetwork));
+    setRpcEndpoint(recreateRPCConnection(currentNetwork));
     setFaucetEndpoint(recreateFaucetConnection(currentNetwork));
     networkRedirect(currentNetwork);
   }, [currentNetwork]);
@@ -71,6 +78,7 @@ const useNetworkSelection = () => {
     currentNetwork,
     graphQLClient,
     backendEndpoint,
+    rpcEndpoint,
     faucetEndpoint,
     disableNetworkSelection: !!hostNetwork,
   };

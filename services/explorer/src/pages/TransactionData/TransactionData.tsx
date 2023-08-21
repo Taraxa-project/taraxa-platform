@@ -35,6 +35,7 @@ const TransactionDataContainer = (): JSX.Element => {
     currentNetwork,
     showLoadingSkeleton,
     showNetworkChanged,
+    revertData,
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
 
@@ -164,6 +165,16 @@ const TransactionDataContainer = (): JSX.Element => {
                     }
                   />
                 )}
+              {revertData && (
+                <DataRow
+                  title='Revert Reason'
+                  data={
+                    <p style={{ fontSize: '1rem', color: '#FF515A' }}>
+                      {revertData.data?.error?.message}
+                    </p>
+                  }
+                />
+              )}
               {transactionData?.gas && transactionData?.gasPrice && (
                 <DataRow
                   title='Gas Used / Gas Limit'

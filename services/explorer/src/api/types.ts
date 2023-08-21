@@ -9,6 +9,10 @@ export const MAINNET_FAUCET_API = `${process.env.REACT_APP_MAINNET_FAUCET_HOST}`
 export const TESTNET_FAUCET_API = `${process.env.REACT_APP_TESTNET_FAUCET_HOST}`;
 export const DEVNET_FAUCET_API = `${process.env.REACT_APP_DEVNET_FAUCET_HOST}`;
 
+export const MAINNET_RPC_API = `${process.env.REACT_APP_TARAXA_MAINNET_PROVIDER}`;
+export const TESTNET_RPC_API = `${process.env.REACT_APP_TARAXA_TESTNET_PROVIDER}`;
+export const DEVNET_RPC_API = `${process.env.REACT_APP_TARAXA_DEVNET_PROVIDER}`;
+
 export const TOKEN_PRICE_API_ENDPOINT = `${
   process.env.REACT_APP_TOKEN_PRICE_API_ENDPOINT ||
   `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=taraxa`

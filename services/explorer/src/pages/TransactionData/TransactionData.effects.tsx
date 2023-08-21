@@ -6,9 +6,10 @@ import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { EventData, transactionQuery } from '../../api';
+import { useGetRevertReason } from 'src/api/explorer-api/fetchRevertReason';
 
 export const useTransactionDataContainerEffects = (txHash: string) => {
-  const { currentNetwork } = useExplorerNetwork();
+  const { currentNetwork, rpcEndpoint } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
   const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
   const [tabsStep, setTabsStep] = useState<number>(0);
@@ -22,6 +23,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     },
     pause: !txHash,
   });
+  const { data: revertData } = useGetRevertReason(rpcEndpoint, transactionData);
 
   const txType = getTransactionType(transactionData);
   const hasLogs = transactionData?.logs?.length > 0;
@@ -68,6 +70,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
     tabsStep,
     setTabsStep,
     transactionData,
+    revertData,
     currentNetwork,
     showLoadingSkeleton,
     showNetworkChanged,

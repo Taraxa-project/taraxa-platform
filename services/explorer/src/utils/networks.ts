@@ -5,6 +5,9 @@ import {
   DEVNET_API,
   TESTNET_FAUCET_API,
   DEVNET_FAUCET_API,
+  DEVNET_RPC_API,
+  TESTNET_RPC_API,
+  MAINNET_RPC_API,
 } from '../api';
 
 export const recreateGraphQLConnection = (network: string): string => {
@@ -47,6 +50,29 @@ export const recreateAPIConnection = (network: string): string => {
     }
     default: {
       connectionString = TESTNET_API;
+      break;
+    }
+  }
+  return connectionString;
+};
+
+export const recreateRPCConnection = (network: string): string => {
+  let connectionString: string;
+  switch (network) {
+    case Network.MAINNET: {
+      connectionString = MAINNET_RPC_API;
+      break;
+    }
+    case Network.TESTNET: {
+      connectionString = TESTNET_RPC_API;
+      break;
+    }
+    case Network.DEVNET: {
+      connectionString = DEVNET_RPC_API;
+      break;
+    }
+    default: {
+      connectionString = TESTNET_RPC_API;
       break;
     }
   }
