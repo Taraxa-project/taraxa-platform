@@ -55,6 +55,8 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
           count={totalCount || transactionsData?.length || 0}
           rowsPerPage={rowsPage}
           page={pageNo}
+          showFirstButton={true}
+          showLastButton={true}
           onPageChange={onPageChange}
           onRowsPerPageChange={onRowsPerPageChange}
         />

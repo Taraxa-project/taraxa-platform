@@ -85,6 +85,8 @@ export default function Table({
             rowsPerPage={initialRowsPerPage || rowsPerPage}
             page={currentPage || page}
             onPageChange={handleChangePage}
+            showFirstButton={true}
+            showLastButton={true}
             onRowsPerPageChange={handleChangeRowsPerPage}
             SelectProps={{
               MenuProps: { classes: { paper: classes.tablePaginationList } },
