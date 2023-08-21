@@ -62,6 +62,9 @@ import LoadingTable from './components/LoadingTable';
 import { useInterval } from './hooks/useInterval';
 import InfoCard from './components/InfoCard';
 import TaraxaThemeProvider from './TaraxaThemeProvider';
+import ButtonGroup from './components/ButtonGroup';
+import BaseToggleButtonGroup from './components/BaseToggleButtonGroup';
+import Dropdown from './components/Dropdown';
 
 import {
   Paper,
@@ -167,4 +170,7 @@ export {
   Select,
   MuiTooltip,
   MuiIcons,
+  ButtonGroup,
+  BaseToggleButtonGroup,
+  Dropdown,
 };
