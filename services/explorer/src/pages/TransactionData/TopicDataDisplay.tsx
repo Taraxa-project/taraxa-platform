@@ -32,9 +32,8 @@ export const TopicDataDisplay = ({ title, hexValue }: EventDataProps) => {
         setDecoded(hexValue);
         break;
       case toggleValues[1].value:
-        const addressHex = '0x' + hexValue.slice(-40);
-        const addressDecimal = BigInt(addressHex).toString();
-        setDecoded(addressDecimal);
+        const address = '0x' + hexValue.slice(-40);
+        setDecoded(address);
         break;
     }
   };

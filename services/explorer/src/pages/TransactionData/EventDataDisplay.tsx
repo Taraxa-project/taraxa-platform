@@ -44,12 +44,14 @@ export const EventDataDisplay = ({ hexValue }: EventDataProps) => {
       }}
     >
       <DataRow key={`${decoded}`} title='Data' data={`${decoded}`} />
-      <BaseToggleButtonGroup
-        currentValue={selected}
-        exclusive
-        data={toggleValues}
-        onChange={onChange}
-      />
+      {hexValue !== '0x' && (
+        <BaseToggleButtonGroup
+          currentValue={selected}
+          exclusive
+          data={toggleValues}
+          onChange={onChange}
+        />
+      )}
     </Box>
   );
 };
