@@ -17,6 +17,8 @@ export interface MenuProps extends MMenuProps {
     | 'error'
     | 'info'
     | 'warning';
+  buttonSize?: 'small' | 'medium' | 'large';
+  buttonStyle?: React.CSSProperties;
 }
 
 const Dropdown = ({
@@ -27,6 +29,8 @@ const Dropdown = ({
   handleClose,
   handleClick,
   buttonColor = 'info',
+  buttonSize = 'small',
+  buttonStyle,
   ...props
 }: MenuProps) => {
   return (
@@ -34,12 +38,14 @@ const Dropdown = ({
       <Button
         id='basic-button'
         variant='outlined'
+        size={buttonSize}
         color={buttonColor}
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup='true'
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
         endIcon={<ArrowDropDownIcon />}
+        style={buttonStyle}
       >
         {currentValue.label}
       </Button>

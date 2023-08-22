@@ -18,7 +18,11 @@ const BaseToggleButtonGroup = ({
   return (
     <ToggleButtonGroup value={currentValue} {...props}>
       {data.map((button) => (
-        <MToggleButton key={button.value} value={button.value}>
+        <MToggleButton
+          key={button.value}
+          value={button.value}
+          aria-label={button.value}
+        >
           {button.label}
         </MToggleButton>
       ))}
