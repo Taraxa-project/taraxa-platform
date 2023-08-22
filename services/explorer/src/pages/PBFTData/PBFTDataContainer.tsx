@@ -23,6 +23,11 @@ import { TableTabsProps } from '../../models';
 import useStyles from './PBFTDataContainer.styles';
 import { TransactionsTable } from '../../components/Tables';
 import PbftLoadingSkeleton from './PbftLoadingSkeleton';
+import {
+  EncodedType,
+  HexToDecDataRow,
+  PrimitiveType,
+} from '../../components/HexToDecDataRow';
 
 const Title = ({ currentNetwork }: { currentNetwork: string }): JSX.Element => {
   return (
@@ -157,7 +162,12 @@ const PBFTDataContainer = (): JSX.Element => {
             </Typography>
             <CopyTo text={blockData.hash} onCopy={onCopy} />
           </Box>
-          <DataRow title='Number' data={`${blockData.number}`} />
+          <HexToDecDataRow
+            title='Number'
+            data={`${blockData.number}`}
+            initialState={EncodedType.DEC}
+            primitiveType={PrimitiveType.UINT}
+          />
           {blockData.nonce && <DataRow title='Nonce' data={blockData.nonce} />}
           {blockData.timestamp && (
             <DataRow

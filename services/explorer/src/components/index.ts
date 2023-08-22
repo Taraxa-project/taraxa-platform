@@ -6,3 +6,4 @@ export * from './AddressInfo';
 export * from './Links';
 export * from './DataRow';
 export * from './TableTabs';
+export * from './HexToDecDataRow';

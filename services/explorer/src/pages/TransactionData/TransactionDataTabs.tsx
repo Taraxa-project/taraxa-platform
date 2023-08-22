@@ -14,7 +14,6 @@ import { useExplorerNetwork } from '../../hooks';
 import useStyles from './TransactionData.styles';
 import { TransactionsTable } from '../../components/Tables';
 import { DataRow, TableTabs } from '../../components';
-import { EventDataDisplay } from './EventDataDisplay';
 import { TopicDataDisplay } from './TopicDataDisplay';
 
 type TransactionDataTabsProps = {
@@ -236,7 +235,11 @@ const TransactionDataTabs = ({
                     </>
                   )}
                   {logData && logData.data && (
-                    <EventDataDisplay hexValue={logData.data} />
+                    <DataRow
+                      key={`${logData.data}`}
+                      title='Data'
+                      data={`${logData.data}`}
+                    />
                   )}
                   <br />
                   {i < dataLogs.length - 1 && <Divider />}
