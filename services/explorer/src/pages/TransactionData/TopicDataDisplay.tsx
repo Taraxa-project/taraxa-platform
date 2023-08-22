@@ -7,7 +7,10 @@ export interface EventDataProps {
   hexValue: string;
 }
 
-export const TopicDataDisplay = ({ title, hexValue }: EventDataProps) => {
+export const TopicDataDisplay = ({
+  title,
+  hexValue,
+}: EventDataProps): JSX.Element => {
   const classes = useStyles();
 
   const toggleValues = [
@@ -24,7 +27,7 @@ export const TopicDataDisplay = ({ title, hexValue }: EventDataProps) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (val: string) => {
+  const handleClose = (val: string): void => {
     setValue(val);
     setAnchorEl(null);
     switch (val) {

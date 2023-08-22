@@ -12,9 +12,21 @@ import {
 } from '../../api';
 import { balanceWeiToTara, formatTokensValue } from '../../utils';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
-import { useIndexer } from '../../hooks/useIndexer';
+import { PaginationDataResults, useIndexer } from '../../hooks/useIndexer';
 
-export const useAddressInfoEffects = (account: string) => {
+export const useAddressInfoEffects = (
+  account: string
+): {
+  addressInfoDetails: AddressInfoDetails;
+  showLoadingSkeleton: boolean;
+  tabsStep: number;
+  setTabsStep: React.Dispatch<React.SetStateAction<number>>;
+  isFetchingAddressStats: boolean;
+  isLoadingAddressStats: boolean;
+  pbftTablePagination: PaginationDataResults;
+  dagTablePagination: PaginationDataResults;
+  txTablePagination: PaginationDataResults;
+} => {
   const [tabsStep, setTabsStep] = useState<number>(0);
 
   const { initLoading, finishLoading } = useExplorerLoader();

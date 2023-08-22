@@ -18,9 +18,10 @@ export interface HexToDecDataRowProps {
   data: string;
   initialState: EncodedType;
   primitiveType: PrimitiveType;
+  formatDecimal?: (value: any) => string;
 }
 
-export const encodeToHex = (value: string, type: PrimitiveType) => {
+export const encodeToHex = (value: string, type: PrimitiveType): string => {
   switch (type) {
     case PrimitiveType.BOOL:
       return value ? '0x1' : '0x0';
@@ -33,7 +34,10 @@ export const encodeToHex = (value: string, type: PrimitiveType) => {
   }
 };
 
-export const decodeHexValue = (hexValue: string, type: PrimitiveType) => {
+export const decodeHexValue = (
+  hexValue: string,
+  type: PrimitiveType
+): string | boolean => {
   switch (type) {
     case PrimitiveType.BOOL:
       return Boolean(Number(hexValue));
@@ -53,7 +57,8 @@ export const HexToDecDataRow = ({
   data,
   initialState,
   primitiveType,
-}: HexToDecDataRowProps) => {
+  formatDecimal,
+}: HexToDecDataRowProps): JSX.Element => {
   const toggleValues = [
     { value: 'hex', label: 'Hex' },
     { value: 'dec', label: 'Dec' },
@@ -65,6 +70,11 @@ export const HexToDecDataRow = ({
       : decodeHexValue(data, primitiveType)
   );
   const [selected, setSelected] = useState<string>(initialState);
+
+  const displayData =
+    selected === EncodedType.DEC && formatDecimal
+      ? formatDecimal(displayValue)
+      : displayValue;
 
   const onChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -95,12 +105,12 @@ export const HexToDecDataRow = ({
     <Box
       sx={{
         display: 'flex',
-        flexDirection: { xs: 'column', sm: 'column', md: 'column', lg: 'row' },
+        flexWrap: 'wrap',
         justifyContent: 'space-between',
         gap: '1rem',
       }}
     >
-      <DataRow key={`${displayValue}`} title={title} data={`${displayValue}`} />
+      <DataRow key={`${displayData}`} title={title} data={`${displayData}`} />
       {data !== '0x' && (
         <BaseToggleButtonGroup
           currentValue={selected}
