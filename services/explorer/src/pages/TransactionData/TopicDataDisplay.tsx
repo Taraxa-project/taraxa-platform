@@ -43,7 +43,7 @@ export const TopicDataDisplay = ({ title, hexValue }: EventDataProps) => {
     toggleValues.find((item) => item.value === value) || toggleValues[0];
 
   return (
-    <Box className={classes.wrapper} margin='0.5rem'>
+    <Box className={classes.wrapper} marginTop='0.5rem' marginBottom='0.5rem'>
       <Typography
         color='text.secondary'
         textTransform='uppercase'
