@@ -6,4 +6,5 @@ export {
   TableRow,
   TableCell,
   TablePagination,
+  TableSortLabel,
 } from './Table';

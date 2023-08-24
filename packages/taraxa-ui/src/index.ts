@@ -28,6 +28,7 @@ import {
   TableRow,
   TableCell,
   TablePagination,
+  TableSortLabel,
 } from './components/Table';
 import ToggleButton from './components/ToggleButton';
 import Tooltip from './components/Tooltip';
@@ -119,6 +120,7 @@ export {
   TableRow,
   TableCell,
   TablePagination,
+  TableSortLabel,
   ToggleButton,
   Tooltip,
   TopCard,
