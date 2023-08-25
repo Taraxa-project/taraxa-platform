@@ -10,14 +10,16 @@ const getRevertReason = (endpoint: string, tx: Transaction) => {
     method: 'eth_call',
     params: [
       {
-        from: tx.from,
-        to: tx.to,
+        from: tx.from.address,
+        to: tx.to.address,
         gas: tx.gas,
-        gasPrice: tx.gasPrice,
+        gasPrice: tx.gasPrice.toString().includes('Wei')
+          ? tx.gasPrice.toString().replace('Wei', '')
+          : tx.gasPrice.toString(),
         value: tx.value,
         data: tx.inputData,
       },
-      `0x${tx.block.number.toString(16)}}`,
+      `0x${tx.block.number.toString(16)}`,
     ],
     id: 1,
     jsonrpc: '2.0',
