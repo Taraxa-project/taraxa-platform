@@ -12,7 +12,7 @@ const getRevertReason = (endpoint: string, tx: Transaction) => {
       {
         from: tx.from.address,
         to: tx.to.address,
-        gas: tx.gas,
+        gas: `0x${tx.gas.toString(16)}`,
         gasPrice: tx.gasPrice.toString().includes('Wei')
           ? tx.gasPrice.toString().replace('Wei', '')
           : tx.gasPrice.toString(),

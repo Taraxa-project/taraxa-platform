@@ -177,7 +177,7 @@ const TransactionDataContainer = (): JSX.Element => {
                     }
                   />
                 )}
-              {revertData && (
+              {revertData?.data?.error?.message && (
                 <DataRow
                   title='Revert Reason'
                   data={
