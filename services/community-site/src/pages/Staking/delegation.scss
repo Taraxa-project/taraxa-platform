@@ -369,7 +369,7 @@ a.commissionChangeCheck {
   }
 
   .statusCell {
-    width: 60px;
+    width: 90px;
     @extend .noOverflow;
   }
 
@@ -385,7 +385,6 @@ a.commissionChangeCheck {
     @extend .noOverflow;
   }
 
-  .yieldCell,
   .rankingCell,
   .pbftsCell,
   .rewardsCell {
@@ -394,9 +393,15 @@ a.commissionChangeCheck {
     @extend .noOverflow;
   }
 
+  .yieldCell {
+    width: 120px;
+    line-height: 16px;
+    @extend .noOverflow;
+  }
+
   .commissionCell {
     text-align: start;
-    width: 100px;
+    width: 130px;
     @extend .noOverflow;
   }
 
