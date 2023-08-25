@@ -16,6 +16,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
 } from '@taraxa_project/taraxa-ui';
 
 import { blocksToDays } from '../../utils/time';
@@ -78,6 +79,65 @@ const Delegation = ({ location }: { location: Location }) => {
   );
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortedBy, setSortedBy] = useState<keyof Validator | ''>('');
+
+  const computeScore = (validator: Validator) => {
+    const yieldWeight = 0.5;
+    const delegationWeight = 0.5;
+    const normalizedDelegation = Number(validator.delegation.toString()) / 1e18;
+    return yieldWeight * validator.yield + delegationWeight * normalizedDelegation;
+  };
+
+  const sortValidators = (validators: Validator[]) => {
+    if (!sortedBy) {
+      return [...validators].sort((a, b) => {
+        const scoreA = computeScore(a);
+        const scoreB = computeScore(b);
+        return scoreB - scoreA; // Sort in descending order of score
+      });
+    }
+
+    return [...validators].sort((a, b) => {
+      switch (sortedBy) {
+        case 'status':
+          return sortOrder === 'asc'
+            ? a.status.localeCompare(b.status)
+            : b.status.localeCompare(a.status);
+
+        case 'yield':
+          return sortOrder === 'asc' ? a.yield - b.yield : b.yield - a.yield;
+
+        case 'commission':
+          return sortOrder === 'asc' ? a.commission - b.commission : b.commission - a.commission;
+
+        case 'delegation':
+          if (a.delegation.lt(b.delegation)) return sortOrder === 'asc' ? -1 : 1;
+          if (a.delegation.gt(b.delegation)) return sortOrder === 'asc' ? 1 : -1;
+          return 0;
+
+        case 'availableForDelegation':
+          if (a.availableForDelegation.lt(b.availableForDelegation))
+            return sortOrder === 'asc' ? -1 : 1;
+          if (a.availableForDelegation.gt(b.availableForDelegation))
+            return sortOrder === 'asc' ? 1 : -1;
+          return 0;
+
+        default:
+          return 0;
+      }
+    });
+  };
+
+  const handleSort = (column: keyof Validator) => {
+    if (sortedBy === column) {
+      setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortedBy(column);
+      setSortOrder('asc');
+    }
+  };
 
   const fetchBalance = async () => {
     if (status === 'connected' && account && provider) {
@@ -205,6 +265,9 @@ const Delegation = ({ location }: { location: Location }) => {
   const fullyDelegatedValidators = filteredValidators.filter(
     ({ isFullyDelegated }) => isFullyDelegated,
   );
+
+  const sortedValidators = sortValidators(delegatableValidators);
+
   return (
     <div className="runnode">
       <Modals
@@ -439,19 +502,59 @@ const Delegation = ({ location }: { location: Location }) => {
               <Table className="validatorsTable">
                 <TableHead>
                   <TableRow>
-                    <TableCell className="statusCell">Status</TableCell>
+                    <TableCell className="statusCell">
+                      <TableSortLabel
+                        active={sortedBy === 'status'}
+                        direction={sortedBy === 'status' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('status')}
+                      >
+                        Status
+                      </TableSortLabel>
+                    </TableCell>
                     <TableCell className="nameCell">Address / Nickname</TableCell>
-                    <TableCell className="yieldCell">Yield Efficiency</TableCell>
-                    <TableCell className="commissionCell">Commission</TableCell>
-                    <TableCell className="delegationCell">Delegation</TableCell>
-                    <TableCell className="availableDelegation">Available for Delegation</TableCell>
+                    <TableCell className="yieldCell">
+                      <TableSortLabel
+                        active={sortedBy === 'yield'}
+                        direction={sortedBy === 'yield' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('yield')}
+                      >
+                        Yield Efficiency
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell className="commissionCell">
+                      <TableSortLabel
+                        active={sortedBy === 'commission'}
+                        direction={sortedBy === 'commission' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('commission')}
+                      >
+                        Commission
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell className="delegationCell">
+                      <TableSortLabel
+                        active={sortedBy === 'delegation'}
+                        direction={sortedBy === 'delegation' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('delegation')}
+                      >
+                        Delegation
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell className="availableDelegation">
+                      <TableSortLabel
+                        active={sortedBy === 'availableForDelegation'}
+                        direction={sortedBy === 'availableForDelegation' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('availableForDelegation')}
+                      >
+                        Available for Delegation
+                      </TableSortLabel>
+                    </TableCell>
                     <TableCell className="rewardsCell">Staking Rewards</TableCell>
                     <TableCell className="availableDelegationActionsCell">&nbsp;</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {delegatableValidators.length > 0 &&
-                    delegatableValidators.map((validator) => (
+                  {sortedValidators.length > 0 &&
+                    sortedValidators.map((validator) => (
                       <ValidatorRow
                         key={validator.address}
                         validator={validator}

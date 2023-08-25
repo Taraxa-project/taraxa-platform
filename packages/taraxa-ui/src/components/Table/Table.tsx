@@ -16,6 +16,8 @@ import {
   TableCellProps as MTableCellProps,
   TablePagination as MTablePagination,
   TablePaginationProps as MTablePaginationProps,
+  TableSortLabel as MTableSortLabel,
+  TableSortLabelProps,
 } from '@mui/material';
 
 export interface TableContainerProps extends MTableContainerProps {
@@ -92,4 +94,8 @@ export const TableCell = ({
 
 export const TablePagination = ({ ...props }: TablePaginationProps) => {
   return <MTablePagination {...props} />;
+};
+
+export const TableSortLabel = ({ children, ...props }: TableSortLabelProps) => {
+  return <MTableSortLabel {...props}>{children}</MTableSortLabel>;
 };
