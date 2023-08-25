@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, ethers, utils } from 'ethers';
 
 export const MIN_WEI_TO_CONVERT = Math.pow(10, 3);
 
@@ -17,7 +17,7 @@ export const balanceWeiToTara = (amount: string): string => {
     return;
   }
   const balanceBigNumber = ethers.BigNumber.from(amount);
-  const balance = ethers.utils.formatEther(balanceBigNumber);
+  const balance = utils.commify(utils.formatEther(balanceBigNumber));
   return balance;
 };
 
@@ -31,12 +31,6 @@ export const formatBalance = (balance: string): string => {
     maximumFractionDigits: 18,
   });
   return balanceFormatted;
-};
-
-export const formatTokensValue = (value: number, decimals = 20): string => {
-  return value === 0
-    ? '0'
-    : value.toFixed(Math.min(value.toString().length, decimals));
 };
 
 export const displayWeiOrTara = (
