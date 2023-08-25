@@ -10,3 +10,4 @@ export * from './fetchTransactionsByAddress';
 export * from './fetchValidators';
 export * from './fetchHolders';
 export * from './fetchTotalSupply';
+export * from './fetchRevertReason';

@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
+import { AxiosResponse } from 'axios';
 import { deZeroX, getTransactionType } from '../../utils';
 import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { EventData, transactionQuery } from '../../api';
-import { useGetRevertReason } from 'src/api/explorer-api/fetchRevertReason';
+import { useGetRevertReason } from '../../api/explorer-api';
 
 export const useTransactionDataContainerEffects = (
   txHash: string
@@ -14,6 +15,7 @@ export const useTransactionDataContainerEffects = (
   tabsStep: number;
   setTabsStep: React.Dispatch<React.SetStateAction<number>>;
   transactionData: Transaction;
+  revertData: AxiosResponse<any>;
   currentNetwork: string;
   showLoadingSkeleton: boolean;
   showNetworkChanged: boolean;
