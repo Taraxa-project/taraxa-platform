@@ -20,7 +20,7 @@ export const useTransactionDataContainerEffects = (
   txType: string;
   hasLogs: boolean;
 } => {
-  const { currentNetwork } = useExplorerNetwork();
+  const { currentNetwork, rpcEndpoint } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
   const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
   const [tabsStep, setTabsStep] = useState<number>(0);
