@@ -6,6 +6,7 @@ import clsx from 'clsx';
 
 import {
   AmountCard,
+  BarChart,
   Button,
   Checkbox,
   Chip,
@@ -17,6 +18,7 @@ import {
   TableHead,
   TableRow,
   Text,
+  theme,
 } from '@taraxa_project/taraxa-ui';
 
 import useDelegation from '../../services/useDelegation';
@@ -36,6 +38,7 @@ import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
 import { BarFlex } from './BarFlex';
 import Title from '../../components/Title/Title';
+import useIndexerYields, { YieldResponse } from '../../services/useIndexerYields';
 
 enum ViewType {
   DELEGATIONS,
@@ -94,9 +97,11 @@ const NodeProfilePage = () => {
   const { getUndelegations } = useDelegation();
   const { getValidatorDelegationsPaginate, getValidatorCommissionChangesPaginate } =
     useDposSubgraph();
+  const { getHistoricalYieldForAddress } = useIndexerYields();
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [delegationAtTop, setDelegationAtTop] = useState<boolean>(false);
   const [validator, setValidator] = useState<Validator | null>(null);
+  const [yields, setYields] = useState<YieldResponse[]>([] as YieldResponse[]);
   const [accountUndelegationCount, setAccountUndelegationCount] = useState<number>(0);
   const [delegations, setDelegations] = useState<DelegationGQL[] | []>([]);
   const [commissionChanges, setCommissionChanges] = useState<CommissionChangeGQL[] | []>([]);
@@ -128,6 +133,13 @@ const NodeProfilePage = () => {
       });
     }
   }, [address, allValidatorsWithStats]);
+
+  const fetchYields = useCallback(async () => {
+    if (address) {
+      const yieldResponse = await getHistoricalYieldForAddress(address);
+      setYields(yieldResponse);
+    }
+  }, [address]);
 
   const fetchDelegators = useCallback(async () => {
     if (address) {
@@ -184,6 +196,7 @@ const NodeProfilePage = () => {
 
   useEffect(() => {
     fetchNode();
+    fetchYields();
     fetchDelegators();
     fetchUndelegations();
   }, [fetchNode, fetchDelegators, fetchUndelegations, shouldFetch]);
@@ -319,6 +332,23 @@ const NodeProfilePage = () => {
                   </div>
                 </div>
               </div>
+              <BarChart
+                tick="%"
+                title="Yield History in %"
+                labels={[...yields].reverse().map((y) => `${y.fromBlock}`)}
+                datasets={[
+                  {
+                    data: [...yields].reverse().map((y) => y.yield),
+                    borderRadius: 5,
+                    barThickness: 20,
+                    backgroundColor: theme.palette.secondary.main,
+                  },
+                ]}
+                bright
+                withGrid
+                withTooltip
+                stepSize={10}
+              />
               <div className="delegationButtons">
                 <Button
                   onClick={() => setDelegateToValidator(validator)}
