@@ -14,6 +14,7 @@ import { useExplorerNetwork } from '../../hooks';
 import useStyles from './TransactionData.styles';
 import { TransactionsTable } from '../../components/Tables';
 import { DataRow, TableTabs } from '../../components';
+import { TopicDataDisplay } from './TopicDataDisplay';
 
 type TransactionDataTabsProps = {
   txHash: string;
@@ -197,13 +198,24 @@ const TransactionDataTabs = ({
                         title='Topics'
                         data='&nbsp;'
                       />
-                      {logData.topics.map((t, i) => (
-                        <DataRow
-                          key={`${t}`}
-                          title={`[${i}]`}
-                          data={`-> ${t}`}
-                        />
-                      ))}
+                      {logData.topics.map((t, i) => {
+                        if (i === 1 || i === 2) {
+                          return (
+                            <TopicDataDisplay
+                              key={`${t}`}
+                              title={`[${i}]`}
+                              hexValue={`-> ${t}`}
+                            />
+                          );
+                        }
+                        return (
+                          <DataRow
+                            key={`${t}`}
+                            title={`[${i}]`}
+                            data={`-> ${t}`}
+                          />
+                        );
+                      })}
                     </>
                   )}
                   {logData && logData.params && logData.params.length > 0 && (

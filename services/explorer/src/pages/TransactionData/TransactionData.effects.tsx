@@ -1,15 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useQuery } from 'urql';
-import { deZeroX, displayWeiOrTara, getTransactionType } from '../../utils';
+import { deZeroX, getTransactionType } from '../../utils';
 import { Transaction } from '../../models';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { EventData, transactionQuery } from '../../api';
 import { useGetRevertReason } from 'src/api/explorer-api/fetchRevertReason';
 
-export const useTransactionDataContainerEffects = (txHash: string) => {
-  const { currentNetwork, rpcEndpoint } = useExplorerNetwork();
+export const useTransactionDataContainerEffects = (
+  txHash: string
+): {
+  tabsStep: number;
+  setTabsStep: React.Dispatch<React.SetStateAction<number>>;
+  transactionData: Transaction;
+  currentNetwork: string;
+  showLoadingSkeleton: boolean;
+  showNetworkChanged: boolean;
+  txType: string;
+  hasLogs: boolean;
+} => {
+  const { currentNetwork } = useExplorerNetwork();
   const [network] = useState(currentNetwork);
   const [showNetworkChanged, setShowNetworkChanged] = useState<boolean>(false);
   const [tabsStep, setTabsStep] = useState<number>(0);
@@ -36,7 +47,7 @@ export const useTransactionDataContainerEffects = (txHash: string) => {
       setShowNetworkChanged(false);
       setTransactionData({
         ...txData?.transaction,
-        value: displayWeiOrTara(txData?.transaction.value),
+        value: txData?.transaction.value,
         gasUsed: `${txData?.transaction.gasUsed}`,
         gasPrice: `${txData?.transaction.gasPrice} Wei`,
         logs: txData?.transaction.logs?.map((log: EventData) => ({

@@ -21,11 +21,17 @@ import {
   formatTransactionStatus,
   getTransactionType,
   TransactionType,
+  displayWeiOrTara,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import LoadingSkeletonTx from './LoadingSkeletonTx';
 import TransactionDataTabs from './TransactionDataTabs';
+import {
+  EncodedType,
+  HexToDecDataRow,
+  PrimitiveType,
+} from '../../components/HexToDecDataRow/HexToDecDataRow';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
@@ -128,7 +134,13 @@ const TransactionDataContainer = (): JSX.Element => {
                 data={`${getTransactionType(transactionData)}`}
               />
               {transactionData?.value && (
-                <DataRow title='Value' data={`${transactionData.value}`} />
+                <HexToDecDataRow
+                  title='Value'
+                  data={`${transactionData.value}`}
+                  initialState={EncodedType.DEC}
+                  primitiveType={PrimitiveType.UINT}
+                  formatDecimal={displayWeiOrTara}
+                />
               )}
               {transactionData?.from &&
                 (transactionData?.to ||

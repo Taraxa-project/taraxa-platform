@@ -4,6 +4,17 @@ import { FetchWithPagination, ResultWithPagination } from '../api';
 import { useExplorerNetwork } from '../hooks';
 import { usePagination } from '../hooks/usePagination';
 
+export interface PaginationDataResults {
+  data: any[];
+  total: number;
+  page: number;
+  rowsPerPage: number;
+  isLoading: boolean;
+  error: any;
+  handleChangePage: (p: number) => void;
+  handleChangeRowsPerPage: (l: number) => void;
+}
+
 export const useIndexer = (
   queryData: {
     queryName: string;
@@ -14,16 +25,7 @@ export const useIndexer = (
     params: Partial<FetchWithPagination>
   ) => Promise<ResultWithPagination<any>>,
   disabled = false
-): {
-  data: any[];
-  total: number;
-  page: number;
-  rowsPerPage: number;
-  isLoading: boolean;
-  error: any;
-  handleChangePage: (p: number) => void;
-  handleChangeRowsPerPage: (l: number) => void;
-} => {
+): PaginationDataResults => {
   const [data, setData] = useState<any[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [start, setStart] = useState<number | null>(null);

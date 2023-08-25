@@ -17,7 +17,29 @@ const cols: ColumnData[] = [
   { path: 'blocksProduced', name: '# blocks produced' },
 ];
 
-export const useNodesEffects = () => {
+export const useNodesEffects = (): {
+  blocks: any;
+  title: string;
+  subtitle: string;
+  description: string;
+  cols: ColumnData[];
+  rows: {
+    rank: number;
+    nodeAddress: JSX.Element;
+    blocksProduced: string;
+  }[];
+  totalCount: number;
+  rowsPerPage: number;
+  page: number;
+  handleChangePage: (p: number) => void;
+  handleChangeRowsPerPage: (r: number) => void;
+  handlePreviousWeek: () => void;
+  handleNextWeek: () => void;
+  weekNumber: number;
+  year: number;
+  loading: boolean;
+  weekPagination: WeekPagination;
+} => {
   const [loading, setLoading] = useState<boolean>(false);
   const [weekNumber, setWeekNumber] = useState<number>();
   const [year, setYear] = useState<number>();
