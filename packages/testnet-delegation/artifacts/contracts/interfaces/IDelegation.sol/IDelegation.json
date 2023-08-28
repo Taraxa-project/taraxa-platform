@@ -220,54 +220,42 @@
         {
           "components": [
             {
+              "internalType": "uint256",
+              "name": "total_stake",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "commission_reward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "commission",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint64",
+              "name": "last_commission_change",
+              "type": "uint64"
+            },
+            {
               "internalType": "address",
-              "name": "account",
+              "name": "owner",
               "type": "address"
             },
             {
-              "components": [
-                {
-                  "internalType": "uint256",
-                  "name": "total_stake",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "commission_reward",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint16",
-                  "name": "commission",
-                  "type": "uint16"
-                },
-                {
-                  "internalType": "uint64",
-                  "name": "last_commission_change",
-                  "type": "uint64"
-                },
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "string",
-                  "name": "description",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "endpoint",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct IDPOS.ValidatorBasicInfo",
-              "name": "info",
-              "type": "tuple"
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "endpoint",
+              "type": "string"
             }
           ],
-          "internalType": "struct IDPOS.ValidatorData[]",
+          "internalType": "struct IDPOS.ValidatorBasicInfo[]",
           "name": "validators",
           "type": "tuple[]"
         },
@@ -315,7 +303,7 @@
       ],
       "name": "registerValidator",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],

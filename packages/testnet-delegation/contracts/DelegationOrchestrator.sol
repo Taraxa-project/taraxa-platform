@@ -13,6 +13,7 @@ import "./CallProxy.sol";
 contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, ReentrancyGuard {
     using Address for address;
     uint256 constant MIN_REGISTRATION_DELEGATION = 1000 ether;
+    uint256 constant TESTNET_DELEGATION = 500000 ether;
     bytes4 constant REGISTER_VALIDATOR_SELECTOR = 0xd6fdc127;
     IDPOS private immutable dpos;
 
@@ -20,21 +21,14 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
     address[] public internalValidators;
     // @note contains the external validator addresses
     address[] public externalValidators;
-    // @note backwards mapping to register ownage
-    mapping(address => address) externalValidatorOwners;
     // @note registrar of validators per owner
     mapping(address => address[]) externalValidatorsByOwners;
-    // @note registrar of indexes+1 of validators in the internalValidators
-    mapping(address => uint256) public internalValidatorRegistered;
-    // @note registrar of indexes+1 of validators in the externalValidators
-    mapping(address => uint256) public externalValidatorRegistered;
+    // @note contains the external validators' owner addresses
+    mapping(address => address) public externalValidatorOwners;
 
     constructor(address[] memory validators, address dposAddress) payable CallProxy(dposAddress) {
         internalValidators = validators;
         dpos = IDPOS(dposAddress);
-        for (uint256 i = 0; i < validators.length; ++i) {
-            internalValidatorRegistered[validators[i]] = i + 1;
-        }
     }
 
     /**
@@ -62,27 +56,9 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
     function getValidatorsFor(
         address owner,
         uint32 batch
-    ) external view returns (IDPOS.ValidatorData[] memory validators, bool end) {
-        IDPOS.ValidatorData[] memory _validators;
-        bool _end;
-        (_validators, _end) = _fetchValidatorsFromImplementation(batch);
-        uint16 length = 0;
-        IDPOS.ValidatorData[] memory _validatorsOfOwner = new IDPOS.ValidatorData[](1);
-        for (uint16 i = 0; i < _validators.length; ) {
-            if (_validators[i].info.owner == owner) {
-                ++length;
-                IDPOS.ValidatorData[] memory _temp = new IDPOS.ValidatorData[](length);
-                for (uint y = 0; i < _validatorsOfOwner.length; y++) {
-                    _temp[y] = _validatorsOfOwner[y];
-                }
-                _temp[length - 1] = _validators[i];
-                _validatorsOfOwner = _temp;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return (_validatorsOfOwner, _end);
+    ) external view returns (IDPOS.ValidatorBasicInfo[] memory validators, bool end) {
+        IDPOS.ValidatorBasicInfo[] memory _validators = _getValidatorsOf(owner, batch);
+        return (_validators, _validators.length == externalValidatorsByOwners[owner].length);
     }
 
     /**
@@ -91,9 +67,13 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
      * @param newValidator the address of the new internal validator
      */
     function addInternalValidator(address newValidator) external onlyOwner {
-        require(internalValidatorRegistered[newValidator] == 0, "Validator already registered");
+        for (uint8 i = 0; i < internalValidators.length; ) {
+            require(internalValidators[i] != newValidator, "Validator already registered");
+            unchecked {
+                ++i;
+            }
+        }
         internalValidators.push(newValidator);
-        internalValidatorRegistered[newValidator] = internalValidators.length;
         emit InternalValidatorAdded(newValidator);
     }
 
@@ -113,23 +93,27 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
         uint16 commission,
         string calldata description,
         string calldata endpoint
-    ) external payable override nonReentrant {
-        uint256 delegationValue = (2 * msg.value) / internalValidators.length;
-        require(
-            externalValidatorRegistered[validator] == 0 && internalValidatorRegistered[validator] == 0,
-            "Validator already registered"
-        );
-        require(msg.value >= (MIN_REGISTRATION_DELEGATION), "Sent value less than minimal delegation for registration");
-        require(
-            address(this).balance >= delegationValue * internalValidators.length,
-            "Insufficient funds in contract for testnet rebalance"
-        );
+    ) external override nonReentrant {
+        for (uint8 y = 0; y < internalValidators.length; ) {
+            require(internalValidators[y] != validator, "Validator already registered");
+            unchecked {
+                ++y;
+            }
+        }
+        for (uint8 j = 0; j < externalValidators.length; ) {
+            require(externalValidators[j] != validator, "Validator already registered");
+            unchecked {
+                ++j;
+            }
+        }
+        require(address(this).balance >= TESTNET_DELEGATION, "Insufficient funds in contract for testnet rebalance");
         uint256 internalStake = 0;
         uint256 externalStake = 0;
         (internalStake, externalStake) = _calculateStakes();
         require(internalStake != 0 || externalStake != 0, "Calculating current stakes failed!");
-        uint256 majorityStake = 2 * externalStake + msg.value + MIN_REGISTRATION_DELEGATION;
+        uint256 majorityStake = 2 * externalStake + TESTNET_DELEGATION;
         if (internalStake < majorityStake) {
+            uint256 delegationValue = (TESTNET_DELEGATION + MIN_REGISTRATION_DELEGATION) / internalValidators.length;
             // Delegate 2*tokens to our validators
             for (uint8 i = 0; i < internalValidators.length; ) {
                 (bool hasDelegated, ) = address(dpos).call{value: delegationValue}(
@@ -145,7 +129,6 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
         }
         externalValidatorsByOwners[msg.sender].push(validator);
         externalValidators.push(validator);
-        externalValidatorRegistered[validator] = externalValidators.length;
         externalValidatorOwners[validator] = msg.sender;
         bytes memory input = abi.encodeWithSelector(
             REGISTER_VALIDATOR_SELECTOR,
@@ -156,11 +139,11 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
             description,
             endpoint
         );
-        (bool hasRegistered, ) = address(dpos).call{value: msg.value}(input);
+        (bool hasRegistered, ) = address(dpos).call{value: TESTNET_DELEGATION}(input);
 
         require(hasRegistered, "Register validator call failed");
 
-        emit ExternalValidatorRegistered(validator, msg.sender, msg.value);
+        emit ExternalValidatorRegistered(validator, msg.sender, TESTNET_DELEGATION);
     }
 
     /**
@@ -188,6 +171,21 @@ contract DelegationOrchestrator is CallProxy, IDelegation, Ownable, Pausable, Re
             }
         }
         return (internalStake, externalStake);
+    }
+
+    function _getValidatorsOf(
+        address account,
+        uint256 batch
+    ) internal view returns (IDPOS.ValidatorBasicInfo[] memory) {
+        address[] memory validators = externalValidatorsByOwners[account];
+        IDPOS.ValidatorBasicInfo[] memory validatorsData = new IDPOS.ValidatorBasicInfo[](validators.length);
+        for (uint64 i = 0; i < validators.length; ++i) {
+            IDPOS.ValidatorBasicInfo memory validatorInfo = dpos.getValidator(validators[i]);
+            validatorInfo.owner = account;
+            validatorsData[i] = validatorInfo;
+        }
+
+        return validatorsData;
     }
 
     function _fetchValidatorsFromImplementation(
