@@ -5,7 +5,7 @@ const useStyles = makeStyles(() => {
   const baseBox = {
     display: 'inline-block',
     padding: theme.spacing(1, 3, 1, 1),
-    border: `2px solid ${theme.palette.grey.A100}`,
+    border: `2px solid ${theme.palette.grey[700]}`,
     borderRadius: theme.spacing(0.5),
   };
 

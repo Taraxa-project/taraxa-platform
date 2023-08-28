@@ -25,9 +25,9 @@ ChartJS.register(
 
 const setTick = (
   tick: string,
-  withGrid = false,
+  stepSize?: number,
   withTooltip = false,
-  stepSize?: number
+  withGrid = false
 ) => ({
   responsive: true,
   plugins: {
@@ -100,7 +100,7 @@ const BarChart = ({
     <Box className={bright ? classes.boxRootBright : classes.boxRoot}>
       <Box className={classes.innerBox}>
         <Bar
-          options={setTick(tick, withGrid, withTooltip, stepSize)}
+          options={setTick(tick, stepSize, withTooltip, withGrid)}
           data={parseData()}
         />
         <Box className={classes.titleHolder}>{title}</Box>
