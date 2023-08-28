@@ -17,6 +17,7 @@ function useDpos() {
     'function getTotalEligibleVotesCount() view returns (uint64)',
     'function getUndelegations(address delegator, uint32 batch) view returns (tuple(uint256 stake, uint64 block, address validator, bool validator_exists)[] undelegations, bool end)',
     'function getValidator(address validator) view returns (tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) validator_info)',
+    'function getExternalValidator(address validator) view returns (tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) validator_info)',
     'function getValidatorEligibleVotesCount(address validator) view returns (uint64)',
     'function getValidators(uint32 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)',
     'function getValidatorsFor(address owner, uint32 batch) view returns (tuple(address account, tuple(uint256 total_stake, uint256 commission_reward, uint16 commission, uint64 last_commission_change, address owner, string description, string endpoint) info)[] validators, bool end)',
@@ -26,6 +27,7 @@ function useDpos() {
     'function setCommission(address validator, uint16 commission)',
     'function setValidatorInfo(address validator, string description, string endpoint)',
     'function undelegate(address validator, uint256 amount)',
+    'function registerExternalValidator(address validator, bytes proof, bytes vrf_key, uint16 commission, string description, string endpoint) payable',
   ];
 
   const mainnetDpos = useMemo(() => {
@@ -37,7 +39,7 @@ function useDpos() {
 
     try {
       const contract = new ethers.Contract(
-        '0x00000000000000000000000000000000000000fe',
+        '0xC403E07453693aD68A939fB909D36d87d8682Fe5',
         abi,
         mainnetProvider,
       );
@@ -57,7 +59,7 @@ function useDpos() {
       return instance;
     }
     const contract = new ethers.Contract(
-      '0x00000000000000000000000000000000000000fe',
+      '0xC403E07453693aD68A939fB909D36d87d8682Fe5',
       abi,
       browserProvider,
     );
