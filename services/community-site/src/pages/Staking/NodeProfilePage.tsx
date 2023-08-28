@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 import clsx from 'clsx';
 
 import {
-  AmountCard,
   BarChart,
   Button,
   Checkbox,
@@ -18,6 +17,7 @@ import {
   TableHead,
   TableRow,
   Text,
+  Typography,
   theme,
 } from '@taraxa_project/taraxa-ui';
 
@@ -286,25 +286,13 @@ const NodeProfilePage = () => {
               </>
             )} */}
             <div className="nodeDelegationColumn">
-              <div className="taraContainerWrapper">
-                <div className="taraContainer">
-                  <AmountCard
-                    amount={ethers.utils.commify(
-                      Number(weiToEth(validator.availableForDelegation)).toFixed(2),
-                    )}
-                    unit="TARA"
-                  />
-                  <div className="taraContainerAmountDescription">Available for delegation</div>
-                </div>
-                <div className="taraContainer">
-                  <AmountCard
-                    amount={ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}
-                    unit="TARA"
-                  />
-                  <div className="taraContainerAmountDescription">Total delegated</div>
-                </div>
-              </div>
               <div className="nodeDelegationSplit">
+                <Typography variant="caption" color="primary" className="box-title">
+                  Available to delegate
+                </Typography>
+                <Typography variant="h6" color="primary" className="box-title">
+                  {ethers.utils.commify(weiToEth(validator.availableForDelegation))} TARA
+                </Typography>
                 <BarFlex
                   communityDelegated={communityDelegated}
                   selfDelegated={selfDelegated}
@@ -332,6 +320,7 @@ const NodeProfilePage = () => {
                   </div>
                 </div>
               </div>
+              <br />
               <BarChart
                 tick="%"
                 title="Yield History in %"

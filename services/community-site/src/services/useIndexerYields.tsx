@@ -37,7 +37,7 @@ export default () => {
       let blockNum;
       const yields: YieldResponse[] = [];
       for (let i = 0; i < noOfPeriods; i++) {
-        const yieldResponse = await getYieldForAddress(address, blockNum);
+        const yieldResponse: YieldResponse = await getYieldForAddress(address, blockNum);
         if (!yieldResponse || !yieldResponse.yield) {
           break;
         }
