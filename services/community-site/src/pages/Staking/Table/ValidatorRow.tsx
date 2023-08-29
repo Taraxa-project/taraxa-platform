@@ -67,14 +67,12 @@ const ValidatorRow = ({
         )}
       </TableCell>
       <TableCell className="delegationCell">
-        <strong>{ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}</strong>
+        {ethers.utils.commify(weiToEth(validator.delegation))}
       </TableCell>
       <TableCell className="availableDelegation">
-        <div className="availableDelegation">
-          {validator.isFullyDelegated
-            ? '0 (Fully delegated)'
-            : ethers.utils.commify(Number(weiToEth(validator.availableForDelegation)).toFixed(2))}
-        </div>
+        {validator.isFullyDelegated
+          ? '0 (Fully delegated)'
+          : ethers.utils.commify(weiToEth(validator.availableForDelegation))}
       </TableCell>
       <TableCell className="rewardsCell">{stripEth(stakingRewards)}</TableCell>
       <TableCell className="availableDelegationActionsCell">

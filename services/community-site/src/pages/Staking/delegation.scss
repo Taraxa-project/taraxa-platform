@@ -410,9 +410,12 @@ a.commissionChangeCheck {
     line-height: 16px;
     vertical-align: middle;
     text-align: start;
-    width: 130px;
     padding: 10px 6px !important;
-    @extend .noOverflow;
+    overflow-wrap: anywhere;
+  }
+
+  .delegationCell {
+    font-weight: bold;
   }
 
   .actionsCell {
