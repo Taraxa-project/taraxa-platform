@@ -21,11 +21,17 @@ import {
   formatTransactionStatus,
   getTransactionType,
   TransactionType,
+  displayWeiOrTara,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import LoadingSkeletonTx from './LoadingSkeletonTx';
 import TransactionDataTabs from './TransactionDataTabs';
+import {
+  EncodedType,
+  HexToDecDataRow,
+  PrimitiveType,
+} from '../../components/HexToDecDataRow/HexToDecDataRow';
 
 const TransactionDataContainer = (): JSX.Element => {
   const { txHash } = useParams();
@@ -35,6 +41,7 @@ const TransactionDataContainer = (): JSX.Element => {
     currentNetwork,
     showLoadingSkeleton,
     showNetworkChanged,
+    revertData,
   } = useTransactionDataContainerEffects(txHash);
   const onCopy = useCopyToClipboard();
 
@@ -127,7 +134,13 @@ const TransactionDataContainer = (): JSX.Element => {
                 data={`${getTransactionType(transactionData)}`}
               />
               {transactionData?.value && (
-                <DataRow title='Value' data={`${transactionData.value}`} />
+                <HexToDecDataRow
+                  title='Value'
+                  data={`${transactionData.value}`}
+                  initialState={EncodedType.DEC}
+                  primitiveType={PrimitiveType.UINT}
+                  formatDecimal={displayWeiOrTara}
+                />
               )}
               {transactionData?.from &&
                 (transactionData?.to ||
@@ -164,6 +177,24 @@ const TransactionDataContainer = (): JSX.Element => {
                     }
                   />
                 )}
+              {revertData?.data?.error?.message && (
+                <DataRow
+                  title='Revert Reason'
+                  data={
+                    <Typography
+                      style={{
+                        color: '#FF515A',
+                        padding: '0.063rem 0.5rem',
+                        borderRadius: '0.5rem',
+                        backgroundColor: 'rgba(255, 81, 90, 0.2)',
+                        width: 'fit-content',
+                      }}
+                    >
+                      {revertData.data?.error?.message}
+                    </Typography>
+                  }
+                />
+              )}
               {transactionData?.gas && transactionData?.gasPrice && (
                 <DataRow
                   title='Gas Used / Gas Limit'

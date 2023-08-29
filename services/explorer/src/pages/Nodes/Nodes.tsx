@@ -85,6 +85,8 @@ const NodesPage = (): JSX.Element => {
           count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
+          showFirstButton={true}
+          showLastButton={true}
           onPageChange={(
             event: React.MouseEvent<HTMLButtonElement> | null,
             page: number

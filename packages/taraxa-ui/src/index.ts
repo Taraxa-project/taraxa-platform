@@ -28,6 +28,7 @@ import {
   TableRow,
   TableCell,
   TablePagination,
+  TableSortLabel,
 } from './components/Table';
 import ToggleButton from './components/ToggleButton';
 import Tooltip from './components/Tooltip';
@@ -62,6 +63,9 @@ import LoadingTable from './components/LoadingTable';
 import { useInterval } from './hooks/useInterval';
 import InfoCard from './components/InfoCard';
 import TaraxaThemeProvider from './TaraxaThemeProvider';
+import ButtonGroup from './components/ButtonGroup';
+import BaseToggleButtonGroup from './components/BaseToggleButtonGroup';
+import Dropdown from './components/Dropdown';
 
 import {
   Paper,
@@ -119,6 +123,7 @@ export {
   TableRow,
   TableCell,
   TablePagination,
+  TableSortLabel,
   ToggleButton,
   Tooltip,
   TopCard,
@@ -167,4 +172,7 @@ export {
   Select,
   MuiTooltip,
   MuiIcons,
+  ButtonGroup,
+  BaseToggleButtonGroup,
+  Dropdown,
 };

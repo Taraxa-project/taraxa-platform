@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
+import { utils } from 'ethers';
 import { useQuery } from 'urql';
 import { useExplorerNetwork, useExplorerLoader } from '../../hooks';
 import { AddressInfoDetails } from '../../models';
@@ -10,11 +10,23 @@ import {
   useGetAddressStats,
   useGetTransactionsByAddress,
 } from '../../api';
-import { balanceWeiToTara, formatTokensValue } from '../../utils';
+import { balanceWeiToTara } from '../../utils';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
-import { useIndexer } from '../../hooks/useIndexer';
+import { PaginationDataResults, useIndexer } from '../../hooks/useIndexer';
 
-export const useAddressInfoEffects = (account: string) => {
+export const useAddressInfoEffects = (
+  account: string
+): {
+  addressInfoDetails: AddressInfoDetails;
+  showLoadingSkeleton: boolean;
+  tabsStep: number;
+  setTabsStep: React.Dispatch<React.SetStateAction<number>>;
+  isFetchingAddressStats: boolean;
+  isLoadingAddressStats: boolean;
+  pbftTablePagination: PaginationDataResults;
+  dagTablePagination: PaginationDataResults;
+  txTablePagination: PaginationDataResults;
+} => {
   const [tabsStep, setTabsStep] = useState<number>(0);
 
   const { initLoading, finishLoading } = useExplorerLoader();
@@ -71,12 +83,13 @@ export const useAddressInfoEffects = (account: string) => {
       addressDetails.valueCurrency = 'USD';
 
       if (accountDetails?.block?.account) {
-        const currentValue =
-          +ethers.utils.formatUnits(
-            accountDetails?.block?.account?.balance,
-            'ether'
-          ) * price;
-        addressDetails.value = formatTokensValue(currentValue);
+        const etherBalance = utils.formatEther(
+          accountDetails?.block?.account?.balance
+        );
+        const currentValue = `${(
+          Number.parseFloat(etherBalance) * price
+        ).toLocaleString(addressDetails.valueCurrency)}`;
+        addressDetails.value = currentValue;
       }
     }
     setAddressInfoDetails(addressDetails);

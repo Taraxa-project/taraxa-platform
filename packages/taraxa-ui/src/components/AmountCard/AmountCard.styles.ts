@@ -16,6 +16,10 @@ const useStyles = makeStyles(() => {
       margin: '10px 0 10px 10px',
       fontSize: '22px',
       fontWeight: 700,
+      overflow: 'hidden',
+      overflowWrap: 'anywhere',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
     },
     unit: {
       margin: '5px 0 10px 10px',

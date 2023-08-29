@@ -276,16 +276,14 @@ const NodeProfilePage = () => {
               <div className="taraContainerWrapper">
                 <div className="taraContainer">
                   <AmountCard
-                    amount={ethers.utils.commify(
-                      Number(weiToEth(validator.availableForDelegation)).toFixed(2),
-                    )}
+                    amount={ethers.utils.commify(weiToEth(validator.availableForDelegation))}
                     unit="TARA"
                   />
                   <div className="taraContainerAmountDescription">Available for delegation</div>
                 </div>
                 <div className="taraContainer">
                   <AmountCard
-                    amount={ethers.utils.commify(Number(weiToEth(validator.delegation)).toFixed(2))}
+                    amount={ethers.utils.commify(weiToEth(validator.delegation))}
                     unit="TARA"
                   />
                   <div className="taraContainerAmountDescription">Total delegated</div>

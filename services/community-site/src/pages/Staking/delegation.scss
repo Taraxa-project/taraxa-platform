@@ -369,7 +369,7 @@ a.commissionChangeCheck {
   }
 
   .statusCell {
-    width: 60px;
+    width: 90px;
     @extend .noOverflow;
   }
 
@@ -385,7 +385,6 @@ a.commissionChangeCheck {
     @extend .noOverflow;
   }
 
-  .yieldCell,
   .rankingCell,
   .pbftsCell,
   .rewardsCell {
@@ -394,9 +393,15 @@ a.commissionChangeCheck {
     @extend .noOverflow;
   }
 
+  .yieldCell {
+    width: 120px;
+    line-height: 16px;
+    @extend .noOverflow;
+  }
+
   .commissionCell {
     text-align: start;
-    width: 100px;
+    width: 130px;
     @extend .noOverflow;
   }
 
@@ -405,9 +410,17 @@ a.commissionChangeCheck {
     line-height: 16px;
     vertical-align: middle;
     text-align: start;
-    width: 130px;
     padding: 10px 6px !important;
+    width: 130px;
+    overflow-wrap: anywhere;
+  }
+
+  .availableDelegationHead {
     @extend .noOverflow;
+  }
+
+  .delegationCell {
+    font-weight: bold;
   }
 
   .actionsCell {
@@ -492,6 +505,12 @@ a.commissionChangeCheck {
       max-width: calc(100vw - 90px);
       min-width: calc(100vw - 90px);
     }
+  }
+
+  .dashSortIcon {
+    font-size: 18px;
+    margin-right: 4px;
+    margin-left: 4px;
   }
 }
 

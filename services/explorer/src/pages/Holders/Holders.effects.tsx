@@ -19,7 +19,26 @@ const cols: ColumnData[] = [
   { path: 'value', name: 'Value' },
 ];
 
-export const useHoldersEffects = () => {
+export const useHoldersEffects = (): {
+  title: string;
+  description: string;
+  cols: ColumnData[];
+  rows: {
+    rank: number;
+    address: JSX.Element;
+    balanceStr: string;
+    percentage: JSX.Element;
+    value: string;
+  }[];
+  rowsPerPage: number;
+  page: number;
+  handleChangePage: (p: number) => void;
+  handleChangeRowsPerPage: (r: number) => void;
+  handlePreviousPage: () => void;
+  handleNextPage: () => void;
+  start: number;
+  total: number;
+} => {
   const { currentNetwork, backendEndpoint } = useExplorerNetwork();
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
     usePagination();
