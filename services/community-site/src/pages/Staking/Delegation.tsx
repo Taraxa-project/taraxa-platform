@@ -36,7 +36,7 @@ import Modals from './Modal/Modals';
 import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
-import { Validator } from '../../interfaces/Validator';
+import { Validator, ValidatorStatus } from '../../interfaces/Validator';
 import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
 
 import { stripEth, weiToEth } from '../../utils/eth';
@@ -87,9 +87,9 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const computeScore = (validator: Validator) => {
     const yieldWeight = 0.5;
-    const delegationWeight = 0.5;
-    const normalizedDelegation = Number(validator.delegation.toString()) / 1e18;
-    return yieldWeight * validator.yield + delegationWeight * normalizedDelegation;
+    const statusWeight = 0.5;
+    const normalizedStatus = Object.values(ValidatorStatus).indexOf(validator.status);
+    return yieldWeight * validator.yield + statusWeight * normalizedStatus;
   };
 
   const sortValidators = (validators: Validator[]) => {
@@ -295,7 +295,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   let filteredValidators = validators;
   if (!showFullyDelegatedValidators) {
-    filteredValidators = filteredValidators.filter((validator) => !validator.isFullyDelegated);
+    filteredValidators = filteredValidators.filter(({ isFullyDelegated }) => !isFullyDelegated);
   }
 
   const delegatableValidators = filteredValidators.filter(
