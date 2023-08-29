@@ -586,7 +586,7 @@ const Delegation = ({ location }: { location: Location }) => {
                         )}
                       </TableSortLabel>
                     </TableCell>
-                    <TableCell className="availableDelegation">
+                    <TableCell className="availableDelegation availableDelegationHead">
                       <TableSortLabel
                         {...getTableSortProps('availableForDelegation')}
                         onClick={() => handleSort('availableForDelegation')}

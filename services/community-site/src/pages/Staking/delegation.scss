@@ -412,6 +412,10 @@ a.commissionChangeCheck {
     text-align: start;
     padding: 10px 6px !important;
     width: 130px;
+    overflow-wrap: anywhere;
+  }
+
+  .availableDelegationHead {
     @extend .noOverflow;
   }
 
