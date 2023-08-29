@@ -17,6 +17,7 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  MuiIcons,
 } from '@taraxa_project/taraxa-ui';
 
 import { blocksToDays } from '../../utils/time';
@@ -82,6 +83,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedBy, setSortedBy] = useState<keyof Validator | ''>('');
+  const [hideSortIcons, setHideSortIcons] = useState<Record<string, boolean>>({});
 
   const computeScore = (validator: Validator) => {
     const yieldWeight = 0.5;
@@ -130,6 +132,19 @@ const Delegation = ({ location }: { location: Location }) => {
     });
   };
 
+  const isSortColumnActive = (column: string): boolean => {
+    return sortedBy === column;
+  };
+
+  const hideShowDefaultSortIcon = (column: string, value: boolean): void => {
+    if (!isSortColumnActive(column)) {
+      setHideSortIcons((prevState) => ({
+        ...prevState,
+        [column]: value,
+      }));
+    }
+  };
+
   const handleSort = (column: keyof Validator) => {
     if (sortedBy === column) {
       setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
@@ -176,6 +191,19 @@ const Delegation = ({ location }: { location: Location }) => {
     }
     return validators;
   };
+
+  useEffect(() => {
+    const newHideSortIcons = Object.keys(hideSortIcons).reduce((acc, column) => {
+      acc[column] = false;
+      return acc;
+    }, {} as Record<string, boolean>);
+
+    if (sortedBy) {
+      newHideSortIcons[sortedBy] = true;
+    }
+
+    setHideSortIcons(newHideSortIcons);
+  }, [sortedBy]);
 
   useEffect(() => {
     fetchBalance();
@@ -504,48 +532,89 @@ const Delegation = ({ location }: { location: Location }) => {
                   <TableRow>
                     <TableCell className="statusCell">
                       <TableSortLabel
-                        active={sortedBy === 'status'}
-                        direction={sortedBy === 'status' ? sortOrder : 'asc'}
+                        className="sortLabel"
+                        active={isSortColumnActive('status')}
+                        direction={isSortColumnActive('status') ? sortOrder : 'asc'}
                         onClick={() => handleSort('status')}
+                        onMouseEnter={() => hideShowDefaultSortIcon('status', true)}
+                        onMouseLeave={() => hideShowDefaultSortIcon('status', false)}
+                        hideSortIcon={!hideSortIcons.status && !isSortColumnActive('status')}
                       >
                         Status
+                        {!hideSortIcons.status && !isSortColumnActive('status') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="nameCell">Address / Nickname</TableCell>
                     <TableCell className="yieldCell">
                       <TableSortLabel
-                        active={sortedBy === 'yield'}
-                        direction={sortedBy === 'yield' ? sortOrder : 'asc'}
+                        active={isSortColumnActive('yield')}
+                        direction={isSortColumnActive('yield') ? sortOrder : 'asc'}
                         onClick={() => handleSort('yield')}
+                        onMouseEnter={() => hideShowDefaultSortIcon('yield', true)}
+                        onMouseLeave={() => hideShowDefaultSortIcon('yield', false)}
+                        hideSortIcon={!hideSortIcons.yield && !isSortColumnActive('yield')}
                       >
                         Yield Efficiency
+                        {!hideSortIcons.yield && !isSortColumnActive('yield') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="commissionCell">
                       <TableSortLabel
-                        active={sortedBy === 'commission'}
-                        direction={sortedBy === 'commission' ? sortOrder : 'asc'}
+                        active={isSortColumnActive('commission')}
+                        direction={isSortColumnActive('commission') ? sortOrder : 'asc'}
                         onClick={() => handleSort('commission')}
+                        onMouseEnter={() => hideShowDefaultSortIcon('commission', true)}
+                        onMouseLeave={() => hideShowDefaultSortIcon('commission', false)}
+                        hideSortIcon={
+                          !hideSortIcons.commission && !isSortColumnActive('commission')
+                        }
                       >
                         Commission
+                        {!hideSortIcons.commission && !isSortColumnActive('commission') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="delegationCell">
                       <TableSortLabel
-                        active={sortedBy === 'delegation'}
-                        direction={sortedBy === 'delegation' ? sortOrder : 'asc'}
+                        active={isSortColumnActive('delegation')}
+                        direction={isSortColumnActive('delegation') ? sortOrder : 'asc'}
                         onClick={() => handleSort('delegation')}
+                        onMouseEnter={() => hideShowDefaultSortIcon('delegation', true)}
+                        onMouseLeave={() => hideShowDefaultSortIcon('delegation', false)}
+                        hideSortIcon={
+                          !hideSortIcons.delegation && !isSortColumnActive('delegation')
+                        }
                       >
                         Delegation
+                        {!hideSortIcons.delegation && !isSortColumnActive('delegation') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="availableDelegation">
                       <TableSortLabel
-                        active={sortedBy === 'availableForDelegation'}
-                        direction={sortedBy === 'availableForDelegation' ? sortOrder : 'asc'}
+                        active={isSortColumnActive('availableForDelegation')}
+                        direction={isSortColumnActive('availableForDelegation') ? sortOrder : 'asc'}
                         onClick={() => handleSort('availableForDelegation')}
+                        onMouseEnter={() => hideShowDefaultSortIcon('availableForDelegation', true)}
+                        onMouseLeave={() =>
+                          hideShowDefaultSortIcon('availableForDelegation', false)
+                        }
+                        hideSortIcon={
+                          !hideSortIcons.availableForDelegation &&
+                          !isSortColumnActive('availableForDelegation')
+                        }
                       >
                         Available for Delegation
+                        {!hideSortIcons.availableForDelegation &&
+                          !isSortColumnActive('availableForDelegation') && (
+                            <MuiIcons.Remove className="dashSortIcon" />
+                          )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="rewardsCell">Staking Rewards</TableCell>
