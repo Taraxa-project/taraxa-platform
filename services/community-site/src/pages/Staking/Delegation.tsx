@@ -154,6 +154,17 @@ const Delegation = ({ location }: { location: Location }) => {
     }
   };
 
+  const getTableSortProps = (columnName: string) => {
+    return {
+      className: 'sortLabel',
+      active: isSortColumnActive(columnName),
+      direction: isSortColumnActive(columnName) ? sortOrder : 'asc',
+      onMouseEnter: () => hideShowDefaultSortIcon(columnName, true),
+      onMouseLeave: () => hideShowDefaultSortIcon(columnName, false),
+      hideSortIcon: !hideSortIcons[columnName] && !isSortColumnActive(columnName),
+    };
+  };
+
   const fetchBalance = async () => {
     if (status === 'connected' && account && provider) {
       setBalance(await provider.getBalance(account));
@@ -532,13 +543,8 @@ const Delegation = ({ location }: { location: Location }) => {
                   <TableRow>
                     <TableCell className="statusCell">
                       <TableSortLabel
-                        className="sortLabel"
-                        active={isSortColumnActive('status')}
-                        direction={isSortColumnActive('status') ? sortOrder : 'asc'}
+                        {...getTableSortProps('status')}
                         onClick={() => handleSort('status')}
-                        onMouseEnter={() => hideShowDefaultSortIcon('status', true)}
-                        onMouseLeave={() => hideShowDefaultSortIcon('status', false)}
-                        hideSortIcon={!hideSortIcons.status && !isSortColumnActive('status')}
                       >
                         Status
                         {!hideSortIcons.status && !isSortColumnActive('status') && (
@@ -549,12 +555,8 @@ const Delegation = ({ location }: { location: Location }) => {
                     <TableCell className="nameCell">Address / Nickname</TableCell>
                     <TableCell className="yieldCell">
                       <TableSortLabel
-                        active={isSortColumnActive('yield')}
-                        direction={isSortColumnActive('yield') ? sortOrder : 'asc'}
+                        {...getTableSortProps('yield')}
                         onClick={() => handleSort('yield')}
-                        onMouseEnter={() => hideShowDefaultSortIcon('yield', true)}
-                        onMouseLeave={() => hideShowDefaultSortIcon('yield', false)}
-                        hideSortIcon={!hideSortIcons.yield && !isSortColumnActive('yield')}
                       >
                         Yield Efficiency
                         {!hideSortIcons.yield && !isSortColumnActive('yield') && (
@@ -564,14 +566,8 @@ const Delegation = ({ location }: { location: Location }) => {
                     </TableCell>
                     <TableCell className="commissionCell">
                       <TableSortLabel
-                        active={isSortColumnActive('commission')}
-                        direction={isSortColumnActive('commission') ? sortOrder : 'asc'}
+                        {...getTableSortProps('commission')}
                         onClick={() => handleSort('commission')}
-                        onMouseEnter={() => hideShowDefaultSortIcon('commission', true)}
-                        onMouseLeave={() => hideShowDefaultSortIcon('commission', false)}
-                        hideSortIcon={
-                          !hideSortIcons.commission && !isSortColumnActive('commission')
-                        }
                       >
                         Commission
                         {!hideSortIcons.commission && !isSortColumnActive('commission') && (
@@ -581,14 +577,8 @@ const Delegation = ({ location }: { location: Location }) => {
                     </TableCell>
                     <TableCell className="delegationCell">
                       <TableSortLabel
-                        active={isSortColumnActive('delegation')}
-                        direction={isSortColumnActive('delegation') ? sortOrder : 'asc'}
+                        {...getTableSortProps('delegation')}
                         onClick={() => handleSort('delegation')}
-                        onMouseEnter={() => hideShowDefaultSortIcon('delegation', true)}
-                        onMouseLeave={() => hideShowDefaultSortIcon('delegation', false)}
-                        hideSortIcon={
-                          !hideSortIcons.delegation && !isSortColumnActive('delegation')
-                        }
                       >
                         Delegation
                         {!hideSortIcons.delegation && !isSortColumnActive('delegation') && (
@@ -596,19 +586,10 @@ const Delegation = ({ location }: { location: Location }) => {
                         )}
                       </TableSortLabel>
                     </TableCell>
-                    <TableCell className="availableDelegation">
+                    <TableCell className="availableDelegation availableDelegationHead">
                       <TableSortLabel
-                        active={isSortColumnActive('availableForDelegation')}
-                        direction={isSortColumnActive('availableForDelegation') ? sortOrder : 'asc'}
+                        {...getTableSortProps('availableForDelegation')}
                         onClick={() => handleSort('availableForDelegation')}
-                        onMouseEnter={() => hideShowDefaultSortIcon('availableForDelegation', true)}
-                        onMouseLeave={() =>
-                          hideShowDefaultSortIcon('availableForDelegation', false)
-                        }
-                        hideSortIcon={
-                          !hideSortIcons.availableForDelegation &&
-                          !isSortColumnActive('availableForDelegation')
-                        }
                       >
                         Available for Delegation
                         {!hideSortIcons.availableForDelegation &&
