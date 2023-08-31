@@ -1,0 +1,314 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IDelegation",
+  "sourceName": "contracts/interfaces/IDelegation.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "delegator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokens",
+          "type": "uint256"
+        }
+      ],
+      "name": "ExternalValidatorRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        }
+      ],
+      "name": "InternalValidatorAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "validatorAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "delegatedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "InternalValidatorDelegationIncreased",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newValidator",
+          "type": "address"
+        }
+      ],
+      "name": "addInternalValidator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validator",
+          "type": "address"
+        }
+      ],
+      "name": "getValidator",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "total_stake",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "commission_reward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "commission",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint64",
+              "name": "last_commission_change",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "endpoint",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IDPOS.ValidatorBasicInfo",
+          "name": "validatorInfo",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "batch",
+          "type": "uint32"
+        }
+      ],
+      "name": "getValidators",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "total_stake",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "commission_reward",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "commission",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "last_commission_change",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "description",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "endpoint",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct IDPOS.ValidatorBasicInfo",
+              "name": "info",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct IDPOS.ValidatorData[]",
+          "name": "validators",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "end",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "batch",
+          "type": "uint32"
+        }
+      ],
+      "name": "getValidatorsFor",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "total_stake",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "commission_reward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "commission",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint64",
+              "name": "last_commission_change",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "endpoint",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IDPOS.ValidatorBasicInfo[]",
+          "name": "validators",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "end",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "validator",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "proof",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "vrfKey",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint16",
+          "name": "commission",
+          "type": "uint16"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "endpoint",
+          "type": "string"
+        }
+      ],
+      "name": "registerValidator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

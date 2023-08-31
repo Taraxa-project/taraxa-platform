@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "declaration": true,
+    "allowJs": true
+  },
+  "include": ["./scripts", "./test", "./types"],
+  "files": ["./hardhat.config.ts"]
+}
