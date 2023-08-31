@@ -54,9 +54,7 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
       return;
     }
 
-    if (
-      parseFloat(reDelegationTotal) > parseFloat(weiToEth(validatorFrom.availableForDelegation))
-    ) {
+    if (parseFloat(reDelegationTotal) > parseFloat(weiToEth(validatorTo.availableForDelegation))) {
       setError("cannot exceed validator's ability to receive delegation");
       return;
     }
