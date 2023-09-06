@@ -13,10 +13,12 @@ const getRevertReason = (endpoint: string, tx: Transaction) => {
         from: tx.from.address,
         to: tx.to.address,
         gas: `0x${tx.gas.toString(16)}`,
-        gasPrice: tx.gasPrice.toString().includes('Wei')
-          ? tx.gasPrice.toString().replace('Wei', '')
-          : tx.gasPrice.toString(),
-        value: tx.value,
+        gasPrice: `0x${
+          tx.gasPrice.toString().includes('Wei')
+            ? Number(tx.gasPrice.toString().replace('Wei', '')).toString(16)
+            : Number(tx.gasPrice.toString()).toString(16)
+        }`,
+        value: `0x${tx.value.toString(16)}`,
         data: tx.inputData,
       },
       `0x${tx.block.number.toString(16)}`,

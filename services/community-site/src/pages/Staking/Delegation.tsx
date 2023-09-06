@@ -17,6 +17,7 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  MuiIcons,
 } from '@taraxa_project/taraxa-ui';
 
 import { blocksToDays } from '../../utils/time';
@@ -35,7 +36,7 @@ import Modals from './Modal/Modals';
 import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
-import { Validator } from '../../interfaces/Validator';
+import { Validator, ValidatorStatus } from '../../interfaces/Validator';
 import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
 
 import { stripEth, weiToEth } from '../../utils/eth';
@@ -82,12 +83,13 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedBy, setSortedBy] = useState<keyof Validator | ''>('');
+  const [hideSortIcons, setHideSortIcons] = useState<Record<string, boolean>>({});
 
   const computeScore = (validator: Validator) => {
     const yieldWeight = 0.5;
-    const delegationWeight = 0.5;
-    const normalizedDelegation = Number(validator.delegation.toString()) / 1e18;
-    return yieldWeight * validator.yield + delegationWeight * normalizedDelegation;
+    const statusWeight = 0.5;
+    const normalizedStatus = Object.values(ValidatorStatus).indexOf(validator.status);
+    return yieldWeight * validator.yield + statusWeight * normalizedStatus;
   };
 
   const sortValidators = (validators: Validator[]) => {
@@ -130,6 +132,19 @@ const Delegation = ({ location }: { location: Location }) => {
     });
   };
 
+  const isSortColumnActive = (column: string): boolean => {
+    return sortedBy === column;
+  };
+
+  const hideShowDefaultSortIcon = (column: string, value: boolean): void => {
+    if (!isSortColumnActive(column)) {
+      setHideSortIcons((prevState) => ({
+        ...prevState,
+        [column]: value,
+      }));
+    }
+  };
+
   const handleSort = (column: keyof Validator) => {
     if (sortedBy === column) {
       setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
@@ -137,6 +152,17 @@ const Delegation = ({ location }: { location: Location }) => {
       setSortedBy(column);
       setSortOrder('asc');
     }
+  };
+
+  const getTableSortProps = (columnName: string) => {
+    return {
+      className: 'sortLabel',
+      active: isSortColumnActive(columnName),
+      direction: isSortColumnActive(columnName) ? sortOrder : 'asc',
+      onMouseEnter: () => hideShowDefaultSortIcon(columnName, true),
+      onMouseLeave: () => hideShowDefaultSortIcon(columnName, false),
+      hideSortIcon: !hideSortIcons[columnName] && !isSortColumnActive(columnName),
+    };
   };
 
   const fetchBalance = async () => {
@@ -176,6 +202,19 @@ const Delegation = ({ location }: { location: Location }) => {
     }
     return validators;
   };
+
+  useEffect(() => {
+    const newHideSortIcons = Object.keys(hideSortIcons).reduce((acc, column) => {
+      acc[column] = false;
+      return acc;
+    }, {} as Record<string, boolean>);
+
+    if (sortedBy) {
+      newHideSortIcons[sortedBy] = true;
+    }
+
+    setHideSortIcons(newHideSortIcons);
+  }, [sortedBy]);
 
   useEffect(() => {
     fetchBalance();
@@ -256,7 +295,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   let filteredValidators = validators;
   if (!showFullyDelegatedValidators) {
-    filteredValidators = filteredValidators.filter((validator) => !validator.isFullyDelegated);
+    filteredValidators = filteredValidators.filter(({ isFullyDelegated }) => !isFullyDelegated);
   }
 
   const delegatableValidators = filteredValidators.filter(
@@ -504,48 +543,59 @@ const Delegation = ({ location }: { location: Location }) => {
                   <TableRow>
                     <TableCell className="statusCell">
                       <TableSortLabel
-                        active={sortedBy === 'status'}
-                        direction={sortedBy === 'status' ? sortOrder : 'asc'}
+                        {...getTableSortProps('status')}
                         onClick={() => handleSort('status')}
                       >
                         Status
+                        {!hideSortIcons.status && !isSortColumnActive('status') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="nameCell">Address / Nickname</TableCell>
                     <TableCell className="yieldCell">
                       <TableSortLabel
-                        active={sortedBy === 'yield'}
-                        direction={sortedBy === 'yield' ? sortOrder : 'asc'}
+                        {...getTableSortProps('yield')}
                         onClick={() => handleSort('yield')}
                       >
                         Yield Efficiency
+                        {!hideSortIcons.yield && !isSortColumnActive('yield') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="commissionCell">
                       <TableSortLabel
-                        active={sortedBy === 'commission'}
-                        direction={sortedBy === 'commission' ? sortOrder : 'asc'}
+                        {...getTableSortProps('commission')}
                         onClick={() => handleSort('commission')}
                       >
                         Commission
+                        {!hideSortIcons.commission && !isSortColumnActive('commission') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="delegationCell">
                       <TableSortLabel
-                        active={sortedBy === 'delegation'}
-                        direction={sortedBy === 'delegation' ? sortOrder : 'asc'}
+                        {...getTableSortProps('delegation')}
                         onClick={() => handleSort('delegation')}
                       >
                         Delegation
+                        {!hideSortIcons.delegation && !isSortColumnActive('delegation') && (
+                          <MuiIcons.Remove className="dashSortIcon" />
+                        )}
                       </TableSortLabel>
                     </TableCell>
-                    <TableCell className="availableDelegation">
+                    <TableCell className="availableDelegation availableDelegationHead">
                       <TableSortLabel
-                        active={sortedBy === 'availableForDelegation'}
-                        direction={sortedBy === 'availableForDelegation' ? sortOrder : 'asc'}
+                        {...getTableSortProps('availableForDelegation')}
                         onClick={() => handleSort('availableForDelegation')}
                       >
                         Available for Delegation
+                        {!hideSortIcons.availableForDelegation &&
+                          !isSortColumnActive('availableForDelegation') && (
+                            <MuiIcons.Remove className="dashSortIcon" />
+                          )}
                       </TableSortLabel>
                     </TableCell>
                     <TableCell className="rewardsCell">Staking Rewards</TableCell>
