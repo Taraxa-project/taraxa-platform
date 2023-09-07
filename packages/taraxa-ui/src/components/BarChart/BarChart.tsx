@@ -23,8 +23,13 @@ ChartJS.register(
   Legend
 );
 
-const setTick = (tick: string) => ({
-  responsive: false,
+const setTick = (
+  tick: string,
+  stepSize?: number,
+  withTooltip = false,
+  withGrid = false
+) => ({
+  responsive: true,
   plugins: {
     legend: {
       display: false,
@@ -33,7 +38,7 @@ const setTick = (tick: string) => ({
       display: false,
     },
     tooltip: {
-      enabled: false,
+      enabled: withTooltip,
     },
   },
   scales: {
@@ -49,11 +54,11 @@ const setTick = (tick: string) => ({
     },
     y: {
       grid: {
-        display: false,
+        display: withGrid,
         drawBorder: false,
       },
       ticks: {
-        stepSize: 50,
+        stepSize: stepSize || 50,
         color: theme.palette.text.secondary,
         callback: (value: any) => `${value}${tick}`,
       },
@@ -62,17 +67,25 @@ const setTick = (tick: string) => ({
 });
 
 export interface BarChartProps {
-  title?: string;
-  labels: string[];
-  tick?: string;
   datasets: ChartDataset<'bar', number[]>[];
+  labels: string[];
+  title?: string;
+  tick?: string;
+  bright?: boolean;
+  withGrid?: boolean;
+  withTooltip?: boolean;
+  stepSize?: number;
 }
 
 const BarChart = ({
+  datasets,
   title = '',
   labels = [],
-  datasets,
   tick = '/s',
+  bright = false,
+  withGrid = false,
+  withTooltip = false,
+  stepSize = 50,
 }: BarChartProps) => {
   const classes = useStyles();
   const parseData = () => {
@@ -84,9 +97,12 @@ const BarChart = ({
   };
 
   return (
-    <Box className={classes.boxRoot}>
+    <Box className={bright ? classes.boxRootBright : classes.boxRoot}>
       <Box className={classes.innerBox}>
-        <Bar options={setTick(tick)} data={parseData()} />
+        <Bar
+          options={setTick(tick, stepSize, withTooltip, withGrid)}
+          data={parseData()}
+        />
         <Box className={classes.titleHolder}>{title}</Box>
       </Box>
     </Box>

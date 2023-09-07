@@ -2,13 +2,21 @@ import { makeStyles } from '@mui/styles';
 import theme from '../theme';
 
 const useStyles = makeStyles(() => {
+  const baseBox = {
+    display: 'inline-block',
+    padding: theme.spacing(1, 3, 1, 1),
+    border: `2px solid ${theme.palette.grey[700]}`,
+    borderRadius: theme.spacing(0.5),
+  };
+
   return {
     boxRoot: {
-      display: 'inline-block',
-      padding: theme.spacing(1, 3, 1, 1),
+      ...baseBox,
       backgroundColor: theme.palette.grey.A400,
-      border: `2px solid ${theme.palette.grey.A100}`,
-      borderRadius: theme.spacing(0.5),
+    },
+    boxRootBright: {
+      ...baseBox,
+      backgroundColor: theme.palette.grey.A100,
     },
     innerBox: {
       display: 'flex',
