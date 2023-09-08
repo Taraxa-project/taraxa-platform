@@ -25,6 +25,11 @@
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*", "src/migrations/*", "explorer-models/*", "data-source.ts"],
+  "include": [
+    "src/**/*",
+    "src/migrations/*",
+    "explorer-models/*",
+    "data-source.ts"
+  ],
   "exclude": ["node_modules", "lib", "*.d.ts"]
 }

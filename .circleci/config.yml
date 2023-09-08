@@ -24,9 +24,5 @@ workflows:
             services/faucet/charts/.* build-faucet-helm-chart-workflow true
             services/explorer/.* build-explorer-workflow true
             services/explorer/charts/.* build-explorer-helm-chart-workflow true
-            services/explorer-indexer/.* build-explorer-indexer-workflow true
-            services/explorer-indexer/charts/.* build-explorer-indexer-helm-chart-workflow true
-            services/explorer-api/.* build-explorer-api-workflow true
-            services/explorer-api/charts/.* build-explorer-api-helm-chart-workflow true
           base-revision: << pipeline.git.branch >>
           config-path: .circleci/workflows.yml
