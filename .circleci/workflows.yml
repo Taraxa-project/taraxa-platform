@@ -566,7 +566,7 @@ workflows:
                 - develop
   explorer:
     when:
-      and:
+      or:
         - << pipeline.parameters.build-explorer-workflow >>
         - << pipeline.parameters.ui-package-modified >>
     jobs:
