@@ -145,6 +145,10 @@
         width: 100%;
       }
 
+      .box-title {
+        overflow-wrap: anywhere;
+      }
+
       .barFlex {
         display: flex;
         flex-direction: row;
