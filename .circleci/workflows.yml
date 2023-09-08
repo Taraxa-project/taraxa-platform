@@ -116,9 +116,18 @@ jobs:
             else
               echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://gcr.io
 
-              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
+              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${CIRCLE_SHA1}
+              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${START_TIME}
+              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker tag taraxa-community-frontend:${VERSION} ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
-              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${VERSION}
+
+              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_BUILD_NUM}
+              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${START_TIME}
+              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${START_TIME}-${CIRCLE_SHA1}
+              docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:${DOCKER_BRANCH_TAG}-${CIRCLE_SHA1:0:7}-${TIMESTAMP}
               docker push ${GCP_REGISTRY}/taraxa-community-frontend-develop:latest
             fi
   build-community-backend:
