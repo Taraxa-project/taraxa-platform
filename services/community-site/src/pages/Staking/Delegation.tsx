@@ -45,7 +45,6 @@ import { useWalletPopup } from '../../services/useWalletPopup';
 import useExplorerStats from '../../services/useExplorerStats';
 import { useAllValidators } from '../../services/useAllValidators';
 import { useRedelegation } from '../../services/useRedelegation';
-import useIndexerYields from '../../services/useIndexerYields';
 
 const Delegation = ({ location }: { location: Location }) => {
   const { user } = useAuth();
@@ -55,7 +54,6 @@ const Delegation = ({ location }: { location: Location }) => {
   const { isLoading } = useLoading();
   const { asyncCallback } = useWalletPopup();
 
-  const { getYieldForAddress } = useIndexerYields();
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
@@ -195,14 +193,6 @@ const Delegation = ({ location }: { location: Location }) => {
     setShouldFetch(true);
   };
 
-  const getYieldsForValidators = async (validators: Validator[]): Promise<Validator[]> => {
-    for (let i = 0; i < validators.length; i++) {
-      const validatorYield = await getYieldForAddress(validators[i].address);
-      validators[i].yield = validatorYield.yield;
-    }
-    return validators;
-  };
-
   useEffect(() => {
     const newHideSortIcons = Object.keys(hideSortIcons).reduce((acc, column) => {
       acc[column] = false;
@@ -247,8 +237,7 @@ const Delegation = ({ location }: { location: Location }) => {
       (async () => {
         const myValidators = await getValidatorsWith(delegations.map((d) => d.address));
         const myValidatorsWithStats = await updateValidatorsStats(myValidators);
-        const myValidatorsWithYields = await getYieldsForValidators(myValidatorsWithStats);
-        setOwnValidators(myValidatorsWithYields);
+        setOwnValidators(myValidatorsWithStats);
       })();
     }
   }, [delegations]);
