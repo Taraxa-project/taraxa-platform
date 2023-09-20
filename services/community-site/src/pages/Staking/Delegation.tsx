@@ -83,6 +83,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedBy, setSortedBy] = useState<keyof Validator | ''>('');
   const [hideSortIcons, setHideSortIcons] = useState<Record<string, boolean>>({});
+  const claimableThreshold = ethers.utils.parseEther('0.01');
 
   const computeScore = (validator: Validator) => {
     const yieldWeight = 0.5;
@@ -518,9 +519,7 @@ const Delegation = ({ location }: { location: Location }) => {
               title={stripEth(totalClaimableRewards)}
               description="Claimable TARA - Staking rewards that are instantly claimable."
               isLoading={isLoading}
-              button={
-                totalClaimableRewards.gt(ethers.BigNumber.from(0)) ? claimAllRewardsButton : null
-              }
+              button={totalClaimableRewards.gt(claimableThreshold) ? claimAllRewardsButton : null}
             />
             <BaseCard
               title={stripEth(undelegatedTara)}
