@@ -115,10 +115,14 @@ export default () => {
           if (!ranking.success) {
             return validator;
           }
+
           const { rank } = ranking.response;
+          const percentage = Number.parseFloat(ranking.response.yield || 0) * 100;
+
           return {
             ...validator,
             rank,
+            yield: Number(percentage.toFixed(2)),
           };
         }),
       );
