@@ -26,6 +26,7 @@ function useDpos() {
     'function setCommission(address validator, uint16 commission)',
     'function setValidatorInfo(address validator, string description, string endpoint)',
     'function undelegate(address validator, uint256 amount)',
+    'function claimAllRewards(uint32 batch) external returns (bool end)',
   ];
 
   const mainnetDpos = useMemo(() => {
