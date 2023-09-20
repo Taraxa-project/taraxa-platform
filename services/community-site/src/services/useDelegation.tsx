@@ -139,13 +139,14 @@ export default () => {
   const claimAllRewards = useCallback(async (): Promise<void> => {
     startLoading!();
 
-    let page = 0;
+    let batch = 10;
     let hasNextPage = true;
+
     while (hasNextPage) {
       try {
-        const end = await mainnetDpos!.claimAllRewards(page);
+        const end = await browserDpos!.claimAllRewards(batch);
         hasNextPage = !end;
-        page++;
+        batch += 10;
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -154,7 +155,7 @@ export default () => {
     }
 
     finishLoading!();
-  }, [mainnetDpos]);
+  }, [browserDpos]);
 
   return useMemo(
     () => ({

@@ -261,7 +261,16 @@ const Delegation = ({ location }: { location: Location }) => {
   const isOnWrongChain = chainId !== mainnetChainId;
 
   const claimAll = async () => {
-    await claimAllRewards();
+    return await claimAllRewards();
+    // Async callback will not work as it requires the callback to return Transaction Response
+    // asyncCallback(
+    //   async () => {
+    //     return await claimAllRewards();
+    //   },
+    //   () => {
+    //     setFetchCounter((prev) => prev + 1);
+    //   },
+    // );
   };
 
   const claimAllRewardsButton = (
@@ -519,7 +528,11 @@ const Delegation = ({ location }: { location: Location }) => {
               title={stripEth(totalClaimableRewards)}
               description="Claimable TARA - Staking rewards that are instantly claimable."
               isLoading={isLoading}
-              button={totalClaimableRewards.gt(claimableThreshold) ? claimAllRewardsButton : null}
+              button={
+                !isLoading && totalClaimableRewards.gt(claimableThreshold)
+                  ? claimAllRewardsButton
+                  : null
+              }
             />
             <BaseCard
               title={stripEth(undelegatedTara)}
