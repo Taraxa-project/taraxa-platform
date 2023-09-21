@@ -259,8 +259,33 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const isOnWrongChain = chainId !== mainnetChainId;
 
-  const claimAll = async () => {
-    await claimAllRewards();
+  const claimAll = async (batch: number) => {
+    asyncCallback(
+      async () => {
+        return await claimAllRewards(batch);
+      },
+      () => {
+        setShouldFetch(true);
+      },
+    );
+  };
+
+  const onClaimAllRewards = async () => {
+    const maxBatchSize = 10;
+    let totalDelegations = delegations.length;
+    let batch = 0;
+    while (totalDelegations > 0) {
+      try {
+        await claimAll(batch);
+        const nextBatchSize = Math.min(maxBatchSize, totalDelegations);
+        totalDelegations -= nextBatchSize;
+        batch++;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        break;
+      }
+    }
   };
 
   const claimAllRewardsButton = (
@@ -270,7 +295,7 @@ const Delegation = ({ location }: { location: Location }) => {
       label="Claim all rewards"
       size="small"
       className="smallBtn"
-      onClick={claimAll}
+      onClick={onClaimAllRewards}
       disableElevation
     />
   );

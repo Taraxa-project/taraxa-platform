@@ -136,25 +136,12 @@ export default () => {
     [browserDpos],
   );
 
-  const claimAllRewards = useCallback(async (): Promise<void> => {
-    startLoading!();
-
-    let page = 0;
-    let hasNextPage = true;
-    while (hasNextPage) {
-      try {
-        const end = await mainnetDpos!.claimAllRewards(page);
-        hasNextPage = !end;
-        page++;
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        hasNextPage = false;
-      }
-    }
-
-    finishLoading!();
-  }, [mainnetDpos]);
+  const claimAllRewards = useCallback(
+    async (batch: number): Promise<ethers.providers.TransactionResponse> => {
+      return await browserDpos!.claimAllRewards(batch);
+    },
+    [browserDpos],
+  );
 
   return useMemo(
     () => ({
