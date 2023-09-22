@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useMemo } from 'react';
-import { networks } from '../utils/networks';
+import { networks } from '@taraxa_project/taraxa-sdk';
 
 function useMainnet() {
   const chainId = useMemo(() => parseInt(process.env.REACT_APP_MAINNET_CHAIN_ID!, 10), []);

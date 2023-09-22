@@ -1,4 +1,4 @@
-interface Network {
+export interface Network {
   chainName: string;
   rpcUrl: string;
   iconUrl: string;
@@ -10,7 +10,7 @@ interface Network {
   };
   indexerUrl: string;
 }
-interface Networks {
+export interface Networks {
   [key: number]: Network;
 }
 export const networks: Networks = {

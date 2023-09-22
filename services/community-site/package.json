@@ -8,6 +8,7 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@taraxa_project/taraxa-ui": "^0.0.1",
+    "@taraxa_project/taraxa-sdk": "^0.0.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",

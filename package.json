@@ -32,6 +32,7 @@
     "status-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status build",
     "status-start": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-node-status dev",
     "ui-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-ui build",
+    "sdk-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/taraxa-sdk build",
     "shared-build": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer-shared build",
     "shared-typeorm:run": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer-shared typeorm:run",
     "shared-typeorm:prod:run": "cross-env SKIP_PREFLIGHT_CHECK=true yarn workspace @taraxa_project/explorer-shared typeorm:prod:run",

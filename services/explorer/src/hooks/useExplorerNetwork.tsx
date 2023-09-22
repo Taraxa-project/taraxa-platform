@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { NetworkName } from '@taraxa_project/taraxa-sdk';
 import { Client, createClient as urqlCreateClient } from 'urql';
 import {
-  Network,
   getDomainName,
   recreateGraphQLConnection,
   recreateAPIConnection,
@@ -27,12 +27,12 @@ const createClient = (endpoint: string): Client =>
     requestPolicy: 'network-only',
   });
 const initialState: Context = {
-  networks: Object.values(Network),
-  currentNetwork: Network.MAINNET,
-  graphQLClient: createClient(recreateGraphQLConnection(Network.MAINNET)),
-  backendEndpoint: recreateAPIConnection(Network.MAINNET),
-  rpcEndpoint: recreateRPCConnection(Network.MAINNET),
-  faucetEndpoint: recreateFaucetConnection(Network.MAINNET),
+  networks: Object.values(NetworkName),
+  currentNetwork: NetworkName.MAINNET,
+  graphQLClient: createClient(recreateGraphQLConnection(NetworkName.MAINNET)),
+  backendEndpoint: recreateAPIConnection(NetworkName.MAINNET),
+  rpcEndpoint: recreateRPCConnection(NetworkName.MAINNET),
+  faucetEndpoint: recreateFaucetConnection(NetworkName.MAINNET),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   disableNetworkSelection: false,
@@ -41,10 +41,10 @@ const initialState: Context = {
 const ExplorerNetworkContext = createContext<Context>(initialState);
 
 const useNetworkSelection = () => {
-  const networks = Object.values(Network);
+  const networks = Object.values(NetworkName);
   const hostNetwork = getDomainName();
   const [currentNetwork, setCurrentNetwork] = useState<string>(
-    hostNetwork || Network.MAINNET
+    hostNetwork || NetworkName.MAINNET
   );
 
   const [graphQLClient, setGraphQLClient] = useState<Client>(

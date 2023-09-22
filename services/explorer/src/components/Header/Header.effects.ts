@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Option } from '@taraxa_project/taraxa-ui/src/components/SearchInput/SearchInput';
+import { NetworkName } from '@taraxa_project/taraxa-sdk';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import cleanDeep from 'clean-deep';
 import { useQuery } from 'urql';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
-import { Network, unwrapIdentifier, zeroX } from '../../utils';
+import { unwrapIdentifier, zeroX } from '../../utils';
 import {
   searchAccountAddressQuery,
   searchBlockQuery,
@@ -216,7 +217,7 @@ export const useHeaderEffects = () => {
       onAction: () => onClick('holder'),
     },
   ];
-  if (currentNetwork !== Network.MAINNET) {
+  if (currentNetwork !== NetworkName.MAINNET) {
     headerButtons.push({
       label: 'Faucet',
       color: 'primary',
@@ -274,7 +275,7 @@ export const useHeaderEffects = () => {
 
   useEffect(() => {
     let _buttons = buttons;
-    if (currentNetwork !== Network.MAINNET) {
+    if (currentNetwork !== NetworkName.MAINNET) {
       if (!_buttons.find((b) => b.label === 'Faucet')) {
         _buttons.push({
           label: 'Faucet',

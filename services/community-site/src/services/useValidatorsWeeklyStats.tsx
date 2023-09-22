@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useEffect, useCallback, useRef } from 'react';
-import { networks } from '../utils/networks';
+import { networks } from '@taraxa_project/taraxa-sdk';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
 

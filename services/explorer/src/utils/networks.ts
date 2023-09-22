@@ -1,4 +1,7 @@
-import { Network, NetworkGraphQLEndpoints } from './Enums';
+import {
+  NetworkName,
+  NetworkGraphQLEndpoints,
+} from '@taraxa_project/taraxa-sdk';
 import {
   MAINNET_API,
   TESTNET_API,
@@ -13,15 +16,15 @@ import {
 export const recreateGraphQLConnection = (network: string): string => {
   let connectionString: string;
   switch (network) {
-    case Network.MAINNET: {
+    case NetworkName.MAINNET: {
       connectionString = NetworkGraphQLEndpoints.MAINNET;
       break;
     }
-    case Network.TESTNET: {
+    case NetworkName.TESTNET: {
       connectionString = NetworkGraphQLEndpoints.TESTNET;
       break;
     }
-    case Network.DEVNET: {
+    case NetworkName.DEVNET: {
       connectionString = NetworkGraphQLEndpoints.DEVNET;
       break;
     }
@@ -36,15 +39,15 @@ export const recreateGraphQLConnection = (network: string): string => {
 export const recreateAPIConnection = (network: string): string => {
   let connectionString: string;
   switch (network) {
-    case Network.MAINNET: {
+    case NetworkName.MAINNET: {
       connectionString = MAINNET_API;
       break;
     }
-    case Network.TESTNET: {
+    case NetworkName.TESTNET: {
       connectionString = TESTNET_API;
       break;
     }
-    case Network.DEVNET: {
+    case NetworkName.DEVNET: {
       connectionString = DEVNET_API;
       break;
     }
@@ -59,15 +62,15 @@ export const recreateAPIConnection = (network: string): string => {
 export const recreateRPCConnection = (network: string): string => {
   let connectionString: string;
   switch (network) {
-    case Network.MAINNET: {
+    case NetworkName.MAINNET: {
       connectionString = MAINNET_RPC_API;
       break;
     }
-    case Network.TESTNET: {
+    case NetworkName.TESTNET: {
       connectionString = TESTNET_RPC_API;
       break;
     }
-    case Network.DEVNET: {
+    case NetworkName.DEVNET: {
       connectionString = DEVNET_RPC_API;
       break;
     }
@@ -82,11 +85,11 @@ export const recreateRPCConnection = (network: string): string => {
 export const recreateFaucetConnection = (network: string): string => {
   let connectionString: string;
   switch (network) {
-    case Network.TESTNET: {
+    case NetworkName.TESTNET: {
       connectionString = TESTNET_FAUCET_API;
       break;
     }
-    case Network.DEVNET: {
+    case NetworkName.DEVNET: {
       connectionString = DEVNET_FAUCET_API;
       break;
     }
@@ -100,11 +103,11 @@ export const recreateFaucetConnection = (network: string): string => {
 
 export const getNetworkSubdomain = (network: string): string => {
   switch (network) {
-    case Network.TESTNET:
+    case NetworkName.TESTNET:
       return 'testnet';
-    case Network.DEVNET:
+    case NetworkName.DEVNET:
       return 'devnet';
-    case Network.MAINNET:
+    case NetworkName.MAINNET:
       return 'mainnet';
     default:
       return;

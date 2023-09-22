@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
+import { networks } from '@taraxa_project/taraxa-sdk';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
-import { networks } from '../utils/networks';
 
 export type YieldResponse = {
   fromBlock: number;
