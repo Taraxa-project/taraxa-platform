@@ -1,4 +1,5 @@
 import React, { useState, useContext, createContext, useEffect } from 'react';
+import { useTaraxaDpos } from '@taraxa_project/taraxa-sdk';
 import { Validator } from '../interfaces/Validator';
 import useValidators from './useValidators';
 import useExplorerStats from './useExplorerStats';
@@ -17,6 +18,7 @@ const ValidatorsContext = createContext<Context>(initialState);
 const useProvideValidators = () => {
   const [allValidatorsWithStats, setAllValidatorsWithStats] = useState<Validator[]>([]);
   const { getValidators } = useValidators();
+  const { mainnetDpos } = useTaraxaDpos();
   const { updateValidatorsRank, updateValidatorsStats } = useExplorerStats();
   const { startLoading, finishLoading } = useLoading();
 
@@ -33,8 +35,11 @@ const useProvideValidators = () => {
   };
 
   useEffect(() => {
+    if (!mainnetDpos) {
+      return;
+    }
     fetchValidators();
-  }, []);
+  }, [mainnetDpos]);
 
   return {
     allValidatorsWithStats,

@@ -18,7 +18,8 @@
   "author": "Taraxa",
   "peerDependencies": {
     "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react-dom": "^18.1.0",
+    "ethers": "^5.4.7"
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
