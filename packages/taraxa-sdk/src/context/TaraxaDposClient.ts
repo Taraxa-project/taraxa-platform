@@ -16,18 +16,43 @@ export class TaraxaDposClient {
 
   public browserDpos: ethers.Contract | null = null;
 
-  constructor(networkIdOrName: number | string) {
+  constructor(networkIdOrName: number | string, privateKey?: string) {
     this.network = this.lookupNetwork(networkIdOrName);
 
     if (!this.network) {
       throw new Error('Invalid network ID or name');
     }
+    this.chainId = this.getChainIdFromNetwork(this.network);
 
     this.mainnetProvider = new ethers.providers.JsonRpcProvider(
       this.network.rpcUrl
     );
-    this.chainId = this.getChainIdFromNetwork(this.network);
 
+    if (typeof window === 'undefined') {
+      this.setupBackendProvider(privateKey);
+    } else {
+      this.setupFrontendProvider();
+    }
+
+    this.initializeContracts();
+  }
+
+  private setupBackendProvider(privateKey?: string) {
+    if (!privateKey) {
+      throw new Error('Private key is required for backend usage');
+    }
+
+    try {
+      const wallet = new ethers.Wallet(privateKey, this.mainnetProvider);
+      this.signer = wallet;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to create signer', error);
+      throw new Error('Failed to create signer with provided private key');
+    }
+  }
+
+  private setupFrontendProvider() {
     if (window.ethereum) {
       this.browserProvider = new ethers.providers.Web3Provider(
         window.ethereum,
@@ -35,8 +60,6 @@ export class TaraxaDposClient {
       );
       this.signer = this.browserProvider.getSigner();
     }
-
-    this.initializeContracts();
   }
 
   private initializeContracts() {
@@ -94,6 +117,9 @@ export class TaraxaDposClient {
     const chainId = Object.keys(networks).find(
       (key) => networks[parseInt(key, 10)] === network
     );
-    return chainId ? parseInt(chainId, 10) : 0;
+    if (!chainId) {
+      throw new Error('Chain ID not found for the provided network');
+    }
+    return parseInt(chainId, 10);
   }
 }
