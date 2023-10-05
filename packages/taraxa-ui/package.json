@@ -50,7 +50,7 @@
     "material-ui-icons": "^1.0.0-beta.36",
     "moment": "^2.29.4",
     "node-sass": "^7.0.0",
-    "postcss": "^8.2.1",
+    "postcss": "^8.4.31",
     "react-chartjs-2": "^4.3.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-modal": "^3.15.1",
