@@ -136,12 +136,9 @@ export default () => {
     [browserDpos],
   );
 
-  const claimAllRewards = useCallback(
-    async (batch: number): Promise<ethers.providers.TransactionResponse> => {
-      return await browserDpos!.claimAllRewards(batch);
-    },
-    [browserDpos],
-  );
+  const claimAllRewards = useCallback(async (): Promise<ethers.providers.TransactionResponse> => {
+    return await browserDpos!.claimAllRewards();
+  }, [browserDpos]);
 
   return useMemo(
     () => ({

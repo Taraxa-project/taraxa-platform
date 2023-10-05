@@ -259,33 +259,15 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const isOnWrongChain = chainId !== mainnetChainId;
 
-  const claimAll = async (batch: number) => {
+  const onClaimAllRewards = async () => {
     asyncCallback(
       async () => {
-        return await claimAllRewards(batch);
+        return await claimAllRewards();
       },
       () => {
         setShouldFetch(true);
       },
     );
-  };
-
-  const onClaimAllRewards = async () => {
-    const maxBatchSize = 10;
-    let totalDelegations = delegations.length;
-    let batch = 0;
-    while (totalDelegations > 0) {
-      try {
-        await claimAll(batch);
-        const nextBatchSize = Math.min(maxBatchSize, totalDelegations);
-        totalDelegations -= nextBatchSize;
-        batch++;
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        break;
-      }
-    }
   };
 
   const claimAllRewardsButton = (
@@ -544,7 +526,9 @@ const Delegation = ({ location }: { location: Location }) => {
               description="Claimable TARA - Staking rewards that are instantly claimable."
               isLoading={isLoading}
               button={
-                totalClaimableRewards.gt(ethers.BigNumber.from(0)) ? claimAllRewardsButton : null
+                !isLoading && totalClaimableRewards.gt(ethers.BigNumber.from(0))
+                  ? claimAllRewardsButton
+                  : null
               }
             />
             <BaseCard
