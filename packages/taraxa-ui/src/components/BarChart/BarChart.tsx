@@ -75,6 +75,7 @@ export interface BarChartProps {
   withGrid?: boolean;
   withTooltip?: boolean;
   stepSize?: number;
+  fullWidth?: boolean;
 }
 
 const BarChart = ({
@@ -86,6 +87,7 @@ const BarChart = ({
   withGrid = false,
   withTooltip = false,
   stepSize = 50,
+  fullWidth = false,
 }: BarChartProps) => {
   const classes = useStyles();
   const parseData = () => {
@@ -97,7 +99,10 @@ const BarChart = ({
   };
 
   return (
-    <Box className={bright ? classes.boxRootBright : classes.boxRoot}>
+    <Box
+      className={bright ? classes.boxRootBright : classes.boxRoot}
+      style={{ width: fullWidth ? '100%' : '' }}
+    >
       <Box className={classes.innerBox}>
         <Bar
           options={setTick(tick, stepSize, withTooltip, withGrid)}

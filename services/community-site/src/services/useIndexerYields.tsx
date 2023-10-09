@@ -33,12 +33,12 @@ export default () => {
   );
 
   const getHistoricalYieldForAddress = useCallback(
-    async (address: string, noOfPeriods = 5) => {
+    async (address: string, noOfPeriods = 52) => {
       let blockNum;
       const yields: YieldResponse[] = [];
       for (let i = 0; i < noOfPeriods; i++) {
         const yieldResponse: YieldResponse = await getYieldForAddress(address, blockNum);
-        if (!yieldResponse || !yieldResponse.yield) {
+        if (!yieldResponse || !yieldResponse.yield || yieldResponse.fromBlock === 1) {
           break;
         }
         blockNum = yieldResponse.fromBlock - 1;

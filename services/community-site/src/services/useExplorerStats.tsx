@@ -116,12 +116,13 @@ export default () => {
             return validator;
           }
 
-          const { rank } = ranking.response;
+          const { rank, registrationBlock } = ranking.response;
           const percentage = Number.parseFloat(ranking.response.yield || 0) * 100;
 
           return {
             ...validator,
             rank,
+            registrationBlock,
             yield: Number(percentage.toFixed(2)),
           };
         }),
