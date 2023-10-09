@@ -56,7 +56,8 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
-  const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
+  const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate, claimAllRewards } =
+    useDelegation();
   const { validatorFrom, showPopup, clearRedelegation } = useRedelegation();
   const [validators, setValidators] = useState<Validator[]>([]);
   const [ownValidators, setOwnValidators] = useState<Validator[]>([]);
@@ -257,6 +258,29 @@ const Delegation = ({ location }: { location: Location }) => {
   const isNotLoggedOrKycEd = !user || user.kyc !== 'APPROVED'; // && user.confirmed
 
   const isOnWrongChain = chainId !== mainnetChainId;
+
+  const onClaimAllRewards = async () => {
+    asyncCallback(
+      async () => {
+        return await claimAllRewards();
+      },
+      () => {
+        setShouldFetch(true);
+      },
+    );
+  };
+
+  const claimAllRewardsButton = (
+    <Button
+      variant="contained"
+      color="secondary"
+      label="Claim all rewards"
+      size="small"
+      className="smallBtn"
+      onClick={onClaimAllRewards}
+      disableElevation
+    />
+  );
 
   const totalDelegationOfAddress = delegations.reduce((accumulator, currentDelegation) => {
     return accumulator.add(currentDelegation.stake);
@@ -501,6 +525,11 @@ const Delegation = ({ location }: { location: Location }) => {
               title={stripEth(totalClaimableRewards)}
               description="Claimable TARA - Staking rewards that are instantly claimable."
               isLoading={isLoading}
+              button={
+                !isLoading && totalClaimableRewards.gt(ethers.BigNumber.from(0))
+                  ? claimAllRewardsButton
+                  : null
+              }
             />
             <BaseCard
               title={stripEth(undelegatedTara)}
