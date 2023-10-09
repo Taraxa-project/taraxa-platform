@@ -41,7 +41,7 @@ export default () => {
             }
         }`;
       const request = await post(basePath, { query });
-      const changes = request.response.data.commissionChanges;
+      const changes = request?.response?.data?.commissionChanges;
       return changes;
     },
     [],

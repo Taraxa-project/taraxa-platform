@@ -320,24 +320,6 @@ const NodeProfilePage = () => {
                   </div>
                 </div>
               </div>
-              <br />
-              <BarChart
-                tick="%"
-                title="Yield History in %"
-                labels={[...yields].reverse().map((y) => `${y.fromBlock}`)}
-                datasets={[
-                  {
-                    data: [...yields].reverse().map((y) => y.yield),
-                    borderRadius: 5,
-                    barThickness: 20,
-                    backgroundColor: theme.palette.secondary.main,
-                  },
-                ]}
-                bright
-                withGrid
-                withTooltip
-                stepSize={10}
-              />
               <div className="delegationButtons">
                 <Button
                   onClick={() => setDelegateToValidator(validator)}
@@ -356,6 +338,25 @@ const NodeProfilePage = () => {
               </div>
             </div>
           </div>
+          <br />
+          <BarChart
+            tick="%"
+            title="Yield History in %"
+            labels={[...yields].reverse().map((y) => `${y.fromBlock}`)}
+            datasets={[
+              {
+                data: [...yields].reverse().map((y) => y.yield),
+                borderRadius: 5,
+                barThickness: 10,
+                backgroundColor: theme.palette.secondary.main,
+              },
+            ]}
+            bright
+            withGrid
+            withTooltip
+            stepSize={5}
+            fullWidth
+          />
           <hr className="nodeInfoDivider" />
           <div className="nodeTypes">
             <div className="nodeTitleContainer">
@@ -381,7 +382,7 @@ const NodeProfilePage = () => {
                 onClick={() => {
                   setDetailType(ViewType.COMMISSION_CHANGES);
                 }}
-                disabled={!commissionChanges.length}
+                disabled={!commissionChanges?.length}
               />
             </div>
           </div>
