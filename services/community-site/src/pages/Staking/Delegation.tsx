@@ -265,7 +265,7 @@ const Delegation = ({ location }: { location: Location }) => {
         return await claimAllRewards();
       },
       () => {
-        setShouldFetch(true);
+        setFetchCounter((prev) => prev + 1);
       },
     );
   };
