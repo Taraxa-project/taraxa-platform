@@ -87,31 +87,8 @@ export const toTransactionTableRow = (
 
 export const timestampToAge = (timestamp: string | number): string => {
   if (!timestamp) return 'NA';
-  const date = DateTime.fromMillis(+timestamp * 1000, { zone: 'UTC' });
-  const currentDate = DateTime.utc();
-  if (date > currentDate) {
-    return '0 second(s) ago';
-  }
-  const diff = currentDate.diff(date, [
-    'years',
-    'months',
-    'weeks',
-    'days',
-    'hours',
-    'minutes',
-    'seconds',
-  ]);
-
-  let age = '';
-  if (diff.years) age += `${Math.round(diff.years)} year(s) `;
-  else if (diff.months) age += `${Math.round(diff.months)} month(s) `;
-  else if (diff.weeks) age += `${Math.round(diff.weeks)} week(s) `;
-  else if (diff.days) age += `${Math.round(diff.days)} day(s) `;
-  else if (diff.hours) age += `${Math.round(diff.hours)} hour(s) `;
-  else if (diff.minutes) age += `${Math.round(diff.minutes)} minute(s) `;
-  else if (diff.seconds) age += `${Math.round(diff.seconds)} second(s) `;
-
-  return `${age}ago`;
+  const date = moment.unix(+timestamp);
+  return date.fromNow();
 };
 
 export const toBlockTableRow = (
