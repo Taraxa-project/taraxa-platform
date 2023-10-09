@@ -45,6 +45,7 @@ export interface Validator {
   type: ValidatorType;
   ip?: string;
   id?: number;
+  registrationBlock?: number;
 }
 
 export interface CommissionChangeGQL {

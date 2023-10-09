@@ -57,7 +57,10 @@ const ValidatorRow = ({
       <TableCell className="yieldCell">{validator.yield || 0}%</TableCell>
       <TableCell className="commissionCell">
         {currentBlockNumber &&
-        currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD ? (
+        validator.lastCommissionChange &&
+        validator.registrationBlock &&
+        currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD &&
+        validator.lastCommissionChange !== validator.registrationBlock ? (
           <div className="commissionDisplayPendingChangeWrapper">
             <NodeCommissionChangeIcon />{' '}
             <span className="commissionDisplayPendingChange">{`${validator.commission}%`}</span>
