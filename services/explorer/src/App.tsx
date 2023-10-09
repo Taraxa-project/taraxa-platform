@@ -35,8 +35,9 @@ const Root = (): JSX.Element => {
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/block' element={<BlocksPage />} />
-            <Route path='/block/:txHash' element={<DAGDataContainer />} />
+            <Route path='/dag/:txHash' element={<DAGDataContainer />} />
             <Route path='/pbft/:identifier' element={<PBFTDataContainer />} />
+            <Route path='/block/:identifier' element={<PBFTDataContainer />} />
             <Route path='/node' element={<NodesPage />} />
             <Route path='/holder' element={<HoldersPage />} />
             <Route path='/tx' element={<TransactionsPage />} />
