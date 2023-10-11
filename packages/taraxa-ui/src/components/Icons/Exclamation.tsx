@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Exclamation: React.FC<{ color: string }> = ({ color }) => {
+const Exclamation = ({ color }: { color: string }) => {
   return (
     <svg
       width='18'

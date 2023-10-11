@@ -12,7 +12,6 @@ import {
   TableBody,
   Table as MTable,
   TableCell,
-  Box,
 } from '@taraxa_project/taraxa-ui';
 
 export interface TableProps {
