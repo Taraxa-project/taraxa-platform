@@ -1,6 +1,10 @@
-import { networks } from './utils/networks';
-import { NetworkName, NetworkGraphQLEndpoints } from './utils/enums';
-import type { Network, Networks } from './utils/networks';
+import {
+  NetworkName,
+  networks,
+  getNetwork,
+  getNetworkSubdomain,
+} from './networks';
+import type { Network, Networks } from './networks';
 
-export { networks, NetworkName, NetworkGraphQLEndpoints };
+export { networks, NetworkName, getNetwork, getNetworkSubdomain };
 export type { Network, Networks };

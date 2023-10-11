@@ -80,7 +80,6 @@ export default function Table({
         {showPagination && (
           <TablePagination
             rowsPerPageOptions={[25, 50, 75, 100]}
-            component='div'
             count={totalCount || rows.length}
             rowsPerPage={initialRowsPerPage || rowsPerPage}
             page={currentPage || page}
