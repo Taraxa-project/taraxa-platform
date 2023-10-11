@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import {
   Divider,
   Card,
@@ -18,7 +18,7 @@ export interface BlockCardProps {
   transactions: TransactionDetailsProps[];
 }
 
-export const BlockCard: FC<BlockCardProps> = ({ title, transactions }) => {
+export const BlockCard = ({ title, transactions }: BlockCardProps) => {
   const classes = useStyles();
 
   return (

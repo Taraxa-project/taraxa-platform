@@ -44,6 +44,7 @@ export const BlocksTable: React.FC<{
           rowsPerPageOptions={[25, 50, 75, 100]}
           count={totalCount || blocksData?.length || 0}
           rowsPerPage={rowsPage}
+          component={'div' as any}
           page={pageNo}
           showFirstButton={true}
           showLastButton={true}

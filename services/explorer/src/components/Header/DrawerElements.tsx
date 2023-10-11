@@ -17,10 +17,10 @@ export interface DrawerElementsProps {
   headerButtons: HeaderBtn[];
 }
 
-export const DrawerElements: FC<DrawerElementsProps> = ({
+export const DrawerElements = ({
   toggleDrawer,
   headerButtons,
-}) => {
+}: DrawerElementsProps) => {
   const { networks, currentNetwork, setNetwork, disableNetworkSelection } =
     useExplorerNetwork();
 

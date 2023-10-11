@@ -53,6 +53,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
           rowsPerPageOptions={[25, 50, 75, 100]}
           count={totalCount || transactionsData?.length || 0}
           rowsPerPage={rowsPage}
+          component={'div' as any}
           page={pageNo}
           showFirstButton={true}
           showLastButton={true}
