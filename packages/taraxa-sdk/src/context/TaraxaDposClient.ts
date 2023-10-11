@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Network, networks } from '../utils/networks';
+import { Network, networks } from '../networks';
 
 export class TaraxaDposClient {
   public mainnetProvider: ethers.providers.JsonRpcProvider;

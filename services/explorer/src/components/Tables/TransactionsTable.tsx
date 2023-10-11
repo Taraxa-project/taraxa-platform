@@ -51,9 +51,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
       >
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
-          component='div'
           count={totalCount || transactionsData?.length || 0}
           rowsPerPage={rowsPage}
+          component={'div' as any}
           page={pageNo}
           showFirstButton={true}
           showLastButton={true}

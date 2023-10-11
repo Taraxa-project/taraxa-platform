@@ -111,7 +111,7 @@ const NodeProfilePage = () => {
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const [detailType, setDetailType] = useState<ViewType>(ViewType.DELEGATIONS);
   const { address } = useParams<{ address?: string }>();
-  const [shouldFetch, setShouldFetch] = useState(false);
+  const [fetchCounter, setFetchCounter] = useState<number>(0);
   const { allValidatorsWithStats } = useAllValidators();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
@@ -199,7 +199,7 @@ const NodeProfilePage = () => {
     fetchYields();
     fetchDelegators();
     fetchUndelegations();
-  }, [fetchNode, fetchDelegators, fetchUndelegations, shouldFetch]);
+  }, [fetchNode, fetchDelegators, fetchUndelegations, fetchCounter]);
 
   useEffect(() => {
     (async () => {
@@ -226,18 +226,18 @@ const NodeProfilePage = () => {
           // getBalances();
           fetchNode();
           fetchDelegators();
-          setShouldFetch(true);
+          setFetchCounter((prev) => prev + 1);
         }}
         onUndelegateSuccess={() => {
           // getBalances();
           fetchNode();
           fetchDelegators();
-          setShouldFetch(true);
+          setFetchCounter((prev) => prev + 1);
         }}
         onReDelegateSuccess={() => {
           fetchNode();
           fetchDelegators();
-          setShouldFetch(true);
+          setFetchCounter((prev) => prev + 1);
         }}
         onDelegateClose={() => setDelegateToValidator(null)}
         onDelegateFinish={() => setDelegateToValidator(null)}
@@ -320,24 +320,6 @@ const NodeProfilePage = () => {
                   </div>
                 </div>
               </div>
-              <br />
-              <BarChart
-                tick="%"
-                title="Yield History in %"
-                labels={[...yields].reverse().map((y) => `${y.fromBlock}`)}
-                datasets={[
-                  {
-                    data: [...yields].reverse().map((y) => y.yield),
-                    borderRadius: 5,
-                    barThickness: 20,
-                    backgroundColor: theme.palette.secondary.main,
-                  },
-                ]}
-                bright
-                withGrid
-                withTooltip
-                stepSize={10}
-              />
               <div className="delegationButtons">
                 <Button
                   onClick={() => setDelegateToValidator(validator)}
@@ -356,6 +338,25 @@ const NodeProfilePage = () => {
               </div>
             </div>
           </div>
+          <br />
+          <BarChart
+            tick="%"
+            title="Yield History in %"
+            labels={[...yields].reverse().map((y) => `${y.fromBlock}`)}
+            datasets={[
+              {
+                data: [...yields].reverse().map((y) => y.yield),
+                borderRadius: 5,
+                barThickness: 10,
+                backgroundColor: theme.palette.secondary.main,
+              },
+            ]}
+            bright
+            withGrid
+            withTooltip
+            stepSize={5}
+            fullWidth
+          />
           <hr className="nodeInfoDivider" />
           <div className="nodeTypes">
             <div className="nodeTitleContainer">
@@ -381,7 +382,7 @@ const NodeProfilePage = () => {
                 onClick={() => {
                   setDetailType(ViewType.COMMISSION_CHANGES);
                 }}
-                disabled={!commissionChanges.length}
+                disabled={!commissionChanges?.length}
               />
             </div>
           </div>

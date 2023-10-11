@@ -55,7 +55,7 @@ function Redeem() {
 
   const [isWarnOpen, setWarnOpen] = useState<boolean>(false);
   const [underClaim, setUnderClaim] = useState<number>(0);
-  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+  const [fetchCounter, setFetchCounter] = useState<number>(0);
 
   const isOnWrongChain = chainId !== mainnetChainId;
 
@@ -67,7 +67,7 @@ function Redeem() {
 
   useEffect(() => {
     fetchBalance();
-  }, [status, account, chainId, shouldFetch]);
+  }, [status, account, chainId, fetchCounter]);
 
   useEffect(() => {
     const getClaimData = async (account: string) => {
@@ -161,7 +161,7 @@ function Redeem() {
               });
             },
             () => {
-              setShouldFetch(true);
+              setFetchCounter((prev) => prev + 1);
             },
           );
 

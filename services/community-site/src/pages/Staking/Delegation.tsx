@@ -56,7 +56,8 @@ const Delegation = ({ location }: { location: Location }) => {
 
   const { getValidators, getValidatorsWith } = useValidators();
   const { updateValidatorsStats } = useExplorerStats();
-  const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
+  const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate, claimAllRewards } =
+    useDelegation();
   const { validatorFrom, showPopup, clearRedelegation } = useRedelegation();
   const [validators, setValidators] = useState<Validator[]>([]);
   const [ownValidators, setOwnValidators] = useState<Validator[]>([]);
@@ -77,7 +78,7 @@ const Delegation = ({ location }: { location: Location }) => {
     null,
   );
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
-  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
+  const [fetchCounter, setFetchCounter] = useState<number>(0);
 
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedBy, setSortedBy] = useState<keyof Validator | ''>('');
@@ -183,14 +184,14 @@ const Delegation = ({ location }: { location: Location }) => {
     await asyncCallback(async () => {
       return confirmUndelegate(undelegation.address);
     });
-    setShouldFetch(true);
+    setFetchCounter((prev) => prev + 1);
   };
 
   const cancelUndelegation = async (undelegation: Undelegation) => {
     await asyncCallback(async () => {
       return cancelUndelegate(undelegation.address);
     });
-    setShouldFetch(true);
+    setFetchCounter((prev) => prev + 1);
   };
 
   useEffect(() => {
@@ -208,7 +209,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   useEffect(() => {
     fetchBalance();
-  }, [status, account, chainId, shouldFetch]);
+  }, [status, account, chainId, fetchCounter]);
 
   useInterval(async () => {
     fetchBalance();
@@ -221,7 +222,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setDelegations(await getDelegations(account));
       })();
     }
-  }, [status, account, chainId, shouldFetch]);
+  }, [status, account, chainId, fetchCounter]);
 
   useEffect(() => {
     if (status === 'connected' && account && provider) {
@@ -230,7 +231,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setUndelegations(unDelegations);
       })();
     }
-  }, [status, account, chainId, shouldFetch]);
+  }, [status, account, chainId, fetchCounter]);
 
   useEffect(() => {
     if (delegations.length > 0) {
@@ -257,6 +258,29 @@ const Delegation = ({ location }: { location: Location }) => {
   const isNotLoggedOrKycEd = !user || user.kyc !== 'APPROVED'; // && user.confirmed
 
   const isOnWrongChain = chainId !== mainnetChainId;
+
+  const onClaimAllRewards = async () => {
+    asyncCallback(
+      async () => {
+        return await claimAllRewards();
+      },
+      () => {
+        setFetchCounter((prev) => prev + 1);
+      },
+    );
+  };
+
+  const claimAllRewardsButton = (
+    <Button
+      variant="contained"
+      color="secondary"
+      label="Claim all rewards"
+      size="small"
+      className="smallBtn"
+      onClick={onClaimAllRewards}
+      disableElevation
+    />
+  );
 
   const totalDelegationOfAddress = delegations.reduce((accumulator, currentDelegation) => {
     return accumulator.add(currentDelegation.stake);
@@ -317,22 +341,22 @@ const Delegation = ({ location }: { location: Location }) => {
         onClaimSuccess={() => {
           fetchBalance();
           getValidators();
-          setShouldFetch(true);
+          setFetchCounter((prev) => prev + 1);
         }}
         onDelegateSuccess={() => {
           fetchBalance();
           getValidators();
-          setShouldFetch(true);
+          setFetchCounter((prev) => prev + 1);
         }}
         onUndelegateSuccess={() => {
           fetchBalance();
           getValidators();
-          setShouldFetch(true);
+          setFetchCounter((prev) => prev + 1);
         }}
         onReDelegateSuccess={() => {
           fetchBalance();
           getValidators();
-          setShouldFetch(true);
+          setFetchCounter((prev) => prev + 1);
         }}
         onClaimClose={() => setClaimRewardsFromValidator(null)}
         onDelegateClose={() => setDelegateToValidator(null)}
@@ -501,6 +525,11 @@ const Delegation = ({ location }: { location: Location }) => {
               title={stripEth(totalClaimableRewards)}
               description="Claimable TARA - Staking rewards that are instantly claimable."
               isLoading={isLoading}
+              button={
+                !isLoading && totalClaimableRewards.gt(ethers.BigNumber.from(0))
+                  ? claimAllRewardsButton
+                  : null
+              }
             />
             <BaseCard
               title={stripEth(undelegatedTara)}

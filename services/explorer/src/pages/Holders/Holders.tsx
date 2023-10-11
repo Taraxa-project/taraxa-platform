@@ -31,7 +31,7 @@ const HoldersPage = (): JSX.Element => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
-          component='div'
+          component={'div' as any}
           count={total}
           rowsPerPage={rowsPerPage}
           page={page}
