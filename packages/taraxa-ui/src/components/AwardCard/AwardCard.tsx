@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { Card, CardContent, Box, Typography } from '@mui/material';
 import useStyles from './AwardCard.styles';
 import { Award } from '../Icons';
@@ -10,12 +10,12 @@ export interface AwardCardProps {
   description: string;
 }
 
-export const AwardCard: FC<AwardCardProps> = ({
+export const AwardCard = ({
   title,
   subtitle,
   total,
   description,
-}) => {
+}: AwardCardProps) => {
   const classes = useStyles();
 
   return (

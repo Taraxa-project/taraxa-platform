@@ -12,6 +12,7 @@ import {
   TableBody,
   Table as MTable,
   TableCell,
+  Box,
 } from '@taraxa_project/taraxa-ui';
 
 export interface TableProps {
@@ -84,6 +85,7 @@ export default function Table({
             count={totalCount || rows.length}
             rowsPerPage={initialRowsPerPage || rowsPerPage}
             page={currentPage || page}
+            component={'div' as any}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             SelectProps={{
