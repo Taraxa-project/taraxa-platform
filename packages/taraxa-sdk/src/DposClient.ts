@@ -16,7 +16,8 @@ class DposContractClient {
   }
 
   async getTotalEligibleVotesCount(): Promise<number> {
-    const totalVotes: ethers.BigNumber = await this.dposInterface.getTotalEligibleVotesCount();
+    const totalVotes: ethers.BigNumber =
+      await this.dposInterface.getTotalEligibleVotesCount();
     return totalVotes.toNumber();
   }
 
@@ -171,7 +172,7 @@ const provider = new ethers.providers.JsonRpcProvider('your-provider-url');
 const chainID = 1; // Replace with your chain ID
 const client = new DposContractClient(provider, chainID);
 
-client.getTotalEligibleVotesCount().then(totalVotes => {
+client.getTotalEligibleVotesCount().then((totalVotes) => {
   // eslint-disable-next-line no-console
   console.log('Total Eligible Votes:', totalVotes);
 });
