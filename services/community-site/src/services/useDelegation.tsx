@@ -1,15 +1,15 @@
 import { useCallback, useMemo } from 'react';
 import { ethers } from 'ethers';
-import { useTaraxaDpos } from '@taraxa_project/taraxa-sdk';
 
 import Delegation, { ContractDelegation } from '../interfaces/Delegation';
 import Undelegation, { ContractUndelegation } from '../interfaces/Undelegation';
 
 import { useLoading } from './useLoading';
+import useDpos from './useDpos';
 
 export default () => {
   const { startLoading, finishLoading } = useLoading();
-  const { mainnetDpos, browserDpos } = useTaraxaDpos();
+  const { mainnetDpos, browserDpos } = useDpos();
 
   const getDelegations = useCallback(
     async (address: string): Promise<Delegation[]> => {

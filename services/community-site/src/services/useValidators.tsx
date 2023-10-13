@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { ethers } from 'ethers';
-import { useTaraxaDpos } from '@taraxa_project/taraxa-sdk';
 
 import {
   ContractValidator,
@@ -9,11 +8,12 @@ import {
   ValidatorType,
 } from '../interfaces/Validator';
 import { useLoading } from './useLoading';
+import useDpos from './useDpos';
 
 export default () => {
   const { startLoading, finishLoading } = useLoading();
 
-  const { mainnetDpos, browserDpos } = useTaraxaDpos();
+  const { mainnetDpos, browserDpos } = useDpos();
 
   const maxDelegation = ethers.BigNumber.from(80000000).mul(ethers.BigNumber.from(10).pow(18));
   const contractToValidator = (contractValidator: ContractValidator) => ({

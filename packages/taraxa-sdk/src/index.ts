@@ -1,3 +1,4 @@
+import { DposClient } from './DposClient';
 import {
   NetworkName,
   networks,
@@ -5,16 +6,6 @@ import {
   getNetworkSubdomain,
 } from './networks';
 import type { Network, Networks } from './networks';
-import { TaraxaDposClient } from './context/TaraxaDposClient';
-import { TaraxaDposProvider, useTaraxaDpos } from './context/TaraxaDposContext';
 
-export {
-  networks,
-  NetworkName,
-  getNetwork,
-  getNetworkSubdomain,
-  TaraxaDposClient,
-  TaraxaDposProvider,
-  useTaraxaDpos,
-};
+export { networks, NetworkName, getNetwork, getNetworkSubdomain, DposClient };
 export type { Network, Networks };
