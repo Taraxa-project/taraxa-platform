@@ -10,6 +10,6 @@
     "declarationMap": true,
     "declarationDir": "./lib"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "types/**/*"],
   "exclude": ["node_modules", "lib", "*.d.ts"]
 }

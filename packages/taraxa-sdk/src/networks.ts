@@ -91,3 +91,6 @@ export const getNetworkSubdomain = (network: NetworkName): string => {
       return '';
   }
 };
+
+export const DPOS_CONTRACT_ADDRESS =
+  '0x00000000000000000000000000000000000000fe';
