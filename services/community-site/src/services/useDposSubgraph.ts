@@ -21,7 +21,7 @@ export default () => {
       }
   }`;
       const request = await post(basePath, { query });
-      const delegations = request.response.data.delegations;
+      const delegations = request.response?.data?.delegations || [];
       return delegations;
     },
     [],

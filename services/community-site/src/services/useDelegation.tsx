@@ -80,9 +80,7 @@ export default () => {
       address: string,
       value: ethers.BigNumber,
     ): Promise<ethers.providers.TransactionResponse> => {
-      return await browserDpos!.delegate(address, {
-        value,
-      });
+      return await browserDpos!.delegate(address, value);
     },
     [browserDpos],
   );

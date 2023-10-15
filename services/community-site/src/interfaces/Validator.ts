@@ -5,7 +5,7 @@ interface ContractValidatorInfo {
   commission: number;
   total_stake: ethers.BigNumber;
   commission_reward: ethers.BigNumber;
-  last_commission_change: number;
+  last_commission_change: ethers.BigNumber;
   description: string;
   endpoint: string;
 }
