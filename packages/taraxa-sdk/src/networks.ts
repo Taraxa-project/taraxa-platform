@@ -100,3 +100,8 @@ export const getNetworkSubdomain = (network: NetworkName): string => {
 
 export const DPOS_CONTRACT_ADDRESS =
   '0x00000000000000000000000000000000000000fe';
+
+export enum ProviderType {
+  WEB3 = 'WEB3',
+  RPC = 'RPC',
+}

@@ -4,6 +4,7 @@ import {
   DPOS_CONTRACT_ADDRESS,
   Network,
   NetworkName,
+  ProviderType,
   getNetwork,
   getNetworkById,
 } from './networks';
@@ -19,7 +20,11 @@ export class DposClient {
 
   private _network: Network | null;
 
-  constructor(networkIdOrName: number | NetworkName, privateKey?: string) {
+  constructor(
+    networkIdOrName: number | NetworkName,
+    providerType: ProviderType,
+    privateKey?: string
+  ) {
     this._network = this.lookupNetwork(networkIdOrName);
 
     if (!this._network) {
@@ -32,7 +37,7 @@ export class DposClient {
       throw new Error('Chain ID not found for the provided network name');
     }
 
-    this._provider = this.setupProvider(privateKey);
+    this._provider = this.setupProvider(providerType, privateKey);
     this._dpos = Dpos.connect(DPOS_CONTRACT_ADDRESS, this.provider);
   }
 
@@ -57,18 +62,26 @@ export class DposClient {
   }
 
   // Private methods
-  private setupProvider(privateKey?: string): ethers.providers.Provider {
+  private setupProvider(
+    providerType: ProviderType,
+    privateKey?: string
+  ): ethers.providers.Provider {
     let provider: ethers.providers.Provider;
 
-    if (typeof window === 'undefined' || !privateKey) {
-      if (!privateKey) {
-        throw new Error('Private key is required for backend usage');
-      }
+    if (providerType === ProviderType.RPC || typeof window === 'undefined') {
       provider = new ethers.providers.JsonRpcProvider(this.network?.rpcUrl);
-      this._signer = new ethers.Wallet(privateKey, provider);
-    } else {
+      if (privateKey) {
+        this._signer = new ethers.Wallet(privateKey, provider);
+      }
+    } else if (
+      providerType === ProviderType.WEB3 &&
+      typeof window !== 'undefined' &&
+      window.ethereum
+    ) {
       provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
       this._signer = (provider as ethers.providers.Web3Provider).getSigner();
+    } else {
+      throw new Error('Invalid provider type or environment');
     }
 
     return provider;
@@ -163,8 +176,8 @@ export class DposClient {
 
   // Write methods
   async delegate(
-    amount: ethers.BigNumber,
-    validator: string
+    validator: string,
+    amount: ethers.BigNumber
   ): Promise<ethers.ContractTransaction> {
     const { contractWithSigner, overrides } =
       await this.getSetupForTransaction();
@@ -175,8 +188,8 @@ export class DposClient {
   }
 
   async undelegate(
-    amount: ethers.BigNumber,
-    validator: string
+    validator: string,
+    amount: ethers.BigNumber
   ): Promise<ethers.ContractTransaction> {
     const { contractWithSigner, overrides } =
       await this.getSetupForTransaction();
@@ -200,9 +213,9 @@ export class DposClient {
   }
 
   async reDelegate(
-    amount: ethers.BigNumber,
     validatorFrom: string,
-    validatorTo: string
+    validatorTo: string,
+    amount: ethers.BigNumber
   ): Promise<ethers.ContractTransaction> {
     const { contractWithSigner, overrides } =
       await this.getSetupForTransaction();
@@ -230,22 +243,24 @@ export class DposClient {
 
   async registerValidator(
     validator: string,
-    proof: Uint8Array,
-    vrf_key: Uint8Array,
+    proof: string,
+    vrfKey: string,
     commission: number,
     description: string,
-    endpoint: string
+    endpoint: string,
+    customOverrides?: ethers.Overrides
   ): Promise<ethers.ContractTransaction> {
     const { contractWithSigner, overrides } =
       await this.getSetupForTransaction();
+    const mergedOverrides = { ...overrides, ...customOverrides };
     return contractWithSigner.registerValidator(
       validator,
       proof,
-      vrf_key,
+      vrfKey,
       commission,
       description,
       endpoint,
-      overrides
+      mergedOverrides
     );
   }
 
