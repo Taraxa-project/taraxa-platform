@@ -3,8 +3,8 @@ export enum NetworkName {
   TESTNET = 'Testnet',
   DEVNET = 'Devnet',
 }
-
 export interface Network {
+  chainId: number;
   chainName: string;
   rpcUrl: string;
   iconUrl: string;
@@ -18,13 +18,13 @@ export interface Network {
   graphqlUrl: string;
   faucetUrl: string;
 }
-
 export interface Networks {
   [key: number]: Network;
 }
 
 export const networks: Networks = {
   841: {
+    chainId: 841,
     chainName: 'Taraxa Mainnet',
     rpcUrl: 'https://rpc.mainnet.taraxa.io/',
     iconUrl: 'https://community.taraxa.io/logo192.png',
@@ -39,6 +39,7 @@ export const networks: Networks = {
     faucetUrl: '',
   },
   842: {
+    chainId: 842,
     chainName: 'Taraxa Testnet',
     rpcUrl: 'https://rpc.testnet.taraxa.io/',
     iconUrl: 'https://community.taraxa.io/logo192.png',
@@ -53,6 +54,7 @@ export const networks: Networks = {
     faucetUrl: 'https://faucet-testnet.explorer.taraxa.io/',
   },
   843: {
+    chainId: 843,
     chainName: 'Taraxa Devnet',
     rpcUrl: 'https://rpc.devnet.taraxa.io/',
     iconUrl: 'https://community.taraxa.io/logo192.png',
@@ -77,6 +79,10 @@ export const networkNameToId: { [key in NetworkName]: number } = {
 export const getNetwork = (name: NetworkName): Network | null => {
   const id = networkNameToId[name];
   return networks[id] || null;
+};
+
+export const getNetworkById = (chainId: number): Network | null => {
+  return networks[chainId] || null;
 };
 
 export const getNetworkSubdomain = (network: NetworkName): string => {

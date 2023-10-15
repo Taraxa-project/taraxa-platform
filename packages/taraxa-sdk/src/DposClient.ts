@@ -1,6 +1,12 @@
 import { ethers } from 'ethers';
 import { DposAbi, DposAbi__factory as Dpos } from '../types/ethers-contracts';
-import { DPOS_CONTRACT_ADDRESS, Network, networks } from './networks';
+import {
+  DPOS_CONTRACT_ADDRESS,
+  Network,
+  NetworkName,
+  getNetwork,
+  getNetworkById,
+} from './networks';
 
 export class DposClient {
   private _dpos: DposAbi;
@@ -9,17 +15,22 @@ export class DposClient {
 
   private _signer: ethers.Signer | null = null;
 
-  private _chainId: number;
+  private _chainId: number | undefined;
 
-  private _network: Network | undefined;
+  private _network: Network | null;
 
-  constructor(networkIdOrName: number | string, privateKey?: string) {
+  constructor(networkIdOrName: number | NetworkName, privateKey?: string) {
     this._network = this.lookupNetwork(networkIdOrName);
 
-    if (!this.network) {
+    if (!this._network) {
       throw new Error('Invalid network ID or name');
     }
-    this._chainId = this.getChainIdFromNetwork(this.network);
+
+    this._chainId = this._network?.chainId;
+
+    if (!this._chainId) {
+      throw new Error('Chain ID not found for the provided network name');
+    }
 
     this._provider = this.setupProvider(privateKey);
     this._dpos = Dpos.connect(DPOS_CONTRACT_ADDRESS, this.provider);
@@ -37,11 +48,11 @@ export class DposClient {
     return this._provider;
   }
 
-  public get chain(): number {
+  public get chain(): number | undefined {
     return this._chainId;
   }
 
-  public get network(): Network | undefined {
+  public get network(): Network | null {
     return this._network;
   }
 
@@ -63,24 +74,11 @@ export class DposClient {
     return provider;
   }
 
-  private lookupNetwork(networkIdOrName: number | string): Network | undefined {
+  private lookupNetwork(networkIdOrName: NetworkName | number): Network | null {
     if (typeof networkIdOrName === 'number') {
-      return networks[networkIdOrName];
+      return getNetworkById(networkIdOrName);
     }
-    return Object.values(networks).find(
-      (network) =>
-        network.chainName.toLowerCase() === networkIdOrName.toLowerCase()
-    );
-  }
-
-  private getChainIdFromNetwork(network: Network): number {
-    const chainId = Object.keys(networks).find(
-      (key) => networks[parseInt(key, 10)] === network
-    );
-    if (!chainId) {
-      throw new Error('Chain ID not found for the provided network');
-    }
-    return parseInt(chainId, 10);
+    return getNetwork(networkIdOrName);
   }
 
   async createNewTransactOpts(): Promise<ethers.Overrides> {

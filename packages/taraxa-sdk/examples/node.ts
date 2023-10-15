@@ -1,8 +1,10 @@
+import { NetworkName } from '../src';
 import { DposClient } from '../src/DposClient';
 
 const runExample = async () => {
-  const networkName = 'mainnet';
-  const privateKey = 'YOUR_PRIVATE_KEY'; // Replace with your private key
+  const networkName = NetworkName.MAINNET;
+  const privateKey =
+    'aae3250deafff925811a14af4d7d0c9ba88b234c9f98443f9a203231bd36e805'; // Replace with your private key
 
   const client = new DposClient(networkName, privateKey);
 
