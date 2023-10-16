@@ -99,12 +99,9 @@ export class DposClient {
       throw new Error('Signer is not initialized');
     }
 
-    const address = await this.signer.getAddress();
-    const nonce = await this.provider.getTransactionCount(address, 'pending');
     const gasPrice = await this.provider.getGasPrice();
 
     return {
-      nonce,
       gasLimit: ethers.BigNumber.from(300000),
       gasPrice,
     };
