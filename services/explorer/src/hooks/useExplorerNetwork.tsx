@@ -58,10 +58,10 @@ const useNetworkSelection = () => {
   };
 
   useEffect(() => {
-    setGraphQLClient(createClient(getNetwork(currentNetwork).graphqlUrl));
-    setBackendEndpoint(getNetwork(currentNetwork).indexerUrl);
-    setRpcEndpoint(getNetwork(currentNetwork).rpcUrl);
-    setFaucetEndpoint(getNetwork(currentNetwork).faucetUrl);
+    setGraphQLClient(createClient(selectedNetwork.graphqlUrl));
+    setBackendEndpoint(selectedNetwork.indexerUrl);
+    setRpcEndpoint(selectedNetwork.rpcUrl);
+    setFaucetEndpoint(selectedNetwork.faucetUrl);
     networkRedirect(currentNetwork);
   }, [currentNetwork]);
 
