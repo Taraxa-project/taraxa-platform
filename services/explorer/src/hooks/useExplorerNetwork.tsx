@@ -39,18 +39,18 @@ const useNetworkSelection = () => {
   const [currentNetwork, setCurrentNetwork] = useState<NetworkName>(
     hostNetwork || NetworkName.MAINNET
   );
-
+  const selectedNetwork = getNetwork(currentNetwork);
   const [graphQLClient, setGraphQLClient] = useState<Client>(
-    createClient(getNetwork(currentNetwork).graphqlUrl)
+    createClient(selectedNetwork.graphqlUrl)
   );
   const [backendEndpoint, setBackendEndpoint] = useState<string>(
-    getNetwork(currentNetwork).indexerUrl
+    selectedNetwork.indexerUrl
   );
   const [rpcEndpoint, setRpcEndpoint] = useState<string>(
-    getNetwork(currentNetwork).rpcUrl
+    selectedNetwork.rpcUrl
   );
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
-    getNetwork(currentNetwork).faucetUrl
+    selectedNetwork.faucetUrl
   );
 
   const setNetwork = (network: string) => {
