@@ -79,7 +79,7 @@ const Delegation = ({ location }: { location: Location }) => {
     null,
   );
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
-  const [fetchCounter, setFetchCounter] = useState<number>(0);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
 
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedBy, setSortedBy] = useState<keyof Validator | ''>('');
@@ -185,14 +185,14 @@ const Delegation = ({ location }: { location: Location }) => {
     await asyncCallback(async () => {
       return confirmUndelegate(undelegation.address);
     });
-    setFetchCounter((prev) => prev + 1);
+    setShouldFetch(true);
   };
 
   const cancelUndelegation = async (undelegation: Undelegation) => {
     await asyncCallback(async () => {
       return cancelUndelegate(undelegation.address);
     });
-    setFetchCounter((prev) => prev + 1);
+    setShouldFetch(true);
   };
 
   const getYieldsForValidators = async (validators: Validator[]): Promise<Validator[]> => {
@@ -218,7 +218,7 @@ const Delegation = ({ location }: { location: Location }) => {
 
   useEffect(() => {
     fetchBalance();
-  }, [status, account, chainId, fetchCounter]);
+  }, [status, account, chainId, shouldFetch]);
 
   useInterval(async () => {
     fetchBalance();
@@ -231,7 +231,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setDelegations(await getDelegations(account));
       })();
     }
-  }, [status, account, chainId, fetchCounter]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     if (status === 'connected' && account && provider) {
@@ -240,7 +240,7 @@ const Delegation = ({ location }: { location: Location }) => {
         setUndelegations(unDelegations);
       })();
     }
-  }, [status, account, chainId, fetchCounter]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     if (delegations.length > 0) {
@@ -328,22 +328,22 @@ const Delegation = ({ location }: { location: Location }) => {
         onClaimSuccess={() => {
           fetchBalance();
           getValidators();
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
         }}
         onDelegateSuccess={() => {
           fetchBalance();
           getValidators();
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
         }}
         onUndelegateSuccess={() => {
           fetchBalance();
           getValidators();
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
         }}
         onReDelegateSuccess={() => {
           fetchBalance();
           getValidators();
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
         }}
         onClaimClose={() => setClaimRewardsFromValidator(null)}
         onDelegateClose={() => setDelegateToValidator(null)}

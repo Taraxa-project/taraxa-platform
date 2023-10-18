@@ -81,7 +81,7 @@ const RunValidator = () => {
   const [testnetValidators, setTestnetValidators] = useState<Validator[]>([]);
   const [validatorToUpdate, setValidatorToUpdate] = useState<Validator | null>(null);
   const [validatorToClaimFrom, setValidatorToClaimFrom] = useState<Validator | null>(null);
-  const [fetchCounter, setFetchCounter] = useState<number>(0);
+  const [shouldFetch, setShouldFetch] = useState<boolean>(false);
   const [currentEditedNode, setCurrentEditedNode] = useState<null | Validator>(null);
 
   const fetchBalance = async () => {
@@ -121,7 +121,7 @@ const RunValidator = () => {
     return () => {
       clearInterval(intervalFetchBalance);
     };
-  }, [status, account, chainId, fetchCounter]);
+  }, [status, account, chainId, shouldFetch]);
 
   useEffect(() => {
     (async () => {
@@ -129,7 +129,7 @@ const RunValidator = () => {
         await getTestnetNodes();
       }
     })();
-  }, [fetchCounter, validatorType]);
+  }, [shouldFetch, validatorType]);
 
   const fetchValidators = () => {
     if (status === 'connected' && account && validatorType === ValidatorType.MAINNET) {
@@ -151,7 +151,7 @@ const RunValidator = () => {
 
   useEffect(() => {
     fetchValidators();
-  }, [status, account, fetchCounter, validatorType, allValidatorsWithStats]);
+  }, [status, account, shouldFetch, validatorType, allValidatorsWithStats]);
 
   const nodeTypeLabel = validatorType === ValidatorType.MAINNET ? 'Mainnet' : 'Testnet';
 
@@ -246,7 +246,7 @@ const RunValidator = () => {
         validatorType={validatorType}
         onClose={() => closeRegisterValidatorModal()}
         onSuccess={() => {
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
           closeRegisterValidatorModal();
         }}
       />

@@ -111,7 +111,7 @@ const NodeProfilePage = () => {
   const [undelegateFromValidator, setUndelegateFromValidator] = useState<Validator | null>(null);
   const [detailType, setDetailType] = useState<ViewType>(ViewType.DELEGATIONS);
   const { address } = useParams<{ address?: string }>();
-  const [fetchCounter, setFetchCounter] = useState<number>(0);
+  const [shouldFetch, setShouldFetch] = useState(false);
   const { allValidatorsWithStats } = useAllValidators();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
@@ -199,7 +199,7 @@ const NodeProfilePage = () => {
     fetchYields();
     fetchDelegators();
     fetchUndelegations();
-  }, [fetchNode, fetchDelegators, fetchUndelegations, fetchCounter]);
+  }, [fetchNode, fetchDelegators, fetchUndelegations, shouldFetch]);
 
   useEffect(() => {
     (async () => {
@@ -226,18 +226,18 @@ const NodeProfilePage = () => {
           // getBalances();
           fetchNode();
           fetchDelegators();
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
         }}
         onUndelegateSuccess={() => {
           // getBalances();
           fetchNode();
           fetchDelegators();
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
         }}
         onReDelegateSuccess={() => {
           fetchNode();
           fetchDelegators();
-          setFetchCounter((prev) => prev + 1);
+          setShouldFetch(true);
         }}
         onDelegateClose={() => setDelegateToValidator(null)}
         onDelegateFinish={() => setDelegateToValidator(null)}
