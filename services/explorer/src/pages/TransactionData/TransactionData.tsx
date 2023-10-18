@@ -7,6 +7,7 @@ import {
   CopyTo,
 } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
+import moment from 'moment';
 import {
   AddressLink,
   DataRow,
@@ -17,7 +18,6 @@ import {
 import {
   HashLinkType,
   statusToLabel,
-  timestampToAge,
   formatTransactionStatus,
   getTransactionType,
   TransactionType,
@@ -116,7 +116,9 @@ const TransactionDataContainer = (): JSX.Element => {
               />
               <DataRow
                 title='Timestamp'
-                data={timestampToAge(transactionData?.block?.timestamp)}
+                data={`${moment
+                  .unix(+transactionData?.block?.timestamp)
+                  .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
               />
               <DataRow
                 title='Block'

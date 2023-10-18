@@ -1,6 +1,5 @@
 import React from 'react';
 import { CircularProgress, Icons, Label } from '@taraxa_project/taraxa-ui';
-import { DateTime } from 'luxon';
 import moment from 'moment';
 import { HashLink } from '../components/Links';
 import {
@@ -13,6 +12,7 @@ import {
   PbftTableRow,
 } from '../models';
 import { HashLinkType } from './Enums';
+import { timestampToDate } from './dateFormat';
 
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
@@ -85,12 +85,6 @@ export const toTransactionTableRow = (
   };
 };
 
-export const timestampToAge = (timestamp: string | number): string => {
-  if (!timestamp) return 'NA';
-  const date = moment.unix(+timestamp);
-  return date.fromNow();
-};
-
 export const toBlockTableRow = (
   props: BlockData
 ): {
@@ -98,7 +92,7 @@ export const toBlockTableRow = (
 } => {
   const { timestamp, block, hash, transactionCount } = props;
 
-  const ageString = timestampToAge(timestamp);
+  const ageString = timestampToDate(timestamp);
   const txHashContainer = <HashLink linkType={HashLinkType.PBFT} hash={hash} />;
   const blockNumberContainer = (
     <HashLink linkType={HashLinkType.PBFT} blockNumber={block} />
@@ -123,7 +117,7 @@ export const toDagBlockTableRow = (
 } => {
   const { timestamp, level, hash, transactionCount } = props;
 
-  const ageString = timestampToAge(timestamp);
+  const ageString = timestampToDate(timestamp);
   const txHashContainer = (
     <HashLink linkType={HashLinkType.BLOCKS} hash={hash} />
   );
