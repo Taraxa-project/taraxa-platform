@@ -149,7 +149,6 @@ const PBFTDataContainer = (): JSX.Element => {
             flexDirection='row'
             alignItems='center'
             justifyContent='flex-start'
-            flexWrap='wrap'
             gap='2rem'
             mt={3}
           >
