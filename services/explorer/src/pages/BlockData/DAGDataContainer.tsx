@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Divider,
@@ -8,7 +8,7 @@ import {
   Icons,
 } from '@taraxa_project/taraxa-ui';
 import moment from 'moment';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   DataRow,
   HashLink,
@@ -25,7 +25,17 @@ import { TransactionsTable } from '../../components/Tables';
 import DagLoadingSkeleton from './DagLoadingSkeleton';
 
 const DAGDataContainer = (): JSX.Element => {
-  const { txHash } = useParams();
+  const { identifier } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const decimalNumberRegex = /^\d+$/;
+    const isDecimalNumber = decimalNumberRegex.test(identifier);
+    if (isDecimalNumber) {
+      navigate(`/pbft/${identifier}`);
+    }
+  }, [identifier, navigate]);
+
   const classes = useStyles();
   const {
     blockData,
@@ -33,7 +43,7 @@ const DAGDataContainer = (): JSX.Element => {
     currentNetwork,
     showLoadingSkeleton,
     showNetworkChanged,
-  } = useDAGDataContainerEffects(deZeroX(txHash));
+  } = useDAGDataContainerEffects(deZeroX(identifier));
   const onCopy = useCopyToClipboard();
 
   const [txRowsPerPage, setTxRowsPerPage] = useState(25);
@@ -100,7 +110,7 @@ const DAGDataContainer = (): JSX.Element => {
                 color='secondary'
                 style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
               >
-                {zeroX(txHash)}
+                {zeroX(identifier)}
               </Typography>
             </Box>
           ) : (
@@ -125,9 +135,9 @@ const DAGDataContainer = (): JSX.Element => {
                   component='h6'
                   style={{ fontWeight: 'bold', wordBreak: 'break-all' }}
                 >
-                  {zeroX(txHash)}
+                  {zeroX(identifier)}
                 </Typography>
-                <CopyTo text={txHash} onCopy={onCopy} />
+                <CopyTo text={identifier} onCopy={onCopy} />
               </Box>
               <DataRow title='Level' data={`${blockData?.level || ''}`} />
               <DataRow title='Period' data={`${blockData?.pbftPeriod || ''}`} />
