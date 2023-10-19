@@ -20,9 +20,8 @@ export interface DrawerElementsProps {
 export const DrawerElements: FC<DrawerElementsProps> = ({
   toggleDrawer,
   headerButtons,
-}) => {
-  const { networks, currentNetwork, setNetwork, disableNetworkSelection } =
-    useExplorerNetwork();
+}: DrawerElementsProps) => {
+  const { networks, currentNetwork, setNetwork } = useExplorerNetwork();
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '300px' }}>
@@ -46,7 +45,6 @@ export const DrawerElements: FC<DrawerElementsProps> = ({
           networks={networks}
           currentNetwork={currentNetwork}
           onNetworkChange={setNetwork}
-          disableNetworkSelection={disableNetworkSelection}
         />
       </Box>
       {headerButtons?.length &&
