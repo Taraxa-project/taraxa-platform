@@ -7,7 +7,6 @@ import {
   CopyTo,
 } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
-import moment from 'moment';
 import {
   AddressLink,
   DataRow,
@@ -22,6 +21,7 @@ import {
   getTransactionType,
   TransactionType,
   displayWeiOrTara,
+  timestampToFormattedTime,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -116,9 +116,9 @@ const TransactionDataContainer = (): JSX.Element => {
               />
               <DataRow
                 title='Timestamp'
-                data={`${moment
-                  .unix(+transactionData?.block?.timestamp)
-                  .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+                data={timestampToFormattedTime(
+                  +transactionData?.block?.timestamp
+                )}
               />
               <DataRow
                 title='Block'

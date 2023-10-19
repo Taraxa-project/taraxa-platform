@@ -4,7 +4,7 @@ import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { HashLink } from '../../components';
-import { HashLinkType, timestampToDate } from '../../utils';
+import { HashLinkType, timestampToFormattedTime } from '../../utils';
 import { useNodeStateContext } from '../../hooks';
 import {
   blocksQuery,
@@ -111,7 +111,7 @@ export const useHomeEffects = () => {
         level: tx.level?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
-        timeSince: timestampToDate(tx.timestamp),
+        timeSince: timestampToFormattedTime(tx.timestamp),
         hashElement: <HashLink linkType={HashLinkType.BLOCKS} hash={tx.hash} />,
       };
     });
@@ -127,7 +127,7 @@ export const useHomeEffects = () => {
         blockNumber: tx.number?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
-        timeSince: timestampToDate(tx.timestamp),
+        timeSince: timestampToFormattedTime(tx.timestamp),
         hashElement: <HashLink linkType={HashLinkType.PBFT} hash={tx.hash} />,
       };
     });

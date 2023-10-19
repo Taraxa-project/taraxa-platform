@@ -7,7 +7,6 @@ import {
   CopyTo,
   Icons,
 } from '@taraxa_project/taraxa-ui';
-import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   DataRow,
@@ -17,7 +16,12 @@ import {
   TransactionIcon,
 } from '../../components';
 import { useDAGDataContainerEffects } from './DAGDataContainer.effects';
-import { deZeroX, HashLinkType, zeroX } from '../../utils';
+import {
+  deZeroX,
+  HashLinkType,
+  timestampToFormattedTime,
+  zeroX,
+} from '../../utils';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { TableTabsProps } from '../../models';
 import useStyles from './DAGDataContainer.styles';
@@ -144,9 +148,9 @@ const DAGDataContainer = (): JSX.Element => {
               {blockData.timestamp && (
                 <DataRow
                   title='Timestamp'
-                  data={`${moment
-                    .unix(+(blockData ? blockData.timestamp : 0))
-                    .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+                  data={timestampToFormattedTime(
+                    +(blockData ? blockData.timestamp : 0)
+                  )}
                 />
               )}
               {(blockData?.level ||

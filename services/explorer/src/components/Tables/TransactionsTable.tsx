@@ -17,7 +17,7 @@ import { statusToLabel } from '../../utils/TransactionRow';
 import {
   formatTransactionStatus,
   HashLinkType,
-  timestampToDate,
+  timestampToFormattedTime,
   zeroX,
 } from '../../utils';
 import { Transaction as TransactionBase } from '../../models';
@@ -180,7 +180,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {statusToLabel(formatTransactionStatus(tx.status))}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
-                    {timestampToDate(tx.block?.timestamp || tx.timestamp)}
+                    {timestampToFormattedTime(
+                      tx.block?.timestamp || tx.timestamp
+                    )}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
                     {tx.value?.toString()}
