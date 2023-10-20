@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import {
   Box,
   IconButton,
@@ -17,7 +17,7 @@ export interface DrawerElementsProps {
   headerButtons: HeaderBtn[];
 }
 
-export const DrawerElements: FC<DrawerElementsProps> = ({
+export const DrawerElements = ({
   toggleDrawer,
   headerButtons,
 }: DrawerElementsProps) => {

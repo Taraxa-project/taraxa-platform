@@ -81,7 +81,7 @@ const NodesPage = (): JSX.Element => {
         />
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
-          component='div'
+          component={'div' as any}
           count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
