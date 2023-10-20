@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { Box, Typography } from '@mui/material';
 import useStyles from './TransactionDetails.styles';
 import { Block, Route } from '../Icons';
@@ -19,14 +19,14 @@ export const shortenHash = (text: string, visibleLength = 44): string => {
   return `${text.substring(0, visibleLength).replace(/\s+$/, '')}...`;
 };
 
-export const TransactionDetails: FC<TransactionDetailsProps> = ({
+export const TransactionDetails = ({
   hash,
   transactionCount,
   timeSince,
   hashElement,
   level,
   blockNumber,
-}) => {
+}: TransactionDetailsProps) => {
   const classes = useStyles();
 
   return (
