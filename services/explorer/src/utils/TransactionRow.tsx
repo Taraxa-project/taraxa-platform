@@ -1,5 +1,10 @@
 import React from 'react';
-import { CircularProgress, Icons, Label } from '@taraxa_project/taraxa-ui';
+import {
+  BaseTooltip,
+  CircularProgress,
+  Icons,
+  Label,
+} from '@taraxa_project/taraxa-ui';
 import { HashLink } from '../components/Links';
 import {
   BlockData,
@@ -11,7 +16,7 @@ import {
   PbftTableRow,
 } from '../models';
 import { HashLinkType } from './Enums';
-import { timestampToFormattedTime } from './dateFormat';
+import { timestampToDate, timestampToFormattedTime } from './dateFormat';
 
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
@@ -60,7 +65,11 @@ export const toTransactionTableRow = (
   data: TransactionTableRow[];
 } => {
   const { timestamp, block, status: state, txHash, value, token } = props;
-  const txDate = timestampToFormattedTime(timestamp);
+  const txDate = (
+    <BaseTooltip text={timestampToDate(timestamp)}>
+      {timestampToFormattedTime(timestamp)}
+    </BaseTooltip>
+  );
   const labelType = statusToLabel(state);
 
   const txHashContainer = (
@@ -91,7 +100,12 @@ export const toBlockTableRow = (
 } => {
   const { timestamp, block, hash, transactionCount } = props;
 
-  const ageString = timestampToFormattedTime(timestamp);
+  const ageString = (
+    <BaseTooltip text={timestampToDate(timestamp)}>
+      {timestampToFormattedTime(timestamp)}
+    </BaseTooltip>
+  );
+
   const txHashContainer = <HashLink linkType={HashLinkType.PBFT} hash={hash} />;
   const blockNumberContainer = (
     <HashLink linkType={HashLinkType.PBFT} blockNumber={block} />
@@ -116,7 +130,12 @@ export const toDagBlockTableRow = (
 } => {
   const { timestamp, level, hash, transactionCount } = props;
 
-  const ageString = timestampToFormattedTime(timestamp);
+  const ageString = (
+    <BaseTooltip text={timestampToDate(timestamp)}>
+      {timestampToFormattedTime(timestamp)}
+    </BaseTooltip>
+  );
+
   const txHashContainer = (
     <HashLink linkType={HashLinkType.BLOCKS} hash={hash} />
   );
