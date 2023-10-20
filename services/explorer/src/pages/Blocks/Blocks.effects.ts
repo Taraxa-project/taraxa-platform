@@ -37,9 +37,10 @@ export const useBlockEffects = () => {
   });
 
   const handleChangePage = (newPage: number) => {
+    const toValue = blocksFilters.to - 1 - (rowsPerPage - 1);
     setBlocksFilter({
       from: blocksFilters.to - 1,
-      to: blocksFilters.to - 1 - (rowsPerPage - 1),
+      to: Math.max(0, toValue),
     });
     setPage(newPage);
   };
@@ -49,7 +50,8 @@ export const useBlockEffects = () => {
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-    setBlocksFilter({ from: finalBlock, to: finalBlock - (rowsPerPage - 1) });
+    const toValue = finalBlock - (rowsPerPage - 1);
+    setBlocksFilter({ from: finalBlock, to: Math.max(0, toValue) });
   };
 
   const formatBlocksToTable = (
