@@ -11,7 +11,6 @@ type Context = {
   rpcEndpoint: string;
   faucetEndpoint: string;
   setNetwork: (network: string) => void;
-  disableNetworkSelection: boolean;
 };
 
 const createClient = (endpoint: string): Client =>
@@ -28,7 +27,6 @@ const initialState: Context = {
   faucetEndpoint: getNetwork(NetworkName.MAINNET).faucetUrl,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  disableNetworkSelection: false,
 };
 
 const ExplorerNetworkContext = createContext<Context>(initialState);
@@ -58,10 +56,10 @@ const useNetworkSelection = () => {
   };
 
   useEffect(() => {
-    setGraphQLClient(createClient(getNetwork(currentNetwork).graphqlUrl));
-    setBackendEndpoint(getNetwork(currentNetwork).indexerUrl);
-    setRpcEndpoint(getNetwork(currentNetwork).rpcUrl);
-    setFaucetEndpoint(getNetwork(currentNetwork).faucetUrl);
+    setGraphQLClient(createClient(selectedNetwork.graphqlUrl));
+    setBackendEndpoint(selectedNetwork.indexerUrl);
+    setRpcEndpoint(selectedNetwork.rpcUrl);
+    setFaucetEndpoint(selectedNetwork.faucetUrl);
     networkRedirect(currentNetwork);
   }, [currentNetwork]);
 
@@ -73,7 +71,6 @@ const useNetworkSelection = () => {
     backendEndpoint,
     rpcEndpoint,
     faucetEndpoint,
-    disableNetworkSelection: !!hostNetwork,
   };
 };
 
