@@ -6,6 +6,7 @@ import {
   Typography,
   CopyTo,
   Icons,
+  BaseTooltip,
 } from '@taraxa_project/taraxa-ui';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -19,6 +20,7 @@ import { useDAGDataContainerEffects } from './DAGDataContainer.effects';
 import {
   deZeroX,
   HashLinkType,
+  timestampToDate,
   timestampToFormattedTime,
   zeroX,
 } from '../../utils';
@@ -148,9 +150,17 @@ const DAGDataContainer = (): JSX.Element => {
               {blockData.timestamp && (
                 <DataRow
                   title='Timestamp'
-                  data={timestampToFormattedTime(
-                    +(blockData ? blockData.timestamp : 0)
-                  )}
+                  data={
+                    <BaseTooltip
+                      text={timestampToDate(
+                        +(blockData ? blockData.timestamp : 0)
+                      )}
+                    >
+                      {timestampToFormattedTime(
+                        +(blockData ? blockData.timestamp : 0)
+                      )}
+                    </BaseTooltip>
+                  }
                 />
               )}
               {(blockData?.level ||

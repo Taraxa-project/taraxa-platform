@@ -4,7 +4,11 @@ import { useQuery } from 'urql';
 import { useExplorerLoader } from '../../hooks/useLoader';
 import { useExplorerNetwork } from '../../hooks/useExplorerNetwork';
 import { HashLink } from '../../components';
-import { HashLinkType, timestampToFormattedTime } from '../../utils';
+import {
+  HashLinkType,
+  timestampToDate,
+  timestampToFormattedTime,
+} from '../../utils';
 import { useNodeStateContext } from '../../hooks';
 import {
   blocksQuery,
@@ -14,6 +18,7 @@ import {
 } from '../../api';
 import { DagBlock, PbftBlock } from '../../models';
 import cleanDeep from 'clean-deep';
+import { BaseTooltip } from '@taraxa_project/taraxa-ui';
 
 export const useHomeEffects = () => {
   const { finalBlock, dagBlockPeriod } = useNodeStateContext();
@@ -111,7 +116,11 @@ export const useHomeEffects = () => {
         level: tx.level?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
-        timeSince: timestampToFormattedTime(tx.timestamp),
+        timeSince: (
+          <BaseTooltip text={timestampToDate(tx.timestamp)}>
+            {timestampToFormattedTime(tx.timestamp)}
+          </BaseTooltip>
+        ),
         hashElement: <HashLink linkType={HashLinkType.BLOCKS} hash={tx.hash} />,
       };
     });
@@ -127,7 +136,11 @@ export const useHomeEffects = () => {
         blockNumber: tx.number?.toString(),
         hash: tx.hash,
         transactionCount: tx.transactionCount,
-        timeSince: timestampToFormattedTime(tx.timestamp),
+        timeSince: (
+          <BaseTooltip text={timestampToDate(tx.timestamp)}>
+            {timestampToFormattedTime(tx.timestamp)}
+          </BaseTooltip>
+        ),
         hashElement: <HashLink linkType={HashLinkType.PBFT} hash={tx.hash} />,
       };
     });

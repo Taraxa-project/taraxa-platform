@@ -6,6 +6,7 @@ import {
   Typography,
   CopyTo,
   Icons,
+  BaseTooltip,
 } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
 import {
@@ -18,6 +19,7 @@ import {
 import { usePBFTDataContainerEffects } from './PBFTDataContainer.effects';
 import {
   HashLinkType,
+  timestampToDate,
   timestampToFormattedTime,
   unwrapIdentifier,
   zeroX,
@@ -177,7 +179,13 @@ const PBFTDataContainer = (): JSX.Element => {
           {blockData.timestamp && (
             <DataRow
               title='Timestamp'
-              data={timestampToFormattedTime(+(blockData.timestamp || 0))}
+              data={
+                <BaseTooltip
+                  text={timestampToDate(+(blockData.timestamp || 0))}
+                >
+                  {timestampToFormattedTime(+(blockData.timestamp || 0))}
+                </BaseTooltip>
+              }
             />
           )}
           {(blockData.number || blockData.nonce || blockData.timestamp) && (
