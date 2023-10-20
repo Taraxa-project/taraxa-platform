@@ -1,12 +1,12 @@
+import React from 'react';
 import { Box, Typography } from '@taraxa_project/taraxa-ui';
-import React, { FC } from 'react';
 
 export interface PageTitleProps {
   title: string;
   subtitle: string;
 }
 
-export const PageTitle: FC<PageTitleProps> = ({ title, subtitle }) => {
+export const PageTitle = ({ title, subtitle }: PageTitleProps) => {
   return (
     <Box
       sx={{

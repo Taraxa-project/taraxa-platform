@@ -6,7 +6,7 @@ export interface ProgressBarCellProps {
   percentage: string;
 }
 
-const ProgressBar: React.FC<ProgressBarCellProps> = ({ percentage }) => {
+const ProgressBar = ({ percentage }: ProgressBarCellProps) => {
   const classes = useStyles();
   return (
     <div className={classes.cellContainer}>
