@@ -41,7 +41,6 @@ export const BlocksTable: React.FC<{
       <Box display='flex' flexDirection='row' justifyContent='flex-end'>
         <TablePagination
           rowsPerPageOptions={[25, 50, 75, 100]}
-          component='div'
           count={totalCount || blocksData?.length || 0}
           rowsPerPage={rowsPage}
           component={'div' as any}
