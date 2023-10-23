@@ -1,5 +1,5 @@
 import React, { useState, useContext, createContext, useEffect } from 'react';
-import { Validator } from '../interfaces/Validator';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 import useValidators from './useValidators';
 import useExplorerStats from './useExplorerStats';
 import { useLoading } from './useLoading';

@@ -2,10 +2,10 @@ import React from 'react';
 import { ethers } from 'ethers';
 import { useMediaQuery } from 'react-responsive';
 import { Modal } from '@taraxa_project/taraxa-ui';
+import { ValidatorType } from '@taraxa_project/taraxa-sdk';
 
 import CloseIcon from '../../assets/icons/close';
 import RegisterNode from './Modal/RegisterNode';
-import { ValidatorType } from '../../interfaces/Validator';
 
 interface RunValidatorModalProps {
   balance: ethers.BigNumber;

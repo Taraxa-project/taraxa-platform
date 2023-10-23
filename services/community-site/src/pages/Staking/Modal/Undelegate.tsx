@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
+import { Validator, Delegation } from '@taraxa_project/taraxa-sdk';
 
 import useDelegation from '../../../services/useDelegation';
 import useCMetamask from '../../../services/useCMetamask';
 
 import { weiToEth } from '../../../utils/eth';
-import { Validator } from '../../../interfaces/Validator';
-import Delegation from '../../../interfaces/Delegation';
 import { useWalletPopup } from '../../../services/useWalletPopup';
 
 type UndelegateProps = {

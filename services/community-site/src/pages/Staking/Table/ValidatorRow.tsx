@@ -3,11 +3,12 @@ import clsx from 'clsx';
 import { BigNumber, ethers } from 'ethers';
 import { useHistory } from 'react-router-dom';
 import { MuiTooltip, Button, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { stripEth, weiToEth } from '../../../utils/eth';
 
 import { COMMISSION_CHANGE_THRESHOLD } from '../../../interfaces/Delegation';
-import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import { getValidatorStatusTooltip } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
 import { useRedelegation } from '../../../services/useRedelegation';
 

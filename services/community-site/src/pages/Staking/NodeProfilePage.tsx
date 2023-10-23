@@ -20,6 +20,7 @@ import {
   Typography,
   theme,
 } from '@taraxa_project/taraxa-ui';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 
 import useDelegation from '../../services/useDelegation';
 import useDposSubgraph from '../../services/useDposSubgraph';
@@ -30,7 +31,7 @@ import './node-profile-page.scss';
 import Modals from './Modal/Modals';
 import NodeIcon from '../../assets/icons/node';
 
-import { CommissionChangeGQL, Validator } from '../../interfaces/Validator';
+import { CommissionChangeGQL } from '../../interfaces/Validator';
 import { stripEth, weiToEth } from '../../utils/eth';
 import { useAllValidators } from '../../services/useAllValidators';
 import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
