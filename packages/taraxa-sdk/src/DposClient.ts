@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ethers } from 'ethers';
 import { DposAbi, DposAbi__factory as Dpos } from '../types/ethers-contracts';
 import {
@@ -18,6 +19,11 @@ import {
   ValidatorStatus,
   ValidatorType,
 } from './interfaces';
+import {
+  JsonRpcProviderFactory,
+  ProviderFactory,
+  Web3ProviderFactory,
+} from './ProviderFactory';
 
 export class DposClient {
   private _dpos: DposAbi;
@@ -35,6 +41,7 @@ export class DposClient {
     providerType: ProviderType,
     privateKey?: string
   ) {
+    let factory: ProviderFactory;
     this._network = this.lookupNetwork(networkIdOrName);
 
     if (!this._network) {
@@ -47,7 +54,17 @@ export class DposClient {
       throw new Error('Chain ID not found for the provided network name');
     }
 
-    this._provider = this.setupProvider(providerType, privateKey);
+    if (providerType === ProviderType.RPC || typeof window === 'undefined') {
+      factory = new JsonRpcProviderFactory(this._network.rpcUrl, privateKey);
+    } else if (providerType === ProviderType.WEB3) {
+      factory = new Web3ProviderFactory();
+    } else {
+      throw new Error('Invalid provider type');
+    }
+
+    this._provider = factory.createProvider();
+    this._signer = factory.createSigner(this._provider);
+
     this._dpos = Dpos.connect(DPOS_CONTRACT_ADDRESS, this.provider);
   }
 
@@ -72,31 +89,6 @@ export class DposClient {
   }
 
   // Private methods
-  private setupProvider(
-    providerType: ProviderType,
-    privateKey?: string
-  ): ethers.providers.Provider {
-    let provider: ethers.providers.Provider;
-
-    if (providerType === ProviderType.RPC || typeof window === 'undefined') {
-      provider = new ethers.providers.JsonRpcProvider(this.network?.rpcUrl);
-      if (privateKey) {
-        this._signer = new ethers.Wallet(privateKey, provider);
-      }
-    } else if (
-      providerType === ProviderType.WEB3 &&
-      typeof window !== 'undefined' &&
-      window.ethereum
-    ) {
-      provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-      this._signer = (provider as ethers.providers.Web3Provider).getSigner();
-    } else {
-      throw new Error('Invalid provider type or environment');
-    }
-
-    return provider;
-  }
-
   private lookupNetwork(networkIdOrName: NetworkName | number): Network | null {
     if (typeof networkIdOrName === 'number') {
       return getNetworkById(networkIdOrName);
