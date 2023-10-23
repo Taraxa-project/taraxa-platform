@@ -5,7 +5,6 @@ import {
   Paper,
   Typography,
   CopyTo,
-  BaseTooltip,
 } from '@taraxa_project/taraxa-ui';
 import { useParams } from 'react-router-dom';
 import {
@@ -18,12 +17,11 @@ import {
 import {
   HashLinkType,
   statusToLabel,
+  timestampToAge,
   formatTransactionStatus,
   getTransactionType,
   TransactionType,
   displayWeiOrTara,
-  timestampToFormattedTime,
-  timestampToDate,
 } from '../../utils';
 import { useTransactionDataContainerEffects } from './TransactionData.effects';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
@@ -118,15 +116,7 @@ const TransactionDataContainer = (): JSX.Element => {
               />
               <DataRow
                 title='Timestamp'
-                data={
-                  <BaseTooltip
-                    text={timestampToDate(+transactionData?.block?.timestamp)}
-                  >
-                    {timestampToFormattedTime(
-                      +transactionData?.block?.timestamp
-                    )}
-                  </BaseTooltip>
-                }
+                data={timestampToAge(transactionData?.block?.timestamp)}
               />
               <DataRow
                 title='Block'

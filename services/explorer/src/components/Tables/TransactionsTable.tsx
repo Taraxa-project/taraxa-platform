@@ -11,17 +11,10 @@ import {
   Icons,
   EmptyTable,
   theme,
-  BaseTooltip,
 } from '@taraxa_project/taraxa-ui';
 import { AddressLink, HashLink } from '../Links';
-import { statusToLabel } from '../../utils/TransactionRow';
-import {
-  formatTransactionStatus,
-  HashLinkType,
-  timestampToDate,
-  timestampToFormattedTime,
-  zeroX,
-} from '../../utils';
+import { statusToLabel, timestampToAge } from '../../utils/TransactionRow';
+import { formatTransactionStatus, HashLinkType, zeroX } from '../../utils';
 import { Transaction as TransactionBase } from '../../models';
 
 export interface Transaction extends TransactionBase {
@@ -182,15 +175,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {statusToLabel(formatTransactionStatus(tx.status))}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
-                    <BaseTooltip
-                      text={timestampToDate(
-                        tx.block?.timestamp || tx.timestamp
-                      )}
-                    >
-                      {timestampToFormattedTime(
-                        tx.block?.timestamp || tx.timestamp
-                      )}
-                    </BaseTooltip>
+                    {timestampToAge(tx.block?.timestamp || tx.timestamp)}
                   </TableCell>
                   <TableCell variant='body' width='5rem !important'>
                     {tx.value?.toString()}

@@ -66,7 +66,6 @@ import TaraxaThemeProvider from './TaraxaThemeProvider';
 import ButtonGroup from './components/ButtonGroup';
 import BaseToggleButtonGroup from './components/BaseToggleButtonGroup';
 import Dropdown from './components/Dropdown';
-import { BaseTooltip } from './components/BaseTooltip';
 
 import {
   Paper,
@@ -176,5 +175,4 @@ export {
   ButtonGroup,
   BaseToggleButtonGroup,
   Dropdown,
-  BaseTooltip,
 };

@@ -6,7 +6,7 @@ import { Block, Route } from '../Icons';
 export interface TransactionDetailsProps {
   hash: string;
   transactionCount: number;
-  timeSince: React.ReactNode;
+  timeSince: string;
   hashElement?: React.ReactNode;
   level?: string;
   blockNumber?: string;

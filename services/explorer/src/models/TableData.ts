@@ -17,7 +17,7 @@ export interface TransactionTableData {
 }
 
 export interface TransactionTableRow {
-  timestamp: JSX.Element;
+  timestamp: string;
   block: JSX.Element;
   status: JSX.Element;
   txHash: JSX.Element;
@@ -25,14 +25,14 @@ export interface TransactionTableRow {
 }
 
 export interface DagTableRow {
-  timestamp: JSX.Element;
+  timestamp: string;
   level: number;
   hash: JSX.Element;
   transactionCount: number;
 }
 
 export interface PbftTableRow {
-  timestamp: JSX.Element;
+  timestamp: string;
   block: JSX.Element;
   hash: JSX.Element;
   transactionCount: number;

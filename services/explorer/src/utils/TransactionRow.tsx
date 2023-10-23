@@ -1,10 +1,7 @@
 import React from 'react';
-import {
-  BaseTooltip,
-  CircularProgress,
-  Icons,
-  Label,
-} from '@taraxa_project/taraxa-ui';
+import { CircularProgress, Icons, Label } from '@taraxa_project/taraxa-ui';
+import { DateTime } from 'luxon';
+import moment from 'moment';
 import { HashLink } from '../components/Links';
 import {
   BlockData,
@@ -16,7 +13,6 @@ import {
   PbftTableRow,
 } from '../models';
 import { HashLinkType } from './Enums';
-import { timestampToDate, timestampToFormattedTime } from './dateFormat';
 
 export const statusToLabel = (state: TransactionStatus): JSX.Element => {
   if (state === TransactionStatus.SUCCESS) {
@@ -65,11 +61,7 @@ export const toTransactionTableRow = (
   data: TransactionTableRow[];
 } => {
   const { timestamp, block, status: state, txHash, value, token } = props;
-  const txDate = (
-    <BaseTooltip text={timestampToDate(timestamp)}>
-      {timestampToFormattedTime(timestamp)}
-    </BaseTooltip>
-  );
+  const txDate = moment.unix(+timestamp).format('dddd, MMMM, YYYY h:mm:ss A');
   const labelType = statusToLabel(state);
 
   const txHashContainer = (
@@ -93,6 +85,12 @@ export const toTransactionTableRow = (
   };
 };
 
+export const timestampToAge = (timestamp: string | number): string => {
+  if (!timestamp) return 'NA';
+  const date = moment.unix(+timestamp);
+  return date.fromNow();
+};
+
 export const toBlockTableRow = (
   props: BlockData
 ): {
@@ -100,12 +98,7 @@ export const toBlockTableRow = (
 } => {
   const { timestamp, block, hash, transactionCount } = props;
 
-  const ageString = (
-    <BaseTooltip text={timestampToDate(timestamp)}>
-      {timestampToFormattedTime(timestamp)}
-    </BaseTooltip>
-  );
-
+  const ageString = timestampToAge(timestamp);
   const txHashContainer = <HashLink linkType={HashLinkType.PBFT} hash={hash} />;
   const blockNumberContainer = (
     <HashLink linkType={HashLinkType.PBFT} blockNumber={block} />
@@ -130,12 +123,7 @@ export const toDagBlockTableRow = (
 } => {
   const { timestamp, level, hash, transactionCount } = props;
 
-  const ageString = (
-    <BaseTooltip text={timestampToDate(timestamp)}>
-      {timestampToFormattedTime(timestamp)}
-    </BaseTooltip>
-  );
-
+  const ageString = timestampToAge(timestamp);
   const txHashContainer = (
     <HashLink linkType={HashLinkType.BLOCKS} hash={hash} />
   );
