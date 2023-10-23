@@ -6,8 +6,8 @@ import {
   Typography,
   CopyTo,
   Icons,
+  BaseTooltip,
 } from '@taraxa_project/taraxa-ui';
-import moment from 'moment';
 import { useParams } from 'react-router-dom';
 import {
   DataRow,
@@ -17,7 +17,13 @@ import {
   TransactionIcon,
 } from '../../components';
 import { usePBFTDataContainerEffects } from './PBFTDataContainer.effects';
-import { HashLinkType, unwrapIdentifier, zeroX } from '../../utils';
+import {
+  HashLinkType,
+  timestampToDate,
+  timestampToFormattedTime,
+  unwrapIdentifier,
+  zeroX,
+} from '../../utils';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { TableTabsProps } from '../../models';
 import useStyles from './PBFTDataContainer.styles';
@@ -173,9 +179,13 @@ const PBFTDataContainer = (): JSX.Element => {
           {blockData.timestamp && (
             <DataRow
               title='Timestamp'
-              data={`${moment
-                .unix(+(blockData.timestamp || 0))
-                .format('ddd, D MMM gggg (HH:mm:ss)')} GMT`}
+              data={
+                <BaseTooltip
+                  text={timestampToDate(+(blockData.timestamp || 0))}
+                >
+                  {timestampToFormattedTime(+(blockData.timestamp || 0))}
+                </BaseTooltip>
+              }
             />
           )}
           {(blockData.number || blockData.nonce || blockData.timestamp) && (
