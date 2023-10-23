@@ -39,6 +39,7 @@ export const useNodesEffects = (): {
   year: number;
   loading: boolean;
   weekPagination: WeekPagination;
+  pageSubtitle: string;
 } => {
   const [loading, setLoading] = useState<boolean>(false);
   const [weekNumber, setWeekNumber] = useState<number>();
@@ -52,7 +53,7 @@ export const useNodesEffects = (): {
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } =
     usePagination();
-  const { backendEndpoint } = useExplorerNetwork();
+  const { currentNetwork, backendEndpoint } = useExplorerNetwork();
 
   const { data: blocks } = useGetBlocksThisWeek(
     backendEndpoint,
@@ -138,6 +139,7 @@ export const useNodesEffects = (): {
     weekPagination?.startDate
   )} - ${formatDate(weekPagination?.endDate)})`;
   const description = 'Total blocks produced this week';
+  const pageSubtitle = `List of TARAXA nodes on ${currentNetwork}`;
 
   return {
     blocks: blocks?.data,
@@ -163,5 +165,6 @@ export const useNodesEffects = (): {
     year,
     loading,
     weekPagination,
+    pageSubtitle,
   };
 };

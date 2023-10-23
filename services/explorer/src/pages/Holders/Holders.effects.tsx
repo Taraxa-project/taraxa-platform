@@ -10,7 +10,6 @@ import {
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
 import { toHolderTableRow } from './HolderRow';
 import { BigNumber } from 'ethers';
-import { Network } from '../../utils';
 
 const cols: ColumnData[] = [
   { path: 'rank', name: 'Rank' },
@@ -105,9 +104,7 @@ export const useHoldersEffects = (): {
   };
 
   const title = `Holders`;
-  const description = `Current holders on Taraxa ${
-    currentNetwork === Network.DEVNET ? Network.MAINNET : currentNetwork
-  }`;
+  const description = `Current holders on Taraxa ${currentNetwork}`;
 
   return {
     title,
