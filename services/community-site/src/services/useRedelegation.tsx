@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button, Text, Skeleton } from '@taraxa_project/taraxa-ui';
-import { Validator } from '../interfaces/Validator';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 import Nickname from '../components/Nickname/Nickname';
 
 type Context = {

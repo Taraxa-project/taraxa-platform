@@ -1,9 +1,11 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import { Button, MuiTooltip, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
+import { Validator } from '@taraxa_project/taraxa-sdk';
+
 import { useHistory } from 'react-router-dom';
 import { stripEth, weiToEth } from '../../../utils/eth';
-import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import { getValidatorStatusTooltip } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
 
 type ValidatorRowProps = {

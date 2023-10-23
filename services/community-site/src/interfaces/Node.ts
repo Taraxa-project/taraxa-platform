@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { Validator, ValidatorStatus, ValidatorType } from './Validator';
+import { Validator, ValidatorStatus, ValidatorType } from '@taraxa_project/taraxa-sdk';
 
 export interface Node {
   id: number;

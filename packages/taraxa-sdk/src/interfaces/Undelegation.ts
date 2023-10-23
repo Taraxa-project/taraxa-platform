@@ -7,7 +7,7 @@ export interface ContractUndelegation {
   validator_exists: boolean;
 }
 
-export default interface Undelegation {
+export interface Undelegation {
   address: string;
   stake: ethers.BigNumber;
   block: number;

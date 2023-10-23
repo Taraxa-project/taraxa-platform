@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { Button, Text, InputField, AmountCard } from '@taraxa_project/taraxa-ui';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 
 import useDelegation from '../../../services/useDelegation';
 
 import { stripEth, weiToEth } from '../../../utils/eth';
-import { Validator } from '../../../interfaces/Validator';
 import { useWalletPopup } from '../../../services/useWalletPopup';
 import { compareDelegationTo } from '../../../utils/compareDelegationTo';
 

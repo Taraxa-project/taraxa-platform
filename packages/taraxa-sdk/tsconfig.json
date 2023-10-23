@@ -4,12 +4,13 @@
     "rootDir": ".",
     "outDir": "./lib",
     "baseUrl": ".",
+    "target": "ES6",
     "sourceMap": true,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "./lib"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "types/**/*", "examples/**/*"],
   "exclude": ["node_modules", "lib", "*.d.ts"]
 }

@@ -1,21 +1,13 @@
 module.exports = {
   overrides: [
     {
-      // JavaScript and JSX
-      files: ['*.{ts,tsx}'],
+      files: ['*.{ts}'],
       parserOptions: {
         project: './tsconfig.json',
         tsconfigRootDir: __dirname,
       },
       rules: {
         'ro-restricted-exports': 'off',
-        'import/no-extraneous-dependencies': [
-          'error',
-          {
-            devDependencies: ['**/*.stories.*', '**/.storybook/**/*.*'],
-            peerDependencies: true,
-          },
-        ],
         'prettier/prettier': [
           'error',
           {

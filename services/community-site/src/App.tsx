@@ -40,6 +40,7 @@ declare global {
 
 const Root = () => {
   const { modal, setIsOpen, setContent, signIn } = useModal();
+
   const auth = useAuth();
   const { status, account } = useCMetamask();
   const location = useLocation();

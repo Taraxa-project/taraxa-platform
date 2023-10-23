@@ -1,8 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { ethers } from 'ethers';
 
-import Delegation, { ContractDelegation } from '../interfaces/Delegation';
-import Undelegation, { ContractUndelegation } from '../interfaces/Undelegation';
+import { Delegation, Undelegation } from '@taraxa_project/taraxa-sdk';
 
 import { useLoading } from './useLoading';
 import useDpos from './useDpos';
@@ -13,31 +12,7 @@ export default () => {
 
   const getDelegations = useCallback(
     async (address: string): Promise<Delegation[]> => {
-      // startLoading!();
-
-      let newDelegations: ContractDelegation[] = [];
-      let page = 0;
-      let hasNextPage = true;
-      while (hasNextPage) {
-        try {
-          const allDelegations = await mainnetDpos!.getDelegations(address, page);
-
-          newDelegations = [...newDelegations, ...allDelegations.delegations];
-          hasNextPage = !allDelegations.end;
-          page++;
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(e);
-          hasNextPage = false;
-        }
-      }
-      // finishLoading!();
-
-      return newDelegations.map((delegation: ContractDelegation) => ({
-        address: delegation.account,
-        stake: delegation.delegation.stake,
-        rewards: delegation.delegation.rewards,
-      }));
+      return await mainnetDpos!.getDelegations(address);
     },
     [mainnetDpos],
   );
@@ -45,32 +20,9 @@ export default () => {
   const getUndelegations = useCallback(
     async (address: string): Promise<Undelegation[]> => {
       startLoading!();
-
-      let undelegations: ContractUndelegation[] = [];
-      let page = 0;
-      let hasNextPage = true;
-      while (hasNextPage) {
-        try {
-          const allUndelegations = await mainnetDpos!.getUndelegations(address, page);
-
-          undelegations = [...undelegations, ...allUndelegations.undelegations];
-          hasNextPage = !allUndelegations.end;
-          page++;
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(e);
-          hasNextPage = false;
-        }
-      }
+      const undelegations = await mainnetDpos!.getUndelegations(address);
       finishLoading!();
-
-      const formattedUndelegations = undelegations.map((undelegation: ContractUndelegation) => ({
-        address: undelegation.validator,
-        stake: undelegation.stake,
-        block: undelegation.block.toNumber(),
-        validatorExists: undelegation.validator_exists,
-      }));
-      return formattedUndelegations;
+      return undelegations;
     },
     [mainnetDpos],
   );
@@ -80,9 +32,7 @@ export default () => {
       address: string,
       value: ethers.BigNumber,
     ): Promise<ethers.providers.TransactionResponse> => {
-      return await browserDpos!.delegate(address, {
-        value,
-      });
+      return await browserDpos!.delegate(address, value);
     },
     [browserDpos],
   );

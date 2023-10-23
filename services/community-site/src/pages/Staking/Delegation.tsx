@@ -19,6 +19,12 @@ import {
   TableSortLabel,
   MuiIcons,
 } from '@taraxa_project/taraxa-ui';
+import {
+  Validator,
+  ValidatorStatus,
+  Delegation as DelegationInterface,
+  Undelegation,
+} from '@taraxa_project/taraxa-sdk';
 
 import { blocksToDays } from '../../utils/time';
 import { useAuth } from '../../services/useAuth';
@@ -36,11 +42,9 @@ import Modals from './Modal/Modals';
 import ValidatorRow from './Table/ValidatorRow';
 
 import './delegation.scss';
-import { Validator, ValidatorStatus } from '../../interfaces/Validator';
-import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
+import { COMMISSION_CHANGE_THRESHOLD } from '../../interfaces/Delegation';
 
 import { stripEth, weiToEth } from '../../utils/eth';
-import Undelegation from '../../interfaces/Undelegation';
 import { useWalletPopup } from '../../services/useWalletPopup';
 import useExplorerStats from '../../services/useExplorerStats';
 import { useAllValidators } from '../../services/useAllValidators';

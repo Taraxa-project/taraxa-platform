@@ -1,11 +1,11 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import { Modal } from '@taraxa_project/taraxa-ui';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 import Delegate from './Delegate';
 import Undelegate from './Undelegate';
 import CloseIcon from '../../../assets/icons/close';
 
-import { Validator } from '../../../interfaces/Validator';
 import ReDelegate from './ReDelegate';
 import Claim from './Claim';
 

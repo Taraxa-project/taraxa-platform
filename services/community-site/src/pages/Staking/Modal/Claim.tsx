@@ -1,11 +1,11 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import { Button, Text, AmountCard } from '@taraxa_project/taraxa-ui';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 
 import useDelegation from '../../../services/useDelegation';
 
 import { stripEth } from '../../../utils/eth';
-import { Validator } from '../../../interfaces/Validator';
 import { useWalletPopup } from '../../../services/useWalletPopup';
 
 type ClaimProps = {

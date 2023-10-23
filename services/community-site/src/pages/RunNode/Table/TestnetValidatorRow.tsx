@@ -1,8 +1,9 @@
 import React from 'react';
 import { MuiTooltip, Button, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 
 import Nickname from '../../../components/Nickname/Nickname';
-import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
+import { getValidatorStatusTooltip } from '../../../interfaces/Validator';
 
 const TestnetValidatorRow = ({
   validator,
