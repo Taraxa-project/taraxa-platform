@@ -36,10 +36,11 @@ const NodesPage = (): JSX.Element => {
     year,
     loading,
     weekPagination,
+    pageSubtitle,
   } = useNodesEffects();
   return (
     <>
-      <PageTitle title='Nodes' subtitle='List of TARAXA nodes on Mainnet' />
+      <PageTitle title='Nodes' subtitle={pageSubtitle} />
       {weekPagination && (
         <Box
           sx={{

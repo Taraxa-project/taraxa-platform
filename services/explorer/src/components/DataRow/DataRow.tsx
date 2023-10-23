@@ -5,8 +5,9 @@ import useStyles from './DataRow.styles';
 export const DataRow: React.FC<{
   title: string;
   data: JSX.Element | string;
+  wrap?: boolean;
 }> = (props) => {
-  const { title, data } = props;
+  const { title, data, wrap } = props;
   const classes = useStyles();
 
   return (
@@ -22,7 +23,11 @@ export const DataRow: React.FC<{
         >
           {title}:
         </Typography>
-        <Box className={classes.dataContainer}>{data}</Box>
+        <Box
+          className={`${classes.dataContainer} ${wrap ? classes.wrapText : ''}`}
+        >
+          {data}
+        </Box>
       </Box>
     )
   );
