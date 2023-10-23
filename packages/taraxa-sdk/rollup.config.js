@@ -3,7 +3,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
 import url from '@rollup/plugin-url';
-import image from '@rollup/plugin-image';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('./package.json');
@@ -31,6 +30,5 @@ export default {
       include: ['**/*.woff', '**/*.woff2', '**/*.eot', '**/*.ttf'],
       name: '[name].[ext]',
     }),
-    image(),
   ],
 };
