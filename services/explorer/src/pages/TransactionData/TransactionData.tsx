@@ -220,7 +220,11 @@ const TransactionDataContainer = (): JSX.Element => {
               <DataRow title='Nonce' data={`${transactionData?.nonce}`} />
               {transactionData?.inputData &&
                 transactionData?.inputData !== '0x' && (
-                  <DataRow title='Data' data={`${transactionData.inputData}`} />
+                  <DataRow
+                    title='Data'
+                    data={`${transactionData.inputData}`}
+                    wrap
+                  />
                 )}
               {(getTransactionType(transactionData) ===
                 TransactionType.Contract_Call ||

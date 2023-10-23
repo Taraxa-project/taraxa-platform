@@ -20,6 +20,10 @@ const useStyles = makeStyles(
           width: '100%',
         },
       },
+      wrapText: {
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word',
+      },
     };
   },
   { name: 'DataRow' }
