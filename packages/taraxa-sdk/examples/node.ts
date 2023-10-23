@@ -1,11 +1,11 @@
-import { NetworkName } from '../src';
+import { NetworkName, ProviderType } from '../src';
 import { DposClient } from '../src/DposClient';
 
 const runExample = async () => {
   const networkName = NetworkName.MAINNET;
   const privateKey = 'your-private-key'; // Replace with your private key
 
-  const client = new DposClient(networkName, privateKey);
+  const client = new DposClient(networkName, ProviderType.RPC, privateKey);
 
   try {
     const totalVotes = await client.getTotalEligibleVotesCount();
