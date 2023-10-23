@@ -10,11 +10,15 @@ import {
   TableBody,
   TablePagination,
   TableContainer,
+  BaseTooltip,
 } from '@taraxa_project/taraxa-ui';
 import { HashLink } from '..';
 import { BlockData } from '../../models';
-import { HashLinkType } from '../../utils';
-import { timestampToAge } from '../../utils/TransactionRow';
+import {
+  HashLinkType,
+  timestampToDate,
+  timestampToFormattedTime,
+} from '../../utils';
 
 export const BlocksTable: React.FC<{
   blocksData: BlockData[];
@@ -97,7 +101,9 @@ export const BlocksTable: React.FC<{
               blocksData.map((block, i) => (
                 <TableRow key={`${block.hash}-${i}`}>
                   <TableCell variant='body'>
-                    {timestampToAge(block.timestamp)}
+                    <BaseTooltip text={timestampToDate(block.timestamp)}>
+                      {timestampToFormattedTime(block.timestamp)}
+                    </BaseTooltip>
                   </TableCell>
                   {type === 'dag' && (
                     <TableCell variant='body'>{block.level}</TableCell>
