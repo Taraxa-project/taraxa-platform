@@ -8,6 +8,16 @@ import {
   getNetwork,
   getNetworkById,
 } from './networks';
+import {
+  ContractDelegation,
+  ContractUndelegation,
+  ContractValidator,
+  Delegation,
+  Undelegation,
+  Validator,
+  ValidatorStatus,
+  ValidatorType,
+} from './interfaces';
 
 export class DposClient {
   private _dpos: DposAbi;
@@ -94,29 +104,43 @@ export class DposClient {
     return getNetwork(networkIdOrName);
   }
 
-  async createNewTransactOpts(): Promise<ethers.Overrides> {
-    if (!this.signer) {
-      throw new Error('Signer is not initialized');
-    }
-
-    const gasPrice = await this.provider.getGasPrice();
-
-    return {
-      gasLimit: ethers.BigNumber.from(300000),
-      gasPrice,
-    };
-  }
-
-  private async getSetupForTransaction(): Promise<{
-    contractWithSigner: ethers.Contract;
-    overrides: ethers.Overrides;
-  }> {
+  private async getContract(): Promise<ethers.Contract> {
     if (!this.signer) {
       throw new Error('Signer is not set up.');
     }
-    const overrides = await this.createNewTransactOpts();
     const contractWithSigner = this.dpos.connect(this.signer);
-    return { contractWithSigner, overrides };
+    return contractWithSigner;
+  }
+
+  private mapContractToValidator(
+    contractValidator: ContractValidator
+  ): Validator {
+    const maxDelegation = ethers.BigNumber.from(80000000).mul(
+      ethers.BigNumber.from(10).pow(18)
+    );
+    return {
+      address: contractValidator.account,
+      owner: contractValidator.info.owner,
+      commission: +(
+        parseFloat(`${contractValidator.info.commission}` || '0') / 100
+      ).toPrecision(2),
+      commissionReward: contractValidator.info.commission_reward,
+      lastCommissionChange:
+        contractValidator.info.last_commission_change.toNumber(),
+      delegation: contractValidator.info.total_stake,
+      availableForDelegation: maxDelegation.sub(
+        contractValidator.info.total_stake
+      ),
+      isFullyDelegated: contractValidator.info.total_stake.eq(maxDelegation),
+      isActive: false,
+      status: ValidatorStatus.NOT_ELIGIBLE,
+      description: contractValidator.info.description,
+      endpoint: contractValidator.info.endpoint,
+      rank: 0,
+      pbftsProduced: 0,
+      yield: 0,
+      type: ValidatorType.MAINNET,
+    };
   }
 
   // Read methods
@@ -126,23 +150,86 @@ export class DposClient {
     return totalVotes.toNumber();
   }
 
-  async getValidator(
-    validator: string
-  ): Promise<ReturnType<DposAbi['getValidator']>> {
-    return this.dpos.getValidator(validator);
+  async getValidator(address: string): Promise<Validator> {
+    try {
+      const validatorInfo = await this.dpos.getValidator(address);
+      const contractValidator: ContractValidator = {
+        account: address,
+        info: validatorInfo,
+      };
+      return this.mapContractToValidator(contractValidator);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
-  async getValidators(
-    batch: number
-  ): Promise<ReturnType<DposAbi['getValidators']>> {
-    return this.dpos.getValidators(batch);
+  async getValidators(): Promise<Validator[]> {
+    let validators: ContractValidator[] = [];
+    let page = 0;
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+      try {
+        const allValidators = await this.dpos.getValidators(page);
+        validators = [...validators, ...allValidators.validators];
+        hasNextPage = !allValidators.end;
+        page++;
+      } catch (e) {
+        console.error(e);
+        hasNextPage = false;
+        return [];
+      }
+    }
+
+    return validators.map((validator) =>
+      this.mapContractToValidator(validator)
+    );
   }
 
-  async getValidatorsFor(
-    owner: string,
-    batch: number
-  ): Promise<ReturnType<DposAbi['getValidatorsFor']>> {
-    return this.dpos.getValidatorsFor(owner, batch);
+  async getValidatorsWith(addresses: string[]): Promise<Validator[]> {
+    if (addresses.length === 0) {
+      return [];
+    }
+
+    try {
+      const contractValidators: ContractValidator[] = await Promise.all(
+        addresses.map(async (address) => ({
+          account: address,
+          info: await this.dpos.getValidator(address),
+        }))
+      );
+
+      return contractValidators.map((validator) =>
+        this.mapContractToValidator(validator)
+      );
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  async getValidatorsFor(address: string): Promise<Validator[]> {
+    let validators: ContractValidator[] = [];
+    let page = 0;
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+      try {
+        const allValidators = await this.dpos.getValidatorsFor(address, page);
+        validators = [...validators, ...allValidators.validators];
+        hasNextPage = !allValidators.end;
+        page++;
+      } catch (e) {
+        console.error(e);
+        hasNextPage = false;
+        return [];
+      }
+    }
+
+    return validators.map((validator) =>
+      this.mapContractToValidator(validator)
+    );
   }
 
   async isValidatorEligible(
@@ -151,18 +238,55 @@ export class DposClient {
     return this.dpos.isValidatorEligible(validator);
   }
 
-  async getDelegations(
-    delegator: string,
-    batch: number
-  ): Promise<ReturnType<DposAbi['getDelegations']>> {
-    return this.dpos.getDelegations(delegator, batch);
+  async getDelegations(delegator: string): Promise<Delegation[]> {
+    let delegations: ContractDelegation[] = [];
+    let page = 0;
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+      try {
+        const result = await this.dpos.getDelegations(delegator, page);
+        delegations = [...delegations, ...result.delegations];
+        hasNextPage = !result.end;
+        page++;
+      } catch (e) {
+        console.error(e);
+        hasNextPage = false;
+        return [];
+      }
+    }
+
+    return delegations.map((delegation: ContractDelegation) => ({
+      address: delegation.account,
+      stake: delegation.delegation.stake,
+      rewards: delegation.delegation.rewards,
+    }));
   }
 
-  async getUndelegations(
-    delegator: string,
-    batch: number
-  ): Promise<ReturnType<DposAbi['getUndelegations']>> {
-    return this.dpos.getUndelegations(delegator, batch);
+  async getUndelegations(delegator: string): Promise<Undelegation[]> {
+    let undelegations: ContractUndelegation[] = [];
+    let page = 0;
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+      try {
+        const result = await this.dpos.getUndelegations(delegator, page);
+        undelegations = [...undelegations, ...result.undelegations];
+        hasNextPage = !result.end;
+        page++;
+      } catch (e) {
+        console.error(e);
+        hasNextPage = false;
+        return [];
+      }
+    }
+
+    return undelegations.map((undelegation: ContractUndelegation) => ({
+      address: undelegation.validator,
+      stake: undelegation.stake,
+      block: undelegation.block.toNumber(),
+      validatorExists: undelegation.validator_exists,
+    }));
   }
 
   async getValidatorEligibleVotesCount(validator: string): Promise<number> {
@@ -176,11 +300,9 @@ export class DposClient {
     validator: string,
     amount: ethers.BigNumber
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
+    const contractWithSigner = await this.getContract();
     return contractWithSigner.delegate(validator, {
       value: amount,
-      ...overrides,
     });
   }
 
@@ -188,25 +310,22 @@ export class DposClient {
     validator: string,
     amount: ethers.BigNumber
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.undelegate(validator, amount, overrides);
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.undelegate(validator, amount);
   }
 
   async confirmUndelegate(
     validator: string
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.confirmUndelegate(validator, overrides);
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.confirmUndelegate(validator);
   }
 
   async cancelUndelegate(
     validator: string
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.cancelUndelegate(validator, overrides);
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.cancelUndelegate(validator);
   }
 
   async reDelegate(
@@ -214,28 +333,20 @@ export class DposClient {
     validatorTo: string,
     amount: ethers.BigNumber
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.reDelegate(
-      validatorFrom,
-      validatorTo,
-      amount,
-      overrides
-    );
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.reDelegate(validatorFrom, validatorTo, amount);
   }
 
   async claimRewards(validator: string): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.claimRewards(validator, overrides);
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.claimRewards(validator);
   }
 
   async claimCommissionRewards(
     validator: string
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.claimCommissionRewards(validator, overrides);
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.claimCommissionRewards(validator);
   }
 
   async registerValidator(
@@ -247,9 +358,7 @@ export class DposClient {
     endpoint: string,
     customOverrides?: ethers.Overrides
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    const mergedOverrides = { ...overrides, ...customOverrides };
+    const contractWithSigner = await this.getContract();
     return contractWithSigner.registerValidator(
       validator,
       proof,
@@ -257,7 +366,7 @@ export class DposClient {
       commission,
       description,
       endpoint,
-      mergedOverrides
+      customOverrides
     );
   }
 
@@ -266,13 +375,11 @@ export class DposClient {
     description: string,
     endpoint: string
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
+    const contractWithSigner = await this.getContract();
     return contractWithSigner.setValidatorInfo(
       validator,
       description,
-      endpoint,
-      overrides
+      endpoint
     );
   }
 
@@ -280,14 +387,12 @@ export class DposClient {
     validator: string,
     commission: number
   ): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.setCommission(validator, commission, overrides);
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.setCommission(validator, commission);
   }
 
   async claimAllRewards(): Promise<ethers.ContractTransaction> {
-    const { contractWithSigner, overrides } =
-      await this.getSetupForTransaction();
-    return contractWithSigner.claimAllRewards(overrides);
+    const contractWithSigner = await this.getContract();
+    return contractWithSigner.claimAllRewards();
   }
 }

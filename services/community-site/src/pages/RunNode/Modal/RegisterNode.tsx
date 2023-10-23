@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
+import { ValidatorType } from '@taraxa_project/taraxa-sdk';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
 import { useDelegationApi } from '../../../services/useApi';
 import useValidators from '../../../services/useValidators';
 import { useWalletPopup } from '../../../services/useWalletPopup';
-import { ValidatorType } from '../../../interfaces/Validator';
 
 const RegisterNode = ({
   balance,

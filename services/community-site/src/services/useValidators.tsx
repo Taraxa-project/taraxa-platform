@@ -1,12 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { ethers } from 'ethers';
 
-import {
-  ContractValidator,
-  Validator,
-  ValidatorStatus,
-  ValidatorType,
-} from '../interfaces/Validator';
+import { Validator } from '@taraxa_project/taraxa-sdk';
 import { useLoading } from './useLoading';
 import useDpos from './useDpos';
 
@@ -15,65 +10,19 @@ export default () => {
 
   const { mainnetDpos, browserDpos } = useDpos();
 
-  const maxDelegation = ethers.BigNumber.from(80000000).mul(ethers.BigNumber.from(10).pow(18));
-  const contractToValidator = (contractValidator: ContractValidator) => ({
-    address: contractValidator.account,
-    owner: contractValidator.info.owner,
-    commission: +(parseFloat(`${contractValidator.info.commission}` || '0') / 100).toPrecision(2),
-    commissionReward: contractValidator.info.commission_reward,
-    lastCommissionChange: contractValidator.info.last_commission_change.toNumber(),
-    delegation: contractValidator.info.total_stake,
-    availableForDelegation: maxDelegation.sub(contractValidator.info.total_stake),
-    isFullyDelegated: contractValidator.info.total_stake.eq(maxDelegation),
-    isActive: false,
-    status: ValidatorStatus.NOT_ELIGIBLE,
-    description: contractValidator.info.description,
-    endpoint: contractValidator.info.endpoint,
-    rank: 0,
-    pbftsProduced: 0,
-    yield: 0,
-    type: ValidatorType.MAINNET,
-  });
-
   const getValidators = useCallback(async (): Promise<Validator[]> => {
     startLoading!();
-
-    let validators: ContractValidator[] = [];
-    let page = 0;
-    let hasNextPage = true;
-    while (hasNextPage) {
-      try {
-        const allValidators = await mainnetDpos!.getValidators(page);
-        validators = [...validators, ...allValidators.validators];
-        hasNextPage = !allValidators.end;
-        page++;
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        hasNextPage = false;
-      }
-    }
-
+    const validators = await mainnetDpos!.getValidators();
     finishLoading!();
-    return validators.map((validator) => contractToValidator(validator));
+    return validators;
   }, [mainnetDpos]);
 
   const getValidatorsWith = useCallback(
     async (addresses: string[]): Promise<Validator[]> => {
-      if (addresses.length === 0) {
-        return [];
-      }
       startLoading!();
-
-      const contractValidators: ContractValidator[] = await Promise.all(
-        addresses.map(async (address) => ({
-          account: address,
-          info: await mainnetDpos!.getValidator(address),
-        })),
-      );
-
+      const validators = await mainnetDpos!.getValidatorsWith(addresses);
       finishLoading!();
-      return contractValidators.map((contractValidator) => contractToValidator(contractValidator));
+      return validators;
     },
     [mainnetDpos],
   );
@@ -81,14 +30,9 @@ export default () => {
   const getValidator = useCallback(
     async (address: string): Promise<Validator> => {
       startLoading!();
-
-      const contractValidator: ContractValidator = {
-        account: address,
-        info: await mainnetDpos!.getValidator(address),
-      };
-
+      const validator = await mainnetDpos!.getValidator(address);
       finishLoading!();
-      return contractToValidator(contractValidator);
+      return validator;
     },
     [mainnetDpos],
   );
@@ -96,25 +40,9 @@ export default () => {
   const getValidatorsFor = useCallback(
     async (address: string): Promise<Validator[]> => {
       startLoading!();
-
-      let validators: ContractValidator[] = [];
-      let page = 0;
-      let hasNextPage = true;
-
-      while (hasNextPage) {
-        try {
-          const allValidators = await mainnetDpos!.getValidatorsFor(address, page);
-          validators = [...validators, ...allValidators.validators];
-          hasNextPage = !allValidators.end;
-          page++;
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(e);
-          hasNextPage = false;
-        }
-      }
+      const validators = await mainnetDpos!.getValidatorsFor(address);
       finishLoading!();
-      return validators.map((validator) => contractToValidator(validator));
+      return validators;
     },
     [mainnetDpos],
   );
@@ -138,6 +66,10 @@ export default () => {
       description: string,
       endpoint: string,
     ): Promise<ethers.providers.TransactionResponse> => {
+      const overrides: ethers.PayableOverrides = {
+        value: ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(18)),
+      };
+
       return await browserDpos!.registerValidator(
         validator,
         proof,
@@ -145,9 +77,7 @@ export default () => {
         commission * 100,
         description,
         endpoint,
-        {
-          value: ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(18)),
-        },
+        overrides,
       );
     },
     [browserDpos],

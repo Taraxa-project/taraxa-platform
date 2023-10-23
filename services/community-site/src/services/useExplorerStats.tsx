@@ -1,7 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { networks } from '@taraxa_project/taraxa-sdk';
-
-import { Validator, ValidatorStatus, ValidatorType } from '../interfaces/Validator';
+import { networks, Validator, ValidatorStatus, ValidatorType } from '@taraxa_project/taraxa-sdk';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
 import useValidators from './useValidators';

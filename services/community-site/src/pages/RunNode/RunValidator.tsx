@@ -17,6 +17,8 @@ import {
   TableHead,
   TableRow,
 } from '@taraxa_project/taraxa-ui';
+import { Validator, ValidatorType } from '@taraxa_project/taraxa-sdk';
+
 import { useAuth } from '../../services/useAuth';
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
@@ -30,7 +32,6 @@ import InfoIcon from '../../assets/icons/info';
 import Title from '../../components/Title/Title';
 import WrongNetwork from '../../components/WrongNetwork';
 
-import { Validator, ValidatorType } from '../../interfaces/Validator';
 import { Node, nodeToValidator } from '../../interfaces/Node';
 
 import RunValidatorModal from './Modal';
