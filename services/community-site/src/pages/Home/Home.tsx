@@ -48,7 +48,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
 
   const toggleOptions = [
     { value: 'earn', label: 'Earn' },
-    { value: 'testnet', label: 'Participate' },
+    { value: 'mainnet', label: 'Participate' },
   ];
 
   const onToggle = (event: React.MouseEvent<HTMLElement>, value: string) => {
@@ -110,7 +110,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
         <div
           className="notification"
           style={{
-            display: isMobile && toggleValue !== 'testnet' ? 'none' : 'inherit',
+            display: isMobile && toggleValue !== 'mainnet' ? 'none' : 'inherit',
           }}
         >
           <Notification
@@ -122,7 +122,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
         <div
           className="cardContainer"
           style={{
-            display: isMobile && toggleValue !== 'testnet' ? 'none' : isMobile ? 'inherit' : 'flex',
+            display: isMobile && toggleValue !== 'mainnet' ? 'none' : isMobile ? 'inherit' : 'flex',
           }}
         >
           <IconCard
@@ -137,7 +137,7 @@ const Home = ({ match }: RouteComponentProps<HomeProps>) => {
             description="Explore the ledger and find the transaction’s data."
             onClickText="Get Started"
             onClickButton={() =>
-              window.open('https://testnet.explorer.taraxa.io/', '_blank', 'noreferrer noopener')
+              window.open('https://mainnet.explorer.taraxa.io/', '_blank', 'noreferrer noopener')
             }
             Icon={ExplorerIcon}
           />
