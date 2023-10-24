@@ -61,7 +61,7 @@ const Sidebar = () => {
       ],
     },
     {
-      name: 'testnet',
+      name: 'mainnet',
       label: 'Participate',
       items: [
         {
@@ -73,7 +73,7 @@ const Sidebar = () => {
             <NavLink
               label="Taraxa Explorer"
               Icon={ExplorerSidebar}
-              to={{ pathname: 'https://testnet.explorer.taraxa.io/' }}
+              to={{ pathname: 'https://mainnet.explorer.taraxa.io/' }}
               target="_blank"
               rel="noopener noreferrer"
             />
