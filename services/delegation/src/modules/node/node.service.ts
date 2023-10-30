@@ -1,7 +1,7 @@
 import * as ethers from 'ethers';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository, Connection, FindConditions } from 'typeorm';
 import { ProfileService } from '../profile/profile.service';
@@ -24,7 +24,7 @@ export class NodeService {
     private nodeRepository: Repository<Node>,
     @InjectRepository(NodeCommission)
     private nodeCommissionRepository: Repository<NodeCommission>,
-    private connection: Connection,
+    @InjectDataSource() private connection: Connection,
     private config: ConfigService,
     private profileService: ProfileService,
   ) {}

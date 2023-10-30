@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ValidationException } from '../utils/exceptions/validation.exception';
 import { Node } from '../node/node.entity';
@@ -58,7 +58,7 @@ export class DelegationService {
     private config: ConfigService,
     private stakingService: StakingService,
     private httpService: HttpService,
-    private connection: Connection,
+    @InjectDataSource() private connection: Connection,
     @Inject(BLOCKCHAIN_TESTNET_INSTANCE_TOKEN)
     private testnetBlockchainService: BlockchainService,
     @Inject(BLOCKCHAIN_MAINNET_INSTANCE_TOKEN)
