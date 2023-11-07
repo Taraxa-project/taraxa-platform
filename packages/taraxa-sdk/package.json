@@ -1,0 +1,35 @@
+{
+  "name": "@taraxa_project/taraxa-sdk",
+  "version": "0.0.1",
+  "description": "Taraxa SDK Library",
+  "main": "lib/index.js",
+  "module": "lib/index.esm.js",
+  "types": "lib/src/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "prepublishOnly": "yarn build"
+  },
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "typescript"
+  ],
+  "author": "Taraxa",
+  "peerDependencies": {
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  },
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@types/react": "18.0.8",
+    "rollup": "^2.34.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "typescript": "^4.1.2"
+  },
+  "devDependencies": {
+    "tslib": "^2.3.1"
+  }
+}

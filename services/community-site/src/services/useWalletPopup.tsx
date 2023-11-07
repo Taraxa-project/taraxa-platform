@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Text, Modal, Loading, Button } from '@taraxa_project/taraxa-ui';
+import { networks } from '@taraxa_project/taraxa-sdk';
 import { ethers } from 'ethers';
 import React, { useState, useContext, createContext } from 'react';
 import { useMediaQuery } from 'react-responsive';
@@ -7,7 +8,6 @@ import CloseIcon from '../assets/icons/close';
 import ErrorIcon from '../assets/icons/error';
 import SuccessIcon from '../assets/icons/success';
 import WalletIcon from '../assets/icons/wallet';
-import { networks } from '../utils/networks';
 import useMainnet from './useMainnet';
 
 export enum WalletPopupState {

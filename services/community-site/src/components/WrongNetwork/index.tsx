@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from '@taraxa_project/taraxa-ui';
+import { networks } from '@taraxa_project/taraxa-sdk';
 import useMainnet from '../../services/useMainnet';
 import useCMetamask from '../../services/useCMetamask';
-import { networks } from '../../utils/networks';
 
 const WrongNetwork = () => {
   const mainnet = useMainnet();

@@ -1,4 +1,5 @@
 import { Container, Box } from '@taraxa_project/taraxa-ui';
+import { NetworkName } from '@taraxa_project/taraxa-sdk';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Provider as UrqlProvider } from 'urql';
 import { Header, Footer } from './components';
@@ -16,7 +17,6 @@ import { DagPage } from './pages/Dag/Dag';
 import PBFTDataContainer from './pages/PBFTData/PBFTDataContainer';
 import { NodeStateProvider, useExplorerNetwork } from './hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { Network } from './utils';
 
 declare global {
   interface Window {
@@ -43,7 +43,7 @@ const Root = (): JSX.Element => {
             <Route path='/dag' element={<DagPage />} />
             <Route path='/tx/:txHash' element={<TransactionDataContainer />} />
             <Route path='/address/:account' element={<AddressInfoPage />} />
-            {currentNetwork !== Network.MAINNET && (
+            {currentNetwork !== NetworkName.MAINNET && (
               <Route path='/faucet' element={<FaucetPage />} />
             )}
             <Route path='*' element={<Navigate to='/' replace />} />

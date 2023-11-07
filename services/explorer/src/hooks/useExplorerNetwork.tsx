@@ -1,18 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { NetworkName, getNetwork } from '@taraxa_project/taraxa-sdk';
 import { Client, createClient as urqlCreateClient } from 'urql';
-import {
-  Network,
-  getDomainName,
-  recreateGraphQLConnection,
-  recreateAPIConnection,
-  recreateFaucetConnection,
-  networkRedirect,
-  recreateRPCConnection,
-} from '../utils';
+import { getDomainName, networkRedirect } from '../utils';
 
 type Context = {
   networks: string[];
-  currentNetwork: string;
+  currentNetwork: NetworkName;
   graphQLClient: Client;
   backendEndpoint: string;
   rpcEndpoint: string;
@@ -26,12 +19,12 @@ const createClient = (endpoint: string): Client =>
     requestPolicy: 'network-only',
   });
 const initialState: Context = {
-  networks: Object.values(Network),
-  currentNetwork: Network.MAINNET,
-  graphQLClient: createClient(recreateGraphQLConnection(Network.MAINNET)),
-  backendEndpoint: recreateAPIConnection(Network.MAINNET),
-  rpcEndpoint: recreateRPCConnection(Network.MAINNET),
-  faucetEndpoint: recreateFaucetConnection(Network.MAINNET),
+  networks: Object.values(NetworkName),
+  currentNetwork: NetworkName.MAINNET,
+  graphQLClient: createClient(getNetwork(NetworkName.MAINNET).graphqlUrl),
+  backendEndpoint: getNetwork(NetworkName.MAINNET).indexerUrl,
+  rpcEndpoint: getNetwork(NetworkName.MAINNET).rpcUrl,
+  faucetEndpoint: getNetwork(NetworkName.MAINNET).faucetUrl,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
 };
@@ -39,34 +32,34 @@ const initialState: Context = {
 const ExplorerNetworkContext = createContext<Context>(initialState);
 
 const useNetworkSelection = () => {
-  const networks = Object.values(Network);
+  const networks: string[] = Object.values(NetworkName);
   const hostNetwork = getDomainName();
-  const [currentNetwork, setCurrentNetwork] = useState<string>(
-    hostNetwork || Network.MAINNET
+  const [currentNetwork, setCurrentNetwork] = useState<NetworkName>(
+    hostNetwork || NetworkName.MAINNET
   );
-
+  const selectedNetwork = getNetwork(currentNetwork);
   const [graphQLClient, setGraphQLClient] = useState<Client>(
-    createClient(recreateGraphQLConnection(currentNetwork))
+    createClient(selectedNetwork.graphqlUrl)
   );
   const [backendEndpoint, setBackendEndpoint] = useState<string>(
-    recreateAPIConnection(currentNetwork)
+    selectedNetwork.indexerUrl
   );
   const [rpcEndpoint, setRpcEndpoint] = useState<string>(
-    recreateRPCConnection(currentNetwork)
+    selectedNetwork.rpcUrl
   );
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
-    recreateFaucetConnection(currentNetwork)
+    selectedNetwork.faucetUrl
   );
 
   const setNetwork = (network: string) => {
-    setCurrentNetwork(network);
+    setCurrentNetwork(network as NetworkName);
   };
 
   useEffect(() => {
-    setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
-    setBackendEndpoint(recreateAPIConnection(currentNetwork));
-    setRpcEndpoint(recreateRPCConnection(currentNetwork));
-    setFaucetEndpoint(recreateFaucetConnection(currentNetwork));
+    setGraphQLClient(createClient(selectedNetwork.graphqlUrl));
+    setBackendEndpoint(selectedNetwork.indexerUrl);
+    setRpcEndpoint(selectedNetwork.rpcUrl);
+    setFaucetEndpoint(selectedNetwork.faucetUrl);
     networkRedirect(currentNetwork);
   }, [currentNetwork]);
 

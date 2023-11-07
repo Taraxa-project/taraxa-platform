@@ -1,4 +1,10 @@
-interface Network {
+export enum NetworkName {
+  MAINNET = 'Mainnet',
+  TESTNET = 'Testnet',
+  DEVNET = 'Devnet',
+}
+
+export interface Network {
   chainName: string;
   rpcUrl: string;
   iconUrl: string;
@@ -9,10 +15,14 @@ interface Network {
     decimals: number;
   };
   indexerUrl: string;
+  graphqlUrl: string;
+  faucetUrl: string;
 }
-interface Networks {
+
+export interface Networks {
   [key: number]: Network;
 }
+
 export const networks: Networks = {
   841: {
     chainName: 'Taraxa Mainnet',
@@ -25,6 +35,8 @@ export const networks: Networks = {
       decimals: 18,
     },
     indexerUrl: 'https://indexer.mainnet.explorer.taraxa.io',
+    graphqlUrl: 'https://graphql.mainnet.taraxa.io/',
+    faucetUrl: '',
   },
   842: {
     chainName: 'Taraxa Testnet',
@@ -37,6 +49,8 @@ export const networks: Networks = {
       decimals: 18,
     },
     indexerUrl: 'https://indexer.testnet.explorer.taraxa.io',
+    graphqlUrl: 'https://graphql.testnet.taraxa.io/',
+    faucetUrl: 'https://faucet-testnet.explorer.taraxa.io/',
   },
   843: {
     chainName: 'Taraxa Devnet',
@@ -49,17 +63,31 @@ export const networks: Networks = {
       decimals: 18,
     },
     indexerUrl: 'https://indexer.devnet.explorer.taraxa.io',
+    graphqlUrl: 'https://graphql.devnet.taraxa.io/',
+    faucetUrl: 'https://faucet-devnet.explorer.taraxa.io/',
   },
-  200: {
-    chainName: 'Taraxa PRnet',
-    rpcUrl: 'https://rpc-pr-2460.prnet.taraxa.io/',
-    iconUrl: 'https://community.taraxa.io/logo192.png',
-    blockExplorerUrl: 'https://explorer-pr-2460.prnet.taraxa.io/',
-    nativeCurrency: {
-      name: 'TARA',
-      symbol: 'TARA',
-      decimals: 18,
-    },
-    indexerUrl: 'https://indexer-pr-2460.prnet.taraxa.io',
-  },
+};
+
+export const networkNameToId: { [key in NetworkName]: number } = {
+  [NetworkName.MAINNET]: 841,
+  [NetworkName.TESTNET]: 842,
+  [NetworkName.DEVNET]: 843,
+};
+
+export const getNetwork = (name: NetworkName): Network | null => {
+  const id = networkNameToId[name];
+  return networks[id] || null;
+};
+
+export const getNetworkSubdomain = (network: NetworkName): string => {
+  switch (network) {
+    case NetworkName.TESTNET:
+      return 'testnet';
+    case NetworkName.DEVNET:
+      return 'devnet';
+    case NetworkName.MAINNET:
+      return 'mainnet';
+    default:
+      return '';
+  }
 };

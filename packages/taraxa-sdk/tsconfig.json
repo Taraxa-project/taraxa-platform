@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./lib",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./lib"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib", "*.d.ts"]
+}
