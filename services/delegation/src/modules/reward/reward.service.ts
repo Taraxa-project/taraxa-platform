@@ -1,7 +1,7 @@
 import assert from 'assert';
 import moment from 'moment';
 import * as ethers from 'ethers';
-import { Raw } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { Interval } from '@flatten-js/interval-tree';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +21,6 @@ import { Delegation } from '../delegation/delegation.entity';
 import { Node } from '../node/node.entity';
 import { NodeCommission } from '../node/node-commission.entity';
 import { Reward } from './reward.entity';
-import { RewardRepository } from './reward.repository';
 import { RewardType } from './reward-type.enum';
 
 @Injectable()
@@ -31,7 +30,7 @@ export class RewardService {
     private stakingDataService: StakingDataService,
     private delegationDataService: DelegationDataService,
     @InjectRepository(Reward)
-    private rewardRepository: RewardRepository,
+    private rewardRepository: Repository<Reward>,
     private config: ConfigService,
     private userService: UserService,
   ) {
