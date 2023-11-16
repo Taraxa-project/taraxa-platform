@@ -1,12 +1,13 @@
-import { ProgressBar } from '@taraxa_project/taraxa-ui';
+import { ProgressBar, Box } from '@taraxa_project/taraxa-ui';
 import { HoldersTableData } from '../../models';
-import { HashLink } from '../../components';
+import { HashLink, AddressLabel } from '../../components';
 import { HashLinkType } from '../../utils';
 import { BigNumber, utils } from 'ethers';
 
 export const toHolderTableRow = ({
   rank,
   address,
+  label,
   balance,
   totalSupply,
   taraPrice,
@@ -18,7 +19,14 @@ export const toHolderTableRow = ({
   value: string;
 } => {
   const addressLink = (
-    <HashLink linkType={HashLinkType.ADDRESSES} width='auto' hash={address} />
+    <>
+      <HashLink linkType={HashLinkType.ADDRESSES} width='auto' hash={address} />
+      {label && (
+        <Box mt={1}>
+          <AddressLabel label={label} />
+        </Box>
+      )}
+    </>
   );
   // We need to multiply by an additional 100 to get some precision back from bignumber
   // Original formula should be balance * 100 / totalSupply

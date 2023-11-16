@@ -47,6 +47,7 @@ export interface NodesTableData {
 export interface HoldersTableData {
   rank: number;
   address: string;
+  label: string | null;
   balance: BigNumber;
   totalSupply: BigNumber;
   taraPrice: number;
