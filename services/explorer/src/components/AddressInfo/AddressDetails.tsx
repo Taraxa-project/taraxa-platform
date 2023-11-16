@@ -11,6 +11,7 @@ import { zeroX } from '../../utils';
 import useStyles from './AddressDetails.styles';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { DataRow } from '../DataRow';
+import { AddressLabel } from '../AddressLabel';
 import { AddressInfoDetails } from '../../models';
 
 export interface AddressInfoProps {
@@ -59,6 +60,12 @@ export const AddressDetails = ({
           alignItems='left'
           gap='1.5rem'
         >
+          {details?.label && (
+            <DataRow
+              title='Label'
+              data={<AddressLabel label={details?.label} />}
+            />
+          )}
           <DataRow
             title='Balance'
             data={`${details?.balance ? details?.balance : '0'} TARA`}

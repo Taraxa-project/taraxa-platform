@@ -8,6 +8,7 @@ import {
   useGetTotalSupply,
 } from '../../api';
 import { useExplorerLoader, useExplorerNetwork } from '../../hooks';
+import { useAddressLabel } from '../../hooks/useAddressLabel';
 import { toHolderTableRow } from './HolderRow';
 import { BigNumber } from 'ethers';
 
@@ -44,6 +45,7 @@ export const useHoldersEffects = (): {
     usePagination();
   const { data: tokenPriceData } = useGetTokenPrice();
   const { initLoading, finishLoading } = useExplorerLoader();
+  const { findLabelFor } = useAddressLabel();
 
   const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(0));
   const [tableData, setTableData] = useState([]);
@@ -114,6 +116,7 @@ export const useHoldersEffects = (): {
       toHolderTableRow({
         rank: i + 1,
         address: holder.address,
+        label: findLabelFor(holder.address),
         balance: BigNumber.from(holder.balance || '0'),
         totalSupply: totalSupply || BigNumber.from(0),
         taraPrice: (tokenPriceData?.data[0].current_price as number) || 0,

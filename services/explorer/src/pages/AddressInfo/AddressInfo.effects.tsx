@@ -13,6 +13,7 @@ import {
 import { balanceWeiToTara } from '../../utils';
 import { useGetTokenPrice } from '../../api/fetchTokenPrice';
 import { PaginationDataResults, useIndexer } from '../../hooks/useIndexer';
+import { useAddressLabel } from '../../hooks/useAddressLabel';
 
 export const useAddressInfoEffects = (
   account: string
@@ -52,6 +53,8 @@ export const useAddressInfoEffects = (
 
   const { data: tokenPriceData } = useGetTokenPrice();
 
+  const { findLabelFor } = useAddressLabel();
+
   useEffect(() => {
     if (fetchingDetails) {
       initLoading();
@@ -65,6 +68,7 @@ export const useAddressInfoEffects = (
   useEffect(() => {
     const addressDetails: AddressInfoDetails = { ...addressInfoDetails };
     addressDetails.address = account;
+    addressDetails.label = findLabelFor(account);
 
     if (addressStats?.data) {
       addressDetails.dagBlocks = addressStats?.data?.dagsCount;
