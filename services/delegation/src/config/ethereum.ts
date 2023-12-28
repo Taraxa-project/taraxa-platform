@@ -8,4 +8,5 @@ export default registerAs('ethereum', () => ({
   testnetWallet: process.env.TESTNET_WALLET,
   mainnetIndexerUrl: process.env.MAINNET_INDEXER_URL,
   testnetIndexerUrl: process.env.TESTNET_INDEXER_URL,
+  dposProxyAddress: process.env.DPOS_PROXY_ADDRESS,
 }));

@@ -342,7 +342,6 @@ export class DelegationService {
       // add call to undelegation, create undelegation, save in db
       // await this.blockchainService.unregisterValidator(address);
     } else {
-      let toDelegate = totalNodeDelegation.sub(currentDelegation);
       if (!isNodeRegistered) {
         let isCreatedOnchain: boolean;
         if (type === NodeType.TESTNET) {
@@ -352,19 +351,6 @@ export class DelegationService {
               node.addressProof,
               node.vrfKey,
             );
-        }
-        if (type === NodeType.MAINNET) {
-          isCreatedOnchain =
-            await this.mainnetBlockchainService.registerValidator(
-              address,
-              node.addressProof,
-              node.vrfKey,
-            );
-          if (isCreatedOnchain) {
-            toDelegate = totalNodeDelegation.sub(
-              this.mainnetBlockchainService.defaultDelegationAmount,
-            );
-          }
         }
         if (node) {
           node.isCreatedOnchain = isCreatedOnchain;
@@ -443,50 +429,6 @@ export class DelegationService {
 
     return state.data.result.account_results[formattedAddress]
       .outbound_deposits;
-  }
-
-  async rebalanceMainnet() {
-    const ownNodes = await this.getOwnNodes('mainnet');
-
-    for (const node of ownNodes) {
-      const nodeEntity = await this.nodeRepository.findOne({ where: { node } });
-      await this.ensureDelegation(nodeEntity?.id, NodeType.MAINNET, node);
-    }
-  }
-
-  private async getOwnNodes(type: 'mainnet' | 'testnet'): Promise<string[]> {
-    let endpoint: string;
-    if (type === 'mainnet') {
-      endpoint = this.config.get<string>('ethereum.mainnetEndpoint');
-    } else {
-      endpoint = this.config.get<string>('ethereum.testnetEndpoint');
-    }
-
-    const state = await this.httpService
-      .post(
-        endpoint,
-        {
-          jsonrpc: '2.0',
-          method: 'taraxa_getConfig',
-          params: [],
-          id: 1,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-      .toPromise();
-
-    if (state.status !== 200) {
-      throw new Error('Failed to get DPOS stake');
-    }
-
-    const genesisState = state.data.result.final_chain.state.dpos.genesis_state;
-    const genesisStateKey = Object.keys(genesisState)[0];
-
-    return Object.keys(genesisState[genesisStateKey]);
   }
 
   async getDelegators() {

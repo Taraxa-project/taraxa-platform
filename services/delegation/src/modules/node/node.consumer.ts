@@ -66,17 +66,6 @@ export class NodeConsumer implements OnModuleInit {
       }
     }
 
-    if (node.isMainnet()) {
-      try {
-        await this.mainnetBlockchainService.getValidator(node.address);
-        isCreatedOnchain = true;
-      } catch (e) {
-        this.logger.debug(
-          `${ENSURE_NODE_ONCHAIN_JOB} worker (job ${job.id}): Validator ${node.address} doesn't exist in contract`,
-        );
-      }
-    }
-
     if (isCreatedOnchain) {
       node.isCreatedOnchain = isCreatedOnchain;
       await this.nodeRepository.save(node);
@@ -97,14 +86,6 @@ export class NodeConsumer implements OnModuleInit {
           );
       }
 
-      if (node.isMainnet()) {
-        node.isCreatedOnchain =
-          await this.mainnetBlockchainService.registerValidator(
-            node.address,
-            node.addressProof,
-            node.vrfKey,
-          );
-      }
       await this.nodeRepository.save(node);
     } catch (e) {
       this.logger.error(
