@@ -55,7 +55,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { asyncCallback } = useWalletPopup();
 
   const { getValidators, getValidatorsWith } = useValidators();
-  const { updateValidatorsStats } = useExplorerStats();
+  const { updateValidatorsStats, updateValidatorsRank } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate, claimAllRewards } =
     useDelegation();
   const { validatorFrom, showPopup, clearRedelegation } = useRedelegation();
@@ -237,8 +237,9 @@ const Delegation = ({ location }: { location: Location }) => {
     if (delegations.length > 0) {
       (async () => {
         const myValidators = await getValidatorsWith(delegations.map((d) => d.address));
-        const myValidatorsWithStats = await updateValidatorsStats(myValidators);
-        setOwnValidators(myValidatorsWithStats);
+        const myValidatorsRank = await updateValidatorsRank(myValidators);
+        const myValidatorsWithStats = await updateValidatorsStats(myValidatorsRank);
+        setOwnValidators(sortValidators(myValidatorsWithStats));
       })();
     }
   }, [delegations]);
