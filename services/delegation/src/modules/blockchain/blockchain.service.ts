@@ -12,6 +12,7 @@ export class BlockchainService {
     walletKey: string,
     public defaultDelegationAmount: ethers.BigNumber,
     private ownNodes: string[],
+    private txCount = 0,
   ) {
     this.provider = new ethers.providers.JsonRpcProvider({
       url: endpoint,
@@ -78,7 +79,7 @@ export class BlockchainService {
     await this.rebalanceOwnNodes(true);
 
     try {
-      const tx = await this.contract.registerValidator(
+      await this.contract.registerValidator(
         address,
         addressProof,
         vrfKey,
@@ -88,6 +89,7 @@ export class BlockchainService {
         {
           gasPrice: this.provider.getGasPrice(),
           value: this.defaultDelegationAmount,
+          nonce: await this.getNonce(),
         },
       );
       return true;
@@ -213,15 +215,12 @@ export class BlockchainService {
 
       console.log(`Delegating ${toDelegate} to ${ownNode.address}`);
 
-      let txCount = await this.wallet.getTransactionCount();
-
       try {
         await this.contract.delegate(ownNode.address, {
           gasPrice: this.provider.getGasPrice(),
           value: toDelegate,
-          nonce: txCount,
+          nonce: await this.getNonce(),
         });
-        txCount++;
       } catch (e) {
         console.error(
           `Can't delegate to own nodes - delegation call failed for node ${ownNode.address}`,
@@ -248,5 +247,14 @@ export class BlockchainService {
       }
     }
     return validators;
+  }
+
+  private async getNonce() {
+    if (this.txCount === 0) {
+      this.txCount = await this.wallet.getTransactionCount();
+    }
+    const nonce = this.txCount;
+    this.txCount++;
+    return nonce;
   }
 }
