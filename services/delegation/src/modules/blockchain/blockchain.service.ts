@@ -213,11 +213,15 @@ export class BlockchainService {
 
       console.log(`Delegating ${toDelegate} to ${ownNode.address}`);
 
+      let txCount = await this.wallet.getTransactionCount();
+
       try {
-        const tx = await this.contract.delegate(ownNode.address, {
+        await this.contract.delegate(ownNode.address, {
           gasPrice: this.provider.getGasPrice(),
           value: toDelegate,
+          nonce: txCount,
         });
+        txCount++;
       } catch (e) {
         console.error(
           `Can't delegate to own nodes - delegation call failed for node ${ownNode.address}`,
