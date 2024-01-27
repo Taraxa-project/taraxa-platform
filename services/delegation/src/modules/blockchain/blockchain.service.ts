@@ -90,7 +90,6 @@ export class BlockchainService {
           value: this.defaultDelegationAmount,
         },
       );
-      await tx.wait();
       return true;
     } catch (e) {
       console.error(`Could not create validator ${address}`, e);
@@ -219,7 +218,6 @@ export class BlockchainService {
           gasPrice: this.provider.getGasPrice(),
           value: toDelegate,
         });
-        await tx.wait();
       } catch (e) {
         console.error(
           `Can't delegate to own nodes - delegation call failed for node ${ownNode.address}`,
