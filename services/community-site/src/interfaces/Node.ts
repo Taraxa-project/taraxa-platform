@@ -39,6 +39,7 @@ export const nodeToValidator = (node: Node): Validator => ({
   status: ValidatorStatus.NOT_ELIGIBLE,
   rank: Number(node.weeklyRank || 0),
   pbftsProduced: node.blocksProduced || 0,
+  registrationBlock: 0,
   yield: node.yield || 0,
   type: ValidatorType.TESTNET,
 });

@@ -123,6 +123,7 @@ export default () => {
             ...validator,
             rank,
             yield: Number(percentage.toFixed(2)),
+            registrationBlock: ranking.response.registrationBlock,
           };
         }),
       );
@@ -147,10 +148,11 @@ export default () => {
           if (!ranking.success) {
             return validator;
           }
-          const { rank } = ranking.response;
+          const { rank, registrationBlock } = ranking.response;
           return {
             ...validator,
             rank,
+            registrationBlock,
           };
         }),
       );

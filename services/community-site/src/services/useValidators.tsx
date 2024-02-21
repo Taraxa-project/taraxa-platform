@@ -33,6 +33,7 @@ export default () => {
     pbftsProduced: 0,
     yield: 0,
     type: ValidatorType.MAINNET,
+    registrationBlock: 0,
   });
 
   const getValidators = useCallback(async (): Promise<Validator[]> => {
