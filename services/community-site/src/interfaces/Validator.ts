@@ -43,6 +43,7 @@ export interface Validator {
   pbftsProduced: number;
   yield: number;
   type: ValidatorType;
+  registrationBlock: number;
   ip?: string;
   id?: number;
 }

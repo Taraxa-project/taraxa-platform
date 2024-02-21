@@ -36,6 +36,10 @@ const ValidatorRow = ({
 }: ValidatorRowProps) => {
   const history = useHistory();
   const { validatorFrom, setValidatorFrom, setValidatorTo } = useRedelegation();
+  const isNewValidator =
+    currentBlockNumber &&
+    validator.registrationBlock &&
+    currentBlockNumber - validator.registrationBlock < ((24 * 60 * 60) / 4) * 7; // 7 Days
 
   return (
     <TableRow>
@@ -57,6 +61,7 @@ const ValidatorRow = ({
       <TableCell className="yieldCell">{validator.yield || 0}%</TableCell>
       <TableCell className="commissionCell">
         {currentBlockNumber &&
+        !isNewValidator &&
         currentBlockNumber - validator.lastCommissionChange <= COMMISSION_CHANGE_THRESHOLD ? (
           <div className="commissionDisplayPendingChangeWrapper">
             <NodeCommissionChangeIcon />{' '}
