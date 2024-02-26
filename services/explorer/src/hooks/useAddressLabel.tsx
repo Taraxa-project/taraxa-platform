@@ -14,6 +14,7 @@ const ADDRESS_LABELS: AddressLabels = {
     'Foundation (never to be circulated)',
   '0xd6216fc19db775df9774a6e33526131da7d19a2c': 'Kucoin 6',
   '0x0d0707963952f2fba59dd06f2b425ace40b492fe': 'Gate.io',
+  '0xa605dbb535847f803227cdbaec9cdfa34d4d4b77': 'MEXC',
 };
 
 export const useAddressLabel = () => {
