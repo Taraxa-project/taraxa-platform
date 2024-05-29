@@ -10,6 +10,14 @@ import {
   recreateRPCConnection,
 } from '../utils';
 
+import {
+  OVERRIDE_RPC_PROVIDER,
+  OVERRIDE_GRAPHQL,
+  OVERRIDE_API,
+  OVERRIDE_FAUCET,
+  IS_PRNET,
+} from '../api';
+
 type Context = {
   networks: string[];
   currentNetwork: string;
@@ -25,6 +33,7 @@ const createClient = (endpoint: string): Client =>
     url: endpoint,
     requestPolicy: 'network-only',
   });
+
 const initialState: Context = {
   networks: Object.values(Network),
   currentNetwork: Network.MAINNET,
@@ -39,23 +48,34 @@ const initialState: Context = {
 const ExplorerNetworkContext = createContext<Context>(initialState);
 
 const useNetworkSelection = () => {
-  const networks = Object.values(Network);
+  let networks: string[] = Object.values(Network);
+
+  if (IS_PRNET) {
+    networks = ['PRNET'];
+  }
+
   const hostNetwork = getDomainName();
   const [currentNetwork, setCurrentNetwork] = useState<string>(
-    hostNetwork || Network.MAINNET
+    IS_PRNET ? 'PRNET' : hostNetwork || Network.MAINNET
   );
 
   const [graphQLClient, setGraphQLClient] = useState<Client>(
-    createClient(recreateGraphQLConnection(currentNetwork))
+    createClient(
+      IS_PRNET ? OVERRIDE_GRAPHQL : recreateGraphQLConnection(currentNetwork)
+    )
   );
   const [backendEndpoint, setBackendEndpoint] = useState<string>(
-    recreateAPIConnection(currentNetwork)
+    IS_PRNET && OVERRIDE_API !== ''
+      ? OVERRIDE_API
+      : recreateAPIConnection(currentNetwork)
   );
   const [rpcEndpoint, setRpcEndpoint] = useState<string>(
-    recreateRPCConnection(currentNetwork)
+    IS_PRNET ? OVERRIDE_RPC_PROVIDER : recreateRPCConnection(currentNetwork)
   );
   const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
-    recreateFaucetConnection(currentNetwork)
+    IS_PRNET && OVERRIDE_FAUCET !== ''
+      ? OVERRIDE_FAUCET
+      : recreateFaucetConnection(currentNetwork)
   );
 
   const setNetwork = (network: string) => {
@@ -63,6 +83,9 @@ const useNetworkSelection = () => {
   };
 
   useEffect(() => {
+    if (IS_PRNET) {
+      return;
+    }
     setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
     setBackendEndpoint(recreateAPIConnection(currentNetwork));
     setRpcEndpoint(recreateRPCConnection(currentNetwork));

@@ -12,3 +12,7 @@ data:
   TESTNET_API_HOST: {{ .Values.app.testnetApiHost | quote }}
   DEVNET_API_HOST: {{ .Values.app.devnetApiHost | quote }}
   TOKEN_PRICE_API_ENDPOINT: {{ .Values.app.tokenInfoEndpoint | quote }}
+  OVERRIDE_RPC_PROVIDER: {{ .Values.app.overrideRpcProvider | quote }}
+  OVERRIDE_GRAPHQL: {{ .Values.app.overrideGraphQl | quote }}
+  OVERRIDE_API: {{ .Values.app.overrideApi | quote }}
+  OVERRIDE_FAUCET: {{ .Values.app.overrideFaucet | quote }}
