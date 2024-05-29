@@ -11,6 +11,9 @@ import {
   searchBlockQuery,
   searchDagBlockQuery,
   searchTransactionQuery,
+  OVERRIDE_FAUCET,
+  OVERRIDE_API,
+  IS_PRNET,
 } from '../../api';
 
 export type HeaderBtn = {
@@ -200,30 +203,48 @@ export const useHeaderEffects = () => {
       selected: false,
       onAction: () => onClick('tx'),
     },
-    {
-      label: 'Nodes',
-      color: 'primary',
-      variant: 'text',
-      selected: false,
-      onAction: () => onClick('node'),
-    },
-    {
-      label: 'Holders',
-      color: 'primary',
-      variant: 'text',
-      selected: false,
-      onAction: () => onClick('holder'),
-    },
   ];
-  if (currentNetwork !== Network.MAINNET) {
-    headerButtons.push({
-      label: 'Faucet',
-      color: 'primary',
-      variant: 'text',
-      selected: false,
-      onAction: () => onClick('faucet'),
-    });
+  const nodesBtn: HeaderBtn = {
+    label: 'Nodes',
+    color: 'primary',
+    variant: 'text',
+    selected: false,
+    onAction: () => onClick('node'),
+  };
+
+  const holdersBtn: HeaderBtn = {
+    label: 'Holders',
+    color: 'primary',
+    variant: 'text',
+    selected: false,
+    onAction: () => onClick('holder'),
+  };
+
+  const faucetBtn: HeaderBtn = {
+    label: 'Faucet',
+    color: 'primary',
+    variant: 'text',
+    selected: false,
+    onAction: () => onClick('faucet'),
+  };
+
+  if (IS_PRNET) {
+    if (OVERRIDE_API !== '') {
+      headerButtons.push(nodesBtn);
+      headerButtons.push(holdersBtn);
+    }
+
+    if (OVERRIDE_FAUCET !== '') {
+      headerButtons.push(faucetBtn);
+    }
+  } else {
+    headerButtons.push(nodesBtn);
+    headerButtons.push(holdersBtn);
+    if (currentNetwork === Network.MAINNET) {
+      headerButtons.push(faucetBtn);
+    }
   }
+
   const [buttons, setButtons] = useState<HeaderBtn[]>(headerButtons);
 
   const clearSearch = () => {
@@ -272,6 +293,9 @@ export const useHeaderEffects = () => {
   };
 
   useEffect(() => {
+    if (IS_PRNET) {
+      return;
+    }
     let _buttons = buttons;
     if (currentNetwork !== Network.MAINNET) {
       if (!_buttons.find((b) => b.label === 'Faucet')) {

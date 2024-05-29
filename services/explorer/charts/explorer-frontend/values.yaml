@@ -12,6 +12,10 @@ app:
   testnetApiHost: "http://api/"
   devnetApiHost: "http://api/"
   tokenInfoEndpoint: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=taraxa"
+  overrideRpcProvider: ""
+  overrideGraphQl: ""
+  overrideApi: ""
+  overrideFaucet: ""
 
 image:
   repository: gcr.io/jovial-meridian-249123/taraxa/explorer-frontend-develop

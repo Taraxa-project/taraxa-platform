@@ -12,6 +12,7 @@ import {
   theme,
 } from '@taraxa_project/taraxa-ui';
 import { TaraxaIcon } from '../icons';
+import { IS_PRNET } from '../../api';
 import { HeaderBtn, useHeaderEffects } from './Header.effects';
 import { DrawerElements } from './DrawerElements';
 
@@ -66,6 +67,7 @@ export const Header = (): JSX.Element => {
           networks={networks}
           currentNetwork={currentNetwork}
           onNetworkChange={setNetwork}
+          disableNetworkSelection={IS_PRNET}
         />
       </Box>
     </Box>
