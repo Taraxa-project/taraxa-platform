@@ -14,17 +14,13 @@ export const TESTNET_RPC_API = `${process.env.REACT_APP_TARAXA_TESTNET_PROVIDER}
 export const DEVNET_RPC_API = `${process.env.REACT_APP_TARAXA_DEVNET_PROVIDER}`;
 
 export const OVERRIDE_RPC_PROVIDER = `${
-  process.env.REACT_APP_TARAXA_OVERRIDE_RPC_PROVIDER ?? ''
+  process.env.REACT_APP_OVERRIDE_RPC_PROVIDER ?? ''
 }`;
 export const OVERRIDE_GRAPHQL = `${
-  process.env.REACT_APP_TARAXA_OVERRIDE_GRAPHQL ?? ''
+  process.env.REACT_APP_OVERRIDE_GRAPHQL ?? ''
 }`;
-export const OVERRIDE_API = `${
-  process.env.REACT_APP_TARAXA_OVERRIDE_API ?? ''
-}`;
-export const OVERRIDE_FAUCET = `${
-  process.env.REACT_APP_TARAXA_OVERRIDE_FAUCET ?? ''
-}`;
+export const OVERRIDE_API = `${process.env.REACT_APP_OVERRIDE_API ?? ''}`;
+export const OVERRIDE_FAUCET = `${process.env.REACT_APP_OVERRIDE_FAUCET ?? ''}`;
 export const IS_PRNET = OVERRIDE_RPC_PROVIDER !== '' && OVERRIDE_GRAPHQL !== '';
 
 export const TOKEN_PRICE_API_ENDPOINT = `${
