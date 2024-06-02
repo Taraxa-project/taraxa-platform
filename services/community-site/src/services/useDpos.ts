@@ -9,7 +9,7 @@ function useDpos() {
 
   const abi = [
     'function cancelUndelegate(address validator)',
-    'function claimAllRewards()',
+    'function claimAllRewards(uint32 batch)',
     'function claimCommissionRewards(address validator)',
     'function claimRewards(address validator)',
     'function confirmUndelegate(address validator)',
