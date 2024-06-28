@@ -79,7 +79,7 @@ export class BlockchainService {
     await this.rebalanceOwnNodes(true);
 
     try {
-      await this.contract.registerValidator(
+      const tx = await this.contract.registerValidator(
         address,
         addressProof,
         vrfKey,
