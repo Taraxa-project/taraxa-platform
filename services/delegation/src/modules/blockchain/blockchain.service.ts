@@ -92,6 +92,7 @@ export class BlockchainService {
           nonce: await this.getNonce(),
         },
       );
+      await tx.wait();
       return true;
     } catch (e) {
       console.error(`Could not create validator ${address}`, e);
@@ -215,12 +216,16 @@ export class BlockchainService {
 
       console.log(`Delegating ${toDelegate} to ${ownNode.address}`);
 
+      let txCount = await this.wallet.getTransactionCount();
+
       try {
-        await this.contract.delegate(ownNode.address, {
+        const tx = await this.contract.delegate(ownNode.address, {
           gasPrice: this.provider.getGasPrice(),
           value: toDelegate,
-          nonce: await this.getNonce(),
+          nonce: txCount,
         });
+        txCount++;
+        await tx.wait();
       } catch (e) {
         console.error(
           `Can't delegate to own nodes - delegation call failed for node ${ownNode.address}`,
