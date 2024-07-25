@@ -216,15 +216,12 @@ export class BlockchainService {
 
       console.log(`Delegating ${toDelegate} to ${ownNode.address}`);
 
-      let txCount = await this.wallet.getTransactionCount();
-
       try {
         const tx = await this.contract.delegate(ownNode.address, {
           gasPrice: this.provider.getGasPrice(),
           value: toDelegate,
-          nonce: txCount,
+          nonce: await this.getNonce(),
         });
-        txCount++;
         await tx.wait();
       } catch (e) {
         console.error(
