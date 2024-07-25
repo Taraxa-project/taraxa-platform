@@ -12,6 +12,7 @@ export class BlockchainService {
     walletKey: string,
     public defaultDelegationAmount: ethers.BigNumber,
     private ownNodes: string[],
+    private txCount = 0,
   ) {
     this.provider = new ethers.providers.JsonRpcProvider({
       url: endpoint,
@@ -247,5 +248,14 @@ export class BlockchainService {
       }
     }
     return validators;
+  }
+
+  private async getNonce() {
+    if (this.txCount === 0) {
+      this.txCount = await this.wallet.getTransactionCount();
+    }
+    const nonce = this.txCount;
+    this.txCount++;
+    return nonce;
   }
 }
