@@ -15,6 +15,12 @@ const ADDRESS_LABELS: AddressLabels = {
   '0xd6216fc19db775df9774a6e33526131da7d19a2c': 'Kucoin 6',
   '0x0d0707963952f2fba59dd06f2b425ace40b492fe': 'Gate.io',
   '0xa605dbb535847f803227cdbaec9cdfa34d4d4b77': 'MEXC',
+  '0x39b1fC930C43606af5C353e90a55db10bCaF4087': 'Bridged ETH',
+  '0xe126E0BaeAE904b8Cfd619Be1A8667A173b763a1': 'Taraxa Bridge',
+  '0x7157233800c3c1f2ac8b12Cefe2cBE796C04446B': 'Ethereum Client',
+  '0x97Eb8E024bE036eCdb25aDf842C5D6241189FB53': 'Beacon Light Client',
+  '0xD014293ED981c7f557C0Cf55F7FbA025082Ed266': 'ETH Connector',
+  '0x7C5E17A43c6cb223a86C5d63288273E0c1F1283F': 'TARA Connector',
 };
 
 export const useAddressLabel = () => {
