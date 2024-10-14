@@ -13,6 +13,7 @@ export class BlockchainService {
     public defaultDelegationAmount: ethers.BigNumber,
     private ownNodes: string[],
     private txCount = 0,
+    private defaultCommission = 0,
   ) {
     this.provider = new ethers.providers.JsonRpcProvider({
       url: endpoint,
@@ -41,12 +42,14 @@ export class BlockchainService {
     walletKey: string,
     defaultDelegationAmount: ethers.BigNumber,
     ownNodes: string[],
+    defaultCommission: number,
   ) {
     return new BlockchainService(
       endpoint,
       walletKey,
       defaultDelegationAmount,
       ownNodes,
+      defaultCommission,
     );
   }
 
@@ -83,7 +86,7 @@ export class BlockchainService {
         address,
         addressProof,
         vrfKey,
-        0,
+        this.defaultCommission,
         '',
         '',
         {
