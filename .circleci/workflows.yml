@@ -60,7 +60,6 @@ aliases:
       - image: alpine:3.14
   - &step_setup_remote_docker
     setup_remote_docker:
-      version: 19.03.14
       docker_layer_caching: true
   - &step_install_deps
     run:
