@@ -22,7 +22,6 @@ const getProviders = () => [
         ethereum.testnetWallet,
         delegation.testnetDelegation,
         delegation.testnetOwnNodes,
-        10000,
       );
     },
     inject: [delegationConfig.KEY, ethereumConfig.KEY],
@@ -38,7 +37,6 @@ const getProviders = () => [
         ethereum.mainnetWallet,
         delegation.minDelegation,
         [],
-        0,
       );
     },
     inject: [delegationConfig.KEY, ethereumConfig.KEY],
