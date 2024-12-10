@@ -18,7 +18,7 @@ const ADDRESS_LABELS: AddressLabels = {
   '0x39b1fc930c43606af5c353e90a55db10bcaf4087': 'Bridged ETH',
   '0xe126e0baeae904b8cfd619be1a8667a173b763a1': 'Taraxa Bridge',
   '0x7157233800c3c1f2ac8b12cefe2cbe796c04446b': 'Ethereum Client',
-  '0x97eb8e024be036ecdb25adf842c5d6241189fb53': 'Beacon Light Client',
+  '0xa8f5d9fb5d1deed99f7fe175063f8d91fc65b7a4': 'Beacon Light Client',
   '0xd014293ed981c7f557c0cf55f7fba025082ed266': 'ETH Connector',
   '0x7c5e17a43c6cb223a86c5d63288273e0c1f1283f': 'TARA Connector',
 };
