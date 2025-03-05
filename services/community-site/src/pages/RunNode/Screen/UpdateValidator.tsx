@@ -6,7 +6,7 @@ import { Validator } from '../../../interfaces/Validator';
 import Title from '../../../components/Title/Title';
 import CloseIcon from '../../../assets/icons/close';
 import UpdateCommission, { VALIDATOR_COMMISSION_CHANGE_FREQUENCY } from '../Modal/UpdateCommission';
-import useValidators from '../../../services/useValidators';
+import { useValidators } from '../../../services/useValidators';
 import useChain from '../../../services/useChain';
 
 const MAX_ENDPOINT_LENGTH = 50;

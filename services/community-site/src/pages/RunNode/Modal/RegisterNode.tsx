@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
 import { useDelegationApi } from '../../../services/useApi';
-import useValidators from '../../../services/useValidators';
+import { useValidators } from '../../../services/useValidators';
 import { useWalletPopup } from '../../../services/useWalletPopup';
 import { ValidatorType } from '../../../interfaces/Validator';
 
