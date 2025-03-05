@@ -78,16 +78,15 @@ const ValidatorsContext = createContext<ValidatorsContextType | null>(null);
 
 export const ValidatorsProvider = ({ children }: { children: React.ReactNode }) => {
   const { mainnetDpos, browserDpos } = useDpos();
-  const chainId = useMemo(() => parseInt(process.env.REACT_APP_MAINNET_CHAIN_ID!, 10), []);
   const { startLoading, finishLoading } = useLoading();
+  const chainId = useMemo(() => parseInt(process.env.REACT_APP_MAINNET_CHAIN_ID!, 10), []);
   const { get } = useApi();
 
-  // Add initialization ref to prevent multiple fetches
   const initializationInProgress = useRef(false);
   const validatorsCache = useRef<Validator[]>([]);
   const validatorWeekStats = useRef<ValidatorStats[]>([]);
   const lastFetchTime = useRef<number>(0);
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+  const CACHE_DURATION = 5 * 60 * 1000;
 
   const [allValidatorsWithStats, setAllValidatorsWithStats] = useState<Validator[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -116,44 +115,30 @@ export const ValidatorsProvider = ({ children }: { children: React.ReactNode }) 
     }
   }, []);
 
-  const getPbftBlocksProduced = (address: string) => {
-    const pbftsProduced =
+  const getPbftBlocksProduced = useCallback((address: string) => {
+    return (
       validatorWeekStats.current.find(
         (stat) => stat.address.toLowerCase() === address.toLowerCase(),
-      )?.pbftCount || 0;
-
-    return pbftsProduced;
-  };
+      )?.pbftCount || 0
+    );
+  }, []);
 
   const getValidators = useCallback(async (): Promise<Validator[]> => {
-    // Check if we have cached data that's still fresh
     const now = Date.now();
     if (validatorsCache.current.length > 0 && now - lastFetchTime.current < CACHE_DURATION) {
-      // eslint-disable-next-line no-console
-      console.log('Using cached validators data');
       return validatorsCache.current;
     }
 
-    // eslint-disable-next-line no-console
-    console.log('Fetching new validators data'); // Track when we're actually making RPC calls
     if (!mainnetDpos) return [];
     try {
       let validators: ContractValidator[] = [];
       let page = 0;
       let hasNextPage = true;
       while (hasNextPage) {
-        try {
-          // eslint-disable-next-line no-console
-          console.log('Fetching validators page:', page); // Track pagination requests
-          const allValidators = await mainnetDpos.getValidators(page);
-          validators = [...validators, ...allValidators.validators];
-          hasNextPage = !allValidators.end;
-          page++;
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error('Error fetching validators:', e);
-          hasNextPage = false;
-        }
+        const allValidators = await mainnetDpos.getValidators(page);
+        validators = [...validators, ...allValidators.validators];
+        hasNextPage = !allValidators.end;
+        page++;
       }
       const result = validators.map(contractToValidator);
       validatorsCache.current = result;
