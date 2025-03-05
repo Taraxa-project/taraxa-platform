@@ -31,6 +31,7 @@ import './App.scss';
 import { ValidatorWeeklyStatsProvider } from './services/useValidatorsWeeklyStats';
 import { ValidatorsProvider } from './services/useAllValidators';
 import { RedelegationProvider } from './services/useRedelegation';
+import { DposProvider } from './services/useDpos';
 
 declare global {
   interface Window {
@@ -147,11 +148,13 @@ function App() {
                   <WalletPopupProvider>
                     <SidebarProvider>
                       <ValidatorWeeklyStatsProvider>
-                        <ValidatorsProvider>
-                          <RedelegationProvider>
-                            <Root />
-                          </RedelegationProvider>
-                        </ValidatorsProvider>
+                        <DposProvider>
+                          <ValidatorsProvider>
+                            <RedelegationProvider>
+                              <Root />
+                            </RedelegationProvider>
+                          </ValidatorsProvider>
+                        </DposProvider>
                       </ValidatorWeeklyStatsProvider>
                     </SidebarProvider>
                   </WalletPopupProvider>

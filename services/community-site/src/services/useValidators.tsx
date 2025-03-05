@@ -8,33 +8,33 @@ import {
   ValidatorType,
 } from '../interfaces/Validator';
 import { useLoading } from './useLoading';
-import useDpos from './useDpos';
+import { useDpos } from './useDpos';
 
-export default () => {
+const maxDelegation = ethers.BigNumber.from(80000000).mul(ethers.BigNumber.from(10).pow(18));
+const contractToValidator = (contractValidator: ContractValidator) => ({
+  address: contractValidator.account,
+  owner: contractValidator.info.owner,
+  commission: +(parseFloat(`${contractValidator.info.commission}` || '0') / 100).toPrecision(2),
+  commissionReward: contractValidator.info.commission_reward,
+  lastCommissionChange: contractValidator.info.last_commission_change,
+  delegation: contractValidator.info.total_stake,
+  availableForDelegation: maxDelegation.sub(contractValidator.info.total_stake),
+  isFullyDelegated: contractValidator.info.total_stake.eq(maxDelegation),
+  isActive: false,
+  status: ValidatorStatus.NOT_ELIGIBLE,
+  description: contractValidator.info.description,
+  endpoint: contractValidator.info.endpoint,
+  rank: 0,
+  pbftsProduced: 0,
+  yield: 0,
+  type: ValidatorType.MAINNET,
+  registrationBlock: 0,
+});
+
+export default function useValidators() {
   const { startLoading, finishLoading } = useLoading();
 
   const { mainnetDpos, browserDpos } = useDpos();
-
-  const maxDelegation = ethers.BigNumber.from(80000000).mul(ethers.BigNumber.from(10).pow(18));
-  const contractToValidator = (contractValidator: ContractValidator) => ({
-    address: contractValidator.account,
-    owner: contractValidator.info.owner,
-    commission: +(parseFloat(`${contractValidator.info.commission}` || '0') / 100).toPrecision(2),
-    commissionReward: contractValidator.info.commission_reward,
-    lastCommissionChange: contractValidator.info.last_commission_change,
-    delegation: contractValidator.info.total_stake,
-    availableForDelegation: maxDelegation.sub(contractValidator.info.total_stake),
-    isFullyDelegated: contractValidator.info.total_stake.eq(maxDelegation),
-    isActive: false,
-    status: ValidatorStatus.NOT_ELIGIBLE,
-    description: contractValidator.info.description,
-    endpoint: contractValidator.info.endpoint,
-    rank: 0,
-    pbftsProduced: 0,
-    yield: 0,
-    type: ValidatorType.MAINNET,
-    registrationBlock: 0,
-  });
 
   const getValidators = useCallback(async (): Promise<Validator[]> => {
     startLoading!();
@@ -188,4 +188,4 @@ export default () => {
     }),
     [getValidators, getValidatorsWith, getValidator],
   );
-};
+}
