@@ -4,7 +4,9 @@ import {
   Delegated,
   Redelegated,
   UndelegateCanceled,
+  UndelegateCanceledV2,
   Undelegated,
+  UndelegatedV2,
 } from '../generated/DPOS/DPOS';
 import { CommissionChange, Delegation } from '../generated/schema';
 
@@ -48,7 +50,26 @@ export function handleUndelegated(event: Undelegated): void {
   currentDelegation.save();
 }
 
+export function handleUndelegatedV2(event: UndelegatedV2): void {
+  const delegator = event.params.delegator;
+  const validator = event.params.validator;
+  const amount = event.params.amount;
+  const currentDelegation = getOrInitCurrentDelegation(validator, delegator);
+  currentDelegation.amount = currentDelegation.amount.minus(amount);
+  currentDelegation.save();
+}
+
 export function handleUndelegateCanceled(event: UndelegateCanceled): void {
+  const delegator = event.params.delegator;
+  const validator = event.params.validator;
+
+  const currentDelegation = getOrInitCurrentDelegation(validator, delegator);
+  currentDelegation.amount = currentDelegation.amount.plus(event.params.amount);
+  currentDelegation.timestamp = event.block.timestamp;
+  currentDelegation.save();
+}
+
+export function handleUndelegateCanceledV2(event: UndelegateCanceledV2): void {
   const delegator = event.params.delegator;
   const validator = event.params.validator;
 

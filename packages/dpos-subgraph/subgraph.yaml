@@ -29,6 +29,10 @@ dataSources:
           handler: handleRedelegated
         - event: Undelegated(indexed address,indexed address,uint256)
           handler: handleUndelegated
+        - event: UndelegatedV2(indexed address,indexed address,indexed uint64,uint256)
+          handler: handleUndelegatedV2
         - event: UndelegateCanceled(indexed address,indexed address,uint256)
           handler: handleUndelegateCanceled
+        - event: UndelegateCanceledV2(indexed address,indexed address,indexed uint64,uint256)
+          handler: handleUndelegateCanceledV2
       file: ./src/mapping.ts

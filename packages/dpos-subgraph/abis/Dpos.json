@@ -165,6 +165,37 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "uint64",
+        "name": "undelegation_id",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "UndelegateCanceledV2",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "delegator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "validator",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "amount",
@@ -172,6 +203,37 @@
       }
     ],
     "name": "UndelegateConfirmed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "delegator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "validator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint64",
+        "name": "undelegation_id",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "UndelegateConfirmedV2",
     "type": "event"
   },
   {
@@ -205,6 +267,37 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "delegator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "validator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint64",
+        "name": "undelegation_id",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "UndelegatedV2",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "validator",
         "type": "address"
       }
@@ -227,11 +320,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "cancelUndelegate",
     "outputs": [],
@@ -240,30 +329,24 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "batch",
-        "type": "uint32"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "uint64", "name": "undelegation_id", "type": "uint64" }
     ],
+    "name": "cancelUndelegateV2",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "claimAllRewards",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "end",
-        "type": "bool"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "claimCommissionRewards",
     "outputs": [],
@@ -272,11 +355,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "claimRewards",
     "outputs": [],
@@ -285,11 +364,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "confirmUndelegate",
     "outputs": [],
@@ -298,11 +373,17 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "uint64", "name": "undelegation_id", "type": "uint64" }
+    ],
+    "name": "confirmUndelegateV2",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "delegate",
     "outputs": [],
@@ -311,33 +392,17 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegator",
-        "type": "address"
-      },
-      {
-        "internalType": "uint32",
-        "name": "batch",
-        "type": "uint32"
-      }
+      { "internalType": "address", "name": "delegator", "type": "address" },
+      { "internalType": "uint32", "name": "batch", "type": "uint32" }
     ],
     "name": "getDelegations",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          },
+          { "internalType": "address", "name": "account", "type": "address" },
           {
             "components": [
-              {
-                "internalType": "uint256",
-                "name": "stake",
-                "type": "uint256"
-              },
+              { "internalType": "uint256", "name": "stake", "type": "uint256" },
               {
                 "internalType": "uint256",
                 "name": "rewards",
@@ -353,22 +418,14 @@
         "name": "delegations",
         "type": "tuple[]"
       },
-      {
-        "internalType": "bool",
-        "name": "end",
-        "type": "bool"
-      }
+      { "internalType": "bool", "name": "end", "type": "bool" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "delegator", "type": "address" }
     ],
     "name": "getTotalDelegation",
     "outputs": [
@@ -384,11 +441,48 @@
   {
     "inputs": [],
     "name": "getTotalEligibleVotesCount",
+    "outputs": [{ "internalType": "uint64", "name": "", "type": "uint64" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "delegator", "type": "address" },
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "uint64", "name": "undelegation_id", "type": "uint64" }
+    ],
+    "name": "getUndelegationV2",
     "outputs": [
       {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
+        "components": [
+          {
+            "components": [
+              { "internalType": "uint256", "name": "stake", "type": "uint256" },
+              { "internalType": "uint64", "name": "block", "type": "uint64" },
+              {
+                "internalType": "address",
+                "name": "validator",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "validator_exists",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct DposInterface.UndelegationData",
+            "name": "undelegation_data",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint64",
+            "name": "undelegation_id",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct DposInterface.UndelegationV2Data",
+        "name": "undelegation_v2",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -396,62 +490,73 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegator",
-        "type": "address"
-      },
-      {
-        "internalType": "uint32",
-        "name": "batch",
-        "type": "uint32"
-      }
+      { "internalType": "address", "name": "delegator", "type": "address" },
+      { "internalType": "uint32", "name": "batch", "type": "uint32" }
     ],
     "name": "getUndelegations",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "uint256",
-            "name": "stake",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint64",
-            "name": "block",
-            "type": "uint64"
-          },
-          {
-            "internalType": "address",
-            "name": "validator",
-            "type": "address"
-          },
-          {
-            "internalType": "bool",
-            "name": "validator_exists",
-            "type": "bool"
-          }
+          { "internalType": "uint256", "name": "stake", "type": "uint256" },
+          { "internalType": "uint64", "name": "block", "type": "uint64" },
+          { "internalType": "address", "name": "validator", "type": "address" },
+          { "internalType": "bool", "name": "validator_exists", "type": "bool" }
         ],
         "internalType": "struct DposInterface.UndelegationData[]",
         "name": "undelegations",
         "type": "tuple[]"
       },
-      {
-        "internalType": "bool",
-        "name": "end",
-        "type": "bool"
-      }
+      { "internalType": "bool", "name": "end", "type": "bool" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
+      { "internalType": "address", "name": "delegator", "type": "address" },
+      { "internalType": "uint32", "name": "batch", "type": "uint32" }
+    ],
+    "name": "getUndelegationsV2",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+        "components": [
+          {
+            "components": [
+              { "internalType": "uint256", "name": "stake", "type": "uint256" },
+              { "internalType": "uint64", "name": "block", "type": "uint64" },
+              {
+                "internalType": "address",
+                "name": "validator",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "validator_exists",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct DposInterface.UndelegationData",
+            "name": "undelegation_data",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint64",
+            "name": "undelegation_id",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct DposInterface.UndelegationV2Data[]",
+        "name": "undelegations_v2",
+        "type": "tuple[]"
+      },
+      { "internalType": "bool", "name": "end", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "getValidator",
     "outputs": [
@@ -467,11 +572,7 @@
             "name": "commission_reward",
             "type": "uint256"
           },
-          {
-            "internalType": "uint16",
-            "name": "commission",
-            "type": "uint16"
-          },
+          { "internalType": "uint16", "name": "commission", "type": "uint16" },
           {
             "internalType": "uint64",
             "name": "last_commission_change",
@@ -482,21 +583,9 @@
             "name": "undelegations_count",
             "type": "uint16"
           },
-          {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "endpoint",
-            "type": "string"
-          }
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "string", "name": "description", "type": "string" },
+          { "internalType": "string", "name": "endpoint", "type": "string" }
         ],
         "internalType": "struct DposInterface.ValidatorBasicInfo",
         "name": "validator_info",
@@ -508,40 +597,20 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "getValidatorEligibleVotesCount",
-    "outputs": [
-      {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
-      }
-    ],
+    "outputs": [{ "internalType": "uint64", "name": "", "type": "uint64" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "batch",
-        "type": "uint32"
-      }
-    ],
+    "inputs": [{ "internalType": "uint32", "name": "batch", "type": "uint32" }],
     "name": "getValidators",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          },
+          { "internalType": "address", "name": "account", "type": "address" },
           {
             "components": [
               {
@@ -569,21 +638,13 @@
                 "name": "undelegations_count",
                 "type": "uint16"
               },
-              {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-              },
+              { "internalType": "address", "name": "owner", "type": "address" },
               {
                 "internalType": "string",
                 "name": "description",
                 "type": "string"
               },
-              {
-                "internalType": "string",
-                "name": "endpoint",
-                "type": "string"
-              }
+              { "internalType": "string", "name": "endpoint", "type": "string" }
             ],
             "internalType": "struct DposInterface.ValidatorBasicInfo",
             "name": "info",
@@ -594,37 +655,21 @@
         "name": "validators",
         "type": "tuple[]"
       },
-      {
-        "internalType": "bool",
-        "name": "end",
-        "type": "bool"
-      }
+      { "internalType": "bool", "name": "end", "type": "bool" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "uint32",
-        "name": "batch",
-        "type": "uint32"
-      }
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "uint32", "name": "batch", "type": "uint32" }
     ],
     "name": "getValidatorsFor",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          },
+          { "internalType": "address", "name": "account", "type": "address" },
           {
             "components": [
               {
@@ -652,21 +697,13 @@
                 "name": "undelegations_count",
                 "type": "uint16"
               },
-              {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-              },
+              { "internalType": "address", "name": "owner", "type": "address" },
               {
                 "internalType": "string",
                 "name": "description",
                 "type": "string"
               },
-              {
-                "internalType": "string",
-                "name": "endpoint",
-                "type": "string"
-              }
+              { "internalType": "string", "name": "endpoint", "type": "string" }
             ],
             "internalType": "struct DposInterface.ValidatorBasicInfo",
             "name": "info",
@@ -677,31 +714,17 @@
         "name": "validators",
         "type": "tuple[]"
       },
-      {
-        "internalType": "bool",
-        "name": "end",
-        "type": "bool"
-      }
+      { "internalType": "bool", "name": "end", "type": "bool" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" }
     ],
     "name": "isValidatorEligible",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -712,16 +735,8 @@
         "name": "validator_from",
         "type": "address"
       },
-      {
-        "internalType": "address",
-        "name": "validator_to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "validator_to", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
     "name": "reDelegate",
     "outputs": [],
@@ -730,36 +745,12 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "proof",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "vrf_key",
-        "type": "bytes"
-      },
-      {
-        "internalType": "uint16",
-        "name": "commission",
-        "type": "uint16"
-      },
-      {
-        "internalType": "string",
-        "name": "description",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "endpoint",
-        "type": "string"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "bytes", "name": "proof", "type": "bytes" },
+      { "internalType": "bytes", "name": "vrf_key", "type": "bytes" },
+      { "internalType": "uint16", "name": "commission", "type": "uint16" },
+      { "internalType": "string", "name": "description", "type": "string" },
+      { "internalType": "string", "name": "endpoint", "type": "string" }
     ],
     "name": "registerValidator",
     "outputs": [],
@@ -768,16 +759,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "commission",
-        "type": "uint16"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "uint16", "name": "commission", "type": "uint16" }
     ],
     "name": "setCommission",
     "outputs": [],
@@ -786,21 +769,9 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "description",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "endpoint",
-        "type": "string"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "string", "name": "description", "type": "string" },
+      { "internalType": "string", "name": "endpoint", "type": "string" }
     ],
     "name": "setValidatorInfo",
     "outputs": [],
@@ -809,19 +780,23 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "validator",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
     "name": "undelegate",
     "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "validator", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "undelegateV2",
+    "outputs": [
+      { "internalType": "uint64", "name": "undelegation_id", "type": "uint64" }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   }
