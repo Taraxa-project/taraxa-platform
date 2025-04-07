@@ -254,7 +254,7 @@ export default function Home() {
         )}
 
         <Footer
-          description="Taraxa is supercharging DeFi & Social AI with the world's only EVM-compatible blockDAG Layer-1."
+          description="Taraxa has the world's highest TPS/$, lowest node operating cost and lowest gas cost, on the world's only blockDAG & 100% EVM-compatible Layer-1 network."
           links={[{ label: 'Privacy Policy', link: 'https://taraxa.io/privacy' }]}
           items={[
             {
