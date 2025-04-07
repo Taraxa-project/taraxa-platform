@@ -254,7 +254,7 @@ export default function Home() {
         )}
 
         <Footer
-          description="Taraxa is a public ledger platform purpose-built for audit logging of informal transactions."
+          description="Taraxa is supercharging DeFi & Social AI with the world's only EVM-compatible blockDAG Layer-1."
           links={[{ label: 'Privacy Policy', link: 'https://taraxa.io/privacy' }]}
           items={[
             {
