@@ -254,7 +254,7 @@ export default function Home() {
         )}
 
         <Footer
-          description="Taraxa is a public ledger platform purpose-built for audit logging of informal transactions."
+          description="Taraxa has the world's highest TPS/$, lowest node operating cost and lowest gas cost, on the world's only blockDAG & 100% EVM-compatible Layer-1 network."
           links={[{ label: 'Privacy Policy', link: 'https://taraxa.io/privacy' }]}
           items={[
             {
