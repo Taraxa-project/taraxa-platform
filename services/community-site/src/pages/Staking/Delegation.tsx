@@ -28,7 +28,6 @@ import WrongNetwork from '../../components/WrongNetwork';
 
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
-import useValidators from '../../services/useValidators';
 import useDelegation from '../../services/useDelegation';
 import useChain from '../../services/useChain';
 
@@ -42,8 +41,7 @@ import DelegationInterface, { COMMISSION_CHANGE_THRESHOLD } from '../../interfac
 import { stripEth, weiToEth } from '../../utils/eth';
 import Undelegation from '../../interfaces/Undelegation';
 import { useWalletPopup } from '../../services/useWalletPopup';
-import useExplorerStats from '../../services/useExplorerStats';
-import { useAllValidators } from '../../services/useAllValidators';
+import { useValidators } from '../../services/useValidators';
 import { useRedelegation } from '../../services/useRedelegation';
 
 const Delegation = ({ location }: { location: Location }) => {
@@ -54,8 +52,13 @@ const Delegation = ({ location }: { location: Location }) => {
   const { isLoading } = useLoading();
   const { asyncCallback } = useWalletPopup();
 
-  const { getValidators, getValidatorsWith } = useValidators();
-  const { updateValidatorsStats, updateValidatorsRank } = useExplorerStats();
+  const {
+    allValidatorsWithStats,
+    getValidators,
+    getValidatorsWith,
+    updateValidatorsStats,
+    updateValidatorsRank,
+  } = useValidators();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate } = useDelegation();
   const { validatorFrom, showPopup, clearRedelegation } = useRedelegation();
   const [validators, setValidators] = useState<Validator[]>([]);
@@ -67,7 +70,6 @@ const Delegation = ({ location }: { location: Location }) => {
     new URLSearchParams(location.search).get('show_my_validators') !== null;
   const [showMyValidators, setShowMyValidators] = useState(showMyValidatorsQuery || false);
   const [showFullyDelegatedValidators, setShowFullyDelegatedValidators] = useState(true);
-  const { allValidatorsWithStats } = useAllValidators();
 
   const [balance, setBalance] = useState(ethers.BigNumber.from('0'));
   const [claimAmount, setClaimAmount] = useState(ethers.BigNumber.from('0'));

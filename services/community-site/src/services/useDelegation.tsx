@@ -5,7 +5,7 @@ import Delegation, { ContractDelegation } from '../interfaces/Delegation';
 import Undelegation, { ContractUndelegation } from '../interfaces/Undelegation';
 
 import { useLoading } from './useLoading';
-import useDpos from './useDpos';
+import { useDpos } from './useDpos';
 
 export default () => {
   const { startLoading, finishLoading } = useLoading();

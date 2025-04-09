@@ -3,7 +3,7 @@ import { Button, Text, InputField } from '@taraxa_project/taraxa-ui';
 
 import { blocksToDays } from '../../../utils/time';
 import { useWalletPopup } from '../../../services/useWalletPopup';
-import useValidators from '../../../services/useValidators';
+import { useValidators } from '../../../services/useValidators';
 
 type UpdateCommissionProps = {
   id: number | string;
