@@ -25,14 +25,13 @@ import useDelegation from '../../services/useDelegation';
 import useDposSubgraph from '../../services/useDposSubgraph';
 import useCMetamask from '../../services/useCMetamask';
 import useChain from '../../services/useChain';
-import useValidators from '../../services/useValidators';
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
 import NodeIcon from '../../assets/icons/node';
 
 import { CommissionChangeGQL, Validator } from '../../interfaces/Validator';
 import { stripEth, weiToEth } from '../../utils/eth';
-import { useAllValidators } from '../../services/useAllValidators';
+import { useValidators } from '../../services/useValidators';
 import NodeProfilePageSkeleton from './Screen/NodeProfilePageSkeleton';
 import Nickname from '../../components/Nickname/Nickname';
 import { DelegationGQL } from '../../interfaces/Delegation';
@@ -93,7 +92,7 @@ const TABLE_ROWS_PER_PAGE = 20;
 const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
-  const { getValidator } = useValidators();
+  const { getValidator, allValidatorsWithStats } = useValidators();
   const { getUndelegations } = useDelegation();
   const { getValidatorDelegationsPaginate, getValidatorCommissionChangesPaginate } =
     useDposSubgraph();
@@ -112,7 +111,6 @@ const NodeProfilePage = () => {
   const [detailType, setDetailType] = useState<ViewType>(ViewType.DELEGATIONS);
   const { address } = useParams<{ address?: string }>();
   const [fetchCounter, setFetchCounter] = useState<number>(0);
-  const { allValidatorsWithStats } = useAllValidators();
 
   const canDelegate = status === 'connected' && !!account && !validator?.isFullyDelegated;
   const canUndelegate = status === 'connected' && !!account && accountUndelegationCount === 0;

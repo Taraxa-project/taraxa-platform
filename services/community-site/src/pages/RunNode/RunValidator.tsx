@@ -22,7 +22,6 @@ import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
 import useChain from '../../services/useChain';
 import { useDelegationApi } from '../../services/useApi';
-import useValidators from '../../services/useValidators';
 
 import NodeIcon from '../../assets/icons/node';
 import InfoIcon from '../../assets/icons/info';
@@ -43,8 +42,7 @@ import CloseIcon from '../../assets/icons/close';
 import EditNode from './Screen/EditNode';
 import Claim from '../Staking/Modal/Claim';
 import UpdateValidator from './Screen/UpdateValidator';
-import useExplorerStats from '../../services/useExplorerStats';
-import { useAllValidators } from '../../services/useAllValidators';
+import { useValidators } from '../../services/useValidators';
 
 const RunValidator = () => {
   const auth = useAuth();
@@ -52,9 +50,12 @@ const RunValidator = () => {
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
 
-  const { getValidatorsFor } = useValidators();
-  const { allValidatorsWithStats } = useAllValidators();
-  const { updateTestnetValidatorsStats, updateTestnetValidatorsRank } = useExplorerStats();
+  const {
+    getValidatorsFor,
+    allValidatorsWithStats,
+    updateTestnetValidatorsStats,
+    updateTestnetValidatorsRank,
+  } = useValidators();
   const delegationApi = useDelegationApi();
   const networkParam = window.location.hash.replace('#', '');
 
