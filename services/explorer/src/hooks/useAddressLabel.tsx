@@ -5,8 +5,7 @@ type AddressLabels = {
 };
 
 const ADDRESS_LABELS: AddressLabels = {
-  '0x723304d1357a2334fcf902aa3d232f5139080a1b':
-    'Ecosystem Fund + Locked Team Tokens',
+  '0x723304d1357a2334fcf902aa3d232f5139080a1b': 'Ecosystem Fund',
   '0x00000000000000000000000000000000000000fe': 'Taraxa Staking Contract',
   '0xf3b803a8f4c4fc3fbe454b6438dc0ed22735f01b': 'Taraxa Claim Contract',
   '0x111f91441efc8c6c0edf6534970cc887e2fabaa8': 'Taraxa Faucet',
