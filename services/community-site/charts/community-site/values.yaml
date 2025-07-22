@@ -79,13 +79,7 @@ ingress:
     enabled: false
     secret: ""
   className: ""
-  annotations:
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      if ($blocked_country_community) {
-        return 451;
-      }
-    nginx.ingress.kubernetes.io/default-backend: custom-error-community-service
-    nginx.ingress.kubernetes.io/custom-http-errors: "451"
+  annotations: {}
   hosts:
     - host: chart-example.local
       paths:
