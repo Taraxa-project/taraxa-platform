@@ -1,4 +1,4 @@
-specVersion: 0.0.4
+specVersion: 0.0.8
 description: DPOS Contract indexing for Taraxa
 schema:
   file: ./schema.graphql
@@ -21,6 +21,10 @@ dataSources:
         - name: DPOS
           file: ./abis/Dpos.json
       eventHandlers:
+        - event: ValidatorRegistered(indexed address)
+          handler: handleValidatorRegistered
+        - event: ValidatorInfoSet(indexed address)
+          handler: handleValidatorInfoSet
         - event: CommissionSet(indexed address,uint16)
           handler: handleCommissionSet
         - event: Delegated(indexed address,indexed address,uint256)
@@ -35,4 +39,15 @@ dataSources:
           handler: handleUndelegateCanceled
         - event: UndelegateCanceledV2(indexed address,indexed address,indexed uint64,uint256)
           handler: handleUndelegateCanceledV2
+        - event: UndelegateConfirmed(indexed address,indexed address,uint256)
+          handler: handleUndelegateConfirmed
+        - event: UndelegateConfirmedV2(indexed address,indexed address,indexed uint64,uint256)
+          handler: handleUndelegateConfirmedV2
+        - event: RewardsClaimed(indexed address,indexed address,uint256)
+          handler: handleRewardsClaimed
+      blockHandlers:
+        - handler: handleBlock
+          filter:
+            kind: polling
+            every: 1000
       file: ./src/mapping.ts

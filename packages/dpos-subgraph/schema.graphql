@@ -1,3 +1,13 @@
+type Validator @entity(immutable: false) {
+  id: ID!
+  totalStake: BigInt!
+  commission: Int!
+  undelegationsCount: Int!
+  owner: String!
+  description: String
+  endpoint: String
+}
+
 type Delegation @entity(immutable: false) {
   id: ID!
   amount: BigInt!
