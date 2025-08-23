@@ -1,16 +1,19 @@
 import { useCallback, useMemo } from 'react';
+import { BigNumber } from 'ethers';
 
 import { Validator, ValidatorStatus, ValidatorType } from '../interfaces/Validator';
 import { networks } from '../utils/networks';
 import useApi from './useApi';
 import useMainnet from './useMainnet';
-import useValidators from './useValidators';
 import { useValidatorsWeeklyStats } from './useValidatorsWeeklyStats';
+
+const MIN_DELEGATION_THRESHOLD = BigNumber.from('500000').mul(
+  BigNumber.from('10').pow(BigNumber.from('18')),
+);
 
 export default () => {
   const { get } = useApi();
   const { chainId } = useMainnet();
-  const { isValidatorEligible } = useValidators();
   const { validatorWeekStats, getPbftBlocksProduced } = useValidatorsWeeklyStats();
 
   const getStats = async (validator: Validator, chain: number) => {
@@ -43,7 +46,8 @@ export default () => {
     let validatorStatus: ValidatorStatus;
 
     if (validator.type === ValidatorType.MAINNET) {
-      const isEligible = await isValidatorEligible(validator.address);
+      const isEligible = validator.delegation.gte(MIN_DELEGATION_THRESHOLD);
+
       validatorStatus = isEligible
         ? producedBlocksInLast24hours
           ? ValidatorStatus.ELIGIBLE

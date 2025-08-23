@@ -28,7 +28,7 @@ import WrongNetwork from '../../components/WrongNetwork';
 
 import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
-import useValidators from '../../services/useValidators';
+import useTaraxaApi from '../../services/useTaraxaApi';
 import useDelegation from '../../services/useDelegation';
 import useChain from '../../services/useChain';
 
@@ -54,7 +54,7 @@ const Delegation = ({ location }: { location: Location }) => {
   const { isLoading } = useLoading();
   const { asyncCallback } = useWalletPopup();
 
-  const { getValidators, getValidatorsWith } = useValidators();
+  const { getValidators, getValidatorsWith } = useTaraxaApi();
   const { updateValidatorsStats, updateValidatorsRank } = useExplorerStats();
   const { getDelegations, getUndelegations, confirmUndelegate, cancelUndelegate, claimAllRewards } =
     useDelegation();

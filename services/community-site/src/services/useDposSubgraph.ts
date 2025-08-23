@@ -19,7 +19,7 @@ export default () => {
           validator
           timestamp
       }
-  }`;
+}`;
       const request = await post(basePath, { query });
       const delegations = request.response.data.delegations;
       return delegations;
@@ -39,7 +39,7 @@ export default () => {
               validator
               timestamp
             }
-        }`;
+}`;
       const request = await post(basePath, { query });
       const changes = request?.response?.data?.commissionChanges;
       return changes;
