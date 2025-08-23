@@ -256,7 +256,7 @@ const Delegation = ({ location }: { location: Location }) => {
     })();
   }, [showMyValidators, ownValidators, allValidatorsWithStats]);
 
-  const isNotLoggedOrKycEd = !user || user.kyc !== 'APPROVED'; // && user.confirmed
+  const isNotLoggedIn = !user;
 
   const isOnWrongChain = chainId !== mainnetChainId;
 
@@ -379,11 +379,11 @@ const Delegation = ({ location }: { location: Location }) => {
             />
           </div>
         )}
-        {isNotLoggedOrKycEd && (
+        {isNotLoggedIn && (
           <div className="notification">
             <Notification
               title="Notice:"
-              text="You need to be logged into your Taraxa account and pass KYC in order to delegate / un-delegate."
+              text="You need to be logged into your Taraxa account in order to delegate / un-delegate."
               variant="danger"
             />
           </div>
@@ -633,7 +633,7 @@ const Delegation = ({ location }: { location: Location }) => {
                           )?.rewards || BigNumber.from('0')
                         }
                         currentBlockNumber={currentBlock}
-                        actionsDisabled={status !== 'connected' || !account || isNotLoggedOrKycEd}
+                        actionsDisabled={status !== 'connected' || !account || isNotLoggedIn}
                         ownDelegation={delegations
                           .map((d) => d.address.toLowerCase())
                           .includes(validator.address.toLowerCase())}
@@ -661,7 +661,7 @@ const Delegation = ({ location }: { location: Location }) => {
                           key={validator.address}
                           validator={validator}
                           currentBlockNumber={currentBlock}
-                          actionsDisabled={status !== 'connected' || !account || isNotLoggedOrKycEd}
+                          actionsDisabled={status !== 'connected' || !account || isNotLoggedIn}
                           stakingRewards={
                             delegations.find(
                               (d) => d.address.toLowerCase() === validator.address.toLowerCase(),

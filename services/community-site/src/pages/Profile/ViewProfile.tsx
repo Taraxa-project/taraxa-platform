@@ -16,9 +16,6 @@ import { useDelegationApi, useClaimApi } from '../../services/useApi';
 import BountyIcon from '../../assets/icons/bounties';
 import TaraxaIcon from '../../assets/icons/taraxaIcon';
 import InfoIcon from '../../assets/icons/info';
-import KYCIcon from '../../assets/icons/kyc';
-import SuccessIcon from '../../assets/icons/success';
-import ErrorIcon from '../../assets/icons/error';
 
 import { formatTime } from '../../utils/time';
 
@@ -28,67 +25,12 @@ import Title from '../../components/Title/Title';
 import useCMetamask from '../../services/useCMetamask';
 import { formatEth, weiToEth } from '../../utils/eth';
 
-interface ViewProfileDetailsKYCProps {
-  openKYCModal: () => void;
-}
-
-function ViewProfileDetailsKYC({ openKYCModal }: ViewProfileDetailsKYCProps) {
-  const auth = useAuth();
-  const { kyc } = auth.user!;
-
-  const empty = [null, '', '-', 'NOT_STARTED'];
-  const hasKYC = ![...empty, 'VERIFYING'].includes(kyc);
-  const kycStatus = ![...empty].includes(kyc) ? kyc : 'NOT_STARTED';
-
-  const status: { [string: string]: string } = {
-    NOT_STARTED: 'Not sumbitted',
-    VERIFYING: 'Verifying...',
-    APPROVED: 'Approved',
-    DENIED: 'Denied',
-  };
-
-  let kycButton;
-  let kycIcon;
-
-  if (!hasKYC) {
-    kycButton = (
-      <Button
-        variant="contained"
-        color="secondary"
-        label="Verify"
-        fullWidth
-        onClick={() => openKYCModal()}
-      />
-    );
-  }
-
-  if (kycStatus === 'APPROVED') {
-    kycIcon = <SuccessIcon />;
-  }
-
-  if (kycStatus === 'DENIED') {
-    kycIcon = <ErrorIcon />;
-  }
-
-  return (
-    <ProfileBasicCard
-      title="KYC"
-      description={status[kycStatus]}
-      Icon={KYCIcon}
-      buttonOptions={kycButton}
-    >
-      {kycIcon}
-    </ProfileBasicCard>
-  );
-}
-
 interface ViewProfileDetailsProps {
   points: number;
   openEditProfile: () => void;
-  openKYCModal: () => void;
 }
 
-function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfileDetailsProps) {
+function ViewProfileDetails({ points, openEditProfile }: ViewProfileDetailsProps) {
   const auth = useAuth();
   const { account } = useCMetamask();
   const history = useHistory();
@@ -197,7 +139,6 @@ function ViewProfileDetails({ points, openEditProfile, openKYCModal }: ViewProfi
         Icon={TaraxaIcon}
         buttonOptions={buttons}
       />
-      <ViewProfileDetailsKYC openKYCModal={openKYCModal} />
       <ProfileBasicCard
         title="My Rewards"
         value={formatEth(calculatedPoints)}
@@ -332,18 +273,13 @@ function ViewProfileBounties({ approved, rejected, review }: ViewProfileBounties
 
 interface ViewProfileProps {
   openEditProfile: () => void;
-  openKYCModal: () => void;
 }
 
-const ViewProfile = ({ openEditProfile, openKYCModal }: ViewProfileProps) => {
+const ViewProfile = ({ openEditProfile }: ViewProfileProps) => {
   const { points, approved, rejected, review } = useSubmissions();
   return (
     <>
-      <ViewProfileDetails
-        points={points}
-        openEditProfile={openEditProfile}
-        openKYCModal={openKYCModal}
-      />
+      <ViewProfileDetails points={points} openEditProfile={openEditProfile} />
       <ViewProfileBounties approved={approved} rejected={rejected} review={review} />
     </>
   );
