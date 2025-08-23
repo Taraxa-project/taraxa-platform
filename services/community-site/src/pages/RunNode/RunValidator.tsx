@@ -22,7 +22,7 @@ import useCMetamask from '../../services/useCMetamask';
 import useMainnet from '../../services/useMainnet';
 import useChain from '../../services/useChain';
 import { useDelegationApi } from '../../services/useApi';
-import useValidators from '../../services/useValidators';
+import useTaraxaApi from '../../services/useTaraxaApi';
 
 import NodeIcon from '../../assets/icons/node';
 import InfoIcon from '../../assets/icons/info';
@@ -52,7 +52,7 @@ const RunValidator = () => {
   const { status, account } = useCMetamask();
   const { chainId: mainnetChainId } = useMainnet();
 
-  const { getValidatorsFor } = useValidators();
+  const { getValidatorsFor } = useTaraxaApi();
   const { allValidatorsWithStats } = useAllValidators();
   const { updateTestnetValidatorsStats, updateTestnetValidatorsRank } = useExplorerStats();
   const delegationApi = useDelegationApi();

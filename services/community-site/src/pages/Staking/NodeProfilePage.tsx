@@ -25,7 +25,7 @@ import useDelegation from '../../services/useDelegation';
 import useDposSubgraph from '../../services/useDposSubgraph';
 import useCMetamask from '../../services/useCMetamask';
 import useChain from '../../services/useChain';
-import useValidators from '../../services/useValidators';
+import useTaraxaApi from '../../services/useTaraxaApi';
 import './node-profile-page.scss';
 import Modals from './Modal/Modals';
 import NodeIcon from '../../assets/icons/node';
@@ -93,7 +93,7 @@ const TABLE_ROWS_PER_PAGE = 20;
 const NodeProfilePage = () => {
   const { provider } = useChain();
   const { status, account } = useCMetamask();
-  const { getValidator } = useValidators();
+  const { getValidator } = useTaraxaApi();
   const { getUndelegations } = useDelegation();
   const { getValidatorDelegationsPaginate, getValidatorCommissionChangesPaginate } =
     useDposSubgraph();
