@@ -21,12 +21,15 @@ const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: De
   const { delegate } = useDelegation();
   const { asyncCallback } = useWalletPopup();
 
-  let maximumDelegatable = '0';
+  // Store the actual BigNumber maximum to avoid floating-point precision issues
+  let maximumDelegatableWei: ethers.BigNumber;
   if (validator.availableForDelegation.gt(balance)) {
-    maximumDelegatable = weiToEth(balance);
+    maximumDelegatableWei = balance;
   } else {
-    maximumDelegatable = weiToEth(validator.availableForDelegation);
+    maximumDelegatableWei = validator.availableForDelegation;
   }
+
+  const maximumDelegatable = weiToEth(maximumDelegatableWei);
 
   const [delegationTotal, setDelegationTotal] = useState<string>(maximumDelegatable.toString());
   const [error, setError] = useState('');
@@ -63,10 +66,13 @@ const Delegate = ({ balance, validator, ownDelegation, onSuccess, onFinish }: De
       return;
     }
 
-    const delegateValue = ethers.utils.parseUnits(
-      delegationNumber.toString().replace(',', '.'),
-      18,
-    );
+    // Use exact BigNumber value when delegating max to avoid floating-point precision issues
+    let delegateValue: ethers.BigNumber;
+    if (delegationTotal === maximumDelegatable) {
+      delegateValue = maximumDelegatableWei;
+    } else {
+      delegateValue = ethers.utils.parseUnits(delegationNumber.toString().replace(',', '.'), 18);
+    }
 
     setError('');
 

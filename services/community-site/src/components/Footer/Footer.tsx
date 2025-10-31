@@ -13,7 +13,7 @@ const Footer = () => {
         {
           label: 'Send',
           Icon: (
-            <a href="https://www.taraxa.io/tg" target="_blank" rel="noreferrer">
+            <a href="https://www.taraxa.io/tg" target="_blank" rel="noreferrer" aria-label="Send">
               <SendIcon />
             </a>
           ),
@@ -21,7 +21,12 @@ const Footer = () => {
         {
           label: 'Discord',
           Icon: (
-            <a href="https://www.taraxa.io/discord" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.taraxa.io/discord"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Discord"
+            >
               <DiscordIcon />
             </a>
           ),
@@ -29,7 +34,12 @@ const Footer = () => {
         {
           label: 'Twitter',
           Icon: (
-            <a href="https://www.taraxa.io/twitter" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.taraxa.io/twitter"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Twitter"
+            >
               <TwitterIcon />
             </a>
           ),
