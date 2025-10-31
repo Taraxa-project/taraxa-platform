@@ -23,6 +23,9 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
 
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [totalDelegation, setTotalDelegation] = useState('0');
+  const [totalDelegationWei, setTotalDelegationWei] = useState<ethers.BigNumber>(
+    ethers.BigNumber.from(0),
+  );
   const [undelegationTotal, setUnDelegationTotal] = useState('0');
   const [error, setError] = useState('');
 
@@ -39,8 +42,10 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
       (d: Delegation) => d.address.toLowerCase() === validator.address.toLowerCase(),
     );
     if (delegationIndex !== -1) {
-      setTotalDelegation(weiToEth(delegations[delegationIndex].stake));
-      setUnDelegationTotal(weiToEth(delegations[delegationIndex].stake));
+      const stakeWei = delegations[delegationIndex].stake;
+      setTotalDelegationWei(stakeWei);
+      setTotalDelegation(weiToEth(stakeWei));
+      setUnDelegationTotal(weiToEth(stakeWei));
     }
   }, [delegations]);
 
@@ -70,7 +75,13 @@ const Undelegate = ({ validator, onSuccess, onFinish }: UndelegateProps) => {
 
     setError('');
 
-    const undelegateValue = ethers.utils.parseUnits(undelegationTotal.replace(',', '.'), 18);
+    // Use exact BigNumber value when undelegating max to avoid floating-point precision issues
+    let undelegateValue: ethers.BigNumber;
+    if (undelegationTotal === totalDelegation) {
+      undelegateValue = totalDelegationWei;
+    } else {
+      undelegateValue = ethers.utils.parseUnits(undelegationTotal.replace(',', '.'), 18);
+    }
 
     asyncCallback(async () => {
       onFinish();
