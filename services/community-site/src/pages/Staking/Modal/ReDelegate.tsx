@@ -23,8 +23,10 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
   const { asyncCallback } = useWalletPopup();
   const { validatorFrom, validatorTo } = useRedelegation();
 
-  let maximumReDelegatable = '0';
-  maximumReDelegatable = weiToEth(reDelegatableBalance);
+  // Store the actual BigNumber maximum to avoid floating-point precision issues
+  const maximumReDelegatableWei = reDelegatableBalance;
+  const maximumReDelegatable = weiToEth(reDelegatableBalance);
+
   const [reDelegationTotal, setReDelegationTotal] = useState<string>(
     maximumReDelegatable.toString(),
   );
@@ -63,10 +65,13 @@ const ReDelegate = ({ reDelegatableBalance, onSuccess, onFinish }: ReDelegatePro
       return;
     }
 
-    const reDelegateValue = ethers.utils.parseUnits(
-      reDelegationTotal.toString().replace(',', '.'),
-      18,
-    );
+    // Use exact BigNumber value when re-delegating max to avoid floating-point precision issues
+    let reDelegateValue: ethers.BigNumber;
+    if (reDelegationTotal === maximumReDelegatable) {
+      reDelegateValue = maximumReDelegatableWei;
+    } else {
+      reDelegateValue = ethers.utils.parseUnits(reDelegationTotal.toString().replace(',', '.'), 18);
+    }
 
     setError('');
 
