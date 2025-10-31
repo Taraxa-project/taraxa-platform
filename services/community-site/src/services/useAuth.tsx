@@ -76,14 +76,24 @@ function useProvideAuth() {
     password: string,
     token: string,
   ) => {
-    return await api.post('/auth/local/register', {
+    const result = await api.post('/auth/local/register', {
       username,
       password,
       eth_wallet: ethWallet,
       email,
       token,
-      confirmed: false,
     });
+
+    // If email confirmation is disabled, backend returns JWT - auto-login the user
+    if (result.success && result.response.jwt) {
+      localStorage.setItem('auth', result.response.jwt);
+      if (result.response.user) {
+        localStorage.setItem('user', JSON.stringify(result.response.user));
+        setUser(result.response.user);
+      }
+    }
+
+    return result;
   };
   const signout = () => {
     localStorage.removeItem('auth');

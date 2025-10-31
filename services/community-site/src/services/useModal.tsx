@@ -77,7 +77,14 @@ function useProvideModal() {
       modal = (
         <SignUp
           onSuccess={() => {
-            setContent!('sign-up-success');
+            // Check if user was auto-logged in (JWT present in localStorage)
+            const hasAuth = localStorage.getItem('auth');
+            if (hasAuth) {
+              // User is auto-confirmed and logged in, close modal
+              reset!();
+            } else {
+              setContent!('sign-up-success');
+            }
           }}
         />
       );
