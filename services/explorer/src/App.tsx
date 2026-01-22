@@ -9,14 +9,12 @@ import HoldersPage from './pages/Holders/Holders';
 import TransactionDataContainer from './pages/TransactionData/TransactionData';
 import AddressInfoPage from './pages/AddressInfo/AddressInfo';
 import DAGDataContainer from './pages/BlockData/DAGDataContainer';
-import FaucetPage from './pages/Faucet/Faucet';
 import LoadingWidget from './components/LoadingWidget/LoadingWidget';
 import HomePage from './pages/Home/Home';
 import { DagPage } from './pages/Dag/Dag';
 import PBFTDataContainer from './pages/PBFTData/PBFTDataContainer';
 import { NodeStateProvider, useExplorerNetwork } from './hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { Network } from './utils';
 
 declare global {
   interface Window {
@@ -25,7 +23,6 @@ declare global {
 }
 
 const Root = (): JSX.Element => {
-  const { currentNetwork } = useExplorerNetwork();
   return (
     <>
       <Header />
@@ -43,9 +40,6 @@ const Root = (): JSX.Element => {
             <Route path='/dag' element={<DagPage />} />
             <Route path='/tx/:txHash' element={<TransactionDataContainer />} />
             <Route path='/address/:account' element={<AddressInfoPage />} />
-            {currentNetwork !== Network.MAINNET && (
-              <Route path='/faucet' element={<FaucetPage />} />
-            )}
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
           <Footer />

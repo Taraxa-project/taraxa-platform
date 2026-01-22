@@ -5,7 +5,6 @@ import {
   getDomainName,
   recreateGraphQLConnection,
   recreateAPIConnection,
-  recreateFaucetConnection,
   networkRedirect,
   recreateRPCConnection,
 } from '../utils';
@@ -14,7 +13,6 @@ import {
   OVERRIDE_RPC_PROVIDER,
   OVERRIDE_GRAPHQL,
   OVERRIDE_API,
-  OVERRIDE_FAUCET,
   IS_PRNET,
 } from '../api';
 
@@ -24,7 +22,6 @@ type Context = {
   graphQLClient: Client;
   backendEndpoint: string;
   rpcEndpoint: string;
-  faucetEndpoint: string;
   setNetwork: (network: string) => void;
 };
 
@@ -40,7 +37,6 @@ const initialState: Context = {
   graphQLClient: createClient(recreateGraphQLConnection(Network.MAINNET)),
   backendEndpoint: recreateAPIConnection(Network.MAINNET),
   rpcEndpoint: recreateRPCConnection(Network.MAINNET),
-  faucetEndpoint: recreateFaucetConnection(Network.MAINNET),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setNetwork: (network: string) => {}, // eslint-disable-line @typescript-eslint/no-empty-function
 };
@@ -72,11 +68,6 @@ const useNetworkSelection = () => {
   const [rpcEndpoint, setRpcEndpoint] = useState<string>(
     IS_PRNET ? OVERRIDE_RPC_PROVIDER : recreateRPCConnection(currentNetwork)
   );
-  const [faucetEndpoint, setFaucetEndpoint] = useState<string>(
-    IS_PRNET && OVERRIDE_FAUCET !== ''
-      ? OVERRIDE_FAUCET
-      : recreateFaucetConnection(currentNetwork)
-  );
 
   const setNetwork = (network: string) => {
     setCurrentNetwork(network);
@@ -89,7 +80,6 @@ const useNetworkSelection = () => {
     setGraphQLClient(createClient(recreateGraphQLConnection(currentNetwork)));
     setBackendEndpoint(recreateAPIConnection(currentNetwork));
     setRpcEndpoint(recreateRPCConnection(currentNetwork));
-    setFaucetEndpoint(recreateFaucetConnection(currentNetwork));
     networkRedirect(currentNetwork);
   }, [currentNetwork]);
 
@@ -100,7 +90,6 @@ const useNetworkSelection = () => {
     graphQLClient,
     backendEndpoint,
     rpcEndpoint,
-    faucetEndpoint,
   };
 };
 

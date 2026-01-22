@@ -22,7 +22,6 @@ The current version of the Explorer is an [`EIP-3091`](https://eips.ethereum.org
 - `tx` to obtain cumulative Transaction data.
 - `tx/[hash]` to obtain Transaction data based on its hash.
 - `address/[account]` to obtain address specific data based on its hash.
-- `faucet` to access the faucet.
 - `node` to access the nodes page.
 - **Note**: Any other route reroutes to root.
 

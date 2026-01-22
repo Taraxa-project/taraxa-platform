@@ -37,7 +37,6 @@
     "zlib": false
   },
   "dependencies": {
-    "@hookform/resolvers": "^2.9.7",
     "@mui/styles": "^5.9.3",
     "@taraxa_project/explorer-shared": "^0.0.1",
     "@taraxa_project/taraxa-ui": "^0.0.1",
@@ -62,7 +61,6 @@
     "react-dom": "^18.1.0",
     "react-error-overlay": "6.0.9",
     "react-google-recaptcha-v3": "^1.9.5",
-    "react-hook-form": "^7.34.2",
     "react-markdown": "^7.1.0",
     "react-query": "^3.39.2",
     "react-responsive": "^9.0.0-beta.4",
@@ -73,8 +71,7 @@
     "styled-components": "^5.3.5",
     "typescript": "^4.1.2",
     "urql": "^3.0.3",
-    "web-vitals": "^1.0.1",
-    "yup": "^0.32.11"
+    "web-vitals": "^1.0.1"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
