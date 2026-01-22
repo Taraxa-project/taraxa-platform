@@ -1,7 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
 import { BigNumber, ethers } from 'ethers';
-import { useHistory } from 'react-router-dom';
 import { MuiTooltip, Button, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
 import NodeCommissionChangeIcon from '../../../assets/icons/nodeCommissionChange';
 import { stripEth, weiToEth } from '../../../utils/eth';
@@ -34,7 +33,6 @@ const ValidatorRow = ({
   currentBlockNumber,
   undelegateDisabled = false,
 }: ValidatorRowProps) => {
-  const history = useHistory();
   const { validatorFrom, setValidatorFrom, setValidatorTo } = useRedelegation();
 
   return (
@@ -47,10 +45,7 @@ const ValidatorRow = ({
         </MuiTooltip>
       </TableCell>
       <TableCell className="nameCell">
-        <div
-          className="flexCell nodeLink"
-          onClick={() => history.push(`/staking/${validator.address}`)}
-        >
+        <div className="flexCell">
           <Nickname showIcon address={validator.address} description={validator.description} />
         </div>
       </TableCell>

@@ -42,8 +42,6 @@ spec:
               value: {{ .Values.frontend.apiClaimHost | quote }}
             - name: API_TARAXA_HOST
               value: {{ .Values.frontend.apiTaraxaHost | quote }}
-            - name: DPOS_SUBGRAPH_HOST
-              value: {{ .Values.frontend.dposSubgprahHost | quote }}
             - name: TARA_ADDRESS
               value: {{ .Values.frontend.taraAddress | quote }}
             - name: CLAIM_ADDRESS
