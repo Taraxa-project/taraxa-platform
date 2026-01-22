@@ -6,7 +6,6 @@ frontend:
 
   apiHost: "http://api.default.community.taraxa.io"
   apiTaraxaHost: "https://api.taraxa.io"
-  dposSubgprahHost: "http://localhost:8000/subgraphs/name/taraxa_project/dpos"
   taraAddress: "0x0000000000000000000000000000000000000000"
   claimAddress: "0x0000000000000000000000000000000000000000"
   stakingAddress: "0x0000000000000000000000000000000000000000"

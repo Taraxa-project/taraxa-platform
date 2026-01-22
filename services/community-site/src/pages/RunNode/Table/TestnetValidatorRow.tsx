@@ -28,7 +28,7 @@ const TestnetValidatorRow = ({
         </MuiTooltip>
       </TableCell>
       <TableCell className="nameCell">
-        <div className="flexCell nodeLink">
+        <div className="flexCell">
           <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>

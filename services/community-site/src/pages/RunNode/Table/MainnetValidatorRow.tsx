@@ -1,7 +1,6 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import { Button, MuiTooltip, TableCell, TableRow } from '@taraxa_project/taraxa-ui';
-import { useHistory } from 'react-router-dom';
 import { stripEth, weiToEth } from '../../../utils/eth';
 import { Validator, getValidatorStatusTooltip } from '../../../interfaces/Validator';
 import Nickname from '../../../components/Nickname/Nickname';
@@ -30,7 +29,6 @@ const MainnetValidatorRow = ({
     rank,
     isFullyDelegated,
   } = validator;
-  const history = useHistory();
 
   let className = 'dot';
   className += ` ${status}`;
@@ -45,7 +43,7 @@ const MainnetValidatorRow = ({
         </MuiTooltip>
       </TableCell>
       <TableCell className="nameCell">
-        <div className="flexCell nodeLink" onClick={() => history.push(`/staking/${address}`)}>
+        <div className="flexCell">
           <Nickname showIcon address={address} description={description} />
         </div>
       </TableCell>
