@@ -6,8 +6,6 @@ replicaCount: 1
 
 app:
   environment: default
-  testnetFaucetHost: "http://faucet/"
-  devnetFaucetHost: "http://faucet/"
   mainnetApiHost: "http://api/"
   testnetApiHost: "http://api/"
   devnetApiHost: "http://api/"
@@ -15,7 +13,6 @@ app:
   overrideRpcProvider: ""
   overrideGraphQl: ""
   overrideApi: ""
-  overrideFaucet: ""
 
 image:
   repository: gcr.io/jovial-meridian-249123/taraxa/explorer-frontend-develop

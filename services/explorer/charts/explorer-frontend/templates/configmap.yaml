@@ -6,8 +6,6 @@ metadata:
     {{- include "explorer-frontend.labels" . | nindent 4 }}
 data:
   NODE_ENV: {{ .Values.app.environment | quote }}
-  TESTNET_FAUCET_HOST: {{ .Values.app.testnetFaucetHost | quote }}
-  DEVNET_FAUCET_HOST: {{ .Values.app.devnetFaucetHost | quote }}
   MAINNET_API_HOST: {{ .Values.app.mainnetApiHost | quote }}
   TESTNET_API_HOST: {{ .Values.app.testnetApiHost | quote }}
   DEVNET_API_HOST: {{ .Values.app.devnetApiHost | quote }}
@@ -15,4 +13,3 @@ data:
   OVERRIDE_RPC_PROVIDER: {{ .Values.app.overrideRpcProvider | quote }}
   OVERRIDE_GRAPHQL: {{ .Values.app.overrideGraphQl | quote }}
   OVERRIDE_API: {{ .Values.app.overrideApi | quote }}
-  OVERRIDE_FAUCET: {{ .Values.app.overrideFaucet | quote }}
